@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valhalla | AI Research Platform</title>
+    <meta name="description" content="AI Incubator & Algorithm Research Platform. Autonomous discovery, adaptive systems, intelligent computing.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-code: #0d1117;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --border: #334155;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        
+        /* Nav */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100; padding: 16px 24px;
+        }
+        nav .container {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-brand {
+            font-weight: 700; font-size: 1.25rem;
+            color: var(--text); text-decoration: none;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a {
+            color: var(--text-muted); text-decoration: none;
+            font-size: 0.9rem; transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+        .lang-selector { display: flex; gap: 4px; }
+        .lang-btn {
+            padding: 6px 12px; border: none; background: transparent;
+            color: var(--text-muted); cursor: pointer; border-radius: 6px;
+            font-size: 0.8rem; transition: all 0.2s;
+        }
+        .lang-btn:hover { color: var(--text); background: var(--border); }
+        .lang-btn.active { background: var(--primary); color: white; }
+        
+        /* Hero */
+        .hero {
+            min-height: 100vh; display: flex; align-items: center;
+            padding: 120px 24px 80px; position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+            top: -300px; right: -200px; pointer-events: none;
+        }
+        .hero::after {
+            content: ''; position: absolute; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+            bottom: -200px; left: -100px; pointer-events: none;
+        }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; background: var(--primary)/10;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 100px; font-size: 0.85rem; color: var(--primary);
+            margin-bottom: 24px;
+        }
+        .hero-badge::before {
+            content: ''; width: 8px; height: 8px;
+            background: var(--primary); border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        h1 {
+            font-size: clamp(3rem, 8vw, 5rem); font-weight: 700;
+            line-height: 1.1; margin-bottom: 16px;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-subtitle {
+            font-size: 1.5rem; color: var(--text-muted); margin-bottom: 16px;
+        }
+        .hero-desc {
+            font-size: 1.1rem; color: var(--text-dim);
+            max-width: 600px; margin-bottom: 32px;
+        }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px; border-radius: 12px; font-weight: 600;
+            text-decoration: none; transition: all 0.2s; font-size: 0.95rem;
+        }
+        .btn-primary {
+            background: var(--primary); color: white;
+        }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-secondary {
+            background: var(--bg-card); color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: var(--border); }
+        .hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+        
+        /* Stats */
+        .stats {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 24px; margin-top: 60px; padding-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+        .stat { text-align: center; }
+        .stat-value {
+            font-size: 1.75rem; font-weight: 700; color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+        
+        /* Section */
+        section { padding: 100px 0; }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; }
+        .section-desc { color: var(--text-muted); max-width: 600px; margin: 0 auto; }
+        
+        /* Projects */
+        .projects-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+        }
+        .project-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px; transition: all 0.3s;
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .project-header {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+        }
+        .project-icon { font-size: 32px; }
+        .project-title { font-size: 1.25rem; font-weight: 600; flex: 1; }
+        .project-status {
+            font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; font-weight: 500;
+        }
+        .status-active { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .status-research { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+        .status-experimental { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+        .project-desc {
+            color: var(--text-muted); font-size: 0.9rem;
+            margin-bottom: 20px; min-height: 60px;
+        }
+        .project-metrics { display: flex; gap: 12px; flex-wrap: wrap; }
+        .metric {
+            font-size: 0.75rem; padding: 6px 12px;
+            background: var(--bg-dark); border-radius: 8px; color: var(--text-dim);
+        }
+        .metric-value {
+            color: var(--secondary); font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Architecture */
+        .arch-section { background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-card) 100%); }
+        .arch-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+        }
+        @media (max-width: 900px) { .arch-grid { grid-template-columns: 1fr; } }
+        .arch-diagram {
+            background: var(--bg-code); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; color: var(--text-muted); overflow-x: auto;
+        }
+        .arch-content h3 { font-size: 1.5rem; margin-bottom: 16px; }
+        .arch-content p { color: var(--text-muted); margin-bottom: 16px; }
+        .arch-list { list-style: none; }
+        .arch-list li {
+            padding: 12px 0; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .arch-list li:last-child { border-bottom: none; }
+        .arch-icon { font-size: 1.25rem; }
+        
+        /* Footer */
+        footer {
+            padding: 60px 0; text-align: center;
+            background: var(--bg-card); border-top: 1px solid var(--border);
+        }
+        .footer-links {
+            display: flex; justify-content: center; gap: 32px;
+            margin-bottom: 24px; flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--text-muted); text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--primary); }
+        .copyright { color: var(--text-dim); font-size: 0.9rem; }
+        .copyright a { color: var(--primary); text-decoration: none; }
+        
+        /* Language */
+        [data-lang] { display: none; }
+        [data-lang].active { display: block; }
+        .hero [data-lang].active,
+        .stats [data-lang].active,
+        .project-desc[data-lang].active { display: block; }
+        span[data-lang].active { display: inline; }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .nav-links { display: none; }
+            .projects-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <a href="#" class="nav-brand">
+                <span>🏔️</span>
+                <span>Valhalla</span>
+            </a>
+            <div class="nav-links">
+                <a href="#projects">Projects</a>
+                <a href="#architecture">Architecture</a>
+                <a href="https://github.com/Rogue-Intelligence-INC/Valhalla" target="_blank">GitHub</a>
+                <div class="lang-selector">
+                    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+                    <button class="lang-btn" onclick="setLang('zh')">中文</button>
+                    <button class="lang-btn" onclick="setLang('ja')">日本語</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span data-lang="en" class="active">AI Research Platform</span>
+                    <span data-lang="zh">AI 研究平台</span>
+                    <span data-lang="ja">AI研究プラットフォーム</span>
+                </div>
+                
+                <h1><span class="gradient-text">Valhalla</span></h1>
+                
+                <p class="hero-subtitle">
+                    <span data-lang="en" class="active">AI Incubator & Algorithm Research</span>
+                    <span data-lang="zh">AI 孵化器与算法研究</span>
+                    <span data-lang="ja">AIインキュベーター＆アルゴリズム研究</span>
+                </p>
+                
+                <p class="hero-desc">
+                    <span data-lang="en" class="active">
+                        A unified research ecosystem spanning programming languages, operating systems, 
+                        cryptography, and compression. Adaptive intelligence from code to hardware.
+                    </span>
+                    <span data-lang="zh">
+                        统一的研究生态系统，涵盖编程语言、操作系统、密码学和压缩。
+                        从代码到硬件的自适应智能。
+                    </span>
+                    <span data-lang="ja">
+                        プログラミング言語、OS、暗号、圧縮を網羅する統合研究エコシステム。
+                        コードからハードウェアまでの適応型インテリジェンス。
+                    </span>
+                </p>
+                
+                <div class="hero-buttons">
+                    <a href="https://github.com/Rogue-Intelligence-INC/Valhalla" class="btn btn-primary" target="_blank">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        <span data-lang="en" class="active">View on GitHub</span>
+                        <span data-lang="zh">查看源码</span>
+                        <span data-lang="ja">GitHubで見る</span>
+                    </a>
+                    <a href="#projects" class="btn btn-secondary">
+                        <span data-lang="en" class="active">Explore Projects</span>
+                        <span data-lang="zh">探索项目</span>
+                        <span data-lang="ja">プロジェクトを探る</span>
+                    </a>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">
+                            <span data-lang="en" class="active">Core Projects</span>
+                            <span data-lang="zh">核心项目</span>
+                            <span data-lang="ja">コアプロジェクト</span>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">19x</div>
+                        <div class="stat-label">
+                            <span data-lang="en" class="active">vs Python</span>
+                            <span data-lang="zh">比 Python</span>
+                            <span data-lang="ja">対Python</span>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1.4 GB/s</div>
+                        <div class="stat-label">
+                            <span data-lang="en" class="active">Encryption</span>
+                            <span data-lang="zh">加密速度</span>
+                            <span data-lang="ja">暗号化速度</span>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">99.97%</div>
+                        <div class="stat-label">
+                            <span data-lang="en" class="active">Precision</span>
+                            <span data-lang="zh">精度</span>
+                            <span data-lang="ja">精度</span>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2.1μs</div>
+                        <div class="stat-label">
+                            <span data-lang="en" class="active">Latency</span>
+                            <span data-lang="zh">延迟</span>
+                            <span data-lang="ja">レイテンシ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects -->
+    <section id="projects">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span data-lang="en" class="active">Projects</span>
+                    <span data-lang="zh">项目</span>
+                    <span data-lang="ja">プロジェクト</span>
+                </h2>
+                <p class="section-desc">
+                    <span data-lang="en" class="active">
+                        From autonomous mathematical discovery to intelligent operating systems
+                    </span>
+                    <span data-lang="zh">从自主数学发现到智能操作系统</span>
+                    <span data-lang="ja">自律的な数学的発見からインテリジェントOSまで</span>
+                </p>
+            </div>
+            
+            <div class="projects-grid">
+                <!-- S-wind -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <span class="project-icon">🔬</span>
+                        <span class="project-title">S-wind</span>
+                        <span class="project-status status-active">Active</span>
+                    </div>
+                    <p class="project-desc" data-lang="en" class="active">
+                        Autonomous pattern discovery from numerical data. Finds mathematical formulas 
+                        with exact rational arithmetic. Generates LaTeX derivations automatically.
+                    </p>
+                    <p class="project-desc" data-lang="zh">
+                        从数值数据自主发现模式。使用精确有理数运算找到数学公式。自动生成 LaTeX 推导。
+                    </p>
+                    <p class="project-desc" data-lang="ja">
+                        数値データからの自律的パターン発見。正確な有理数演算で数学公式を発見。LaTeX導出を自動生成。
+                    </p>
+                    <div class="project-metrics">
+                        <span class="metric"><span class="metric-value">10,000+</span> ops/sec</span>
+                        <span class="metric"><span class="metric-value">99.97%</span> precision</span>
+                        <span class="metric"><span class="metric-value">2.1μs</span> latency</span>
+                    </div>
+                </div>
+                
+                <!-- Wave -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <span class="project-icon">🌊</span>
+                        <span class="project-title">Wave</span>
+                        <span class="project-status status-active">Active</span>
+                    </div>
+                    <p class="project-desc" data-lang="en" class="active">
+                        Self-hosting programming language with runtime optimization. Compiles directly 
+                        to native machine code with zero external dependencies.
+                    </p>
+                    <p class="project-desc" data-lang="zh">
+                        自举编程语言，支持运行时优化。直接编译为本机代码，零外部依赖。
+                    </p>
+                    <p class="project-desc" data-lang="ja">
+                        ランタイム最適化を持つセルフホスティング言語。外部依存なしでネイティブコードに直接コンパイル。
+                    </p>
+                    <div class="project-metrics">
+                        <span class="metric"><span class="metric-value">19x</span> vs Python</span>
+                        <span class="metric"><span class="metric-value">&lt;3ms</span> compile</span>
+                        <span class="metric"><span class="metric-value">~35KB</span> compiler</span>
+                    </div>
+                </div>
+                
+                <!-- Val-OS -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <span class="project-icon">🖥️</span>
+                        <span class="project-title">Val-OS</span>
+                        <span class="project-status status-research">Research</span>
+                    </div>
+                    <p class="project-desc" data-lang="en" class="active">
+                        Self-learning operating system with adaptive resource management. 
+                        Hybrid CLI/GUI, intelligent file organization, zero hardcoded values.
+                    </p>
+                    <p class="project-desc" data-lang="zh">
+                        自学习操作系统，具有自适应资源管理。混合 CLI/GUI，智能文件组织，零硬编码。
+                    </p>
+                    <p class="project-desc" data-lang="ja">
+                        適応型リソース管理を持つ自己学習OS。ハイブリッドCLI/GUI、インテリジェントなファイル管理。
+                    </p>
+                    <div class="project-metrics">
+                        <span class="metric"><span class="metric-value">4-pool</span> memory</span>
+                        <span class="metric"><span class="metric-value">Hybrid</span> UI</span>
+                        <span class="metric"><span class="metric-value">AI</span> file manager</span>
+                    </div>
+                </div>
+                
+                <!-- Yaksha Cipher -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <span class="project-icon">🔐</span>
+                        <span class="project-title">Yaksha Cipher</span>
+                        <span class="project-status status-active">Active</span>
+                    </div>
+                    <p class="project-desc" data-lang="en" class="active">
+                        GPU-accelerated symmetric encryption with stateful AEAD protocol. 
+                        Near-optimal avalanche effect for strong bit diffusion.
+                    </p>
+                    <p class="project-desc" data-lang="zh">
+                        GPU 加速对称加密，支持有状态 AEAD 协议。接近理想的雪崩效应，强比特扩散。
+                    </p>
+                    <p class="project-desc" data-lang="ja">
+                        ステートフルAEADプロトコルを持つGPU加速対称暗号。ほぼ理想的なアバランシェ効果。
+                    </p>
+                    <div class="project-metrics">
+                        <span class="metric"><span class="metric-value">1.4 GB/s</span> GPU</span>
+                        <span class="metric"><span class="metric-value">~50%</span> avalanche</span>
+                        <span class="metric"><span class="metric-value">AEAD</span> protocol</span>
+                    </div>
+                </div>
+                
+                <!-- Compression -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <span class="project-icon">📦</span>
+                        <span class="project-title">Adaptive Compression</span>
+                        <span class="project-status status-experimental">Experimental</span>
+                    </div>
+                    <p class="project-desc" data-lang="en" class="active">
+                        Intelligent multi-system compression with content-aware routing. 
+                        Excels on high-entropy data where traditional algorithms fail.
+                    </p>
+                    <p class="project-desc" data-lang="zh">
+                        智能多系统压缩，内容感知路由。在传统算法失效的高熵数据上表现出色。
+                    </p>
+                    <p class="project-desc" data-lang="ja">
+                        コンテンツアウェアルーティングによるインテリジェントマルチシステム圧縮。高エントロピーデータに優れる。
+                    </p>
+                    <div class="project-metrics">
+                        <span class="metric"><span class="metric-value">0.4%</span> best ratio</span>
+                        <span class="metric"><span class="metric-value">4</span> systems</span>
+                        <span class="metric"><span class="metric-value">Auto</span> routing</span>
+                    </div>
+                </div>
+                
+                <!-- Valhalla Core -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <span class="project-icon">⚙️</span>
+                        <span class="project-title">Valhalla Core</span>
+                        <span class="project-status status-research">Foundation</span>
+                    </div>
+                    <p class="project-desc" data-lang="en" class="active">
+                        The unified architecture powering all projects. Adaptive resource allocation 
+                        and cross-domain optimization algorithms.
+                    </p>
+                    <p class="project-desc" data-lang="zh">
+                        支撑所有项目的统一架构。自适应资源分配和跨域优化算法。
+                    </p>
+                    <p class="project-desc" data-lang="ja">
+                        全プロジェクトを支える統一アーキテクチャ。適応型リソース配分とクロスドメイン最適化。
+                    </p>
+                    <div class="project-metrics">
+                        <span class="metric"><span class="metric-value">Unified</span> architecture</span>
+                        <span class="metric"><span class="metric-value">Adaptive</span> allocation</span>
+                        <span class="metric"><span class="metric-value">Cross</span> domain</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture" class="arch-section">
+        <div class="container">
+            <div class="arch-grid">
+                <div class="arch-content">
+                    <h3>
+                        <span data-lang="en" class="active">Unified Architecture</span>
+                        <span data-lang="zh">统一架构</span>
+                        <span data-lang="ja">統一アーキテクチャ</span>
+                    </h3>
+                    <p>
+                        <span data-lang="en" class="active">
+                            All Valhalla projects share a common foundation: adaptive algorithms that 
+                            learn and optimize based on runtime behavior and workload characteristics.
+                        </span>
+                        <span data-lang="zh">
+                            所有 Valhalla 项目共享一个共同基础：根据运行时行为和工作负载特征
+                            学习和优化的自适应算法。
+                        </span>
+                        <span data-lang="ja">
+                            全Valhallaプロジェクトは共通基盤を共有：ランタイム動作とワークロード特性に
+                            基づいて学習・最適化する適応型アルゴリズム。
+                        </span>
+                    </p>
+                    <ul class="arch-list">
+                        <li>
+                            <span class="arch-icon">🎯</span>
+                            <span data-lang="en" class="active">Adaptive resource allocation based on workload analysis</span>
+                            <span data-lang="zh">基于工作负载分析的自适应资源分配</span>
+                            <span data-lang="ja">ワークロード分析に基づく適応型リソース配分</span>
+                        </li>
+                        <li>
+                            <span class="arch-icon">🔄</span>
+                            <span data-lang="en" class="active">Runtime optimization with automatic staticization</span>
+                            <span data-lang="zh">带自动静态化的运行时优化</span>
+                            <span data-lang="ja">自動静的化によるランタイム最適化</span>
+                        </li>
+                        <li>
+                            <span class="arch-icon">🧠</span>
+                            <span data-lang="en" class="active">Four-pool memory management for access pattern optimization</span>
+                            <span data-lang="zh">四池内存管理优化访问模式</span>
+                            <span data-lang="ja">アクセスパターン最適化のための4プールメモリ管理</span>
+                        </li>
+                        <li>
+                            <span class="arch-icon">⚡</span>
+                            <span data-lang="en" class="active">Zero hardcoded values — everything is runtime-determined</span>
+                            <span data-lang="zh">零硬编码 — 一切由运行时决定</span>
+                            <span data-lang="ja">ハードコード値ゼロ — 全てランタイム決定</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="arch-diagram">
+<pre>
+┌─────────────────────────────────────┐
+│         Valhalla Core               │
+├─────────────────────────────────────┤
+│                                     │
+│   ┌─────────┐     ┌─────────┐      │
+│   │ S-wind  │     │  Wave   │      │
+│   │ Pattern │     │ Compiler│      │
+│   │ Engine  │     │ Runtime │      │
+│   └────┬────┘     └────┬────┘      │
+│        │               │            │
+│        └───────┬───────┘            │
+│                │                    │
+│        ┌───────┴───────┐            │
+│        │  Adaptive     │            │
+│        │  Scheduler    │            │
+│        └───────┬───────┘            │
+│                │                    │
+│   ┌────────────┼────────────┐      │
+│   │            │            │      │
+│   ▼            ▼            ▼      │
+│ ┌─────┐    ┌─────┐    ┌─────┐     │
+│ │Pool0│    │Pool1│    │Pool2│     │
+│ │Dense│    │Index│    │Queue│     │
+│ └─────┘    └─────┘    └─────┘     │
+│                                     │
+│   ┌─────────┐     ┌─────────┐      │
+│   │ Yaksha  │     │ Val-OS  │      │
+│   │ Cipher  │     │ Kernel  │      │
+│   └─────────┘     └─────────┘      │
+│                                     │
+└─────────────────────────────────────┘
+</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://github.com/Rogue-Intelligence-INC/Valhalla" target="_blank">GitHub</a>
+                <a href="https://github.com/Rogue-Intelligence-INC" target="_blank">Organization</a>
+            </div>
+            <p class="copyright">
+                MIT License © 2026 <a href="https://github.com/Rogue-Intelligence-INC" target="_blank">Rogue Intelligence Inc.</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function setLang(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('[data-lang]').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll(`[data-lang="${lang}"]`).forEach(el => el.classList.add('active'));
+            localStorage.setItem('valhalla-lang', lang);
+        }
+        
+        // Load saved language
+        const saved = localStorage.getItem('valhalla-lang');
+        if (saved) {
+            document.querySelectorAll('[data-lang]').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll(`[data-lang="${saved}"]`).forEach(el => el.classList.add('active'));
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((btn.textContent === 'EN' && saved === 'en') ||
+                    (btn.textContent === '中文' && saved === 'zh') ||
+                    (btn.textContent === '日本語' && saved === 'ja')) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
