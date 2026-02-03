@@ -1,0 +1,91 @@
+# Wave-Static 向量运算测试
+
+out "═══════════════════════════════════════════════════════\n"
+out "  Wave Vector Operations (GPU-Ready)\n"
+out "═══════════════════════════════════════════════════════\n\n"
+
+# ─────────────────────────────────────────────────────────
+# Test 1: 4-dim Dot Product
+# ─────────────────────────────────────────────────────────
+
+out "[1] 4-dim Dot Product\n"
+out "    Rules: entropy(mul) + gravitational(add)\n"
+
+q0 = 1
+q1 = 2
+q2 = 3
+q3 = 4
+
+v0 = 4
+v1 = 3
+v2 = 2
+v3 = 1
+
+# 分步计算 (每步可并行)
+p0 = q0 * v0
+p1 = q1 * v1
+p2 = q2 * v2
+p3 = q3 * v3
+
+# 规约求和
+dot = p0 + p1 + p2 + p3
+
+# 1*4 + 2*3 + 3*2 + 4*1 = 4+6+6+4 = 20
+when dot == 20 { out "    Result: 20 (PASS)\n" }
+
+# ─────────────────────────────────────────────────────────
+# Test 2: Vector Search
+# ─────────────────────────────────────────────────────────
+
+out "\n[2] Vector Search (5 candidates)\n"
+out "    Rules: orbital(loop) + tension(compare)\n"
+
+best = 0
+best_i = 0
+i = 0
+
+loop {
+    when i >= 5 { break }
+    
+    # 模拟分数计算
+    score = i * 10 + 5
+    
+    when score > best {
+        best = score
+        best_i = i
+    }
+    
+    i = i + 1
+}
+
+when best_i == 4 { out "    Best idx: 4 (PASS)\n" }
+
+# ─────────────────────────────────────────────────────────
+# Test 3: Element-wise ops (perfect parallel)
+# ─────────────────────────────────────────────────────────
+
+out "\n[3] Element-wise Add\n"
+out "    Rules: pure entropy (zero sync)\n"
+
+a0 = 10
+a1 = 20
+b0 = 1
+b1 = 2
+
+c0 = a0 + b0
+c1 = a1 + b1
+
+sum = c0 + c1
+when sum == 33 { out "    Sum: 33 (PASS)\n" }
+
+out "\n═══════════════════════════════════════════════════════\n"
+out "  Wave → GPU Natural Mapping:\n"
+out "───────────────────────────────────────────────────────\n"
+out "  orbital      → parallel kernels (loop → N threads)\n"
+out "  entropy      → SIMD ALU (mul/add → vector ops)\n"
+out "  gravitational→ memory coalesce (gather → load)\n"
+out "  tension      → sync barriers (compare → atomic)\n"
+out "  connection   → data transfer (CPU↔GPU)\n"
+out "═══════════════════════════════════════════════════════\n"
+
+syscall.exit(0)

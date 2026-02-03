@@ -1,0 +1,288 @@
+# 🌊 Wave 代码生成 — 静态版
+# 无 Fate 钩子，编译后代码固定
+
+use rules/fate_static
+use platform/kernel
+
+# ═══════════════════════════════════════════════════════════════
+# 寄存器 — 代数编号
+# ═══════════════════════════════════════════════════════════════
+
+reg {
+    a: 0    # 累加器
+    c: 1    # 计数器
+    d: 2    # 数据
+    b: 3    # 基址
+    sp: 4   # 栈指针
+    bp: 5   # 基址指针
+    si: 6   # 源索引
+    di: 7   # 目标索引
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 编译前导/后缀
+# ═══════════════════════════════════════════════════════════════
+
+fn codegen.prologue {
+    platform.emit_header()
+    gen.push(reg.bp)
+    gen.mov_r_r(reg.bp, reg.sp)
+    gen.sub_r_imm8(reg.sp, 0x20)
+}
+
+fn codegen.exit code {
+    gen.mov_r64_imm(reg.a, platform.syscall_base + 60)
+    gen.mov_r64_imm(reg.di, code)
+    gen.syscall()
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 指令生成 — 平台无关
+# ═══════════════════════════════════════════════════════════════
+
+fn gen.push r {
+    emit 0x50 + r
+}
+
+fn gen.pop r {
+    emit 0x58 + r
+}
+
+fn gen.mov_r64_imm r imm {
+    emit 0x48
+    emit 0xb8 + r
+    emit imm
+}
+
+fn gen.mov_r_r dst src {
+    emit 0x48
+    emit 0x89
+    emit 0xc0 + src * 8 + dst
+}
+
+fn gen.sub_r_imm8 r imm8 {
+    emit 0x48
+    emit 0x83
+    emit 0xe8 + r
+    emit imm8
+}
+
+fn gen.syscall {
+    emit 0x0f
+    emit 0x05
+}
+
+fn gen.ret {
+    emit 0xc3
+}
+
+fn gen.jmp offset {
+    emit 0xe9
+    emit offset
+}
+
+fn gen.jz offset {
+    emit 0x0f
+    emit 0x84
+    emit offset
+}
+
+fn gen.jnz offset {
+    emit 0x0f
+    emit 0x85
+    emit offset
+}
+
+fn gen.call offset {
+    emit 0xe8
+    emit offset
+}
+
+fn gen.test r1 r2 {
+    emit 0x48
+    emit 0x85
+    emit 0xc0 + r1 * 8 + r2
+}
+
+fn gen.pause {
+    emit 0xf3
+    emit 0x90
+}
+
+fn gen.rdtsc {
+    emit 0x0f
+    emit 0x31
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 规则映射 — 机器码
+# ═══════════════════════════════════════════════════════════════
+
+fn codegen.prologue {
+    gen.push(reg.bp)
+    gen.mov_r_r(reg.bp, reg.sp)
+    gen.sub_r_imm8(reg.sp, 64)
+}
+
+fn codegen.epilogue {
+    gen.mov_r_r(reg.sp, reg.bp)
+    gen.pop(reg.bp)
+    gen.ret()
+}
+
+fn codegen.write addr len {
+    platform.syscall(1, 1, addr, len)
+}
+
+fn codegen.exit code {
+    platform.syscall(60, code, 0, 0)
+}
+
+fn codegen.infinite_loop {
+    emit 0xe9
+    emit 0xfb
+    emit 0xff
+    emit 0xff
+    emit 0xff
+}
+
+fn codegen.event_loop {
+    gen.pause()
+    emit 0xeb
+    emit 0xfc
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 意图编译
+# ═══════════════════════════════════════════════════════════════
+
+fn compile.out text {
+    addr = data.add_string(text)
+    len = text.length + 1
+    codegen.write(addr, len)
+}
+
+fn compile.emit bytes {
+    emit bytes
+}
+
+fn compile.fn name body {
+    label.add(name)
+    codegen.prologue()
+    compile(body)
+    codegen.epilogue()
+}
+
+fn compile.loop body {
+    start = label.current()
+    compile(body)
+    gen.jmp(start - label.current() - 5)
+}
+
+fn compile.keep {
+    codegen.event_loop()
+}
+
+fn compile.exit code {
+    codegen.exit(code)
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 完整语法编译
+# ═══════════════════════════════════════════════════════════════
+
+fn compile.when cond body {
+    codegen.check_condition(cond)
+    compile(body)
+}
+
+fn compile.otherwise body {
+    compile(body)
+}
+
+fn compile.assign name value {
+    addr = data.add_variable(name)
+    codegen.store(addr, value)
+}
+
+fn compile.call name args {
+    addr = label.get(name)
+    gen.call(addr)
+}
+
+fn compile.pipeline from to {
+    result = from
+    when to.type == "pipeline" {
+        result = compile.pipeline(result, to.from)
+        result = compile.pipeline(result, to.to)
+    }
+    when to.type != "pipeline" {
+        compile.call(to, [result])
+    }
+    -> result
+}
+
+fn compile.limit n {
+    gen.mov_r64_imm(reg.a, n)
+    # 静态版：不调用 fate.set_limit
+}
+
+fn compile.fate_enable {
+    # 静态版：无效操作
+}
+
+fn compile.fate_disable {
+    # 静态版：无效操作
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 数据库编译 — 静态版：无 Fate 自动适配
+# ═══════════════════════════════════════════════════════════════
+
+fn compile.db_create name {
+    db.create_named(name, "static")  # 静态模式
+}
+
+fn compile.db_put c k v {
+    db.put(c, k, v)
+}
+
+fn compile.db_get c k {
+    -> db.get(c, k)
+}
+
+fn compile.db_bench n {
+    db.bench(n)
+}
+
+# ═══════════════════════════════════════════════════════════════
+# 静态版：移除所有 Fate 钩子
+# ═══════════════════════════════════════════════════════════════
+
+# 静态版：不检查 Fate 状态
+fn codegen.check_fate {
+    # 静态版：空实现
+}
+
+# 静态版：不测量
+fn codegen.measure_begin {
+    # 静态版：空实现
+}
+
+fn codegen.measure_end {
+    # 静态版：空实现
+}
+
+# 静态版：普通循环，无 Fate 测量
+fn codegen.loop_with_fate body {
+    # 静态版：直接编译为普通循环
+    start = label.current()
+    compile(body)
+    gen.jmp(start - label.current() - 5)
+}
+
+# 静态版：普通调用，无 Fate 测量
+fn codegen.call_with_fate addr {
+    # 静态版：直接调用
+    gen.call(addr)
+}

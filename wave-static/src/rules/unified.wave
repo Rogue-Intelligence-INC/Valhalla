@@ -1,0 +1,114 @@
+# 🌌 Wave 统一场 — 静态版
+# 八大规则从统一场 (i, e, r) 派生
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 统一场参数 — 静态版使用固定值
+# ═══════════════════════════════════════════════════════════════════════════
+
+unified {
+    i: 0.5      # 信息密度 [0, 1]
+    e: 0.5      # 熵梯度 [0, 1]
+    r: 0.5      # 关系强度 [0, 1]
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 八大规则派生函数
+# ═══════════════════════════════════════════════════════════════════════════
+
+# 1. 引力规则 — 吸引、聚合
+fn derive.gravitational {
+    -> {
+        strength: unified.i,
+        inverse_square: unified.e * 2 + 1,
+        threshold: unified.r * 0.1
+    }
+}
+
+# 2. 张力规则 — 拉伸、对比
+fn derive.tension {
+    -> {
+        base: unified.r,
+        accumulation: unified.e,
+        release: unified.i * 0.8
+    }
+}
+
+# 3. 熵规则 — 混沌、计算
+fn derive.entropy {
+    -> {
+        initial: unified.e,
+        growth: unified.i * 0.01,
+        critical: 1 - unified.r * 0.1
+    }
+}
+
+# 4. 连接规则 — 桥接、传递
+fn derive.connection {
+    -> {
+        strength: unified.r,
+        plasticity: unified.e,
+        decay: 1 - unified.i
+    }
+}
+
+# 5. 记忆规则 — 保持、存储
+fn derive.memory {
+    -> {
+        persistence: unified.i,
+        recall: unified.r,
+        decay: unified.e * 0.001
+    }
+}
+
+# 6. 轨道规则 — 周期、循环
+fn derive.orbital {
+    -> {
+        eccentricity: unified.e,
+        period: unified.r,
+        stability: unified.i
+    }
+}
+
+# 7. 边界规则 — 隔离、封装
+fn derive.boundary {
+    -> {
+        isolation: 1 - unified.e,      # 低熵 = 高隔离
+        permeability: unified.r,       # 关系强 = 可渗透
+        rigidity: unified.i            # 高密度 = 刚性边界
+    }
+}
+
+# 8. 演化规则 — 变换、适应
+fn derive.evolution {
+    -> {
+        adaptability: unified.e,       # 高熵 = 高适应性
+        mutation_rate: 1 - unified.i,  # 低密度 = 高变异
+        fitness: unified.r             # 关系强 = 高适应度
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 初始化
+# ═══════════════════════════════════════════════════════════════════════════
+
+fn unified.init {
+    # 静态版：使用固定值
+    unified.i = 0.5
+    unified.e = 0.5
+    unified.r = 0.5
+}
+
+fn unified.set i e r {
+    unified.i = i
+    unified.e = e
+    unified.r = r
+}
+
+fn unified.report {
+    out "[Unified-STATIC] i:"
+    out unified.i
+    out " e:"
+    out unified.e
+    out " r:"
+    out unified.r
+}

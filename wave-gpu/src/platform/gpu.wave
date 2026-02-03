@@ -1,0 +1,216 @@
+# 🎮 Wave GPU 平台层
+# 硬件抽象：CUDA / OpenCL / Vulkan Compute / Metal
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GPU 后端类型
+# ═══════════════════════════════════════════════════════════════════════════
+
+gpu_backend {
+    none: 0
+    cuda: 1
+    opencl: 2
+    vulkan: 3
+    metal: 4
+}
+
+# 当前后端
+current_backend = gpu_backend.none
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GPU Syscall 接口
+# ═══════════════════════════════════════════════════════════════════════════
+
+# 检测 GPU
+# 返回: 设备数量 (0 = 无 GPU)
+fn syscall.gpu_detect {
+    # Linux: 检查 /dev/nvidia* 或 /dev/dri/renderD*
+    # 或调用 CUDA/OpenCL API
+    
+    # 尝试 CUDA
+    result = syscall.ioctl(0, 0x4E56, 0)  # NVIDIA ioctl
+    when result >= 0 {
+        current_backend = gpu_backend.cuda
+        -> 1
+    }
+    
+    # 尝试 OpenCL
+    # ...
+    
+    -> 0
+}
+
+# 获取计算单元数
+fn syscall.gpu_get_compute_units {
+    when current_backend == gpu_backend.cuda {
+        -> 80  # 默认值，实际需要查询
+    }
+    -> 1
+}
+
+# 获取最大线程数
+fn syscall.gpu_get_max_threads {
+    when current_backend == gpu_backend.cuda {
+        -> 1024
+    }
+    -> 256
+}
+
+# 获取共享内存大小
+fn syscall.gpu_get_shared_memory {
+    when current_backend == gpu_backend.cuda {
+        -> 49152  # 48KB
+    }
+    -> 16384
+}
+
+# 获取全局内存大小
+fn syscall.gpu_get_global_memory {
+    when current_backend == gpu_backend.cuda {
+        -> 8589934592  # 8GB 默认
+    }
+    -> 1073741824  # 1GB
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GPU 内存操作
+# ═══════════════════════════════════════════════════════════════════════════
+
+# 分配 GPU 内存
+fn syscall.gpu_malloc size {
+    when current_backend == gpu_backend.cuda {
+        # cuMemAlloc
+        -> syscall.ioctl(0, 0x4E00, size)
+    }
+    -> 0
+}
+
+# 释放 GPU 内存
+fn syscall.gpu_free addr {
+    when current_backend == gpu_backend.cuda {
+        # cuMemFree
+        syscall.ioctl(0, 0x4E01, addr)
+    }
+}
+
+# 内存拷贝
+# direction: 1 = H2D, 2 = D2H, 3 = D2D
+fn syscall.gpu_memcpy dst src size direction {
+    when current_backend == gpu_backend.cuda {
+        # cuMemcpy
+        syscall.ioctl(0, 0x4E02, dst, src, size, direction)
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GPU Kernel 操作
+# ═══════════════════════════════════════════════════════════════════════════
+
+# 启动 kernel
+fn syscall.gpu_launch kernel_id threads blocks args {
+    when current_backend == gpu_backend.cuda {
+        # cuLaunchKernel
+        syscall.ioctl(0, 0x4E10, kernel_id, threads, blocks, args)
+    }
+}
+
+# 同步等待
+fn syscall.gpu_sync {
+    when current_backend == gpu_backend.cuda {
+        # cuCtxSynchronize
+        syscall.ioctl(0, 0x4E11, 0)
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GPU 内置操作 (预编译 kernel)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# 向量运算
+fn syscall.gpu_vector_op op a b result size threads blocks {
+    when current_backend == gpu_backend.cuda {
+        # 调用预编译的向量运算 kernel
+        kernel_id = 0
+        when op == "add" { kernel_id = 100 }
+        when op == "mul" { kernel_id = 101 }
+        when op == "sub" { kernel_id = 102 }
+        syscall.gpu_launch(kernel_id, threads, blocks, [a, b, result, size])
+        syscall.gpu_sync()
+    }
+}
+
+# 并行规约
+fn syscall.gpu_reduce op data size {
+    when current_backend == gpu_backend.cuda {
+        kernel_id = 0
+        when op == "sum" { kernel_id = 200 }
+        when op == "max" { kernel_id = 201 }
+        when op == "min" { kernel_id = 202 }
+        
+        result_addr = syscall.gpu_malloc(8)
+        syscall.gpu_launch(kernel_id, 256, (size + 255) / 256, [data, size, result_addr])
+        syscall.gpu_sync()
+        
+        result = 0
+        syscall.gpu_memcpy(result, result_addr, 8, 2)
+        syscall.gpu_free(result_addr)
+        -> result
+    }
+    -> 0
+}
+
+# 向量搜索
+fn syscall.gpu_vector_search query vectors count dim {
+    when current_backend == gpu_backend.cuda {
+        # 调用预编译的向量搜索 kernel
+        result_addr = syscall.gpu_malloc(16)  # idx + score
+        syscall.gpu_launch(300, 256, count, [query, vectors, dim, result_addr])
+        syscall.gpu_sync()
+        
+        best_idx = 0
+        syscall.gpu_memcpy(best_idx, result_addr, 8, 2)
+        syscall.gpu_free(result_addr)
+        -> best_idx
+    }
+    -> 0
+}
+
+# 矩阵乘法
+fn syscall.gpu_matmul A B C m n k {
+    when current_backend == gpu_backend.cuda {
+        # 调用 cuBLAS 或自定义 kernel
+        syscall.gpu_launch(400, [16, 16], [(m+15)/16, (n+15)/16], [A, B, C, m, n, k])
+        syscall.gpu_sync()
+    }
+}
+
+# 并行排序
+fn syscall.gpu_sort data size {
+    when current_backend == gpu_backend.cuda {
+        # Bitonic sort kernel
+        syscall.gpu_launch(500, 256, (size+255)/256, [data, size])
+        syscall.gpu_sync()
+    }
+}
+
+# 并行搜索
+fn syscall.gpu_search data size predicate {
+    when current_backend == gpu_backend.cuda {
+        result_addr = syscall.gpu_malloc(8)
+        syscall.gpu_launch(600, 256, (size+255)/256, [data, size, predicate, result_addr])
+        syscall.gpu_sync()
+        
+        result = 0
+        syscall.gpu_memcpy(result, result_addr, 8, 2)
+        syscall.gpu_free(result_addr)
+        -> result
+    }
+    -> -1
+}
+
+# 关闭 GPU
+fn syscall.gpu_shutdown {
+    when current_backend == gpu_backend.cuda {
+        syscall.ioctl(0, 0x4EFF, 0)
+    }
+    current_backend = gpu_backend.none
+}

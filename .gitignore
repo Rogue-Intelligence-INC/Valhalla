@@ -1,0 +1,41 @@
+# Build artifacts
+*.o
+*.a
+*.so
+*.bin
+a.out
+target/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# Data files
+*.tar.gz
+*.zip
+data.bin
+code.bin
+
+# Generated
+output/
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local config
+.env
+.env.local
+secrets/
