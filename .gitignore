@@ -39,3 +39,23 @@ Thumbs.db
 .env
 .env.local
 secrets/
+.keys/
+# Embedded repositories (managed separately)
+s-wind-sim/
+valhalla-crypto/yaksha-cipher-gpu/
+valhalla-rational/
+wave-asm/
+wave-bin/
+wave/
+node_modules/
+
+# Build outputs
+target/
+**/target/
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Large binary files
+*.node

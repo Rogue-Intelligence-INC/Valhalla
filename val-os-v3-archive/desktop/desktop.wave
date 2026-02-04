@@ -1,0 +1,435 @@
+# 🖥️ Val-OS 桌面环境
+# 半GUI · Wave UI · 窗口管理 · 任务栏
+
+# ═══════════════════════════════════════════════════════
+# 桌面状态
+# ═══════════════════════════════════════════════════════
+
+desktop_state -> {
+    windows: [],
+    active_window: null,
+    wallpaper: "default",
+    icons: [],
+    taskbar_visible: true
+}
+
+# ═══════════════════════════════════════════════════════
+# 桌面渲染
+# ═══════════════════════════════════════════════════════
+
+render_desktop -> function() {
+    screen -> get_screen_size()
+    
+    # 壁纸 (渐变背景)
+    draw_gradient_background(gradients.night)
+    
+    # 桌面图标
+    render_desktop_icons()
+    
+    # 窗口
+    for window in desktop_state.windows {
+        when window.visible {
+            render_window(window)
+        }
+    }
+    
+    # 任务栏
+    when desktop_state.taskbar_visible {
+        render_taskbar()
+    }
+    
+    # 光标
+    redraw_cursor()
+}
+
+# ═══════════════════════════════════════════════════════
+# 桌面图标
+# ═══════════════════════════════════════════════════════
+
+desktop_icons -> [
+    { id: "files", icon: "📁", label: "文件", app: "file_manager" },
+    { id: "browser", icon: "🌐", label: "浏览器", app: "browser" },
+    { id: "store", icon: "📦", label: "软件商店", app: "pkg_manager" },
+    { id: "settings", icon: "⚙️", label: "设置", app: "settings" },
+    { id: "terminal", icon: "💻", label: "终端", app: "fate_shell" },
+    { id: "notebook", icon: "📝", label: "记事本", app: "notebook" },
+    { id: "music", icon: "🎵", label: "音乐", app: "music_player" },
+    { id: "video", icon: "🎬", label: "视频", app: "video_player" },
+    { id: "minesweeper", icon: "💣", label: "扫雷", app: "minesweeper" }
+]
+
+render_desktop_icons -> function() {
+    icon_w -> 10
+    icon_h -> 4
+    cols -> 2
+    
+    x -> 4
+    y -> 2
+    
+    for i, icon in desktop_icons.enumerate() {
+        # 图标背景 (悬停时显示)
+        when icon.hovered {
+            draw_box(x - 1, y - 1, icon_w + 2, icon_h + 1, rgb(60,70,90,0.5))
+        }
+        
+        # 图标
+        draw_text(icon.icon, x + 3, y)
+        
+        # 标签
+        draw_text(icon.label, x, y + 2, rgb(220,220,240))
+        
+        # 点击区域
+        register_click_area(x - 1, y - 1, icon_w + 2, icon_h + 1, function() {
+            launch_app(icon.app)
+        })
+        
+        register_double_click_area(x - 1, y - 1, icon_w + 2, icon_h + 1, function() {
+            launch_app(icon.app)
+        })
+        
+        # 布局
+        y -> y + icon_h + 1
+        when (i + 1) % 8 == 0 {
+            y -> 2
+            x -> x + icon_w + 4
+        }
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 窗口管理
+# ═══════════════════════════════════════════════════════
+
+create_window -> function(app, options) {
+    screen -> get_screen_size()
+    
+    window -> {
+        id: generate_id(),
+        app: app,
+        title: options.title || app.title,
+        x: options.x || (screen.width - options.width) / 2,
+        y: options.y || (screen.height - options.height) / 2,
+        width: options.width || 60,
+        height: options.height || 20,
+        visible: true,
+        minimized: false,
+        maximized: false,
+        focused: true,
+        dragging: false,
+        resizing: false
+    }
+    
+    # 取消其他窗口焦点
+    for w in desktop_state.windows {
+        w.focused -> false
+    }
+    
+    desktop_state.windows.add(window)
+    desktop_state.active_window -> window
+    
+    return window
+}
+
+render_window -> function(window) {
+    when window.minimized { return }
+    
+    x -> window.x
+    y -> window.y
+    w -> window.width
+    h -> window.height
+    
+    # 窗口阴影
+    when window.focused {
+        draw_box(x + 1, y + 1, w, h, rgb(0,0,0,0.3))
+    }
+    
+    # 窗口背景
+    bg_color -> when window.focused { rgb(35,40,50,0.95) } else { rgb(45,50,60,0.9) }
+    draw_box(x, y, w, h, bg_color, border: rgb(60,70,90))
+    
+    # 标题栏
+    title_bg -> when window.focused { gradients.ocean } else { [rgb(50,50,60), rgb(40,40,50)] }
+    draw_gradient_box(x, y, w, 2, title_bg)
+    
+    draw_text(window.title, x + 2, y, rgb(220,220,240))
+    
+    # 窗口控制按钮
+    btn_y -> y
+    
+    # 最小化
+    draw_text("─", x + w - 10, btn_y, rgb(200,200,200))
+    register_click_area(x + w - 10, btn_y, 2, 1, function() {
+        minimize_window(window)
+    })
+    
+    # 最大化
+    max_icon -> when window.maximized { "❐" } else { "□" }
+    draw_text(max_icon, x + w - 6, btn_y, rgb(200,200,200))
+    register_click_area(x + w - 6, btn_y, 2, 1, function() {
+        toggle_maximize(window)
+    })
+    
+    # 关闭
+    draw_text("×", x + w - 2, btn_y, rgb(255,100,100))
+    register_click_area(x + w - 2, btn_y, 2, 1, function() {
+        close_window(window)
+    })
+    
+    # 内容区域
+    content_x -> x + 1
+    content_y -> y + 2
+    content_w -> w - 2
+    content_h -> h - 3
+    
+    # 渲染应用内容
+    push_clip(content_x, content_y, content_w, content_h)
+    window.app.render()
+    pop_clip()
+    
+    # 拖拽标题栏
+    register_drag_area(x, y, w - 12, 2, function(dx, dy) {
+        when !window.maximized {
+            window.x -> window.x + dx
+            window.y -> window.y + dy
+            refresh_desktop()
+        }
+    })
+    
+    # 调整大小 (右下角)
+    draw_text("◢", x + w - 1, y + h - 1, rgb(80,80,100))
+    register_drag_area(x + w - 2, y + h - 1, 2, 1, function(dx, dy) {
+        window.width -> max(30, window.width + dx)
+        window.height -> max(10, window.height + dy)
+        refresh_desktop()
+    })
+}
+
+# 窗口操作
+minimize_window -> function(window) {
+    window.minimized -> true
+    window.focused -> false
+    focus_next_window()
+    refresh_desktop()
+}
+
+toggle_maximize -> function(window) {
+    when window.maximized {
+        # 还原
+        window.x -> window.restore_x
+        window.y -> window.restore_y
+        window.width -> window.restore_width
+        window.height -> window.restore_height
+        window.maximized -> false
+    } else {
+        # 最大化
+        window.restore_x -> window.x
+        window.restore_y -> window.y
+        window.restore_width -> window.width
+        window.restore_height -> window.height
+        
+        screen -> get_screen_size()
+        window.x -> 0
+        window.y -> 0
+        window.width -> screen.width
+        window.height -> screen.height - 3  # 留出任务栏
+        window.maximized -> true
+    }
+    refresh_desktop()
+}
+
+close_window -> function(window) {
+    index -> desktop_state.windows.findIndex(w => w.id == window.id)
+    when index >= 0 {
+        desktop_state.windows.remove(index)
+        focus_next_window()
+        refresh_desktop()
+    }
+}
+
+focus_window -> function(window) {
+    for w in desktop_state.windows {
+        w.focused -> false
+    }
+    window.focused -> true
+    window.minimized -> false
+    desktop_state.active_window -> window
+    
+    # 移到最上层
+    index -> desktop_state.windows.findIndex(w => w.id == window.id)
+    when index >= 0 && index < desktop_state.windows.length - 1 {
+        desktop_state.windows.remove(index)
+        desktop_state.windows.add(window)
+    }
+    
+    refresh_desktop()
+}
+
+focus_next_window -> function() {
+    visible_windows -> desktop_state.windows.filter(w => !w.minimized)
+    when visible_windows.length > 0 {
+        focus_window(visible_windows[visible_windows.length - 1])
+    } else {
+        desktop_state.active_window -> null
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 任务栏
+# ═══════════════════════════════════════════════════════
+
+render_taskbar -> function() {
+    screen -> get_screen_size()
+    taskbar_y -> screen.height - 3
+    
+    # 任务栏背景
+    draw_gradient_box(0, taskbar_y, screen.width, 3, [rgb(30,35,45,0.95), rgb(25,30,40,0.95)])
+    
+    # 开始按钮 (系统面板)
+    draw_gradient_box(1, taskbar_y, 6, 3, gradients.fate)
+    draw_text("🖥️", 2, taskbar_y + 1)
+    
+    register_click_area(1, taskbar_y, 6, 3, function() {
+        system_panel.toggle()
+    })
+    
+    # 窗口列表
+    btn_x -> 10
+    for window in desktop_state.windows {
+        btn_w -> min(window.title.length + 4, 20)
+        
+        bg -> when window.focused { rgb(60,70,90) }
+              else when window.minimized { rgb(40,45,55) }
+              else { rgb(45,50,60) }
+        
+        draw_box(btn_x, taskbar_y, btn_w, 3, bg)
+        
+        indicator_color -> when window.focused { rgb(100,150,255) } else { rgb(60,70,80) }
+        draw_line(btn_x, taskbar_y + 2, btn_w, indicator_color)
+        
+        draw_text(truncate(window.title, btn_w - 2), btn_x + 1, taskbar_y + 1, rgb(200,200,220))
+        
+        register_click_area(btn_x, taskbar_y, btn_w, 3, function() {
+            when window.minimized {
+                window.minimized -> false
+            }
+            focus_window(window)
+        })
+        
+        btn_x -> btn_x + btn_w + 1
+    }
+    
+    # 系统托盘
+    tray_x -> screen.width - 25
+    
+    # 网络
+    wifi_icon -> when system_panel.state.wifi_connected { "📶" } else { "📵" }
+    draw_text(wifi_icon, tray_x, taskbar_y + 1)
+    
+    # 音量
+    vol_icon -> when system_panel.state.muted { "🔇" } 
+               else when system_panel.state.volume > 60 { "🔊" }
+               else { "🔉" }
+    draw_text(vol_icon, tray_x + 3, taskbar_y + 1)
+    
+    # 电池
+    battery_icon -> when system_panel.state.charging { "🔌" } else { "🔋" }
+    draw_text(battery_icon, tray_x + 6, taskbar_y + 1)
+    
+    # 时间
+    time_str -> format_time(now(), "HH:mm")
+    draw_text(time_str, screen.width - 8, taskbar_y + 1, rgb(200,200,220))
+    
+    # 点击托盘打开系统面板
+    register_click_area(tray_x, taskbar_y, 20, 3, function() {
+        system_panel.show()
+    })
+}
+
+# ═══════════════════════════════════════════════════════
+# 启动应用
+# ═══════════════════════════════════════════════════════
+
+launch_app -> function(app_id) {
+    app -> get_app_by_id(app_id)
+    
+    when !app {
+        notify("应用未找到: " + app_id)
+        return
+    }
+    
+    # 检查是否已运行
+    existing -> desktop_state.windows.find(w => w.app.id == app_id)
+    when existing {
+        focus_window(existing)
+        return
+    }
+    
+    # 创建新窗口
+    window -> create_window(app, {
+        title: app.title,
+        width: app.size?.width || 60,
+        height: app.size?.height || 20
+    })
+    
+    # 初始化应用
+    when app.init {
+        app.init()
+    }
+    
+    refresh_desktop()
+}
+
+# ═══════════════════════════════════════════════════════
+# 全局快捷键
+# ═══════════════════════════════════════════════════════
+
+register_global_key("Super", function() {
+    system_panel.toggle()
+})
+
+register_global_key("Alt+Tab", function() {
+    cycle_windows()
+})
+
+register_global_key("Alt+F4", function() {
+    when desktop_state.active_window {
+        close_window(desktop_state.active_window)
+    }
+})
+
+register_global_key("Super+D", function() {
+    # 显示桌面 (最小化所有窗口)
+    for window in desktop_state.windows {
+        window.minimized -> true
+    }
+    refresh_desktop()
+})
+
+cycle_windows -> function() {
+    windows -> desktop_state.windows.filter(w => !w.minimized)
+    when windows.length > 1 {
+        current_index -> windows.findIndex(w => w.focused)
+        next_index -> (current_index + 1) % windows.length
+        focus_window(windows[next_index])
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 启动桌面
+# ═══════════════════════════════════════════════════════
+
+start_desktop -> function() {
+    # 初始化鼠标
+    init_mouse()
+    
+    # 初始化系统面板
+    system_panel.state.performance_mode -> fate_get_performance_mode()
+    
+    # 渲染桌面
+    render_desktop()
+    
+    # 主循环
+    set_interval(16, function() {  # ~60fps
+        render_desktop()
+    })
+}

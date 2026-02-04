@@ -1,0 +1,484 @@
+/**
+ * Cosmic-C 全栈 Todo 应用示例
+ * 
+ * 展示Cosmic-C作为通用语言的能力：
+ * ✅ 前端UI (Web组件)
+ * ✅ 后端API (HTTP服务器)
+ * ✅ 数据库操作 (SQL)
+ * ✅ 实时通信 (WebSocket)
+ * ✅ 移动端适配
+ */
+
+use core.*
+use web.*
+use server.*
+use database.*
+use mobile.*
+
+// ========== 数据模型 (通用) ==========
+
+struct Todo {
+    id: i32
+    title: string
+    description: string
+    completed: bool
+    created_at: string
+    updated_at: string
+    user_id: i32
+}
+
+struct User {
+    id: i32
+    username: string
+    email: string
+    password_hash: string
+}
+
+// ========== 数据库层 ==========
+
+database postgres {
+    host: "localhost"
+    port: 5432
+    database: "todoapp"
+    username: "todouser"
+    password: "todopass"
+    
+    // 自动生成表结构
+    table todos {
+        id: SERIAL PRIMARY KEY
+        title: VARCHAR(255) NOT NULL
+        description: TEXT
+        completed: BOOLEAN DEFAULT false
+        created_at: TIMESTAMP DEFAULT NOW()
+        updated_at: TIMESTAMP DEFAULT NOW()
+        user_id: INTEGER REFERENCES users(id)
+    }
+    
+    table users {
+        id: SERIAL PRIMARY KEY
+        username: VARCHAR(50) UNIQUE NOT NULL
+        email: VARCHAR(255) UNIQUE NOT NULL
+        password_hash: VARCHAR(255) NOT NULL
+    }
+    
+    // 查询函数
+    query getTodos(user_id: i32) -> [Todo] {
+        "SELECT * FROM todos WHERE user_id = $1 ORDER BY created_at DESC"
+    }
+    
+    query createTodo(title: string, description: string, user_id: i32) -> Todo {
+        "INSERT INTO todos (title, description, user_id) 
+         VALUES ($1, $2, $3) RETURNING *"
+    }
+    
+    query updateTodo(id: i32, completed: bool) -> Todo {
+        "UPDATE todos SET completed = $2, updated_at = NOW() 
+         WHERE id = $1 RETURNING *"
+    }
+    
+    query deleteTodo(id: i32) -> bool {
+        "DELETE FROM todos WHERE id = $1"
+    }
+}
+
+// ========== 后端API服务器 ==========
+
+server {
+    port: 8080
+    cors: true
+    
+    // 中间件
+    middleware auth_middleware(req: Request) -> bool {
+        let token = req.headers.get("Authorization")
+        if token.is_none() {
+            return false
+        }
+        
+        // JWT验证逻辑
+        return validate_jwt_token(token.unwrap())
+    }
+    
+    middleware logging_middleware(req: Request) {
+        println("${req.method} ${req.path} - ${get_client_ip(req)}")
+    }
+    
+    // 用户认证路由
+    route POST "/api/auth/login" {
+        let credentials = parse_json<LoginCredentials>(request.body)
+        
+        let user = database.query("SELECT * FROM users WHERE username = $1", 
+                                  [credentials.username])
+        
+        if user.is_none() || !verify_password(credentials.password, user.password_hash) {
+            return status(401).json({"error": "Invalid credentials"})
+        }
+        
+        let token = generate_jwt_token(user.id)
+        return json({
+            "token": token,
+            "user": user
+        })
+    }
+    
+    route POST "/api/auth/register" {
+        let userData = parse_json<RegisterData>(request.body)
+        
+        let password_hash = hash_password(userData.password)
+        let user = database.query("INSERT INTO users (username, email, password_hash) 
+                                   VALUES ($1, $2, $3) RETURNING *",
+                                  [userData.username, userData.email, password_hash])
+        
+        return status(201).json(user)
+    }
+    
+    // Todo CRUD路由 (需要认证)
+    route GET "/api/todos" [auth_middleware] {
+        let user_id = get_user_id_from_token(request)
+        let todos = database.getTodos(user_id)
+        return json(todos)
+    }
+    
+    route POST "/api/todos" [auth_middleware] {
+        let todoData = parse_json<CreateTodoData>(request.body)
+        let user_id = get_user_id_from_token(request)
+        
+        let todo = database.createTodo(todoData.title, todoData.description, user_id)
+        
+        // 实时通知其他客户端
+        websocket.broadcast("todo_created", todo)
+        
+        return status(201).json(todo)
+    }
+    
+    route PUT "/api/todos/:id" [auth_middleware] {
+        let todo_id = parse_i32(request.params.get("id"))
+        let updateData = parse_json<UpdateTodoData>(request.body)
+        
+        let todo = database.updateTodo(todo_id, updateData.completed)
+        
+        websocket.broadcast("todo_updated", todo)
+        
+        return json(todo)
+    }
+    
+    route DELETE "/api/todos/:id" [auth_middleware] {
+        let todo_id = parse_i32(request.params.get("id"))
+        let success = database.deleteTodo(todo_id)
+        
+        if success {
+            websocket.broadcast("todo_deleted", {"id": todo_id})
+            return status(204)
+        } else {
+            return status(404).json({"error": "Todo not found"})
+        }
+    }
+    
+    // WebSocket实时通信
+    websocket "/ws" {
+        onConnect(client: WebSocketClient) {
+            println("Client connected: ${client.id}")
+        }
+        
+        onMessage(client: WebSocketClient, message: string) {
+            let data = parse_json(message)
+            match data.type {
+                "ping" => client.send(json({"type": "pong"}))
+                "join_room" => {
+                    client.join_room(data.room)
+                }
+                _ => println("Unknown message type: ${data.type}")
+            }
+        }
+        
+        onDisconnect(client: WebSocketClient) {
+            println("Client disconnected: ${client.id}")
+        }
+    }
+}
+
+// ========== 前端Web应用 ==========
+
+web {
+    // 应用状态管理
+    let todoStore = Store.new({
+        todos: [],
+        user: null,
+        loading: false,
+        error: null
+    })
+    
+    // API客户端
+    let apiClient = HttpClient.new({
+        baseUrl: "http://localhost:8080/api",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    
+    // 主应用组件
+    component TodoApp() {
+        let [todos, setTodos] = useState([])
+        let [newTodo, setNewTodo] = useState("")
+        let [user, setUser] = useState(null)
+        
+        // WebSocket连接
+        let ws = WebSocket.new("ws://localhost:8080/ws")
+        
+        ws.onMessage((event) => {
+            let data = JSON.parse(event.data)
+            match data.type {
+                "todo_created" => setTodos(todos => [...todos, data.todo])
+                "todo_updated" => setTodos(todos => todos.map(todo => 
+                    todo.id === data.todo.id ? data.todo : todo))
+                "todo_deleted" => setTodos(todos => todos.filter(todo => 
+                    todo.id !== data.id))
+            }
+        })
+        
+        // 加载Todo列表
+        async function loadTodos() {
+            let response = await apiClient.get("/todos")
+            if response.is_ok() {
+                setTodos(response.json())
+            }
+        }
+        
+        // 创建新Todo
+        async function createTodo() {
+            if newTodo.trim().is_empty() return
+            
+            let response = await apiClient.post("/todos", JSON.stringify({
+                title: newTodo,
+                description: ""
+            }))
+            
+            if response.is_ok() {
+                setNewTodo("")
+                // Todo会通过WebSocket自动更新
+            }
+        }
+        
+        // 切换Todo状态
+        async function toggleTodo(todoId: i32, completed: bool) {
+            await apiClient.put(`/todos/${todoId}`, JSON.stringify({
+                completed: !completed
+            }))
+            // 状态会通过WebSocket自动更新
+        }
+        
+        // 删除Todo
+        async function deleteTodo(todoId: i32) {
+            await apiClient.delete(`/todos/${todoId}`)
+            // Todo会通过WebSocket自动移除
+        }
+        
+        useEffect(() => {
+            loadTodos()
+        }, [])
+        
+        return jsx {
+            <div className="todo-app">
+                <header className="app-header">
+                    <h1>Cosmic-C Todo App</h1>
+                    {user && <p>Welcome, {user.username}!</p>}
+                </header>
+                
+                <main className="app-main">
+                    <div className="todo-input">
+                        <input 
+                            type="text"
+                            value={newTodo}
+                            onChange={(e) => setNewTodo(e.target.value)}
+                            placeholder="Add a new todo..."
+                            onKeyPress={(e) => e.key === "Enter" && createTodo()}
+                        />
+                        <button onClick={createTodo}>Add</button>
+                    </div>
+                    
+                    <div className="todo-list">
+                        {todos.map(todo => 
+                            <TodoItem 
+                                key={todo.id}
+                                todo={todo}
+                                onToggle={() => toggleTodo(todo.id, todo.completed)}
+                                onDelete={() => deleteTodo(todo.id)}
+                            />
+                        )}
+                    </div>
+                </main>
+            </div>
+        }
+    }
+    
+    // Todo项组件
+    component TodoItem(props: {todo: Todo, onToggle: fn(), onDelete: fn()}) {
+        return jsx {
+            <div className={`todo-item ${props.todo.completed ? "completed" : ""}`}>
+                <input 
+                    type="checkbox"
+                    checked={props.todo.completed}
+                    onChange={props.onToggle}
+                />
+                <span className="todo-title">{props.todo.title}</span>
+                <button 
+                    className="delete-btn"
+                    onClick={props.onDelete}
+                >
+                    Delete
+                </button>
+            </div>
+        }
+    }
+    
+    // 渲染应用到DOM
+    ReactDOM.render(<TodoApp />, document.getElementById("root"))
+}
+
+// ========== 移动端应用 (同一代码库) ==========
+
+mobile {
+    // 主屏幕
+    screen TodoScreen {
+        let [todos, setTodos] = useState([])
+        let [newTodo, setNewTodo] = useState("")
+        
+        // 使用相同的API客户端
+        async function loadTodos() {
+            let response = await apiClient.get("/todos")
+            setTodos(response.json())
+        }
+        
+        async function addTodo() {
+            if newTodo.trim().is_empty() return
+            
+            await apiClient.post("/todos", JSON.stringify({
+                title: newTodo,
+                description: ""
+            }))
+            
+            setNewTodo("")
+            loadTodos()
+        }
+        
+        return layout {
+            toolbar {
+                title: "Cosmic-C Todos"
+                actions: [
+                    action("sync", loadTodos)
+                ]
+            }
+            
+            scrollView {
+                column {
+                    textInput {
+                        value: newTodo
+                        placeholder: "Add new todo..."
+                        onChanged: (text) => setNewTodo(text)
+                        onSubmitted: addTodo
+                    }
+                    
+                    button {
+                        text: "Add Todo"
+                        onClick: addTodo
+                    }
+                    
+                    for todo in todos {
+                        todoCard(todo)
+                    }
+                }
+            }
+        }
+    }
+    
+    // Todo卡片组件
+    component todoCard(todo: Todo) {
+        return card {
+            row {
+                checkbox {
+                    checked: todo.completed
+                    onChanged: (checked) => toggleTodo(todo.id, checked)
+                }
+                
+                column {
+                    text(todo.title) {
+                        style: todo.completed ? strikethrough : normal
+                    }
+                    text(todo.created_at) {
+                        style: subtitle
+                    }
+                }
+                
+                spacer()
+                
+                iconButton {
+                    icon: "delete"
+                    onClick: () => deleteTodo(todo.id)
+                }
+            }
+        }
+    }
+}
+
+// ========== 通用工具函数 ==========
+
+// JWT token处理
+function generate_jwt_token(user_id: i32) -> string {
+    // JWT生成逻辑
+    return jwt_encode({"user_id": user_id, "exp": now() + 86400})
+}
+
+function validate_jwt_token(token: string) -> bool {
+    return jwt_decode(token).is_ok()
+}
+
+function get_user_id_from_token(request: Request) -> i32 {
+    let token = request.headers.get("Authorization").unwrap()
+    let payload = jwt_decode(token).unwrap()
+    return payload.user_id
+}
+
+// 密码处理
+function hash_password(password: string) -> string {
+    return bcrypt_hash(password, 12)
+}
+
+function verify_password(password: string, hash: string) -> bool {
+    return bcrypt_verify(password, hash)
+}
+
+// ========== 应用启动 ==========
+
+function main() {
+    parallel {
+        // 启动数据库连接
+        task database_init: {
+            database.connect()
+            database.migrate()
+            println("Database initialized")
+        }
+        
+        // 启动Web服务器
+        task server_start: {
+            server.start()
+            println("Server started on port 8080")
+        }
+        
+        // 启动前端开发服务器 (开发模式)
+        task web_dev_server: {
+            if DEVELOPMENT_MODE {
+                web.start_dev_server(3000)
+                println("Web dev server started on port 3000")
+            }
+        }
+    }
+    
+    println("🚀 Cosmic-C Todo App is running!")
+    println("   Web:    http://localhost:3000")
+    println("   API:    http://localhost:8080")
+    println("   Mobile: Use the mobile app")
+    
+    // 保持程序运行
+    loop {
+        sleep(1000)
+    }
+} 

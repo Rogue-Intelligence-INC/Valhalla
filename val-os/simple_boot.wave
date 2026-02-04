@@ -1,0 +1,6 @@
+# Val-OS 简单引导测试
+# 只输出文本验证引导流程
+
+out "Val-OS Booting..."
+out "Fate Engine Active"
+out "Done"

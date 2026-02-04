@@ -1,0 +1,160 @@
+# Val-OS Window Manager
+# Wave v5 - GUI Window System
+
+# Window structure
+window -> {
+    id: 0,
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 80,
+    title: "Window",
+    visible: true,
+    focused: false,
+    dragging: false,
+    content: fate_alloc
+}
+
+# Window list
+windows -> fate_alloc
+window_count -> 0
+focused_window -> 0
+
+# Window colors
+wm_colors -> {
+    title_active: 9,      # Light blue
+    title_inactive: 8,    # Dark gray
+    title_text: 15,       # White
+    border: 7,            # Light gray
+    background: 15,       # White
+    close_button: 4       # Red
+}
+
+# Create window
+create_window -> function(title, x, y, w, h) {
+    win -> fate_alloc
+    win -> {
+        id: window_count,
+        x: x,
+        y: y,
+        width: w,
+        height: h,
+        title: title,
+        visible: true,
+        focused: true,
+        content: fate_alloc
+    }
+    
+    windows[window_count] -> win
+    window_count -> window_count + 1
+    focused_window -> win.id
+    
+    win -> return
+}
+
+# Draw window
+draw_window -> function(win) {
+    when win.visible {
+        # Title bar (16 pixels high)
+        title_color -> wm_colors.title_inactive
+        when win.id == focused_window {
+            title_color -> wm_colors.title_active
+        }
+        draw_rect -> call(win.x, win.y, win.width, 16, title_color)
+        
+        # Title text
+        draw_text -> call(win.x + 4, win.y + 4, win.title, wm_colors.title_text, title_color)
+        
+        # Close button [X]
+        draw_rect -> call(win.x + win.width - 14, win.y + 2, 12, 12, wm_colors.close_button)
+        draw_text -> call(win.x + win.width - 11, win.y + 4, "X", 15, wm_colors.close_button)
+        
+        # Window content area
+        draw_rect -> call(win.x, win.y + 16, win.width, win.height - 16, wm_colors.background)
+        
+        # Border
+        draw_rect -> call(win.x, win.y, win.width, 1, wm_colors.border)
+        draw_rect -> call(win.x, win.y + win.height - 1, win.width, 1, wm_colors.border)
+        draw_rect -> call(win.x, win.y, 1, win.height, wm_colors.border)
+        draw_rect -> call(win.x + win.width - 1, win.y, 1, win.height, wm_colors.border)
+    }
+}
+
+# Draw all windows
+draw_windows -> function() {
+    i -> 0
+    repeat window_count {
+        draw_window -> call(windows[i])
+        i -> i + 1
+    }
+}
+
+# Handle mouse click on window
+window_click -> function(x, y) {
+    # Check windows from top to bottom
+    i -> window_count - 1
+    repeat window_count {
+        win -> windows[i]
+        when win.visible {
+            # Check if click inside window
+            when x >= win.x && x < win.x + win.width {
+                when y >= win.y && y < win.y + win.height {
+                    # Focus this window
+                    focused_window -> win.id
+                    
+                    # Check close button
+                    when x >= win.x + win.width - 14 && x < win.x + win.width - 2 {
+                        when y >= win.y + 2 && y < win.y + 14 {
+                            win.visible -> false
+                            true -> return
+                        }
+                    }
+                    
+                    # Check title bar for drag
+                    when y < win.y + 16 {
+                        win.dragging -> true
+                    }
+                    
+                    true -> return
+                }
+            }
+        }
+        i -> i - 1
+    }
+    false -> return
+}
+
+# Handle mouse drag
+window_drag -> function(dx, dy) {
+    when focused_window >= 0 {
+        win -> windows[focused_window]
+        when win.dragging {
+            win.x -> win.x + dx
+            win.y -> win.y + dy
+            
+            # Clamp to screen
+            when win.x < 0 { win.x -> 0 }
+            when win.y < 0 { win.y -> 0 }
+            when win.x + win.width > 320 { win.x -> 320 - win.width }
+            when win.y + win.height > 200 { win.y -> 200 - win.height }
+        }
+    }
+}
+
+# Handle mouse release
+window_release -> function() {
+    when focused_window >= 0 {
+        windows[focused_window].dragging -> false
+    }
+}
+
+# Close window
+close_window -> function(id) {
+    windows[id].visible -> false
+}
+
+# Init window manager
+wm_init -> function() {
+    windows -> fate_alloc
+    out "Window Manager initialized"
+}

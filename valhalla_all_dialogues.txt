@@ -1,0 +1,995 @@
+# Valhalla 对话记录 - 深度分析用
+# 总条数: 424
+# 格式: [序号] [语言] [类型] 内容
+================================================================================
+
+[001] [arabic    ] [sentence  ] تفضل كل ما تشاء من الكيك.
+
+[002] [chinese   ] [vocabulary] 供電
+
+[003] [arabic    ] [grammar   ] وتبلغ القيمة الاسمية للشركة 17 بليون جنيه (4 بلايين دولار) والسوقية 27 بليون جنيه (3،6 بليون دولار) وهي أول شركة عملاقة تُطرح في هذا الاطار.
+      语法: _ CCONJ VERB NOUN ADJ _ ADP NOUN NUM NUM NOUN PUNCT NUM NUM NOUN PUNCT _ CCONJ ADJ VERB NUM NUM NOUN PUNCT NUM NUM NOUN PUNCT _ CCONJ PRON ADJ NOUN ADJ VERB ADP DET NOUN PUNCT
+
+[004] [arabic    ] [sentence  ] أنا راضية تماما ببيتي الجديد.
+
+[005] [chinese   ] [vocabulary] 依然如故
+
+[006] [arabic    ] [grammar   ] مصر : قانون مكافحة تبييض الأموال يصدر قبل نهاية السنة
+      语法: NOUN PUNCT NOUN NOUN NOUN NOUN VERB ADP NOUN NOUN
+
+[007] [arabic    ] [sentence  ] كم ثمن هذا الخاتم؟
+
+[008] [chinese   ] [vocabulary] 侯門似海
+
+[009] [portuguese] [grammar   ] Etapa do XXIII Circuito Estadual de Vôlei de Praia (apoio da Fundesporte), que será realizado no próximo sábado e domingo (08 e 09), no complexo do Guanandizão.
+      语法: NOUN _ ADP DET PROPN PROPN PROPN ADP PROPN ADP PROPN PUNCT NOUN _ ADP DET PROPN PUNCT PUNCT PRON AUX VERB _ ADP DET ADJ PROPN CCONJ PROPN PUNCT NUM CCONJ NUM PUNCT PUNCT _ ADP DET NOUN _ ADP DET PROPN PUNCT
+
+[010] [arabic    ] [sentence  ] أحب اللعب في بستان.
+
+[011] [chinese   ] [vocabulary] 侷限
+
+[012] [portuguese] [grammar   ] Há dois clipes para a canção, um com cenas explícitas e outro que promoverá a Deluxe Edition (Edição de Luxo) do álbum.
+      语法: VERB NUM NOUN ADP DET NOUN PUNCT PRON ADP NOUN ADJ CCONJ PRON PRON VERB DET PROPN PROPN PUNCT PROPN ADP PROPN PUNCT _ ADP DET NOUN PUNCT
+
+[013] [arabic    ] [sentence  ] جميعنا نحبّ توم.
+
+[014] [chinese   ] [vocabulary] 便是
+
+[015] [portuguese] [grammar   ] Agora, o caso segue para julgamento do Tribunal.
+      语法: ADV PUNCT DET NOUN VERB ADP NOUN _ ADP DET PROPN PUNCT
+
+[016] [arabic    ] [sentence  ] لم اتوقع ان تكون هنا.
+
+[017] [chinese   ] [vocabulary] 促
+
+[018] [portuguese] [grammar   ] Com o impacto, o motoqueiro morreu na hora.
+      语法: ADP DET NOUN PUNCT DET NOUN VERB _ ADP DET NOUN PUNCT
+
+[019] [arabic    ] [sentence  ] نحن في حرب.
+
+[020] [chinese   ] [vocabulary] 俄期
+
+[021] [portuguese] [grammar   ] A Farmácia Popular de Londrina começou na última semana a distribuir de forma gratuita medicamentos contra a asma.
+      语法: DET PROPN PROPN ADP PROPN VERB _ ADP DET ADJ NOUN SCONJ VERB ADP NOUN ADJ NOUN ADP DET NOUN PUNCT
+
+[022] [arabic    ] [sentence  ] الثمن مرتفع.
+
+[023] [chinese   ] [vocabulary] 俏美
+
+[024] [portuguese] [grammar   ] Os baianos e pernambucanos e os outros considerados estrangeiros ficaram do lado dos portugueses.
+      语法: DET NOUN CCONJ NOUN CCONJ DET DET VERB ADJ VERB _ ADP DET NOUN _ ADP DET NOUN PUNCT
+
+[025] [arabic    ] [sentence  ] أرادت ماري معرفة ما إن كان لِتوم حبيبة.
+
+[026] [chinese   ] [vocabulary] 俚
+
+[027] [portuguese] [grammar   ] Mas, pelo Protocolo de Adesão da Venezuela ao Mercosul, o prazo final é quatro anos.
+      语法: CCONJ PUNCT _ ADP DET PROPN ADP PROPN _ ADP DET PROPN _ ADP DET PROPN PUNCT DET NOUN ADJ AUX NUM NOUN PUNCT
+
+[028] [arabic    ] [sentence  ] لا يمكنني شرحهُ أكثر.
+
+[029] [chinese   ] [vocabulary] 保固
+
+[030] [portuguese] [grammar   ] Esta capela encontrava-se implantada no topo sul do Rossio e daí foi removida para o seu local actual no Parque da Cidade.
+      语法: DET NOUN _ VERB PART ADJ _ ADP DET NOUN ADJ _ ADP DET PROPN CCONJ ADP AUX VERB ADP DET DET NOUN ADJ _ ADP DET PROPN _ ADP DET PROPN PUNCT
+
+[031] [arabic    ] [sentence  ] أنا لست من المملكة العربية السعودية.
+
+[032] [chinese   ] [vocabulary] 保暖
+
+[033] [portuguese] [grammar   ] O brasileiro ganhou outros troféus depois, mas a parceria era considerada perfeita.
+      语法: DET NOUN VERB DET NOUN ADV PUNCT CCONJ DET NOUN AUX VERB ADJ PUNCT
+
+[034] [arabic    ] [sentence  ] توقّف المطر.
+
+[035] [chinese   ] [vocabulary] 保羅
+
+[036] [portuguese] [grammar   ] Ela tem 53 pontos de vantagem sobre a McLaren e 54 sobre a Lotus.
+      语法: PRON VERB NUM NOUN ADP NOUN ADP DET PROPN CCONJ NUM ADP DET PROPN PUNCT
+
+[037] [arabic    ] [sentence  ] أتعرف أحدًا في أستراليا؟
+
+[038] [chinese   ] [vocabulary] 保鑣
+
+[039] [portuguese] [grammar   ] Não me intimidei, entrei de corpo e alma à campanha.
+      语法: ADV PRON VERB PUNCT VERB ADP NOUN CCONJ NOUN _ ADP DET NOUN PUNCT
+
+[040] [arabic    ] [sentence  ] هل أنتم بخير؟
+
+[041] [chinese   ] [vocabulary] 俞文豹
+
+[042] [portuguese] [grammar   ] Em 1884 fundou com Gauguin e Seurat o Salon des Indépendants (ou Salão dos Independentes) e também participou das exposições do grupo Le XX, em Bruxelas.
+      语法: ADP NUM VERB ADP PROPN CCONJ PROPN DET PROPN ADP PROPN PUNCT CCONJ PROPN _ ADP DET PROPN PUNCT CCONJ ADV VERB _ ADP DET NOUN _ ADP DET NOUN PROPN PROPN PUNCT ADP PROPN PUNCT
+
+[043] [arabic    ] [sentence  ] سعيدون لرؤيتك.
+
+[044] [chinese   ] [vocabulary] 信報財經新聞
+
+[045] [portuguese] [grammar   ] As demonstrações de carinho no site colocaram a hashtag # FelizDiadoAmigo, no topo dos Trending Topics mundiais, logo no início do dia.
+      语法: DET NOUN ADP NOUN _ ADP DET NOUN VERB DET NOUN X PROPN PUNCT _ ADP DET NOUN _ ADP DET PROPN PROPN ADJ PUNCT ADV _ ADP DET NOUN _ ADP DET NOUN PUNCT
+
+[046] [arabic    ] [sentence  ] لا أستطيع التأقلم معهم.
+
+[047] [chinese   ] [vocabulary] 信息與通訊技術
+
+[048] [portuguese] [grammar   ] Diferentemente de Mo Yan, nunca foi abraçado pelo regime chinês.
+      语法: ADV ADP PROPN PROPN PUNCT ADV AUX VERB _ ADP DET NOUN ADJ PUNCT
+
+[049] [arabic    ] [sentence  ] بالأمس فقط قمت بزيارته.
+
+[050] [chinese   ] [vocabulary] 信經
+
+[051] [portuguese] [grammar   ] De acordo com a CET - Rio, até julho deste ano, o número de vagas pertencentes ao sistema Rio Rotativo era estimado em 45 mil vagas.
+      语法: ADP NOUN ADP DET PROPN PUNCT PROPN PUNCT ADP PROPN ADP NOUN PUNCT DET NOUN ADP NOUN ADJ _ ADP DET NOUN PROPN PROPN AUX VERB ADP NUM NUM NOUN PUNCT
+
+[052] [arabic    ] [sentence  ] ألا يمكن صياغتها بطَريقة أخرى؟
+
+[053] [chinese   ] [vocabulary] 修例
+
+[054] [portuguese] [grammar   ] O partido, que já governou a capital durante 16 anos, perdeu as eleições no primeiro turno em Porto Alegre e também foi derrotado em Caxias do Sul, o segundo principal colégio eleitoral.
+      语法: DET NOUN PUNCT PRON ADV VERB DET NOUN ADP NUM NOUN PUNCT VERB DET NOUN _ ADP DET ADJ NOUN ADP PROPN PROPN CCONJ ADV AUX VERB ADP PROPN _ ADP DET PROPN PUNCT DET ADJ ADJ NOUN ADJ PUNCT
+
+[055] [arabic    ] [sentence  ] يمكنك المجيء والعيش معي.
+
+[056] [chinese   ] [vocabulary] 修煉
+
+[057] [portuguese] [grammar   ] Todos, sem exceção, têm participação no rebaixamento e não vamos encontrar apenas um ou alguns culpados ", comentou o dirigente, que divulgará a lista nessa quinta - feira.
+      语法: PRON PUNCT ADP NOUN PUNCT VERB NOUN _ ADP DET NOUN CCONJ ADV AUX VERB ADV NUM CCONJ DET NOUN PUNCT PUNCT VERB DET NOUN PUNCT PRON VERB DET NOUN ADP PROPN PUNCT PROPN PUNCT
+
+[058] [arabic    ] [sentence  ] سأل "توم" "ماري" ما إذا كانت تود الرقص
+
+[059] [chinese   ] [vocabulary] 修辭格
+
+[060] [portuguese] [grammar   ] "O PCCS é a reivindicação principal e ele já está pronto há muito tempo.
+      语法: PUNCT DET PROPN AUX DET NOUN ADJ CCONJ PRON ADV VERB ADJ VERB DET NOUN PUNCT
+
+[061] [arabic    ] [sentence  ] أنا في طريقي إلی المنزل
+
+[062] [chinese   ] [vocabulary] 俯視
+
+[063] [portuguese] [grammar   ] Estou ali na pele duma personagem, contando uma história.
+      语法: VERB ADV _ ADP DET NOUN _ ADP DET NOUN PUNCT VERB DET NOUN PUNCT
+
+[064] [arabic    ] [sentence  ] لا تضع وقتك سدی
+
+[065] [chinese   ] [vocabulary] 俾晝作夜
+
+[066] [portuguese] [grammar   ] Em 2004 foi lançado o "Aloha from Hawaii -- Deluxe Edition" que traz o show original do dia 14 de janeiro de 1973, que foi transmitido via satélite e o show de ensaio do dia 12 de janeiro de 1973.
+      语法: ADP NUM AUX VERB DET PUNCT PROPN ADP PROPN PUNCT PROPN PROPN PUNCT PRON VERB DET NOUN ADJ _ ADP DET NOUN NUM ADP PROPN ADP NUM PUNCT PRON AUX VERB ADP NOUN CCONJ DET NOUN ADP NOUN _ ADP DET NOUN NUM ADP PROPN ADP NUM PUNCT
+
+[067] [arabic    ] [sentence  ] يجب أن تدرك بأننا لن نستطيع تقديم يد العون.
+
+[068] [chinese   ] [vocabulary] 個
+
+[069] [portuguese] [grammar   ] Um novo confronto entre os Policiais Militares do Batalhão de Operações Especiais (Bope) e integrantes da quadrilha que roubaram uma agência bancária em Marcelândia, a 712 quilômetros de Cuiabá, ocorreu na tarde desta quarta - feira (7) dentro da mata fechada, onde os suspeitos estão escondidos há quase um mês.
+      语法: DET ADJ NOUN ADP DET PROPN PROPN _ ADP DET PROPN ADP PROPN PROPN PUNCT PROPN PUNCT CCONJ NOUN _ ADP DET NOUN PRON VERB DET NOUN ADJ ADP PROPN PUNCT ADP NUM NOUN ADP PROPN PUNCT VERB _ ADP DET NOUN ADP PROPN PUNCT PROPN PUNCT NUM PUNCT ADV _ ADP DET NOUN ADJ PUNCT ADV DET NOUN VERB ADJ VERB ADV NUM NOUN PUNCT
+
+[070] [arabic    ] [sentence  ] أريد قائمة بجميع أقارب "توم".
+
+[071] [chinese   ] [vocabulary] 個體
+
+[072] [portuguese] [grammar   ] "Se as leis ficarem mais frouxas em relação ao uso da maconha, o maior prejudicado vai ser o adolescente.
+      语法: PUNCT CCONJ DET NOUN VERB ADV ADJ ADP NOUN _ ADP DET NOUN _ ADP DET NOUN PUNCT DET ADJ NOUN AUX AUX DET NOUN PUNCT
+
+[073] [arabic    ] [sentence  ] لا أحب المغرورين.
+
+[074] [chinese   ] [vocabulary] 倒反天罡
+
+[075] [portuguese] [grammar   ] Ainda não batemos o martelo.
+      语法: ADV ADV VERB DET NOUN PUNCT
+
+[076] [arabic    ] [vocabulary] سأفتقدك.
+
+[077] [chinese   ] [vocabulary] 倒換
+
+[078] [portuguese] [grammar   ] (Meus lindos fãs estão usando couro e bandanas no sol, sorrisos maravilhosos e punhos para o alto.
+      语法: PUNCT DET ADJ NOUN AUX VERB NOUN CCONJ NOUN _ ADP DET NOUN PUNCT NOUN ADJ CCONJ NOUN ADP DET NOUN PUNCT
+
+[079] [arabic    ] [sentence  ] اما كل شيء او لا شيء
+
+[080] [chinese   ] [vocabulary] 倒背如流
+
+[081] [portuguese] [grammar   ] A postura preguiçosa dos mexicanos serviu para recolocar o Ulsan na partida.
+      语法: DET NOUN ADJ _ ADP DET NOUN VERB ADP VERB DET PROPN _ ADP DET NOUN PUNCT
+
+[082] [arabic    ] [sentence  ] توم وقع في حب ماري
+
+[083] [chinese   ] [vocabulary] 倒開
+
+[084] [portuguese] [grammar   ] Estamos vivos!
+      语法: VERB ADJ PUNCT
+
+[085] [arabic    ] [sentence  ] عملت عملا شاقا لكي أدعم عائلتي.
+
+[086] [chinese   ] [vocabulary] 候蟲
+
+[087] [portuguese] [grammar   ] Localiza-se na região central da cidade, abrange os bairros da Pedreira e Fátima.
+      语法: _ VERB PART _ ADP DET NOUN ADJ _ ADP DET NOUN PUNCT VERB DET NOUN _ ADP DET PROPN CCONJ PROPN PUNCT
+
+[088] [arabic    ] [sentence  ] وفاته خسارة كبيرة لشركتنا .
+
+[089] [chinese   ] [vocabulary] 借住
+
+[090] [portuguese] [grammar   ] Os agricultores familiares participam, em Coaraci, dum curso sobre Agricultura Orgânica.
+      语法: DET NOUN ADJ VERB PUNCT ADP PROPN PUNCT _ ADP DET NOUN ADP PROPN PROPN PUNCT
+
+[091] [arabic    ] [sentence  ] أوه، لا! قد اختفى جواز سفري.
+
+[092] [chinese   ] [vocabulary] 借機
+
+[093] [portuguese] [grammar   ] O comportamento de seus jogadores em campo mesmo com desvantagem numérica agradou o técnico Cuca, que elogiou o "brio" da equipe.
+      语法: DET NOUN ADP DET NOUN ADP NOUN ADV ADP NOUN ADJ VERB DET NOUN PROPN PUNCT PRON VERB DET PUNCT NOUN PUNCT _ ADP DET NOUN PUNCT
+
+[094] [arabic    ] [sentence  ] في أي عام ولدت؟
+
+[095] [chinese   ] [vocabulary] 倡言
+
+[096] [portuguese] [grammar   ] Depois de ter sido lançado no site dele, em fevereiro de 2012, o programa foi baixado 6.500 vezes nos três meses seguintes.
+      语法: ADV ADP AUX AUX VERB _ ADP DET NOUN _ ADP PRON PUNCT ADP NOUN ADP NUM PUNCT DET NOUN AUX VERB NUM NOUN _ ADP DET NUM NOUN ADJ PUNCT
+
+[097] [arabic    ] [sentence  ] عليّ أن أتصل بتوم.
+
+[098] [chinese   ] [vocabulary] 倫敦證券交易所
+
+[099] [portuguese] [grammar   ] O roteirista e produtor Carlos Reichenbach sofreu uma parada cardíaca a caminho do hospital, por causas ainda não divulgadas.
+      语法: DET NOUN CCONJ NOUN PROPN PROPN VERB DET NOUN ADJ ADP NOUN _ ADP DET NOUN PUNCT ADP NOUN ADV ADV VERB PUNCT
+
+[100] [arabic    ] [sentence  ] هل تشعر بالنعاس؟
+
+[101] [chinese   ] [vocabulary] 值此
+
+[102] [portuguese] [grammar   ] O álbum mescla com maestria elementos dos três últimos (e mais bem - sucedidos) álbuns.
+      语法: DET NOUN VERB ADP NOUN NOUN _ ADP DET NUM ADJ PUNCT CCONJ ADV ADV PUNCT ADJ PUNCT NOUN PUNCT
+
+[103] [arabic    ] [sentence  ] لم يواجه صعوبةً تذكر في حلّ المشكلة.
+
+[104] [chinese   ] [vocabulary] 假動作
+
+[105] [portuguese] [grammar   ] A ideia é que em todas os equipamentos erguidos com dinheiro público no País sejam respeitadas regras e efetivados serviços voltados para a acessibilidade de portadores de necessidades especiais.
+      语法: DET NOUN AUX CCONJ ADP DET DET NOUN VERB ADP NOUN ADJ _ ADP DET PROPN AUX VERB NOUN CCONJ VERB NOUN VERB ADP DET NOUN ADP NOUN ADP NOUN ADJ PUNCT
+
+[106] [arabic    ] [sentence  ] الوقاية خير من قنطار علاج.
+
+[107] [chinese   ] [vocabulary] 假摔
+
+[108] [portuguese] [grammar   ] Esta doutrina está especialmente ligada à Calvinismo, à eleição incondicional, a predestinação decretiva e ao monergismo.
+      语法: DET NOUN VERB ADV ADJ _ ADP DET PROPN PUNCT _ ADP DET NOUN ADJ PUNCT ADP NOUN ADJ CCONJ _ ADP DET NOUN PUNCT
+
+[109] [arabic    ] [sentence  ] عندي عائلة.
+
+[110] [chinese   ] [vocabulary] 假貨
+
+[111] [portuguese] [grammar   ] Eu brinco que sou amador, porque amo o que eu faço.
+      语法: PRON NOUN CCONJ VERB ADJ PUNCT CCONJ VERB PRON PRON PRON VERB PUNCT
+
+[112] [arabic    ] [sentence  ] ذلك الرجل لديه فم كريه.
+
+[113] [chinese   ] [vocabulary] 偌
+
+[114] [portuguese] [grammar   ] Já o ISF 75 - foot 2000, que atinge velocidades de até 21 Gbps, custará US $ 350 (o equivalente a R $ 700).
+      语法: ADV DET PROPN NUM PUNCT NOUN NUM PUNCT PRON VERB NOUN ADP ADV NUM NOUN PUNCT VERB PROPN SYM NUM PUNCT DET NOUN ADP NOUN SYM NUM PUNCT PUNCT
+
+[115] [arabic    ] [sentence  ] هل لديك كل شيء؟
+
+[116] [chinese   ] [vocabulary] 偏微分
+
+[117] [portuguese] [grammar   ] O ator confirmou que não vive mais na mansão que dividia com a ex - namorada, Kristen Stewart, em Los Feliz, Califórnia, e ainda brincou com o fato.
+      语法: DET NOUN VERB SCONJ ADV VERB ADV _ ADP DET NOUN PRON VERB ADP DET ADJ PUNCT NOUN PUNCT PROPN PROPN PUNCT ADP PROPN PROPN PUNCT PROPN PUNCT CCONJ ADV VERB ADP DET NOUN PUNCT
+
+[118] [arabic    ] [sentence  ] أين غرفتك؟
+
+[119] [chinese   ] [vocabulary] 偏聽偏信
+
+[120] [portuguese] [grammar   ] "A questão do SIM é mais problemática, na minha opinião."
+      语法: PUNCT DET NOUN _ ADP DET PROPN VERB ADV ADJ PUNCT _ ADP DET DET NOUN PUNCT PUNCT
+
+[121] [arabic    ] [sentence  ] صل بين الكلمات المناسبة.
+
+[122] [chinese   ] [vocabulary] 偘
+
+[123] [portuguese] [grammar   ] O ministro Solminihac explicou ao canal 24 Horas que a atividade vulcânica é bem menor agora, mas que resolveram decretar o alerta laranja para acompanhar a evolução do vulcão.
+      语法: DET NOUN PROPN VERB _ ADP DET NOUN NUM PROPN SCONJ DET NOUN ADJ AUX ADV ADJ ADV PUNCT CCONJ SCONJ VERB VERB DET NOUN ADJ SCONJ VERB DET NOUN _ ADP DET NOUN PUNCT
+
+[124] [arabic    ] [sentence  ] أنا لا أفكر أن ذلك مهم.
+
+[125] [chinese   ] [vocabulary] 做張做勢
+
+[126] [portuguese] [grammar   ] O Afeganistão comemorou a decisão dos Estados Unidos de acusar dois fuzileiros navais americanos suspeitos de urinar sobre os corpos de três afegãos.
+      语法: DET PROPN VERB DET NOUN _ ADP DET PROPN PROPN ADP VERB NUM NOUN ADJ ADJ ADJ ADP VERB ADP DET NOUN ADP NUM NOUN PUNCT
+
+[127] [arabic    ] [sentence  ] الأمر لا يعنيني.
+
+[128] [chinese   ] [vocabulary] 做舊
+
+[129] [portuguese] [grammar   ] Outro dado relevante é que 69,4 % dos entrevistados declararam que já estão totalmente decididos em relação ao voto para Prefeito.
+      语法: DET NOUN ADJ AUX CCONJ NUM SYM _ ADP DET NOUN VERB CCONJ ADV VERB ADV ADJ ADP NOUN _ ADP DET NOUN ADP PROPN PUNCT
+
+[130] [arabic    ] [sentence  ] أخبرك الحقيقة.
+
+[131] [chinese   ] [vocabulary] 停服
+
+[132] [portuguese] [grammar   ] Em meados de 2001 a Ancine, Agência Nacional do Cinema, ficou responsável por recolher o Condecine, Contribuição para o Desenvolvimento da Indústria Cinematográfica Nacional.
+      语法: ADP PROPN ADP NUM DET PROPN PUNCT PROPN PROPN _ ADP DET PROPN PUNCT VERB ADJ ADP VERB DET PROPN PUNCT PROPN ADP DET NOUN _ ADP DET PROPN PROPN PROPN PUNCT
+
+[133] [arabic    ] [sentence  ] هل تريدون نبيذاً؟
+
+[134] [chinese   ] [vocabulary] 停辦
+
+[135] [portuguese] [grammar   ] Gaby e Angie vão para Nova York atrás dos dois adolescentes, enquanto isso Danny vai até a casa de sua avó, Rose de Lucca, e conta que está morando em Fairview e seus pais o obrigam a viver como um fugitivo.
+      语法: PROPN CCONJ PROPN VERB ADP PROPN PROPN ADV _ ADP DET NUM NOUN PUNCT ADP PRON PROPN VERB ADP DET NOUN ADP DET NOUN PUNCT PROPN ADP PROPN PUNCT CCONJ VERB CCONJ AUX VERB ADP PROPN CCONJ DET NOUN PRON VERB ADP VERB ADP DET NOUN PUNCT
+
+[136] [arabic    ] [sentence  ] سمّى الرجلُ المسنُّ الدميةَ الخشبيةَ "بينوكيو".
+
+[137] [chinese   ] [vocabulary] 健檢
+
+[138] [portuguese] [grammar   ] Segundo a denúncia, João Paulo Cunha recebeu, em 2003, R $ 50 mil em vantagens indevidas da agência de Valério SMP &amp; B, que tinha contrato com a Câmara.
+      语法: ADP DET NOUN PUNCT PROPN PROPN PROPN VERB PUNCT ADP NUM PUNCT NOUN SYM NUM NUM ADP NOUN ADJ _ ADP DET NOUN ADP PROPN PROPN CCONJ PROPN PUNCT PRON VERB NOUN ADP DET PROPN PUNCT
+
+[139] [arabic    ] [sentence  ] في هذا الكتاب صفحات كثيرة.
+
+[140] [chinese   ] [vocabulary] 側根
+
+[141] [portuguese] [grammar   ] Ainda assim, 26 dos 28 economistas acreditam que os Jogos beneficiariam principalmente Londres, em vez de toda a Grã - Bretanha, em linha com uma pesquisa da BBC nesta sexta - feira, que mostrou que 74 por cento dos britânicos acham que o restante da Grã - Bretanha não seria beneficiada.
+      语法: ADV ADV PUNCT NUM _ ADP DET NUM NOUN VERB CCONJ DET PROPN VERB ADV PROPN PUNCT ADP NOUN ADP DET DET PROPN PUNCT PROPN PUNCT ADP NOUN ADP DET NOUN _ ADP DET PROPN ADP PROPN PUNCT PROPN PUNCT PRON VERB CCONJ NUM ADP NOUN _ ADP DET NOUN VERB CCONJ DET NOUN _ ADP DET PROPN PUNCT PROPN ADV AUX VERB PUNCT
+
+[142] [arabic    ] [sentence  ] أرِني رباط عنق آخر من فضلك.
+
+[143] [chinese   ] [vocabulary] 偵緝
+
+[144] [portuguese] [grammar   ] O filme é estrelado por Peter Cushing, Christopher Lee, Barbara Shelley e Richard Pasco.
+      语法: DET NOUN AUX VERB ADP PROPN PROPN PUNCT PROPN PROPN PUNCT PROPN PROPN CCONJ PROPN PROPN PUNCT
+
+[145] [arabic    ] [sentence  ] كما كنت متعبة، اخذت غفوة.
+
+[146] [chinese   ] [vocabulary] 偷加
+
+[147] [portuguese] [grammar   ] O que muda nos diversos algoritmos que se baseiam no Método de Ford - Fulkerson é o modo de achar o "augmenting path".
+      语法: PRON PRON VERB _ ADP DET DET NOUN PRON PART VERB _ ADP DET PROPN ADP PROPN PUNCT PROPN AUX DET NOUN ADP VERB DET PUNCT NOUN NOUN PUNCT PUNCT
+
+[148] [arabic    ] [sentence  ] توم أغلق الصنبور
+
+[149] [chinese   ] [vocabulary] 偷窺狂
+
+[150] [portuguese] [grammar   ] A inflação volta a subir e em 6 de janeiro de 1988, Bresser é substituído por Maílson da Nóbrega.
+      语法: DET NOUN VERB SCONJ VERB CCONJ ADP NUM ADP NOUN ADP NUM PUNCT PROPN AUX VERB ADP PROPN _ ADP DET PROPN PUNCT
+
+[151] [arabic    ] [vocabulary] أحببتك.
+
+[152] [chinese   ] [vocabulary] 偽軍
+
+[153] [portuguese] [grammar   ] A erosão eólica ocorre em geral em regiões planas, de pouca chuva, onde a vegetação natural é escassa e sopram ventos fortes.
+      语法: DET NOUN ADJ VERB ADP ADJ ADP NOUN ADJ PUNCT ADP DET NOUN PUNCT ADV DET NOUN ADJ VERB ADJ CCONJ VERB NOUN ADJ PUNCT
+
+[154] [arabic    ] [sentence  ] ما كنت وحيداً.
+
+[155] [chinese   ] [vocabulary] 傍人門戶
+
+[156] [portuguese] [grammar   ] Em casa, o Joinville enfiou 6 a 0 no lanterna Ipatinga.
+      语法: ADP NOUN PUNCT DET PROPN VERB NUM ADP NUM _ ADP DET PROPN PROPN PUNCT
+
+[157] [arabic    ] [sentence  ] سرق الولد فلوسا من محفطة والدتها.
+
+[158] [chinese   ] [vocabulary] 傑米
+
+[159] [portuguese] [grammar   ] O secretário de Meio Ambiente do município, Altamirando Moraes, enalteceu a integração da bicicleta com o sistema público de transporte, tema central do fórum.
+      语法: DET NOUN ADP PROPN PROPN _ ADP DET NOUN PUNCT PROPN PROPN PUNCT VERB DET NOUN _ ADP DET NOUN ADP DET NOUN ADJ ADP NOUN PUNCT NOUN ADJ _ ADP DET NOUN PUNCT
+
+[160] [arabic    ] [sentence  ] لقد تحدثت مع بنتي.
+
+[161] [chinese   ] [vocabulary] 備戰
+
+[162] [portuguese] [grammar   ] A primeira viagem foi realizada na estrada que liga Raincy a Montfermeil (França).
+      语法: DET ADJ NOUN AUX VERB _ ADP DET NOUN PRON VERB PROPN ADP PROPN PUNCT PROPN PUNCT PUNCT
+
+[163] [arabic    ] [sentence  ] الولايات المتحدة تتكون من خمسون ولاية
+
+[164] [chinese   ] [vocabulary] 催乳
+
+[165] [portuguese] [grammar   ] Ele encaixou muito bem no nosso meio de campo.
+      语法: PRON VERB ADV ADV _ ADP DET DET NOUN ADP NOUN PUNCT
+
+[166] [arabic    ] [sentence  ] الصلصة كانت حارة جداً ، انها حرقت لساني.
+
+[167] [chinese   ] [vocabulary] 催肥劑
+
+[168] [portuguese] [grammar   ] Dois dos homicídios foram cometidos no bairro de São Mateus, zona leste, por um policial que estava de folga e atirou contra duas pessoas que ele acreditava estar planejando assaltá-lo ou matá-lo.
+      语法: NOUN _ ADP DET NOUN AUX VERB _ ADP DET NOUN ADP PROPN PROPN PUNCT NOUN ADJ PUNCT ADP DET NOUN PRON VERB ADP NOUN CCONJ VERB ADP NUM NOUN PRON PRON VERB AUX VERB VERB PUNCT PRON CCONJ VERB PUNCT PRON PUNCT
+
+[169] [arabic    ] [sentence  ] الطريق تنحني للأسفل فجأة.
+
+[170] [chinese   ] [vocabulary] 傲霜凌雪
+
+[171] [portuguese] [grammar   ] Pode ser que no futuro apareça, mas até agora não tem nada ", avaliou.
+      语法: AUX VERB CCONJ _ ADP DET NOUN VERB PUNCT CCONJ ADP ADV ADV VERB PRON PUNCT PUNCT VERB PUNCT
+
+[172] [arabic    ] [sentence  ] هنا حيث توم يركن سيارته غالبا.
+
+[173] [chinese   ] [vocabulary] 傳回
+
+[174] [portuguese] [grammar   ] Di María, Özil e Cristiano Ronaldo;
+      语法: PROPN PROPN PUNCT PROPN CCONJ PROPN PROPN PUNCT
+
+[175] [arabic    ] [sentence  ] أكنت تعرف والدي؟
+
+[176] [chinese   ] [vocabulary] 傳染病
+
+[177] [portuguese] [grammar   ] Em 12 anos, multiplicamos este número em sete, e o valor atual alcança R $ 1,4 bilhão, isso sem a criação de novas taxas.
+      语法: ADP NUM NOUN PUNCT VERB DET NOUN ADP NUM PUNCT CCONJ DET NOUN ADJ VERB NOUN SYM NUM NUM PUNCT PRON ADP DET NOUN ADP ADJ NOUN PUNCT
+
+[178] [arabic    ] [sentence  ] النشيد الوطني المجري هو قصيدة كتبت بواسطة فرانس كولجاي و لحنت من قبل فرانس إيركيل.
+
+[179] [chinese   ] [vocabulary] 傳言
+
+[180] [portuguese] [grammar   ] Newton Cardoso encontrou o aparato estatal absolutamente comprometido com o pagamento do funcionalismo: 113 % do orçamento eram direcionados à folha dos funcionários de Minas.
+      语法: PROPN PROPN VERB DET NOUN ADJ ADV ADJ ADP DET NOUN _ ADP DET NOUN PUNCT NUM SYM _ ADP DET NOUN AUX VERB _ ADP DET NOUN _ ADP DET NOUN ADP PROPN PUNCT
+
+[181] [chinese   ] [vocabulary] 傳道
+
+[182] [portuguese] [grammar   ] O Petit 2 inclui as versões super deformadas de todos os personagens da versão do arcade, exceto por Baiken, Dizzy e Robo - Ky.
+      语法: DET PROPN NUM VERB DET NOUN ADJ VERB ADP DET DET NOUN _ ADP DET NOUN _ ADP DET NOUN PUNCT ADV ADP PROPN PUNCT PROPN CCONJ PROPN PUNCT PROPN PUNCT
+
+[183] [arabic    ] [sentence  ] هنالك مخرج طوارئ في الخلف .
+
+[184] [chinese   ] [vocabulary] 傷人
+
+[185] [portuguese] [grammar   ] Carrie contou ainda que foi encorajada por amigos de Harry a se comportar mais "escandalosamente".
+      语法: PROPN VERB ADV CCONJ AUX VERB ADP NOUN ADP PROPN ADP PRON VERB ADV PUNCT ADV PUNCT PUNCT
+
+[186] [arabic    ] [sentence  ] انا بخلفه .
+
+[187] [chinese   ] [vocabulary] 傷筋斷骨
+
+[188] [portuguese] [grammar   ] Os interessados devem levar aos postos de atendimentos o currículo e os seguintes documentos pessoais: RG, CPF, CTPS e comprovante de escolaridade.
+      语法: DET NOUN AUX VERB _ ADP DET NOUN ADP NOUN DET NOUN CCONJ DET ADJ NOUN ADJ PUNCT PROPN PUNCT PROPN PUNCT PROPN CCONJ NOUN ADP NOUN PUNCT
+
+[189] [arabic    ] [sentence  ] ماذا لو كانت فقط مشاجرة بسيطة بين صديقين اثنين؟
+
+[190] [chinese   ] [vocabulary] 傻眼
+
+[191] [portuguese] [grammar   ] Os gastos com benefícios a servidores se mantiveram estáveis em 2011, quando comparado com 2010.
+      语法: DET NOUN ADP NOUN ADP NOUN PRON VERB ADJ ADP NUM PUNCT CCONJ VERB ADP NUM PUNCT
+
+[192] [arabic    ] [sentence  ] العناكب و العقارب و القِرْدان هم من الحيوانات العنكبوتية .
+
+[193] [chinese   ] [vocabulary] 傾心吐膽
+
+[194] [portuguese] [grammar   ] Também era um excelente pianista.
+      语法: ADV AUX DET ADJ NOUN PUNCT
+
+[195] [arabic    ] [sentence  ] انا مجرد سائح .
+
+[196] [chinese   ] [vocabulary] 僃
+
+[197] [portuguese] [grammar   ] Sexta colocada, com 55 pontos, a equipe encerra sua participação na competição nacional diante do campeão Fluminense, no domingo que vem, no Engenhão.
+      语法: ADJ ADJ PUNCT ADP NUM NOUN PUNCT DET NOUN VERB DET NOUN _ ADP DET NOUN ADJ ADV _ ADP DET NOUN PROPN PUNCT _ ADP DET PROPN PRON VERB PUNCT _ ADP DET PROPN PUNCT
+
+[198] [arabic    ] [sentence  ] يمكن ايجاد السياح اليابانيين في كل مكان .
+
+[199] [korean    ] [vocabulary] 우리
+
+[200] [portuguese] [grammar   ] São muitos os projetos que realizamos juntos e que estão mudando a vida dos teresinenses ", explica Elmano.
+      语法: AUX PRON DET NOUN PRON VERB ADJ CCONJ PRON AUX VERB DET NOUN _ ADP DET NOUN PUNCT PUNCT VERB PROPN PUNCT
+
+[201] [arabic    ] [sentence  ] البلدة دائما ما تدب بالسياح .
+
+[202] [korean    ] [vocabulary] 우린
+
+[203] [portuguese] [grammar   ] Trata-se de alterar a poção de várias formas, até que fique duma certa cor.
+      语法: _ VERB PART ADP VERB DET NOUN ADP DET NOUN PUNCT ADP CCONJ VERB _ ADP DET DET NOUN PUNCT
+
+[204] [arabic    ] [sentence  ] تقريباً يحمل جميع السياح آلة تصوير معهم.
+
+[205] [korean    ] [vocabulary] 이게
+
+[206] [portuguese] [grammar   ] O epiblasto nesta região move-se para a linha primitiva, mergulha-se para baixo nela, e dá forma a uma camada nova, chamada endoderme, empurrando o hipoblasto afastado (este vai dar forma ao âmnion).
+      语法: DET NOUN ADP NOUN _ VERB PRON ADP DET NOUN ADJ PUNCT _ VERB PRON ADP ADV X PUNCT CCONJ VERB NOUN ADP DET NOUN ADJ PUNCT VERB NOUN PUNCT VERB DET NOUN ADJ PUNCT PRON AUX VERB NOUN _ ADP DET NOUN PUNCT PUNCT
+
+[207] [arabic    ] [sentence  ] لا ارغب ان ابدو كسائح .
+
+[208] [korean    ] [vocabulary] 이거
+
+[209] [portuguese] [grammar   ] Em discussão, há ainda a possibilidade do Canadá fechar um acordo comercial com o Mercosul (Brasil, Argentina, Uruguai, Venezuela e Paraguai, que está suspenso até abril de 2013), incluindo a agricultura.
+      语法: ADP NOUN PUNCT VERB ADV DET NOUN _ ADP DET PROPN VERB DET NOUN ADJ ADP DET PROPN PUNCT PROPN PUNCT PROPN PUNCT PROPN PUNCT PROPN CCONJ PROPN PUNCT PRON VERB ADJ ADP PROPN ADP NUM PUNCT PUNCT VERB DET NOUN PUNCT
+
+[210] [arabic    ] [sentence  ] سُجِنَ رجل بتهمة العنصرية ، حيث تحدث بشكل معنف ضد المرأة مع سائح فرنسي .
+
+[211] [korean    ] [vocabulary] 뭐야
+
+[212] [portuguese] [grammar   ] "Se essa partida for remarcada, quem vai apitar?
+      语法: PUNCT SCONJ DET NOUN AUX VERB PUNCT PRON AUX VERB PUNCT
+
+[213] [arabic    ] [sentence  ] فعلته بسرعة.
+
+[214] [korean    ] [vocabulary] 많은
+
+[215] [portuguese] [grammar   ] Alguns cartuchos encontrados foram apreendidos.
+      语法: DET NOUN VERB AUX VERB PUNCT
+
+[216] [arabic    ] [sentence  ] يريد توم أن يتعرّف على ماري.
+
+[217] [korean    ] [vocabulary] 절대
+
+[218] [portuguese] [grammar   ] Em Dezembro do mesmo ano, o governo autorizou a Companhia a adquirir outro terreno, para expandir a estação e construir habitações para o pessoal.
+      语法: ADP PROPN _ ADP DET ADJ NOUN PUNCT DET NOUN VERB DET PROPN ADP VERB DET NOUN PUNCT ADP VERB DET NOUN CCONJ VERB NOUN ADP DET NOUN PUNCT
+
+[219] [arabic    ] [sentence  ] عار عليك!
+
+[220] [korean    ] [vocabulary] 이젠
+
+[221] [portuguese] [grammar   ] Além das entradas para a pré - estreia, também estão à venda os ingressos para os dias: 15, 16, 17, 18, 19, 20, 21 e 22 de novembro, para sessões legendadas e dubladas.
+      语法: ADV _ ADP DET NOUN ADP DET PART PUNCT NOUN PUNCT ADV VERB _ ADP DET NOUN DET NOUN ADP DET NOUN PUNCT NUM PUNCT NUM PUNCT NUM PUNCT NUM PUNCT NUM PUNCT NUM PUNCT NUM CCONJ NUM ADP PROPN PUNCT ADP NOUN ADJ CCONJ ADJ PUNCT
+
+[222] [arabic    ] [sentence  ] إياك و الكذب.
+
+[223] [korean    ] [vocabulary] 들어
+
+[224] [portuguese] [grammar   ] 'Houve procura da Holanda, da Rússia e do futebol árabe.
+      语法: PUNCT VERB NOUN _ ADP DET PROPN PUNCT _ ADP DET PROPN CCONJ _ ADP DET NOUN ADJ PUNCT
+
+[225] [arabic    ] [sentence  ] ما الذي تخشاه ؟
+
+[226] [korean    ] [vocabulary] 내일
+
+[227] [portuguese] [grammar   ] O governo britânico admitiu nesta terça feira que hackers vêm tentando alvejar sites oficiais do país nas últimas 24 horas.
+      语法: DET NOUN ADJ VERB ADP ADJ PROPN CCONJ NOUN AUX VERB VERB NOUN ADJ _ ADP DET NOUN _ ADP DET ADJ NUM NOUN PUNCT
+
+[228] [arabic    ] [sentence  ] أجئت لتطلب السماح؟
+
+[229] [korean    ] [vocabulary] 나쁜
+
+[230] [portuguese] [grammar   ] Eles eram comandantes com grandes experiências na área ", diz Marinho.
+      语法: PRON AUX NOUN ADP ADJ NOUN _ ADP DET NOUN PUNCT PUNCT VERB PROPN PUNCT
+
+[231] [arabic    ] [sentence  ] إني أكن لها المشاعر.
+
+[232] [korean    ] [vocabulary] 생각
+
+[233] [portuguese] [grammar   ] Apesar do fiasco na carreira eleitoral -- desde 1989 ele concorreu diversas vezes a deputado federal e tentou ser candidato a prefeito --, a desenvoltura que exibe para tirar legendas nanicas do papel o transformou em figura requisitada no meio político.
+      语法: ADV _ ADP DET NOUN _ ADP DET NOUN ADJ PUNCT ADP NUM PRON VERB DET NOUN ADP NOUN ADJ CCONJ VERB AUX NOUN ADP NOUN PUNCT PUNCT DET NOUN PRON VERB SCONJ VERB NOUN ADJ _ ADP DET NOUN PRON VERB ADP NOUN VERB _ ADP DET NOUN ADJ PUNCT
+
+[234] [arabic    ] [sentence  ] شاهد ما وجدت.
+
+[235] [korean    ] [vocabulary] 여러분
+
+[236] [portuguese] [grammar   ] Ele não teve trabalho nenhum em ampliar.
+      语法: PRON ADV VERB NOUN DET ADP VERB PUNCT
+
+[237] [arabic    ] [sentence  ] لقد حذرتك ماري.
+
+[238] [korean    ] [vocabulary] 사랑해
+
+[239] [portuguese] [grammar   ] Quando você estiver feliz com seu projeto, você pode usar cola na parte de trás de cada peça para segurá - la.
+      语法: CCONJ PRON VERB ADJ ADP DET NOUN PUNCT PRON AUX VERB NOUN _ ADP DET NOUN ADP ADV ADP DET NOUN ADP VERB PUNCT PRON PUNCT
+
+[240] [arabic    ] [sentence  ] لا يحب توم التحدث عن نفسه.
+
+[241] [korean    ] [vocabulary] 있어서
+
+[242] [portuguese] [grammar   ] Fica feio e "fake".
+      语法: VERB ADJ CCONJ PUNCT X PUNCT PUNCT
+
+[243] [arabic    ] [sentence  ] اريد التحدث معها على انفراد.
+
+[244] [korean    ] [vocabulary] 않으면
+
+[245] [portuguese] [grammar   ] A narração era de Tércio de Lima e o anunciador das lutas era Jayme Ferreira.
+      语法: DET NOUN VERB ADP PROPN ADP PROPN CCONJ DET NOUN _ ADP DET NOUN AUX PROPN PROPN PUNCT
+
+[246] [arabic    ] [sentence  ] هلا جلبت لي كأسا من الماء من فضلك؟
+
+[247] [korean    ] [vocabulary] 존
+
+[248] [portuguese] [grammar   ] Ao mesmo tempo, a entidade fez a lista dos automóveis com os consumidores mais satisfeitos em quatro categorias: subcompactos, compactos de entrada, compactos superiores, monovolumes e médios.
+      语法: _ ADP DET ADJ NOUN PUNCT DET NOUN VERB DET NOUN _ ADP DET NOUN ADP DET NOUN ADV ADJ ADP NUM NOUN PUNCT NOUN PUNCT NOUN ADP NOUN PUNCT NOUN ADJ PUNCT NOUN CCONJ NOUN PUNCT
+
+[249] [arabic    ] [sentence  ] إنهم يكرهونك.
+
+[250] [korean    ] [vocabulary] 결국
+
+[251] [portuguese] [grammar   ] Alguém que tenha passado algum tempo com ele, que o conheça, que compreenda seu coração, seus valores, eu acho ", afirmou.
+      语法: PRON PRON AUX VERB DET NOUN ADP PRON PUNCT PRON PRON VERB PUNCT PRON VERB DET NOUN PUNCT DET NOUN PUNCT PRON VERB PUNCT PUNCT VERB PUNCT
+
+[252] [arabic    ] [sentence  ] أشعر بالسعادة كلما أراك.
+
+[253] [korean    ] [vocabulary] 막
+
+[254] [english   ] [grammar   ] In Baghdad Kadhim Talal Husain, assistant dean at the School of Education at Mustansiriyah University, was assassinated with his driver in the Salikh district.
+      语法: ADP PROPN PROPN PROPN PROPN PUNCT ADJ NOUN ADP DET PROPN ADP PROPN ADP PROPN PROPN PUNCT AUX VERB ADP PRON NOUN ADP DET PROPN NOUN PUNCT
+
+[255] [arabic    ] [sentence  ] غسلت وجهي بالصابون.
+
+[256] [korean    ] [vocabulary] 일어나
+
+[257] [english   ] [grammar   ] I guess it's just the old new Arab 'Me against my brother, me and my brother against my cousin, me and my cousin against my enemy', or 'The enemy of my enemy is my friend' thing going on again.
+      语法: PRON VERB _ PRON AUX ADV DET ADJ ADJ ADJ PUNCT PRON ADP PRON NOUN PUNCT PRON CCONJ PRON NOUN ADP PRON NOUN PUNCT PRON CCONJ PRON NOUN ADP PRON NOUN PUNCT PUNCT CCONJ PUNCT DET NOUN ADP PRON NOUN AUX PRON NOUN PUNCT NOUN VERB ADP ADV PUNCT
+
+[258] [arabic    ] [sentence  ] يقدم الإفطار بين ٧ و ٩.
+
+[259] [korean    ] [vocabulary] 만든
+
+[260] [english   ] [grammar   ] http://digon_va.tripod.com/Chernobyl.htm
+      语法: PROPN
+
+[261] [arabic    ] [sentence  ] ادرس الفرنسية. وايضاً ادرس الالمانية.
+
+[262] [korean    ] [vocabulary] 천천히
+
+[263] [english   ] [grammar   ] His military intelligence has captured major figures like Abu Zubayda and Khalid Shaykh Muhammad, as well as nearly 500 other al-Qaeda operatives, over 400 of whom the Pakistanis have turned over to the US.
+      语法: PRON ADJ NOUN AUX VERB ADJ NOUN ADP PROPN PROPN CCONJ PROPN PROPN PROPN PUNCT ADV ADV ADP ADV NUM ADJ PROPN PUNCT PROPN NOUN PUNCT ADV NUM ADP PRON DET PROPN AUX VERB ADP ADP DET PROPN PUNCT
+
+[264] [arabic    ] [sentence  ] الصديق الحقيقي سايساعدني.
+
+[265] [korean    ] [vocabulary] 그럼요
+
+[266] [english   ] [grammar   ] Hiller asked Bush to name the leaders of Chechnya, Taiwan, India and Pakistan.
+      语法: PROPN VERB PROPN PART VERB DET NOUN ADP PROPN PUNCT PROPN PUNCT PROPN CCONJ PROPN PUNCT
+
+[267] [arabic    ] [vocabulary] فلنلعب!
+
+[268] [korean    ] [vocabulary] 영원히
+
+[269] [english   ] [grammar   ] The derailing of the Oslo peace process by the hard-line policies of Sharon and the Palestinian intifada has encouraged suicide bombings.
+      语法: DET NOUN ADP DET PROPN NOUN NOUN ADP DET ADJ PUNCT NOUN NOUN ADP PROPN CCONJ DET ADJ NOUN AUX VERB NOUN NOUN PUNCT
+
+[270] [arabic    ] [sentence  ] ليس علينا فعل ذلك يوميا.
+
+[271] [korean    ] [vocabulary] 받아
+
+[272] [english   ] [grammar   ] Apart from the 1,200 Indian lives lost in 1987, the Indian peacekeeping force was immensely unpopular not only in Tamil Nadu and the Jaffna peninsula but also among the Sinhalese majority who considered it a violation of their country's sovereignty.
+      语法: ADV ADP DET NUM ADJ NOUN VERB ADP NUM PUNCT DET ADJ NOUN NOUN AUX ADV ADJ PART ADV ADP ADJ PROPN CCONJ DET PROPN NOUN CCONJ ADV ADP DET ADJ NOUN PRON VERB PRON DET NOUN ADP PRON _ NOUN PART NOUN PUNCT
+
+[273] [arabic    ] [sentence  ] هل التكلم الإنجليزية صعب؟
+
+[274] [korean    ] [vocabulary] 언니
+
+[275] [english   ] [grammar   ] Over nine dozen temples that had served the Hindu population have been destroyed, with some used as building material and others as urinals.
+      语法: ADV NUM NUM NOUN PRON AUX VERB DET ADJ NOUN AUX AUX VERB PUNCT SCONJ DET VERB ADP NOUN NOUN CCONJ NOUN VERB ADP NOUN PUNCT
+
+[276] [arabic    ] [sentence  ] كنت أسكن في قطر.
+
+[277] [korean    ] [vocabulary] 끝났어
+
+[278] [english   ] [grammar   ] We also know how Dan Rather libeled George Bush and impugned his service in the Texas Air National Guard on a "60 Minutes II" report based largely on forged documents.
+      语法: PRON ADV VERB ADV PROPN PROPN VERB PROPN PROPN CCONJ VERB PRON NOUN ADP DET PROPN PROPN ADJ PROPN ADP DET PUNCT NUM PROPN NUM PUNCT NOUN VERB ADV ADP VERB NOUN PUNCT
+
+[279] [arabic    ] [sentence  ] استمر في التعلم وستصبح متقنًا للغات متعددة.
+
+[280] [korean    ] [vocabulary] 여기로
+
+[281] [english   ] [grammar   ] He earned 137 points in 1970-1971.
+      语法: PRON VERB NUM NOUN ADP NUM SYM NUM PUNCT
+
+[282] [arabic    ] [sentence  ] توم رجل محظوظ
+
+[283] [korean    ] [vocabulary] 점점
+
+[284] [english   ] [grammar   ] There is no doubt that many Iraqis regard the date of 30 January as a day of renewed hope, one they have been awaiting all their lives, but at the same time, many others are already dreading it.
+      语法: PRON VERB DET NOUN SCONJ ADJ PROPN VERB DET NOUN ADP NUM PROPN ADP DET NOUN ADP VERB NOUN PUNCT NUM PRON AUX AUX VERB DET PRON NOUN PUNCT CCONJ ADP DET ADJ NOUN PUNCT ADJ NOUN AUX ADV VERB PRON PUNCT
+
+[285] [arabic    ] [sentence  ] أقفز من غصن الى غصن و أتعلق من ذيلي " القرد "
+
+[286] [korean    ] [vocabulary] 말이다
+
+[287] [english   ] [grammar   ] I would suggest going for tribal Sheikhs rather than clerics, since they have the upper hand in their areas and can effectively root out any Ba'athists in their midst in return for a promise of sharing power and authority.
+      语法: PRON AUX VERB VERB ADP ADJ NOUN ADV ADP NOUN PUNCT SCONJ PRON VERB DET ADJ NOUN ADP PRON NOUN CCONJ AUX ADV VERB ADP DET PROPN ADP PRON NOUN ADP NOUN ADP DET NOUN SCONJ VERB NOUN CCONJ NOUN PUNCT
+
+[288] [arabic    ] [sentence  ] جهز نفسك .
+
+[289] [korean    ] [vocabulary] 자주
+
+[290] [english   ] [grammar   ] But Posada's nearly 80 years old, and the Venezuelan people will ensure that's a vain hope.
+      语法: CCONJ _ PROPN AUX ADV NUM NOUN ADJ PUNCT CCONJ DET ADJ NOUN AUX VERB _ PRON AUX DET ADJ NOUN PUNCT
+
+[291] [arabic    ] [sentence  ] مديره خلفه.
+
+[292] [korean    ] [vocabulary] 말입니다
+
+[293] [english   ] [grammar   ] gandalf
+      语法: PROPN
+
+[294] [arabic    ] [sentence  ] ما الذي نسيتُ قوله؟
+
+[295] [korean    ] [vocabulary] 갔어
+
+[296] [english   ] [grammar   ] Deteriorating security
+      语法: VERB NOUN
+
+[297] [arabic    ] [sentence  ] إن غادرنا الآن فسنصل على الوقت.
+
+[298] [korean    ] [vocabulary] 없지만
+
+[299] [english   ] [grammar   ] Six crew members were from the Arakan region of Myanmar.
+      语法: NUM NOUN NOUN AUX ADP DET PROPN NOUN ADP PROPN PUNCT
+
+[300] [arabic    ] [sentence  ] بالنسبة للأفلام، فأنا أحب أيًا منها، طالما أنه ليس فِلم رعب.
+
+[301] [korean    ] [vocabulary] 실례합니다
+
+[302] [english   ] [grammar   ] Bush is reported to have asked a flustered Musharraf.
+      语法: PROPN AUX VERB PART AUX VERB DET ADJ PROPN PUNCT
+
+[303] [arabic    ] [sentence  ] عليّ إيقاظ توم.
+
+[304] [korean    ] [vocabulary] 보다
+
+[305] [english   ] [grammar   ] Qanooni refused to accept the Iranian advice as his fellow Panjsheri Tajiks urged him to stand against Karzai.
+      语法: PROPN VERB PART VERB DET ADJ NOUN SCONJ PRON ADJ ADJ PROPN VERB PRON PART VERB ADP PROPN PUNCT
+
+[306] [arabic    ] [sentence  ] هو أقصر منّي بقليل.
+
+[307] [korean    ] [vocabulary] 될까
+
+[308] [english   ] [grammar   ] (Newsweek reported that Bush commanded his cabinet, "Let heads roll!")
+      语法: PUNCT PROPN VERB SCONJ PROPN VERB PRON NOUN PUNCT PUNCT VERB NOUN VERB PUNCT PUNCT PUNCT
+
+[309] [arabic    ] [sentence  ] إنه بارع في الأدب!
+
+[310] [korean    ] [vocabulary] 짓이야
+
+[311] [english   ] [grammar   ] It was the young Texan's job to find out what each county leader needed in the way of campaign supplies and get those supplies to them.
+      语法: PRON AUX DET ADJ _ PROPN PART NOUN PART VERB ADP PRON DET NOUN NOUN VERB ADP DET NOUN ADP NOUN NOUN CCONJ VERB DET NOUN ADP PRON PUNCT
+
+[312] [arabic    ] [sentence  ] لماذا لم تأتي لتزرني؟
+
+[313] [korean    ] [vocabulary] 이곳에
+
+[314] [english   ] [grammar   ] And you search in vain to find just one law abiding citizen
+      语法: CCONJ PRON VERB ADP ADJ PART VERB ADV NUM NOUN VERB NOUN
+
+[315] [arabic    ] [sentence  ] لا تكذب على نفسك.
+
+[316] [korean    ] [vocabulary] 엄마랑
+
+[317] [english   ] [grammar   ] The murder weapon, Robinson's letter opener:
+      语法: DET NOUN NOUN PUNCT _ PROPN PART NOUN NOUN PUNCT
+
+[318] [arabic    ] [sentence  ] لم اشتريت هذه السيارة؟
+
+[319] [korean    ] [vocabulary] 알아야
+
+[320] [english   ] [grammar   ] It is the marrying off of young girls to older men often close relatives that enfurates me.
+      语法: PRON AUX DET NOUN ADP ADP ADJ NOUN ADP ADJ NOUN ADV ADJ NOUN PRON VERB PRON PUNCT
+
+[321] [arabic    ] [sentence  ] أين رأيت توم؟
+
+[322] [korean    ] [vocabulary] 더는
+
+[323] [english   ] [grammar   ] SPLOID.com cited you on the topic of that priest conviction: http://www.sploid.com/news/2006/05/evil_priest_gui.php
+      语法: PROPN VERB PRON ADP DET NOUN ADP DET NOUN NOUN PUNCT PROPN
+
+[324] [arabic    ] [sentence  ] الابتسامة لا تفارق وجه توم.
+
+[325] [korean    ] [vocabulary] 냄새가
+
+[326] [english   ] [grammar   ] The Kevin Coogan publication posted on the previous thread might serve as a good launching point for further discussion.
+      语法: DET PROPN PROPN NOUN VERB ADP DET ADJ NOUN AUX VERB ADP DET ADJ NOUN NOUN ADP ADJ NOUN PUNCT
+
+[327] [arabic    ] [sentence  ] عرفته مباشرة.
+
+[328] [korean    ] [vocabulary] 싶어서
+
+[329] [english   ] [grammar   ] So why even credit their claims?
+      语法: ADV ADV ADV VERB PRON NOUN PUNCT
+
+[330] [arabic    ] [sentence  ] إنها تمطر بغزارة.
+
+[331] [korean    ] [vocabulary] 힘이
+
+[332] [english   ] [grammar   ] I went across the bay last night to attend a farmer's market and music event.
+      语法: PRON VERB ADP DET NOUN ADJ NOUN PART VERB DET _ NOUN PART NOUN CCONJ NOUN NOUN PUNCT
+
+[333] [arabic    ] [sentence  ] تريد أن تلِد في المنزل.
+
+[334] [korean    ] [vocabulary] 결코
+
+[335] [english   ] [grammar   ] Baudelaire was perhaps one of the first 'death metal' artists.
+      语法: PROPN AUX ADV NUM ADP DET ADJ PUNCT NOUN NOUN PUNCT NOUN PUNCT
+
+[336] [portuguese] [vocabulary] ex-namorada
+
+[337] [spanish   ] [grammar   ] Comenzaron la grabación en los Cherokee Studios de Hollywood.
+      语法: VERB DET NOUN ADP DET PROPN PROPN ADP PROPN PUNCT
+
+[338] [russian   ] [sentence  ] Почему он изменил свои планы?
+
+[339] [portuguese] [vocabulary] pacotes
+
+[340] [spanish   ] [grammar   ] HTC también es propietaria de Dopod como una empresa filial.
+      语法: PROPN ADV AUX NOUN ADP PROPN ADP DET NOUN ADJ PUNCT
+
+[341] [russian   ] [sentence  ] Старайся всё упрощать.
+
+[342] [portuguese] [vocabulary] aiden
+
+[343] [spanish   ] [grammar   ] A esta situación, que comparte con otros eventos culturales, se suma una reclamación de la Sociedad General de Autores y Editores (SGAE) de 14.000, por los derechos de autor de las ediciones de 2007, 2008 y 2009, una deuda que los vecinos han asegurado que "no pueden abonar".
+      语法: ADP DET NOUN PUNCT SCONJ VERB ADP DET NOUN ADJ PUNCT PRON VERB DET NOUN ADP DET PROPN PROPN ADP PROPN CCONJ PROPN PUNCT PROPN PUNCT ADP NUM PUNCT ADP DET NOUN ADP NOUN ADP DET NOUN ADP NUM PUNCT NUM CCONJ NUM PUNCT DET NOUN SCONJ DET NOUN AUX VERB SCONJ PUNCT ADV AUX VERB PUNCT PUNCT
+
+[344] [russian   ] [sentence  ] Отель может принять 300 человек.
+
+[345] [portuguese] [vocabulary] maston
+
+[346] [spanish   ] [grammar   ] El relato más completo lo proporciona Plutarco, según el cual los persas habían echado anclas en la desembocadura del Eurimedonte esperando la llegada de 80 naves fenicias procedentes de Chipre.
+      语法: DET NOUN ADV ADJ PRON VERB PROPN PUNCT ADP DET PRON DET NOUN AUX VERB NOUN ADP DET NOUN _ ADP DET PROPN VERB DET NOUN ADP NUM NOUN ADJ ADJ ADP PROPN PUNCT
+
+[347] [russian   ] [sentence  ] Ким одета очень привлекательно.
+
+[348] [english   ] [vocabulary] aahing
+
+[349] [spanish   ] [grammar   ] A pesar de su éxito académico, comenzó a acumular deudas por su extravagante estilo de vida en el colegio.
+      语法: ADP NOUN ADP DET NOUN ADJ PUNCT VERB ADP VERB NOUN ADP DET ADJ NOUN ADP NOUN ADP DET NOUN PUNCT
+
+[350] [russian   ] [sentence  ] Скажи мне, что у тебя на уме.
+
+[351] [english   ] [vocabulary] abacaxi
+
+[352] [spanish   ] [grammar   ] Él entonces va a su sucio hogar de la reducción donde los matones lanzan piedras a través de sus ventanas.
+      语法: PRON ADV VERB ADP DET ADJ NOUN ADP DET NOUN ADV DET NOUN VERB NOUN ADP NOUN ADP DET NOUN PUNCT
+
+[353] [russian   ] [sentence  ] Существует много видов, которые находятся в опасности.
+
+[354] [english   ] [vocabulary] abaissed
+
+[355] [spanish   ] [grammar   ] Aquí podéis ver imágenes de la herradura, disfrutad son de todos y para todos.
+      语法: ADV AUX VERB NOUN ADP DET NOUN PUNCT VERB VERB ADP PRON CCONJ ADP PRON PUNCT
+
+[356] [russian   ] [sentence  ] Я видел её на остановке 5 дней назад, то есть в прошлую пятницу.
+
+[357] [english   ] [vocabulary] abapical
+
+[358] [spanish   ] [grammar   ] El origen de este Municipio es desconocido al igual que el de los otros pueblos mixes, aunque existen tres teorías del origen de los mixes: Una Inca del Perú, otra Europea y otra Olmeca.
+      语法: DET NOUN ADP DET NOUN AUX ADJ _ ADP DET ADJ CCONJ DET ADP DET DET NOUN ADJ PUNCT SCONJ VERB NUM NOUN _ ADP DET NOUN ADP DET NOUN PUNCT PRON ADJ _ ADP DET PROPN PUNCT PRON ADJ CCONJ PRON ADJ PUNCT
+
+[359] [russian   ] [sentence  ] Эту фразу переведут.
+
+[360] [english   ] [vocabulary] abasio
+
+[361] [spanish   ] [grammar   ] Este informe fue desconcertante - pues el polen de la mayoría de plantas de maíz transgénicas contiene niveles de Bt mucho más bajos que el resto del vegetal - y dio lugar a varios estudios de seguimiento.
+      语法: DET NOUN AUX ADJ PUNCT SCONJ DET NOUN ADP DET NOUN ADP NOUN ADP NOUN ADJ VERB NOUN ADP X ADJ ADV ADJ CCONJ DET NOUN _ ADP DET NOUN PUNCT CCONJ VERB NOUN ADP DET NOUN ADP NOUN PUNCT
+
+[362] [russian   ] [sentence  ] Она прогулялась перед завтраком.
+
+[363] [english   ] [vocabulary] abattue
+
+[364] [spanish   ] [grammar   ] No se sabe qué han podido hacerle al niño en esos cinco meses, y nadie más que él ve a Mikal en circunstancias íntimas.
+      语法: ADV PRON VERB PRON AUX AUX _ VERB PRON _ ADP DET NOUN ADP DET NUM NOUN PUNCT CCONJ PRON ADV CCONJ PRON VERB ADP PROPN ADP NOUN ADJ PUNCT
+
+[365] [russian   ] [sentence  ] Я не силён в латыни.
+
+[366] [english   ] [vocabulary] abbest
+
+[367] [spanish   ] [grammar   ] Jugando ante unos 2 mil espectadores, que se dieron cita en la cancha Anacleto Macías "Tolán", los Tigrillos ganaron el primer encuentro por marcador de 2-0 con goles de Juan Carlos Franco e Israel García;
+      语法: VERB ADP DET NUM NUM NOUN PUNCT SCONJ PRON VERB NOUN ADP DET NOUN PROPN PROPN PUNCT VERB PUNCT PUNCT DET PROPN VERB DET ADJ VERB ADP NOUN ADP NUM ADP NOUN ADP PROPN PROPN PROPN CCONJ PROPN PROPN PUNCT
+
+[368] [russian   ] [sentence  ] Апельсин оставил странный вкус у меня во рту.
+
+[369] [english   ] [vocabulary] abcissa
+
+[370] [spanish   ] [grammar   ] Todos los sectores experimentaron disminuciones interanuales, salvo las actividades administrativas y servicios auxiliares, que presentaron un incremento del 1,3 %.
+      语法: DET DET NOUN VERB NOUN ADJ PUNCT ADP DET NOUN ADJ CCONJ NOUN ADJ PUNCT SCONJ VERB DET NOUN _ ADP DET NUM SYM PUNCT
+
+[371] [russian   ] [sentence  ] Мы ждали на месте происшествия, пока не подъехала полиция.
+
+[372] [english   ] [vocabulary] abdominoanterior
+
+[373] [spanish   ] [grammar   ] ¿Ninguno te condenó?
+      语法: PUNCT PRON PRON VERB PUNCT
+
+[374] [russian   ] [sentence  ] Все эти споры утомляют меня.
+
+[375] [english   ] [vocabulary] abearance
+
+[376] [spanish   ] [grammar   ] Se convirtió al cristianismo.
+      语法: PRON VERB _ ADP DET NOUN PUNCT
+
+[377] [russian   ] [sentence  ] Ты легко отвлекаешься.
+
+[378] [english   ] [vocabulary] abencerrages
+
+[379] [spanish   ] [grammar   ] Teresa, Amanda y Ema quedan por accidente encerradas en la casa de la infancia, donde se habían reencontrado después de la muerte de su madre.
+      语法: PROPN PUNCT PROPN CCONJ PROPN VERB ADP NOUN VERB ADP DET NOUN ADP DET NOUN PUNCT ADV PRON AUX VERB ADV ADP DET NOUN ADP DET NOUN PUNCT
+
+[380] [russian   ] [sentence  ] День уйгурской культуры прошёл в Павлодаре.
+
+[381] [english   ] [vocabulary] abet
+
+[382] [spanish   ] [grammar   ] Entra en la Escuela Militar Especial de Saint - Cyr en 1830, y es promovido al puesto en 1832.
+      语法: VERB ADP DET NOUN ADJ ADJ ADP PROPN PUNCT PROPN ADP NUM PUNCT CCONJ AUX VERB _ ADP DET NOUN ADP NUM PUNCT
+
+[383] [russian   ] [sentence  ] Вполне возможно, что она будет успешной.
+
+[384] [english   ] [vocabulary] abhorson
+
+[385] [spanish   ] [grammar   ] Su actividad está circunscrita a la comunidad autónoma de Castilla y León.
+      语法: DET NOUN AUX VERB ADP DET NOUN ADJ ADP PROPN CCONJ PROPN PUNCT
+
+[386] [russian   ] [sentence  ] Я ничего не знаю о картофеле.
+
+[387] [english   ] [vocabulary] abigail
+
+[388] [spanish   ] [grammar   ] Vería usted entonces que no hemos estado ociosos."
+      语法: VERB PRON ADV SCONJ ADV AUX AUX ADJ PUNCT PUNCT
+
+[389] [russian   ] [sentence  ] Я не разрешаю спать в классе.
+
+[390] [english   ] [vocabulary] abiotically
+
+[391] [spanish   ] [grammar   ] Se casaron el 17 de diciembre de 1946, en Granada, lo que dio motivo a una gigantesca fiesta en el Camino del Monte, al lado del río Darro y bajo la imponente silueta de la Alhambra.
+      语法: PRON VERB DET NUM ADP PROPN ADP NUM PUNCT ADP PROPN PUNCT PRON SCONJ VERB NOUN ADP DET ADJ NOUN ADP DET PROPN _ ADP DET PROPN PUNCT _ ADP DET NOUN _ ADP DET NOUN PROPN CCONJ ADP DET ADJ NOUN ADP DET PROPN PUNCT
+
+[392] [russian   ] [sentence  ] Он не видел никого.
+
+[393] [english   ] [vocabulary] abjection
+
+[394] [spanish   ] [grammar   ] Los cursos son amenos, fáciles, muy bien explicados, con documentación y apoyo continuo.
+      语法: DET NOUN AUX ADJ PUNCT ADJ PUNCT ADV ADV ADJ PUNCT ADP NOUN CCONJ NOUN ADJ PUNCT
+
+[395] [russian   ] [sentence  ] У птиц острое зрение.
+
+[396] [english   ] [vocabulary] abl
+
+[397] [spanish   ] [grammar   ] Las aguas del Lago Black Moshannon son más calientes que las de los arroyos, y así puede mantener muchas especies diferentes de peces, incluyendo a las lubinas negras, al lucio de lago, percas amarillas, pickerel de cadena, bagre cabeza de toro, lucio europeo, chopa criolla, y otros peces.
+      语法: DET NOUN _ ADP DET NOUN PROPN PROPN AUX ADV ADJ CCONJ PRON ADP DET NOUN PUNCT CCONJ ADV AUX VERB DET NOUN ADJ ADP NOUN PUNCT VERB ADP DET NOUN ADJ PUNCT _ ADP DET NOUN ADP NOUN PUNCT NOUN ADJ PUNCT NOUN ADP NOUN PUNCT NOUN NOUN ADP NOUN PUNCT NOUN ADJ PUNCT NOUN ADJ PUNCT CCONJ DET NOUN PUNCT
+
+[398] [russian   ] [sentence  ] Лучше для тебя будет, если ты не будешь ничего больше есть перед сном.
+
+[399] [english   ] [vocabulary] ableness
+
+[400] [spanish   ] [grammar   ] El lanzamiento comercial del álbum fue acompañado con la publicación del segundo sencillo "Beautiful Tragedy".
+      语法: DET NOUN ADJ _ ADP DET NOUN AUX VERB ADP DET NOUN _ ADP DET NOUN ADJ PUNCT PROPN PROPN PUNCT PUNCT
+
+[401] [russian   ] [sentence  ] Футбольная команда состоит из одиннадцати игроков.
+
+[402] [english   ] [vocabulary] abmodality
+
+[403] [spanish   ] [grammar   ] Cuando su carrera fue disminuyendo de manera gradual en la década de 1950, se centró en la dirección de eventos para la recogida de fondos, siendo sus objetivos favoritos el Ejército de Salvación y la investigación de las enfermedades cardiacas y la parálisis cerebral, una afección que sufría su hija.
+      语法: SCONJ DET NOUN AUX VERB ADP NOUN ADJ ADP DET NOUN ADP NUM PUNCT PRON VERB ADP DET NOUN ADP NOUN ADP DET NOUN ADP NOUN PUNCT AUX DET NOUN ADJ DET PROPN ADP PROPN CCONJ DET NOUN ADP DET NOUN ADJ CCONJ DET NOUN ADJ PUNCT DET NOUN SCONJ VERB DET NOUN PUNCT
+
+[404] [russian   ] [sentence  ] Ещё одна российская теннисистка приняла гражданство Казахстана.
+
+[405] [english   ] [vocabulary] abnormity
+
+[406] [spanish   ] [grammar   ] Debido a que el Garcilaso se estaba remodelando la final de vuelta se jugo en el Monumental de la UNSA a pesar de quedarse con 9 jugadores Cienciano logra un agonico triunfo a River con gol de Carlos Lugo de tiro libre desatando la alegria peruana este gol fue marcado en el minuto 78 del partido logrando asi su primer campeonato internacional y tambien el goleador fue Germán Carty delantero de Cienciano con 6 goles.
+      语法: VERB ADP SCONJ DET NOUN PRON AUX VERB DET NOUN ADP NOUN PRON VERB ADP DET PROPN ADP DET PROPN ADP NOUN ADP _ VERB PRON ADP NUM NOUN PROPN VERB DET ADJ NOUN ADP PROPN ADP NOUN ADP PROPN PROPN ADP NOUN ADJ VERB DET NOUN ADJ DET NOUN AUX VERB ADP DET NOUN NUM _ ADP DET NOUN VERB ADV DET ADJ NOUN ADJ CCONJ ADV DET NOUN AUX PROPN PROPN NOUN ADP PROPN ADP NUM NOUN PUNCT
+
+[407] [russian   ] [sentence  ] Ты вреден для моего здоровья!
+
+[408] [english   ] [vocabulary] abolishes
+
+[409] [spanish   ] [grammar   ] Palais y Hartl dicen tener un numero de ventajas al usar τ en vez de π.
+      语法: PROPN CCONJ PROPN VERB VERB DET NOUN ADP NOUN _ ADP DET VERB PROPN ADP NOUN ADP PROPN PUNCT
+
+[410] [russian   ] [sentence  ] Старик внезапно остановился и посмотрел назад.
+
+[411] [english   ] [vocabulary] abomination
+
+[412] [spanish   ] [grammar   ] La pensión media de jubilación alcanzó en noviembre los 890,85 euros mensuales, lo que supone un 3,6 por ciento más respecto al mismo mes de 2009.
+      语法: DET NOUN ADJ ADP NOUN VERB ADP PROPN DET NUM NOUN ADJ PUNCT PRON SCONJ VERB DET NUM ADP NUM ADV NOUN _ ADP DET ADJ NOUN ADP NUM PUNCT
+
+[413] [russian   ] [sentence  ] Было непросто заработать много денег за короткое время.
+
+[414] [english   ] [vocabulary] abortion
+
+[415] [spanish   ] [grammar   ] Rodolfo Liviero es un escultor autodidacta, nacido en Córdoba (Argentina) el 12 de abril de 1948.
+      语法: PROPN PROPN AUX DET NOUN ADJ PUNCT VERB ADP PROPN PUNCT PROPN PUNCT DET NUM ADP PROPN ADP NUM PUNCT
+
+[416] [russian   ] [sentence  ] Его сторонники были в страхе.
+
+[417] [english   ] [vocabulary] aboveproof
+
+[418] [spanish   ] [grammar   ] Del total de la población el 2.12 % eran hispanos o latinos de cualquier raza.
+      语法: ADP NOUN ADP DET NOUN DET NUM SYM AUX ADJ CCONJ NOUN ADP DET NOUN PUNCT
+
+[419] [russian   ] [sentence  ] Друг друга - тоже друг.
+
+[420] [english   ] [vocabulary] abranchiate
+
+[421] [spanish   ] [grammar   ] El tipo de brochas de afeitar de hoy en día puede remontarse a la Francia de los años 1750s.
+      语法: DET NOUN ADP NOUN ADP PROPN ADP ADV ADP NOUN AUX _ VERB PRON ADP DET PROPN ADP DET NOUN NUM PUNCT
+
+[422] [russian   ] [sentence  ] Сахар сладок.
+
+[423] [english   ] [vocabulary] abrenunciate
+
+[424] [spanish   ] [grammar   ] El juicio resultó en una victoria para el acusado.
+      语法: DET NOUN VERB ADP DET NOUN ADP DET NOUN PUNCT
+

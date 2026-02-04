@@ -1,0 +1,848 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Fate Files Kernel
+# 智能文件管理系统 - 把 Hub 反过来用
+# ═══════════════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────────────
+# 用户权限系统
+# ───────────────────────────────────────────────────────────────────
+
+# 权限级别
+permission_levels = {
+    guest: 0,      # 只读
+    user: 1,       # 读写自己的文件
+    power: 2,      # 读写 + 整理
+    admin: 3,      # 完全控制
+    root: 4        # 系统级权限
+}
+
+# 权限定义
+permissions = {
+    read: "read",           # 读取文件
+    write: "write",         # 写入文件
+    delete: "delete",       # 删除文件
+    organize: "organize",   # 智能整理
+    merge: "merge",         # 合并文件夹
+    rename: "rename",       # 重命名
+    preserve: "preserve",   # 管理保留区
+    recursive: "recursive", # 递归操作
+    admin: "admin"          # 管理员操作
+}
+
+# 用户权限映射
+user_permissions = {
+    guest: ["read"],
+    user: ["read", "write", "rename"],
+    power: ["read", "write", "delete", "organize", "rename", "preserve"],
+    admin: ["read", "write", "delete", "organize", "merge", "rename", "preserve", "recursive"],
+    root: ["read", "write", "delete", "organize", "merge", "rename", "preserve", "recursive", "admin"]
+}
+
+# 当前用户
+current_user = {
+    name: "user",
+    level: "user",
+    home: "/home/user"
+}
+
+# 检查权限
+check_permission -> function(action) {
+    level = current_user.level
+    allowed = user_permissions[level] || []
+    
+    when allowed -> includes(action) {
+        true -> return
+    }
+    
+    false -> return
+}
+
+# 要求权限 (如果没有权限则抛出错误)
+require_permission -> function(action) {
+    when !check_permission(action) {
+        throw "权限不足: 需要 " + action + " 权限 (当前级别: " + current_user.level + ")"
+    }
+}
+
+# 设置用户
+set_user -> function(name, level) {
+    require_permission("admin")
+    
+    current_user.name = name
+    current_user.level = level
+    current_user.home = "/home/" + name
+    
+    out "[FateFiles] 切换用户: " + name + " (级别: " + level + ")"
+}
+
+# 提升权限 (需要验证)
+elevate_permission -> function(target_level, password) {
+    # 验证密码 (简化版)
+    when password == "valhalla" {
+        current_user.level = target_level
+        out "[FateFiles] 权限提升至: " + target_level
+        true -> return
+    }
+    
+    out "[FateFiles] 权限提升失败: 密码错误"
+    false -> return
+}
+
+# 获取当前用户信息
+get_current_user -> function() {
+    {
+        name: current_user.name,
+        level: current_user.level,
+        permissions: user_permissions[current_user.level] || []
+    } -> return
+}
+
+# ┌─────────────────────────────────────────────────────────────────┐
+# │                    Fate Files (反向Hub)                          │
+# │   文件系统 ──→ Fate分析 ──→ 四元分类 ──→ 智能整理                │
+# └─────────────────────────────────────────────────────────────────┘
+#                              │
+#          ┌──────────────────┼──────────────────┐
+#          │                  │                  │
+#    ┌─────▼─────┐     ┌─────▼─────┐     ┌─────▼─────┐
+#    │ BlackHole │     │ MeshBrain │     │ MultiNova │
+#    │  压缩/去重  │     │  语义分析  │     │  批量处理  │
+#    └───────────┘     └───────────┘     └───────────┘
+
+# ───────────────────────────────────────────────────────────────────
+# 保留区 (Preserve Zone) - 不被自动整理的文件
+# ───────────────────────────────────────────────────────────────────
+
+preserve_zone = {
+    enabled: true,
+    path: "/.preserve",  # 系统保留区路径
+    files: [],           # 保留的文件列表
+    patterns: []         # 保留的模式 (如 *.important)
+}
+
+# 保留区配置
+preserve_config = {
+    show_in_sidebar: true,
+    allow_drag_out: true,   # 允许拖出到 Fate 管理
+    auto_backup: false,
+    max_size: null          # 无限制
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 文件特征提取 (从 Rust FileHub 移植)
+# ───────────────────────────────────────────────────────────────────
+
+# 文件类型分类
+file_categories = {
+    ai_generated: ["DALL·E", "DALL-E", "midjourney", "stable_diffusion", "chatgpt", "claude"],
+    screenshot: ["Screenshot", "截图", "screen"],
+    photo: ["IMG_", "photo_", "DSC", "DCIM"],
+    video: ["mp4", "avi", "mkv", "mov", "webm"],
+    audio: ["mp3", "wav", "flac", "m4a", "ogg"],
+    document: ["pdf", "doc", "docx", "txt", "md", "ppt", "xls"],
+    archive: ["zip", "rar", "7z", "tar", "gz"],
+    code: ["wave", "rs", "py", "js", "ts", "c", "cpp"]
+}
+
+# 日期模式
+date_patterns = [
+    "\\d{4}-\\d{2}-\\d{2}",      # 2023-12-14
+    "\\d{8}",                     # 20231214
+    "\\d{4}\\.\\d{2}\\.\\d{2}"   # 2023.12.14
+]
+
+# ───────────────────────────────────────────────────────────────────
+# 核心函数
+# ───────────────────────────────────────────────────────────────────
+
+fate_files_init -> function() {
+    out "[FateFiles] 智能文件管理系统初始化..."
+    
+    # 确保保留区存在
+    preserve_zone.path -> ensure_preserve_zone
+    
+    # 加载保留列表
+    load_preserve_list()
+    
+    # 初始化模式数据库
+    pattern_db = {
+        learned_patterns: [],
+        category_mappings: {},
+        confidence_scores: {}
+    }
+    
+    out "[FateFiles] 就绪 - 保留区: " + preserve_zone.path
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 保留区操作
+# ───────────────────────────────────────────────────────────────────
+
+ensure_preserve_zone -> function(path) {
+    when !storage.exists(path) {
+        storage.create_dir(path)
+        out "[FateFiles] 创建保留区: " + path
+    }
+}
+
+# 添加文件到保留区
+add_to_preserve -> function(file_path) {
+    require_permission("preserve")
+    
+    # 检查是否已在保留区
+    when is_preserved(file_path) {
+        false -> return  # 已存在
+    }
+    
+    file_path -> preserve_zone.files.push
+    save_preserve_list()
+    
+    out "[FateFiles] 已添加到保留区: " + file_path
+    true -> return
+}
+
+# 从保留区移除 (拖放到 Fate 管理)
+remove_from_preserve -> function(file_path) {
+    preserve_zone.files = preserve_zone.files -> filter(f => f != file_path)
+    save_preserve_list()
+    
+    out "[FateFiles] 已从保留区移除: " + file_path
+}
+
+# 检查是否在保留区
+is_preserved -> function(file_path) {
+    # 检查直接路径
+    when preserve_zone.files -> includes(file_path) {
+        true -> return
+    }
+    
+    # 检查是否在保留区目录内
+    when file_path -> starts_with(preserve_zone.path) {
+        true -> return
+    }
+    
+    # 检查模式匹配
+    preserve_zone.patterns -> fate_each -> pattern {
+        when file_path -> matches(pattern) {
+            true -> return
+        }
+    }
+    
+    false -> return
+}
+
+# 移动文件到保留区
+move_to_preserve -> function(file_path) {
+    filename -> file_path -> get_filename
+    target = preserve_zone.path + "/" + filename
+    
+    storage.rename(file_path, target)
+    target -> preserve_zone.files.push
+    save_preserve_list()
+    
+    out "[FateFiles] 已移动到保留区: " + filename
+    target -> return
+}
+
+# 从保留区拖放到 Fate 管理
+drag_from_preserve -> function(file_path, target_path) {
+    # 移除保留标记
+    remove_from_preserve(file_path)
+    
+    # 如果提供了目标路径，移动文件
+    when target_path != null {
+        storage.rename(file_path, target_path)
+        out "[FateFiles] 从保留区移动到: " + target_path
+        target_path -> return
+    }
+    
+    # 否则，让 Fate 自动分析并移动
+    file_path -> fate_auto_organize -> new_path
+    new_path -> return
+}
+
+# 保存/加载保留列表
+save_preserve_list -> function() {
+    data = {
+        files: preserve_zone.files,
+        patterns: preserve_zone.patterns
+    }
+    data -> json.stringify -> content
+    storage.write_file(preserve_zone.path + "/.preserve_list", content)
+}
+
+load_preserve_list -> function() {
+    list_path = preserve_zone.path + "/.preserve_list"
+    when storage.exists(list_path) {
+        content -> storage.read_file(list_path)
+        data -> json.parse(content)
+        preserve_zone.files = data.files || []
+        preserve_zone.patterns = data.patterns || []
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 文件分析 (Fate 模式识别)
+# ───────────────────────────────────────────────────────────────────
+
+# 分析单个文件
+analyze_file -> function(file_path) {
+    # 检查是否在保留区
+    when is_preserved(file_path) {
+        {
+            path: file_path,
+            preserved: true,
+            category: "preserved",
+            suggestion: null
+        } -> return
+    }
+    
+    filename -> file_path -> get_filename
+    ext -> filename -> get_extension
+    
+    # 提取特征
+    features = {
+        name: filename,
+        extension: ext,
+        date_pattern: extract_date(filename),
+        source_tag: detect_ai_source(filename),
+        language: detect_language(filename),
+        category: categorize_file(filename, ext)
+    }
+    
+    # 生成建议
+    suggestion -> generate_suggestion(features)
+    
+    {
+        path: file_path,
+        preserved: false,
+        features: features,
+        category: features.category,
+        suggestion: suggestion
+    } -> return
+}
+
+# 检测 AI 来源
+detect_ai_source -> function(filename) {
+    file_categories.ai_generated -> fate_each -> tag {
+        when filename -> contains_ignore_case(tag) {
+            tag -> return
+        }
+    }
+    null -> return
+}
+
+# 提取日期
+extract_date -> function(filename) {
+    date_patterns -> fate_each -> pattern {
+        match -> filename -> regex_match(pattern)
+        when match != null {
+            match -> return
+        }
+    }
+    null -> return
+}
+
+# 检测语言
+detect_language -> function(filename) {
+    has_chinese = filename -> has_cjk_chars
+    has_english = filename -> has_ascii_alpha
+    
+    when has_chinese && !has_english { "chinese" -> return }
+    when !has_chinese && has_english { "english" -> return }
+    when has_chinese && has_english { "mixed" -> return }
+    "unknown" -> return
+}
+
+# 文件分类
+categorize_file -> function(filename, ext) {
+    # 检查 AI 来源
+    when detect_ai_source(filename) != null {
+        "ai_generated" -> return
+    }
+    
+    # 检查截图
+    file_categories.screenshot -> fate_each -> tag {
+        when filename -> contains_ignore_case(tag) {
+            "screenshot" -> return
+        }
+    }
+    
+    # 根据扩展名
+    when ["png", "jpg", "jpeg", "gif", "webp"] -> includes(ext) {
+        # 检查是否是手机照片
+        file_categories.photo -> fate_each -> tag {
+            when filename -> starts_with(tag) {
+                "photo" -> return
+            }
+        }
+        "image" -> return
+    }
+    
+    when file_categories.video -> includes(ext) { "video" -> return }
+    when file_categories.audio -> includes(ext) { "audio" -> return }
+    when file_categories.document -> includes(ext) { "document" -> return }
+    when file_categories.archive -> includes(ext) { "archive" -> return }
+    when file_categories.code -> includes(ext) { "code" -> return }
+    
+    "unknown" -> return
+}
+
+# 生成整理建议
+generate_suggestion -> function(features) {
+    target_folder = ""
+    confidence = 50
+    reason = ""
+    
+    # 根据来源标签
+    when features.source_tag != null {
+        target_folder = "AI生成/" + features.source_tag
+        confidence = 90
+        reason = "检测到 " + features.source_tag + " 生成标识"
+    } else {
+        # 根据类别
+        category_folders = {
+            ai_generated: "AI生成",
+            screenshot: "截图",
+            photo: "照片",
+            image: "图片",
+            video: "视频",
+            audio: "音频",
+            document: "文档",
+            archive: "压缩包",
+            code: "代码",
+            unknown: "其他"
+        }
+        
+        target_folder = category_folders[features.category] || "其他"
+        confidence = 75
+        reason = "根据文件类型 " + features.category + " 分类"
+    }
+    
+    # 如果有日期，按年月分
+    when features.date_pattern != null {
+        year_month -> extract_year_month(features.date_pattern)
+        when year_month != null {
+            target_folder = target_folder + "/" + year_month
+        }
+    }
+    
+    {
+        target_folder: target_folder,
+        confidence: confidence,
+        reason: reason
+    } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 批量整理操作
+# ───────────────────────────────────────────────────────────────────
+
+# 分析目录
+analyze_directory -> function(dir_path) {
+    entries -> storage.list_dir(dir_path)
+    
+    results = {
+        total_files: 0,
+        preserved: 0,
+        categories: {},
+        suggestions: [],
+        patterns: []
+    }
+    
+    entries -> fate_each -> entry {
+        when entry.type == "file" {
+            results.total_files = results.total_files + 1
+            
+            file_path = dir_path + "/" + entry.name
+            analysis -> analyze_file(file_path)
+            
+            when analysis.preserved {
+                results.preserved = results.preserved + 1
+            } else {
+                # 统计类别
+                cat = analysis.category
+                results.categories[cat] = (results.categories[cat] || 0) + 1
+                
+                # 添加建议
+                { file: analysis, suggestion: analysis.suggestion } -> results.suggestions.push
+            }
+        }
+    }
+    
+    results -> return
+}
+
+# 自动整理单个文件
+fate_auto_organize -> function(file_path) {
+    require_permission("organize")
+    
+    analysis -> analyze_file(file_path)
+    
+    when analysis.preserved {
+        out "[FateFiles] 跳过保留文件: " + file_path
+        file_path -> return
+    }
+    
+    suggestion = analysis.suggestion
+    when suggestion == null {
+        file_path -> return
+    }
+    
+    # 确保目标文件夹存在
+    base_dir -> file_path -> get_parent_path
+    target_dir = base_dir + "/" + suggestion.target_folder
+    storage.create_dir_recursive(target_dir)
+    
+    # 移动文件
+    filename -> file_path -> get_filename
+    new_path = target_dir + "/" + filename
+    
+    storage.rename(file_path, new_path)
+    
+    out "[FateFiles] 整理: " + filename + " -> " + suggestion.target_folder
+    new_path -> return
+}
+
+# 执行批量整理
+execute_organization -> function(dir_path, dry_run) {
+    require_permission("organize")
+    when !dry_run {
+        require_permission("write")
+    }
+    
+    analysis -> analyze_directory(dir_path)
+    
+    report = {
+        total: analysis.total_files,
+        moved: 0,
+        skipped: analysis.preserved,
+        failed: 0,
+        operations: []
+    }
+    
+    analysis.suggestions -> fate_each -> item {
+        file_path = item.file.path
+        suggestion = item.suggestion
+        
+        when dry_run {
+            # 干运行模式
+            {
+                source: file_path,
+                target: suggestion.target_folder,
+                status: "dry_run"
+            } -> report.operations.push
+            report.moved = report.moved + 1
+        } else {
+            # 实际执行
+            try {
+                fate_auto_organize(file_path)
+                {
+                    source: file_path,
+                    target: suggestion.target_folder,
+                    status: "success"
+                } -> report.operations.push
+                report.moved = report.moved + 1
+            } catch err {
+                {
+                    source: file_path,
+                    target: suggestion.target_folder,
+                    status: "failed",
+                    error: err
+                } -> report.operations.push
+                report.failed = report.failed + 1
+            }
+        }
+    }
+    
+    report -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 高级文件夹操作 - 合并、重命名、批量处理
+# ───────────────────────────────────────────────────────────────────
+
+# 冲突处理策略
+conflict_strategies = {
+    skip: "skip",           # 跳过冲突文件
+    overwrite: "overwrite", # 覆盖
+    rename: "rename",       # 重命名 (添加序号)
+    keep_both: "keep_both"  # 保留两者
+}
+
+# 合并多个文件夹
+merge_folders -> function(sources, target, strategy) {
+    require_permission("merge")
+    
+    when strategy == null { strategy = "keep_both" }
+    
+    report = {
+        total_files: 0,
+        moved: 0,
+        skipped: 0,
+        conflicts: 0,
+        errors: []
+    }
+    
+    # 确保目标目录存在
+    storage.create_dir_recursive(target)
+    
+    sources -> fate_each -> source {
+        when !storage.is_dir(source) {
+            ("不是目录: " + source) -> report.errors.push
+            continue
+        }
+        
+        entries -> storage.list_dir(source)
+        
+        entries -> fate_each -> entry {
+            report.total_files = report.total_files + 1
+            
+            source_path = source + "/" + entry.name
+            target_path = target + "/" + entry.name
+            
+            when storage.exists(target_path) {
+                report.conflicts = report.conflicts + 1
+                
+                when strategy == "skip" {
+                    report.skipped = report.skipped + 1
+                    continue
+                }
+                when strategy == "overwrite" {
+                    storage.remove(target_path)
+                }
+                when strategy == "rename" || strategy == "keep_both" {
+                    target_path = get_unique_path(target_path)
+                }
+            }
+            
+            try {
+                storage.rename(source_path, target_path)
+                report.moved = report.moved + 1
+            } catch err {
+                report.skipped = report.skipped + 1
+                (entry.name + ": " + err) -> report.errors.push
+            }
+        }
+    }
+    
+    report -> return
+}
+
+# 重命名文件夹
+rename_folder -> function(source, new_name) {
+    parent -> source -> get_parent_path
+    target = parent + "/" + new_name
+    
+    when storage.exists(target) {
+        throw "目标已存在: " + target
+    }
+    
+    storage.rename(source, target)
+    
+    out "[FateFiles] 重命名: " + source + " -> " + new_name
+    target -> return
+}
+
+# 批量重命名文件
+batch_rename -> function(folder, pattern, replacement, add_sequence) {
+    when add_sequence == null { add_sequence = false }
+    
+    report = {
+        total: 0,
+        renamed: 0,
+        skipped: 0,
+        errors: []
+    }
+    
+    entries -> storage.list_dir(folder)
+    sequence = 1
+    
+    entries -> fate_each -> entry {
+        when entry.type == "file" {
+            report.total = report.total + 1
+            
+            when entry.name -> regex_match(pattern) {
+                new_name = entry.name -> regex_replace(pattern, replacement)
+                
+                when add_sequence {
+                    stem -> new_name -> get_stem
+                    ext -> new_name -> get_extension
+                    ext_str = ext != "" ? ("." + ext) : ""
+                    new_name = stem + "_" + sequence.pad(4, "0") + ext_str
+                    sequence = sequence + 1
+                }
+                
+                source_path = folder + "/" + entry.name
+                target_path = folder + "/" + new_name
+                
+                when storage.exists(target_path) {
+                    report.skipped = report.skipped + 1
+                    ("目标已存在: " + new_name) -> report.errors.push
+                    continue
+                }
+                
+                try {
+                    storage.rename(source_path, target_path)
+                    report.renamed = report.renamed + 1
+                } catch err {
+                    report.skipped = report.skipped + 1
+                    (entry.name + ": " + err) -> report.errors.push
+                }
+            } else {
+                report.skipped = report.skipped + 1
+            }
+        }
+    }
+    
+    report -> return
+}
+
+# 创建 fate-organize 目录结构
+create_fate_organize_structure -> function(base_path) {
+    fate_dir = base_path + "/fate-organize"
+    
+    # 创建主目录和子目录
+    subdirs = [
+        "",
+        "AI生成",
+        "AI生成/DALL-E",
+        "AI生成/ChatGPT",
+        "AI生成/Midjourney",
+        "图片",
+        "图片/照片",
+        "图片/截图",
+        "视频",
+        "音频",
+        "文档",
+        "压缩包",
+        "代码",
+        "其他",
+        ".preserve"
+    ]
+    
+    subdirs -> fate_each -> subdir {
+        path = fate_dir + "/" + subdir
+        storage.create_dir_recursive(path)
+    }
+    
+    out "[FateFiles] 创建 fate-organize 结构: " + fate_dir
+    fate_dir -> return
+}
+
+# 获取唯一路径 (避免覆盖)
+get_unique_path -> function(path) {
+    when !storage.exists(path) {
+        path -> return
+    }
+    
+    stem -> path -> get_stem
+    ext -> path -> get_extension
+    parent -> path -> get_parent_path
+    ext_str = ext != "" ? ("." + ext) : ""
+    
+    counter = 1
+    loop {
+        new_path = parent + "/" + stem + " (" + counter + ")" + ext_str
+        when !storage.exists(new_path) {
+            new_path -> return
+        }
+        counter = counter + 1
+    }
+}
+
+get_stem -> function(path) {
+    filename -> path -> get_filename
+    parts -> filename.split(".")
+    when parts.length > 1 {
+        parts.pop()
+        parts.join(".") -> return
+    }
+    filename -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 辅助函数
+# ───────────────────────────────────────────────────────────────────
+
+get_filename -> function(path) {
+    parts -> path.split("/")
+    parts[parts.length - 1] -> return
+}
+
+get_parent_path -> function(path) {
+    parts -> path.split("/")
+    parts.pop()
+    parts.join("/") -> return
+}
+
+get_extension -> function(filename) {
+    parts -> filename.split(".")
+    when parts.length > 1 {
+        parts[parts.length - 1] -> lower -> return
+    }
+    "" -> return
+}
+
+extract_year_month -> function(date_str) {
+    when date_str.length >= 7 {
+        date_str[0..7] -> replace("-", "/") -> return
+    }
+    null -> return
+}
+
+contains_ignore_case -> function(str, substr) {
+    str -> lower -> contains(substr -> lower)
+}
+
+has_cjk_chars -> function(str) {
+    str -> regex_match("[\\u4e00-\\u9fff]") != null
+}
+
+has_ascii_alpha -> function(str) {
+    str -> regex_match("[a-zA-Z]") != null
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 导出
+# ───────────────────────────────────────────────────────────────────
+
+module.exports = {
+    # 初始化
+    fate_files_init,
+    
+    # 权限系统
+    permission_levels,
+    permissions,
+    check_permission,
+    require_permission,
+    set_user,
+    elevate_permission,
+    get_current_user,
+    
+    # 保留区
+    preserve_zone,
+    add_to_preserve,
+    remove_from_preserve,
+    move_to_preserve,
+    drag_from_preserve,
+    is_preserved,
+    
+    # 分析
+    analyze_file,
+    analyze_directory,
+    
+    # 整理
+    fate_auto_organize,
+    execute_organization,
+    
+    # 高级操作
+    merge_folders,
+    rename_folder,
+    batch_rename,
+    create_fate_organize_structure,
+    get_unique_path,
+    
+    # 冲突策略
+    conflict_strategies
+}

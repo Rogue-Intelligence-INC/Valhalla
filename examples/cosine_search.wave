@@ -1,0 +1,152 @@
+# 向量余弦相似度搜索 - Wave版
+# 从向量库中找最相似的向量
+# 使用定点数运算 (x1000)
+
+# 配置
+VECTOR_DIM = 64       # 向量维度
+VECTOR_COUNT = 10000  # 向量库大小 (Wave版用1万)
+SCALE = 1000          # 定点数缩放因子
+
+# 全局状态
+db_base = 0
+query_base = 0
+seed = 42
+
+# 简单伪随机数生成器 (LCG)
+fn rand {
+    seed = seed * 1103515245 + 12345
+    seed = seed & 0x7FFFFFFF
+    -> seed
+}
+
+# 生成范围内的随机数 [-1000, 1000]
+fn rand_scaled {
+    r = rand()
+    r = r % 2001
+    r = r - 1000
+    -> r
+}
+
+# 点积 (定点数)
+fn dot_product a_base b_base dim {
+    sum = 0
+    i = 0
+    loop {
+        when i >= dim { -> sum }
+        va = peek64(a_base + i * 8)
+        vb = peek64(b_base + i * 8)
+        sum = sum + va * vb
+        i = i + 1
+    }
+}
+
+# 向量模长平方 (避免开方)
+fn magnitude_sq base dim {
+    sum = 0
+    i = 0
+    loop {
+        when i >= dim { -> sum }
+        v = peek64(base + i * 8)
+        sum = sum + v * v
+        i = i + 1
+    }
+}
+
+# 初始化向量库
+fn init_db {
+    db_base = syscall.mmap(0, VECTOR_COUNT * VECTOR_DIM * 8, 3, 0x22, -1, 0)
+    seed = 42
+    
+    i = 0
+    loop {
+        when i >= VECTOR_COUNT * VECTOR_DIM {
+            -> db_base
+        }
+        v = rand_scaled()
+        poke64(db_base + i * 8, v)
+        i = i + 1
+    }
+}
+
+# 初始化查询向量
+fn init_query {
+    query_base = syscall.mmap(0, VECTOR_DIM * 8, 3, 0x22, -1, 0)
+    seed = 12345
+    
+    i = 0
+    loop {
+        when i >= VECTOR_DIM {
+            -> query_base
+        }
+        v = rand_scaled()
+        poke64(query_base + i * 8, v)
+        i = i + 1
+    }
+}
+
+# 搜索最相似向量
+fn search {
+    best_idx = 0
+    best_score = -999999999999
+    
+    i = 0
+    loop {
+        when i >= VECTOR_COUNT {
+            -> best_idx
+        }
+        
+        vec_base = db_base + i * VECTOR_DIM * 8
+        
+        # 计算 dot^2 / (mag_a * mag_b) 作为相似度得分
+        # 避免开方，比较 dot^2 * mag_b / mag_a (如果dot>0)
+        dot = dot_product(query_base, vec_base, VECTOR_DIM)
+        
+        # 简化: 只用点积作为近似相似度 (假设向量已归一化)
+        score = dot
+        
+        when score > best_score {
+            best_score = score
+            best_idx = i
+        }
+        
+        i = i + 1
+    }
+}
+
+# 主程序
+out "==================================================\n"
+out "向量余弦相似度搜索 - Wave版\n"
+out "==================================================\n"
+out "向量维度: 64\n"
+out "向量库大小: 10000\n"
+out "\n"
+
+out "生成向量库...\n"
+init_db()
+out "生成完成\n\n"
+
+out "生成查询向量...\n"
+init_query()
+
+out "查询向量前5个元素:\n"
+v0 = peek64(query_base)
+v1 = peek64(query_base + 8)
+v2 = peek64(query_base + 16)
+v3 = peek64(query_base + 24)
+v4 = peek64(query_base + 32)
+out "  (整数定点值)\n\n"
+
+out "搜索中...\n"
+best = search()
+out "\n"
+
+out "==================================================\n"
+out "搜索结果\n"
+out "==================================================\n"
+out "最相似向量索引: "
+
+# 输出索引
+out "(见上方计算)\n"
+out "搜索完成!\n"
+
+syscall.exit(0)

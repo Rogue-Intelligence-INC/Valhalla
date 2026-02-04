@@ -1,0 +1,542 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - GPU Core Layer
+# 独立于 VGA 的显卡抽象层
+# ═══════════════════════════════════════════════════════════════════
+# 时间: 2026-01-23 02:15:46
+# 理念: Wave 不关心具体显卡，Fate 自动适配
+# ═══════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────
+# GPU 抽象 - Fate 统一接口
+# ─────────────────────────────────────────────────────────────────
+
+gpu -> {
+    # 当前活跃的 GPU
+    active: null,
+    
+    # GPU 能力描述
+    caps: {
+        max_width: 0,
+        max_height: 0,
+        color_depth: 0,
+        vram_size: 0,
+        shader_support: false,
+        hw_accel: false,
+        multihead: false
+    },
+    
+    # 帧缓冲
+    framebuffer: {
+        primary: null,
+        back: null,
+        width: 0,
+        height: 0,
+        pitch: 0,
+        bpp: 32
+    },
+    
+    # 支持的 GPU 类型
+    drivers: [
+        "WAVE_SOFT",      # Wave 软件渲染 (始终可用)
+        "BOCHS_VBE",      # Bochs/QEMU VBE
+        "VMWARE_SVGA",    # VMware SVGA
+        "VIRTIO_GPU",     # VirtIO GPU
+        "INTEL_HD",       # Intel 集成显卡
+        "AMD_RADEON",     # AMD Radeon
+        "NVIDIA_GEFORCE"  # NVIDIA GeForce
+    ]
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# GPU 探测与初始化
+# ═══════════════════════════════════════════════════════════════════
+
+gpu_probe -> function() {
+    out "[GPU] Probing graphics hardware..."
+    
+    detected_gpus = []
+    
+    # 扫描 PCI 总线寻找显卡
+    pci_devices -> fate_scan_pci -> devices
+    
+    devices -> fate_each -> dev {
+        when dev.class == 0x03 {  # Display controller
+            gpu_info = {
+                vendor: dev.vendor_id,
+                device: dev.device_id,
+                bar0: dev.bar0,
+                irq: dev.irq
+            }
+            
+            # 识别厂商
+            when dev.vendor_id == 0x1234 {
+                gpu_info.driver = "BOCHS_VBE"
+                gpu_info.name = "Bochs VBE"
+            }
+            when dev.vendor_id == 0x15AD {
+                gpu_info.driver = "VMWARE_SVGA"
+                gpu_info.name = "VMware SVGA"
+            }
+            when dev.vendor_id == 0x1AF4 {
+                gpu_info.driver = "VIRTIO_GPU"
+                gpu_info.name = "VirtIO GPU"
+            }
+            when dev.vendor_id == 0x8086 {
+                gpu_info.driver = "INTEL_HD"
+                gpu_info.name = "Intel HD Graphics"
+            }
+            when dev.vendor_id == 0x1002 {
+                gpu_info.driver = "AMD_RADEON"
+                gpu_info.name = "AMD Radeon"
+            }
+            when dev.vendor_id == 0x10DE {
+                gpu_info.driver = "NVIDIA_GEFORCE"
+                gpu_info.name = "NVIDIA GeForce"
+            }
+            
+            detected_gpus.push(gpu_info)
+            out "[GPU] Found: " + gpu_info.name
+        }
+    }
+    
+    # 如果没找到硬件 GPU，使用软件渲染
+    when detected_gpus.length == 0 {
+        out "[GPU] No hardware GPU found, using software renderer"
+        detected_gpus.push({
+            driver: "WAVE_SOFT",
+            name: "Wave Software Renderer"
+        })
+    }
+    
+    detected_gpus -> return
+}
+
+gpu_init -> function(preferred_width, preferred_height) {
+    out "[GPU] Initializing..."
+    
+    # 探测 GPU
+    gpus = gpu_probe()
+    
+    # Fate 选择最佳 GPU
+    gpu.active = gpus -> fate_select_best_gpu
+    
+    out "[GPU] Selected: " + gpu.active.name
+    
+    # 加载对应驱动
+    when gpu.active.driver == "WAVE_SOFT" {
+        wave_soft_init(preferred_width, preferred_height)
+    }
+    when gpu.active.driver == "BOCHS_VBE" {
+        bochs_vbe_init(preferred_width, preferred_height)
+    }
+    when gpu.active.driver == "VMWARE_SVGA" {
+        vmware_svga_init(preferred_width, preferred_height)
+    }
+    when gpu.active.driver == "VIRTIO_GPU" {
+        virtio_gpu_init(preferred_width, preferred_height)
+    }
+    when gpu.active.driver == "INTEL_HD" {
+        intel_hd_init(preferred_width, preferred_height)
+    }
+    when gpu.active.driver == "AMD_RADEON" {
+        amd_radeon_init(preferred_width, preferred_height)
+    }
+    when gpu.active.driver == "NVIDIA_GEFORCE" {
+        nvidia_geforce_init(preferred_width, preferred_height)
+    }
+    
+    # 查询能力
+    gpu_query_caps()
+    
+    out "[GPU] Resolution: " + gpu.framebuffer.width + "x" + gpu.framebuffer.height
+    out "[GPU] VRAM: " + (gpu.caps.vram_size / 1024 / 1024) + " MB"
+    out "[GPU] Hardware Accel: " + gpu.caps.hw_accel
+}
+
+gpu_query_caps -> function() {
+    gpu.caps = gpu.active -> driver_query_caps
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# Wave 软件渲染器 (始终可用的后备)
+# ═══════════════════════════════════════════════════════════════════
+
+wave_soft -> {
+    buffer: null,
+    width: 0,
+    height: 0
+}
+
+wave_soft_init -> function(w, h) {
+    wave_soft.width = w
+    wave_soft.height = h
+    wave_soft.buffer = fate_alloc(w * h * 4)  # RGBA
+    
+    gpu.framebuffer.primary = wave_soft.buffer
+    gpu.framebuffer.width = w
+    gpu.framebuffer.height = h
+    gpu.framebuffer.pitch = w * 4
+    gpu.framebuffer.bpp = 32
+    
+    gpu.caps.max_width = 4096
+    gpu.caps.max_height = 4096
+    gpu.caps.color_depth = 32
+    gpu.caps.vram_size = 64 * 1024 * 1024  # 64MB 软件缓冲
+    gpu.caps.hw_accel = false
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# Bochs VBE 驱动 (QEMU 标准)
+# ═══════════════════════════════════════════════════════════════════
+
+bochs_vbe -> {
+    # VBE 寄存器
+    INDEX_PORT: 0x01CE,
+    DATA_PORT: 0x01CF,
+    
+    # VBE 寄存器索引
+    ID: 0,
+    XRES: 1,
+    YRES: 2,
+    BPP: 3,
+    ENABLE: 4,
+    BANK: 5,
+    VIRT_WIDTH: 6,
+    VIRT_HEIGHT: 7,
+    X_OFFSET: 8,
+    Y_OFFSET: 9,
+    
+    lfb_addr: 0xFD000000  # 默认 LFB 地址
+}
+
+bochs_vbe_init -> function(w, h) {
+    # 禁用 VBE
+    bochs_vbe_write(bochs_vbe.ENABLE, 0)
+    
+    # 设置分辨率
+    bochs_vbe_write(bochs_vbe.XRES, w)
+    bochs_vbe_write(bochs_vbe.YRES, h)
+    bochs_vbe_write(bochs_vbe.BPP, 32)
+    bochs_vbe_write(bochs_vbe.VIRT_WIDTH, w)
+    bochs_vbe_write(bochs_vbe.VIRT_HEIGHT, h * 2)  # 双缓冲
+    
+    # 启用 VBE + LFB
+    bochs_vbe_write(bochs_vbe.ENABLE, 0x41)  # VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED
+    
+    # 设置帧缓冲
+    gpu.framebuffer.primary = bochs_vbe.lfb_addr
+    gpu.framebuffer.back = bochs_vbe.lfb_addr + (w * h * 4)
+    gpu.framebuffer.width = w
+    gpu.framebuffer.height = h
+    gpu.framebuffer.pitch = w * 4
+    
+    gpu.caps.max_width = 2560
+    gpu.caps.max_height = 1600
+    gpu.caps.color_depth = 32
+    gpu.caps.vram_size = 16 * 1024 * 1024
+    gpu.caps.hw_accel = false
+}
+
+bochs_vbe_write -> function(index, value) {
+    port_out_word(bochs_vbe.INDEX_PORT, index)
+    port_out_word(bochs_vbe.DATA_PORT, value)
+}
+
+bochs_vbe_read -> function(index) {
+    port_out_word(bochs_vbe.INDEX_PORT, index)
+    value -> port_in_word(bochs_vbe.DATA_PORT)
+    value -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# VMware SVGA 驱动
+# ═══════════════════════════════════════════════════════════════════
+
+vmware_svga -> {
+    INDEX_PORT: 0,
+    VALUE_PORT: 0,
+    
+    # 寄存器
+    REG_ID: 0,
+    REG_ENABLE: 1,
+    REG_WIDTH: 2,
+    REG_HEIGHT: 3,
+    REG_MAX_WIDTH: 4,
+    REG_MAX_HEIGHT: 5,
+    REG_DEPTH: 6,
+    REG_BPP: 7,
+    REG_FB_START: 13,
+    REG_FB_SIZE: 15,
+    REG_CAPS: 17,
+    
+    fifo: null
+}
+
+vmware_svga_init -> function(w, h) {
+    # 从 PCI 获取 IO 端口
+    vmware_svga.INDEX_PORT = gpu.active.bar0 & 0xFFFC
+    vmware_svga.VALUE_PORT = vmware_svga.INDEX_PORT + 1
+    
+    # 检查版本
+    vmware_svga_write(vmware_svga.REG_ID, 0x90000002)
+    id = vmware_svga_read(vmware_svga.REG_ID)
+    
+    when id != 0x90000002 {
+        out "[VMWARE] Unsupported version"
+        return
+    }
+    
+    # 设置分辨率
+    vmware_svga_write(vmware_svga.REG_WIDTH, w)
+    vmware_svga_write(vmware_svga.REG_HEIGHT, h)
+    vmware_svga_write(vmware_svga.REG_BPP, 32)
+    vmware_svga_write(vmware_svga.REG_ENABLE, 1)
+    
+    # 获取帧缓冲地址
+    fb_addr = vmware_svga_read(vmware_svga.REG_FB_START)
+    fb_size = vmware_svga_read(vmware_svga.REG_FB_SIZE)
+    
+    gpu.framebuffer.primary = fb_addr
+    gpu.framebuffer.width = w
+    gpu.framebuffer.height = h
+    gpu.framebuffer.pitch = w * 4
+    
+    gpu.caps.max_width = vmware_svga_read(vmware_svga.REG_MAX_WIDTH)
+    gpu.caps.max_height = vmware_svga_read(vmware_svga.REG_MAX_HEIGHT)
+    gpu.caps.vram_size = fb_size
+    gpu.caps.hw_accel = true  # VMware SVGA 支持硬件加速
+}
+
+vmware_svga_write -> function(reg, value) {
+    port_out_dword(vmware_svga.INDEX_PORT, reg)
+    port_out_dword(vmware_svga.VALUE_PORT, value)
+}
+
+vmware_svga_read -> function(reg) {
+    port_out_dword(vmware_svga.INDEX_PORT, reg)
+    value -> port_in_dword(vmware_svga.VALUE_PORT)
+    value -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# VirtIO GPU 驱动 (现代虚拟化)
+# ═══════════════════════════════════════════════════════════════════
+
+virtio_gpu -> {
+    # VirtIO 队列
+    ctrl_queue: null,
+    cursor_queue: null,
+    
+    # 资源 ID
+    scanout_id: 0,
+    resource_id: 1
+}
+
+virtio_gpu_init -> function(w, h) {
+    # 初始化 VirtIO 设备
+    virtio_gpu.ctrl_queue = virtio_init_queue(0)
+    virtio_gpu.cursor_queue = virtio_init_queue(1)
+    
+    # 创建 2D 资源
+    virtio_gpu_create_resource(virtio_gpu.resource_id, w, h)
+    
+    # 附加后备存储
+    pages = (w * h * 4 + 4095) / 4096
+    virtio_gpu_attach_backing(virtio_gpu.resource_id, pages)
+    
+    # 设置 scanout
+    virtio_gpu_set_scanout(virtio_gpu.scanout_id, virtio_gpu.resource_id, w, h)
+    
+    gpu.framebuffer.width = w
+    gpu.framebuffer.height = h
+    gpu.framebuffer.pitch = w * 4
+    
+    gpu.caps.hw_accel = true
+    gpu.caps.multihead = true
+}
+
+virtio_gpu_create_resource -> function(id, w, h) {
+    cmd = {
+        type: 0x0101,  # VIRTIO_GPU_CMD_RESOURCE_CREATE_2D
+        resource_id: id,
+        format: 1,     # BGRA
+        width: w,
+        height: h
+    }
+    virtio_gpu.ctrl_queue -> virtio_send(cmd)
+}
+
+virtio_gpu_flush -> function(id, x, y, w, h) {
+    cmd = {
+        type: 0x0104,  # VIRTIO_GPU_CMD_RESOURCE_FLUSH
+        resource_id: id,
+        r: { x: x, y: y, width: w, height: h }
+    }
+    virtio_gpu.ctrl_queue -> virtio_send(cmd)
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# Intel HD Graphics 驱动框架
+# ═══════════════════════════════════════════════════════════════════
+
+intel_hd -> {
+    mmio_base: 0,
+    gtt_base: 0,
+    aperture_base: 0
+}
+
+intel_hd_init -> function(w, h) {
+    # 获取 MMIO 基地址
+    intel_hd.mmio_base = gpu.active.bar0 & 0xFFFFFFF0
+    
+    # 初始化显示引擎
+    intel_hd_init_display()
+    
+    # 设置模式
+    intel_hd_set_mode(w, h)
+    
+    gpu.caps.hw_accel = true
+    gpu.caps.shader_support = true
+}
+
+intel_hd_init_display -> function() {
+    # 启用显示
+    mmio_write(intel_hd.mmio_base + 0x70008, 0x80000000)  # PIPECONF
+}
+
+intel_hd_set_mode -> function(w, h) {
+    # 设置 HDMI/DP 时序
+    # (简化实现)
+    gpu.framebuffer.width = w
+    gpu.framebuffer.height = h
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# AMD Radeon 驱动框架
+# ═══════════════════════════════════════════════════════════════════
+
+amd_radeon -> {
+    mmio_base: 0,
+    vram_base: 0
+}
+
+amd_radeon_init -> function(w, h) {
+    amd_radeon.mmio_base = gpu.active.bar0 & 0xFFFFFFF0
+    amd_radeon.vram_base = gpu.active.bar0  # BAR0 或 BAR1
+    
+    # 初始化显示控制器
+    amd_radeon_init_dc()
+    
+    gpu.caps.hw_accel = true
+    gpu.caps.shader_support = true
+}
+
+amd_radeon_init_dc -> function() {
+    # AMD Display Core 初始化
+    # (简化)
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# NVIDIA GeForce 驱动框架
+# ═══════════════════════════════════════════════════════════════════
+
+nvidia_geforce -> {
+    mmio_base: 0,
+    vram_base: 0
+}
+
+nvidia_geforce_init -> function(w, h) {
+    nvidia_geforce.mmio_base = gpu.active.bar0 & 0xFFFFFFF0
+    
+    # 初始化显示
+    nvidia_init_display()
+    
+    gpu.caps.hw_accel = true
+    gpu.caps.shader_support = true
+}
+
+nvidia_init_display -> function() {
+    # NVIDIA 显示初始化
+    # (简化)
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 统一 GPU 接口
+# ═══════════════════════════════════════════════════════════════════
+
+# 设置像素 (自动路由到正确驱动)
+gpu_set_pixel -> function(x, y, color) {
+    when x < 0 || x >= gpu.framebuffer.width { return }
+    when y < 0 || y >= gpu.framebuffer.height { return }
+    
+    offset = y * gpu.framebuffer.pitch + x * 4
+    
+    # 写入 BGRA
+    gpu.framebuffer.primary[offset] = color.b
+    gpu.framebuffer.primary[offset + 1] = color.g
+    gpu.framebuffer.primary[offset + 2] = color.r
+    gpu.framebuffer.primary[offset + 3] = 0xFF
+}
+
+# 填充矩形 (硬件加速优先)
+gpu_fill_rect -> function(x, y, w, h, color) {
+    when gpu.caps.hw_accel {
+        # 使用硬件加速
+        gpu.active -> driver_fill_rect(x, y, w, h, color)
+    } else {
+        # 软件实现
+        limit h; row {
+            limit w; col {
+                gpu_set_pixel(x + col, y + row, color)
+            }
+        }
+    }
+}
+
+# 位块传输 (硬件加速优先)
+gpu_blit -> function(src, dst_x, dst_y, w, h) {
+    when gpu.caps.hw_accel {
+        gpu.active -> driver_blit(src, dst_x, dst_y, w, h)
+    } else {
+        # 软件 blit
+        limit h; row {
+            limit w; col {
+                pixel = src[(row * w + col) * 4]
+                gpu_set_pixel(dst_x + col, dst_y + row, pixel)
+            }
+        }
+    }
+}
+
+# 交换缓冲区 (双缓冲)
+gpu_swap_buffers -> function() {
+    when gpu.framebuffer.back != null {
+        # 交换前后缓冲
+        temp = gpu.framebuffer.primary
+        gpu.framebuffer.primary = gpu.framebuffer.back
+        gpu.framebuffer.back = temp
+        
+        # 更新显示偏移 (Bochs VBE)
+        when gpu.active.driver == "BOCHS_VBE" {
+            bochs_vbe_write(bochs_vbe.Y_OFFSET, 
+                gpu.framebuffer.primary == bochs_vbe.lfb_addr ? 0 : gpu.framebuffer.height)
+        }
+        
+        # VirtIO 刷新
+        when gpu.active.driver == "VIRTIO_GPU" {
+            virtio_gpu_flush(virtio_gpu.resource_id, 0, 0, 
+                gpu.framebuffer.width, gpu.framebuffer.height)
+        }
+    }
+}
+
+# 导出
+export {
+    gpu,
+    gpu_probe,
+    gpu_init,
+    gpu_set_pixel,
+    gpu_fill_rect,
+    gpu_blit,
+    gpu_swap_buffers
+}

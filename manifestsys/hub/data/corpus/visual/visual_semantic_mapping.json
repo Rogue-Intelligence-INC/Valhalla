@@ -1,0 +1,34 @@
+{
+  "shape_semantics": {
+    "rectangle": {
+      "meanings": ["container", "boundary", "structure", "stability"],
+      "common_uses": ["buttons", "cards", "frames", "tables"]
+    },
+    "circle": {
+      "meanings": ["unity", "completeness", "infinity", "focus"],
+      "common_uses": ["icons", "avatars", "badges", "progress"]
+    },
+    "triangle": {
+      "meanings": ["direction", "hierarchy", "warning", "play"],
+      "common_uses": ["arrows", "dropdowns", "alerts", "media controls"]
+    },
+    "line": {
+      "meanings": ["connection", "division", "path", "trend"],
+      "common_uses": ["dividers", "connectors", "charts", "timelines"]
+    },
+    "arrow": {
+      "meanings": ["direction", "process", "navigation", "flow"],
+      "common_uses": ["navigation", "slides", "diagrams", "links"]
+    }
+  },
+  "color_semantics": {
+    "red": ["danger", "error", "important", "stop", "love"],
+    "green": ["success", "go", "nature", "growth", "positive"],
+    "blue": ["trust", "calm", "professional", "water", "sky"],
+    "yellow": ["warning", "attention", "energy", "optimism"],
+    "orange": ["enthusiasm", "creativity", "warmth", "autumn"],
+    "purple": ["luxury", "creativity", "mystery", "royalty"],
+    "black": ["power", "elegance", "formality", "mystery"],
+    "white": ["purity", "cleanliness", "simplicity", "space"]
+  }
+}

@@ -1,0 +1,225 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Calculator
+# Simple calculator app
+# ═══════════════════════════════════════════════════════════════════
+
+title = "Calculator"
+icon = "🔢"
+
+# State
+display_value = "0"
+current_op = null
+prev_value = 0
+new_number = true
+
+# ───────────────────────────────────────────────────────────────────
+# Start
+# ───────────────────────────────────────────────────────────────────
+
+start -> function(window) {
+    window.content = {
+        type: "container",
+        children: [
+            create_display(),
+            create_buttons()
+        ]
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# UI Components
+# ───────────────────────────────────────────────────────────────────
+
+create_display -> function() {
+    {
+        type: "display",
+        value: display_value,
+        style: {
+            font_size: 32,
+            text_align: "right",
+            padding: 10,
+            background: "#222",
+            color: "#fff"
+        }
+    } -> return
+}
+
+create_buttons -> function() {
+    {
+        type: "grid",
+        columns: 4,
+        gap: 5,
+        children: [
+            # Row 1
+            btn("C", clear, "operator"),
+            btn("±", negate, "operator"),
+            btn("%", percent, "operator"),
+            btn("÷", () => set_op("/"), "operator"),
+            
+            # Row 2
+            btn("7", () => digit("7"), "number"),
+            btn("8", () => digit("8"), "number"),
+            btn("9", () => digit("9"), "number"),
+            btn("×", () => set_op("*"), "operator"),
+            
+            # Row 3
+            btn("4", () => digit("4"), "number"),
+            btn("5", () => digit("5"), "number"),
+            btn("6", () => digit("6"), "number"),
+            btn("-", () => set_op("-"), "operator"),
+            
+            # Row 4
+            btn("1", () => digit("1"), "number"),
+            btn("2", () => digit("2"), "number"),
+            btn("3", () => digit("3"), "number"),
+            btn("+", () => set_op("+"), "operator"),
+            
+            # Row 5
+            btn("0", () => digit("0"), "number", 2),  # spans 2 columns
+            btn(".", decimal, "number"),
+            btn("=", equals, "equals")
+        ]
+    } -> return
+}
+
+btn -> function(label, action, style, span) {
+    {
+        type: "button",
+        text: label,
+        action: action,
+        style: style,
+        column_span: span || 1
+    } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Calculator Logic
+# ───────────────────────────────────────────────────────────────────
+
+digit -> function(d) {
+    when new_number {
+        display_value = d
+        new_number = false
+    } else {
+        when display_value == "0" {
+            display_value = d
+        } else {
+            display_value = display_value + d
+        }
+    }
+    update_display()
+}
+
+decimal -> function() {
+    when new_number {
+        display_value = "0."
+        new_number = false
+    } else {
+        when !display_value.includes(".") {
+            display_value = display_value + "."
+        }
+    }
+    update_display()
+}
+
+set_op -> function(op) {
+    when current_op != null {
+        equals()
+    }
+    
+    prev_value = parseFloat(display_value)
+    current_op = op
+    new_number = true
+}
+
+equals -> function() {
+    when current_op == null {
+        return
+    }
+    
+    current_value = parseFloat(display_value)
+    
+    when current_op == "+" {
+        result = prev_value + current_value
+    }
+    when current_op == "-" {
+        result = prev_value - current_value
+    }
+    when current_op == "*" {
+        result = prev_value * current_value
+    }
+    when current_op == "/" {
+        when current_value == 0 {
+            display_value = "Error"
+            current_op = null
+            new_number = true
+            update_display()
+            return
+        }
+        result = prev_value / current_value
+    }
+    
+    display_value = format_result(result)
+    current_op = null
+    new_number = true
+    update_display()
+}
+
+clear -> function() {
+    display_value = "0"
+    current_op = null
+    prev_value = 0
+    new_number = true
+    update_display()
+}
+
+negate -> function() {
+    value = parseFloat(display_value)
+    display_value = format_result(-value)
+    update_display()
+}
+
+percent -> function() {
+    value = parseFloat(display_value)
+    display_value = format_result(value / 100)
+    update_display()
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Helpers
+# ───────────────────────────────────────────────────────────────────
+
+format_result -> function(num) {
+    # Remove trailing zeros after decimal
+    str = num.toString()
+    
+    when str.includes(".") {
+        # Limit decimal places
+        when str.split(".")[1].length > 10 {
+            str = num.toFixed(10)
+        }
+        
+        # Remove trailing zeros
+        loop {
+            when !str.endsWith("0") { break }
+            str = str[0..-2]
+        }
+        
+        when str.endsWith(".") {
+            str = str[0..-2]
+        }
+    }
+    
+    str -> return
+}
+
+update_display -> function() {
+    window.content.children[0].value = display_value
+}
+
+# Export
+module.exports = {
+    title,
+    icon,
+    start
+}

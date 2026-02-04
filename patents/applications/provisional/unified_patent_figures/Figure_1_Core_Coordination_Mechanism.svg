@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <title>FIG. 1 - Core Coordination Mechanism Architecture</title>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">FIG. 1 - Core Coordination Mechanism Architecture</text>
+  
+  <!-- Input Signals Section -->
+  <rect x="50" y="60" width="200" height="180" fill="none" stroke="black" stroke-width="2"/>
+  <text x="150" y="80" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">INPUT SIGNALS</text>
+  
+  <!-- Signal 1 -->
+  <rect x="70" y="95" width="160" height="35" fill="none" stroke="black" stroke-width="1"/>
+  <text x="150" y="110" text-anchor="middle" font-family="Arial" font-size="10">Signal 1</text>
+  <text x="150" y="122" text-anchor="middle" font-family="Arial" font-size="8">(I₁, D₁, Q₁)</text>
+  
+  <!-- Signal 2 -->
+  <rect x="70" y="135" width="160" height="35" fill="none" stroke="black" stroke-width="1"/>
+  <text x="150" y="150" text-anchor="middle" font-family="Arial" font-size="10">Signal 2</text>
+  <text x="150" y="162" text-anchor="middle" font-family="Arial" font-size="8">(I₂, D₂, Q₂)</text>
+  
+  <!-- Signal N -->
+  <rect x="70" y="195" width="160" height="35" fill="none" stroke="black" stroke-width="1"/>
+  <text x="150" y="210" text-anchor="middle" font-family="Arial" font-size="10">Signal N</text>
+  <text x="150" y="222" text-anchor="middle" font-family="Arial" font-size="8">(Iₙ, Dₙ, Qₙ)</text>
+  
+  <!-- Dots -->
+  <text x="150" y="183" text-anchor="middle" font-family="Arial" font-size="12">...</text>
+  
+  <!-- Arrow to Weight Computation -->
+  <line x1="250" y1="150" x2="290" y2="150" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Weight Computation Box -->
+  <rect x="300" y="100" width="200" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="125" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">WEIGHT COMPUTATION</text>
+  <text x="400" y="155" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold">w = I × Q</text>
+  <text x="400" y="180" text-anchor="middle" font-family="Arial" font-size="10">(for each signal)</text>
+  
+  <!-- Arrow to Aggregation -->
+  <line x1="500" y1="150" x2="540" y2="150" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Aggregation Box -->
+  <rect x="550" y="80" width="200" height="140" fill="none" stroke="black" stroke-width="2"/>
+  <text x="650" y="105" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">AFFINITY AGGREGATION</text>
+  <text x="650" y="140" text-anchor="middle" font-family="Arial" font-size="11">A[k] = Σ(D[k] × w)</text>
+  <line x1="590" y1="155" x2="710" y2="155" stroke="black" stroke-width="1"/>
+  <text x="650" y="175" text-anchor="middle" font-family="Arial" font-size="11">Σ(w)</text>
+  <text x="650" y="205" text-anchor="middle" font-family="Arial" font-size="10">(per dimension k)</text>
+  
+  <!-- Arrow to Output -->
+  <line x1="650" y1="220" x2="650" y2="260" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Output Vector -->
+  <rect x="550" y="270" width="200" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="650" y="295" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">AFFINITY VECTOR</text>
+  <text x="650" y="320" text-anchor="middle" font-family="Arial" font-size="11">[A₁, A₂, ..., Aₖ]</text>
+  <text x="650" y="340" text-anchor="middle" font-family="Arial" font-size="10">(bounded output)</text>
+  
+  <!-- Feedback Loop -->
+  <path d="M 550 310 L 400 310 L 400 380 L 150 380 L 150 240" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <polygon points="150,245 145,255 155,255" fill="black"/>
+  <text x="280" y="400" text-anchor="middle" font-family="Arial" font-size="10">Cyclic Feedback (Optional)</text>
+  
+  <!-- Properties Box -->
+  <rect x="50" y="430" width="700" height="150" fill="none" stroke="black" stroke-width="1"/>
+  <text x="400" y="455" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">MATHEMATICAL PROPERTIES (NON-LIMITING)</text>
+  
+  <text x="70" y="480" font-family="Arial" font-size="10">• Deterministic: Identical inputs → Identical outputs</text>
+  <text x="70" y="500" font-family="Arial" font-size="10">• Bounded: Bounded inputs → Bounded affinity values</text>
+  <text x="70" y="520" font-family="Arial" font-size="10">• Quality-Weighted: Higher Q → Proportionally greater influence</text>
+  <text x="70" y="540" font-family="Arial" font-size="10">• Dimensional Independence: Each dimension computed independently</text>
+  <text x="70" y="560" font-family="Arial" font-size="10">• Cyclic Compatible: Supports iterative feedback evolution</text>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+    </marker>
+  </defs>
+</svg>
+

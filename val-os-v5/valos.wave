@@ -1,0 +1,590 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - 纯 Wave 实现
+# 完整操作系统: GUI, 文字渲染, 显卡支持, 鼠标, 应用程序
+# ═══════════════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────────────
+# 系统常量
+# ───────────────────────────────────────────────────────────────────
+
+SCREEN_WIDTH = 320
+SCREEN_HEIGHT = 200
+VGA_MEMORY = 0xA0000
+
+# 颜色定义
+COLOR_BLACK = 0
+COLOR_BLUE = 1
+COLOR_GREEN = 2
+COLOR_CYAN = 3
+COLOR_RED = 4
+COLOR_MAGENTA = 5
+COLOR_BROWN = 6
+COLOR_LIGHT_GRAY = 7
+COLOR_DARK_GRAY = 8
+COLOR_LIGHT_BLUE = 9
+COLOR_LIGHT_GREEN = 10
+COLOR_LIGHT_CYAN = 11
+COLOR_LIGHT_RED = 12
+COLOR_LIGHT_MAGENTA = 13
+COLOR_YELLOW = 14
+COLOR_WHITE = 15
+
+# ───────────────────────────────────────────────────────────────────
+# Fate 硬件抽象层
+# ───────────────────────────────────────────────────────────────────
+
+# 显示驱动 - Fate 自动选择最优
+display -> fate_detect_hardware("display") -> {
+    when vesa_available {
+        "vesa" -> fate_select
+    } else {
+        "vga" -> fate_select
+    }
+}
+
+# 输入驱动 - Fate 自动检测
+input -> fate_detect_hardware("input") -> {
+    when usb_available {
+        "usb_hid" -> fate_select
+    } else {
+        "ps2" -> fate_select
+    }
+}
+
+# 串口输出 (双监控)
+serial -> fate_init_serial(0x3F8, 115200)
+
+# ───────────────────────────────────────────────────────────────────
+# 图形原语
+# ───────────────────────────────────────────────────────────────────
+
+# 设置像素
+set_pixel -> function(x, y, color) {
+    when x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT {
+        offset = y * SCREEN_WIDTH + x
+        VGA_MEMORY + offset -> fate_write_byte(color)
+    }
+}
+
+# 填充矩形
+fill_rect -> function(x, y, w, h, color) {
+    limit h; row {
+        limit w; col {
+            set_pixel(x + col, y + row, color)
+        }
+    }
+}
+
+# 绘制渐变
+draw_gradient -> function(x, y, w, h, color1, color2, vertical) {
+    steps = when vertical { h } else { w }
+    
+    limit steps; i {
+        color = color1 + (color2 - color1) * i / steps
+        
+        when vertical {
+            limit w; j {
+                set_pixel(x + j, y + i, color)
+            }
+        } else {
+            limit h; j {
+                set_pixel(x + i, y + j, color)
+            }
+        }
+    }
+}
+
+# 绘制边框矩形
+draw_rect -> function(x, y, w, h, color) {
+    # 上边
+    limit w; i { set_pixel(x + i, y, color) }
+    # 下边
+    limit w; i { set_pixel(x + i, y + h - 1, color) }
+    # 左边
+    limit h; i { set_pixel(x, y + i, color) }
+    # 右边
+    limit h; i { set_pixel(x + w - 1, y + i, color) }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 文字渲染
+# ───────────────────────────────────────────────────────────────────
+
+# 8x8 位图字体 (简化版，使用 BIOS)
+draw_char -> function(ch, x, y, fg_color, bg_color) {
+    # 使用 BIOS INT 10h 或自定义位图
+    { ch, x, y, fg_color } -> fate_draw_char
+}
+
+draw_text -> function(text, x, y, fg_color) {
+    cursor_x = x
+    
+    text -> fate_each_char -> ch {
+        draw_char(ch, cursor_x, y, fg_color, COLOR_BLACK)
+        cursor_x = cursor_x + 8
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 窗口系统
+# ───────────────────────────────────────────────────────────────────
+
+windows = []
+active_window = null
+
+Window -> {
+    id: 0,
+    title: "",
+    x: 0, y: 0,
+    width: 100, height: 80,
+    visible: true,
+    content: null
+}
+
+create_window -> function(title, x, y, w, h) {
+    win = Window.new()
+    win.id = fate_generate_id()
+    win.title = title
+    win.x = x
+    win.y = y
+    win.width = w
+    win.height = h
+    
+    windows -> push(win)
+    active_window = win
+    
+    win -> return
+}
+
+draw_window -> function(win) {
+    when win.visible {
+        # 阴影
+        fill_rect(win.x + 3, win.y + 3, win.width, win.height, COLOR_DARK_GRAY)
+        
+        # 窗口背景
+        fill_rect(win.x, win.y, win.width, win.height, COLOR_LIGHT_GRAY)
+        
+        # 标题栏
+        fill_rect(win.x, win.y, win.width, 16, COLOR_LIGHT_BLUE)
+        draw_text(win.title, win.x + 4, win.y + 4, COLOR_WHITE)
+        
+        # 关闭按钮
+        fill_rect(win.x + win.width - 14, win.y + 2, 12, 12, COLOR_RED)
+        draw_text("X", win.x + win.width - 11, win.y + 4, COLOR_WHITE)
+        
+        # 边框
+        draw_rect(win.x, win.y, win.width, win.height, COLOR_BLACK)
+        
+        # 内容区域
+        when win.content != null {
+            win.content(win.x + 2, win.y + 18, win.width - 4, win.height - 20)
+        }
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 图标系统
+# ───────────────────────────────────────────────────────────────────
+
+Icon -> {
+    name: "",
+    x: 0, y: 0,
+    color: COLOR_WHITE,
+    action: null
+}
+
+desktop_icons = [
+    { name: "Files",    x: 10, y: 10,  color: COLOR_GREEN,        action: launch_files },
+    { name: "Terminal", x: 10, y: 45,  color: COLOR_LIGHT_BLUE,   action: launch_terminal },
+    { name: "Browser",  x: 10, y: 80,  color: COLOR_RED,          action: launch_browser },
+    { name: "Settings", x: 10, y: 115, color: COLOR_CYAN,         action: launch_settings },
+    { name: "Game",     x: 10, y: 150, color: COLOR_LIGHT_MAGENTA, action: launch_game }
+]
+
+draw_icon -> function(icon) {
+    # 图标方块
+    fill_rect(icon.x, icon.y, 24, 24, icon.color)
+    draw_rect(icon.x, icon.y, 24, 24, COLOR_BLACK)
+    
+    # 图标名称
+    draw_text(icon.name, icon.x, icon.y + 26, COLOR_WHITE)
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 任务栏
+# ───────────────────────────────────────────────────────────────────
+
+TASKBAR_HEIGHT = 15
+TASKBAR_Y = SCREEN_HEIGHT - TASKBAR_HEIGHT
+
+draw_taskbar -> function() {
+    # 背景
+    fill_rect(0, TASKBAR_Y, SCREEN_WIDTH, TASKBAR_HEIGHT, COLOR_DARK_GRAY)
+    
+    # Wave 按钮
+    fill_rect(2, TASKBAR_Y + 2, 35, TASKBAR_HEIGHT - 4, COLOR_LIGHT_BLUE)
+    draw_text("Wave", 5, TASKBAR_Y + 4, COLOR_WHITE)
+    
+    # 时钟 (右侧)
+    time_str = fate_get_time_string()
+    draw_text(time_str, SCREEN_WIDTH - 50, TASKBAR_Y + 4, COLOR_WHITE)
+    
+    # 运行中的应用
+    x = 40
+    windows -> fate_each -> win {
+        when win.visible {
+            fill_rect(x, TASKBAR_Y + 2, 50, TASKBAR_HEIGHT - 4, COLOR_LIGHT_GRAY)
+            draw_text(win.title, x + 2, TASKBAR_Y + 4, COLOR_BLACK)
+            x = x + 55
+        }
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 应用启动器
+# ───────────────────────────────────────────────────────────────────
+
+launcher_visible = false
+
+show_launcher -> function() {
+    launcher_visible = true
+    
+    # 半透明背景
+    fill_rect(50, 30, 220, 140, COLOR_BLACK)
+    draw_rect(50, 30, 220, 140, COLOR_WHITE)
+    
+    # 标题
+    draw_text("=== APP LAUNCHER ===", 60, 40, COLOR_WHITE)
+    
+    # 应用列表
+    apps = ["1. Files", "2. Terminal", "3. Browser", "4. Settings", "5. Game", "6. Calculator"]
+    y = 55
+    
+    apps -> fate_each -> app {
+        draw_text(app, 70, y, COLOR_LIGHT_GREEN)
+        y = y + 12
+    }
+    
+    draw_text("ESC = Close", 70, 150, COLOR_LIGHT_GRAY)
+}
+
+hide_launcher -> function() {
+    launcher_visible = false
+    draw_desktop()
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 鼠标
+# ───────────────────────────────────────────────────────────────────
+
+mouse_x = SCREEN_WIDTH / 2
+mouse_y = SCREEN_HEIGHT / 2
+mouse_buttons = 0
+prev_mouse_x = mouse_x
+prev_mouse_y = mouse_y
+
+init_mouse -> function() {
+    "mouse" -> fate_init_device
+    serial -> out("[Mouse] Initialized")
+}
+
+update_mouse -> function() {
+    # 保存旧位置 (用于恢复背景)
+    prev_mouse_x = mouse_x
+    prev_mouse_y = mouse_y
+    
+    # 获取新位置
+    { mouse_x, mouse_y, mouse_buttons } = fate_get_mouse_state()
+}
+
+draw_cursor -> function() {
+    # 简单箭头光标 (白色 + 黑色边框)
+    set_pixel(mouse_x, mouse_y, COLOR_WHITE)
+    set_pixel(mouse_x + 1, mouse_y, COLOR_WHITE)
+    set_pixel(mouse_x, mouse_y + 1, COLOR_WHITE)
+    set_pixel(mouse_x + 1, mouse_y + 1, COLOR_BLACK)
+    set_pixel(mouse_x + 2, mouse_y + 2, COLOR_BLACK)
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 桌面
+# ───────────────────────────────────────────────────────────────────
+
+draw_desktop -> function() {
+    serial -> out("[Desktop] Drawing...")
+    
+    # 渐变背景
+    draw_gradient(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - TASKBAR_HEIGHT, 
+                  COLOR_BLUE, COLOR_BLACK, true)
+    
+    # 图标
+    desktop_icons -> fate_each -> icon {
+        draw_icon(icon)
+    }
+    
+    # 窗口
+    windows -> fate_each -> win {
+        draw_window(win)
+    }
+    
+    # 任务栏
+    draw_taskbar()
+    
+    # 鼠标光标
+    draw_cursor()
+    
+    serial -> out("[Desktop] Done")
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 应用程序
+# ───────────────────────────────────────────────────────────────────
+
+launch_files -> function() {
+    serial -> out("[App] Files")
+    win = create_window("Files", 60, 30, 200, 130)
+    win.content = files_content
+    draw_window(win)
+}
+
+files_content -> function(x, y, w, h) {
+    items = ["📁 Documents", "📁 Pictures", "📁 Music", "📁 Videos", "📄 readme.txt"]
+    cy = y
+    items -> fate_each -> item {
+        draw_text(item, x + 5, cy, COLOR_BLACK)
+        cy = cy + 12
+    }
+}
+
+launch_terminal -> function() {
+    serial -> out("[App] Terminal")
+    win = create_window("Terminal", 70, 40, 180, 120)
+    win.content = terminal_content
+    draw_window(win)
+}
+
+terminal_content -> function(x, y, w, h) {
+    fill_rect(x, y, w, h, COLOR_BLACK)
+    draw_text("Wave Shell v1.0", x + 5, y + 5, COLOR_LIGHT_GREEN)
+    draw_text("admin@valos:~$ _", x + 5, y + 20, COLOR_WHITE)
+}
+
+launch_browser -> function() {
+    serial -> out("[App] Browser")
+    win = create_window("Browser", 50, 25, 220, 140)
+    win.content = browser_content
+    draw_window(win)
+}
+
+browser_content -> function(x, y, w, h) {
+    # 地址栏
+    fill_rect(x, y, w, 14, COLOR_LIGHT_GRAY)
+    draw_text("wave://home", x + 5, y + 3, COLOR_DARK_GRAY)
+    
+    # 内容
+    draw_text("Welcome to Val-OS!", x + 10, y + 25, COLOR_BLUE)
+    draw_text("Powered by Wave+Fate", x + 10, y + 40, COLOR_GREEN)
+    draw_text("", x + 10, y + 55, COLOR_BLACK)
+    draw_text("Features:", x + 10, y + 70, COLOR_BLACK)
+    draw_text("- Wave Language", x + 15, y + 85, COLOR_DARK_GRAY)
+    draw_text("- Fate Engine", x + 15, y + 97, COLOR_DARK_GRAY)
+}
+
+launch_settings -> function() {
+    serial -> out("[App] Settings")
+    win = create_window("Settings", 80, 35, 160, 120)
+    win.content = settings_content
+    draw_window(win)
+}
+
+settings_content -> function(x, y, w, h) {
+    items = ["🎨 Appearance", "🖥️ Display", "🔊 Sound", "🌐 Network", "👤 Users", "ℹ️ About"]
+    cy = y
+    items -> fate_each -> item {
+        draw_text(item, x + 5, cy, COLOR_BLACK)
+        cy = cy + 14
+    }
+}
+
+launch_game -> function() {
+    serial -> out("[App] Game - Wave Mario")
+    
+    # 全屏游戏
+    # 天空
+    fill_rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x3B)
+    
+    # 地面
+    fill_rect(0, 180, SCREEN_WIDTH, 20, COLOR_GREEN)
+    
+    # 砖块平台
+    fill_rect(80, 140, 40, 8, COLOR_BROWN)
+    fill_rect(150, 120, 40, 8, COLOR_BROWN)
+    fill_rect(220, 100, 40, 8, COLOR_BROWN)
+    
+    # 问号方块
+    fill_rect(100, 100, 16, 16, COLOR_YELLOW)
+    fill_rect(180, 80, 16, 16, COLOR_YELLOW)
+    
+    # 云
+    fill_rect(50, 15, 32, 8, COLOR_WHITE)
+    fill_rect(150, 25, 32, 8, COLOR_WHITE)
+    fill_rect(250, 10, 32, 8, COLOR_WHITE)
+    
+    # 玩家 (Mario)
+    player_x = 40
+    player_y = 162
+    
+    # 头 (肤色)
+    fill_rect(player_x + 2, player_y, 8, 6, 0x2C)
+    # 身体 (红色)
+    fill_rect(player_x, player_y + 6, 12, 6, COLOR_RED)
+    # 腿 (蓝色)
+    fill_rect(player_x + 1, player_y + 12, 4, 4, COLOR_BLUE)
+    fill_rect(player_x + 7, player_y + 12, 4, 4, COLOR_BLUE)
+    
+    # 标题
+    draw_text("WAVE MARIO - ESC=Exit", 80, 5, COLOR_YELLOW)
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 键盘处理
+# ───────────────────────────────────────────────────────────────────
+
+handle_key -> function(key) {
+    serial -> out("[Key] " + key)
+    
+    when key == 'q' || key == 'Q' {
+        shutdown()
+    }
+    when key == 'l' || key == 'L' {
+        show_launcher()
+    }
+    when key == 'g' || key == 'G' {
+        launch_game()
+    }
+    when key == 'b' || key == 'B' {
+        launch_browser()
+    }
+    when key == 't' || key == 'T' {
+        launch_terminal()
+    }
+    when key == 'f' || key == 'F' {
+        launch_files()
+    }
+    when key == 's' || key == 'S' {
+        launch_settings()
+    }
+    when key == 0x1B {  # ESC
+        when launcher_visible {
+            hide_launcher()
+        } else {
+            # 关闭当前窗口
+            when active_window != null {
+                active_window.visible = false
+                draw_desktop()
+            }
+        }
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 关机
+# ───────────────────────────────────────────────────────────────────
+
+shutdown -> function() {
+    serial -> out("[System] Shutdown")
+    
+    # 切换到文本模式
+    fate_set_video_mode(0x03)
+    
+    draw_text("Val-OS Shutdown", 100, 100, COLOR_WHITE)
+    draw_text("Thank you for using Wave!", 80, 115, COLOR_LIGHT_GREEN)
+    
+    fate_halt()
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 主循环
+# ───────────────────────────────────────────────────────────────────
+
+main_loop -> function() {
+    loop {
+        # 检查键盘
+        key = fate_check_keyboard()
+        when key != 0 {
+            handle_key(key)
+        }
+        
+        # 更新鼠标
+        update_mouse()
+        
+        # 重绘光标
+        draw_cursor()
+        
+        # Fate Collapse 检查
+        fate_collapse()
+        
+        # 小延迟
+        fate_delay(10)
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 系统启动
+# ═══════════════════════════════════════════════════════════════════
+
+main -> function() {
+    # 串口输出启动信息
+    serial -> out("")
+    serial -> out("═══════════════════════════════════════════════════")
+    serial -> out("         Val-OS v5.0 - Pure Wave Edition")
+    serial -> out("═══════════════════════════════════════════════════")
+    serial -> out("")
+    
+    # 初始化 Fate 引擎
+    serial -> out("[Boot] Initializing Fate Engine...")
+    fate_init()
+    serial -> out("[Boot] Fate Engine ready")
+    
+    # 初始化 Quattro 内存
+    serial -> out("[Boot] Initializing Quattro Memory...")
+    blackhole -> fate_init_pool
+    meshbrain -> fate_init_pool
+    multinova -> fate_init_pool
+    baseforce -> fate_init_pool
+    serial -> out("[Boot] Memory pools ready")
+    
+    # 设置显示模式 (320x200x256)
+    serial -> out("[Boot] Setting video mode 13h...")
+    fate_set_video_mode(0x13)
+    serial -> out("[Boot] Video ready")
+    
+    # 初始化鼠标
+    serial -> out("[Boot] Initializing mouse...")
+    init_mouse()
+    
+    # 绘制桌面
+    serial -> out("[Boot] Drawing desktop...")
+    draw_desktop()
+    
+    serial -> out("")
+    serial -> out("═══════════════════════════════════════════════════")
+    serial -> out("         Val-OS v5.0 Ready!")
+    serial -> out("═══════════════════════════════════════════════════")
+    serial -> out("")
+    serial -> out("Shortcuts:")
+    serial -> out("  L = Launcher")
+    serial -> out("  B = Browser")
+    serial -> out("  T = Terminal")
+    serial -> out("  F = Files")
+    serial -> out("  S = Settings")
+    serial -> out("  G = Game")
+    serial -> out("  Q = Quit")
+    serial -> out("")
+    
+    # 进入主循环
+    main_loop()
+}
+
+# 启动
+main()

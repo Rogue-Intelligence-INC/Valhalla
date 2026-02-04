@@ -1,0 +1,243 @@
+# 向量余弦相似度搜索 - Wave-BIN版
+# DIM=16, COUNT=100
+# 无函数版本 (内联所有计算)
+
+unified {
+    i: 0.5
+    e: 0.5
+    r: 0.5
+}
+
+out "=== Vector Cosine Search - Wave-BIN ===\n"
+out "DIM=16, COUNT=100\n\n"
+
+# 生成查询向量 (seed=12345)
+out "Query: generating...\n"
+seed = 12345
+
+# q0
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q0 = seed / 1000 - 50
+
+# q1
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q1 = seed / 1000 - 50
+
+# q2
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q2 = seed / 1000 - 50
+
+# q3
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q3 = seed / 1000 - 50
+
+# q4-q15 (简化为相同模式)
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q4 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q5 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q6 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q7 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q8 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q9 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q10 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q11 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q12 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q13 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q14 = seed / 1000 - 50
+
+seed = seed * 1103 + 12345
+sq = seed / 100000
+seed = seed - sq * 100000
+when seed < 0 { seed = 0 - seed }
+q15 = seed / 1000 - 50
+
+# 搜索
+out "Searching 100 vectors...\n"
+best_idx = 0
+best_score = 0 - 999999999
+
+seed = 42
+i = 0
+loop {
+    when i >= 100 { break }
+    
+    # 生成 v0-v15 并计算点积 (全部内联)
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v0 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v1 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v2 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v3 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v4 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v5 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v6 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v7 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v8 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v9 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v10 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v11 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v12 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v13 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v14 = seed / 1000 - 50
+    
+    seed = seed * 1103 + 12345
+    sv = seed / 100000
+    seed = seed - sv * 100000
+    when seed < 0 { seed = 0 - seed }
+    v15 = seed / 1000 - 50
+    
+    # 点积
+    score = q0 * v0 + q1 * v1 + q2 * v2 + q3 * v3
+    score = score + q4 * v4 + q5 * v5 + q6 * v6 + q7 * v7
+    score = score + q8 * v8 + q9 * v9 + q10 * v10 + q11 * v11
+    score = score + q12 * v12 + q13 * v13 + q14 * v14 + q15 * v15
+    
+    when score > best_score {
+        best_score = score
+        best_idx = i
+    }
+    
+    i = i + 1
+}
+
+out "Search complete!\n"
+out "=== Best match found ===\n"
+
+syscall.exit(0)

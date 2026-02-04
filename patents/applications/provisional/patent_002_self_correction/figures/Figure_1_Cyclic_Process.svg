@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <rect width="800" height="600" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" font-family="Times New Roman, serif" font-size="16" font-weight="bold" text-anchor="middle">FIG. 1 - FOUR-PHASE CYCLIC PROCESSING LOOP (200)</text>
+  
+  <!-- Central cycle indicator -->
+  <circle cx="400" cy="320" r="180" fill="none" stroke="black" stroke-width="1" stroke-dasharray="5,5"/>
+  
+  <!-- Phase 1: TILE -->
+  <rect x="330" y="100" width="140" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="130" font-family="Times New Roman, serif" font-size="14" font-weight="bold" text-anchor="middle">PHASE 1: TILE</text>
+  <text x="400" y="150" font-family="Times New Roman, serif" font-size="11" text-anchor="middle">State Capture</text>
+  <text x="400" y="168" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">(210)</text>
+  
+  <!-- Phase 2: FATE -->
+  <rect x="530" y="260" width="140" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="600" y="290" font-family="Times New Roman, serif" font-size="14" font-weight="bold" text-anchor="middle">PHASE 2: FATE</text>
+  <text x="600" y="310" font-family="Times New Roman, serif" font-size="11" text-anchor="middle">Coordination</text>
+  <text x="600" y="328" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">(212)</text>
+  
+  <!-- Phase 3: VOYAGER -->
+  <rect x="330" y="420" width="140" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="448" font-family="Times New Roman, serif" font-size="14" font-weight="bold" text-anchor="middle">PHASE 3: VOYAGER</text>
+  <text x="400" y="468" font-family="Times New Roman, serif" font-size="11" text-anchor="middle">Anomaly Detection</text>
+  <text x="400" y="486" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">(220)</text>
+  
+  <!-- Phase 4: SPACE -->
+  <rect x="130" y="260" width="140" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="200" y="288" font-family="Times New Roman, serif" font-size="14" font-weight="bold" text-anchor="middle">PHASE 4: SPACE</text>
+  <text x="200" y="308" font-family="Times New Roman, serif" font-size="11" text-anchor="middle">Correction</text>
+  <text x="200" y="326" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">(230)</text>
+  
+  <!-- Curved arrows connecting phases -->
+  <!-- TILE to FATE -->
+  <path d="M 470 140 Q 550 140 570 260" fill="none" stroke="black" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <text x="530" y="190" font-family="Times New Roman, serif" font-size="9">snapshot</text>
+  
+  <!-- FATE to VOYAGER -->
+  <path d="M 600 340 Q 600 420 470 460" fill="none" stroke="black" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <text x="560" y="400" font-family="Times New Roman, serif" font-size="9">decision</text>
+  
+  <!-- VOYAGER to SPACE -->
+  <path d="M 330 460 Q 250 460 230 340" fill="none" stroke="black" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <text x="260" y="410" font-family="Times New Roman, serif" font-size="9">anomalies</text>
+  
+  <!-- SPACE to TILE -->
+  <path d="M 200 260 Q 200 140 330 140" fill="none" stroke="black" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <text x="240" y="190" font-family="Times New Roman, serif" font-size="9">updated state</text>
+  
+  <!-- Center label -->
+  <text x="400" y="310" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">CYCLE</text>
+  <text x="400" y="330" font-family="Times New Roman, serif" font-size="11" text-anchor="middle" font-style="italic">t → t+1</text>
+  
+  <!-- System State box -->
+  <rect x="350" y="530" width="100" height="50" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="400" y="555" font-family="Times New Roman, serif" font-size="11" text-anchor="middle">System State</text>
+  <text x="400" y="572" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">(S)</text>
+  
+  <!-- Connection to system state -->
+  <line x1="400" y1="500" x2="400" y2="530" stroke="black" stroke-width="1" stroke-dasharray="3,3"/>
+  
+  <!-- Arrow definition -->
+  <defs>
+    <marker id="arrow1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+    </marker>
+  </defs>
+  
+  <!-- Legend -->
+  <rect x="600" y="520" width="180" height="65" fill="none" stroke="black" stroke-width="1"/>
+  <text x="690" y="540" font-family="Times New Roman, serif" font-size="10" font-weight="bold" text-anchor="middle">CYCLE OUTPUT</text>
+  <text x="610" y="558" font-family="Times New Roman, serif" font-size="9">• Corrections applied</text>
+  <text x="610" y="573" font-family="Times New Roman, serif" font-size="9">• Explanations generated</text>
+</svg>
+

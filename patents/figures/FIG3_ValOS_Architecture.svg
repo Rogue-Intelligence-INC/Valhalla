@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" font-family="Arial, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="400" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#111">
+    FIG. 3 - Val-OS Self-Adaptive Operating System Architecture
+  </text>
+  
+  <!-- Hardware Layer -->
+  <rect x="50" y="500" width="700" height="80" rx="8" fill="#eceff1" stroke="#607d8b" stroke-width="2"/>
+  <text x="400" y="525" text-anchor="middle" font-size="16" font-weight="bold" fill="#607d8b">Physical Hardware</text>
+  
+  <rect x="80" y="540" width="100" height="30" rx="4" fill="#fff" stroke="#666"/>
+  <text x="130" y="560" text-anchor="middle" font-size="10" fill="#111">CPU</text>
+  
+  <rect x="200" y="540" width="100" height="30" rx="4" fill="#fff" stroke="#666"/>
+  <text x="250" y="560" text-anchor="middle" font-size="10" fill="#111">Memory</text>
+  
+  <rect x="320" y="540" width="100" height="30" rx="4" fill="#fff" stroke="#666"/>
+  <text x="370" y="560" text-anchor="middle" font-size="10" fill="#111">GPU</text>
+  
+  <rect x="440" y="540" width="100" height="30" rx="4" fill="#fff" stroke="#666"/>
+  <text x="490" y="560" text-anchor="middle" font-size="10" fill="#111">Storage</text>
+  
+  <rect x="560" y="540" width="100" height="30" rx="4" fill="#fff" stroke="#666"/>
+  <text x="610" y="560" text-anchor="middle" font-size="10" fill="#111">Network</text>
+  
+  <!-- Hardware Discovery -->
+  <rect x="50" y="380" width="200" height="100" rx="8" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="150" y="405" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">Hardware Discovery</text>
+  
+  <text x="70" y="430" font-size="10" fill="#333">• /proc/cpuinfo</text>
+  <text x="70" y="445" font-size="10" fill="#333">• /proc/meminfo</text>
+  <text x="70" y="460" font-size="10" fill="#333">• /sys/bus/pci/devices</text>
+  
+  <!-- Arrows from hardware to discovery -->
+  <line x1="150" y1="500" x2="150" y2="480" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  
+  <!-- Fate Engine -->
+  <rect x="280" y="250" width="240" height="130" rx="8" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="400" y="275" text-anchor="middle" font-size="16" font-weight="bold" fill="#e65100">Fate Engine</text>
+  
+  <rect x="300" y="290" width="100" height="35" rx="4" fill="#fff" stroke="#666"/>
+  <text x="350" y="312" text-anchor="middle" font-size="10" fill="#111">Analysis</text>
+  
+  <rect x="410" y="290" width="100" height="35" rx="4" fill="#fff" stroke="#666"/>
+  <text x="460" y="312" text-anchor="middle" font-size="10" fill="#111">Optimization</text>
+  
+  <rect x="355" y="335" width="90" height="35" rx="4" fill="#fff" stroke="#666"/>
+  <text x="400" y="357" text-anchor="middle" font-size="10" fill="#111">Synthesis</text>
+  
+  <!-- Driver Synthesis -->
+  <rect x="550" y="380" width="200" height="100" rx="8" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="650" y="405" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">Driver Synthesis</text>
+  
+  <text x="570" y="430" font-size="10" fill="#333">• intel_fate_optimized</text>
+  <text x="570" y="445" font-size="10" fill="#333">• nvidia_fate_compute</text>
+  <text x="570" y="460" font-size="10" fill="#333">• nvme_fate_latency</text>
+  
+  <!-- Arrow from Discovery to Fate -->
+  <line x1="150" y1="380" x2="150" y2="315" stroke="#333" stroke-width="1.5"/>
+  <line x1="150" y1="315" x2="280" y2="315" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  
+  <!-- Arrow from Fate to Driver Synthesis -->
+  <line x1="520" y1="315" x2="650" y2="315" stroke="#333" stroke-width="1.5"/>
+  <line x1="650" y1="315" x2="650" y2="380" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  
+  <!-- Arrow from Driver to Hardware -->
+  <line x1="650" y1="480" x2="650" y2="500" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  
+  <!-- Voyager Analysis -->
+  <rect x="50" y="250" width="200" height="100" rx="8" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="150" y="275" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">Voyager Analysis</text>
+  
+  <text x="70" y="300" font-size="10" fill="#333">• CPU Utilization</text>
+  <text x="70" y="315" font-size="10" fill="#333">• Memory Pressure</text>
+  <text x="70" y="330" font-size="10" fill="#333">• I/O Patterns</text>
+  
+  <!-- Arrow from Voyager to Fate -->
+  <line x1="250" y1="300" x2="280" y2="300" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  
+  <!-- Collapse Optimizer -->
+  <rect x="550" y="250" width="200" height="100" rx="8" fill="#fce4ec" stroke="#c2185b" stroke-width="2"/>
+  <text x="650" y="275" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2185b">Collapse Optimizer</text>
+  
+  <text x="570" y="300" font-size="10" fill="#333">Trigger: Marginal ↓</text>
+  <text x="570" y="320" font-size="10" fill="#333">Result: +50% Perf</text>
+  <text x="570" y="340" font-size="10" fill="#333">Result: -25% Memory</text>
+  
+  <!-- Arrow from Fate to Collapse -->
+  <line x1="520" y1="290" x2="550" y2="290" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  
+  <!-- Val-OS Kernel -->
+  <rect x="250" y="70" width="300" height="140" rx="8" fill="#e0f7fa" stroke="#00838f" stroke-width="2"/>
+  <text x="400" y="95" text-anchor="middle" font-size="18" font-weight="bold" fill="#00838f">Val-OS Kernel</text>
+  
+  <rect x="280" y="110" width="110" height="40" rx="4" fill="#fff" stroke="#666"/>
+  <text x="335" y="130" text-anchor="middle" font-size="11" fill="#111">Resource</text>
+  <text x="335" y="143" text-anchor="middle" font-size="11" fill="#111">Manager</text>
+  
+  <rect x="410" y="110" width="110" height="40" rx="4" fill="#fff" stroke="#666"/>
+  <text x="465" y="130" text-anchor="middle" font-size="11" fill="#111">Auto</text>
+  <text x="465" y="143" text-anchor="middle" font-size="11" fill="#111">Database</text>
+  
+  <rect x="345" y="160" width="110" height="35" rx="4" fill="#fff" stroke="#666"/>
+  <text x="400" y="183" text-anchor="middle" font-size="11" fill="#111">9.5KB Core</text>
+  
+  <!-- Arrows to Kernel -->
+  <line x1="400" y1="250" x2="400" y2="210" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+  
+  <!-- Specs Box -->
+  <rect x="580" y="70" width="170" height="140" rx="8" fill="#fff8e1" stroke="#ff8f00" stroke-width="2"/>
+  <text x="665" y="95" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff8f00">Specifications</text>
+  
+  <text x="600" y="125" font-size="12" fill="#333">Kernel: 9.5 KB</text>
+  <text x="600" y="145" font-size="12" fill="#333">Boot: &lt;1 ms</text>
+  <text x="600" y="165" font-size="12" fill="#333">Dependencies: 0</text>
+  <text x="600" y="185" font-size="12" fill="#333">Architecture: x86-64</text>
+  
+  <!-- Traditional OS Comparison -->
+  <rect x="50" y="70" width="170" height="140" rx="8" fill="#ffebee" stroke="#d32f2f" stroke-width="2"/>
+  <text x="135" y="95" text-anchor="middle" font-size="14" font-weight="bold" fill="#d32f2f">vs Traditional</text>
+  
+  <text x="70" y="125" font-size="11" fill="#666">Linux: ~10 MB</text>
+  <text x="70" y="145" font-size="11" fill="#666">Windows: ~30 MB</text>
+  <text x="70" y="165" font-size="11" fill="#666">Boot: seconds</text>
+  <text x="70" y="185" font-size="11" fill="#666">Manual drivers</text>
+</svg>

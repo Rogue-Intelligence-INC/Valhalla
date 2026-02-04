@@ -1,0 +1,197 @@
+# 🎵 Val-OS 音乐播放器
+# 半GUI · Wave UI · 鼠标支持
+
+music_player -> ui_app {
+    title -> "🎵 音乐播放器"
+    size -> { width: 55, height: 22 }
+    
+    state -> {
+        playlist: [],
+        current_track: null,
+        current_index: 0,
+        playing: false,
+        progress: 0,
+        duration: 0,
+        volume: 70,
+        repeat: false,
+        shuffle: false
+    }
+    
+    render -> function() {
+        # 背景渐变
+        draw_gradient_box(0, 0, 55, 22, gradients.night)
+        
+        # ─────────────────────────────────────────────
+        # 专辑封面区域 (ASCII Art)
+        # ─────────────────────────────────────────────
+        draw_box(2, 2, 15, 8, rgb(40,40,50))
+        
+        when state.current_track {
+            # 简单的音符图案
+            draw_gradient_text("♪ ♫", gradients.fate, 6, 4)
+            draw_gradient_text("♫ ♪", gradients.ocean, 6, 6)
+        } else {
+            draw_text("无音乐", 5, 5, rgb(100,100,100))
+        }
+        
+        # ─────────────────────────────────────────────
+        # 歌曲信息
+        # ─────────────────────────────────────────────
+        when state.current_track {
+            draw_gradient_text(state.current_track.title, gradients.fate, 20, 3)
+            draw_text(state.current_track.artist, 20, 5, rgb(150,150,170))
+            draw_text(state.current_track.album, 20, 6, rgb(100,100,120))
+        } else {
+            draw_text("选择音乐开始播放", 20, 4, rgb(100,100,100))
+        }
+        
+        # ─────────────────────────────────────────────
+        # 进度条
+        # ─────────────────────────────────────────────
+        progress_width -> 45
+        filled -> floor(progress_width * state.progress / max(state.duration, 1))
+        
+        draw_text(format_time_short(state.progress), 2, 11, rgb(150,150,150))
+        
+        # 进度轨道
+        draw_line(10, 11, progress_width, rgb(60,60,80))
+        # 已播放部分 (渐变)
+        draw_gradient_line(10, 11, filled, gradients.ocean)
+        # 当前位置
+        draw_text("●", 10 + filled, 11, rgb(255,255,255))
+        
+        draw_text(format_time_short(state.duration), 48, 11, rgb(150,150,150))
+        
+        # 点击进度条跳转
+        on_click(10, 11, progress_width, 1) -> function(x, y) {
+            new_pos -> (x - 10) * state.duration / progress_width
+            seek_to(new_pos)
+        }
+        
+        # ─────────────────────────────────────────────
+        # 播放控制
+        # ─────────────────────────────────────────────
+        control_y -> 13
+        
+        # 随机播放
+        shuffle_color -> when state.shuffle { rgb(100,200,255) } else { rgb(100,100,100) }
+        draw_icon_button("🔀", 10, control_y, function() {
+            state.shuffle -> !state.shuffle
+            refresh()
+        }, shuffle_color)
+        
+        # 上一首
+        draw_icon_button("⏮️", 16, control_y, prev_track)
+        
+        # 播放/暂停
+        play_icon -> when state.playing { "⏸️" } else { "▶️" }
+        draw_icon_button(play_icon, 22, control_y, toggle_play, rgb(100,200,100), size: 3)
+        
+        # 下一首
+        draw_icon_button("⏭️", 30, control_y, next_track)
+        
+        # 循环
+        repeat_color -> when state.repeat { rgb(100,200,255) } else { rgb(100,100,100) }
+        draw_icon_button("🔁", 36, control_y, function() {
+            state.repeat -> !state.repeat
+            refresh()
+        }, repeat_color)
+        
+        # ─────────────────────────────────────────────
+        # 音量控制
+        # ─────────────────────────────────────────────
+        vol_icon -> when state.volume > 60 { "🔊" }
+                   else when state.volume > 30 { "🔉" }
+                   else { "🔈" }
+        
+        draw_text(vol_icon, 2, 15)
+        draw_slider(6, 15, 20, state.volume, 0, 100, function(v) {
+            state.volume -> v
+            set_track_volume(v)
+            refresh()
+        })
+        
+        # ─────────────────────────────────────────────
+        # 播放列表
+        # ─────────────────────────────────────────────
+        draw_line(2, 17, 51, rgb(60,60,80))
+        draw_text("🎶 播放列表", 2, 18, rgb(150,150,170))
+        
+        y -> 19
+        for i, track in state.playlist.slice(0, 3).enumerate() {
+            is_current -> i == state.current_index
+            color -> when is_current { rgb(100,200,255) } else { rgb(180,180,180) }
+            prefix -> when is_current { "▶ " } else { "  " }
+            
+            draw_text("{prefix}{track.title} - {track.artist}", 4, y, color)
+            y -> y + 1
+        }
+        
+        when state.playlist.length > 3 {
+            draw_text("... 还有 {state.playlist.length - 3} 首", 4, y, rgb(100,100,100))
+        }
+    }
+    
+    # 播放控制函数
+    toggle_play -> function() {
+        state.playing -> !state.playing
+        when state.playing {
+            audio_play(state.current_track)
+        } else {
+            audio_pause()
+        }
+        refresh()
+    }
+    
+    next_track -> function() {
+        when state.shuffle {
+            state.current_index -> random_int(0, state.playlist.length)
+        } else {
+            state.current_index -> (state.current_index + 1) % state.playlist.length
+        }
+        state.current_track -> state.playlist[state.current_index]
+        state.progress -> 0
+        refresh()
+    }
+    
+    prev_track -> function() {
+        state.current_index -> when state.current_index > 0 {
+            state.current_index - 1
+        } else {
+            state.playlist.length - 1
+        }
+        state.current_track -> state.playlist[state.current_index]
+        state.progress -> 0
+        refresh()
+    }
+    
+    # 时间格式化
+    format_time_short -> function(seconds) {
+        m -> floor(seconds / 60)
+        s -> seconds % 60
+        return "{pad_left(m, 2, '0')}:{pad_left(s, 2, '0')}"
+    }
+    
+    # 添加音乐
+    add_track -> function(track) {
+        state.playlist.add(track)
+        when !state.current_track {
+            state.current_track -> track
+        }
+    }
+    
+    # 打开文件
+    open_file -> function() {
+        file -> file_picker({ filter: ["*.mp3", "*.wav", "*.ogg", "*.flac"] })
+        when file {
+            track -> {
+                path: file.path,
+                title: file.name,
+                artist: "未知艺术家",
+                album: "未知专辑",
+                duration: get_audio_duration(file.path)
+            }
+            add_track(track)
+        }
+    }
+}

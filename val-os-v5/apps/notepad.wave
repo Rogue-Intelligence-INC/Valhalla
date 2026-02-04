@@ -1,0 +1,384 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Notepad
+# Simple text editor
+# ═══════════════════════════════════════════════════════════════════
+
+title = "Notepad"
+icon = "📝"
+
+# State
+current_file = null
+content = ""
+modified = false
+cursor = { line: 0, col: 0 }
+selection = null
+
+# ───────────────────────────────────────────────────────────────────
+# Start
+# ───────────────────────────────────────────────────────────────────
+
+start -> function(window) {
+    window.content = {
+        type: "container",
+        children: [
+            create_menubar(),
+            create_toolbar(),
+            create_editor(),
+            create_statusbar()
+        ]
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# UI Components
+# ───────────────────────────────────────────────────────────────────
+
+create_menubar -> function() {
+    {
+        type: "menubar",
+        menus: [
+            {
+                label: "File",
+                items: [
+                    { label: "New", shortcut: "Ctrl+N", action: new_file },
+                    { label: "Open...", shortcut: "Ctrl+O", action: open_file },
+                    { label: "Save", shortcut: "Ctrl+S", action: save_file },
+                    { label: "Save As...", action: save_file_as },
+                    { separator: true },
+                    { label: "Exit", action: exit }
+                ]
+            },
+            {
+                label: "Edit",
+                items: [
+                    { label: "Undo", shortcut: "Ctrl+Z", action: undo },
+                    { label: "Redo", shortcut: "Ctrl+Y", action: redo },
+                    { separator: true },
+                    { label: "Cut", shortcut: "Ctrl+X", action: cut },
+                    { label: "Copy", shortcut: "Ctrl+C", action: copy },
+                    { label: "Paste", shortcut: "Ctrl+V", action: paste },
+                    { separator: true },
+                    { label: "Select All", shortcut: "Ctrl+A", action: select_all },
+                    { label: "Find...", shortcut: "Ctrl+F", action: find }
+                ]
+            },
+            {
+                label: "View",
+                items: [
+                    { label: "Word Wrap", checkbox: true, action: toggle_wrap },
+                    { label: "Line Numbers", checkbox: true, action: toggle_line_numbers },
+                    { separator: true },
+                    { label: "Zoom In", shortcut: "Ctrl++", action: zoom_in },
+                    { label: "Zoom Out", shortcut: "Ctrl+-", action: zoom_out }
+                ]
+            }
+        ]
+    } -> return
+}
+
+create_toolbar -> function() {
+    {
+        type: "toolbar",
+        items: [
+            { icon: "📄", action: new_file, tooltip: "New" },
+            { icon: "📂", action: open_file, tooltip: "Open" },
+            { icon: "💾", action: save_file, tooltip: "Save" },
+            { separator: true },
+            { icon: "✂️", action: cut, tooltip: "Cut" },
+            { icon: "📋", action: copy, tooltip: "Copy" },
+            { icon: "📌", action: paste, tooltip: "Paste" },
+            { separator: true },
+            { icon: "↩️", action: undo, tooltip: "Undo" },
+            { icon: "↪️", action: redo, tooltip: "Redo" }
+        ]
+    } -> return
+}
+
+create_editor -> function() {
+    {
+        type: "textarea",
+        content: content,
+        cursor: cursor,
+        selection: selection,
+        on_change: on_content_change,
+        on_cursor: on_cursor_change,
+        line_numbers: true,
+        word_wrap: true,
+        syntax_highlight: true
+    } -> return
+}
+
+create_statusbar -> function() {
+    {
+        type: "statusbar",
+        items: [
+            { text: current_file || "Untitled" },
+            { text: modified -> "Modified" : "Saved" },
+            { text: "Line " + (cursor.line + 1) + ", Col " + (cursor.col + 1) },
+            { text: content.length + " chars" }
+        ]
+    } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# File Operations
+# ───────────────────────────────────────────────────────────────────
+
+new_file -> function() {
+    when modified {
+        confirm -> prompt("Save changes?")
+        when confirm == "yes" {
+            save_file()
+        }
+    }
+    
+    current_file = null
+    content = ""
+    modified = false
+    cursor = { line: 0, col: 0 }
+    update_title()
+}
+
+open_file -> function() {
+    path -> file_dialog("open", { filters: [".txt", ".md", ".wave"] })
+    
+    when path != null {
+        load_file(path)
+    }
+}
+
+load_file -> function(path) {
+    handle -> storage.open(path, "r")
+    
+    when handle == null {
+        alert("Cannot open file: " + path)
+        return
+    }
+    
+    content -> storage.read(handle, 1024 * 1024)  # Max 1MB
+    storage.close(handle)
+    
+    current_file = path
+    modified = false
+    cursor = { line: 0, col: 0 }
+    update_title()
+}
+
+save_file -> function() {
+    when current_file == null {
+        save_file_as()
+        return
+    }
+    
+    handle -> storage.open(current_file, "w")
+    storage.write(handle, content)
+    storage.close(handle)
+    
+    modified = false
+    update_title()
+}
+
+save_file_as -> function() {
+    path -> file_dialog("save", { filters: [".txt", ".md", ".wave"] })
+    
+    when path != null {
+        current_file = path
+        save_file()
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Edit Operations
+# ───────────────────────────────────────────────────────────────────
+
+undo_stack = []
+redo_stack = []
+
+on_content_change -> function(new_content) {
+    # Save undo state
+    { content: content, cursor: cursor } -> undo_stack.push
+    redo_stack = []
+    
+    content = new_content
+    modified = true
+    update_statusbar()
+}
+
+on_cursor_change -> function(new_cursor) {
+    cursor = new_cursor
+    update_statusbar()
+}
+
+undo -> function() {
+    when undo_stack.length > 0 {
+        state -> undo_stack.pop
+        { content: content, cursor: cursor } -> redo_stack.push
+        content = state.content
+        cursor = state.cursor
+        update_editor()
+    }
+}
+
+redo -> function() {
+    when redo_stack.length > 0 {
+        state -> redo_stack.pop
+        { content: content, cursor: cursor } -> undo_stack.push
+        content = state.content
+        cursor = state.cursor
+        update_editor()
+    }
+}
+
+cut -> function() {
+    when selection != null {
+        selected_text -> get_selected_text()
+        clipboard.write(selected_text)
+        delete_selection()
+    }
+}
+
+copy -> function() {
+    when selection != null {
+        selected_text -> get_selected_text()
+        clipboard.write(selected_text)
+    }
+}
+
+paste -> function() {
+    text -> clipboard.read()
+    when text != null {
+        insert_text(text)
+    }
+}
+
+select_all -> function() {
+    selection = {
+        start: { line: 0, col: 0 },
+        end: get_end_position()
+    }
+    update_editor()
+}
+
+find -> function() {
+    query -> prompt("Find:")
+    when query != null && query != "" {
+        find_text(query)
+    }
+}
+
+find_text -> function(query) {
+    lines -> content.split("\n")
+    
+    i = cursor.line
+    limit lines.length; {
+        idx -> lines[i].indexOf(query)
+        when idx >= 0 {
+            cursor = { line: i, col: idx }
+            selection = {
+                start: { line: i, col: idx },
+                end: { line: i, col: idx + query.length }
+            }
+            update_editor()
+            return
+        }
+        i = (i + 1) % lines.length
+    }
+    
+    alert("Not found: " + query)
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Helpers
+# ───────────────────────────────────────────────────────────────────
+
+update_title -> function() {
+    prefix = modified -> "* " : ""
+    filename = current_file || "Untitled"
+    window.title = prefix + filename + " - Notepad"
+}
+
+update_editor -> function() {
+    window.content.children[2].content = content
+    window.content.children[2].cursor = cursor
+    window.content.children[2].selection = selection
+}
+
+update_statusbar -> function() {
+    sb = window.content.children[3]
+    sb.items[0].text = current_file || "Untitled"
+    sb.items[1].text = modified -> "Modified" : "Saved"
+    sb.items[2].text = "Line " + (cursor.line + 1) + ", Col " + (cursor.col + 1)
+    sb.items[3].text = content.length + " chars"
+}
+
+get_selected_text -> function() {
+    when selection == null {
+        "" -> return
+    }
+    
+    lines -> content.split("\n")
+    
+    when selection.start.line == selection.end.line {
+        lines[selection.start.line].substring(selection.start.col, selection.end.col) -> return
+    }
+    
+    # Multi-line selection
+    result = []
+    lines[selection.start.line].substring(selection.start.col) -> result.push
+    
+    i = selection.start.line + 1
+    loop {
+        when i >= selection.end.line { break }
+        lines[i] -> result.push
+        i = i + 1
+    }
+    
+    lines[selection.end.line].substring(0, selection.end.col) -> result.push
+    
+    result.join("\n") -> return
+}
+
+insert_text -> function(text) {
+    when selection != null {
+        delete_selection()
+    }
+    
+    lines -> content.split("\n")
+    line = lines[cursor.line]
+    
+    before = line.substring(0, cursor.col)
+    after = line.substring(cursor.col)
+    
+    lines[cursor.line] = before + text + after
+    content = lines.join("\n")
+    
+    cursor.col = cursor.col + text.length
+    modified = true
+    update_editor()
+}
+
+delete_selection -> function() {
+    when selection == null { return }
+    
+    lines -> content.split("\n")
+    
+    before = lines[selection.start.line].substring(0, selection.start.col)
+    after = lines[selection.end.line].substring(selection.end.col)
+    
+    # Remove lines between
+    lines.splice(selection.start.line, selection.end.line - selection.start.line + 1, before + after)
+    
+    content = lines.join("\n")
+    cursor = selection.start
+    selection = null
+    modified = true
+    update_editor()
+}
+
+# Export
+module.exports = {
+    title,
+    icon,
+    start,
+    load_file
+}

@@ -1,0 +1,228 @@
+# ═══════════════════════════════════════════════════════
+# Val-OS - Wave Operating System
+# Wave expresses intent, Fate executes
+# ═══════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────
+# Boot
+# ───────────────────────────────────────────────────────
+
+out "Val-OS v5.0"
+out "Fate Engine initializing..."
+
+# Fate 自动初始化所有硬件
+"hardware" -> fate_init -> fate_ready
+
+# Quattro 内存池
+blackhole -> fate_init_pool
+meshbrain -> fate_init_pool
+multinova -> fate_init_pool
+baseforce -> fate_init_pool
+
+out "System ready"
+
+# ───────────────────────────────────────────────────────
+# Login
+# ───────────────────────────────────────────────────────
+
+login -> function() {
+    out "═══════════════════════════════"
+    out "       Val-OS Login"
+    out "═══════════════════════════════"
+    out ""
+    out "Username: " -> no_newline
+    username -> input
+    out "Password: " -> no_newline
+    password -> input -> hide
+    
+    # Fate 验证
+    { username, password } -> fate_auth -> result
+    
+    when result.ok {
+        out "Welcome, " + username
+        desktop -> call
+    }
+    otherwise {
+        out "Invalid credentials"
+        login -> call
+    }
+}
+
+# ───────────────────────────────────────────────────────
+# Desktop
+# ───────────────────────────────────────────────────────
+
+desktop -> function() {
+    # Fate 决定布局
+    layout -> fate_vector -> {
+        taskbar: { x: 0, y: 0.95, w: 1, h: 0.05 },
+        icons: { x: 0.02, y: 0.05, w: 0.1, h: 0.9 },
+        workspace: { x: 0.12, y: 0, w: 0.88, h: 0.95 }
+    }
+    
+    # 背景
+    "gradient:blue" -> fate_render -> layout.workspace
+    
+    # 任务栏
+    taskbar -> {
+        start: "[Start]" -> button,
+        clock: fate_time -> display,
+        tray: fate_status -> display
+    }
+    
+    # 桌面图标
+    icons -> [
+        { name: "Files", icon: "📁", action: files },
+        { name: "Terminal", icon: "💻", action: terminal },
+        { name: "Browser", icon: "🌐", action: browser },
+        { name: "Settings", icon: "⚙️", action: settings },
+        { name: "Notepad", icon: "📝", action: notepad }
+    ]
+    
+    # 渲染
+    icons -> fate_render
+    taskbar -> fate_render
+    
+    # 事件循环 - Fate 处理
+    event_loop -> function() {
+        event -> fate_input
+        
+        when event.type == "click" {
+            event.target -> fate_handle_click
+        }
+        when event.type == "key" {
+            event.key -> fate_handle_key
+        }
+        
+        event_loop -> call
+    }
+    
+    event_loop -> call
+}
+
+# ───────────────────────────────────────────────────────
+# Applications
+# ───────────────────────────────────────────────────────
+
+# File Manager
+files -> function() {
+    window -> fate_create_window -> {
+        title: "Files",
+        size: { w: 0.6, h: 0.7 }
+    }
+    
+    path -> "/"
+    listing -> path -> fate_list_files
+    listing -> fate_render -> window
+    
+    # 双击打开
+    window.on_dblclick -> function(item) {
+        when item.is_dir {
+            path -> item.path
+            listing -> path -> fate_list_files
+            listing -> fate_render -> window
+        }
+        otherwise {
+            item -> fate_open
+        }
+    }
+}
+
+# Terminal
+terminal -> function() {
+    window -> fate_create_window -> {
+        title: "Terminal",
+        size: { w: 0.5, h: 0.5 }
+    }
+    
+    out "Wave Shell v1.0" -> window
+    out "Type 'help' for commands" -> window
+    
+    shell_loop -> function() {
+        out "> " -> no_newline -> window
+        cmd -> input -> window
+        
+        result -> cmd -> fate_execute
+        result -> out -> window
+        
+        shell_loop -> call
+    }
+    
+    shell_loop -> call
+}
+
+# Browser
+browser -> function() {
+    window -> fate_create_window -> {
+        title: "Browser",
+        size: { w: 0.8, h: 0.8 }
+    }
+    
+    toolbar -> {
+        back: "←" -> button,
+        forward: "→" -> button,
+        url: "" -> input_field,
+        go: "Go" -> button
+    }
+    
+    toolbar -> fate_render -> window
+    
+    toolbar.go.on_click -> function() {
+        url -> toolbar.url.value
+        content -> url -> fate_http_get -> fate_parse_html
+        content -> fate_render -> window.content
+    }
+}
+
+# Settings
+settings -> function() {
+    window -> fate_create_window -> {
+        title: "Settings",
+        size: { w: 0.5, h: 0.6 }
+    }
+    
+    panels -> [
+        { name: "Display", icon: "🖥️" },
+        { name: "Network", icon: "📡" },
+        { name: "Users", icon: "👤" },
+        { name: "System", icon: "⚙️" }
+    ]
+    
+    panels -> fate_render -> window.sidebar
+    
+    # 显示设置
+    display_panel -> {
+        resolution: fate_get_resolutions -> dropdown,
+        theme: ["Light", "Dark", "Auto"] -> dropdown,
+        apply: "Apply" -> button
+    }
+}
+
+# Notepad
+notepad -> function() {
+    window -> fate_create_window -> {
+        title: "Notepad",
+        size: { w: 0.6, h: 0.6 }
+    }
+    
+    menu -> {
+        file: ["New", "Open", "Save", "Exit"],
+        edit: ["Cut", "Copy", "Paste", "Find"]
+    }
+    
+    menu -> fate_render -> window.menubar
+    
+    editor -> "" -> textarea
+    editor -> fate_render -> window.content
+    
+    menu.file.save.on_click -> function() {
+        filename -> fate_dialog -> "Save As"
+        editor.value -> fate_write_file -> filename
+    }
+}
+
+# ───────────────────────────────────────────────────────
+# Start
+# ───────────────────────────────────────────────────────
+
+login -> call

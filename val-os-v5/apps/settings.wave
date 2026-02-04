@@ -1,0 +1,332 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Settings
+# System configuration
+# ═══════════════════════════════════════════════════════════════════
+
+title = "Settings"
+icon = "⚙️"
+
+# Current section
+current_section = "general"
+
+# ───────────────────────────────────────────────────────────────────
+# Start
+# ───────────────────────────────────────────────────────────────────
+
+start -> function(window) {
+    window.content = {
+        type: "container",
+        layout: "horizontal",
+        children: [
+            create_sidebar(),
+            create_content()
+        ]
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# UI Components
+# ───────────────────────────────────────────────────────────────────
+
+create_sidebar -> function() {
+    {
+        type: "list",
+        width: 200,
+        items: [
+            { icon: "🖥️", label: "Display", id: "display" },
+            { icon: "🔊", label: "Sound", id: "sound" },
+            { icon: "🌐", label: "Network", id: "network" },
+            { icon: "👤", label: "Users", id: "users" },
+            { icon: "🔐", label: "Security", id: "security" },
+            { icon: "💾", label: "Storage", id: "storage" },
+            { icon: "🔮", label: "Fate", id: "fate" },
+            { icon: "📦", label: "Quattro", id: "quattro" },
+            { icon: "ℹ️", label: "About", id: "about" }
+        ],
+        selected: current_section,
+        on_select: select_section
+    } -> return
+}
+
+create_content -> function() {
+    {
+        type: "panel",
+        content: get_section_content(current_section)
+    } -> return
+}
+
+select_section -> function(id) {
+    current_section = id
+    window.content.children[1].content = get_section_content(id)
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Section Content
+# ───────────────────────────────────────────────────────────────────
+
+get_section_content -> function(section) {
+    when section == "display" { display_settings() -> return }
+    when section == "sound" { sound_settings() -> return }
+    when section == "network" { network_settings() -> return }
+    when section == "users" { users_settings() -> return }
+    when section == "security" { security_settings() -> return }
+    when section == "storage" { storage_settings() -> return }
+    when section == "fate" { fate_settings() -> return }
+    when section == "quattro" { quattro_settings() -> return }
+    when section == "about" { about_settings() -> return }
+}
+
+display_settings -> function() {
+    {
+        type: "form",
+        title: "🖥️ Display Settings",
+        fields: [
+            {
+                label: "Resolution",
+                type: "select",
+                options: ["1920x1080", "1366x768", "1280x720", "800x600"],
+                value: display.width + "x" + display.height,
+                on_change: change_resolution
+            },
+            {
+                label: "Color Depth",
+                type: "select",
+                options: ["32-bit", "24-bit", "16-bit"],
+                value: display.depth + "-bit"
+            },
+            {
+                label: "Wallpaper",
+                type: "file",
+                accept: ".png,.jpg",
+                on_change: change_wallpaper
+            },
+            {
+                label: "Theme",
+                type: "select",
+                options: ["Dark", "Light", "System"],
+                value: "Dark"
+            }
+        ]
+    } -> return
+}
+
+sound_settings -> function() {
+    {
+        type: "form",
+        title: "🔊 Sound Settings",
+        fields: [
+            { label: "Master Volume", type: "slider", min: 0, max: 100, value: 80 },
+            { label: "System Sounds", type: "checkbox", checked: true },
+            { label: "Notifications", type: "checkbox", checked: true }
+        ]
+    } -> return
+}
+
+network_settings -> function() {
+    {
+        type: "form",
+        title: "🌐 Network Settings",
+        fields: [
+            {
+                label: "Connection",
+                type: "info",
+                value: network.active -> network.active.name : "Not connected"
+            },
+            {
+                label: "IP Address",
+                type: "info",
+                value: network.active -> network.active.ip : "N/A"
+            },
+            { label: "DNS", type: "text", value: "8.8.8.8" },
+            { label: "Proxy", type: "text", placeholder: "http://proxy:port" }
+        ]
+    } -> return
+}
+
+users_settings -> function() {
+    user_list = users.list_users()
+    
+    {
+        type: "container",
+        children: [
+            { type: "heading", text: "👤 User Management" },
+            {
+                type: "list",
+                items: user_list -> map(u => {
+                    { icon: "👤", label: u.name, sublabel: u.role }
+                })
+            },
+            {
+                type: "button",
+                text: "Add User",
+                action: add_user_dialog
+            }
+        ]
+    } -> return
+}
+
+security_settings -> function() {
+    {
+        type: "form",
+        title: "🔐 Security Settings",
+        fields: [
+            { label: "Firewall", type: "checkbox", checked: true },
+            { label: "Auto-lock", type: "checkbox", checked: true },
+            { label: "Lock timeout", type: "slider", min: 1, max: 60, value: 5, unit: "min" },
+            {
+                type: "button",
+                text: "Change Password",
+                action: change_password_dialog
+            }
+        ]
+    } -> return
+}
+
+storage_settings -> function() {
+    stats -> quattro.quattro_stats()
+    
+    {
+        type: "container",
+        children: [
+            { type: "heading", text: "💾 Storage" },
+            {
+                type: "progressbar",
+                label: "System",
+                value: 35,
+                max: 100,
+                text: "35% used"
+            },
+            {
+                type: "progressbar",
+                label: "User",
+                value: 20,
+                max: 100,
+                text: "20% used"
+            },
+            {
+                type: "button",
+                text: "Clean Up",
+                action: cleanup_storage
+            }
+        ]
+    } -> return
+}
+
+fate_settings -> function() {
+    {
+        type: "container",
+        children: [
+            { type: "heading", text: "🔮 Fate Engine" },
+            {
+                type: "info",
+                label: "Status",
+                value: fate.fate_brain.state
+            },
+            {
+                type: "info",
+                label: "Mode",
+                value: fate.fate_brain.mode
+            },
+            {
+                type: "info",
+                label: "Patterns Learned",
+                value: fate.fate_brain.patterns.length
+            },
+            {
+                type: "info",
+                label: "Meta Level",
+                value: fate.meta_fate.level
+            },
+            {
+                type: "info",
+                label: "Collapse Count",
+                value: fate.collapse_state.triggered
+            },
+            {
+                type: "button",
+                text: "Trigger Collapse",
+                action: () => fate.fate_collapse()
+            }
+        ]
+    } -> return
+}
+
+quattro_settings -> function() {
+    stats -> quattro.quattro_stats()
+    
+    {
+        type: "container",
+        children: [
+            { type: "heading", text: "📦 Quattro Memory" },
+            {
+                type: "progressbar",
+                label: "🕳️ BlackHole",
+                value: stats.blackhole.used,
+                max: stats.blackhole.total,
+                text: format_bytes(stats.blackhole.used) + " / " + format_bytes(stats.blackhole.total)
+            },
+            {
+                type: "progressbar",
+                label: "🧠 MeshBrain",
+                value: stats.meshbrain.used,
+                max: stats.meshbrain.total,
+                text: format_bytes(stats.meshbrain.used) + " / " + format_bytes(stats.meshbrain.total)
+            },
+            {
+                type: "progressbar",
+                label: "⭐ MultiNova",
+                value: stats.multinova.used,
+                max: stats.multinova.total,
+                text: format_bytes(stats.multinova.used) + " / " + format_bytes(stats.multinova.total)
+            },
+            {
+                type: "progressbar",
+                label: "⚡ BaseForce",
+                value: stats.baseforce.used,
+                max: stats.baseforce.total,
+                text: format_bytes(stats.baseforce.used) + " / " + format_bytes(stats.baseforce.total)
+            },
+            {
+                type: "button",
+                text: "Defragment",
+                action: () => quattro.quattro_defragment()
+            }
+        ]
+    } -> return
+}
+
+about_settings -> function() {
+    {
+        type: "container",
+        children: [
+            { type: "heading", text: "ℹ️ About Val-OS" },
+            { type: "text", text: "Val-OS v5.0" },
+            { type: "text", text: "Built with Wave Language" },
+            { type: "text", text: "Powered by Fate Engine" },
+            { type: "text", text: "Quattro Memory Management" },
+            { type: "spacer" },
+            { type: "text", text: "© 2026 Rogue Intelligence LNC" }
+        ]
+    } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Helpers
+# ───────────────────────────────────────────────────────────────────
+
+format_bytes -> function(bytes) {
+    when bytes < 1024 {
+        bytes + " B" -> return
+    }
+    when bytes < 1024 * 1024 {
+        (bytes / 1024).toFixed(1) + " KB" -> return
+    }
+    (bytes / 1024 / 1024).toFixed(1) + " MB" -> return
+}
+
+# Export
+module.exports = {
+    title,
+    icon,
+    start
+}

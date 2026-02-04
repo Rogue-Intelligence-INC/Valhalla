@@ -1,0 +1,187 @@
+# Val-OS Input Driver
+# Wave v5 - Fate auto-detects keyboard & mouse
+
+# ═══════════════════════════════════════════════════════
+# Philosophy: Express intent, Fate handles input
+# ═══════════════════════════════════════════════════════
+
+# Intent: "I need keyboard"
+keyboard -> "need keyboard" -> fate_detect -> fate_configure
+
+# Intent: "I need mouse"
+mouse -> "need mouse" -> fate_detect -> fate_configure
+
+# ═══════════════════════════════════════════════════════
+# Keyboard Detection (Fate-driven)
+# ═══════════════════════════════════════════════════════
+
+fate_detect_keyboard -> function() {
+    # Fate scans for keyboard types
+    "keyboard" -> fate_analyze -> {
+        # USB keyboard (modern)
+        usb: "USB HID" -> usb_scan -> fate_decide,
+        # PS/2 keyboard (legacy)
+        ps2: "PS/2" -> port_scan(0x60) -> fate_decide
+    } -> fate_select
+    
+    # Return best option
+    best -> fate_decide
+    best -> return
+}
+
+# ═══════════════════════════════════════════════════════
+# Mouse Detection (Fate-driven)
+# ═══════════════════════════════════════════════════════
+
+fate_detect_mouse -> function() {
+    # Fate scans for mouse types
+    "mouse" -> fate_analyze -> {
+        # USB mouse (modern)
+        usb: "USB HID" -> usb_scan -> fate_decide,
+        # PS/2 mouse (legacy)
+        ps2: "PS/2 AUX" -> port_scan(0x64) -> fate_decide
+    } -> fate_select
+    
+    best -> fate_decide
+    best -> return
+}
+
+# ═══════════════════════════════════════════════════════
+# Keyboard State (Fate monitors)
+# ═══════════════════════════════════════════════════════
+
+key_state -> fate_alloc
+key_state -> {
+    buffer: fate_alloc,
+    modifiers: {
+        shift: false -> fate_monitor,
+        ctrl: false -> fate_monitor,
+        alt: false -> fate_monitor,
+        super: false -> fate_monitor
+    }
+}
+
+# Key event -> Fate processes
+key_event -> function(scancode) {
+    scancode -> fate_analyze -> {
+        # Modifier keys
+        0x2A: key_state.modifiers.shift -> true,
+        0xAA: key_state.modifiers.shift -> false,
+        0x1D: key_state.modifiers.ctrl -> true,
+        0x9D: key_state.modifiers.ctrl -> false,
+        0x38: key_state.modifiers.alt -> true,
+        0xB8: key_state.modifiers.alt -> false,
+        # Regular keys -> buffer
+        _: scancode -> key_state.buffer -> fate_decide
+    } -> fate_decide
+}
+
+# Read key (Fate waits for input)
+read_key -> function() {
+    "wait key" -> fate_monitor -> fate_detect_marginal
+    key -> key_state.buffer -> fate_decide
+    key -> return
+}
+
+# Check if key pressed
+key_pressed -> function(key) {
+    key -> key_state -> fate_analyze -> fate_decide
+}
+
+# ═══════════════════════════════════════════════════════
+# Mouse State (Fate monitors)
+# ═══════════════════════════════════════════════════════
+
+mouse_state -> fate_alloc
+mouse_state -> {
+    x: 160 -> fate_monitor,  # Center
+    y: 100 -> fate_monitor,
+    buttons: {
+        left: false -> fate_monitor,
+        right: false -> fate_monitor,
+        middle: false -> fate_monitor
+    },
+    wheel: 0 -> fate_monitor
+}
+
+# Mouse event -> Fate processes
+mouse_event -> function(packet) {
+    packet -> fate_analyze -> {
+        # Update position
+        dx: packet.dx -> mouse_state.x + -> fate_decide,
+        dy: packet.dy -> mouse_state.y - -> fate_decide,
+        # Update buttons
+        buttons: packet.buttons -> mouse_state.buttons -> fate_decide
+    } -> fate_decide
+    
+    # Clamp to screen (Fate handles)
+    mouse_state -> fate_analyze -> fate_decide
+}
+
+# Read mouse position
+get_mouse -> function() {
+    pos -> {
+        x: mouse_state.x,
+        y: mouse_state.y,
+        left: mouse_state.buttons.left,
+        right: mouse_state.buttons.right
+    }
+    pos -> return
+}
+
+# Check if mouse in area
+mouse_in -> function(x, y, w, h) {
+    { x: x, y: y, w: w, h: h } -> mouse_state -> fate_analyze -> fate_decide
+}
+
+# ═══════════════════════════════════════════════════════
+# Cursor Rendering (Fate handles)
+# ═══════════════════════════════════════════════════════
+
+cursor -> fate_alloc
+cursor -> {
+    sprite: fate_alloc,  # Cursor image
+    hotspot: { x: 0, y: 0 },
+    visible: true -> fate_monitor,
+    
+    # Save/restore background
+    background: fate_alloc,
+    
+    draw -> function() {
+        # Save bg, draw cursor at mouse_state.x, mouse_state.y
+        mouse_state -> cursor.sprite -> display.framebuffer -> fate_decide
+    },
+    
+    hide -> function() {
+        # Restore background
+        cursor.background -> display.framebuffer -> fate_decide
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# Input Loop (Fate-driven)
+# ═══════════════════════════════════════════════════════
+
+input_loop -> function() {
+    # Fate monitors all input sources
+    fate_monitor -> fate_detect_marginal
+    
+    # Process events
+    "keyboard" -> fate_analyze -> key_event -> fate_decide
+    "mouse" -> fate_analyze -> mouse_event -> fate_decide
+    
+    # Update cursor
+    cursor.draw -> call
+}
+
+# ═══════════════════════════════════════════════════════
+# Input Info
+# ═══════════════════════════════════════════════════════
+
+input_info -> function() {
+    kb -> fate_detect_keyboard -> fate_analyze
+    ms -> fate_detect_mouse -> fate_analyze
+    
+    out "Keyboard: " + kb.name + " (" + kb.type + ")"
+    out "Mouse: " + ms.name + " (" + ms.type + ")"
+}

@@ -1,0 +1,648 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Wave Display System
+# 自定义显示系统 - Fate 驱动的 GUI 渲染
+# ═══════════════════════════════════════════════════════════════════
+# 时间: 2026-01-23 02:00:25
+# 作者: Wave Language Team
+# ═══════════════════════════════════════════════════════════════════
+
+load "val-os-v5/drivers/compat.wave" -> compat
+
+# ─────────────────────────────────────────────────────────────────
+# 颜色系统
+# ─────────────────────────────────────────────────────────────────
+
+colors -> {
+    # 基础颜色 (RGB)
+    black:       { r: 0,   g: 0,   b: 0   },
+    white:       { r: 255, g: 255, b: 255 },
+    red:         { r: 255, g: 0,   b: 0   },
+    green:       { r: 0,   g: 255, b: 0   },
+    blue:        { r: 0,   g: 0,   b: 255 },
+    yellow:      { r: 255, g: 255, b: 0   },
+    cyan:        { r: 0,   g: 255, b: 255 },
+    magenta:     { r: 255, g: 0,   b: 255 },
+    
+    # Val-OS 主题色
+    primary:     { r: 0,   g: 122, b: 255 },
+    secondary:   { r: 88,  g: 86,  b: 214 },
+    background:  { r: 30,  g: 30,  b: 46  },
+    surface:     { r: 49,  g: 50,  b: 68  },
+    text:        { r: 205, g: 214, b: 244 },
+    accent:      { r: 137, g: 180, b: 250 },
+    success:     { r: 166, g: 227, b: 161 },
+    warning:     { r: 249, g: 226, b: 175 },
+    error:       { r: 243, g: 139, b: 168 },
+    
+    # 渐变生成
+    gradient -> function(from, to, steps) {
+        result = []
+        limit steps; i {
+            t = i / (steps - 1)
+            result.push({
+                r: from.r + (to.r - from.r) * t,
+                g: from.g + (to.g - from.g) * t,
+                b: from.b + (to.b - from.b) * t
+            })
+        }
+        result -> return
+    },
+    
+    # 透明度混合
+    blend -> function(fg, bg, alpha) {
+        {
+            r: fg.r * alpha + bg.r * (1 - alpha),
+            g: fg.g * alpha + bg.g * (1 - alpha),
+            b: fg.b * alpha + bg.b * (1 - alpha)
+        } -> return
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────
+# 图形原语
+# ─────────────────────────────────────────────────────────────────
+
+gfx -> {
+    # 画点
+    pixel -> function(x, y, color) {
+        compat.display_compat.set_pixel(x, y, color)
+    },
+    
+    # 画线 (Bresenham)
+    line -> function(x1, y1, x2, y2, color) {
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+        sx = x1 < x2 ? 1 : -1
+        sy = y1 < y2 ? 1 : -1
+        err = dx - dy
+        
+        loop {
+            gfx.pixel(x1, y1, color)
+            when x1 == x2 && y1 == y2 { break }
+            e2 = err * 2
+            when e2 > -dy {
+                err = err - dy
+                x1 = x1 + sx
+            }
+            when e2 < dx {
+                err = err + dx
+                y1 = y1 + sy
+            }
+        }
+    },
+    
+    # 画矩形
+    rect -> function(x, y, w, h, color, filled) {
+        when filled {
+            compat.display_compat.fill_rect(x, y, w, h, color)
+        } else {
+            gfx.line(x, y, x + w, y, color)         # 上
+            gfx.line(x, y + h, x + w, y + h, color) # 下
+            gfx.line(x, y, x, y + h, color)         # 左
+            gfx.line(x + w, y, x + w, y + h, color) # 右
+        }
+    },
+    
+    # 画圆角矩形
+    rounded_rect -> function(x, y, w, h, radius, color, filled) {
+        when filled {
+            # 中间矩形
+            gfx.rect(x + radius, y, w - 2 * radius, h, color, true)
+            gfx.rect(x, y + radius, w, h - 2 * radius, color, true)
+            # 四角
+            gfx.filled_circle(x + radius, y + radius, radius, color)
+            gfx.filled_circle(x + w - radius, y + radius, radius, color)
+            gfx.filled_circle(x + radius, y + h - radius, radius, color)
+            gfx.filled_circle(x + w - radius, y + h - radius, radius, color)
+        } else {
+            # 边框
+            gfx.line(x + radius, y, x + w - radius, y, color)
+            gfx.line(x + radius, y + h, x + w - radius, y + h, color)
+            gfx.line(x, y + radius, x, y + h - radius, color)
+            gfx.line(x + w, y + radius, x + w, y + h - radius, color)
+            # 圆角弧
+            gfx.arc(x + radius, y + radius, radius, 180, 270, color)
+            gfx.arc(x + w - radius, y + radius, radius, 270, 360, color)
+            gfx.arc(x + radius, y + h - radius, radius, 90, 180, color)
+            gfx.arc(x + w - radius, y + h - radius, radius, 0, 90, color)
+        }
+    },
+    
+    # 画圆 (Midpoint)
+    circle -> function(cx, cy, r, color) {
+        x = r
+        y = 0
+        d = 1 - r
+        
+        loop {
+            gfx.pixel(cx + x, cy + y, color)
+            gfx.pixel(cx - x, cy + y, color)
+            gfx.pixel(cx + x, cy - y, color)
+            gfx.pixel(cx - x, cy - y, color)
+            gfx.pixel(cx + y, cy + x, color)
+            gfx.pixel(cx - y, cy + x, color)
+            gfx.pixel(cx + y, cy - x, color)
+            gfx.pixel(cx - y, cy - x, color)
+            
+            y = y + 1
+            when d < 0 {
+                d = d + 2 * y + 1
+            } else {
+                x = x - 1
+                d = d + 2 * (y - x) + 1
+            }
+            when x < y { break }
+        }
+    },
+    
+    # 填充圆
+    filled_circle -> function(cx, cy, r, color) {
+        limit r * 2 + 1; dy {
+            y = dy - r
+            limit r * 2 + 1; dx {
+                x = dx - r
+                when x * x + y * y <= r * r {
+                    gfx.pixel(cx + x, cy + y, color)
+                }
+            }
+        }
+    },
+    
+    # 渐变背景
+    gradient_fill -> function(x, y, w, h, color1, color2, direction) {
+        gradient_colors = colors.gradient(color1, color2, h)
+        when direction == "vertical" {
+            limit h; row {
+                limit w; col {
+                    gfx.pixel(x + col, y + row, gradient_colors[row])
+                }
+            }
+        }
+        when direction == "horizontal" {
+            gradient_colors = colors.gradient(color1, color2, w)
+            limit h; row {
+                limit w; col {
+                    gfx.pixel(x + col, y + row, gradient_colors[col])
+                }
+            }
+        }
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────
+# 字体系统 (8x8 位图字体)
+# ─────────────────────────────────────────────────────────────────
+
+font -> {
+    width: 8,
+    height: 8,
+    
+    # 简化的 ASCII 字形 (存储为位图)
+    glyphs: {
+        # 每个字符是 8 行，每行 8 位
+        'A': [0x18, 0x24, 0x42, 0x7E, 0x42, 0x42, 0x42, 0x00],
+        'B': [0x7C, 0x42, 0x7C, 0x42, 0x42, 0x42, 0x7C, 0x00],
+        'C': [0x3C, 0x42, 0x40, 0x40, 0x40, 0x42, 0x3C, 0x00],
+        'V': [0x42, 0x42, 0x42, 0x42, 0x42, 0x24, 0x18, 0x00],
+        'a': [0x00, 0x00, 0x3C, 0x02, 0x3E, 0x42, 0x3E, 0x00],
+        'l': [0x30, 0x10, 0x10, 0x10, 0x10, 0x10, 0x38, 0x00],
+        '-': [0x00, 0x00, 0x00, 0x7E, 0x00, 0x00, 0x00, 0x00],
+        'O': [0x3C, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3C, 0x00],
+        'S': [0x3C, 0x42, 0x40, 0x3C, 0x02, 0x42, 0x3C, 0x00],
+        ' ': [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+        # ... 更多字符
+    },
+    
+    # 绘制单个字符
+    draw_char -> function(ch, x, y, color) {
+        glyph = font.glyphs[ch]
+        when glyph == null {
+            glyph = font.glyphs[' ']  # 默认空格
+        }
+        
+        limit 8; row {
+            bits = glyph[row]
+            limit 8; col {
+                when (bits >> (7 - col)) & 1 {
+                    gfx.pixel(x + col, y + row, color)
+                }
+            }
+        }
+    },
+    
+    # 绘制文本
+    draw_text -> function(text, x, y, color) {
+        cx = x
+        text -> fate_each -> ch {
+            font.draw_char(ch, cx, y, color)
+            cx = cx + font.width
+        }
+    },
+    
+    # 测量文本宽度
+    measure -> function(text) {
+        text.length * font.width -> return
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────
+# 图标系统
+# ─────────────────────────────────────────────────────────────────
+
+icons -> {
+    # 16x16 图标
+    size: 16,
+    
+    # 文件夹图标
+    folder: [
+        "................",
+        ".#####..........",
+        "########........",
+        "##############..",
+        "##############..",
+        "##############..",
+        "##############..",
+        "##############..",
+        "##############..",
+        "##############..",
+        "##############..",
+        "##############..",
+        "##############..",
+        ".############...",
+        "................",
+        "................"
+    ],
+    
+    # 终端图标
+    terminal: [
+        "################",
+        "#..............#",
+        "#.>_...........#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "#..............#",
+        "################"
+    ],
+    
+    # 浏览器图标
+    browser: [
+        "....########....",
+        "..############..",
+        ".##....##....##.",
+        ".##....##....##.",
+        ".##############.",
+        ".##############.",
+        ".##............#",
+        ".##............#",
+        ".##............#",
+        ".##............#",
+        ".##............#",
+        ".##............#",
+        ".##############.",
+        "..############..",
+        "....########....",
+        "................"
+    ],
+    
+    # 设置图标
+    settings: [
+        "................",
+        "......##........",
+        "....######......",
+        "...##....##.....",
+        "..##......##....",
+        ".##..####..##...",
+        ".##.######.##...",
+        ".##.##..##.##...",
+        ".##.##..##.##...",
+        ".##.######.##...",
+        ".##..####..##...",
+        "..##......##....",
+        "...##....##.....",
+        "....######......",
+        "......##........",
+        "................"
+    ],
+    
+    # 游戏图标
+    game: [
+        "................",
+        "....########....",
+        "...##########...",
+        "..##..####..##..",
+        "..##..####..##..",
+        "..############..",
+        "..############..",
+        ".##..........##.",
+        ".##.##....##.##.",
+        ".##.##....##.##.",
+        ".##..........##.",
+        "..############..",
+        "...##########...",
+        "....########....",
+        "................",
+        "................"
+    ],
+    
+    # 绘制图标
+    draw -> function(name, x, y, color) {
+        icon_data = icons[name]
+        when icon_data == null { return }
+        
+        limit icons.size; row {
+            line = icon_data[row]
+            limit icons.size; col {
+                when line[col] == '#' {
+                    gfx.pixel(x + col, y + row, color)
+                }
+            }
+        }
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────
+# 窗口系统
+# ─────────────────────────────────────────────────────────────────
+
+window_style -> {
+    title_height: 24,
+    border_radius: 8,
+    border_width: 1,
+    shadow_offset: 4,
+    shadow_blur: 8,
+    
+    colors: {
+        title_bg: colors.surface,
+        title_text: colors.text,
+        content_bg: colors.background,
+        border: colors.primary,
+        shadow: { r: 0, g: 0, b: 0 },
+        close_btn: colors.error,
+        minimize_btn: colors.warning,
+        maximize_btn: colors.success
+    }
+}
+
+window -> {
+    # 绘制窗口
+    draw -> function(x, y, w, h, title, content_fn) {
+        style = window_style
+        
+        # 阴影
+        shadow_color = colors.blend(style.colors.shadow, colors.background, 0.3)
+        gfx.rounded_rect(
+            x + style.shadow_offset, 
+            y + style.shadow_offset, 
+            w, h, 
+            style.border_radius, 
+            shadow_color, 
+            true
+        )
+        
+        # 窗口背景
+        gfx.rounded_rect(x, y, w, h, style.border_radius, style.colors.content_bg, true)
+        
+        # 标题栏
+        gfx.rounded_rect(x, y, w, style.title_height, style.border_radius, style.colors.title_bg, true)
+        
+        # 标题文字
+        font.draw_text(title, x + 10, y + 8, style.colors.title_text)
+        
+        # 窗口按钮
+        btn_y = y + 6
+        btn_size = 12
+        
+        # 关闭按钮
+        gfx.filled_circle(x + w - 20, btn_y + 6, btn_size / 2, style.colors.close_btn)
+        
+        # 最大化按钮
+        gfx.filled_circle(x + w - 38, btn_y + 6, btn_size / 2, style.colors.maximize_btn)
+        
+        # 最小化按钮
+        gfx.filled_circle(x + w - 56, btn_y + 6, btn_size / 2, style.colors.minimize_btn)
+        
+        # 边框
+        gfx.rounded_rect(x, y, w, h, style.border_radius, style.colors.border, false)
+        
+        # 内容区域
+        content_fn(x + 5, y + style.title_height + 5, w - 10, h - style.title_height - 10)
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────
+# 桌面管理
+# ─────────────────────────────────────────────────────────────────
+
+desktop -> {
+    wallpaper_color1: { r: 30, g: 30, b: 60 },
+    wallpaper_color2: { r: 10, g: 10, b: 30 },
+    
+    icons_list: [
+        { name: "folder",   label: "Files",    x: 20, y: 20 },
+        { name: "terminal", label: "Terminal", x: 20, y: 80 },
+        { name: "browser",  label: "Browser",  x: 20, y: 140 },
+        { name: "settings", label: "Settings", x: 20, y: 200 },
+        { name: "game",     label: "Game",     x: 20, y: 260 }
+    ],
+    
+    # 绘制桌面
+    draw -> function() {
+        screen = compat.display_compat.current_mode
+        
+        # 渐变壁纸
+        gfx.gradient_fill(
+            0, 0, 
+            screen.width, screen.height,
+            desktop.wallpaper_color1,
+            desktop.wallpaper_color2,
+            "vertical"
+        )
+        
+        # 桌面图标
+        desktop.icons_list -> fate_each -> icon {
+            icons.draw(icon.name, icon.x, icon.y, colors.white)
+            font.draw_text(icon.label, icon.x, icon.y + icons.size + 4, colors.text)
+        }
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────
+# 任务栏
+# ─────────────────────────────────────────────────────────────────
+
+taskbar -> {
+    height: 32,
+    
+    draw -> function() {
+        screen = compat.display_compat.current_mode
+        y = screen.height - taskbar.height
+        
+        # 背景
+        gfx.rect(0, y, screen.width, taskbar.height, colors.surface, true)
+        
+        # Wave 标志
+        font.draw_text("Wave", 10, y + 10, colors.primary)
+        
+        # 分隔线
+        gfx.line(50, y + 5, 50, y + taskbar.height - 5, colors.text)
+        
+        # 时间
+        time_str = "12:34"
+        time_x = screen.width - font.measure(time_str) - 10
+        font.draw_text(time_str, time_x, y + 10, colors.text)
+        
+        # WiFi 图标 (简化)
+        wifi_x = time_x - 30
+        gfx.line(wifi_x, y + 20, wifi_x + 5, y + 10, colors.accent)
+        gfx.line(wifi_x + 5, y + 10, wifi_x + 10, y + 20, colors.accent)
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────
+# 启动器
+# ─────────────────────────────────────────────────────────────────
+
+launcher -> {
+    visible: false,
+    
+    apps: [
+        { name: "Files",      icon: "folder",   action: "app_files" },
+        { name: "Terminal",   icon: "terminal", action: "app_terminal" },
+        { name: "Browser",    icon: "browser",  action: "app_browser" },
+        { name: "Settings",   icon: "settings", action: "app_settings" },
+        { name: "Game",       icon: "game",     action: "app_game" },
+        { name: "Calculator", icon: "settings", action: "app_calc" }
+    ],
+    
+    show -> function() {
+        launcher.visible = true
+        launcher.draw()
+    },
+    
+    hide -> function() {
+        launcher.visible = false
+        desktop.draw()
+        taskbar.draw()
+    },
+    
+    draw -> function() {
+        screen = compat.display_compat.current_mode
+        
+        # 半透明覆盖
+        gfx.rect(0, 0, screen.width, screen.height, 
+            colors.blend(colors.black, colors.background, 0.7), true)
+        
+        # 启动器窗口
+        lw = 300
+        lh = 400
+        lx = (screen.width - lw) / 2
+        ly = (screen.height - lh) / 2
+        
+        gfx.rounded_rect(lx, ly, lw, lh, 16, colors.surface, true)
+        
+        # 标题
+        font.draw_text("Applications", lx + 20, ly + 20, colors.text)
+        
+        # 应用列表
+        item_y = ly + 50
+        launcher.apps -> fate_each -> app {
+            icons.draw(app.icon, lx + 20, item_y, colors.accent)
+            font.draw_text(app.name, lx + 50, item_y + 4, colors.text)
+            item_y = item_y + 40
+        }
+        
+        # 提示
+        font.draw_text("ESC to close", lx + 100, ly + lh - 30, colors.text)
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────
+# 鼠标光标
+# ─────────────────────────────────────────────────────────────────
+
+cursor -> {
+    x: 0,
+    y: 0,
+    
+    # 光标形状 (箭头)
+    shape: [
+        "#...............",
+        "##..............",
+        "###.............",
+        "####............",
+        "#####...........",
+        "######..........",
+        "#######.........",
+        "########........",
+        "#########.......",
+        "######..........",
+        "###.###.........",
+        "##..###.........",
+        "#....###........",
+        ".....###........",
+        "......##........",
+        "................"
+    ],
+    
+    update -> function() {
+        mouse_state = compat.input_compat.get_mouse()
+        cursor.x = mouse_state.x
+        cursor.y = mouse_state.y
+    },
+    
+    draw -> function() {
+        limit 16; row {
+            line = cursor.shape[row]
+            limit 16; col {
+                when line[col] == '#' {
+                    gfx.pixel(cursor.x + col, cursor.y + row, colors.white)
+                }
+            }
+        }
+    }
+}
+
+# ─────────────────────────────────────────────────────────────────
+# 显示系统初始化
+# ─────────────────────────────────────────────────────────────────
+
+wave_display_init -> function() {
+    out "═══════════════════════════════════════════════════════════"
+    out "Val-OS v5.0 - Wave Display System"
+    out "═══════════════════════════════════════════════════════════"
+    
+    # 初始化驱动兼容层
+    compat.compat_init()
+    
+    # 绘制桌面
+    desktop.draw()
+    
+    # 绘制任务栏
+    taskbar.draw()
+    
+    out "Display system ready"
+    out "═══════════════════════════════════════════════════════════"
+}
+
+# 导出
+export {
+    colors,
+    gfx,
+    font,
+    icons,
+    window,
+    desktop,
+    taskbar,
+    launcher,
+    cursor,
+    wave_display_init
+}

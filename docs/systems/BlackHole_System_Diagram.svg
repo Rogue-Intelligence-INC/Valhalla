@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 渐变定义 -->
+    <radialGradient id="blackHoleGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#333333;stop-opacity:1" />
+    </radialGradient>
+    
+    <radialGradient id="gravityFieldGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#4ECDC4;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#45B7D1;stop-opacity:0.3" />
+    </radialGradient>
+    
+    <linearGradient id="eventHorizonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF4757;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#FF6B6B;stop-opacity:0.7" />
+    </linearGradient>
+    
+    <linearGradient id="signalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFA726;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFCC02;stop-opacity:0.8" />
+    </linearGradient>
+    
+    <!-- 箭头标记 -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+    
+    <!-- 引力场箭头 -->
+    <marker id="gravityArrow" markerWidth="12" markerHeight="8" 
+            refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#FF6B6B" />
+    </marker>
+    
+    <!-- 信号箭头 -->
+    <marker id="signalArrow" markerWidth="12" markerHeight="8" 
+            refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#FFA726" />
+    </marker>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="1200" height="900" fill="#0a0a0a"/>
+  
+  <!-- 标题 -->
+  <text x="600" y="30" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="24" font-weight="bold" fill="#FFFFFF">
+    BlackHole 系统架构图
+  </text>
+  <text x="600" y="55" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="14" fill="#CCCCCC">
+    引力场智能演化器 - 极端物理形变信号生成
+  </text>
+  
+  <!-- 核心设计理念 -->
+  <rect x="50" y="70" width="1100" height="40" fill="#1a1a1a" 
+        stroke="#444" stroke-width="1" rx="5"/>
+  <text x="600" y="90" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="16" font-weight="bold" fill="#4ECDC4">
+    🎯 核心理念: 优质部分 → 物理空间形变 → 形变就是信号
+  </text>
+  
+  <!-- 主要引力场区域 -->
+  <circle cx="600" cy="400" r="250" fill="url(#gravityFieldGradient)" 
+          stroke="#4ECDC4" stroke-width="2" opacity="0.7"/>
+  <text x="600" y="180" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="16" font-weight="bold" fill="#4ECDC4">
+    🌀 引力场区域 (GravityField)
+  </text>
+  
+  <!-- 事件视界 -->
+  <circle cx="600" cy="400" r="120" fill="url(#eventHorizonGradient)" 
+          stroke="#FF4757" stroke-width="3" opacity="0.8"/>
+  <text x="600" y="320" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="14" font-weight="bold" fill="#FF4757">
+    🚫 事件视界 (EventHorizon)
+  </text>
+  <text x="600" y="340" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="12" fill="#FFAAAA">
+    boundary_radius = 2.0
+  </text>
+  
+  <!-- 黑洞核心 -->
+  <circle cx="600" cy="400" r="40" fill="url(#blackHoleGradient)" 
+          stroke="#000" stroke-width="2"/>
+  <text x="600" y="405" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="12" font-weight="bold" fill="#FFFFFF">
+    🕳️ 核心
+  </text>
+  
+  <!-- 引力场强度等高线 -->
+  <circle cx="600" cy="400" r="80" fill="none" stroke="#FF6B6B" 
+          stroke-width="1" stroke-dasharray="5,5" opacity="0.6"/>
+  <circle cx="600" cy="400" r="160" fill="none" stroke="#4ECDC4" 
+          stroke-width="1" stroke-dasharray="5,5" opacity="0.6"/>
+  <circle cx="600" cy="400" r="200" fill="none" stroke="#45B7D1" 
+          stroke-width="1" stroke-dasharray="5,5" opacity="0.6"/>
+  
+  <!-- 引力场强度标注 -->
+  <text x="680" y="405" text-anchor="start" font-family="Arial, sans-serif" 
+        font-size="10" fill="#FF6B6B">r=80: 高强度</text>
+  <text x="760" y="405" text-anchor="start" font-family="Arial, sans-serif" 
+        font-size="10" fill="#4ECDC4">r=160: 中强度</text>
+  <text x="800" y="405" text-anchor="start" font-family="Arial, sans-serif" 
+        font-size="10" fill="#45B7D1">r=200: 低强度</text>
+  
+  <!-- 左侧：系统配置模块 -->
+  <g id="configModule">
+    <rect x="50" y="150" width="200" height="180" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="150" y="175" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="16" font-weight="bold" fill="#FFFFFF">
+      ⚙️ 系统配置
+    </text>
+    
+    <!-- BlackHoleConfig -->
+    <rect x="70" y="190" width="160" height="50" fill="#2a2a2a" 
+          stroke="#4ECDC4" stroke-width="1" rx="5"/>
+    <text x="150" y="210" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#4ECDC4">BlackHoleConfig</text>
+    <text x="150" y="225" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">mass: 10.0</text>
+    <text x="150" y="235" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">critical_radius: 2.0</text>
+    
+    <!-- GravityFieldConfig -->
+    <rect x="70" y="250" width="160" height="70" fill="#2a2a2a" 
+          stroke="#FF6B6B" stroke-width="1" rx="5"/>
+    <text x="150" y="270" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FF6B6B">GravityFieldConfig</text>
+    <text x="150" y="285" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">field_strength: 1.0</text>
+    <text x="150" y="295" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">curvature_factor: 0.5</text>
+    <text x="150" y="305" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">mass: 10.0</text>
+    <text x="150" y="315" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">critical_radius: 2.0</text>
+  </g>
+  
+  <!-- 右侧：形变信号输出 -->
+  <g id="signalOutput">
+    <rect x="950" y="150" width="200" height="500" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="1050" y="175" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="16" font-weight="bold" fill="#FFFFFF">
+      📡 形变信号输出
+    </text>
+    
+    <!-- 逃逸信号 -->
+    <rect x="970" y="190" width="160" height="80" fill="url(#signalGradient)" 
+          stroke="#FFA726" stroke-width="2" rx="8"/>
+    <text x="1050" y="215" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#000">🚀 逃逸信号</text>
+    <text x="1050" y="230" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#333">EscapeSignal</text>
+    <text x="1050" y="245" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#333">成功逃逸的形变模式</text>
+    <text x="1050" y="255" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#333">intensity: 0.8-1.0</text>
+    <text x="1050" y="265" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#333">quality_score: 0.9</text>
+    
+    <!-- 反重力稳定信号 -->
+    <rect x="970" y="280" width="160" height="80" fill="#2a4a2a" 
+          stroke="#4CAF50" stroke-width="2" rx="8"/>
+    <text x="1050" y="305" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#4CAF50">⚖️ 反重力稳定信号</text>
+    <text x="1050" y="320" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">AntiGravityStableSignal</text>
+    <text x="1050" y="335" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">稳定平衡的形变模式</text>
+    <text x="1050" y="345" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">intensity: 0.3-0.6</text>
+    <text x="1050" y="355" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">stability: 0.95</text>
+    
+    <!-- 形变尺度参数 -->
+    <rect x="970" y="370" width="160" height="120" fill="#2a2a3a" 
+          stroke="#9C27B0" stroke-width="2" rx="8"/>
+    <text x="1050" y="395" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#9C27B0">📊 形变尺度</text>
+    <text x="1050" y="410" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">DeformationScales</text>
+    <text x="1050" y="425" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">gravity_intensity_scale</text>
+    <text x="1050" y="435" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">spacetime_curvature_scale</text>
+    <text x="1050" y="445" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">event_horizon_scale</text>
+    <text x="1050" y="455" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">escape_difficulty_scale</text>
+    <text x="1050" y="465" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">stability_scale</text>
+    <text x="1050" y="480" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#FFCC02">连续尺度 (0.0-1.0)</text>
+    
+    <!-- 信号生成公式 -->
+    <rect x="970" y="500" width="160" height="80" fill="#3a2a1a" 
+          stroke="#FF9800" stroke-width="2" rx="8"/>
+    <text x="1050" y="525" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" font-weight="bold" fill="#FF9800">🧮 信号强度公式</text>
+    <text x="1050" y="540" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">intensity = </text>
+    <text x="1050" y="550" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">gravity × 0.4 +</text>
+    <text x="1050" y="560" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">curvature × 0.3 +</text>
+    <text x="1050" y="570" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">horizon × 0.2 +</text>
+    <text x="1050" y="580" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#CCCCCC">escape × 0.1</text>
+  </g>
+  
+  <!-- 底部：数学公式区域 -->
+  <g id="mathFormulas">
+    <rect x="50" y="700" width="1100" height="150" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="600" y="725" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="16" font-weight="bold" fill="#FFFFFF">
+      📐 核心数学公式
+    </text>
+    
+    <!-- 引力场方程 -->
+    <rect x="80" y="740" width="200" height="80" fill="#2a1a1a" 
+          stroke="#FF6B6B" stroke-width="1" rx="5"/>
+    <text x="180" y="760" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" font-weight="bold" fill="#FF6B6B">引力场方程</text>
+    <text x="180" y="775" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">F(r) = G × M / r²</text>
+    <text x="180" y="790" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#AAAAAA">抽象万有引力定律</text>
+    <text x="180" y="805" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#AAAAAA">距离越近引力越强</text>
+    
+    <!-- 时空曲率方程 -->
+    <rect x="300" y="740" width="200" height="80" fill="#1a2a1a" 
+          stroke="#4ECDC4" stroke-width="1" rx="5"/>
+    <text x="400" y="760" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" font-weight="bold" fill="#4ECDC4">时空曲率方程</text>
+    <text x="400" y="775" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">K(r) = C / (r/r₀)³</text>
+    <text x="400" y="790" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#AAAAAA">广义相对论时空弯曲</text>
+    <text x="400" y="805" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#AAAAAA">三次方反比关系</text>
+    
+    <!-- 逃逸速度方程 -->
+    <rect x="520" y="740" width="200" height="80" fill="#1a1a2a" 
+          stroke="#9C27B0" stroke-width="1" rx="5"/>
+    <text x="620" y="760" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" font-weight="bold" fill="#9C27B0">逃逸速度方程</text>
+    <text x="620" y="775" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">v = √(2GM/r)</text>
+    <text x="620" y="790" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#AAAAAA">最小逃逸速度计算</text>
+    <text x="620" y="805" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#AAAAAA">距离越近速度越大</text>
+    
+    <!-- 信息保存概率 -->
+    <rect x="740" y="740" width="200" height="80" fill="#2a1a1a" 
+          stroke="#FF4757" stroke-width="1" rx="5"/>
+    <text x="840" y="760" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" font-weight="bold" fill="#FF4757">信息保存概率</text>
+    <text x="840" y="775" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">P = r/r₀ × t/100 (r≤r₀)</text>
+    <text x="840" y="785" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">P = 1.0 (r>r₀)</text>
+    <text x="840" y="800" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#AAAAAA">事件视界信息悖论</text>
+    <text x="840" y="810" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#AAAAAA">边界内信息逐渐丢失</text>
+  </g>
+  
+  <!-- 引力场向量箭头 -->
+  <g id="gravityVectors">
+    <!-- 向心引力箭头 -->
+    <path d="M 450 300 L 550 350" stroke="#FF6B6B" stroke-width="3" 
+          fill="none" marker-end="url(#gravityArrow)"/>
+    <path d="M 750 300 L 650 350" stroke="#FF6B6B" stroke-width="3" 
+          fill="none" marker-end="url(#gravityArrow)"/>
+    <path d="M 450 500 L 550 450" stroke="#FF6B6B" stroke-width="3" 
+          fill="none" marker-end="url(#gravityArrow)"/>
+    <path d="M 750 500 L 650 450" stroke="#FF6B6B" stroke-width="3" 
+          fill="none" marker-end="url(#gravityArrow)"/>
+    
+    <!-- 引力场标注 -->
+    <text x="400" y="290" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#FF6B6B">引力场</text>
+  </g>
+  
+  <!-- 霍金辐射 -->
+  <g id="hawkingRadiation">
+    <!-- 辐射粒子 -->
+    <circle cx="580" cy="360" r="3" fill="#FFCC02" opacity="0.8"/>
+    <circle cx="620" cy="360" r="3" fill="#FFCC02" opacity="0.8"/>
+    <circle cx="580" cy="440" r="3" fill="#FFCC02" opacity="0.8"/>
+    <circle cx="620" cy="440" r="3" fill="#FFCC02" opacity="0.8"/>
+    
+    <!-- 辐射箭头 -->
+    <path d="M 580 360 L 550 330" stroke="#FFCC02" stroke-width="2" 
+          fill="none" marker-end="url(#signalArrow)" stroke-dasharray="3,3"/>
+    <path d="M 620 360 L 650 330" stroke="#FFCC02" stroke-width="2" 
+          fill="none" marker-end="url(#signalArrow)" stroke-dasharray="3,3"/>
+    
+    <text x="520" y="320" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#FFCC02">霍金辐射</text>
+  </g>
+  
+  <!-- 数据流箭头 -->
+  <!-- 配置 → 引力场 -->
+  <path d="M 250 240 L 350 350" stroke="#4ECDC4" stroke-width="3" 
+        fill="none" marker-end="url(#arrowhead)"/>
+  <text x="300" y="290" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#4ECDC4">配置输入</text>
+  
+  <!-- 引力场 → 信号输出 -->
+  <path d="M 850 350 L 950 230" stroke="#FFA726" stroke-width="3" 
+        fill="none" marker-end="url(#signalArrow)"/>
+  <text x="900" y="280" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#FFA726">信号输出</text>
+  
+  <!-- 系统状态指示器 -->
+  <g id="statusIndicators">
+    <rect x="50" y="350" width="180" height="120" fill="#1a1a1a" 
+          stroke="#666" stroke-width="1" rx="5"/>
+    <text x="140" y="375" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FFFFFF">
+      📊 系统状态
+    </text>
+    
+    <!-- 状态指示灯 -->
+    <circle cx="80" cy="395" r="8" fill="#4CAF50"/>
+    <text x="100" y="400" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">引力场: 活跃</text>
+    
+    <circle cx="80" cy="415" r="8" fill="#FF4757"/>
+    <text x="100" y="420" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">事件视界: 稳定</text>
+    
+    <circle cx="80" cy="435" r="8" fill="#FFA726"/>
+    <text x="100" y="440" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">信号生成: 正常</text>
+    
+    <circle cx="80" cy="455" r="8" fill="#9C27B0"/>
+    <text x="100" y="460" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">CUDA: 可选</text>
+  </g>
+  
+  <!-- 版权信息 -->
+  <text x="600" y="885" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="12" fill="#666666">
+    BlackHole System Architecture - Valhalla Project v2.0
+  </text>
+</svg> 

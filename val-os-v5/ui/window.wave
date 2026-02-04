@@ -1,0 +1,326 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Window Manager
+# Fate-managed window system
+# ═══════════════════════════════════════════════════════════════════
+
+# Window list
+windows = []
+focused = null
+
+# Drag state
+drag = {
+    active: false,
+    window: null,
+    offset_x: 0,
+    offset_y: 0
+}
+
+# Resize state
+resize = {
+    active: false,
+    window: null,
+    edge: null
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Initialization
+# ───────────────────────────────────────────────────────────────────
+
+init -> function() {
+    windows = []
+    focused = null
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Window Creation
+# ───────────────────────────────────────────────────────────────────
+
+create_window -> function(config) {
+    win = {
+        id: next_window_id(),
+        title: config.title || "Window",
+        icon: config.icon || "📄",
+        x: config.x || 100,
+        y: config.y || 100,
+        w: config.w || 400,
+        h: config.h || 300,
+        min_w: config.min_w || 200,
+        min_h: config.min_h || 150,
+        resizable: config.resizable != false,
+        closable: config.closable != false,
+        maximized: false,
+        minimized: false,
+        content: config.content || null,
+        on_close: config.on_close || null,
+        on_resize: config.on_resize || null
+    }
+    
+    win -> windows.push
+    win -> focus_window
+    
+    win -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Window Management
+# ───────────────────────────────────────────────────────────────────
+
+focus_window -> function(win) {
+    # Remove from list and add to front (top)
+    win -> windows.remove
+    win -> windows.push
+    
+    focused = win
+    
+    # Update taskbar
+    update_taskbar_focus(win)
+}
+
+close_window -> function(win) {
+    # Call close handler
+    when win.on_close != null {
+        win.on_close()
+    }
+    
+    win -> windows.remove
+    
+    # Focus next window
+    when windows.length > 0 {
+        windows[windows.length - 1] -> focus_window
+    } else {
+        focused = null
+    }
+    
+    # Update taskbar
+    win -> remove_from_taskbar
+}
+
+minimize_window -> function(win) {
+    win.minimized = true
+    
+    # Focus next visible window
+    next -> windows -> fate_find_visible
+    when next != null {
+        next -> focus_window
+    }
+}
+
+maximize_window -> function(win) {
+    when !win.maximized {
+        # Save original position
+        win.restore = { x: win.x, y: win.y, w: win.w, h: win.h }
+        
+        # Maximize
+        win.x = 0
+        win.y = 0
+        win.w = display.width
+        win.h = display.height - 40  # Leave space for taskbar
+        win.maximized = true
+    } else {
+        # Restore
+        win.x = win.restore.x
+        win.y = win.restore.y
+        win.w = win.restore.w
+        win.h = win.restore.h
+        win.maximized = false
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Window Rendering
+# ───────────────────────────────────────────────────────────────────
+
+draw_window -> function(win) {
+    when win.minimized {
+        return
+    }
+    
+    # Shadow
+    draw_rect_fill(win.x + 4, win.y + 4, win.w, win.h, { r: 0, g: 0, b: 0, a: 100 })
+    
+    # Window background
+    draw_rect_fill(win.x, win.y, win.w, win.h, { r: 45, g: 45, b: 55 })
+    
+    # Title bar
+    title_color1 = focused == win -> { r: 70, g: 70, b: 140 } : { r: 50, g: 50, b: 60 }
+    title_color2 = focused == win -> { r: 50, g: 50, b: 100 } : { r: 40, g: 40, b: 50 }
+    draw_gradient(win.x, win.y, win.w, 28, title_color1, title_color2)
+    
+    # Title icon and text
+    draw_string(win.x + 8, win.y + 6, win.icon)
+    draw_string(win.x + 30, win.y + 6, win.title)
+    
+    # Window buttons
+    btn_y = win.y + 4
+    
+    # Close button (red)
+    draw_rect_fill(win.x + win.w - 24, btn_y, 20, 20, { r: 200, g: 60, b: 60 })
+    draw_string(win.x + win.w - 20, btn_y + 2, "×")
+    
+    # Maximize button (green)
+    draw_rect_fill(win.x + win.w - 48, btn_y, 20, 20, { r: 60, g: 180, b: 60 })
+    draw_string(win.x + win.w - 44, btn_y + 2, "□")
+    
+    # Minimize button (yellow)
+    draw_rect_fill(win.x + win.w - 72, btn_y, 20, 20, { r: 200, g: 180, b: 60 })
+    draw_string(win.x + win.w - 68, btn_y + 2, "−")
+    
+    # Content area
+    content_x = win.x + 1
+    content_y = win.y + 28
+    content_w = win.w - 2
+    content_h = win.h - 29
+    
+    # Draw content
+    when win.content != null {
+        win.content -> draw_content(content_x, content_y, content_w, content_h)
+    }
+    
+    # Border
+    draw_rect(win.x, win.y, win.w, win.h, { r: 80, g: 80, b: 100 })
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Window Interaction
+# ───────────────────────────────────────────────────────────────────
+
+handle_window_event -> function(event, win) {
+    when event.type == "mousedown" {
+        # Check title bar (drag)
+        when point_in_rect(event.x, event.y, win.x, win.y, win.w, 28) {
+            # Check buttons
+            when point_in_rect(event.x, event.y, win.x + win.w - 24, win.y + 4, 20, 20) {
+                win -> close_window
+                return
+            }
+            when point_in_rect(event.x, event.y, win.x + win.w - 48, win.y + 4, 20, 20) {
+                win -> maximize_window
+                return
+            }
+            when point_in_rect(event.x, event.y, win.x + win.w - 72, win.y + 4, 20, 20) {
+                win -> minimize_window
+                return
+            }
+            
+            # Start drag
+            drag.active = true
+            drag.window = win
+            drag.offset_x = event.x - win.x
+            drag.offset_y = event.y - win.y
+        }
+        
+        # Check resize edges
+        when win.resizable {
+            edge -> detect_resize_edge(event.x, event.y, win)
+            when edge != null {
+                resize.active = true
+                resize.window = win
+                resize.edge = edge
+            }
+        }
+    }
+    
+    when event.type == "mousemove" {
+        when drag.active && drag.window == win {
+            win.x = event.x - drag.offset_x
+            win.y = event.y - drag.offset_y
+        }
+        
+        when resize.active && resize.window == win {
+            win -> handle_resize(event, resize.edge)
+        }
+    }
+    
+    when event.type == "mouseup" {
+        drag.active = false
+        resize.active = false
+    }
+}
+
+detect_resize_edge -> function(x, y, win) {
+    margin = 5
+    
+    at_left = x >= win.x && x < win.x + margin
+    at_right = x > win.x + win.w - margin && x <= win.x + win.w
+    at_top = y >= win.y && y < win.y + margin
+    at_bottom = y > win.y + win.h - margin && y <= win.y + win.h
+    
+    when at_right && at_bottom { "se" -> return }
+    when at_left && at_bottom { "sw" -> return }
+    when at_right && at_top { "ne" -> return }
+    when at_left && at_top { "nw" -> return }
+    when at_right { "e" -> return }
+    when at_left { "w" -> return }
+    when at_top { "n" -> return }
+    when at_bottom { "s" -> return }
+    
+    null -> return
+}
+
+handle_resize -> function(win, event, edge) {
+    when edge == "e" || edge == "se" || edge == "ne" {
+        new_w = event.x - win.x
+        when new_w >= win.min_w {
+            win.w = new_w
+        }
+    }
+    when edge == "w" || edge == "sw" || edge == "nw" {
+        new_w = win.x + win.w - event.x
+        when new_w >= win.min_w {
+            win.x = event.x
+            win.w = new_w
+        }
+    }
+    when edge == "s" || edge == "se" || edge == "sw" {
+        new_h = event.y - win.y
+        when new_h >= win.min_h {
+            win.h = new_h
+        }
+    }
+    when edge == "n" || edge == "ne" || edge == "nw" {
+        new_h = win.y + win.h - event.y
+        when new_h >= win.min_h {
+            win.y = event.y
+            win.h = new_h
+        }
+    }
+    
+    # Notify app of resize
+    when win.on_resize != null {
+        win.on_resize(win.w, win.h)
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Window Cycling (Alt+Tab)
+# ───────────────────────────────────────────────────────────────────
+
+cycle_windows -> function() {
+    when windows.length > 1 {
+        # Move bottom window to top
+        first -> windows.shift
+        first -> windows.push
+        first -> focus_window
+    }
+}
+
+# Helpers
+next_window_id = 0
+next_window_id -> function() {
+    next_window_id = next_window_id + 1
+    next_window_id -> return
+}
+
+# Export
+module.exports = {
+    init,
+    create_window,
+    focus_window,
+    close_window,
+    minimize_window,
+    maximize_window,
+    draw_window,
+    handle_window_event,
+    cycle_windows,
+    windows
+}

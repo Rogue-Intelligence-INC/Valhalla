@@ -1,0 +1,48 @@
+# Wave v4.2 TileQuattro 性能测试
+# 较大的测试用例
+
+out "═══════════════════════════════════════"
+out "Wave v4.2 + TileQuattro 性能测试"
+out "═══════════════════════════════════════"
+
+# 变量分配测试
+count = 1000
+name = "TileQuattro"
+version = "4.2.0"
+value1 = 12345
+value2 = 67890
+msg = "Memory management test"
+
+# 数据库操作
+store results
+store metrics
+store config
+store cache
+
+# 数据管道 (触发 Collapse)
+load -> analyze -> filter -> store
+data -> process -> cache
+
+# 限制测试
+limit 80
+
+# 更多变量
+a = 1
+b = 2
+c = 3
+d = 4
+e = 5
+f = 6
+g = 7
+h = 8
+
+# 分析
+analyze patterns
+analyze performance
+
+# 更多管道
+input -> validate -> transform -> output
+
+out "═══════════════════════════════════════"
+out "测试完成"
+out "═══════════════════════════════════════"

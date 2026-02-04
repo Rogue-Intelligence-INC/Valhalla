@@ -1,0 +1,202 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Storage Driver
+# Fate-managed file system
+# ═══════════════════════════════════════════════════════════════════
+
+# Storage state
+storage = {
+    devices: [],
+    mounted: [],
+    cache: {}
+}
+
+# File system tree
+fs_root = {
+    name: "/",
+    type: "dir",
+    children: []
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Initialization
+# ───────────────────────────────────────────────────────────────────
+
+init -> function() {
+    # Fate probes storage devices
+    devices -> fate_probe_storage
+    
+    devices -> fate_each -> device {
+        device -> storage.devices.push
+        
+        # Auto-mount
+        device -> auto_mount
+    }
+    
+    # Initialize file cache in MeshBrain
+    storage.cache -> quattro_alloc(1024 * 1024, "meshbrain")
+}
+
+auto_mount -> function(device) {
+    # Fate detects filesystem
+    fs_type -> device -> fate_detect_filesystem
+    
+    mount_point = "/mnt/" + device.name
+    
+    { device: device, fs_type: fs_type, mount_point: mount_point } -> storage.mounted.push
+}
+
+# ───────────────────────────────────────────────────────────────────
+# File Operations (Fate-lazy loading)
+# ───────────────────────────────────────────────────────────────────
+
+open -> function(path, mode) {
+    # Check cache first
+    cached -> storage.cache[path]
+    
+    when cached != null {
+        # Return cached handle
+        cached -> return
+    }
+    
+    # Fate loads file on demand
+    file -> fate_load_file(path, mode)
+    
+    # Cache in appropriate pool
+    { path: path, file: file } -> fate_cache_file
+    
+    file -> return
+}
+
+read -> function(handle, size) {
+    # Fate reads optimal chunk size
+    chunk_size -> { size: size } -> fate_decide_chunk_size
+    
+    data -> handle -> hw_read(chunk_size)
+    
+    # Observe for learning
+    { action: "read", size: chunk_size } -> fate_observe
+    
+    data -> return
+}
+
+write -> function(handle, data) {
+    # Fate decides write strategy
+    strategy -> { size: data.length } -> fate_decide_write_strategy
+    
+    when strategy == "immediate" {
+        data -> handle -> hw_write
+    }
+    when strategy == "buffered" {
+        data -> handle.buffer.push
+        
+        when handle.buffer.length >= 4096 {
+            handle.buffer -> hw_write
+            handle.buffer = []
+        }
+    }
+}
+
+close -> function(handle) {
+    # Flush buffer
+    when handle.buffer.length > 0 {
+        handle.buffer -> hw_write
+    }
+    
+    handle -> hw_close
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Directory Operations
+# ───────────────────────────────────────────────────────────────────
+
+list_dir -> function(path) {
+    dir -> open(path, "r")
+    entries -> dir -> hw_read_dir
+    
+    entries -> return
+}
+
+create_dir -> function(path) {
+    path -> hw_create_dir
+}
+
+remove -> function(path) {
+    # Check if directory or file
+    stat -> path -> hw_stat
+    
+    when stat.type == "dir" {
+        path -> hw_remove_dir
+    } else {
+        path -> hw_remove_file
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Path Operations
+# ───────────────────────────────────────────────────────────────────
+
+resolve_path -> function(path) {
+    # Handle relative paths
+    when !path.starts_with("/") {
+        path = current_dir + "/" + path
+    }
+    
+    # Normalize
+    path -> normalize_path -> return
+}
+
+normalize_path -> function(path) {
+    parts -> path.split("/")
+    result = []
+    
+    parts -> fate_each -> part {
+        when part == ".." {
+            result.pop()
+        }
+        when part != "." && part != "" {
+            part -> result.push
+        }
+    }
+    
+    "/" + result.join("/") -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# File Cache (Fate-managed)
+# ───────────────────────────────────────────────────────────────────
+
+fate_cache_file -> function(entry) {
+    # Fate decides caching strategy
+    { action: "cache", size: entry.file.size } -> fate_decide -> strategy
+    
+    when strategy == "cache" {
+        storage.cache[entry.path] = entry.file
+    }
+    when strategy == "partial" {
+        # Cache only metadata
+        storage.cache[entry.path] = { meta: entry.file.meta }
+    }
+    # "no_cache" = don't cache
+}
+
+cache_evict -> function() {
+    # Fate decides what to evict
+    storage.cache -> fate_select_evict -> to_evict
+    
+    to_evict -> fate_each -> path {
+        delete storage.cache[path]
+    }
+}
+
+# Export
+module.exports = {
+    init,
+    open,
+    read,
+    write,
+    close,
+    list_dir,
+    create_dir,
+    remove,
+    resolve_path
+}

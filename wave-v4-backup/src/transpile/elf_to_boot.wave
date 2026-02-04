@@ -1,0 +1,264 @@
+# Wave ELF → 裸机镜像转译器
+# Fate 自动处理位数和格式转换
+
+# ═══════════════════════════════════════════════════════
+# Fate 检测输入格式
+# ═══════════════════════════════════════════════════════
+
+input_file -> fate_detect -> analyze
+input_format -> fate_identify  # ELF64, ELF32, or raw
+
+out "🔄 Wave ELF → Boot Transpiler"
+out "   Fate: Auto-detect format and bitness"
+
+# ═══════════════════════════════════════════════════════
+# 读取 ELF 头
+# ═══════════════════════════════════════════════════════
+
+elf_header -> read_bytes(input_file, 0, 64)
+
+# 检测魔数
+magic -> elf_header[0:4]
+when magic != [0x7F, 'E', 'L', 'F'] {
+    out "Error: Not an ELF file"
+    exit 1
+}
+
+# 检测位数 (Fate 可以覆盖)
+elf_class -> elf_header[4]
+bitness -> when elf_class == 1 { 32 } else { 64 }
+
+out "   Detected: ELF{bitness}"
+
+# ═══════════════════════════════════════════════════════
+# Fate 决定目标格式
+# ═══════════════════════════════════════════════════════
+
+target_bitness -> fate_decide("target_bitness")
+# Fate 检测: 如果是裸机引导，32位更安全
+
+when target_bitness != bitness {
+    out "   Fate: Converting {bitness}-bit → {target_bitness}-bit"
+    code_section -> transpile_code(bitness, target_bitness)
+}
+
+# ═══════════════════════════════════════════════════════
+# 提取代码段
+# ═══════════════════════════════════════════════════════
+
+# 读取程序头
+e_phoff -> read_u64(elf_header, 32)  # 程序头偏移
+e_phnum -> read_u16(elf_header, 56)  # 程序头数量
+
+code_segment -> null
+data_segment -> null
+
+for i in 0..e_phnum {
+    phdr -> read_bytes(input_file, e_phoff + i * 56, 56)
+    p_type -> read_u32(phdr, 0)
+    
+    when p_type == 1 {  # PT_LOAD
+        p_flags -> read_u32(phdr, 4)
+        p_offset -> read_u64(phdr, 8)
+        p_filesz -> read_u64(phdr, 32)
+        
+        when p_flags & 1 {  # 可执行
+            code_segment -> read_bytes(input_file, p_offset, p_filesz)
+        }
+        when p_flags & 2 {  # 可写 (数据段)
+            data_segment -> read_bytes(input_file, p_offset, p_filesz)
+        }
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 64-bit → 32-bit 代码转译
+# ═══════════════════════════════════════════════════════
+
+transpile_code -> function(from_bits, to_bits) {
+    when from_bits == 64 && to_bits == 32 {
+        result -> []
+        i -> 0
+        
+        while i < code_segment.length {
+            byte -> code_segment[i]
+            
+            # REX 前缀 (0x40-0x4F) → 移除
+            when byte >= 0x40 && byte <= 0x4F {
+                i -> i + 1
+                continue
+            }
+            
+            # 64-bit mov → 32-bit mov
+            when byte == 0x48 {  # REX.W
+                next -> code_segment[i + 1]
+                when next == 0xB8 {  # mov rax, imm64 → mov eax, imm32
+                    result.push(0xB8)
+                    result.push(code_segment[i + 2])
+                    result.push(code_segment[i + 3])
+                    result.push(code_segment[i + 4])
+                    result.push(code_segment[i + 5])
+                    i -> i + 10  # 跳过整个指令
+                    continue
+                }
+                when next == 0xBF {  # mov rdi → mov edi
+                    result.push(0xBF)
+                    result.push(code_segment[i + 2])
+                    result.push(code_segment[i + 3])
+                    result.push(code_segment[i + 4])
+                    result.push(code_segment[i + 5])
+                    i -> i + 10
+                    continue
+                }
+                when next == 0xBE {  # mov rsi → mov esi
+                    result.push(0xBE)
+                    result.push(code_segment[i + 2])
+                    result.push(code_segment[i + 3])
+                    result.push(code_segment[i + 4])
+                    result.push(code_segment[i + 5])
+                    i -> i + 10
+                    continue
+                }
+                when next == 0xB9 {  # mov rcx → mov ecx
+                    result.push(0xB9)
+                    result.push(code_segment[i + 2])
+                    result.push(code_segment[i + 3])
+                    result.push(code_segment[i + 4])
+                    result.push(code_segment[i + 5])
+                    i -> i + 10
+                    continue
+                }
+            }
+            
+            # syscall → 转为 VGA 写入或 halt
+            when byte == 0x0F && code_segment[i + 1] == 0x05 {
+                # 检查 rax 值来决定是 write 还是 exit
+                # 简化: 生成 halt
+                result.push(0xF4)  # hlt
+                i -> i + 2
+                continue
+            }
+            
+            # 其他指令直接复制
+            result.push(byte)
+            i -> i + 1
+        }
+        
+        return result
+    }
+    
+    return code_segment
+}
+
+# ═══════════════════════════════════════════════════════
+# 生成引导扇区
+# ═══════════════════════════════════════════════════════
+
+generate_bootsector -> function() {
+    boot -> [0] * 512
+    
+    # jmp short start
+    boot[0] -> 0xEB
+    boot[1] -> 0x3C
+    boot[2] -> 0x90
+    
+    # OEM
+    "VALOS   " -> boot[3:11]
+    
+    # 16-bit 代码从 0x3E 开始
+    pos -> 0x3E
+    
+    # cli
+    boot[pos] -> 0xFA; pos -> pos + 1
+    
+    # xor ax, ax
+    boot[pos] -> 0x31; boot[pos + 1] -> 0xC0; pos -> pos + 2
+    # mov ds, ax
+    boot[pos] -> 0x8E; boot[pos + 1] -> 0xD8; pos -> pos + 2
+    # mov es, ax
+    boot[pos] -> 0x8E; boot[pos + 1] -> 0xC0; pos -> pos + 2
+    # mov ss, ax
+    boot[pos] -> 0x8E; boot[pos + 1] -> 0xD0; pos -> pos + 2
+    # mov sp, 0x7C00
+    boot[pos] -> 0xBC; boot[pos + 1] -> 0x00; boot[pos + 2] -> 0x7C; pos -> pos + 3
+    
+    # lgdt [0x7C80]
+    boot[pos] -> 0x0F; boot[pos + 1] -> 0x01; boot[pos + 2] -> 0x16
+    boot[pos + 3] -> 0x80; boot[pos + 4] -> 0x7C; pos -> pos + 5
+    
+    # mov eax, cr0
+    boot[pos] -> 0x0F; boot[pos + 1] -> 0x20; boot[pos + 2] -> 0xC0; pos -> pos + 3
+    # or al, 1
+    boot[pos] -> 0x0C; boot[pos + 1] -> 0x01; pos -> pos + 2
+    # mov cr0, eax
+    boot[pos] -> 0x0F; boot[pos + 1] -> 0x22; boot[pos + 2] -> 0xC0; pos -> pos + 3
+    
+    # jmp far 0x08:0x1000
+    boot[pos] -> 0xEA
+    boot[pos + 1] -> 0x00; boot[pos + 2] -> 0x10  # offset
+    boot[pos + 3] -> 0x08; boot[pos + 4] -> 0x00  # selector
+    
+    # GDT 描述符 at 0x80
+    boot[0x80] -> 0x17  # limit
+    boot[0x81] -> 0x00
+    boot[0x82] -> 0x90  # base low (0x7C90)
+    boot[0x83] -> 0x7C
+    boot[0x84] -> 0x00
+    boot[0x85] -> 0x00
+    
+    # GDT 表 at 0x90
+    # 空描述符
+    # 代码段 at 0x98
+    boot[0x98] -> 0xFF; boot[0x99] -> 0xFF
+    boot[0x9A] -> 0x00; boot[0x9B] -> 0x00
+    boot[0x9C] -> 0x00; boot[0x9D] -> 0x9A
+    boot[0x9E] -> 0xCF; boot[0x9F] -> 0x00
+    # 数据段 at 0xA0
+    boot[0xA0] -> 0xFF; boot[0xA1] -> 0xFF
+    boot[0xA2] -> 0x00; boot[0xA3] -> 0x00
+    boot[0xA4] -> 0x00; boot[0xA5] -> 0x92
+    boot[0xA6] -> 0xCF; boot[0xA7] -> 0x00
+    
+    # Boot signature
+    boot[510] -> 0x55
+    boot[511] -> 0xAA
+    
+    return boot
+}
+
+# ═══════════════════════════════════════════════════════
+# 输出裸机镜像
+# ═══════════════════════════════════════════════════════
+
+output_file -> fate_decide("output_file") || "boot.img"
+
+bootsector -> generate_bootsector()
+transpiled_code -> transpile_code(bitness, 32)
+
+# 32-bit 保护模式头
+pm_header -> [
+    0xB8, 0x10, 0x00, 0x00, 0x00,  # mov eax, 0x10
+    0x8E, 0xD8,  # mov ds, ax
+    0x8E, 0xC0,  # mov es, ax
+    0x8E, 0xE0,  # mov fs, ax
+    0x8E, 0xE8,  # mov gs, ax
+    0x8E, 0xD0,  # mov ss, ax
+    0xBC, 0x00, 0x00, 0x09, 0x00  # mov esp, 0x90000
+]
+
+# 写入文件
+write_bytes(output_file, 0, bootsector)
+# 填充到 0x1000
+write_zeros(output_file, 512, 0x1000 - 512)
+# 写保护模式头
+write_bytes(output_file, 0x1000, pm_header)
+# 写转译后的代码
+write_bytes(output_file, 0x1000 + pm_header.length, transpiled_code)
+# 写数据段 at 0x2000
+write_bytes(output_file, 0x2000, data_segment)
+
+out "✅ Generated: {output_file}"
+out "   Code: {transpiled_code.length} bytes (32-bit)"
+out "   Data: {data_segment.length} bytes"
+out ""
+out "Run: qemu-system-i386 -fda {output_file}"

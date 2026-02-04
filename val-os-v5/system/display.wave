@@ -1,0 +1,804 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Display System
+# Wave-native desktop environment
+# Fate decides: CLI = GUI
+# ═══════════════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────────────
+# Screen State
+# ───────────────────────────────────────────────────────────────────
+
+screen = {
+    width: 1920,
+    height: 1080,
+    depth: 32
+}
+
+# Current view
+current_view = "login"  # login, desktop, lock
+
+# ───────────────────────────────────────────────────────────────────
+# Color Theme
+# ───────────────────────────────────────────────────────────────────
+
+theme = {
+    # Background
+    bg_dark: "#1a1a2e",
+    bg_medium: "#16213e",
+    bg_light: "#0f3460",
+    
+    # Accent
+    accent: "#e94560",
+    accent_hover: "#ff6b6b",
+    
+    # Text
+    text_primary: "#ffffff",
+    text_secondary: "#a0a0a0",
+    
+    # UI
+    panel_bg: "rgba(20, 20, 40, 0.9)",
+    card_bg: "rgba(255, 255, 255, 0.05)",
+    border: "rgba(255, 255, 255, 0.1)"
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Initialize
+# ───────────────────────────────────────────────────────────────────
+
+init -> function() {
+    # Fate detects best display mode
+    screen -> fate_detect_display
+    
+    # Start with login
+    show_login()
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# LOGIN SCREEN
+# ═══════════════════════════════════════════════════════════════════
+
+show_login -> function() {
+    current_view = "login"
+    
+    out {
+        type: "fullscreen",
+        background: {
+            type: "gradient",
+            angle: 135,
+            colors: [theme.bg_dark, theme.bg_medium, theme.bg_light]
+        },
+        children: [
+            # Logo
+            {
+                type: "container",
+                align: "center",
+                y: "30%",
+                children: [
+                    { type: "text", content: "🌊", size: 72 },
+                    { type: "text", content: "Val-OS", size: 48, color: theme.text_primary },
+                    { type: "text", content: "Wave · Fate · Quattro", size: 16, color: theme.text_secondary }
+                ]
+            },
+            
+            # Login form
+            {
+                type: "card",
+                x: "center",
+                y: "50%",
+                width: 350,
+                padding: 30,
+                background: theme.card_bg,
+                border_radius: 16,
+                children: [
+                    # Avatar
+                    {
+                        type: "avatar",
+                        size: 80,
+                        icon: "👤",
+                        align: "center"
+                    },
+                    
+                    # Username
+                    {
+                        type: "input",
+                        id: "username",
+                        placeholder: "Username",
+                        icon: "👤",
+                        margin_top: 20
+                    },
+                    
+                    # Password
+                    {
+                        type: "input",
+                        id: "password",
+                        placeholder: "Password",
+                        password: true,
+                        icon: "🔒",
+                        margin_top: 10
+                    },
+                    
+                    # Login button
+                    {
+                        type: "button",
+                        text: "Login",
+                        style: "primary",
+                        width: "100%",
+                        margin_top: 20,
+                        action: do_login
+                    },
+                    
+                    # Guest button
+                    {
+                        type: "button",
+                        text: "Guest Mode",
+                        style: "secondary",
+                        width: "100%",
+                        margin_top: 10,
+                        action: guest_login
+                    }
+                ]
+            },
+            
+            # Clock at bottom
+            {
+                type: "clock",
+                format: "HH:mm",
+                y: "bottom",
+                margin_bottom: 30,
+                size: 24,
+                color: theme.text_secondary
+            },
+            
+            # Power options
+            {
+                type: "row",
+                x: "right",
+                y: "bottom",
+                margin: 20,
+                gap: 10,
+                children: [
+                    { type: "icon_button", icon: "🔄", tooltip: "Restart", action: restart },
+                    { type: "icon_button", icon: "⏻", tooltip: "Shutdown", action: shutdown }
+                ]
+            }
+        ]
+    }
+}
+
+do_login -> function() {
+    username -> get_input("username")
+    password -> get_input("password")
+    
+    result -> authenticate(username, password)
+    
+    when result.success {
+        current_user = result.user
+        show_desktop()
+    } else {
+        show_error("Invalid credentials")
+    }
+}
+
+guest_login -> function() {
+    current_user = { name: "Guest", role: "guest" }
+    show_desktop()
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# DESKTOP
+# ═══════════════════════════════════════════════════════════════════
+
+desktop_state = {
+    icons: [],
+    windows: [],
+    focused_window: null,
+    launcher_open: false,
+    sidebar_open: false
+}
+
+show_desktop -> function() {
+    current_view = "desktop"
+    
+    out {
+        type: "fullscreen",
+        children: [
+            # Wallpaper
+            render_wallpaper(),
+            
+            # Desktop icons
+            render_desktop_icons(),
+            
+            # Windows layer
+            { type: "window_layer", id: "windows" },
+            
+            # Taskbar
+            render_taskbar(),
+            
+            # App Launcher (Super key)
+            render_launcher(),
+            
+            # Right sidebar
+            render_sidebar(),
+            
+            # Mouse cursor
+            { type: "cursor" }
+        ],
+        
+        # Event handlers
+        on_key: handle_key,
+        on_mouse_move: handle_mouse_move,
+        on_click: handle_click
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Wallpaper
+# ───────────────────────────────────────────────────────────────────
+
+wallpaper = {
+    type: "gradient",
+    colors: ["#0f0c29", "#302b63", "#24243e"]
+}
+
+render_wallpaper -> function() {
+    {
+        type: "background",
+        ...wallpaper
+    } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Desktop Icons
+# ───────────────────────────────────────────────────────────────────
+
+desktop_icons = [
+    { name: "Files",      icon: "📁", x: 30, y: 30,  app: "files" },
+    { name: "Terminal",   icon: "💻", x: 30, y: 120, app: "terminal" },
+    { name: "Browser",    icon: "🌐", x: 30, y: 210, app: "browser" },
+    { name: "Settings",   icon: "⚙️", x: 30, y: 300, app: "settings" },
+    { name: "Notepad",    icon: "📝", x: 30, y: 390, app: "notepad" },
+    { name: "Music",      icon: "🎵", x: 30, y: 480, app: "music" },
+    { name: "Trash",      icon: "🗑️", x: 30, y: 900, app: "trash" }
+]
+
+render_desktop_icons -> function() {
+    {
+        type: "container",
+        children: desktop_icons -> map(icon => {
+            {
+                type: "desktop_icon",
+                x: icon.x,
+                y: icon.y,
+                icon: icon.icon,
+                label: icon.name,
+                on_double_click: () => launch_app(icon.app),
+                on_context_menu: (x, y) => show_icon_menu(icon, x, y)
+            }
+        })
+    } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Taskbar
+# ───────────────────────────────────────────────────────────────────
+
+render_taskbar -> function() {
+    {
+        type: "panel",
+        x: 0,
+        y: screen.height - 48,
+        width: screen.width,
+        height: 48,
+        background: theme.panel_bg,
+        backdrop_blur: 20,
+        children: [
+            # App button (left)
+            {
+                type: "button",
+                x: 8,
+                y: 8,
+                width: 32,
+                height: 32,
+                icon: "🌊",
+                tooltip: "Applications (Super)",
+                on_click: toggle_launcher
+            },
+            
+            # Running apps
+            {
+                type: "row",
+                x: 60,
+                y: 4,
+                gap: 4,
+                children: desktop_state.windows -> map(win => {
+                    {
+                        type: "taskbar_item",
+                        icon: win.icon,
+                        title: win.title,
+                        active: win == desktop_state.focused_window,
+                        on_click: () => focus_window(win)
+                    }
+                })
+            },
+            
+            # System tray (right)
+            {
+                type: "row",
+                x: screen.width - 200,
+                y: 8,
+                gap: 8,
+                children: [
+                    { type: "icon", icon: "🔊", size: 20 },
+                    { type: "icon", icon: "📶", size: 20 },
+                    { type: "icon", icon: "🔋", size: 20 },
+                    {
+                        type: "clock",
+                        format: "HH:mm",
+                        size: 14
+                    }
+                ]
+            }
+        ]
+    } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# APP LAUNCHER (Super Key)
+# ═══════════════════════════════════════════════════════════════════
+
+all_apps = [
+    { name: "Files",       icon: "📁", category: "System" },
+    { name: "Terminal",    icon: "💻", category: "System" },
+    { name: "Settings",    icon: "⚙️", category: "System" },
+    { name: "Browser",     icon: "🌐", category: "Internet" },
+    { name: "Notepad",     icon: "📝", category: "Office" },
+    { name: "Calculator",  icon: "🔢", category: "Tools" },
+    { name: "Music",       icon: "🎵", category: "Media" },
+    { name: "Video",       icon: "🎬", category: "Media" },
+    { name: "Photos",      icon: "🖼️", category: "Media" },
+    { name: "Calendar",    icon: "📅", category: "Tools" },
+    { name: "Mail",        icon: "📧", category: "Internet" },
+    { name: "Store",       icon: "🛒", category: "System" },
+    { name: "Minesweeper", icon: "💣", category: "Games" },
+    { name: "Chess",       icon: "♟️", category: "Games" }
+]
+
+render_launcher -> function() {
+    when !desktop_state.launcher_open {
+        { type: "empty" } -> return
+    }
+    
+    {
+        type: "overlay",
+        background: "rgba(0, 0, 0, 0.5)",
+        backdrop_blur: 10,
+        on_click: close_launcher,
+        children: [
+            {
+                type: "panel",
+                x: "center",
+                y: "center",
+                width: 700,
+                height: 500,
+                background: theme.panel_bg,
+                border_radius: 20,
+                padding: 20,
+                children: [
+                    # Search bar
+                    {
+                        type: "input",
+                        id: "app_search",
+                        placeholder: "🔍 Search applications...",
+                        width: "100%",
+                        on_change: filter_apps
+                    },
+                    
+                    # App grid
+                    {
+                        type: "grid",
+                        columns: 5,
+                        gap: 20,
+                        margin_top: 20,
+                        children: all_apps -> map(app => {
+                            {
+                                type: "app_tile",
+                                icon: app.icon,
+                                name: app.name,
+                                on_click: () => {
+                                    close_launcher()
+                                    launch_app(app.name.toLowerCase())
+                                }
+                            }
+                        })
+                    }
+                ]
+            }
+        ]
+    } -> return
+}
+
+toggle_launcher -> function() {
+    desktop_state.launcher_open = !desktop_state.launcher_open
+    refresh_desktop()
+}
+
+close_launcher -> function() {
+    desktop_state.launcher_open = false
+    refresh_desktop()
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# RIGHT SIDEBAR (Mouse Edge Trigger)
+# ═══════════════════════════════════════════════════════════════════
+
+render_sidebar -> function() {
+    when !desktop_state.sidebar_open {
+        # Hot zone (invisible trigger)
+        {
+            type: "hotzone",
+            x: screen.width - 5,
+            y: 0,
+            width: 5,
+            height: screen.height,
+            on_hover: open_sidebar
+        } -> return
+    }
+    
+    {
+        type: "panel",
+        x: screen.width - 350,
+        y: 0,
+        width: 350,
+        height: screen.height,
+        background: theme.panel_bg,
+        backdrop_blur: 20,
+        on_mouse_leave: close_sidebar,
+        children: [
+            # Header
+            {
+                type: "row",
+                padding: 20,
+                children: [
+                    { type: "text", content: "Quick Settings", size: 18, weight: "bold" },
+                    { type: "spacer" },
+                    { type: "icon_button", icon: "✕", on_click: close_sidebar }
+                ]
+            },
+            
+            # User card
+            {
+                type: "card",
+                margin: 15,
+                padding: 15,
+                background: theme.card_bg,
+                border_radius: 12,
+                children: [
+                    {
+                        type: "row",
+                        gap: 15,
+                        children: [
+                            { type: "avatar", size: 50, icon: "👤" },
+                            {
+                                type: "column",
+                                children: [
+                                    { type: "text", content: current_user.name, weight: "bold" },
+                                    { type: "text", content: current_user.role, size: 12, color: theme.text_secondary }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            
+            # Quick toggles
+            {
+                type: "grid",
+                columns: 3,
+                gap: 10,
+                margin: 15,
+                children: [
+                    toggle_button("📶", "WiFi", true),
+                    toggle_button("🔵", "Bluetooth", false),
+                    toggle_button("✈️", "Airplane", false),
+                    toggle_button("🔒", "VPN", false),
+                    toggle_button("🌙", "Night", false),
+                    toggle_button("🔕", "DND", false)
+                ]
+            },
+            
+            # Sliders
+            {
+                type: "column",
+                margin: 15,
+                gap: 15,
+                children: [
+                    # Brightness
+                    {
+                        type: "row",
+                        gap: 10,
+                        children: [
+                            { type: "icon", icon: "☀️" },
+                            { type: "slider", id: "brightness", min: 0, max: 100, value: 80 }
+                        ]
+                    },
+                    # Volume
+                    {
+                        type: "row",
+                        gap: 10,
+                        children: [
+                            { type: "icon", icon: "🔊" },
+                            { type: "slider", id: "volume", min: 0, max: 100, value: 70 }
+                        ]
+                    }
+                ]
+            },
+            
+            # Separator
+            { type: "divider", margin: 15 },
+            
+            # Clock & Date
+            {
+                type: "column",
+                align: "center",
+                margin: 20,
+                children: [
+                    { type: "clock", format: "HH:mm", size: 48 },
+                    { type: "date", format: "dddd, MMMM D", size: 16, color: theme.text_secondary }
+                ]
+            },
+            
+            # Calendar preview
+            {
+                type: "mini_calendar",
+                margin: 15
+            },
+            
+            # Spacer
+            { type: "spacer" },
+            
+            # Bottom actions
+            {
+                type: "row",
+                padding: 15,
+                gap: 10,
+                children: [
+                    { type: "button", icon: "⚙️", text: "Settings", style: "secondary", on_click: () => launch_app("settings") },
+                    { type: "button", icon: "🔒", text: "Lock", style: "secondary", on_click: lock_screen },
+                    { type: "button", icon: "⏻", text: "Power", style: "secondary", on_click: show_power_menu }
+                ]
+            }
+        ]
+    } -> return
+}
+
+toggle_button -> function(icon, label, active) {
+    {
+        type: "toggle_tile",
+        icon: icon,
+        label: label,
+        active: active,
+        on_click: () => toggle_setting(label)
+    } -> return
+}
+
+open_sidebar -> function() {
+    desktop_state.sidebar_open = true
+    refresh_desktop()
+}
+
+close_sidebar -> function() {
+    desktop_state.sidebar_open = false
+    refresh_desktop()
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# EVENT HANDLERS
+# ═══════════════════════════════════════════════════════════════════
+
+handle_key -> function(event) {
+    # Super key - toggle launcher
+    when event.key == "Meta" || event.key == "Super" {
+        toggle_launcher()
+    }
+    
+    # Super + D - show desktop
+    when event.modifiers.super && event.key == "d" {
+        minimize_all_windows()
+    }
+    
+    # Alt + Tab - switch windows
+    when event.modifiers.alt && event.key == "Tab" {
+        cycle_windows()
+    }
+    
+    # Super + L - lock screen
+    when event.modifiers.super && event.key == "l" {
+        lock_screen()
+    }
+    
+    # Escape - close overlays
+    when event.key == "Escape" {
+        close_launcher()
+        close_sidebar()
+    }
+}
+
+handle_mouse_move -> function(x, y) {
+    # Right edge trigger for sidebar
+    when x >= screen.width - 5 && !desktop_state.sidebar_open {
+        open_sidebar()
+    }
+}
+
+handle_click -> function(event) {
+    # Close launcher when clicking outside
+    when desktop_state.launcher_open && !event.target.is_launcher {
+        close_launcher()
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# WINDOW MANAGEMENT
+# ═══════════════════════════════════════════════════════════════════
+
+launch_app -> function(app_name) {
+    out "[Desktop] Launching " + app_name
+    
+    # Create window
+    win = {
+        id: next_window_id(),
+        app: app_name,
+        title: app_name.capitalize(),
+        icon: get_app_icon(app_name),
+        x: 100 + (desktop_state.windows.length * 30),
+        y: 50 + (desktop_state.windows.length * 30),
+        width: 800,
+        height: 600,
+        state: "normal"
+    }
+    
+    win -> desktop_state.windows.push
+    focus_window(win)
+    
+    # Load app
+    app_module -> require("../apps/" + app_name + ".wave")
+    app_module.start(win)
+}
+
+focus_window -> function(win) {
+    desktop_state.focused_window = win
+    # Move to top
+    win -> desktop_state.windows.remove
+    win -> desktop_state.windows.push
+    refresh_desktop()
+}
+
+minimize_all_windows -> function() {
+    desktop_state.windows -> fate_each -> win {
+        win.state = "minimized"
+    }
+    refresh_desktop()
+}
+
+cycle_windows -> function() {
+    when desktop_state.windows.length > 1 {
+        first -> desktop_state.windows.shift
+        first -> desktop_state.windows.push
+        focus_window(first)
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# LOCK SCREEN
+# ═══════════════════════════════════════════════════════════════════
+
+lock_screen -> function() {
+    current_view = "lock"
+    
+    out {
+        type: "fullscreen",
+        background: {
+            type: "blur",
+            source: "desktop",
+            amount: 20
+        },
+        children: [
+            # Overlay
+            { type: "fill", color: "rgba(0, 0, 0, 0.5)" },
+            
+            # Lock content
+            {
+                type: "column",
+                align: "center",
+                y: "center",
+                children: [
+                    { type: "clock", format: "HH:mm", size: 96 },
+                    { type: "date", format: "dddd, MMMM D", size: 24, margin_top: 10 },
+                    { type: "spacer", height: 50 },
+                    { type: "avatar", size: 100, icon: "👤" },
+                    { type: "text", content: current_user.name, size: 24, margin_top: 15 },
+                    {
+                        type: "input",
+                        id: "lock_password",
+                        placeholder: "Password",
+                        password: true,
+                        width: 250,
+                        margin_top: 20,
+                        on_submit: unlock_screen
+                    },
+                    { type: "text", content: "Press Enter to unlock", size: 12, color: theme.text_secondary, margin_top: 10 }
+                ]
+            }
+        ]
+    }
+}
+
+unlock_screen -> function() {
+    password -> get_input("lock_password")
+    result -> authenticate(current_user.name, password)
+    
+    when result.success {
+        show_desktop()
+    } else {
+        show_error("Wrong password")
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# POWER MENU
+# ═══════════════════════════════════════════════════════════════════
+
+show_power_menu -> function() {
+    out {
+        type: "dialog",
+        title: "Power",
+        children: [
+            { type: "button", icon: "😴", text: "Sleep", on_click: sleep_system },
+            { type: "button", icon: "🔄", text: "Restart", on_click: restart },
+            { type: "button", icon: "⏻", text: "Shutdown", on_click: shutdown }
+        ]
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# HELPERS
+# ═══════════════════════════════════════════════════════════════════
+
+refresh_desktop -> function() {
+    show_desktop()
+}
+
+get_app_icon -> function(name) {
+    icons = {
+        files: "📁",
+        terminal: "💻",
+        browser: "🌐",
+        settings: "⚙️",
+        notepad: "📝",
+        calculator: "🔢",
+        music: "🎵",
+        video: "🎬"
+    }
+    icons[name] || "📄" -> return
+}
+
+next_id = 0
+next_window_id -> function() {
+    next_id = next_id + 1
+    next_id -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# EXPORT
+# ═══════════════════════════════════════════════════════════════════
+
+module.exports = {
+    init,
+    show_login,
+    show_desktop,
+    lock_screen,
+    launch_app,
+    toggle_launcher,
+    open_sidebar,
+    close_sidebar
+}

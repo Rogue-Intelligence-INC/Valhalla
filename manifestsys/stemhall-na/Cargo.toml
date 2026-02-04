@@ -1,0 +1,9 @@
+[package]
+name = "stemhall_na"
+version = "0.1.0"
+edition = "2021"
+description = "StemHall-NA - 智能负载分配系统"
+
+[dependencies]
+fate = { path = "../../systems/metasystems/fate" }
+serde = { version = "1.0", features = ["derive"] }

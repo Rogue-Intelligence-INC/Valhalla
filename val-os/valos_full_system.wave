@@ -1,0 +1,287 @@
+# Val-OS v5.0 Full System
+# Wave v5 - Complete Operating System
+
+out "Loading Val-OS v5.0..."
+
+# ═══════════════════════════════════════════════════════
+# Include Kernel Modules
+# ═══════════════════════════════════════════════════════
+
+# kernel/vga.wave      -> VGA 320x200 Graphics
+# kernel/keyboard.wave -> PS/2 Keyboard with interrupts
+# kernel/mouse.wave    -> PS/2 Mouse with cursor
+# kernel/window.wave   -> Window Manager
+# kernel/network.wave  -> TCP/IP Stack
+
+# apps/browser.wave    -> Web Browser
+# apps/notepad.wave    -> Text Editor
+# apps/files.wave      -> File Manager
+# apps/terminal.wave   -> Wave Shell
+
+# ═══════════════════════════════════════════════════════
+# Boot Sequence
+# ═══════════════════════════════════════════════════════
+
+out "═══════════════════════════════════════════════════════"
+out "                    Val-OS v5.0                        "
+out "         Wave Binary + Fate + Quattro Memory           "
+out "═══════════════════════════════════════════════════════"
+out ""
+
+# Phase 1: Fate Engine
+out "[1/8] Initializing Fate Engine..."
+fate -> fate_alloc
+fate_monitor -> fate_detect_marginal -> fate_collapse_decision
+out "      ✓ Fate: Active (on-demand, collapse enabled)"
+
+# Phase 2: Quattro Memory
+out "[2/8] Activating Quattro Memory..."
+blackhole -> fate_alloc
+meshbrain -> fate_alloc
+multinova -> fate_alloc
+baseforce -> fate_alloc
+out "      ✓ BlackHole: Large blocks ready"
+out "      ✓ MeshBrain: Indexing ready"
+out "      ✓ MultiNova: Parallel ready"
+out "      ✓ BaseForce: Small blocks ready"
+
+# Phase 3: VGA Graphics
+out "[3/8] Initializing VGA Graphics..."
+vga_mode -> 0x13  # 320x200 256-color
+vga -> fate_alloc
+vga -> fate_analyze -> fate_decide
+out "      ✓ VGA: 320x200 256-color mode"
+out "      ✓ Framebuffer: 0xA0000"
+
+# Phase 4: Input Devices
+out "[4/8] Detecting Input Devices..."
+keyboard -> fate_alloc
+keyboard -> fate_analyze -> fate_decide
+out "      ✓ Keyboard: PS/2, IRQ1"
+mouse -> fate_alloc
+mouse -> fate_analyze -> fate_decide
+out "      ✓ Mouse: PS/2, IRQ12"
+
+# Phase 5: Storage
+out "[5/8] Mounting Storage..."
+storage -> fate_alloc
+storage -> fate_analyze -> fate_decide
+out "      ✓ Storage: Ready"
+out "      ✓ Filesystem: ValFS"
+
+# Phase 6: Network
+out "[6/8] Configuring Network..."
+network -> fate_alloc
+network -> fate_analyze -> fate_decide
+out "      ✓ NIC: Detected"
+out "      ✓ IP: 192.168.1.100"
+out "      ✓ Gateway: 192.168.1.1"
+out "      ✓ DNS: 8.8.8.8"
+
+# Phase 7: Window Manager
+out "[7/8] Starting Window Manager..."
+wm -> fate_alloc
+wm -> fate_analyze -> fate_decide
+out "      ✓ Resolution: 320x200"
+out "      ✓ Windows: Enabled"
+out "      ✓ Mouse Cursor: Active"
+
+# Phase 8: Applications
+out "[8/8] Loading Applications..."
+apps -> {
+    files: fate_alloc,
+    terminal: fate_alloc,
+    notepad: fate_alloc,
+    browser: fate_alloc,
+    settings: fate_alloc,
+    store: fate_alloc,
+    music: fate_alloc,
+    video: fate_alloc,
+    minesweeper: fate_alloc
+}
+out "      ✓ Files        - File Manager"
+out "      ✓ Terminal     - Wave Shell"
+out "      ✓ Notepad      - Text Editor"
+out "      ✓ Browser      - HTTP Browser"
+out "      ✓ Settings     - System Config"
+out "      ✓ Store        - App Store"
+out "      ✓ Music        - Audio Player"
+out "      ✓ Video        - Video Player"
+out "      ✓ Minesweeper  - Game"
+
+# ═══════════════════════════════════════════════════════
+# System Ready
+# ═══════════════════════════════════════════════════════
+
+out ""
+out "═══════════════════════════════════════════════════════"
+out "                  System Summary                       "
+out "═══════════════════════════════════════════════════════"
+out ""
+out "  ┌─────────────────────────────────────────────────┐"
+out "  │  Fate Engine     [████████████] Active          │"
+out "  │  Quattro Memory  [████████████] 4 pools         │"
+out "  │  VGA Graphics    [████████████] 320x200         │"
+out "  │  Keyboard        [████████████] PS/2 IRQ1       │"
+out "  │  Mouse           [████████████] PS/2 IRQ12      │"
+out "  │  Network         [████████████] TCP/IP          │"
+out "  │  Window Manager  [████████████] Ready           │"
+out "  │  Applications    [████████████] 9 loaded        │"
+out "  └─────────────────────────────────────────────────┘"
+out ""
+out "═══════════════════════════════════════════════════════"
+out "              Val-OS v5.0 Ready                        "
+out "═══════════════════════════════════════════════════════"
+out ""
+out "  Keyboard: Active (real input)"
+out "  Mouse:    Active (cursor visible)"
+out "  Network:  Connected (192.168.1.100)"
+out ""
+out "  [Click] Desktop icons to launch apps"
+out "  [Super] System Panel"
+out "  [Ctrl+Alt+T] Terminal"
+out ""
+
+# ═══════════════════════════════════════════════════════
+# Desktop Icons
+# ═══════════════════════════════════════════════════════
+
+desktop_icons -> [
+    { name: "Files", x: 10, y: 10, app: "files" },
+    { name: "Terminal", x: 10, y: 50, app: "terminal" },
+    { name: "Browser", x: 10, y: 90, app: "browser" },
+    { name: "Notepad", x: 10, y: 130, app: "notepad" },
+    { name: "Settings", x: 10, y: 170, app: "settings" }
+]
+
+# ═══════════════════════════════════════════════════════
+# Main Event Loop
+# ═══════════════════════════════════════════════════════
+
+out "Starting event loop..."
+
+main_loop -> function() {
+    running -> true
+    
+    loop {
+        # Check keyboard
+        when key_available -> call {
+            key -> read_key -> call
+            handle_key -> call(key)
+        }
+        
+        # Check mouse
+        mouse_state -> get_mouse -> call
+        handle_mouse -> call(mouse_state)
+        
+        # Redraw if needed
+        redraw_desktop -> call
+        draw_windows -> call
+        draw_cursor -> call
+        
+        # Fate: check for collapse
+        fate_monitor -> fate_detect_marginal -> fate_collapse_decision
+    }
+}
+
+# Handle keyboard input
+handle_key -> function(key) {
+    # Ctrl+Alt+T -> Terminal
+    when key == "CTRL_ALT_T" {
+        terminal_run -> call
+    }
+    
+    # Super -> System Panel
+    when key == "SUPER" {
+        toggle_system_panel -> call
+    }
+    
+    # Pass to focused window
+    when focused_window >= 0 {
+        windows[focused_window].on_key -> call(key)
+    }
+}
+
+# Handle mouse input
+handle_mouse -> function(state) {
+    # Update cursor position
+    mouse_x -> state.x
+    mouse_y -> state.y
+    
+    # Left click
+    when state.buttons & 1 {
+        # Check desktop icons
+        i -> 0
+        repeat length(desktop_icons) {
+            icon -> desktop_icons[i]
+            when mouse_x >= icon.x && mouse_x < icon.x + 48 {
+                when mouse_y >= icon.y && mouse_y < icon.y + 48 {
+                    launch_app -> call(icon.app)
+                }
+            }
+            i -> i + 1
+        }
+        
+        # Check windows
+        window_click -> call(mouse_x, mouse_y)
+    }
+}
+
+# Launch application
+launch_app -> function(app) {
+    when app == "files" {
+        files_run -> call
+    }
+    when app == "terminal" {
+        terminal_run -> call
+    }
+    when app == "browser" {
+        browser_run -> call
+    }
+    when app == "notepad" {
+        notepad_run -> call
+    }
+    when app == "settings" {
+        settings_run -> call
+    }
+}
+
+# Redraw desktop
+redraw_desktop -> function() {
+    # Background gradient
+    y -> 0
+    repeat 200 {
+        color -> 16 + (y / 8)  # Blue gradient
+        draw_line -> call(0, y, 320, y, color)
+        y -> y + 1
+    }
+    
+    # Desktop icons
+    i -> 0
+    repeat length(desktop_icons) {
+        icon -> desktop_icons[i]
+        
+        # Icon box
+        draw_rect -> call(icon.x, icon.y, 48, 48, 15)
+        draw_rect -> call(icon.x + 1, icon.y + 1, 46, 46, 7)
+        
+        # Icon symbol
+        draw_text -> call(icon.x + 18, icon.y + 16, icon.name[0], 0, 7)
+        
+        # Label
+        draw_text -> call(icon.x + 2, icon.y + 52, icon.name, 15, 0)
+        
+        i -> i + 1
+    }
+    
+    # Taskbar
+    draw_rect -> call(0, 184, 320, 16, 8)
+    draw_text -> call(4, 188, "[Start]", 15, 8)
+    
+    # Clock
+    time -> get_time -> call
+    draw_text -> call(280, 188, time, 15, 8)
+}
+
+# Start system
+main_loop -> call

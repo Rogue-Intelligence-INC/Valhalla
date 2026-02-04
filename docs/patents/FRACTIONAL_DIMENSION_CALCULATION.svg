@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="inputGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="processGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="calculationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f39c12;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e67e22;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="outputGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#27ae60;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#229954;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="complexGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9b59b6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8e44ad;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1000" height="700" fill="#f8f9fa"/>
+  
+  <!-- 标题 -->
+  <text x="500" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#2c3e50">
+    非整数维度计算流程图
+  </text>
+  <text x="500" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#7f8c8d">
+    FractionalDimensionCalculator核心算法流程
+  </text>
+
+  <!-- 输入阶段 -->
+  <g id="input-stage">
+    <rect x="50" y="80" width="200" height="80" rx="10" fill="url(#inputGradient)" stroke="#2c3e50" stroke-width="2"/>
+    <text x="150" y="105" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">
+      输入数据
+    </text>
+    <text x="150" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#ecf0f1">
+      DimensionRequest
+    </text>
+    <text x="150" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#bdc3c7">
+      • data: Vec&lt;f64&gt;
+    </text>
+    <text x="150" y="155" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#bdc3c7">
+      • dimension_type: Auto
+    </text>
+  </g>
+
+  <!-- 维度类型判断 -->
+  <g id="type-decision">
+    <polygon points="350,80 450,120 350,160 250,120" fill="url(#processGradient)" stroke="#2c3e50" stroke-width="2"/>
+    <text x="350" y="115" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">
+      维度类型
+    </text>
+    <text x="350" y="130" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">
+      判断
+    </text>
+  </g>
+
+  <!-- 三种计算路径 -->
+  <!-- 分数维度计算 -->
+  <g id="fractional-calculation">
+    <rect x="50" y="200" width="250" height="180" rx="10" fill="url(#calculationGradient)" stroke="#2c3e50" stroke-width="2"/>
+    <text x="175" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">
+      分数维度计算
+    </text>
+    
+    <!-- Hausdorff维度 -->
+    <rect x="70" y="240" width="210" height="35" rx="5" fill="#f4d03f" stroke="#f39c12" stroke-width="1"/>
+    <text x="175" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2c3e50">
+      1. Hausdorff维度计算
+    </text>
+    <text x="175" y="270" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+      hausdorff_dim = calculate_hausdorff_dimension(data)
+    </text>
+
+    <!-- 盒维数 -->
+    <rect x="70" y="280" width="210" height="35" rx="5" fill="#f4d03f" stroke="#f39c12" stroke-width="1"/>
+    <text x="175" y="295" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2c3e50">
+      2. 盒维数计算
+    </text>
+    <text x="175" y="310" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+      box_dim = calculate_box_dimension(data)
+    </text>
+
+    <!-- 信息维度 -->
+    <rect x="70" y="320" width="210" height="35" rx="5" fill="#f4d03f" stroke="#f39c12" stroke-width="1"/>
+    <text x="175" y="335" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2c3e50">
+      3. 信息维度计算
+    </text>
+    <text x="175" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+      info_dim = calculate_information_dimension(data)
+    </text>
+
+    <!-- 综合计算 -->
+    <rect x="70" y="360" width="210" height="15" rx="5" fill="#e67e22" stroke="#d35400" stroke-width="1"/>
+    <text x="175" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">
+      综合: combine_fractional_dimensions()
+    </text>
+  </g>
+
+  <!-- 复数维度计算 -->
+  <g id="complex-calculation">
+    <rect x="350" y="200" width="250" height="180" rx="10" fill="url(#complexGradient)" stroke="#2c3e50" stroke-width="2"/>
+    <text x="475" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">
+      复数维度计算
+    </text>
+    
+    <!-- 复数转换 -->
+    <rect x="370" y="240" width="210" height="35" rx="5" fill="#d2b4de" stroke="#9b59b6" stroke-width="1"/>
+    <text x="475" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2c3e50">
+      1. 复数数据转换
+    </text>
+    <text x="475" y="270" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+      complex_data = convert_to_complex(data)
+    </text>
+
+    <!-- 复数流形维度 -->
+    <rect x="370" y="280" width="210" height="35" rx="5" fill="#d2b4de" stroke="#9b59b6" stroke-width="1"/>
+    <text x="475" y="295" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2c3e50">
+      2. 复数流形维度
+    </text>
+    <text x="475" y="310" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+      complex_dim = calculate_complex_manifold()
+    </text>
+
+    <!-- 模长计算 -->
+    <rect x="370" y="320" width="210" height="35" rx="5" fill="#d2b4de" stroke="#9b59b6" stroke-width="1"/>
+    <text x="475" y="335" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2c3e50">
+      3. 复数模长计算
+    </text>
+    <text x="475" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+      norm = complex_dim.norm()
+    </text>
+
+    <!-- 实部提取 -->
+    <rect x="370" y="360" width="210" height="15" rx="5" fill="#8e44ad" stroke="#7d3c98" stroke-width="1"/>
+    <text x="475" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">
+      主维度: complex_dim.re
+    </text>
+  </g>
+
+  <!-- 整数维度计算 -->
+  <g id="integer-calculation">
+    <rect x="650" y="200" width="250" height="180" rx="10" fill="#95a5a6" stroke="#2c3e50" stroke-width="2"/>
+    <text x="775" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">
+      整数维度计算
+    </text>
+    
+    <!-- 传统方法 -->
+    <rect x="670" y="240" width="210" height="35" rx="5" fill="#bdc3c7" stroke="#95a5a6" stroke-width="1"/>
+    <text x="775" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2c3e50">
+      传统整数维度
+    </text>
+    <text x="775" y="270" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+      dimension = data.len() as f64
+    </text>
+
+    <!-- 优化调整 -->
+    <rect x="670" y="280" width="210" height="35" rx="5" fill="#bdc3c7" stroke="#95a5a6" stroke-width="1"/>
+    <text x="775" y="295" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2c3e50">
+      维度优化调整
+    </text>
+    <text x="775" y="310" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+      optimized_dim = optimize_integer_dimension()
+    </text>
+
+    <!-- 验证 -->
+    <rect x="670" y="320" width="210" height="55" rx="5" fill="#bdc3c7" stroke="#95a5a6" stroke-width="1"/>
+    <text x="775" y="335" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#2c3e50">
+      维度验证
+    </text>
+    <text x="775" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#2c3e50">
+      validate_integer_dimension()
+    </text>
+    <text x="775" y="365" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#5d6d7e">
+      确保维度合理性
+    </text>
+  </g>
+
+  <!-- 结果汇总 -->
+  <g id="result-aggregation">
+    <rect x="350" y="420" width="300" height="80" rx="10" fill="url(#outputGradient)" stroke="#2c3e50" stroke-width="2"/>
+    <text x="500" y="445" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">
+      结果汇总与输出
+    </text>
+    <text x="500" y="465" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#ecf0f1">
+      DimensionResult {
+    </text>
+    <text x="500" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#d5f4e6">
+      recommended_dimension, dimension_type,
+    </text>
+    <text x="500" y="495" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#d5f4e6">
+      mathematical_basis, confidence
+    </text>
+  </g>
+
+  <!-- 实际测试结果展示 -->
+  <g id="test-examples">
+    <rect x="50" y="530" width="900" height="120" rx="10" fill="#ecf0f1" stroke="#34495e" stroke-width="2"/>
+    <text x="500" y="555" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">
+      🌟 实际测试结果验证
+    </text>
+    
+    <!-- 测试案例1 -->
+    <rect x="80" y="570" width="250" height="65" rx="5" fill="#d5dbdb" stroke="#85929e" stroke-width="1"/>
+    <text x="205" y="590" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">
+      简单力场 (弱场强度)
+    </text>
+    <text x="205" y="605" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">
+      输入: [0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    </text>
+    <text x="205" y="620" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#e74c3c">
+      输出: 1.018823 (分数维度)
+    </text>
+
+    <!-- 测试案例2 -->
+    <rect x="350" y="570" width="250" height="65" rx="5" fill="#d5dbdb" stroke="#85929e" stroke-width="1"/>
+    <text x="475" y="590" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">
+      复杂力场 (中等场强)
+    </text>
+    <text x="475" y="605" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">
+      输入: [0.8, -0.6, 0.4, -0.3, 0.7, -0.5, 0.2, 0.9]
+    </text>
+    <text x="475" y="620" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#e74c3c">
+      输出: 1.454446 (分数维度)
+    </text>
+
+    <!-- 测试案例3 -->
+    <rect x="620" y="570" width="250" height="65" rx="5" fill="#d5dbdb" stroke="#85929e" stroke-width="1"/>
+    <text x="745" y="590" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2c3e50">
+      分形力场 (强场强度)
+    </text>
+    <text x="745" y="605" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#34495e">
+      输入: [1.618, -0.618, 2.718, -1.414, ...]
+    </text>
+    <text x="745" y="620" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#9b59b6">
+      输出: 2.545344 (复数维度)
+    </text>
+  </g>
+
+  <!-- 流程箭头 -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#e74c3c" />
+    </marker>
+  </defs>
+
+  <!-- 主流程箭头 -->
+  <line x1="250" y1="120" x2="300" y2="120" stroke="#e74c3c" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <!-- 分支箭头 -->
+  <line x1="300" y1="120" x2="175" y2="200" stroke="#f39c12" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="350" y1="160" x2="475" y2="200" stroke="#9b59b6" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="400" y1="120" x2="775" y2="200" stroke="#95a5a6" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- 汇总箭头 -->
+  <line x1="175" y1="380" x2="450" y2="420" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="475" y1="380" x2="500" y2="420" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="775" y1="380" x2="550" y2="420" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- 标签 -->
+  <text x="200" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#f39c12">
+    分数维度
+  </text>
+  <text x="420" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#9b59b6">
+    复数维度
+  </text>
+  <text x="600" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#95a5a6">
+    整数维度
+  </text>
+
+  <!-- 版权信息 -->
+  <text x="500" y="680" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d">
+    非整数维度计算流程 | FractionalDimensionCalculator核心算法 | Valhalla项目专利技术
+  </text>
+</svg> 

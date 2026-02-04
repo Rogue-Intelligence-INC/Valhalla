@@ -1,0 +1,285 @@
+# 🌐 Val-OS TCP/IP 网络栈
+# RFC 791 (IP) · RFC 793 (TCP) · RFC 768 (UDP)
+# 转译自国际标准
+
+# ═══════════════════════════════════════════════════════
+# IP 层 (RFC 791)
+# ═══════════════════════════════════════════════════════
+
+# IPv4 头部
+ip_header -> structure {
+    version     -> u4      # 4
+    ihl         -> u4      # 头部长度 (32位字)
+    tos         -> u8      # 服务类型
+    total_len   -> u16     # 总长度
+    id          -> u16     # 标识
+    flags       -> u3      # 标志
+    frag_offset -> u13     # 片偏移
+    ttl         -> u8      # 生存时间
+    protocol    -> u8      # 协议 (6=TCP, 17=UDP)
+    checksum    -> u16     # 校验和
+    src_addr    -> u32     # 源地址
+    dst_addr    -> u32     # 目标地址
+}
+
+# IP 协议号 (标准)
+ip_protocols -> enum {
+    ICMP -> 1
+    TCP  -> 6
+    UDP  -> 17
+}
+
+# IP 发送
+ip_send -> function(packet, dst) {
+    header -> ip_header {
+        version: 4,
+        ihl: 5,
+        ttl: 64,  # Fate 可调整
+        protocol: packet.protocol,
+        src_addr: local_ip,
+        dst_addr: dst
+    }
+    
+    header.checksum -> calculate_checksum(header)
+    
+    # 路由决策
+    next_hop -> fate_route(dst)
+    
+    # 发送
+    link_send(next_hop, header + packet.data)
+}
+
+# ═══════════════════════════════════════════════════════
+# TCP 层 (RFC 793)
+# ═══════════════════════════════════════════════════════
+
+# TCP 头部
+tcp_header -> structure {
+    src_port    -> u16     # 源端口
+    dst_port    -> u16     # 目标端口
+    seq_num     -> u32     # 序列号
+    ack_num     -> u32     # 确认号
+    data_offset -> u4      # 数据偏移
+    reserved    -> u3      # 保留
+    flags       -> u9      # 标志 (SYN, ACK, FIN 等)
+    window      -> u16     # 窗口大小
+    checksum    -> u16     # 校验和
+    urgent_ptr  -> u16     # 紧急指针
+}
+
+# TCP 标志
+tcp_flags -> enum {
+    FIN -> 0x01
+    SYN -> 0x02
+    RST -> 0x04
+    PSH -> 0x08
+    ACK -> 0x10
+    URG -> 0x20
+}
+
+# TCP 连接状态 (RFC 793 状态机)
+tcp_state -> enum {
+    CLOSED
+    LISTEN
+    SYN_SENT
+    SYN_RECEIVED
+    ESTABLISHED
+    FIN_WAIT_1
+    FIN_WAIT_2
+    CLOSE_WAIT
+    CLOSING
+    LAST_ACK
+    TIME_WAIT
+}
+
+# TCP 连接
+tcp_connection -> structure {
+    local_addr  -> u32
+    local_port  -> u16
+    remote_addr -> u32
+    remote_port -> u16
+    state       -> tcp_state
+    
+    # 序列号
+    send_seq    -> u32
+    recv_seq    -> u32
+    
+    # 缓冲区 (Fate 管理)
+    send_buffer -> fate_alloc
+    recv_buffer -> fate_alloc
+    
+    # 窗口
+    send_window -> u16
+    recv_window -> u16
+}
+
+# TCP 三次握手
+tcp_connect -> function(dst_addr, dst_port) {
+    conn -> tcp_connection {
+        local_addr: local_ip,
+        local_port: fate_allocate_port(),
+        remote_addr: dst_addr,
+        remote_port: dst_port,
+        state: CLOSED,
+        send_seq: fate_random_seq()
+    }
+    
+    # 发送 SYN
+    send_tcp(conn, SYN)
+    conn.state -> SYN_SENT
+    
+    # 等待 SYN+ACK
+    response -> recv_tcp(conn)
+    when response.flags == (SYN | ACK) {
+        conn.recv_seq -> response.seq_num + 1
+        
+        # 发送 ACK
+        send_tcp(conn, ACK)
+        conn.state -> ESTABLISHED
+    }
+    
+    return conn
+}
+
+# TCP 发送
+tcp_send -> function(conn, data) {
+    when conn.state != ESTABLISHED {
+        error -> "Connection not established"
+        return
+    }
+    
+    # 分段 (MSS)
+    segments -> split_data(data, MSS)
+    
+    for segment in segments {
+        header -> tcp_header {
+            src_port: conn.local_port,
+            dst_port: conn.remote_port,
+            seq_num: conn.send_seq,
+            ack_num: conn.recv_seq,
+            flags: PSH | ACK
+        }
+        
+        ip_send({protocol: TCP, data: header + segment}, conn.remote_addr)
+        conn.send_seq -> conn.send_seq + segment.length
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# UDP 层 (RFC 768)
+# ═══════════════════════════════════════════════════════
+
+# UDP 头部
+udp_header -> structure {
+    src_port -> u16
+    dst_port -> u16
+    length   -> u16
+    checksum -> u16
+}
+
+# UDP 发送 (无连接)
+udp_send -> function(dst_addr, dst_port, data) {
+    header -> udp_header {
+        src_port: fate_allocate_port(),
+        dst_port: dst_port,
+        length: 8 + data.length
+    }
+    
+    header.checksum -> calculate_udp_checksum(header, data)
+    
+    ip_send({protocol: UDP, data: header + data}, dst_addr)
+}
+
+# ═══════════════════════════════════════════════════════
+# Socket API
+# ═══════════════════════════════════════════════════════
+
+socket -> function(type) {
+    when type == TCP {
+        return tcp_socket_create()
+    }
+    when type == UDP {
+        return udp_socket_create()
+    }
+}
+
+bind -> function(socket, addr, port) {
+    socket.local_addr -> addr
+    socket.local_port -> port
+}
+
+listen -> function(socket, backlog) {
+    socket.state -> LISTEN
+    socket.backlog -> backlog
+}
+
+accept -> function(socket) {
+    # 等待连接
+    conn -> wait_for_connection(socket)
+    return conn
+}
+
+connect -> function(socket, addr, port) {
+    return tcp_connect(addr, port)
+}
+
+send -> function(socket, data) {
+    when socket.type == TCP {
+        tcp_send(socket.conn, data)
+    }
+    when socket.type == UDP {
+        udp_send(socket.remote_addr, socket.remote_port, data)
+    }
+}
+
+recv -> function(socket) {
+    return socket.recv_buffer.read()
+}
+
+close -> function(socket) {
+    when socket.type == TCP {
+        tcp_close(socket.conn)
+    }
+    socket.state -> CLOSED
+}
+
+# ═══════════════════════════════════════════════════════
+# DHCP 客户端 (简化)
+# ═══════════════════════════════════════════════════════
+
+dhcp_request -> function() {
+    # DHCP Discover
+    udp_send(BROADCAST, 67, dhcp_discover_packet())
+    
+    # 等待 Offer
+    offer -> udp_recv(68)
+    
+    # DHCP Request
+    udp_send(BROADCAST, 67, dhcp_request_packet(offer))
+    
+    # 等待 ACK
+    ack -> udp_recv(68)
+    
+    # 配置 IP
+    local_ip -> ack.your_ip
+    gateway -> ack.router
+    dns -> ack.dns
+}
+
+# ═══════════════════════════════════════════════════════
+# DNS 客户端 (简化)
+# ═══════════════════════════════════════════════════════
+
+dns_resolve -> function(hostname) {
+    # 构建 DNS 查询
+    query -> dns_query(hostname, A_RECORD)
+    
+    # 发送到 DNS 服务器
+    udp_send(dns_server, 53, query)
+    
+    # 接收响应
+    response -> udp_recv(local_dns_port)
+    
+    # 解析 IP 地址
+    return parse_dns_response(response)
+}

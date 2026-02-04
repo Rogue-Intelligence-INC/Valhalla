@@ -1,0 +1,7 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Main Entry Point
+# Wave-native operating system
+# ═══════════════════════════════════════════════════════════════════
+
+# Boot the system
+kernel.boot -> require("./kernel/boot.wave")

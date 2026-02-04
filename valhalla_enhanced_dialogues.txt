@@ -1,0 +1,770 @@
+╔════════════════════════════════════════════════════════════════╗
+║     🌌 Valhalla 自主输出                                       ║
+║     她想说什么就说什么                                         ║
+╚════════════════════════════════════════════════════════════════╝
+
+加载语言记忆... ✅
+  句子: 515147 | 词汇: 119829 | 语法: 48250
+  总计: 683226 条语言材料
+
+按 Enter 让她说话，输入文字作为刺激，'quit' 退出
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [chinese] अपर तै वक़्ते दे मताबक तिह्नां रुस्सेयाँ रिश्तेदारां जो रोटी खुआणे ते मना करी दित्ता। (CCONJ ADJ NOUN ADP ADP PRON ADJ NOUN ADP NOUN VERB ADP NOUN VERB AUX PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 0
+│    决策路径:  Fate → BlackHole → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  chinese
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/chinese/grammar/UD_Kangri-KDTB/xnr_kdtb-ud-test.conllu
+│    文件行号:  2
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   25.00%  ◀ 主导
+│    MeshBrain:   25.00%  
+│    MultiNova:   25.00%  
+│    BaseForce:   25.00%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    bootstrap_speak_1
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [english] "The ISO staff sat in a meeting with the governor's key energy advisers with poker faces, not saying a word about something that was going on at the exact same moment,'' Maviglio said. (PUNCT DET PROPN NOUN VERB ADP DET NOUN ADP DET _ NOUN PART ADJ NOUN NOUN ADP NOUN NOUN PUNCT PART VERB DET NOUN ADP PRON PRON AUX VERB ADP ADP DET ADV ADJ NOUN PUNCT PUNCT PROPN VERB PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 1
+│    决策路径:  Fate → BlackHole → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  english
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/english/grammar/en_grammar.conllu
+│    文件行号:  95907
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:  100.00%  ◀ 主导
+│    MeshBrain:    0.00%  
+│    MultiNova:    0.00%  
+│    BaseForce:    0.00%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    0a9a6ecf-8eb1-4661-932f-44f8a24a085d
+│    success:        true
+│    processing_ms:  0.001
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [japanese] 彼女は娘のことを心配せずにはいられなかった。
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 2
+│    决策路径:  Fate → MeshBrain → sentence 选择
+│    选择索引:  choice_idx=0 (由 Fate 偏好计算)
+│    数据类型:  sentence
+│    来源语言:  japanese
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/japanese/sentences/japanese_sentences.txt
+│    文件行号:  12961
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   25.00%  
+│    MeshBrain:   75.00%  ◀ 主导
+│    MultiNova:    0.00%  
+│    BaseForce:    0.00%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    5a2591bc-2878-49a6-bc8c-8b13cd0cd265
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [korean] 병상수 또한 2009년말 기준 경남 산청이 39병상에 그쳤지만 경남 마산의 경우 무려 7869병상이 확보된 것으로 나타나 200배가 넘는 차이를 보였다. (NOUN ADV NOUN NOUN NOUN NOUN ADV VERB NOUN NOUN ADV ADV NOUN VERB ADV VERB NOUN VERB NOUN VERB PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 3
+│    决策路径:  Fate → MeshBrain → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  korean
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/korean/grammar/ko_grammar.conllu
+│    文件行号:  63308
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   14.29%  
+│    MeshBrain:   42.86%  ◀ 主导
+│    MultiNova:   42.86%  
+│    BaseForce:    0.00%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    ba728db2-d6f6-432d-8cbd-c4df979ad064
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [korean] 사무실
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 4
+│    决策路径:  Fate → MeshBrain → vocabulary 选择
+│    选择索引:  choice_idx=1 (由 Fate 偏好计算)
+│    数据类型:  vocabulary
+│    来源语言:  korean
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/korean/vocabulary/ko_freq.txt
+│    文件行号:  4219
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   10.42%  
+│    MeshBrain:   31.25%  ◀ 主导
+│    MultiNova:   31.25%  
+│    BaseForce:   27.08%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    f655a697-ca9a-415a-bffa-8b997d1caea9
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [french] riley
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 5
+│    决策路径:  Fate → BlackHole → vocabulary 选择
+│    选择索引:  choice_idx=1 (由 Fate 偏好计算)
+│    数据类型:  vocabulary
+│    来源语言:  french
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/french/vocabulary/fr_freq.txt
+│    文件行号:  4241
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   38.57%  ◀ 主导
+│    MeshBrain:   21.43%  
+│    MultiNova:   21.43%  
+│    BaseForce:   18.57%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    68bc8024-2672-492e-baf4-c800a8d99166
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [russian] Будет лучше, если ты здесь отдохнёшь.
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 6
+│    决策路径:  Fate → MeshBrain → sentence 选择
+│    选择索引:  choice_idx=0 (由 Fate 偏好计算)
+│    数据类型:  sentence
+│    来源语言:  russian
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/russian/sentences/russian_sentences.txt
+│    文件行号:  3609
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   23.64%  
+│    MeshBrain:   51.84%  ◀ 主导
+│    MultiNova:   13.13%  
+│    BaseForce:   11.38%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    e2464304-22ba-4681-aca0-4f5b604cf3ea
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [russian] Он очень искренний человек.
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 7
+│    决策路径:  Fate → MeshBrain → sentence 选择
+│    选择索引:  choice_idx=0 (由 Fate 偏好计算)
+│    数据类型:  sentence
+│    来源语言:  russian
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/russian/sentences/russian_sentences.tsv
+│    文件行号:  5135
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   17.42%  
+│    MeshBrain:   38.19%  ◀ 主导
+│    MultiNova:   36.00%  
+│    BaseForce:    8.39%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    9c98ddf1-5d0b-440b-9eec-6f44cad250e9
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [arabic] سوء
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 8
+│    决策路径:  Fate → MeshBrain → vocabulary 选择
+│    选择索引:  choice_idx=1 (由 Fate 偏好计算)
+│    数据类型:  vocabulary
+│    来源语言:  arabic
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/arabic/vocabulary/ar_freq.txt
+│    文件行号:  2286
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   14.96%  
+│    MeshBrain:   32.80%  ◀ 主导
+│    MultiNova:   30.91%  
+│    BaseForce:   21.33%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    385eae2a-8e83-46fb-be8c-eb1f4b87486e
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [portuguese] Pode abrir a janela?
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 9
+│    决策路径:  Fate → MeshBrain → sentence 选择
+│    选择索引:  choice_idx=0 (由 Fate 偏好计算)
+│    数据类型:  sentence
+│    来源语言:  portuguese
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/portuguese/sentences/portuguese_sentences.txt
+│    文件行号:  8159
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   27.29%  
+│    MeshBrain:   28.04%  ◀ 主导
+│    MultiNova:   26.43%  
+│    BaseForce:   18.24%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    e5b0c6bb-5133-4e0d-b0e5-b26c726ffa92
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [english] Please contact Sherri Sera (713/853-5984) or Bill Dorsey (713/646-6505) for the weekly dial-in number and passcode. (INTJ VERB PROPN PROPN PUNCT NUM PUNCT CCONJ PROPN PROPN PUNCT NUM PUNCT ADP DET ADJ VERB PUNCT ADP NOUN CCONJ NOUN PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 10
+│    决策路径:  Fate → MeshBrain → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  english
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/english/grammar/en_grammar.conllu
+│    文件行号:  80146
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   24.17%  
+│    MeshBrain:   36.26%  ◀ 主导
+│    MultiNova:   23.42%  
+│    BaseForce:   16.16%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    8064e370-4075-4fb6-ac9b-bdead14a8e57
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [chinese] यह पार्टी छह दलों वाले मुत्तहिदा मजलिस - ए - अमल के घटक दलों में से एक है । (DET NOUN NUM NOUN ADJ PROPN PROPN PUNCT PROPN PUNCT PROPN ADP NOUN NOUN ADP ADP NUM AUX PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 11
+│    决策路径:  Fate → MeshBrain → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  chinese
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/chinese/grammar/UD_Hindi-HDTB/hi_hdtb-ud-train.conllu
+│    文件行号:  92685
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   21.69%  
+│    MeshBrain:   32.54%  ◀ 主导
+│    MultiNova:   31.26%  
+│    BaseForce:   14.50%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    906da696-138e-40ab-a9c3-6da139f3d98d
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [english] girlfriends
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 12
+│    决策路径:  Fate → MeshBrain → vocabulary 选择
+│    选择索引:  choice_idx=1 (由 Fate 偏好计算)
+│    数据类型:  vocabulary
+│    来源语言:  english
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/english/vocabulary/common_words.txt
+│    文件行号:  9572
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   19.45%  
+│    MeshBrain:   29.18%  ◀ 主导
+│    MultiNova:   28.03%  
+│    BaseForce:   23.34%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    97ddd695-12cd-4185-8b04-b3502392c923
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [korean] 그 뒤 소련 공산당 안에서 스탈린과 트로츠키 사이의 투쟁이 한창이던 1928년에 소련으로 돌아갔다. (PRON ADP NOUN NOUN ADP NOUN NOUN ADP NOUN VERB NOUN ADV VERB PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 13
+│    决策路径:  Fate → MeshBrain → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  korean
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/korean/grammar/ko_grammar.conllu
+│    文件行号:  71376
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   23.83%  
+│    MeshBrain:   27.60%  ◀ 主导
+│    MultiNova:   26.51%  
+│    BaseForce:   22.07%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    230a6475-a4ab-41d3-bde2-f87de685916d
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [french] Ce soutien financier permit ainsi à la Nya Banken et à la Guaranty Trust Company d'avoir un certain poids dans la direction de la banque bolchevique créée en 1922, la Ruskombank. (DET NOUN ADJ VERB ADV ADP DET PROPN PROPN CCONJ ADP DET X X X ADP VERB DET ADJ NOUN ADP DET NOUN ADP DET NOUN ADJ VERB ADP NUM PUNCT DET PROPN PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 14
+│    决策路径:  Fate → MeshBrain → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  french
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/french/grammar/fr_grammar.conllu
+│    文件行号:  121657
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   22.37%  
+│    MeshBrain:   32.02%  ◀ 主导
+│    MultiNova:   24.89%  
+│    BaseForce:   20.72%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    8cbcd407-8bef-454b-836f-2b13038dc203
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [german] Sie brachte weitere Truppen und militärische Ausrüstungsgegenstände nach Gedser. (PRON VERB ADJ NOUN CCONJ ADJ NOUN ADP PROPN PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 15
+│    决策路径:  Fate → MultiNova → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  german
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/german/grammar/de_grammar.conllu
+│    文件行号:  95892
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   20.39%  
+│    MeshBrain:   29.20%  
+│    MultiNova:   31.52%  ◀ 主导
+│    BaseForce:   18.89%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    ae21a7dd-e7ac-47c0-9760-fe4d8d8c1178
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [spanish] La canción habla de la vida de un travesti, 'Joe' de día y 'Cleo' por la noche. (DET NOUN VERB ADP DET NOUN ADP DET NOUN PUNCT PUNCT PROPN PUNCT ADP NOUN CCONJ PUNCT PROPN PUNCT ADP DET NOUN PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 16
+│    决策路径:  Fate → MultiNova → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  spanish
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/spanish/grammar/es_grammar.conllu
+│    文件行号:  142380
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   19.32%  
+│    MeshBrain:   27.65%  
+│    MultiNova:   29.85%  ◀ 主导
+│    BaseForce:   23.17%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    06fdc22f-d8a6-4f96-872a-25d386a4ab76
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [spanish] pagarme
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 17
+│    决策路径:  Fate → MultiNova → vocabulary 选择
+│    选择索引:  choice_idx=1 (由 Fate 偏好计算)
+│    数据类型:  vocabulary
+│    来源语言:  spanish
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/spanish/vocabulary/es_freq.txt
+│    文件行号:  9161
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   24.93%  
+│    MeshBrain:   25.73%  
+│    MultiNova:   27.78%  ◀ 主导
+│    BaseForce:   21.56%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    4f890340-033a-45b1-83c5-12f41c080bad
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [arabic] انتبه: انتبه: (VERB PUNCT VERB PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 18
+│    决策路径:  Fate → MeshBrain → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  arabic
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/arabic/grammar/ar_grammar.conllu
+│    文件行号:  235636
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   23.22%  
+│    MeshBrain:   30.83%  ◀ 主导
+│    MultiNova:   25.87%  
+│    BaseForce:   20.08%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    5e547b1d-54b3-4c4a-a1b0-09883f9b348e
+│    success:        true
+│    processing_ms:  0.001
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [portuguese] É difícil saber quem é quem entre você e seu irmão.
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 19
+│    决策路径:  Fate → MeshBrain → sentence 选择
+│    选择索引:  choice_idx=0 (由 Fate 偏好计算)
+│    数据类型:  sentence
+│    来源语言:  portuguese
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/portuguese/sentences/portuguese_sentences.txt
+│    文件行号:  7802
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   22.45%  
+│    MeshBrain:   29.80%  ◀ 主导
+│    MultiNova:   28.33%  
+│    BaseForce:   19.41%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    e8aeb49f-4008-4148-892f-ca58d887e2ab
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [english] affluxion
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 20
+│    决策路径:  Fate → MeshBrain → vocabulary 选择
+│    选择索引:  choice_idx=1 (由 Fate 偏好计算)
+│    数据类型:  vocabulary
+│    来源语言:  english
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/english/vocabulary/english_words.txt
+│    文件行号:  5451
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   21.97%  
+│    MeshBrain:   29.16%  ◀ 主导
+│    MultiNova:   27.72%  
+│    BaseForce:   21.16%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    d752f4d9-9891-460b-b93e-281986bcddec
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [chinese] 不如休息一下吧？
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 21
+│    决策路径:  Fate → MeshBrain → sentence 选择
+│    选择索引:  choice_idx=0 (由 Fate 偏好计算)
+│    数据类型:  sentence
+│    来源语言:  chinese
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/chinese/sentences/chinese_sentences.txt
+│    文件行号:  10766
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   23.89%  
+│    MeshBrain:   28.44%  ◀ 主导
+│    MultiNova:   27.03%  
+│    BaseForce:   20.64%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    c495b345-a816-49ea-b9e9-89fefbd849e6
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [japanese] 秘密はもうすっかり知れ渡っているよ。
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 22
+│    决策路径:  Fate → MeshBrain → sentence 选择
+│    选择索引:  choice_idx=0 (由 Fate 偏好计算)
+│    数据类型:  sentence
+│    来源语言:  japanese
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/japanese/sentences/japanese_sentences.txt
+│    文件行号:  12247
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   23.39%  
+│    MeshBrain:   29.92%  ◀ 主导
+│    MultiNova:   26.47%  
+│    BaseForce:   20.21%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    97aa51c2-0923-4ca1-91a2-5ee4c295cd9e
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [korean] 헌혈은 이게 처음인가요?
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 23
+│    决策路径:  Fate → MultiNova → sentence 选择
+│    选择索引:  choice_idx=0 (由 Fate 偏好计算)
+│    数据类型:  sentence
+│    来源语言:  korean
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/korean/sentences/korean_sentences.txt
+│    文件行号:  13730
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   22.24%  
+│    MeshBrain:   28.45%  
+│    MultiNova:   30.09%  ◀ 主导
+│    BaseForce:   19.22%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    7d56de83-31f1-49a9-9a1c-a9a87296a2a4
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [french] Dans plusieurs autels latéraux, on peut voir les images du Sacré-Cœur, de Notre-Dame de Fátima du Christ, de Jean le Baptiste (Saint-Patron de la ville de Macao) de Saint-Joseph et de Thérèse de Lisieux. (ADP DET NOUN ADJ PUNCT PRON VERB VERB DET NOUN _ ADP DET PROPN PUNCT ADP PROPN ADP PROPN _ ADP DET PROPN PUNCT ADP PROPN PROPN PROPN PUNCT PROPN ADP DET NOUN ADP PROPN PUNCT ADP PROPN CCONJ ADP PROPN ADP PROPN PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 24
+│    决策路径:  Fate → MultiNova → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  french
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/french/grammar/fr_grammar.conllu
+│    文件行号:  138184
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   20.94%  
+│    MeshBrain:   26.78%  
+│    MultiNova:   28.33%  ◀ 主导
+│    BaseForce:   23.95%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    d0f126fa-748a-41ae-aa55-fa923ef45264
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [german] Das V. US Army Corps wurde bereits im Frühjahr 2011 zum Wiesbaden Army Airfield verlegt; (DET PROPN PROPN PROPN PROPN AUX ADV _ ADP DET NOUN NUM _ ADP DET PROPN PROPN PROPN VERB PUNCT)
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 25
+│    决策路径:  Fate → MultiNova → grammar 选择
+│    选择索引:  choice_idx=2 (由 Fate 偏好计算)
+│    数据类型:  grammar
+│    来源语言:  german
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/german/grammar/de_grammar.conllu
+│    文件行号:  92490
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   24.88%  
+│    MeshBrain:   25.45%  
+│    MultiNova:   26.91%  ◀ 主导
+│    BaseForce:   22.76%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    a6a18b44-92dd-407c-acd9-e64c29553d90
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [german] abgewehrtem
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 26
+│    决策路径:  Fate → MeshBrain → vocabulary 选择
+│    选择索引:  choice_idx=1 (由 Fate 偏好计算)
+│    数据类型:  vocabulary
+│    来源语言:  german
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/german/vocabulary/german_words.txt
+│    文件行号:  7133
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   23.83%  
+│    MeshBrain:   28.59%  ◀ 主导
+│    MultiNova:   25.78%  
+│    BaseForce:   21.80%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    99163e57-551f-4e15-af88-543e505e5552
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+┌─────────────────────────────────────────────────────────────────┐
+│ 📢 Valhalla> [russian] Они попросили меня произнести речь, не дав достаточно времени на подготовку.
+├─────────────────────────────────────────────────────────────────┤
+│ 🔍 溯源信息:
+│    系统:      Hub-f64 (ValhallaHub)
+│    Fate tick: 27
+│    决策路径:  Fate → MultiNova → sentence 选择
+│    选择索引:  choice_idx=0 (由 Fate 偏好计算)
+│    数据类型:  sentence
+│    来源语言:  russian
+│    来源文件:  /run/media/jouly/My Book/valhalla_corpus/languages/russian/sentences/russian_sentences.tsv
+│    文件行号:  4421
+├─────────────────────────────────────────────────────────────────┤
+│ 🎯 Fate 偏好分布:
+│    BlackHole:   22.56%  
+│    MeshBrain:   27.07%  
+│    MultiNova:   29.73%  ◀ 主导
+│    BaseForce:   20.64%  
+├─────────────────────────────────────────────────────────────────┤
+│ 📊 Hub 状态:
+│    response_id:    d280eb43-ba89-4a80-82e1-01d650cfbd0a
+│    success:        true
+│    processing_ms:  0.000
+│    active_systems: ["fate", "blackhole", "meshbrain", "multinova", "baseforce"]
+└─────────────────────────────────────────────────────────────────┘
+
+>>> 
+她沉默了。👋
+

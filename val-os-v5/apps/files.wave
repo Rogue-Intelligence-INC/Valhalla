@@ -1,0 +1,981 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Files (Fate-Powered File Manager)
+# 智能文件管理器 - 集成 Fate 文件系统
+# ═══════════════════════════════════════════════════════════════════
+
+title = "Files"
+icon = "📁"
+
+# Import Fate Files kernel
+fate_files -> import("../kernel/fate_files.wave")
+
+# State
+current_path = "/"
+selected = null
+view_mode = "icons"  # icons, list, details, fate
+show_sidebar = true
+show_preserve_zone = true
+
+# Drag & Drop state
+drag_source = null
+drag_target = null
+
+# ───────────────────────────────────────────────────────────────────
+# Start
+# ───────────────────────────────────────────────────────────────────
+
+start -> function(window) {
+    # Initialize Fate Files system
+    fate_files.fate_files_init()
+    
+    current_path = env.HOME || "/"
+    
+    # Set up window content
+    window.content = {
+        type: "container",
+        layout: "horizontal",
+        children: [
+            create_sidebar(),
+            {
+                type: "container",
+                flex: 1,
+                children: [
+                    create_toolbar(),
+                    create_path_bar(),
+                    create_file_view()
+                ]
+            }
+        ]
+    }
+    
+    # Load initial directory
+    refresh()
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Sidebar with Preserve Zone
+# ───────────────────────────────────────────────────────────────────
+
+create_sidebar -> function() {
+    {
+        type: "sidebar",
+        width: 200,
+        visible: show_sidebar,
+        children: [
+            # Quick access
+            {
+                type: "section",
+                title: "📌 快速访问",
+                children: [
+                    { type: "nav_item", icon: "🏠", label: "主目录", path: env.HOME },
+                    { type: "nav_item", icon: "📁", label: "文档", path: env.HOME + "/Documents" },
+                    { type: "nav_item", icon: "🖼️", label: "图片", path: env.HOME + "/Pictures" },
+                    { type: "nav_item", icon: "🎵", label: "音乐", path: env.HOME + "/Music" },
+                    { type: "nav_item", icon: "🎬", label: "视频", path: env.HOME + "/Videos" },
+                    { type: "nav_item", icon: "⬇️", label: "下载", path: env.HOME + "/Downloads" }
+                ],
+                on_click: navigate_to
+            },
+            
+            # Preserve Zone - 保留区
+            {
+                type: "section",
+                title: "🛡️ 保留区",
+                collapsible: true,
+                expanded: show_preserve_zone,
+                style: {
+                    background: "#2a2a3a",
+                    border: "1px dashed #6a6a8a",
+                    border_radius: 8,
+                    padding: 8,
+                    margin: 8
+                },
+                children: [
+                    {
+                        type: "drop_zone",
+                        id: "preserve_drop",
+                        hint: "拖放文件到此处保留",
+                        on_drop: handle_drop_to_preserve,
+                        children: create_preserve_list()
+                    },
+                    {
+                        type: "button",
+                        label: "📂 打开保留区",
+                        on_click: () => navigate_to(fate_files.preserve_zone.path)
+                    }
+                ]
+            },
+            
+            # Fate Intelligence
+            {
+                type: "section",
+                title: "🔮 Fate 智能",
+                children: [
+                    { 
+                        type: "button", 
+                        icon: "🔍", 
+                        label: "分析当前目录",
+                        on_click: fate_analyze_current
+                    },
+                    { 
+                        type: "button", 
+                        icon: "✨", 
+                        label: "智能整理",
+                        on_click: fate_organize_current
+                    },
+                    {
+                        type: "button",
+                        icon: "👁️",
+                        label: "Fate 视图",
+                        on_click: () => { view_mode = "fate"; refresh() }
+                    },
+                    {
+                        type: "button",
+                        icon: "📁",
+                        label: "创建 fate-organize",
+                        on_click: create_fate_organize_dir
+                    }
+                ]
+            },
+            
+            # 高级操作
+            {
+                type: "section",
+                title: "🔧 高级操作",
+                collapsible: true,
+                expanded: false,
+                children: [
+                    {
+                        type: "button",
+                        icon: "📦",
+                        label: "合并文件夹",
+                        on_click: show_merge_dialog
+                    },
+                    {
+                        type: "button",
+                        icon: "📝",
+                        label: "重命名文件夹",
+                        on_click: show_rename_folder_dialog
+                    },
+                    {
+                        type: "button",
+                        icon: "🔄",
+                        label: "批量重命名",
+                        on_click: show_batch_rename_dialog
+                    }
+                ]
+            }
+        ]
+    } -> return
+}
+
+# 创建保留区文件列表
+create_preserve_list -> function() {
+    items = []
+    
+    fate_files.preserve_zone.files -> fate_each -> file_path {
+        filename -> file_path -> get_filename
+        {
+            type: "preserve_item",
+            path: file_path,
+            name: filename,
+            draggable: true,
+            on_drag_start: () => start_drag(file_path, "preserve"),
+            on_double_click: () => open_preserved_file(file_path),
+            children: [
+                { type: "icon", icon: "📄" },
+                { type: "text", content: filename, truncate: true }
+            ]
+        } -> items.push
+    }
+    
+    when items.length == 0 {
+        {
+            type: "placeholder",
+            text: "将文件拖到此处以保留",
+            style: { color: "#888", font_style: "italic" }
+        } -> items.push
+    }
+    
+    items -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Toolbar
+# ───────────────────────────────────────────────────────────────────
+
+create_toolbar -> function() {
+    {
+        type: "toolbar",
+        items: [
+            { icon: "⬅️", action: go_back, tooltip: "后退" },
+            { icon: "➡️", action: go_forward, tooltip: "前进" },
+            { icon: "⬆️", action: go_up, tooltip: "上一级" },
+            { icon: "🔄", action: refresh, tooltip: "刷新" },
+            { separator: true },
+            { icon: "📁", action: new_folder, tooltip: "新建文件夹" },
+            { icon: "📄", action: new_file, tooltip: "新建文件" },
+            { separator: true },
+            { icon: "🔲", action: view_icons, tooltip: "图标视图", active: view_mode == "icons" },
+            { icon: "📋", action: view_list, tooltip: "列表视图", active: view_mode == "list" },
+            { icon: "📊", action: view_details, tooltip: "详细视图", active: view_mode == "details" },
+            { icon: "🔮", action: view_fate, tooltip: "Fate 视图", active: view_mode == "fate" },
+            { separator: true },
+            { icon: "🛡️", action: add_selected_to_preserve, tooltip: "添加到保留区" },
+            { icon: "✨", action: fate_organize_selected, tooltip: "智能整理选中项" }
+        ]
+    } -> return
+}
+
+create_path_bar -> function() {
+    {
+        type: "pathbar",
+        path: current_path,
+        on_navigate: navigate_to,
+        # 显示是否在保留区
+        badge: fate_files.is_preserved(current_path) ? "🛡️ 保留区" : null
+    } -> return
+}
+
+create_file_view -> function() {
+    {
+        type: "fileview",
+        mode: view_mode,
+        items: [],
+        on_click: select_item,
+        on_double_click: open_item,
+        on_context_menu: show_context_menu,
+        on_drag_start: handle_drag_start,
+        on_drop: handle_drop,
+        drop_zones: [
+            { id: "preserve", accept: ["file"], highlight: true }
+        ]
+    } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Drag & Drop Operations
+# ───────────────────────────────────────────────────────────────────
+
+handle_drag_start -> function(item, source_zone) {
+    drag_source = {
+        item: item,
+        path: current_path + "/" + item.name,
+        zone: source_zone || "files"
+    }
+}
+
+start_drag -> function(file_path, zone) {
+    drag_source = {
+        path: file_path,
+        zone: zone
+    }
+}
+
+# 拖放到保留区
+handle_drop_to_preserve -> function(dropped_items) {
+    dropped_items -> fate_each -> item {
+        path = item.path || (current_path + "/" + item.name)
+        
+        # 移动到保留区
+        fate_files.move_to_preserve(path)
+    }
+    
+    refresh()
+    refresh_sidebar()
+    
+    notify("已添加到保留区", "success")
+}
+
+# 从保留区拖放到文件视图
+handle_drop -> function(dropped_items, target) {
+    dropped_items -> fate_each -> item {
+        when item.zone == "preserve" {
+            # 从保留区拖出
+            when target == "fate_organize" {
+                # 拖放到 Fate 整理区
+                fate_files.drag_from_preserve(item.path, null)
+                notify("已交给 Fate 整理", "success")
+            } else {
+                # 拖放到普通位置
+                target_path = current_path + "/" + get_filename(item.path)
+                fate_files.drag_from_preserve(item.path, target_path)
+            }
+        }
+    }
+    
+    refresh()
+    refresh_sidebar()
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Navigation
+# ───────────────────────────────────────────────────────────────────
+
+history = []
+history_index = -1
+
+navigate_to -> function(path) {
+    # Add to history
+    history_index = history_index + 1
+    history = history[0..history_index]
+    path -> history.push
+    
+    current_path = path
+    selected = null
+    refresh()
+}
+
+go_back -> function() {
+    when history_index > 0 {
+        history_index = history_index - 1
+        current_path = history[history_index]
+        refresh()
+    }
+}
+
+go_forward -> function() {
+    when history_index < history.length - 1 {
+        history_index = history_index + 1
+        current_path = history[history_index]
+        refresh()
+    }
+}
+
+go_up -> function() {
+    parent -> current_path -> get_parent_path
+    navigate_to(parent)
+}
+
+get_parent_path -> function(path) {
+    when path == "/" {
+        "/" -> return
+    }
+    
+    parts -> path.split("/")
+    parts.pop()
+    
+    result = parts.join("/")
+    when result == "" {
+        "/" -> return
+    }
+    
+    result -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# File Operations
+# ───────────────────────────────────────────────────────────────────
+
+refresh -> function() {
+    entries -> storage.list_dir(current_path)
+    
+    items = []
+    
+    entries -> fate_each -> entry {
+        file_path = current_path + "/" + entry.name
+        
+        # Check if preserved
+        preserved = fate_files.is_preserved(file_path)
+        
+        # Get Fate analysis for fate view
+        fate_info = null
+        when view_mode == "fate" {
+            fate_info = fate_files.analyze_file(file_path)
+        }
+        
+        {
+            name: entry.name,
+            type: entry.type,
+            size: entry.size,
+            modified: entry.modified,
+            icon: get_file_icon(entry, preserved),
+            preserved: preserved,
+            fate_info: fate_info,
+            draggable: true
+        } -> items.push
+    }
+    
+    # Sort: folders first, then alphabetical
+    items -> sort_files
+    
+    # Update view
+    window.content.children[1].children[2].items = items
+}
+
+refresh_sidebar -> function() {
+    # Update preserve zone list
+    window.content.children[0].children[1].children[0].children = create_preserve_list()
+}
+
+get_file_icon -> function(entry, preserved) {
+    # Preserved indicator
+    preserve_badge = preserved ? "🛡️" : ""
+    
+    when entry.type == "dir" {
+        (preserve_badge + "📁") -> return
+    }
+    
+    ext -> entry.name -> get_extension
+    
+    # AI generated detection
+    when entry.name -> detect_ai_source {
+        (preserve_badge + "🤖") -> return
+    }
+    
+    when ext == "wave" { (preserve_badge + "🌊") -> return }
+    when ext == "txt" { (preserve_badge + "📄") -> return }
+    when ext == "md" { (preserve_badge + "📝") -> return }
+    when ext == "png" || ext == "jpg" || ext == "gif" || ext == "webp" { (preserve_badge + "🖼️") -> return }
+    when ext == "mp3" || ext == "wav" || ext == "flac" { (preserve_badge + "🎵") -> return }
+    when ext == "mp4" || ext == "avi" || ext == "mkv" { (preserve_badge + "🎬") -> return }
+    when ext == "zip" || ext == "tar" || ext == "7z" { (preserve_badge + "📦") -> return }
+    when ext == "pdf" { (preserve_badge + "📕") -> return }
+    
+    (preserve_badge + "📄") -> return
+}
+
+detect_ai_source -> function(filename) {
+    ai_tags = ["DALL·E", "DALL-E", "midjourney", "chatgpt", "claude", "stable"]
+    ai_tags -> fate_each -> tag {
+        when filename -> lower -> contains(tag -> lower) {
+            true -> return
+        }
+    }
+    false -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Fate Intelligence
+# ───────────────────────────────────────────────────────────────────
+
+fate_analyze_current -> function() {
+    out "[FateFiles] 分析目录: " + current_path
+    
+    analysis -> fate_files.analyze_directory(current_path)
+    
+    # Show analysis dialog
+    dialog = {
+        type: "dialog",
+        title: "🔮 Fate 分析结果",
+        width: 500,
+        content: {
+            type: "container",
+            children: [
+                { type: "heading", text: "📊 文件统计" },
+                { type: "text", text: "总文件数: " + analysis.total_files },
+                { type: "text", text: "已保留: " + analysis.preserved },
+                { type: "divider" },
+                { type: "heading", text: "📁 类型分布" },
+                create_category_chart(analysis.categories),
+                { type: "divider" },
+                { type: "heading", text: "✨ 整理建议" },
+                { type: "text", text: "点击「智能整理」自动整理文件" }
+            ]
+        },
+        actions: [
+            { label: "关闭", action: close_dialog },
+            { label: "✨ 智能整理", action: () => fate_organize_current(false), primary: true }
+        ]
+    }
+    
+    dialog -> show_dialog
+}
+
+create_category_chart -> function(categories) {
+    items = []
+    categories -> fate_each_entry -> (cat, count) {
+        {
+            type: "progress_bar",
+            label: cat,
+            value: count,
+            max: categories.total || 100
+        } -> items.push
+    }
+    { type: "container", children: items } -> return
+}
+
+fate_organize_current -> function(dry_run) {
+    when dry_run == null { dry_run = true }
+    
+    out "[FateFiles] 整理目录: " + current_path + (dry_run ? " (预览)" : " (执行)")
+    
+    report -> fate_files.execute_organization(current_path, dry_run)
+    
+    when dry_run {
+        # Show preview dialog
+        dialog = {
+            type: "dialog",
+            title: "✨ 整理预览",
+            width: 600,
+            content: {
+                type: "container",
+                children: [
+                    { type: "text", text: "将移动 " + report.moved + " 个文件" },
+                    { type: "text", text: "跳过 " + report.skipped + " 个保留文件" },
+                    { type: "divider" },
+                    { type: "heading", text: "操作预览 (前10个)" },
+                    create_operation_list(report.operations, 10)
+                ]
+            },
+            actions: [
+                { label: "取消", action: close_dialog },
+                { label: "⚡ 执行整理", action: () => {
+                    close_dialog()
+                    fate_organize_current(false)
+                }, primary: true }
+            ]
+        }
+        
+        dialog -> show_dialog
+    } else {
+        # Executed
+        refresh()
+        
+        notify(
+            "整理完成: " + report.moved + " 个文件已移动",
+            report.failed > 0 ? "warning" : "success"
+        )
+    }
+}
+
+create_operation_list -> function(operations, limit) {
+    items = []
+    count = 0
+    
+    operations -> fate_each -> op {
+        when count < limit {
+            filename -> op.source -> get_filename
+            {
+                type: "list_item",
+                children: [
+                    { type: "text", text: filename, style: { font_weight: "bold" } },
+                    { type: "text", text: "→ " + op.target, style: { color: "#888" } }
+                ]
+            } -> items.push
+            count = count + 1
+        }
+    }
+    
+    when operations.length > limit {
+        { type: "text", text: "... 还有 " + (operations.length - limit) + " 个操作" } -> items.push
+    }
+    
+    { type: "container", children: items } -> return
+}
+
+fate_organize_selected -> function() {
+    when selected != null {
+        path = current_path + "/" + selected.name
+        fate_files.fate_auto_organize(path)
+        refresh()
+        notify(selected.name + " 已整理", "success")
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# 高级操作对话框
+# ───────────────────────────────────────────────────────────────────
+
+# 创建 fate-organize 目录
+create_fate_organize_dir -> function() {
+    fate_dir -> fate_files.create_fate_organize_structure(current_path)
+    refresh()
+    notify("已创建 fate-organize 目录结构", "success")
+    
+    # 导航到新目录
+    navigate_to(fate_dir)
+}
+
+# 合并文件夹对话框
+show_merge_dialog -> function() {
+    # 获取当前目录下的所有文件夹
+    entries -> storage.list_dir(current_path)
+    folders = entries -> filter(e => e.type == "dir") -> map(e => e.name)
+    
+    dialog = {
+        type: "dialog",
+        title: "📦 合并文件夹",
+        width: 500,
+        content: {
+            type: "form",
+            fields: [
+                {
+                    name: "sources",
+                    label: "选择要合并的文件夹",
+                    type: "multiselect",
+                    options: folders,
+                    required: true
+                },
+                {
+                    name: "target",
+                    label: "目标文件夹名称",
+                    type: "text",
+                    placeholder: "merged_folder",
+                    required: true
+                },
+                {
+                    name: "strategy",
+                    label: "冲突处理",
+                    type: "select",
+                    options: [
+                        { value: "keep_both", label: "保留两者 (推荐)" },
+                        { value: "skip", label: "跳过冲突文件" },
+                        { value: "overwrite", label: "覆盖" },
+                        { value: "rename", label: "重命名" }
+                    ],
+                    default: "keep_both"
+                }
+            ]
+        },
+        actions: [
+            { label: "取消", action: close_dialog },
+            { label: "合并", action: execute_merge, primary: true }
+        ]
+    }
+    
+    dialog -> show_dialog
+}
+
+execute_merge -> function(form_data) {
+    sources = form_data.sources -> map(name => current_path + "/" + name)
+    target = current_path + "/" + form_data.target
+    
+    report -> fate_files.merge_folders(sources, target, form_data.strategy)
+    
+    close_dialog()
+    refresh()
+    
+    message = "合并完成: " + report.moved + " 个文件已移动"
+    when report.conflicts > 0 {
+        message = message + ", " + report.conflicts + " 个冲突"
+    }
+    
+    notify(message, report.errors.length > 0 ? "warning" : "success")
+}
+
+# 重命名文件夹对话框
+show_rename_folder_dialog -> function() {
+    when selected == null || selected.type != "dir" {
+        notify("请先选择一个文件夹", "warning")
+        return
+    }
+    
+    dialog = {
+        type: "dialog",
+        title: "📝 重命名文件夹",
+        width: 400,
+        content: {
+            type: "form",
+            fields: [
+                {
+                    name: "current",
+                    label: "当前名称",
+                    type: "text",
+                    value: selected.name,
+                    disabled: true
+                },
+                {
+                    name: "new_name",
+                    label: "新名称",
+                    type: "text",
+                    value: selected.name,
+                    required: true
+                }
+            ]
+        },
+        actions: [
+            { label: "取消", action: close_dialog },
+            { label: "重命名", action: execute_rename_folder, primary: true }
+        ]
+    }
+    
+    dialog -> show_dialog
+}
+
+execute_rename_folder -> function(form_data) {
+    source = current_path + "/" + selected.name
+    
+    try {
+        fate_files.rename_folder(source, form_data.new_name)
+        close_dialog()
+        refresh()
+        notify("已重命名为: " + form_data.new_name, "success")
+    } catch err {
+        notify("重命名失败: " + err, "error")
+    }
+}
+
+# 批量重命名对话框
+show_batch_rename_dialog -> function() {
+    dialog = {
+        type: "dialog",
+        title: "🔄 批量重命名",
+        width: 500,
+        content: {
+            type: "form",
+            fields: [
+                {
+                    name: "pattern",
+                    label: "匹配模式 (正则)",
+                    type: "text",
+                    placeholder: "例如: IMG_(\\d+)",
+                    required: true
+                },
+                {
+                    name: "replacement",
+                    label: "替换为",
+                    type: "text",
+                    placeholder: "例如: photo_$1",
+                    required: true
+                },
+                {
+                    name: "add_sequence",
+                    label: "添加序号",
+                    type: "checkbox",
+                    default: false
+                }
+            ],
+            help: "提示: $1, $2 等表示捕获组"
+        },
+        actions: [
+            { label: "取消", action: close_dialog },
+            { label: "预览", action: preview_batch_rename },
+            { label: "执行", action: execute_batch_rename, primary: true }
+        ]
+    }
+    
+    dialog -> show_dialog
+}
+
+preview_batch_rename -> function(form_data) {
+    # 模拟重命名，只显示结果
+    entries -> storage.list_dir(current_path)
+    
+    preview_items = []
+    entries -> fate_each -> entry {
+        when entry.type == "file" && entry.name -> regex_match(form_data.pattern) {
+            new_name = entry.name -> regex_replace(form_data.pattern, form_data.replacement)
+            {
+                old: entry.name,
+                new: new_name
+            } -> preview_items.push
+        }
+    }
+    
+    # 显示预览
+    preview_text = preview_items -> map(item => item.old + " → " + item.new) -> join("\n")
+    alert("预览 (" + preview_items.length + " 个文件):\n\n" + preview_text)
+}
+
+execute_batch_rename -> function(form_data) {
+    report -> fate_files.batch_rename(
+        current_path,
+        form_data.pattern,
+        form_data.replacement,
+        form_data.add_sequence
+    )
+    
+    close_dialog()
+    refresh()
+    
+    notify("批量重命名完成: " + report.renamed + " 个文件", 
+           report.errors.length > 0 ? "warning" : "success")
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Preserve Zone Operations
+# ───────────────────────────────────────────────────────────────────
+
+add_selected_to_preserve -> function() {
+    when selected != null {
+        path = current_path + "/" + selected.name
+        
+        when selected.preserved {
+            # Already preserved, remove
+            fate_files.remove_from_preserve(path)
+            notify(selected.name + " 已从保留区移除", "info")
+        } else {
+            # Add to preserve
+            fate_files.add_to_preserve(path)
+            notify(selected.name + " 已添加到保留区", "success")
+        }
+        
+        refresh()
+        refresh_sidebar()
+    }
+}
+
+open_preserved_file -> function(file_path) {
+    # Navigate to the file's location
+    parent -> file_path -> get_parent_path
+    navigate_to(parent)
+    
+    # Select the file
+    filename -> file_path -> get_filename
+    selected = { name: filename }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Standard File Operations
+# ───────────────────────────────────────────────────────────────────
+
+select_item -> function(item) {
+    selected = item
+}
+
+open_item -> function(item) {
+    when item.type == "dir" {
+        path = current_path + "/" + item.name
+        path -> storage.resolve_path -> navigate_to
+    } else {
+        # Open with appropriate app
+        item -> open_with_app
+    }
+}
+
+open_with_app -> function(item) {
+    ext -> item.name -> get_extension
+    
+    when ext == "wave" {
+        path = current_path + "/" + item.name
+        runtime.execute(path)
+    }
+    when ext == "txt" || ext == "md" {
+        desktop.launch_app("notepad", { file: current_path + "/" + item.name })
+    }
+    when ext == "png" || ext == "jpg" || ext == "gif" {
+        desktop.launch_app("imageviewer", { file: current_path + "/" + item.name })
+    }
+}
+
+new_folder -> function() {
+    name -> prompt("文件夹名称:")
+    when name != null && name != "" {
+        storage.create_dir(current_path + "/" + name)
+        refresh()
+    }
+}
+
+new_file -> function() {
+    name -> prompt("文件名称:")
+    when name != null && name != "" {
+        path = current_path + "/" + name
+        handle -> storage.open(path, "w")
+        storage.write(handle, "")
+        storage.close(handle)
+        refresh()
+    }
+}
+
+delete_selected -> function() {
+    when selected != null {
+        confirm -> prompt("确定删除 " + selected.name + "?", "confirm")
+        when confirm {
+            storage.remove(current_path + "/" + selected.name)
+            selected = null
+            refresh()
+        }
+    }
+}
+
+rename_selected -> function() {
+    when selected != null {
+        new_name -> prompt("新名称:", selected.name)
+        when new_name != null && new_name != "" {
+            old_path = current_path + "/" + selected.name
+            new_path = current_path + "/" + new_name
+            storage.rename(old_path, new_path)
+            refresh()
+        }
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Context Menu
+# ───────────────────────────────────────────────────────────────────
+
+show_context_menu -> function(x, y, item) {
+    preserved = item != null && fate_files.is_preserved(current_path + "/" + item.name)
+    
+    menu = {
+        type: "contextmenu",
+        x: x,
+        y: y,
+        items: [
+            { label: "打开", action: () => open_item(item) },
+            { separator: true },
+            { 
+                label: preserved ? "🛡️ 从保留区移除" : "🛡️ 添加到保留区", 
+                action: add_selected_to_preserve 
+            },
+            { label: "✨ 智能整理", action: fate_organize_selected },
+            { separator: true },
+            { label: "剪切", action: cut_item },
+            { label: "复制", action: copy_item },
+            { label: "粘贴", action: paste_item },
+            { separator: true },
+            { label: "重命名", action: rename_selected },
+            { label: "删除", action: delete_selected, style: { color: "red" } },
+            { separator: true },
+            { label: "属性", action: show_properties }
+        ]
+    }
+    
+    menu -> show_menu
+}
+
+# ───────────────────────────────────────────────────────────────────
+# View Modes
+# ───────────────────────────────────────────────────────────────────
+
+view_icons -> function() { view_mode = "icons"; refresh() }
+view_list -> function() { view_mode = "list"; refresh() }
+view_details -> function() { view_mode = "details"; refresh() }
+view_fate -> function() { view_mode = "fate"; refresh() }
+
+# ───────────────────────────────────────────────────────────────────
+# Helpers
+# ───────────────────────────────────────────────────────────────────
+
+get_filename -> function(path) {
+    parts -> path.split("/")
+    parts[parts.length - 1] -> return
+}
+
+get_extension -> function(filename) {
+    parts -> filename.split(".")
+    when parts.length > 1 {
+        parts[parts.length - 1] -> lower -> return
+    }
+    "" -> return
+}
+
+sort_files -> function(items) {
+    items -> sort((a, b) => {
+        # Preserved first
+        when a.preserved && !b.preserved { -1 -> return }
+        when !a.preserved && b.preserved { 1 -> return }
+        
+        # Folders second
+        when a.type == "dir" && b.type != "dir" { -1 -> return }
+        when a.type != "dir" && b.type == "dir" { 1 -> return }
+        
+        # Alphabetical
+        a.name.toLowerCase() < b.name.toLowerCase() -> -1 : 1 -> return
+    })
+}
+
+notify -> function(message, type) {
+    desktop.notify({ message: message, type: type || "info" })
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Export
+# ───────────────────────────────────────────────────────────────────
+
+module.exports = {
+    title,
+    icon,
+    start
+}

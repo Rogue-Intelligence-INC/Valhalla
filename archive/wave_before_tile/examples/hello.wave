@@ -1,0 +1,7 @@
+# Hello World in Wave Language
+# 🌊 Simple Wave program demonstrating basic syntax
+
+main() {
+    print("Hello, Wave! 🌊")
+    print("Powered by Valhalla Fate Brain 🧠")
+} 

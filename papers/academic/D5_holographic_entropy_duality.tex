@@ -1,0 +1,117 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{remark}{Remark}
+
+\title{Holographic Entropy Duality: A Definition}
+\author{Valhalla Research Team}
+\date{January 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We define an entropy duality transformation and explore its algebraic properties. The transformation has a fixed point at $S^* = 4\pi$, which corresponds to the Planck-mass black hole entropy. We emphasize that this is a \textbf{definition}, not a derivation from fundamental physics. The physical significance, if any, remains speculative.
+\end{abstract}
+
+\section{Definition}
+
+\begin{definition}[Entropy Dual]
+For entropy $S > 0$, define the entropy dual:
+\begin{equation}
+S' := \frac{(4\pi)^2}{S}
+\end{equation}
+\end{definition}
+
+\section{Algebraic Properties}
+
+\begin{proposition}[Involution]
+The transformation is an involution:
+\begin{equation}
+(S')' = \frac{(4\pi)^2}{S'} = \frac{(4\pi)^2}{(4\pi)^2/S} = S
+\end{equation}
+\end{proposition}
+
+\begin{proposition}[Fixed Point]
+The unique fixed point is:
+\begin{equation}
+S^* = 4\pi
+\end{equation}
+Proof: $S^* = (4\pi)^2/S^* \Rightarrow (S^*)^2 = (4\pi)^2 \Rightarrow S^* = 4\pi$.
+\end{proposition}
+
+\begin{proposition}[Product Invariant]
+For any entropy $S$:
+\begin{equation}
+S \cdot S' = (4\pi)^2
+\end{equation}
+\end{proposition}
+
+\section{Physical Context}
+
+\subsection{Planck-Mass Black Hole}
+
+A black hole with mass equal to the Planck mass has Schwarzschild radius $r_s = 2l_P$ and entropy:
+\begin{equation}
+S_{\text{Planck BH}} = \frac{A}{4l_P^2} = \frac{4\pi r_s^2}{4l_P^2} = \frac{4\pi (2l_P)^2}{4l_P^2} = 4\pi
+\end{equation}
+
+This matches the fixed point $S^* = 4\pi$.
+
+\subsection{Interpretation}
+
+\begin{remark}
+The fixed point at Planck-mass black hole entropy is suggestive of a UV-IR duality:
+\begin{itemize}
+    \item $S < 4\pi$: Sub-Planckian (UV) regime
+    \item $S > 4\pi$: Super-Planckian (IR) regime
+    \item $S = 4\pi$: Self-dual (Planck scale)
+\end{itemize}
+\end{remark}
+
+\begin{conjecture}
+The duality $S \cdot S' = (4\pi)^2$ may encode a UV-IR correspondence in quantum gravity, analogous to string T-duality where $R \cdot R' = \alpha'$.
+\end{conjecture}
+
+\section{Caution}
+
+\begin{remark}[Definitional Nature]
+This paper defines a mathematical transformation on entropy values. The physical significance is \textbf{speculative}. We do not claim:
+\begin{itemize}
+    \item This duality is derived from any fundamental theory
+    \item There exists a physical mechanism implementing this transformation
+    \item The analogy to T-duality is exact
+\end{itemize}
+\end{remark}
+
+\section{Summary}
+
+We have defined an entropy duality with algebraic properties:
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Property & Formula \\
+\hline
+Definition & $S' = (4\pi)^2/S$ \\
+Involution & $(S')' = S$ \\
+Fixed point & $S^* = 4\pi$ \\
+Invariant & $S \cdot S' = (4\pi)^2$ \\
+\hline
+\end{tabular}
+\end{center}
+
+The fixed point coincides with Planck-mass black hole entropy, which is suggestive but not conclusive.
+
+\begin{thebibliography}{9}
+\bibitem{bekenstein1973} J.D. Bekenstein, \textit{Black holes and entropy}, Phys. Rev. D 7 (1973), 2333.
+\bibitem{hawking1975} S.W. Hawking, \textit{Particle creation by black holes}, Comm. Math. Phys. 43 (1975), 199.
+\bibitem{maldacena1998} J. Maldacena, \textit{The large N limit of superconformal field theories and supergravity}, Adv. Theor. Math. Phys. 2 (1998), 231.
+\end{thebibliography}
+
+\end{document}

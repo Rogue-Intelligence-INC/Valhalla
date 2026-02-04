@@ -1,0 +1,119 @@
+# Val-OS Mouse Driver
+# Wave v5 - PS/2 Mouse with interrupt
+
+# Mouse state
+mouse_x -> 160    # Center of 320
+mouse_y -> 100    # Center of 200
+mouse_buttons -> 0
+
+# Mouse packet buffer
+mouse_packet -> [0, 0, 0]
+mouse_packet_idx -> 0
+
+# Mouse cursor (8x8 sprite)
+cursor_sprite -> [
+    0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00,
+    0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xFF, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00
+]
+
+# Saved background under cursor
+cursor_bg -> fate_alloc
+
+# Mouse interrupt handler (IRQ12)
+mouse_handler -> function() {
+    byte -> in(0x60)
+    
+    mouse_packet[mouse_packet_idx] -> byte
+    mouse_packet_idx -> mouse_packet_idx + 1
+    
+    when mouse_packet_idx == 3 {
+        mouse_packet_idx -> 0
+        
+        # Parse packet
+        buttons -> mouse_packet[0] & 0x07
+        dx -> mouse_packet[1]
+        dy -> mouse_packet[2]
+        
+        # Sign extend
+        when mouse_packet[0] & 0x10 {
+            dx -> dx - 256
+        }
+        when mouse_packet[0] & 0x20 {
+            dy -> dy - 256
+        }
+        
+        # Update position
+        mouse_x -> mouse_x + dx
+        mouse_y -> mouse_y - dy  # Y is inverted
+        
+        # Clamp to screen
+        when mouse_x < 0 { mouse_x -> 0 }
+        when mouse_x > 319 { mouse_x -> 319 }
+        when mouse_y < 0 { mouse_y -> 0 }
+        when mouse_y > 199 { mouse_y -> 199 }
+        
+        # Update buttons
+        mouse_buttons -> buttons
+    }
+    
+    # Send EOI
+    out(0xA0, 0x20)
+    out(0x20, 0x20)
+}
+
+# Draw mouse cursor
+draw_cursor -> function() {
+    # Save background
+    cursor_bg -> save_rect(mouse_x, mouse_y, 8, 8)
+    
+    # Draw cursor sprite
+    i -> 0
+    repeat 64 {
+        when cursor_sprite[i] != 0 {
+            px -> mouse_x + (i % 8)
+            py -> mouse_y + (i / 8)
+            put_pixel -> call(px, py, cursor_sprite[i])
+        }
+        i -> i + 1
+    }
+}
+
+# Hide mouse cursor
+hide_cursor -> function() {
+    # Restore background
+    restore_rect(mouse_x, mouse_y, cursor_bg)
+}
+
+# Check if left button pressed
+left_button -> function() {
+    result -> (mouse_buttons & 1) != 0
+    result -> return
+}
+
+# Check if right button pressed
+right_button -> function() {
+    result -> (mouse_buttons & 2) != 0
+    result -> return
+}
+
+# Init mouse
+mouse_init -> function() {
+    # Enable mouse on PS/2 controller
+    out(0x64, 0xA8)    # Enable aux port
+    out(0x64, 0xD4)    # Send to mouse
+    out(0x60, 0xF4)    # Enable mouse
+    
+    out "Mouse initialized"
+}
+
+# Get mouse position
+get_mouse -> function() {
+    pos -> { x: mouse_x, y: mouse_y, buttons: mouse_buttons }
+    pos -> return
+}

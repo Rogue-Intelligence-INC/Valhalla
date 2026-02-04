@@ -1,0 +1,197 @@
+# Wave Output System
+# Wave v5 - out 既是 CLI 也是 GUI
+
+# ═══════════════════════════════════════════════════════
+# Philosophy:
+#   out "text" → Fate 决定渲染方式
+#   - 文本模式 → 打印字符
+#   - 图形模式 → 渲染为 GUI 元素
+#   - 混合模式 → 半透明文字覆盖在图形上
+# ═══════════════════════════════════════════════════════
+
+# out 的真正含义：表达输出意图
+out -> function(content) {
+    content -> fate_analyze -> fate_decide -> render
+}
+
+# Fate 分析内容类型
+fate_analyze_content -> function(content) {
+    content -> {
+        # 纯文字 → 可以是标签、按钮、或终端输出
+        text: content -> fate_decide,
+        
+        # 结构化数据 → GUI 组件
+        object: content -> fate_decide,
+        
+        # 列表 → 菜单或多行文本
+        array: content -> fate_decide
+    } -> fate_decide
+}
+
+# ═══════════════════════════════════════════════════════
+# out 渲染器（Fate 选择）
+# ═══════════════════════════════════════════════════════
+
+render -> function(content, style) {
+    # Fate 检测当前模式
+    mode -> fate_detect_display -> fate_decide
+    
+    mode -> {
+        # 文本模式：直接打印
+        "text": content -> bios_print -> fate_decide,
+        
+        # 图形模式：渲染为 GUI
+        "graphics": content -> gui_render -> fate_decide,
+        
+        # 混合模式：图形 + 文字叠加
+        "hybrid": content -> hybrid_render -> fate_decide
+    } -> fate_decide
+}
+
+# ═══════════════════════════════════════════════════════
+# GUI 渲染（当 out 在图形模式下）
+# ═══════════════════════════════════════════════════════
+
+gui_render -> function(content) {
+    # Fate 分析内容，决定渲染为什么
+    content -> fate_analyze -> {
+        # "OK" → 按钮
+        button_pattern: content -> button_render,
+        
+        # "Title: xxx" → 标题栏
+        title_pattern: content -> title_render,
+        
+        # "[x] Option" → 复选框
+        checkbox_pattern: content -> checkbox_render,
+        
+        # "━━━━" → 分割线
+        line_pattern: content -> line_render,
+        
+        # 普通文字 → 标签
+        default: content -> label_render
+    } -> fate_decide
+}
+
+# ═══════════════════════════════════════════════════════
+# 示例：同一个 out 的不同渲染
+# ═══════════════════════════════════════════════════════
+
+# 文本模式下：
+#   out "OK" → 打印 "OK"
+#
+# 图形模式下：
+#   out "OK" → 渲染为可点击按钮
+#
+# 混合模式下：
+#   out "OK" → 半透明按钮，文字可见
+
+# ═══════════════════════════════════════════════════════
+# 按钮渲染
+# ═══════════════════════════════════════════════════════
+
+button_render -> function(text) {
+    # 位置由 Fate 决定（基于上下文）
+    pos -> fate_decide
+    
+    # 样式由 Fate 决定（基于主题）
+    style -> fate_decide
+    
+    # 渲染
+    {
+        x: pos.x,
+        y: pos.y,
+        w: text.length * 8 + 16,
+        h: 24,
+        bg: style.bg -> gradient,
+        border: style.border,
+        text: text,
+        text_color: style.fg
+    } -> framebuffer -> fate_decide
+    
+    # 注册点击事件
+    { area: pos, action: text } -> event_system -> fate_decide
+}
+
+# ═══════════════════════════════════════════════════════
+# 标签渲染
+# ═══════════════════════════════════════════════════════
+
+label_render -> function(text) {
+    pos -> fate_decide
+    style -> fate_decide
+    
+    {
+        x: pos.x,
+        y: pos.y,
+        text: text,
+        color: style.fg,
+        bg: style.bg  # 可以是透明
+    } -> framebuffer -> fate_decide
+}
+
+# ═══════════════════════════════════════════════════════
+# 混合渲染（Wave 的 "半CLI半GUI"）
+# ═══════════════════════════════════════════════════════
+
+hybrid_render -> function(content) {
+    # 背景：图形渐变
+    background -> gradient -> framebuffer -> fate_decide
+    
+    # 前景：文字（带透明度）
+    content -> {
+        text: content,
+        alpha: 0.9,  # 半透明
+        shadow: true
+    } -> framebuffer -> fate_decide
+}
+
+# ═══════════════════════════════════════════════════════
+# 布局系统（Fate 自动布局）
+# ═══════════════════════════════════════════════════════
+
+layout -> fate_alloc
+layout -> {
+    cursor_x: 0 -> fate_monitor,
+    cursor_y: 0 -> fate_monitor,
+    line_height: 16,
+    margin: 8,
+    
+    # 下一个位置
+    next -> function() {
+        pos -> { x: cursor_x, y: cursor_y }
+        cursor_x -> cursor_x + last_width + margin
+        pos -> return
+    },
+    
+    # 换行
+    newline -> function() {
+        cursor_x -> margin
+        cursor_y -> cursor_y + line_height
+    }
+}
+
+# 每次 out 后，Fate 更新布局
+out -> content -> render -> layout.update -> fate_decide
+
+# ═══════════════════════════════════════════════════════
+# 使用示例
+# ═══════════════════════════════════════════════════════
+
+# 这三行 Wave 代码：
+#   out "Welcome to Val-OS"
+#   out "OK"
+#   out "Cancel"
+#
+# 在图形模式下自动渲染为：
+#   ┌─────────────────────────┐
+#   │ Welcome to Val-OS       │  ← 标签
+#   │                         │
+#   │  [  OK  ]  [ Cancel ]   │  ← 按钮
+#   └─────────────────────────┘
+#
+# 在文本模式下渲染为：
+#   Welcome to Val-OS
+#   OK
+#   Cancel
+#
+# 同一代码，不同渲染！

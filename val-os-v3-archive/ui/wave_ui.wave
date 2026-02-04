@@ -1,0 +1,242 @@
+# 🌊 Val-OS UI - 完整色彩混合界面
+# 24-bit True Color · 渐变 · 透明 · Fate 控制
+
+# ═══════════════════════════════════════════════════════
+# 完整色彩系统 - 16,777,216 种颜色
+# ═══════════════════════════════════════════════════════
+
+# RGB 直接控制
+rgb -> function(r, g, b) {
+    foreground -> "\x1b[38;2;{r};{g};{b}m"
+    background -> "\x1b[48;2;{r};{g};{b}m"
+}
+
+# HSL 色彩空间
+hsl -> function(h, s, l) {
+    rgb_values -> fate_hsl_to_rgb(h, s, l)
+    result -> rgb(rgb_values)
+}
+
+# ═══════════════════════════════════════════════════════
+# 渐变系统
+# ═══════════════════════════════════════════════════════
+
+# 线性渐变
+gradient -> function(start, end, steps) {
+    for i in 0..steps {
+        t -> i / (steps - 1)
+        r -> start.r + (end.r - start.r) * t
+        g -> start.g + (end.g - start.g) * t
+        b -> start.b + (end.b - start.b) * t
+        yield -> rgb(r, g, b)
+    }
+}
+
+# 多点渐变
+multi_gradient -> function(colors, steps) {
+    segment_steps -> steps / (colors.length - 1)
+    for i in 0..(colors.length - 1) {
+        gradient(colors[i], colors[i+1], segment_steps) -> yield_all
+    }
+}
+
+# 径向渐变
+radial_gradient -> function(center, edge, radius) {
+    for y in 0..height {
+        for x in 0..width {
+            distance -> sqrt((x - cx)^2 + (y - cy)^2)
+            t -> min(distance / radius, 1.0)
+            yield -> (x, y, interpolate(center, edge, t))
+        }
+    }
+}
+
+# 预设渐变
+gradients -> preset {
+    fire    -> gradient(rgb(255,0,0), rgb(255,255,0))
+    ocean   -> gradient(rgb(0,0,139), rgb(0,255,255))
+    sunset  -> multi_gradient([rgb(255,94,77), rgb(255,154,0), rgb(138,43,226)])
+    forest  -> gradient(rgb(0,100,0), rgb(144,238,144))
+    neon    -> multi_gradient([rgb(255,0,255), rgb(0,255,255), rgb(255,255,0)])
+    fate    -> gradient(rgb(75,0,130), rgb(255,215,0))
+    rainbow -> multi_gradient([
+        rgb(255,0,0), rgb(255,127,0), rgb(255,255,0),
+        rgb(0,255,0), rgb(0,0,255), rgb(75,0,130), rgb(148,0,211)
+    ])
+}
+
+# ═══════════════════════════════════════════════════════
+# 透明度 / Alpha 混合
+# ═══════════════════════════════════════════════════════
+
+alpha_blend -> function(fg, bg, alpha) {
+    r -> fg.r * alpha + bg.r * (1 - alpha)
+    g -> fg.g * alpha + bg.g * (1 - alpha)
+    b -> fg.b * alpha + bg.b * (1 - alpha)
+    result -> rgb(r, g, b)
+}
+
+# ═══════════════════════════════════════════════════════
+# 动态效果
+# ═══════════════════════════════════════════════════════
+
+# 渐变文字
+gradient_text -> function(text, gradient) {
+    colors -> gradient.generate(text.length)
+    for i, char in enumerate(text) {
+        output -> colors[i] + char
+    }
+    output -> reset
+}
+
+# 脉冲
+pulse -> function(color, intensity, speed) {
+    t -> time() * speed
+    factor -> (sin(t) + 1) / 2 * intensity
+    result -> lighten(color, factor)
+}
+
+# 闪烁
+shimmer -> function(color, variance) {
+    offset -> random(-variance, variance)
+    result -> rgb(
+        clamp(color.r + offset, 0, 255),
+        clamp(color.g + offset, 0, 255),
+        clamp(color.b + offset, 0, 255)
+    )
+}
+
+# ═══════════════════════════════════════════════════════
+# 色彩工具
+# ═══════════════════════════════════════════════════════
+
+lighten -> function(color, amount) {
+    r -> min(color.r + 255 * amount, 255)
+    g -> min(color.g + 255 * amount, 255)
+    b -> min(color.b + 255 * amount, 255)
+    result -> rgb(r, g, b)
+}
+
+darken -> function(color, amount) {
+    r -> max(color.r - 255 * amount, 0)
+    g -> max(color.g - 255 * amount, 0)
+    b -> max(color.b - 255 * amount, 0)
+    result -> rgb(r, g, b)
+}
+
+complement -> function(color) {
+    hsl_val -> rgb_to_hsl(color)
+    hsl_val.h -> (hsl_val.h + 180) % 360
+    result -> hsl_to_rgb(hsl_val)
+}
+
+# ═══════════════════════════════════════════════════════
+# 位置控制
+# ═══════════════════════════════════════════════════════
+
+cursor -> control {
+    move_to -> "\x1b[{row};{col}H"
+    save    -> "\x1b[s"
+    restore -> "\x1b[u"
+}
+
+screen -> control {
+    clear      -> "\x1b[2J"
+    clear_line -> "\x1b[2K"
+}
+
+# ═══════════════════════════════════════════════════════
+# 面板系统
+# ═══════════════════════════════════════════════════════
+
+panel -> element {
+    position -> fate_decide
+    size -> fate_decide
+    
+    # 渐变边框
+    border_gradient -> fate_choose_gradient
+    
+    # 透明背景
+    bg_opacity -> fate_decide  # 0.0 - 1.0
+    
+    border -> style {
+        rounded -> "╭─╮│╰─╯"
+        single  -> "┌─┐│└─┘"
+        double  -> "╔═╗║╚═╝"
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 三种模式 (保留)
+# ═══════════════════════════════════════════════════════
+
+mode -> state {
+    compact -> minimal { colors -> none }
+    standard -> balanced { colors -> contextual }
+    rich -> full { colors -> full_spectrum }
+}
+
+switch_mode -> fate_cycle
+
+# ═══════════════════════════════════════════════════════
+# 状态指示器 (带渐变)
+# ═══════════════════════════════════════════════════════
+
+status -> indicators {
+    success -> gradient_text("✓", gradients.forest)
+    error   -> gradient_text("✗", gradients.fire)
+    warning -> gradient_text("⚠", gradients.sunset)
+    info    -> gradient_text("ℹ", gradients.ocean)
+    running -> gradient_text("◌", gradients.neon)
+}
+
+# ═══════════════════════════════════════════════════════
+# 渐变进度条
+# ═══════════════════════════════════════════════════════
+
+progress -> element {
+    width -> fate_decide
+    gradient -> gradients.fire  # 红→黄→绿
+    
+    render -> function(percent) {
+        filled -> width * percent / 100
+        for i in 0..filled {
+            color -> gradient[i * gradient.length / width]
+            output -> color + "█"
+        }
+        output -> reset + "░" * (width - filled)
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# Val-OS 专用组件
+# ═══════════════════════════════════════════════════════
+
+# 系统面板 (渐变边框)
+system_panel -> panel {
+    title -> gradient_text("System", gradients.fate)
+    border_gradient -> gradients.ocean
+    content -> fate_system_info
+}
+
+# Fate 面板
+fate_panel -> panel {
+    title -> gradient_text("Fate", gradients.neon)
+    border_gradient -> gradients.fate
+    content -> fate_status
+}
+
+# ═══════════════════════════════════════════════════════
+# 基础控制码
+# ═══════════════════════════════════════════════════════
+
+control -> codes {
+    reset     -> "\x1b[0m"
+    bold      -> "\x1b[1m"
+    dim       -> "\x1b[2m"
+    italic    -> "\x1b[3m"
+    underline -> "\x1b[4m"
+}
+
+# Fate 从完整色谱选择
+color -> fate_choose_from_full_spectrum

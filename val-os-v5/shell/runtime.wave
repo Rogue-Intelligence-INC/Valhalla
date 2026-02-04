@@ -1,0 +1,282 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Wave Runtime
+# Execute .wave programs natively
+# ═══════════════════════════════════════════════════════════════════
+
+# Runtime state
+runtime = {
+    loaded_modules: {},
+    global_scope: {},
+    call_stack: []
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Initialization
+# ───────────────────────────────────────────────────────────────────
+
+init -> function() {
+    # Initialize global scope with builtins
+    runtime.global_scope = {
+        out: builtin_out,
+        input: builtin_input,
+        fate_decide: fate.fate_decide,
+        fate_alloc: fate.fate_allocate,
+        quattro_alloc: quattro.quattro_alloc,
+        sleep: builtin_sleep,
+        require: builtin_require
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Execute Wave Program
+# ───────────────────────────────────────────────────────────────────
+
+execute -> function(path) {
+    # Load source
+    source -> storage.open(path, "r") -> storage.read(65536)
+    
+    # Lex
+    tokens -> lex(source)
+    
+    # Parse
+    ast -> parse(tokens)
+    
+    # Execute AST
+    result -> execute_ast(ast, runtime.global_scope)
+    
+    result -> return
+}
+
+execute_ast -> function(ast, scope) {
+    result = null
+    
+    ast -> fate_each -> node {
+        result -> execute_node(node, scope)
+    }
+    
+    result -> return
+}
+
+execute_node -> function(node, scope) {
+    when node.type == "output" {
+        # out "string"
+        value -> evaluate(node.value, scope)
+        builtin_out(value)
+    }
+    
+    when node.type == "assign" {
+        # var = value
+        value -> evaluate(node.value, scope)
+        scope[node.name] = value
+    }
+    
+    when node.type == "pipeline" {
+        # a -> b -> c
+        value -> evaluate(node.left, scope)
+        
+        node.stages -> fate_each -> stage {
+            value -> call_function(stage, [value], scope)
+        }
+        
+        value -> return
+    }
+    
+    when node.type == "when" {
+        # when condition { body }
+        condition -> evaluate(node.cond, scope)
+        
+        when condition {
+            execute_ast(node.body, scope)
+        }
+    }
+    
+    when node.type == "loop" {
+        # loop { body }
+        loop {
+            result -> execute_ast(node.body, scope)
+            
+            when result.break {
+                break
+            }
+        }
+    }
+    
+    when node.type == "limit" {
+        # limit N; body
+        count = 0
+        n -> evaluate(node.count, scope)
+        
+        loop {
+            when count >= n { break }
+            execute_ast(node.body, scope)
+            count = count + 1
+        }
+    }
+    
+    when node.type == "function" {
+        # Define function in scope
+        scope[node.name] = {
+            type: "function",
+            params: node.params,
+            body: node.body,
+            closure: scope
+        }
+    }
+    
+    when node.type == "call" {
+        # Function call
+        func -> scope[node.name]
+        args -> node.args -> map(arg => evaluate(arg, scope))
+        
+        result -> call_function(func, args, scope)
+        result -> return
+    }
+    
+    when node.type == "return" {
+        value -> evaluate(node.value, scope)
+        { return: true, value: value } -> return
+    }
+    
+    when node.type == "break" {
+        { break: true } -> return
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Expression Evaluation
+# ───────────────────────────────────────────────────────────────────
+
+evaluate -> function(expr, scope) {
+    when expr.type == "string" {
+        expr.value -> return
+    }
+    
+    when expr.type == "number" {
+        expr.value -> return
+    }
+    
+    when expr.type == "ident" {
+        scope[expr.value] -> return
+    }
+    
+    when expr.type == "binary" {
+        left -> evaluate(expr.left, scope)
+        right -> evaluate(expr.right, scope)
+        
+        when expr.op == "+" { (left + right) -> return }
+        when expr.op == "-" { (left - right) -> return }
+        when expr.op == "*" { (left * right) -> return }
+        when expr.op == "/" { (left / right) -> return }
+        when expr.op == "==" { (left == right) -> return }
+        when expr.op == "!=" { (left != right) -> return }
+        when expr.op == "<" { (left < right) -> return }
+        when expr.op == ">" { (left > right) -> return }
+        when expr.op == "&&" { (left && right) -> return }
+        when expr.op == "||" { (left || right) -> return }
+    }
+    
+    when expr.type == "call" {
+        func -> scope[expr.name]
+        args -> expr.args -> map(arg => evaluate(arg, scope))
+        call_function(func, args, scope) -> return
+    }
+    
+    when expr.type == "index" {
+        obj -> evaluate(expr.object, scope)
+        idx -> evaluate(expr.index, scope)
+        obj[idx] -> return
+    }
+    
+    when expr.type == "object" {
+        obj = {}
+        expr.pairs -> fate_each -> pair {
+            obj[pair.key] = evaluate(pair.value, scope)
+        }
+        obj -> return
+    }
+    
+    when expr.type == "array" {
+        arr = []
+        expr.elements -> fate_each -> elem {
+            evaluate(elem, scope) -> arr.push
+        }
+        arr -> return
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Function Calls
+# ───────────────────────────────────────────────────────────────────
+
+call_function -> function(func, args, scope) {
+    when func.type == "builtin" {
+        func.impl(args) -> return
+    }
+    
+    when func.type == "function" {
+        # Create new scope
+        local_scope = { ...func.closure }
+        
+        # Bind parameters
+        i = 0
+        func.params -> fate_each -> param {
+            local_scope[param] = args[i]
+            i = i + 1
+        }
+        
+        # Push to call stack
+        { func: func, scope: local_scope } -> runtime.call_stack.push
+        
+        # Execute body
+        result -> execute_ast(func.body, local_scope)
+        
+        # Pop from call stack
+        runtime.call_stack.pop
+        
+        when result.return {
+            result.value -> return
+        }
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Builtins
+# ───────────────────────────────────────────────────────────────────
+
+builtin_out -> function(args) {
+    args[0] -> display.out_render
+}
+
+builtin_input -> function(args) {
+    input.read_line() -> return
+}
+
+builtin_sleep -> function(args) {
+    ms = args[0]
+    { action: "sleep", ms: ms } -> fate_syscall
+}
+
+builtin_require -> function(args) {
+    path = args[0]
+    
+    # Check cache
+    cached -> runtime.loaded_modules[path]
+    when cached != null {
+        cached -> return
+    }
+    
+    # Load and execute module
+    module = { exports: {} }
+    execute(path)
+    
+    # Cache
+    runtime.loaded_modules[path] = module.exports
+    
+    module.exports -> return
+}
+
+# Export
+module.exports = {
+    init,
+    execute
+}

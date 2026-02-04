@@ -1,0 +1,1272 @@
+//! Stem-Cell Complete (f64 Version) - 智能细胞网络
+//!
+//! 完整版本，从 valhalla-rational 移植
+//! 自带: FateSystem + VoyagerSpace (自动维度) + TripleFate (多层监控)
+//!
+//! 架构:
+//! - 数据流 → 小容器 → 局部收敛 → 细胞
+//! - Fate 监控所有细胞行为，控制数据存储
+//! - VoyagerSpace 自动维度扩展
+//! - **Fate 存储**: 数据由 Fate 处理并存储，系统有完全控制权
+
+use serde::{Deserialize, Serialize};
+use std::path::Path;
+
+// 系统存储 (旧版兼容)
+pub use valhalla_storage::SystemStorage;
+
+// 使用 fate-f64 的完整 Triple-Fate 架构
+use fate_f64::{
+    TripleFateCombined, FateLoop, TripleSignal, SignalSource,
+    TripleDiscovery, DiscoveryType, VoyagerSpaceF64, detect_pattern_f64,
+    FateSlice,
+};
+
+// Space GPU 高维计算
+use valhalla_space_f64_gpu::{SpaceGPU, FractalDimensionCalculatorGPU, HyperVector};
+
+// ============================================================================
+// 系统切片 - 用于冻结/解冻
+// ============================================================================
+
+/// StemCell 系统切片
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StemCellSlice {
+    pub id: String,
+    pub global_tick: u64,
+    pub generation_count: u32,
+    pub total_divisions: u64,
+    pub total_deaths: u64,
+    pub total_merges: u64,
+    pub cell_count: usize,
+    /// 内嵌的 Fate 切片（包含所有存储数据）
+    pub fate_slice: FateSlice,
+}
+
+// ============================================================================
+// 小容器 (MicroContainer) - 数据流入单元
+// ============================================================================
+
+/// 小容器 - 数据流入并局部收敛后成为细胞（无冗余缓冲）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MicroContainer {
+    pub id: String,
+    pub local_state: LocalConvergenceState,
+    pub created_tick: u64,
+}
+
+/// 局部收敛状态（固定数组，O(1)操作）
+/// 收敛由上层 Fate 的 ClusterEquation 控制
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LocalConvergenceState {
+    pub signal_count: u64,
+    pub sum: f64,
+    pub sum_sq: f64,
+    /// 环形缓冲（供 Fate 分析）
+    pub ring: [f64; 10],
+    pub ring_idx: usize,
+    pub ring_len: usize,
+    pub converged: bool,
+}
+
+impl LocalConvergenceState {
+    pub fn new() -> Self {
+        Self {
+            signal_count: 0,
+            sum: 0.0,
+            sum_sq: 0.0,
+            ring: [0.0; 10],
+            ring_idx: 0,
+            ring_len: 0,
+            converged: false,
+        }
+    }
+
+    /// 接收数据（只收集，不判断收敛）
+    /// 收敛由上层 Fate 控制
+    #[inline]
+    pub fn receive(&mut self, value: f64) {
+        self.signal_count += 1;
+        self.sum += value;
+        self.sum_sq += value * value;
+        
+        // 环形写入（供 Fate 分析）
+        self.ring[self.ring_idx] = value;
+        self.ring_idx = (self.ring_idx + 1) % 10;
+        if self.ring_len < 10 { self.ring_len += 1; }
+    }
+    
+    /// 获取最近的差异序列（供 Fate 分析）
+    pub fn get_diffs(&self) -> [f64; 3] {
+        if self.ring_len < 4 {
+            return [0.0, 0.0, 0.0];
+        }
+        let get = |off: usize| self.ring[(self.ring_idx + 10 - 1 - off) % 10];
+        let d1 = (get(0) - get(1)).abs();
+        let d2 = (get(1) - get(2)).abs();
+        let d3 = (get(2) - get(3)).abs();
+        [d1, d2, d3]
+    }
+    
+    /// 由 Fate 设置收敛状态
+    pub fn set_converged(&mut self, converged: bool) {
+        self.converged = converged;
+    }
+    
+    pub fn last_values(&self) -> Vec<f64> {
+        (0..self.ring_len).map(|i| self.ring[(self.ring_idx + 10 - self.ring_len + i) % 10]).collect()
+    }
+    
+    pub fn mean(&self) -> f64 {
+        if self.signal_count == 0 { 0.0 } else { self.sum / self.signal_count as f64 }
+    }
+    
+    pub fn variance(&self) -> f64 {
+        if self.signal_count == 0 { 0.0 }
+        else {
+            let mean = self.mean();
+            self.sum_sq / self.signal_count as f64 - mean * mean
+        }
+    }
+}
+
+impl Default for LocalConvergenceState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl MicroContainer {
+    pub fn new(id: String, _capacity: usize, tick: u64) -> Self {
+        Self {
+            id,
+            local_state: LocalConvergenceState::new(),
+            created_tick: tick,
+        }
+    }
+    
+    /// 接收数据（只收集，不判断收敛）
+    pub fn receive_data(&mut self, data: f64) {
+        self.local_state.receive(data);
+    }
+    
+    /// 获取差异序列（供 Fate 分析）
+    pub fn get_diffs(&self) -> [f64; 3] {
+        self.local_state.get_diffs()
+    }
+    
+    /// 是否已收敛（由 Fate 设置）
+    pub fn is_converged(&self) -> bool {
+        self.local_state.converged
+    }
+    
+    /// 由 Fate 设置收敛
+    pub fn set_converged(&mut self, converged: bool) {
+        self.local_state.set_converged(converged);
+    }
+    
+    /// 转换为细胞
+    pub fn to_cell(&self, cell_id: String, current_dim: usize) -> Cell {
+        let mean = self.local_state.mean();
+        let variance = self.local_state.variance();
+        
+        // 位置由数据特征决定
+        let dim = current_dim.max(2);
+        let mut pos = vec![0.0; dim];
+        pos[0] = mean * 0.1;
+        pos[1] = variance * 0.01;
+        for d in 2..dim {
+            pos[d] = ((mean + variance) * (d as f64)).sin() * 0.5;
+        }
+        
+        Cell {
+            cell_id,
+            energy: mean.abs().min(1.0),
+            age: 0,
+            generation: 0,
+            // 从小容器继承的数据特征 - 这就是细胞的"身份"
+            data_signature: self.local_state.last_values(),
+            variance,
+            signal_count: self.local_state.signal_count,
+            position: pos,
+            field_strength: mean.abs() * 0.1,
+            connections: Vec::new(),
+        }
+    }
+}
+
+// ============================================================================
+// 细胞 (Cell) - 小容器局部收敛后的产物
+// ============================================================================
+
+/// 细胞状态 (f64) - 无预设类型，结构自由涌现
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Cell {
+    pub cell_id: String,
+    pub energy: f64,
+    pub age: u64,
+    pub generation: u32,
+    /// 数据特征（从小容器继承）- 这是细胞的"身份"
+    pub data_signature: Vec<f64>,
+    pub variance: f64,
+    pub signal_count: u64,
+    
+    // ═══ 高维物理场 - 由 Fate 自然演化 ═══
+    /// 高维位置向量 (维度由 Space 决定，不预设)
+    /// Fate 抓取相对位置，能量驱动移动
+    #[serde(default)]
+    pub position: Vec<f64>,
+    /// 能量场强度 (正=吸引源，负=排斥源)
+    #[serde(default)]
+    pub field_strength: f64,
+    /// 与其他细胞的连接强度 (cell_id -> strength)
+    /// 完全由能量场自然演化，无预设模式
+    #[serde(default)]
+    pub connections: Vec<(String, f64)>,
+}
+
+// ============================================================================
+// StemCell Complete - 完整的细胞网络
+// ============================================================================
+
+/// 细胞网络配置 (f64)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StemCellConfig {
+    pub initial_cell_count: usize,
+    pub mutation_rate: f64,
+    /// 小容器容量（多少数据后强制闭合）
+    pub container_capacity: usize,
+}
+
+impl Default for StemCellConfig {
+    fn default() -> Self {
+        Self {
+            initial_cell_count: 100,
+            mutation_rate: 0.01,
+            container_capacity: 100,
+        }
+    }
+}
+
+/// 完整的干细胞网络 (f64)
+/// 自带: TripleFate (多层监控) + VoyagerSpace (自动维度) + 系统存储
+#[derive(Debug)]
+pub struct StemCellComplete {
+    pub id: String,
+    pub config: StemCellConfig,
+    pub cells: Vec<Cell>,
+    /// 多层 Fate 系统 (高层监控低层)
+    pub triple_fate: TripleFateCombined,
+    /// 自动维度空间
+    pub space: VoyagerSpaceF64,
+    /// 活跃的小容器（数据流入中）
+    pub active_containers: Vec<MicroContainer>,
+    pub generation_count: u32,
+    pub total_divisions: u64,
+    pub total_deaths: u64,
+    pub total_merges: u64,
+    pub total_containers_closed: u64,
+    /// 确定性 RNG 状态
+    rng_state: u64,
+    /// 全局 tick
+    global_tick: u64,
+    /// 细胞数量历史（用于被动合并检测）
+    cell_count_history: [usize; 10],
+    history_idx: usize,
+    history_len: usize,
+    /// 系统存储 - 完整的文件操作权限
+    pub storage: Option<SystemStorage>,
+    /// Space GPU 高维计算
+    pub space_gpu: SpaceGPU,
+}
+
+impl StemCellComplete {
+    pub fn new() -> Self {
+        Self::with_config(StemCellConfig::default())
+    }
+    
+    pub fn with_config(config: StemCellConfig) -> Self {
+        // 预分配大容量，避免频繁重新分配
+        let mut cells: Vec<Cell> = Vec::with_capacity(200_000);
+        for i in 0..config.initial_cell_count {
+            // 初始位置由 Fate 随机分配在高维空间
+            let initial_dim = 8; // 初始维度，后续由 Space 自适应
+            let mut pos = vec![0.0; initial_dim];
+            for (j, p) in pos.iter_mut().enumerate() {
+                // 基于索引的确定性初始位置
+                *p = ((i * 7 + j * 13) % 1000) as f64 / 500.0 - 1.0;
+            }
+            
+            cells.push(Cell {
+                cell_id: format!("cell_{}", i),
+                energy: 0.5,
+                age: 0,
+                generation: 0,
+                data_signature: Vec::new(),  // 空数据特征，等待数据流入后获得身份
+                variance: 0.0,
+                signal_count: 0,
+                position: pos,
+                field_strength: 0.0,  // 初始无场强
+                connections: Vec::new(),  // 连接自然涌现
+            });
+        }
+        
+        Self {
+            id: format!("sc_{}", std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_nanos() % 1_000_000),
+            config,
+            cells,
+            triple_fate: TripleFateCombined::new(),
+            space: VoyagerSpaceF64::new(),
+            active_containers: Vec::with_capacity(10),
+            generation_count: 0,
+            total_divisions: 0,
+            total_deaths: 0,
+            total_merges: 0,
+            total_containers_closed: 0,
+            rng_state: 12345,
+            global_tick: 0,
+            cell_count_history: [0; 10],
+            history_idx: 0,
+            history_len: 0,
+            storage: None,
+            space_gpu: SpaceGPU::new(),
+        }
+    }
+    
+    /// 带存储路径初始化
+    pub fn with_storage(base_path: &Path) -> std::io::Result<Self> {
+        let mut instance = Self::new();
+        instance.init_storage(base_path)?;
+        Ok(instance)
+    }
+    
+    /// 初始化系统存储
+    pub fn init_storage(&mut self, base_path: &Path) -> std::io::Result<()> {
+        self.storage = Some(SystemStorage::new(base_path, "stemcell")?);
+        Ok(())
+    }
+    
+    /// 获取存储（如果已初始化）
+    pub fn storage(&self) -> Option<&SystemStorage> {
+        self.storage.as_ref()
+    }
+    
+    /// 获取可变存储
+    pub fn storage_mut(&mut self) -> Option<&mut SystemStorage> {
+        self.storage.as_mut()
+    }
+    
+    // ==================== 数据操作快捷方法 ====================
+    
+    /// 存储内容
+    pub fn store(&self, name: &str, content: &str) -> std::io::Result<()> {
+        self.storage.as_ref()
+            .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "Storage not initialized"))?
+            .write(name, content)
+    }
+    
+    /// 读取内容
+    pub fn load(&self, name: &str) -> std::io::Result<String> {
+        self.storage.as_ref()
+            .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "Storage not initialized"))?
+            .read(name)
+    }
+    
+    /// 删除内容
+    pub fn remove(&self, name: &str) -> std::io::Result<()> {
+        self.storage.as_ref()
+            .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "Storage not initialized"))?
+            .delete(name)
+    }
+    
+    /// 列出所有存储的内容
+    pub fn list_stored(&self) -> std::io::Result<Vec<String>> {
+        self.storage.as_ref()
+            .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "Storage not initialized"))?
+            .list_all()
+    }
+    
+    /// 接收并存储内容（数据进入系统）
+    pub fn receive_content(&mut self, content: &str) -> std::io::Result<String> {
+        let id = format!("data_{}", self.global_tick);
+        self.store(&id, content)?;
+        
+        // 同时产生数值信号给细胞系统
+        let signal = content.len() as f64;
+        self.receive_data(signal);
+        
+        Ok(id)
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Fate 存储层 - 委托给内部 triple_fate
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    /// 通过 Fate 存储数据（推荐）
+    pub fn fate_store(&mut self, data: &[u8]) -> String {
+        self.triple_fate.store_data(data)
+    }
+    
+    /// 通过 Fate 存储字符串
+    pub fn fate_store_string(&mut self, content: &str) -> String {
+        self.triple_fate.store_string(content)
+    }
+    
+    /// 系统自主创建数据
+    pub fn fate_create(&mut self, data: Vec<u8>) -> String {
+        self.triple_fate.create_data(data)
+    }
+    
+    /// 修改 Fate 存储的数据
+    pub fn fate_modify(&mut self, id: &str, new_data: Vec<u8>) -> bool {
+        self.triple_fate.modify_data(id, new_data)
+    }
+    
+    /// 读取 Fate 存储的数据
+    pub fn fate_load(&self, id: &str) -> Option<&fate_f64::FateDataEntry> {
+        self.triple_fate.load_data(id)
+    }
+    
+    /// 删除 Fate 存储的数据
+    pub fn fate_remove(&mut self, id: &str) -> Option<fate_f64::FateDataEntry> {
+        self.triple_fate.remove_data(id)
+    }
+    
+    /// 列出 Fate 存储的所有 ID
+    pub fn fate_list(&self) -> Vec<&String> {
+        self.triple_fate.list_stored()
+    }
+    
+    /// Fate 存储数量
+    pub fn fate_count(&self) -> usize {
+        self.triple_fate.stored_count()
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 系统切片 - 冻结/解冻 (bincode 二进制)
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    /// 保存系统切片 (.stemcell 二进制)
+    pub fn save_slice(&self, path: &Path) -> std::io::Result<()> {
+        let slice = StemCellSlice {
+            id: self.id.clone(),
+            global_tick: self.global_tick,
+            generation_count: self.generation_count,
+            total_divisions: self.total_divisions,
+            total_deaths: self.total_deaths,
+            total_merges: self.total_merges,
+            cell_count: self.cells.len(),
+            fate_slice: self.triple_fate.freeze(),
+        };
+        let bytes = bincode::serialize(&slice)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        std::fs::write(path, bytes)
+    }
+    
+    /// 从切片恢复
+    pub fn load_slice(path: &Path) -> std::io::Result<Self> {
+        let bytes = std::fs::read(path)?;
+        let slice: StemCellSlice = bincode::deserialize(&bytes)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        
+        let mut instance = Self::new();
+        instance.id = slice.id;
+        instance.global_tick = slice.global_tick;
+        instance.generation_count = slice.generation_count;
+        instance.total_divisions = slice.total_divisions;
+        instance.total_deaths = slice.total_deaths;
+        instance.total_merges = slice.total_merges;
+        instance.triple_fate = fate_f64::TripleFateCombined::thaw(slice.fate_slice);
+        Ok(instance)
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // Space GPU 高维计算
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    /// 计算维度 (GPU 加速)
+    pub fn space_calculate_dimension(&mut self, data: &[f64]) -> valhalla_space_f64_gpu::DimensionResult {
+        self.space_gpu.process_and_expand(data)
+    }
+    
+    /// 批量计算维度 (GPU 加速)
+    pub fn space_calculate_batch(&mut self, data_batch: &[Vec<f64>]) -> Vec<valhalla_space_f64_gpu::DimensionResult> {
+        self.space_gpu.process_batch(data_batch)
+    }
+    
+    /// 发现未知模式
+    pub fn space_on_discovery(&mut self, data: &[f64], pattern: &str) -> String {
+        self.space_gpu.on_discovery(data, pattern)
+    }
+    
+    /// 获取当前维度
+    pub fn space_dimension(&self) -> f64 {
+        self.space_gpu.get_dimension()
+    }
+    
+    /// 获取 Space 状态
+    pub fn space_status(&self) -> valhalla_space_f64_gpu::SpaceStatus {
+        self.space_gpu.get_status()
+    }
+    
+    /// 确定性 RNG
+    fn next_random(&mut self) -> f64 {
+        self.rng_state = self.rng_state.wrapping_mul(6364136223846793005).wrapping_add(1);
+        (self.rng_state % 1000) as f64 / 1000.0
+    }
+    
+    /// 接收数据流（核心方法）
+    /// 收敛由上层 Fate 的 ClusterEquation（二元一次方程）控制
+    pub fn receive_data(&mut self, data: f64) -> DataFlowResult {
+        self.global_tick += 1;
+        let mut new_cells = 0usize;
+        
+        // 使用单一容器
+        if self.active_containers.is_empty() {
+            self.active_containers.push(MicroContainer::new(
+                String::new(), 0, self.global_tick,
+            ));
+        }
+        
+        // 数据流入（只收集）
+        self.active_containers[0].receive_data(data);
+        
+        // ═══ Fate 被动捕捉收敛信号 ═══
+        let converged = self.triple_fate.receive_passive(data);
+        
+        // 如果 Fate 捕捉到收敛信号
+        if converged {
+            let container = &self.active_containers[0];
+            let mean = container.local_state.mean();
+            let variance = container.local_state.variance();
+            let signal_count = container.local_state.signal_count;
+            
+            // 被动 Fate 接收（忽略返回值）
+            let _ = self.triple_fate.receive_passive(mean);
+            
+            // 直接创建细胞
+            // 新细胞位置 - 基于数据特征在高维空间中的位置
+            let current_dim = self.space.current_dimension.ceil() as usize;
+            let current_dim = current_dim.max(2);
+            let mut new_pos = vec![0.0; current_dim];
+            // 位置由 Fate 的数据特征决定
+            new_pos[0] = mean * 0.1;
+            new_pos[1] = variance * 0.01;
+            for d in 2..current_dim {
+                new_pos[d] = ((mean + variance) * (d as f64)).sin() * 0.5;
+            }
+            
+            let new_cell = Cell {
+                cell_id: format!("cell_{}", self.total_containers_closed),
+                energy: mean.abs().min(1.0).max(0.1),
+                age: 0,
+                generation: 0,
+                data_signature: vec![mean, variance],
+                variance,
+                signal_count,
+                position: new_pos,
+                field_strength: mean.abs() * 0.1,  // 场强由数据决定
+                connections: Vec::new(),  // 连接自然涌现
+            };
+            self.cells.push(new_cell);
+            new_cells = 1;
+            
+            // 重置容器
+            self.active_containers[0] = MicroContainer::new(
+                String::new(), 0, self.global_tick,
+            );
+            self.total_containers_closed += 1;
+        }
+        
+        DataFlowResult {
+            tick: self.global_tick,
+            data_received: data,
+            container_converged: converged,
+            new_cells,
+            discoveries: Vec::new(),
+            active_containers: 1,
+            total_cells: self.cells.len(),
+        }
+    }
+    
+    /// 细胞生命周期行为 - 由 Fate 驱动，无硬编码
+    fn cell_lifecycle(&mut self, _environment_signal: f64) {
+        // 细胞的分裂、死亡、合并完全由 Fate 的代数方程驱动
+        // 这里只更新年龄
+        for cell in &mut self.cells {
+            cell.age += 1;
+        }
+    }
+    
+    /// 执行细胞聚合合并 - 纯信号相似度合并，无预设类型
+    /// 相似度由代数方程（边际递减）动态判断
+    /// 优化版：O(n log n) 排序 + O(n) 合并
+    fn execute_cluster_merge(&mut self) {
+        let n = self.cells.len();
+        if n < 4 {
+            return;
+        }
+        
+        // 1. 按 data_signature 排序（信号特征即身份）
+        self.cells.sort_by(|a, b| {
+            let sig_a = a.data_signature.first().unwrap_or(&0.0);
+            let sig_b = b.data_signature.first().unwrap_or(&0.0);
+            sig_a.partial_cmp(sig_b).unwrap_or(std::cmp::Ordering::Equal)
+        });
+        
+        // 2. 计算相邻细胞的差异序列
+        let mut diffs: Vec<f64> = Vec::with_capacity(n - 1);
+        for i in 1..n {
+            let diff = Self::compute_cell_diff(&self.cells[i - 1], &self.cells[i]);
+            diffs.push(diff);
+        }
+        
+        if diffs.len() < 3 {
+            return;
+        }
+        
+        // 3. 用代数方程（边际递减）标记待合并的细胞
+        use std::collections::HashSet;
+        let mut to_merge: HashSet<usize> = HashSet::new();
+        
+        for i in 2..diffs.len() {
+            let d0 = diffs[i];
+            let d1 = diffs[i - 1];
+            let d2 = diffs[i - 2];
+            
+            // 边际递减：d0 < d1 < d2 表示趋近收敛（相似）
+            if d0 < d1 && d1 < d2 && d0 > 0.0 {
+                if i + 1 < n {
+                    to_merge.insert(i + 1);
+                }
+            }
+        }
+        
+        if to_merge.is_empty() {
+            return;
+        }
+        
+        // 4. 合并：删除重复部分，保留不同部分
+        // 先收集要合并的数据
+        let merge_data: Vec<_> = to_merge.iter()
+            .filter(|&&idx| idx > 0 && idx < self.cells.len())
+            .map(|&idx| {
+                let absorbed = &self.cells[idx];
+                (idx - 1, absorbed.energy, absorbed.signal_count, 
+                 absorbed.data_signature.clone(), absorbed.variance)
+            })
+            .collect();
+        
+        // 再执行合并
+        for (target_idx, energy, signals, sig, var) in merge_data {
+            let target = &mut self.cells[target_idx];
+            
+            // 能量合并
+            target.energy += energy;
+            target.signal_count += signals;
+            
+            // 特征合并：保留差异，删除重复
+            for (i, &s) in sig.iter().enumerate() {
+                if i < target.data_signature.len() {
+                    // 已有位置：取平均（删除重复）
+                    target.data_signature[i] = (target.data_signature[i] + s) / 2.0;
+                } else {
+                    // 新位置：保留差异
+                    target.data_signature.push(s);
+                }
+            }
+            
+            // variance 取平均
+            target.variance = (target.variance + var) / 2.0;
+        }
+        
+        // 5. 使用 retain 一次性移除所有标记的细胞 O(n)
+        let mut current_idx = 0usize;
+        self.cells.retain(|_| {
+            let keep = !to_merge.contains(&current_idx);
+            current_idx += 1;
+            keep
+        });
+        
+        self.total_merges += to_merge.len() as u64;
+    }
+    
+    /// 计算两个细胞的信号差异（用于相似度判断）
+    fn compute_cell_diff(a: &Cell, b: &Cell) -> f64 {
+        let mut diff = 0.0;
+        
+        // data_signature 差异
+        let len = a.data_signature.len().min(b.data_signature.len());
+        if len > 0 {
+            for i in 0..len {
+                diff += (a.data_signature[i] - b.data_signature[i]).abs();
+            }
+            diff /= len as f64;
+        }
+        
+        // variance 差异
+        diff += (a.variance - b.variance).abs();
+        
+        diff
+    }
+    
+    /// 批量接收数据
+    pub fn receive_batch(&mut self, data: &[f64]) -> BatchFlowResult {
+        let mut total_new_cells = 0usize;
+        let mut total_discoveries = Vec::new();
+        let mut containers_converged = 0usize;
+        
+        for &d in data {
+            let result = self.receive_data(d);
+            total_new_cells += result.new_cells;
+            total_discoveries.extend(result.discoveries);
+            if result.container_converged {
+                containers_converged += 1;
+            }
+        }
+        
+        BatchFlowResult {
+            data_count: data.len(),
+            new_cells: total_new_cells,
+            containers_converged,
+            discoveries: total_discoveries,
+            total_cells: self.cells.len(),
+            fate_stats: self.triple_fate.stats(),
+        }
+    }
+    
+    /// 纯细胞周期处理（第2周期+使用）
+    /// 细胞作为整体单位进行演化、合并、分裂、死亡
+    pub fn process_cells_cycle(&mut self) -> CellCycleResult {
+        self.generation_count += 1;
+        let initial_count = self.cells.len();
+        let mut divisions = 0usize;
+        let mut deaths = 0usize;
+        
+        // 1. Fate 从"上帝视角"看所有细胞（不逐个 tick）
+        //    只需要整体统计信息
+        let total_energy: f64 = self.cells.iter().map(|c| c.energy).sum();
+        let avg_energy = if self.cells.is_empty() { 0.0 } else { total_energy / self.cells.len() as f64 };
+        
+        // 让 Fate 感知整体状态（忽略返回值）
+        let _ = self.triple_fate.receive_passive(avg_energy);
+        
+        // 2. 执行合并：排序 + 边际递减检测 + 删除重复保留差异
+        self.execute_cluster_merge();
+        let merges = initial_count.saturating_sub(self.cells.len());
+        
+        // 3. 细胞演化：能量流转
+        let total_energy: f64 = self.cells.iter().map(|c| c.energy).sum();
+        let avg_energy = if self.cells.is_empty() { 0.0 } else { total_energy / self.cells.len() as f64 };
+        
+        // 分裂数据：能量, 代数, 数据特征（继承父细胞身份）
+        let mut new_cells_data: Vec<(f64, u32, Vec<f64>)> = Vec::new();
+        
+        self.cells.retain_mut(|cell| {
+            cell.age += 1;
+            
+            // 能量根据与平均值的差异流动
+            let energy_diff = avg_energy - cell.energy;
+            cell.energy += energy_diff * 0.1; // 趋向平均
+            
+            // 高能量细胞可能分裂
+            if cell.energy > avg_energy * 1.5 && new_cells_data.len() < 10 {
+                cell.energy *= 0.5;
+                // 继承父细胞的数据特征（身份）
+                new_cells_data.push((cell.energy, cell.generation, cell.data_signature.clone()));
+            }
+            
+            // 低能量细胞死亡
+            if cell.energy < avg_energy * 0.1 || cell.energy < 0.01 {
+                deaths += 1;
+                return false;
+            }
+            
+            true
+        });
+        
+        // 添加分裂产生的新细胞（继承父细胞的数据特征）
+        divisions = new_cells_data.len();
+        let gen = self.generation_count;
+        for (i, (energy, generation, parent_signature)) in new_cells_data.into_iter().enumerate() {
+            // 新细胞位置 = 父细胞位置 + 随机偏移 (在当前维度空间)
+            let current_dim = self.space.current_dimension.ceil() as usize;
+            let mut new_pos = vec![0.0; current_dim.max(1)];
+            // 基于确定性 RNG 的偏移
+            for (j, p) in new_pos.iter_mut().enumerate() {
+                let offset = ((self.rng_state.wrapping_add(j as u64) % 1000) as f64 / 500.0 - 1.0) * 0.1;
+                *p = offset;
+            }
+            
+            self.cells.push(Cell {
+                cell_id: format!("div_{}_{}", gen, i),
+                energy,
+                age: 0,
+                generation: generation + 1,
+                data_signature: parent_signature,  // 继承父细胞的身份
+                variance: 0.0,
+                signal_count: 0,
+                position: new_pos,
+                field_strength: energy * 0.5,  // 场强与能量相关
+                connections: Vec::new(),  // 连接自然涌现
+            });
+        }
+        
+        self.total_divisions += divisions as u64;
+        self.total_deaths += deaths as u64;
+        self.total_merges += merges as u64;
+        
+        // 更新维度
+        let signal = vec![self.cells.len() as f64, avg_energy, divisions as f64, deaths as f64];
+        self.space.adaptive_expand(&signal);
+        
+        CellCycleResult {
+            generation: self.generation_count,
+            cell_count: self.cells.len(),
+            merges,
+            divisions,
+            deaths,
+            avg_energy,
+        }
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 高维物理场演化 - 由 Fate 驱动，无预设模式
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    /// 更新高维物理场 - 能量驱动的自由吸引/排斥
+    /// 完全由数据特征和 Fate 状态决定，无硬编码规则
+    fn update_physics_field(&mut self) {
+        let n = self.cells.len();
+        if n < 2 {
+            return;
+        }
+        
+        // 当前空间维度 (由 Fate/Space 动态决定)
+        let current_dim = self.space.current_dimension.ceil() as usize;
+        let current_dim = current_dim.max(2);
+        
+        // 确保所有细胞的位置向量维度一致
+        for cell in &mut self.cells {
+            while cell.position.len() < current_dim {
+                // 扩展维度时，新维度初始化为基于 data_signature 的值
+                let new_val = if !cell.data_signature.is_empty() {
+                    cell.data_signature[cell.position.len() % cell.data_signature.len()] * 0.1
+                } else {
+                    0.0
+                };
+                cell.position.push(new_val);
+            }
+            if cell.position.len() > current_dim {
+                cell.position.truncate(current_dim);
+            }
+        }
+        
+        // 计算场强 - 基于数据特征的能量
+        for cell in &mut self.cells {
+            // 场强 = 能量 * 数据特征复杂度
+            let complexity = if cell.data_signature.is_empty() {
+                0.1
+            } else {
+                cell.data_signature.iter().map(|v| v.abs()).sum::<f64>() 
+                    / cell.data_signature.len() as f64
+            };
+            cell.field_strength = cell.energy * complexity.sqrt();
+        }
+        
+        // 收集数据用于位置更新（避免借用冲突）
+        let cell_data: Vec<(usize, Vec<f64>, Vec<f64>, f64)> = self.cells.iter()
+            .enumerate()
+            .map(|(i, c)| (i, c.position.clone(), c.data_signature.clone(), c.field_strength))
+            .collect();
+        
+        // 计算相互作用力并更新位置
+        for i in 0..n {
+            let (_, pos_i, sig_i, field_i) = &cell_data[i];
+            let mut force = vec![0.0; current_dim];
+            
+            for j in 0..n {
+                if i == j { continue; }
+                let (_, pos_j, sig_j, field_j) = &cell_data[j];
+                
+                // 计算高维距离
+                let mut dist_sq = 0.0;
+                for d in 0..current_dim.min(pos_i.len()).min(pos_j.len()) {
+                    let diff = pos_i.get(d).unwrap_or(&0.0) - pos_j.get(d).unwrap_or(&0.0);
+                    dist_sq += diff * diff;
+                }
+                let dist = (dist_sq + 0.01).sqrt();  // 避免除零
+                
+                // 计算数据特征相似度 (Fate 判定)
+                let similarity = Self::compute_signature_similarity(sig_i, sig_j);
+                
+                // 力的方向：指向 j
+                // 力的大小：相似 → 吸引(正)，不相似 → 排斥(负)
+                // 公式：F = (similarity - 0.5) * field_i * field_j / dist^2
+                let attraction = (similarity - 0.3) * field_i * field_j / (dist_sq + 0.1);
+                
+                for d in 0..current_dim.min(pos_i.len()).min(pos_j.len()) {
+                    let direction = (pos_j.get(d).unwrap_or(&0.0) - pos_i.get(d).unwrap_or(&0.0)) / dist;
+                    force[d] += attraction * direction * 0.01;  // 小步长
+                }
+            }
+            
+            // 更新位置
+            for d in 0..current_dim.min(self.cells[i].position.len()) {
+                self.cells[i].position[d] += force[d];
+                // 限制位置范围
+                self.cells[i].position[d] = self.cells[i].position[d].clamp(-100.0, 100.0);
+            }
+        }
+        
+        // 更新连接 - 基于高维距离，自然涌现
+        self.update_connections_by_distance();
+    }
+    
+    /// 计算数据特征相似度
+    fn compute_signature_similarity(sig_a: &[f64], sig_b: &[f64]) -> f64 {
+        if sig_a.is_empty() || sig_b.is_empty() {
+            return 0.0;
+        }
+        
+        // 余弦相似度
+        let min_len = sig_a.len().min(sig_b.len());
+        let mut dot = 0.0;
+        let mut norm_a = 0.0;
+        let mut norm_b = 0.0;
+        
+        for i in 0..min_len {
+            dot += sig_a[i] * sig_b[i];
+            norm_a += sig_a[i] * sig_a[i];
+            norm_b += sig_b[i] * sig_b[i];
+        }
+        
+        if norm_a < 1e-10 || norm_b < 1e-10 {
+            return 0.0;
+        }
+        
+        // 归一化到 [0, 1]
+        (dot / (norm_a.sqrt() * norm_b.sqrt()) + 1.0) / 2.0
+    }
+    
+    /// 更新连接 - 基于高维距离自然涌现，无预设阈值
+    fn update_connections_by_distance(&mut self) {
+        let n = self.cells.len();
+        if n < 2 {
+            return;
+        }
+        
+        // 收集位置数据
+        let positions: Vec<(String, Vec<f64>, f64)> = self.cells.iter()
+            .map(|c| (c.cell_id.clone(), c.position.clone(), c.field_strength))
+            .collect();
+        
+        // 计算所有距离并找到自然边界（使用 Fate 的边际效应）
+        let mut all_distances: Vec<f64> = Vec::new();
+        for i in 0..n {
+            for j in (i+1)..n {
+                let dist = Self::hyperdim_distance(&positions[i].1, &positions[j].1);
+                all_distances.push(dist);
+            }
+        }
+        
+        if all_distances.is_empty() {
+            return;
+        }
+        
+        // 使用边际效应找到自然连接阈值（不预设）
+        all_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+        
+        // 取距离分布的前 30% 作为"近邻" (由 Fate 的效率指标动态调整)
+        let fate_efficiency = self.triple_fate.base.state.efficiency;
+        let neighbor_ratio = 0.1 + fate_efficiency * 0.3;  // 效率越高，连接越多
+        let threshold_idx = ((all_distances.len() as f64 * neighbor_ratio) as usize).min(all_distances.len() - 1);
+        let distance_threshold = all_distances[threshold_idx];
+        
+        // 更新每个细胞的连接
+        for i in 0..n {
+            let mut new_connections: Vec<(String, f64)> = Vec::new();
+            
+            for j in 0..n {
+                if i == j { continue; }
+                
+                let dist = Self::hyperdim_distance(&positions[i].1, &positions[j].1);
+                
+                if dist <= distance_threshold {
+                    // 连接强度 = 1 / 距离 * 场强乘积
+                    let strength = (1.0 / (dist + 0.1)) * (positions[i].2 * positions[j].2).sqrt();
+                    new_connections.push((positions[j].0.clone(), strength));
+                }
+            }
+            
+            // 按强度排序，保留最强的连接
+            new_connections.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+            new_connections.truncate(20);  // 最多保留 20 个连接
+            
+            self.cells[i].connections = new_connections;
+        }
+    }
+    
+    /// 计算高维距离
+    fn hyperdim_distance(a: &[f64], b: &[f64]) -> f64 {
+        let min_len = a.len().min(b.len());
+        let mut sum = 0.0;
+        for i in 0..min_len {
+            let diff = a[i] - b[i];
+            sum += diff * diff;
+        }
+        sum.sqrt()
+    }
+    
+    /// 进化一代（处理现有细胞）- 无硬编码，由 Fate 驱动
+    pub fn evolve(&mut self, environment_signal: f64) -> EvolutionResult {
+        self.generation_count += 1;
+        
+        // 更新细胞年龄
+        for cell in &mut self.cells {
+            cell.age += 1;
+        }
+        
+        // ═══ 更新高维物理场 - 能量自由吸引 ═══
+        self.update_physics_field();
+        
+        // 发送信号给 Triple-Fate
+        let signal_values = vec![
+            self.cells.len() as f64,
+            self.total_divisions as f64,
+            self.total_deaths as f64,
+            environment_signal,
+        ];
+        let discoveries = self.triple_fate.tick(Some(signal_values.clone()));
+        
+        // 自动维度扩展
+        self.space.adaptive_expand(&signal_values);
+        
+        // 计算平均能量
+        let average_energy = if self.cells.is_empty() {
+            0.0
+        } else {
+            self.cells.iter().map(|c| c.energy).sum::<f64>() / self.cells.len() as f64
+        };
+        
+        EvolutionResult {
+            generation: self.generation_count,
+            cell_count: self.cells.len(),
+            divisions: self.total_divisions,
+            deaths: self.total_deaths,
+            average_energy,
+            discoveries,
+        }
+    }
+    
+    /// 尝试将新数据合并到相似的现有细胞（使用动态方程）
+    /// 如果 Fate 方程判定相似，合并并返回 true
+    fn try_merge_into_similar(&mut self, mean: f64, _variance: f64, signal_count: u64) -> bool {
+        if self.cells.len() < 3 {
+            return false;
+        }
+        
+        let new_sig = mean;  // 新数据的主要特征
+        
+        // 找到最接近的细胞（按数据特征排序）
+        let mut candidates: Vec<(usize, f64)> = self.cells.iter()
+            .enumerate()
+            .filter_map(|(i, c)| {
+                c.data_signature.first().map(|&sig| (i, (sig - new_sig).abs()))
+            })
+            .collect();
+        
+        candidates.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
+        
+        if candidates.len() < 2 {
+            return false;
+        }
+        
+        // 取最近的2个细胞的差异
+        let d1 = candidates[0].1;  // 最近
+        let d2 = candidates[1].1;
+        
+        // 用 Fate 的动态方程判断（而不是硬编码 d1 < d2 < d3 < d4）
+        let diffs = [d1, d2];
+        if self.triple_fate.cluster_equation.check_diffs(&diffs) && d1 > 0.0 {
+            // 合并到最近的细胞
+            let target_idx = candidates[0].0;
+            self.cells[target_idx].energy += mean.abs().min(1.0).max(0.1);
+            self.cells[target_idx].signal_count += signal_count;
+            // 更新数据特征为平均值
+            if let Some(sig) = self.cells[target_idx].data_signature.first_mut() {
+                *sig = (*sig + mean) / 2.0;
+            }
+            return true;
+        }
+        
+        false
+    }
+    
+    /// 检查 Fate 是否收敛（被动模式）
+    pub fn has_fate_converged(&self) -> bool {
+        self.triple_fate.is_passively_converged()
+    }
+    
+    /// 获取效率历史
+    pub fn get_efficiency_history(&self) -> &[(f64, f64)] {
+        &self.triple_fate.efficiency_history
+    }
+    
+    /// 获取当前维度
+    pub fn get_dimension(&self) -> f64 {
+        self.space.current_dimension
+    }
+    
+    /// 获取网络状态
+    pub fn get_status(&self) -> StemCellStatus {
+        StemCellStatus {
+            network_id: self.id.clone(),
+            cell_count: self.cells.len(),
+            generation: self.generation_count,
+            total_divisions: self.total_divisions,
+            total_deaths: self.total_deaths,
+            total_merges: self.total_merges,
+            total_containers_closed: self.total_containers_closed,
+            active_containers: self.active_containers.len(),
+            dimension: self.space.current_dimension,
+            fate_tick: self.triple_fate.global_tick,
+            base_generation: self.triple_fate.base.generation,
+            meta_generation: self.triple_fate.meta.generation,
+        }
+    }
+    
+    /// 获取 Fate 统计
+    pub fn get_fate_stats(&self) -> String {
+        self.triple_fate.stats()
+    }
+}
+
+impl Default for StemCellComplete {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+// ============================================================================
+// 结果类型
+// ============================================================================
+
+/// 数据流结果
+#[derive(Debug, Clone)]
+pub struct DataFlowResult {
+    pub tick: u64,
+    pub data_received: f64,
+    pub container_converged: bool,
+    pub new_cells: usize,
+    pub discoveries: Vec<TripleDiscovery>,
+    pub active_containers: usize,
+    pub total_cells: usize,
+}
+
+/// 批量数据流结果
+#[derive(Debug, Clone)]
+pub struct BatchFlowResult {
+    pub data_count: usize,
+    pub new_cells: usize,
+    pub containers_converged: usize,
+    pub discoveries: Vec<TripleDiscovery>,
+    pub total_cells: usize,
+    pub fate_stats: String,
+}
+
+/// 进化结果 (f64)
+#[derive(Debug, Clone)]
+pub struct EvolutionResult {
+    pub generation: u32,
+    pub cell_count: usize,
+    pub divisions: u64,
+    pub deaths: u64,
+    pub average_energy: f64,
+    pub discoveries: Vec<TripleDiscovery>,
+}
+
+/// 细胞周期结果 (第2周期+用，纯细胞处理)
+#[derive(Debug, Clone)]
+pub struct CellCycleResult {
+    pub generation: u32,
+    pub cell_count: usize,
+    pub merges: usize,
+    pub divisions: usize,
+    pub deaths: usize,
+    pub avg_energy: f64,
+}
+
+/// 网络状态
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StemCellStatus {
+    pub network_id: String,
+    pub cell_count: usize,
+    pub generation: u32,
+    pub total_divisions: u64,
+    pub total_deaths: u64,
+    pub total_merges: u64,
+    pub total_containers_closed: u64,
+    pub active_containers: usize,
+    pub dimension: f64,
+    pub fate_tick: u64,
+    pub base_generation: u64,
+    pub meta_generation: u64,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_micro_container_convergence() {
+        let mut container = MicroContainer::new("test".into(), 100, 0);
+        
+        // 模拟收敛数据
+        for i in 0..20 {
+            let value = 10.0 / (i as f64 + 1.0);  // 递减序列
+            container.receive_data(value);
+        }
+        
+        println!("Converged: {}", container.is_converged());
+        println!("Mean: {}", container.local_state.mean());
+        println!("Variance: {}", container.local_state.variance());
+    }
+    
+    #[test]
+    fn test_data_flow() {
+        let mut network = StemCellComplete::new();
+        
+        // 模拟数据流
+        for i in 0..500 {
+            let data = (i % 50) as f64 + (i as f64).sin();
+            let result = network.receive_data(data);
+            
+            if result.container_converged {
+                println!("Container converged at tick {}, new cells: {}", 
+                         result.tick, result.new_cells);
+            }
+        }
+        
+        let status = network.get_status();
+        println!("Final status: {:?}", status);
+        println!("Fate stats:\n{}", network.get_fate_stats());
+    }
+    
+    #[test]
+    fn test_evolution_with_fate() {
+        let mut network = StemCellComplete::new();
+        
+        for _ in 0..10 {
+            let result = network.evolve(0.5);
+            println!("Gen {}: cells={}, div={}, deaths={}, discoveries={}", 
+                     result.generation, result.cell_count, 
+                     result.divisions, result.deaths, result.discoveries.len());
+        }
+        
+        assert!(network.cells.len() > 0);
+    }
+}

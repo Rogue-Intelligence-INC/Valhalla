@@ -1,0 +1,122 @@
+{
+  "samples": [
+    {
+      "id": "piano_c4",
+      "description_en": "Piano playing middle C note",
+      "description_zh": "钢琴弹奏中央C音",
+      "features": {
+        "frequency_hz": 261.63,
+        "duration_ms": 1000,
+        "amplitude": 0.7,
+        "waveform": "complex_harmonic",
+        "attack_ms": 10,
+        "decay_ms": 100,
+        "sustain": 0.6,
+        "release_ms": 200
+      },
+      "emotion": "neutral",
+      "instrument": "piano"
+    },
+    {
+      "id": "violin_a4",
+      "description_en": "Violin playing A4 with vibrato",
+      "description_zh": "小提琴演奏A4音带颤音",
+      "features": {
+        "frequency_hz": 440.0,
+        "duration_ms": 2000,
+        "amplitude": 0.6,
+        "waveform": "sawtooth_harmonic",
+        "vibrato_rate_hz": 6,
+        "vibrato_depth": 0.02
+      },
+      "emotion": "expressive",
+      "instrument": "violin"
+    },
+    {
+      "id": "drum_kick",
+      "description_en": "Bass drum kick hit",
+      "description_zh": "低音鼓踢击",
+      "features": {
+        "frequency_hz": 60,
+        "duration_ms": 200,
+        "amplitude": 0.9,
+        "waveform": "impulse_decay",
+        "attack_ms": 5,
+        "decay_ms": 195
+      },
+      "emotion": "powerful",
+      "instrument": "drum"
+    },
+    {
+      "id": "rain_ambient",
+      "description_en": "Gentle rain falling on leaves",
+      "description_zh": "细雨落在树叶上",
+      "features": {
+        "frequency_hz": 2000,
+        "duration_ms": 60000,
+        "amplitude": 0.3,
+        "waveform": "white_noise_filtered",
+        "frequency_range": [500, 4000]
+      },
+      "emotion": "calm",
+      "category": "nature"
+    },
+    {
+      "id": "thunder",
+      "description_en": "Distant thunder rumbling",
+      "description_zh": "远处雷声隆隆",
+      "features": {
+        "frequency_hz": 80,
+        "duration_ms": 3000,
+        "amplitude": 0.8,
+        "waveform": "noise_burst",
+        "attack_ms": 100,
+        "decay_ms": 2900
+      },
+      "emotion": "dramatic",
+      "category": "nature"
+    },
+    {
+      "id": "speech_hello",
+      "description_en": "Human voice saying hello",
+      "description_zh": "人声说你好",
+      "features": {
+        "frequency_hz": 150,
+        "duration_ms": 500,
+        "amplitude": 0.5,
+        "formants": [700, 1200, 2500],
+        "pitch_contour": "rising_falling"
+      },
+      "emotion": "friendly",
+      "category": "speech"
+    },
+    {
+      "id": "bird_chirp",
+      "description_en": "Bird chirping in morning",
+      "description_zh": "清晨鸟鸣",
+      "features": {
+        "frequency_hz": 3000,
+        "duration_ms": 300,
+        "amplitude": 0.4,
+        "waveform": "frequency_modulated",
+        "frequency_range": [2000, 5000]
+      },
+      "emotion": "cheerful",
+      "category": "nature"
+    },
+    {
+      "id": "car_engine",
+      "description_en": "Car engine idling",
+      "description_zh": "汽车发动机怠速",
+      "features": {
+        "frequency_hz": 40,
+        "duration_ms": 10000,
+        "amplitude": 0.5,
+        "waveform": "periodic_complex",
+        "harmonics": [40, 80, 120, 160]
+      },
+      "emotion": "mechanical",
+      "category": "urban"
+    }
+  ]
+}

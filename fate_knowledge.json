@@ -1,0 +1,964 @@
+{
+  "physical_constants": [
+    {
+      "id": "c",
+      "name": "Speed of light in vacuum",
+      "symbol": "c",
+      "value": "299792458",
+      "unit": "m/s",
+      "uncertainty": "exact",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "c = 299\\,792\\,458 \\text{ m/s}"
+    },
+    {
+      "id": "h",
+      "name": "Planck constant",
+      "symbol": "h",
+      "value": "6.62607015e-34",
+      "unit": "J·s",
+      "uncertainty": "exact",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "h = 6.626\\,070\\,15 \\times 10^{-34} \\text{ J·s}"
+    },
+    {
+      "id": "hbar",
+      "name": "Reduced Planck constant",
+      "symbol": "\\hbar",
+      "value": "1.054571817e-34",
+      "unit": "J·s",
+      "uncertainty": "exact",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "\\hbar = \\frac{h}{2\\pi} = 1.054\\,571\\,817 \\times 10^{-34} \\text{ J·s}"
+    },
+    {
+      "id": "G",
+      "name": "Gravitational constant",
+      "symbol": "G",
+      "value": "6.67430e-11",
+      "unit": "m³/(kg·s²)",
+      "uncertainty": "2.2e-15",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "G = 6.674\\,30 \\times 10^{-11} \\text{ m}^3\\text{kg}^{-1}\\text{s}^{-2}"
+    },
+    {
+      "id": "e",
+      "name": "Elementary charge",
+      "symbol": "e",
+      "value": "1.602176634e-19",
+      "unit": "C",
+      "uncertainty": "exact",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "e = 1.602\\,176\\,634 \\times 10^{-19} \\text{ C}"
+    },
+    {
+      "id": "k_B",
+      "name": "Boltzmann constant",
+      "symbol": "k_B",
+      "value": "1.380649e-23",
+      "unit": "J/K",
+      "uncertainty": "exact",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "k_B = 1.380\\,649 \\times 10^{-23} \\text{ J/K}"
+    },
+    {
+      "id": "N_A",
+      "name": "Avogadro constant",
+      "symbol": "N_A",
+      "value": "6.02214076e23",
+      "unit": "mol⁻¹",
+      "uncertainty": "exact",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "N_A = 6.022\\,140\\,76 \\times 10^{23} \\text{ mol}^{-1}"
+    },
+    {
+      "id": "m_e",
+      "name": "Electron mass",
+      "symbol": "m_e",
+      "value": "9.1093837015e-31",
+      "unit": "kg",
+      "uncertainty": "2.8e-40",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "m_e = 9.109\\,383\\,7015 \\times 10^{-31} \\text{ kg}"
+    },
+    {
+      "id": "m_p",
+      "name": "Proton mass",
+      "symbol": "m_p",
+      "value": "1.67262192369e-27",
+      "unit": "kg",
+      "uncertainty": "5.1e-37",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "m_p = 1.672\\,621\\,923\\,69 \\times 10^{-27} \\text{ kg}"
+    },
+    {
+      "id": "alpha",
+      "name": "Fine-structure constant",
+      "symbol": "\\alpha",
+      "value": "7.2973525693e-3",
+      "unit": "dimensionless",
+      "uncertainty": "1.1e-12",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "\\alpha = \\frac{e^2}{4\\pi\\varepsilon_0\\hbar c} \\approx \\frac{1}{137.036}"
+    },
+    {
+      "id": "epsilon_0",
+      "name": "Vacuum permittivity",
+      "symbol": "\\varepsilon_0",
+      "value": "8.8541878128e-12",
+      "unit": "F/m",
+      "uncertainty": "1.3e-21",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "\\varepsilon_0 = \\frac{1}{\\mu_0 c^2} = 8.854\\,187\\,8128 \\times 10^{-12} \\text{ F/m}"
+    },
+    {
+      "id": "mu_0",
+      "name": "Vacuum permeability",
+      "symbol": "\\mu_0",
+      "value": "1.25663706212e-6",
+      "unit": "N/A²",
+      "uncertainty": "1.9e-16",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "\\mu_0 = 4\\pi \\times 10^{-7} \\text{ N/A}^2"
+    },
+    {
+      "id": "l_P",
+      "name": "Planck length",
+      "symbol": "l_P",
+      "value": "1.616255e-35",
+      "unit": "m",
+      "uncertainty": "1.8e-40",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "l_P = \\sqrt{\\frac{\\hbar G}{c^3}} = 1.616\\,255 \\times 10^{-35} \\text{ m}"
+    },
+    {
+      "id": "m_Planck",
+      "name": "Planck mass",
+      "symbol": "m_P",
+      "value": "2.176434e-8",
+      "unit": "kg",
+      "uncertainty": "2.4e-13",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "m_P = \\sqrt{\\frac{\\hbar c}{G}} = 2.176\\,434 \\times 10^{-8} \\text{ kg}"
+    },
+    {
+      "id": "t_P",
+      "name": "Planck time",
+      "symbol": "t_P",
+      "value": "5.391247e-44",
+      "unit": "s",
+      "uncertainty": "6.0e-49",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "t_P = \\sqrt{\\frac{\\hbar G}{c^5}} = 5.391\\,247 \\times 10^{-44} \\text{ s}"
+    },
+    {
+      "id": "T_P",
+      "name": "Planck temperature",
+      "symbol": "T_P",
+      "value": "1.416784e32",
+      "unit": "K",
+      "uncertainty": "1.6e27",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "T_P = \\sqrt{\\frac{\\hbar c^5}{G k_B^2}} = 1.416\\,784 \\times 10^{32} \\text{ K}"
+    },
+    {
+      "id": "R",
+      "name": "Molar gas constant",
+      "symbol": "R",
+      "value": "8.314462618",
+      "unit": "J/(mol·K)",
+      "uncertainty": "exact",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "R = N_A k_B = 8.314\\,462\\,618 \\text{ J/(mol·K)}"
+    },
+    {
+      "id": "sigma",
+      "name": "Stefan-Boltzmann constant",
+      "symbol": "\\sigma",
+      "value": "5.670374419e-8",
+      "unit": "W/(m²·K⁴)",
+      "uncertainty": "exact",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "\\sigma = \\frac{2\\pi^5 k_B^4}{15 h^3 c^2} = 5.670\\,374\\,419 \\times 10^{-8} \\text{ W/(m}^2\\text{·K}^4\\text{)}"
+    },
+    {
+      "id": "R_inf",
+      "name": "Rydberg constant",
+      "symbol": "R_\\infty",
+      "value": "10973731.568160",
+      "unit": "m⁻¹",
+      "uncertainty": "2.1e-5",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "R_\\infty = \\frac{m_e e^4}{8 \\varepsilon_0^2 h^3 c} = 10\\,973\\,731.568\\,160 \\text{ m}^{-1}"
+    },
+    {
+      "id": "a_0",
+      "name": "Bohr radius",
+      "symbol": "a_0",
+      "value": "5.29177210903e-11",
+      "unit": "m",
+      "uncertainty": "8.0e-21",
+      "source": "NIST CODATA 2022",
+      "status": "Verified",
+      "tex_definition": "a_0 = \\frac{\\hbar}{m_e c \\alpha} = 5.291\\,772\\,109\\,03 \\times 10^{-11} \\text{ m}"
+    }
+  ],
+  "math_constants": [
+    {
+      "id": "pi",
+      "name": "Pi",
+      "symbol": "\\pi",
+      "value_approx": 3.141592653589793,
+      "exact_form": "ratio of circumference to diameter",
+      "series_form": "\\pi = 4\\sum_{k=0}^{\\infty} \\frac{(-1)^k}{2k+1}",
+      "source": "Fundamental",
+      "status": "Verified",
+      "tex_definition": "\\pi = 3.141\\,592\\,653\\,589\\,793..."
+    },
+    {
+      "id": "e",
+      "name": "Euler's number",
+      "symbol": "e",
+      "value_approx": 2.718281828459045,
+      "exact_form": "\\lim_{n\\to\\infty}(1+1/n)^n",
+      "series_form": "e = \\sum_{n=0}^{\\infty} \\frac{1}{n!}",
+      "source": "Fundamental",
+      "status": "Verified",
+      "tex_definition": "e = 2.718\\,281\\,828\\,459\\,045..."
+    },
+    {
+      "id": "gamma",
+      "name": "Euler-Mascheroni constant",
+      "symbol": "\\gamma",
+      "value_approx": 0.5772156649015329,
+      "exact_form": "\\lim_{n\\to\\infty}(H_n - \\ln n)",
+      "series_form": "\\gamma = \\sum_{k=1}^{\\infty}\\left(\\frac{1}{k} - \\ln\\frac{k+1}{k}\\right)",
+      "source": "Fundamental",
+      "status": "Verified",
+      "tex_definition": "\\gamma = 0.577\\,215\\,664\\,901\\,532..."
+    },
+    {
+      "id": "phi",
+      "name": "Golden ratio",
+      "symbol": "\\varphi",
+      "value_approx": 1.618033988749895,
+      "exact_form": "\\frac{1+\\sqrt{5}}{2}",
+      "series_form": "\\varphi = 1 + \\cfrac{1}{1 + \\cfrac{1}{1 + \\cdots}}",
+      "source": "Fundamental",
+      "status": "Verified",
+      "tex_definition": "\\varphi = \\frac{1+\\sqrt{5}}{2} = 1.618\\,033\\,988\\,749\\,894..."
+    },
+    {
+      "id": "sqrt2",
+      "name": "Square root of 2",
+      "symbol": "\\sqrt{2}",
+      "value_approx": 1.4142135623730951,
+      "exact_form": "\\sqrt{2}",
+      "series_form": null,
+      "source": "Fundamental",
+      "status": "Verified",
+      "tex_definition": "\\sqrt{2} = 1.414\\,213\\,562\\,373\\,095..."
+    },
+    {
+      "id": "zeta2",
+      "name": "Riemann zeta(2) / Basel problem",
+      "symbol": "\\zeta(2)",
+      "value_approx": 1.6449340668482264,
+      "exact_form": "\\frac{\\pi^2}{6}",
+      "series_form": "\\zeta(2) = \\sum_{n=1}^{\\infty} \\frac{1}{n^2}",
+      "source": "Euler 1735",
+      "status": "Verified",
+      "tex_definition": "\\zeta(2) = \\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}"
+    },
+    {
+      "id": "zeta3",
+      "name": "Apéry's constant",
+      "symbol": "\\zeta(3)",
+      "value_approx": 1.2020569031595942,
+      "exact_form": null,
+      "series_form": "\\zeta(3) = \\sum_{n=1}^{\\infty} \\frac{1}{n^3}",
+      "source": "Apéry 1978",
+      "status": "Verified",
+      "tex_definition": "\\zeta(3) = 1.202\\,056\\,903\\,159\\,594... \\text{ (irrational)}"
+    },
+    {
+      "id": "C2",
+      "name": "Twin prime constant",
+      "symbol": "C_2",
+      "value_approx": 0.6601618158468696,
+      "exact_form": "\\prod_{p>2}\\left(1 - \\frac{1}{(p-1)^2}\\right)",
+      "series_form": null,
+      "source": "Hardy-Littlewood",
+      "status": "Verified",
+      "tex_definition": "C_2 = \\prod_{p>2, \\text{ prime}}\\left(1 - \\frac{1}{(p-1)^2}\\right) \\approx 0.6601618"
+    },
+    {
+      "id": "catalan",
+      "name": "Catalan's constant",
+      "symbol": "G",
+      "value_approx": 0.915965594177219,
+      "exact_form": null,
+      "series_form": "G = \\sum_{n=0}^{\\infty} \\frac{(-1)^n}{(2n+1)^2}",
+      "source": "Catalan",
+      "status": "Verified",
+      "tex_definition": "G = \\sum_{n=0}^{\\infty} \\frac{(-1)^n}{(2n+1)^2} = 0.915\\,965\\,594\\,177\\,219..."
+    },
+    {
+      "id": "omega",
+      "name": "Omega constant",
+      "symbol": "\\Omega",
+      "value_approx": 0.5671432904097838,
+      "exact_form": "W(1) \\text{ (Lambert W)}",
+      "series_form": null,
+      "source": "Lambert W function",
+      "status": "Verified",
+      "tex_definition": "\\Omega = W(1) = 0.567\\,143\\,290\\,409\\,783... \\text{ where } \\Omega e^\\Omega = 1"
+    },
+    {
+      "id": "feigenbaum_delta",
+      "name": "Feigenbaum constant δ",
+      "symbol": "\\delta",
+      "value_approx": 4.66920160910299,
+      "exact_form": null,
+      "series_form": null,
+      "source": "Feigenbaum 1978",
+      "status": "Verified",
+      "tex_definition": "\\delta = 4.669\\,201\\,609\\,102\\,990... \\text{ (bifurcation ratio)}"
+    },
+    {
+      "id": "feigenbaum_alpha",
+      "name": "Feigenbaum constant α",
+      "symbol": "\\alpha_F",
+      "value_approx": 2.502907875095892,
+      "exact_form": null,
+      "series_form": null,
+      "source": "Feigenbaum 1978",
+      "status": "Verified",
+      "tex_definition": "\\alpha = 2.502\\,907\\,875\\,095\\,892... \\text{ (scaling factor)}"
+    },
+    {
+      "id": "plastic",
+      "name": "Plastic constant",
+      "symbol": "\\rho",
+      "value_approx": 1.324717957244746,
+      "exact_form": "\\frac{\\sqrt[3]{108+12\\sqrt{69}}+\\sqrt[3]{108-12\\sqrt{69}}}{6}",
+      "series_form": null,
+      "source": "van der Laan",
+      "status": "Verified",
+      "tex_definition": "\\rho^3 = \\rho + 1, \\quad \\rho = 1.324\\,717\\,957\\,244\\,746..."
+    },
+    {
+      "id": "khinchin",
+      "name": "Khinchin's constant",
+      "symbol": "K",
+      "value_approx": 2.6854520010653062,
+      "exact_form": null,
+      "series_form": "K = \\prod_{r=1}^{\\infty}\\left(1+\\frac{1}{r(r+2)}\\right)^{\\ln r/\\ln 2}",
+      "source": "Khinchin",
+      "status": "Verified",
+      "tex_definition": "K = 2.685\\,452\\,001\\,065\\,306... \\text{ (continued fraction)}"
+    },
+    {
+      "id": "glaisher",
+      "name": "Glaisher-Kinkelin constant",
+      "symbol": "A",
+      "value_approx": 1.2824271291006226,
+      "exact_form": "e^{\\frac{1}{12}-\\zeta'(-1)}",
+      "series_form": null,
+      "source": "Glaisher",
+      "status": "Verified",
+      "tex_definition": "A = 1.282\\,427\\,129\\,100\\,622... = e^{\\frac{1}{12}-\\zeta'(-1)}"
+    }
+  ],
+  "theorems": [
+    {
+      "id": "euler_identity",
+      "name": "Euler's Identity",
+      "category": "Analysis",
+      "statement_tex": "e^{i\\pi} + 1 = 0",
+      "proof_tex": "From Euler's formula $e^{ix} = \\cos x + i\\sin x$, substitute $x = \\pi$.",
+      "references": [
+        "euler_formula"
+      ],
+      "source": "Euler",
+      "status": "Verified"
+    },
+    {
+      "id": "euler_formula",
+      "name": "Euler's Formula",
+      "category": "Analysis",
+      "statement_tex": "e^{ix} = \\cos x + i \\sin x",
+      "proof_tex": "By Taylor series expansion of $e^{ix}$, $\\cos x$, and $\\sin x$.",
+      "references": [],
+      "source": "Euler",
+      "status": "Verified"
+    },
+    {
+      "id": "basel_problem",
+      "name": "Basel Problem",
+      "category": "NumberTheory",
+      "statement_tex": "\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}",
+      "proof_tex": "Multiple proofs exist: Euler's original (1735), Fourier series, contour integration.",
+      "references": [
+        "zeta2"
+      ],
+      "source": "Euler 1735",
+      "status": "Verified"
+    },
+    {
+      "id": "fundamental_theorem_calculus",
+      "name": "Fundamental Theorem of Calculus",
+      "category": "Analysis",
+      "statement_tex": "\\frac{d}{dx}\\int_a^x f(t)\\,dt = f(x)",
+      "proof_tex": "Let $F(x) = \\int_a^x f(t)\\,dt$. By definition of derivative and continuity of $f$.",
+      "references": [],
+      "source": "Newton, Leibniz",
+      "status": "Verified"
+    },
+    {
+      "id": "fundamental_theorem_algebra",
+      "name": "Fundamental Theorem of Algebra",
+      "category": "Algebra",
+      "statement_tex": "\\text{Every non-constant polynomial with complex coefficients has at least one complex root.}",
+      "proof_tex": "Multiple proofs: Liouville's theorem, topological argument.",
+      "references": [],
+      "source": "Gauss 1799",
+      "status": "Verified"
+    },
+    {
+      "id": "pythagorean_theorem",
+      "name": "Pythagorean Theorem",
+      "category": "Geometry",
+      "statement_tex": "a^2 + b^2 = c^2",
+      "proof_tex": "For a right triangle with legs $a$, $b$ and hypotenuse $c$.",
+      "references": [],
+      "source": "Pythagoras ~500 BCE",
+      "status": "Verified"
+    },
+    {
+      "id": "prime_number_theorem",
+      "name": "Prime Number Theorem",
+      "category": "NumberTheory",
+      "statement_tex": "\\pi(x) \\sim \\frac{x}{\\ln x}",
+      "proof_tex": "The number of primes less than $x$ is asymptotically $x/\\ln x$.",
+      "references": [],
+      "source": "Hadamard, de la Vallée Poussin 1896",
+      "status": "Verified"
+    },
+    {
+      "id": "taylor_series",
+      "name": "Taylor Series",
+      "category": "Analysis",
+      "statement_tex": "f(x) = \\sum_{n=0}^{\\infty} \\frac{f^{(n)}(a)}{n!}(x-a)^n",
+      "proof_tex": "For infinitely differentiable functions near point $a$.",
+      "references": [],
+      "source": "Taylor 1715",
+      "status": "Verified"
+    },
+    {
+      "id": "binomial_theorem",
+      "name": "Binomial Theorem",
+      "category": "Algebra",
+      "statement_tex": "(x+y)^n = \\sum_{k=0}^{n} \\binom{n}{k} x^{n-k} y^k",
+      "proof_tex": "By induction on $n$ using Pascal's identity.",
+      "references": [],
+      "source": "Newton",
+      "status": "Verified"
+    },
+    {
+      "id": "quadratic_formula",
+      "name": "Quadratic Formula",
+      "category": "Algebra",
+      "statement_tex": "x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}",
+      "proof_tex": "By completing the square on $ax^2 + bx + c = 0$.",
+      "references": [],
+      "source": "Ancient",
+      "status": "Verified"
+    },
+    {
+      "id": "cauchy_schwarz",
+      "name": "Cauchy-Schwarz Inequality",
+      "category": "Analysis",
+      "statement_tex": "|\\langle u, v \\rangle|^2 \\leq \\langle u, u \\rangle \\cdot \\langle v, v \\rangle",
+      "proof_tex": "Consider $\\langle u + tv, u + tv \\rangle \\geq 0$ for all $t \\in \\mathbb{R}$.",
+      "references": [],
+      "source": "Cauchy, Schwarz",
+      "status": "Verified"
+    },
+    {
+      "id": "stirling_approximation",
+      "name": "Stirling's Approximation",
+      "category": "Analysis",
+      "statement_tex": "n! \\sim \\sqrt{2\\pi n}\\left(\\frac{n}{e}\\right)^n",
+      "proof_tex": "By the Laplace method applied to $n! = \\int_0^\\infty x^n e^{-x}\\,dx$.",
+      "references": [],
+      "source": "Stirling 1730",
+      "status": "Verified"
+    },
+    {
+      "id": "residue_theorem",
+      "name": "Residue Theorem",
+      "category": "Analysis",
+      "statement_tex": "\\oint_C f(z)\\,dz = 2\\pi i \\sum_{k} \\text{Res}(f, a_k)",
+      "proof_tex": "From Cauchy's integral formula applied to each singularity.",
+      "references": [],
+      "source": "Cauchy",
+      "status": "Verified"
+    },
+    {
+      "id": "euler_product",
+      "name": "Euler Product Formula",
+      "category": "NumberTheory",
+      "statement_tex": "\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^s} = \\prod_{p \\text{ prime}} \\frac{1}{1-p^{-s}}",
+      "proof_tex": "By unique prime factorization and geometric series.",
+      "references": [],
+      "source": "Euler 1737",
+      "status": "Verified"
+    },
+    {
+      "id": "gauss_divergence",
+      "name": "Divergence Theorem (Gauss)",
+      "category": "Analysis",
+      "statement_tex": "\\iiint_V (\\nabla \\cdot \\mathbf{F})\\,dV = \\oiint_S \\mathbf{F} \\cdot d\\mathbf{S}",
+      "proof_tex": "Relates volume integral of divergence to surface flux.",
+      "references": [],
+      "source": "Gauss",
+      "status": "Verified"
+    },
+    {
+      "id": "stokes_theorem",
+      "name": "Stokes' Theorem",
+      "category": "Analysis",
+      "statement_tex": "\\iint_S (\\nabla \\times \\mathbf{F}) \\cdot d\\mathbf{S} = \\oint_C \\mathbf{F} \\cdot d\\mathbf{r}",
+      "proof_tex": "Relates surface integral of curl to line integral.",
+      "references": [],
+      "source": "Stokes",
+      "status": "Verified"
+    }
+  ],
+  "physical_laws": [
+    {
+      "id": "newton_second",
+      "name": "Newton's Second Law",
+      "domain": "ClassicalMechanics",
+      "equation_tex": "\\mathbf{F} = m\\mathbf{a} = m\\frac{d^2\\mathbf{r}}{dt^2}",
+      "description": "Force equals mass times acceleration",
+      "variables": [
+        {
+          "symbol": "F",
+          "name": "Force",
+          "unit": "N"
+        },
+        {
+          "symbol": "m",
+          "name": "Mass",
+          "unit": "kg"
+        },
+        {
+          "symbol": "a",
+          "name": "Acceleration",
+          "unit": "m/s²"
+        }
+      ],
+      "source": "Newton 1687",
+      "status": "Verified"
+    },
+    {
+      "id": "newton_gravitation",
+      "name": "Newton's Law of Universal Gravitation",
+      "domain": "ClassicalMechanics",
+      "equation_tex": "F = G\\frac{m_1 m_2}{r^2}",
+      "description": "Gravitational force between two masses",
+      "variables": [
+        {
+          "symbol": "F",
+          "name": "Force",
+          "unit": "N"
+        },
+        {
+          "symbol": "G",
+          "name": "Gravitational constant",
+          "unit": "m³/(kg·s²)"
+        },
+        {
+          "symbol": "m_1, m_2",
+          "name": "Masses",
+          "unit": "kg"
+        },
+        {
+          "symbol": "r",
+          "name": "Distance",
+          "unit": "m"
+        }
+      ],
+      "source": "Newton 1687",
+      "status": "Verified"
+    },
+    {
+      "id": "maxwell_gauss_e",
+      "name": "Gauss's Law (Electric)",
+      "domain": "Electromagnetism",
+      "equation_tex": "\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}",
+      "description": "Electric field divergence equals charge density",
+      "variables": [
+        {
+          "symbol": "E",
+          "name": "Electric field",
+          "unit": "V/m"
+        },
+        {
+          "symbol": "ρ",
+          "name": "Charge density",
+          "unit": "C/m³"
+        }
+      ],
+      "source": "Maxwell 1865",
+      "status": "Verified"
+    },
+    {
+      "id": "maxwell_gauss_b",
+      "name": "Gauss's Law (Magnetic)",
+      "domain": "Electromagnetism",
+      "equation_tex": "\\nabla \\cdot \\mathbf{B} = 0",
+      "description": "No magnetic monopoles",
+      "variables": [
+        {
+          "symbol": "B",
+          "name": "Magnetic field",
+          "unit": "T"
+        }
+      ],
+      "source": "Maxwell 1865",
+      "status": "Verified"
+    },
+    {
+      "id": "maxwell_faraday",
+      "name": "Faraday's Law of Induction",
+      "domain": "Electromagnetism",
+      "equation_tex": "\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}",
+      "description": "Changing magnetic field induces electric field",
+      "variables": [
+        {
+          "symbol": "E",
+          "name": "Electric field",
+          "unit": "V/m"
+        },
+        {
+          "symbol": "B",
+          "name": "Magnetic field",
+          "unit": "T"
+        }
+      ],
+      "source": "Maxwell 1865",
+      "status": "Verified"
+    },
+    {
+      "id": "maxwell_ampere",
+      "name": "Ampère-Maxwell Law",
+      "domain": "Electromagnetism",
+      "equation_tex": "\\nabla \\times \\mathbf{B} = \\mu_0\\mathbf{J} + \\mu_0\\varepsilon_0\\frac{\\partial \\mathbf{E}}{\\partial t}",
+      "description": "Current and changing electric field produce magnetic field",
+      "variables": [
+        {
+          "symbol": "B",
+          "name": "Magnetic field",
+          "unit": "T"
+        },
+        {
+          "symbol": "J",
+          "name": "Current density",
+          "unit": "A/m²"
+        },
+        {
+          "symbol": "E",
+          "name": "Electric field",
+          "unit": "V/m"
+        }
+      ],
+      "source": "Maxwell 1865",
+      "status": "Verified"
+    },
+    {
+      "id": "ideal_gas",
+      "name": "Ideal Gas Law",
+      "domain": "Thermodynamics",
+      "equation_tex": "PV = nRT = Nk_BT",
+      "description": "Equation of state for ideal gas",
+      "variables": [
+        {
+          "symbol": "P",
+          "name": "Pressure",
+          "unit": "Pa"
+        },
+        {
+          "symbol": "V",
+          "name": "Volume",
+          "unit": "m³"
+        },
+        {
+          "symbol": "n",
+          "name": "Amount",
+          "unit": "mol"
+        },
+        {
+          "symbol": "T",
+          "name": "Temperature",
+          "unit": "K"
+        }
+      ],
+      "source": "Clapeyron 1834",
+      "status": "Verified"
+    },
+    {
+      "id": "entropy_boltzmann",
+      "name": "Boltzmann Entropy",
+      "domain": "StatisticalMechanics",
+      "equation_tex": "S = k_B \\ln \\Omega",
+      "description": "Entropy as logarithm of microstates",
+      "variables": [
+        {
+          "symbol": "S",
+          "name": "Entropy",
+          "unit": "J/K"
+        },
+        {
+          "symbol": "Ω",
+          "name": "Number of microstates",
+          "unit": null
+        }
+      ],
+      "source": "Boltzmann",
+      "status": "Verified"
+    },
+    {
+      "id": "schrodinger",
+      "name": "Schrödinger Equation",
+      "domain": "QuantumMechanics",
+      "equation_tex": "i\\hbar\\frac{\\partial}{\\partial t}\\Psi = \\hat{H}\\Psi",
+      "description": "Time evolution of quantum state",
+      "variables": [
+        {
+          "symbol": "Ψ",
+          "name": "Wave function",
+          "unit": null
+        },
+        {
+          "symbol": "H",
+          "name": "Hamiltonian",
+          "unit": "J"
+        }
+      ],
+      "source": "Schrödinger 1926",
+      "status": "Verified"
+    },
+    {
+      "id": "heisenberg_uncertainty",
+      "name": "Heisenberg Uncertainty Principle",
+      "domain": "QuantumMechanics",
+      "equation_tex": "\\Delta x \\Delta p \\geq \\frac{\\hbar}{2}",
+      "description": "Fundamental limit on precision of position and momentum",
+      "variables": [
+        {
+          "symbol": "Δx",
+          "name": "Position uncertainty",
+          "unit": "m"
+        },
+        {
+          "symbol": "Δp",
+          "name": "Momentum uncertainty",
+          "unit": "kg·m/s"
+        }
+      ],
+      "source": "Heisenberg 1927",
+      "status": "Verified"
+    },
+    {
+      "id": "planck_radiation",
+      "name": "Planck's Radiation Law",
+      "domain": "QuantumMechanics",
+      "equation_tex": "B(\\nu,T) = \\frac{2h\\nu^3}{c^2}\\frac{1}{e^{h\\nu/k_BT}-1}",
+      "description": "Spectral radiance of black body",
+      "variables": [
+        {
+          "symbol": "B",
+          "name": "Spectral radiance",
+          "unit": "W/(m²·sr·Hz)"
+        },
+        {
+          "symbol": "ν",
+          "name": "Frequency",
+          "unit": "Hz"
+        },
+        {
+          "symbol": "T",
+          "name": "Temperature",
+          "unit": "K"
+        }
+      ],
+      "source": "Planck 1900",
+      "status": "Verified"
+    },
+    {
+      "id": "de_broglie",
+      "name": "de Broglie Relation",
+      "domain": "QuantumMechanics",
+      "equation_tex": "\\lambda = \\frac{h}{p}",
+      "description": "Wavelength of matter wave",
+      "variables": [
+        {
+          "symbol": "λ",
+          "name": "Wavelength",
+          "unit": "m"
+        },
+        {
+          "symbol": "p",
+          "name": "Momentum",
+          "unit": "kg·m/s"
+        }
+      ],
+      "source": "de Broglie 1924",
+      "status": "Verified"
+    },
+    {
+      "id": "einstein_mass_energy",
+      "name": "Mass-Energy Equivalence",
+      "domain": "Relativity",
+      "equation_tex": "E = mc^2",
+      "description": "Energy equals mass times speed of light squared",
+      "variables": [
+        {
+          "symbol": "E",
+          "name": "Energy",
+          "unit": "J"
+        },
+        {
+          "symbol": "m",
+          "name": "Mass",
+          "unit": "kg"
+        },
+        {
+          "symbol": "c",
+          "name": "Speed of light",
+          "unit": "m/s"
+        }
+      ],
+      "source": "Einstein 1905",
+      "status": "Verified"
+    },
+    {
+      "id": "lorentz_factor",
+      "name": "Lorentz Factor",
+      "domain": "Relativity",
+      "equation_tex": "\\gamma = \\frac{1}{\\sqrt{1-v^2/c^2}}",
+      "description": "Time dilation and length contraction factor",
+      "variables": [
+        {
+          "symbol": "γ",
+          "name": "Lorentz factor",
+          "unit": null
+        },
+        {
+          "symbol": "v",
+          "name": "Velocity",
+          "unit": "m/s"
+        }
+      ],
+      "source": "Lorentz, Einstein",
+      "status": "Verified"
+    },
+    {
+      "id": "einstein_field",
+      "name": "Einstein Field Equations",
+      "domain": "GeneralRelativity",
+      "equation_tex": "G_{\\mu\\nu} + \\Lambda g_{\\mu\\nu} = \\frac{8\\pi G}{c^4}T_{\\mu\\nu}",
+      "description": "Spacetime curvature from matter-energy",
+      "variables": [
+        {
+          "symbol": "G_{μν}",
+          "name": "Einstein tensor",
+          "unit": null
+        },
+        {
+          "symbol": "g_{μν}",
+          "name": "Metric tensor",
+          "unit": null
+        },
+        {
+          "symbol": "T_{μν}",
+          "name": "Stress-energy tensor",
+          "unit": null
+        },
+        {
+          "symbol": "Λ",
+          "name": "Cosmological constant",
+          "unit": "m⁻²"
+        }
+      ],
+      "source": "Einstein 1915",
+      "status": "Verified"
+    },
+    {
+      "id": "schwarzschild_metric",
+      "name": "Schwarzschild Metric",
+      "domain": "GeneralRelativity",
+      "equation_tex": "ds^2 = -\\left(1-\\frac{r_s}{r}\\right)c^2dt^2 + \\frac{dr^2}{1-r_s/r} + r^2d\\Omega^2",
+      "description": "Spacetime geometry around spherical mass",
+      "variables": [
+        {
+          "symbol": "r_s",
+          "name": "Schwarzschild radius",
+          "unit": "m"
+        },
+        {
+          "symbol": "r",
+          "name": "Radial coordinate",
+          "unit": "m"
+        }
+      ],
+      "source": "Schwarzschild 1916",
+      "status": "Verified"
+    },
+    {
+      "id": "bekenstein_hawking",
+      "name": "Bekenstein-Hawking Entropy",
+      "domain": "GeneralRelativity",
+      "equation_tex": "S_{BH} = \\frac{k_B c^3 A}{4 G \\hbar}",
+      "description": "Black hole entropy proportional to horizon area",
+      "variables": [
+        {
+          "symbol": "S_{BH}",
+          "name": "Black hole entropy",
+          "unit": "J/K"
+        },
+        {
+          "symbol": "A",
+          "name": "Horizon area",
+          "unit": "m²"
+        }
+      ],
+      "source": "Bekenstein 1973, Hawking 1974",
+      "status": "Verified"
+    }
+  ],
+  "discovered": [],
+  "version": "1.0.0",
+  "last_updated": 1768771712
+}

@@ -1,0 +1,370 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Browser
+# Wave-native web browser
+# ═══════════════════════════════════════════════════════════════════
+
+title = "Browser"
+icon = "🌐"
+
+# State
+current_url = "wave://home"
+history = []
+history_index = -1
+tabs = []
+active_tab = 0
+loading = false
+
+# ───────────────────────────────────────────────────────────────────
+# Start
+# ───────────────────────────────────────────────────────────────────
+
+start -> function(window) {
+    # Create initial tab
+    new_tab()
+    
+    window.content = {
+        type: "container",
+        children: [
+            create_toolbar(),
+            create_tabs(),
+            create_address_bar(),
+            create_content_view()
+        ]
+    }
+    
+    # Load home page
+    navigate("wave://home")
+}
+
+# ───────────────────────────────────────────────────────────────────
+# UI Components
+# ───────────────────────────────────────────────────────────────────
+
+create_toolbar -> function() {
+    {
+        type: "toolbar",
+        items: [
+            { icon: "⬅️", action: go_back, tooltip: "Back" },
+            { icon: "➡️", action: go_forward, tooltip: "Forward" },
+            { icon: "🔄", action: reload, tooltip: "Reload" },
+            { icon: "🏠", action: go_home, tooltip: "Home" },
+            { separator: true },
+            { icon: "⭐", action: add_bookmark, tooltip: "Bookmark" },
+            { icon: "📥", action: download, tooltip: "Downloads" },
+            { icon: "⚙️", action: settings, tooltip: "Settings" }
+        ]
+    } -> return
+}
+
+create_tabs -> function() {
+    {
+        type: "tabbar",
+        tabs: tabs,
+        active: active_tab,
+        on_select: select_tab,
+        on_close: close_tab,
+        on_new: new_tab
+    } -> return
+}
+
+create_address_bar -> function() {
+    {
+        type: "addressbar",
+        url: current_url,
+        loading: loading,
+        secure: current_url.startsWith("https://"),
+        on_navigate: navigate,
+        on_search: search
+    } -> return
+}
+
+create_content_view -> function() {
+    {
+        type: "webview",
+        content: tabs[active_tab].content,
+        on_link_click: navigate,
+        on_title_change: update_tab_title,
+        on_load_start: on_load_start,
+        on_load_end: on_load_end
+    } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Navigation
+# ───────────────────────────────────────────────────────────────────
+
+navigate -> function(url) {
+    # Normalize URL
+    when !url.includes("://") {
+        when url.startsWith("wave://") || url.startsWith("http://") || url.startsWith("https://") {
+            # Already has protocol
+        } else {
+            # Default to https
+            url = "https://" + url
+        }
+    }
+    
+    # Add to history
+    history_index = history_index + 1
+    history = history[0..history_index]
+    url -> history.push
+    
+    current_url = url
+    tabs[active_tab].url = url
+    
+    # Load content
+    load_page(url)
+}
+
+go_back -> function() {
+    when history_index > 0 {
+        history_index = history_index - 1
+        load_page(history[history_index])
+    }
+}
+
+go_forward -> function() {
+    when history_index < history.length - 1 {
+        history_index = history_index + 1
+        load_page(history[history_index])
+    }
+}
+
+go_home -> function() {
+    navigate("wave://home")
+}
+
+reload -> function() {
+    load_page(current_url)
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Page Loading
+# ───────────────────────────────────────────────────────────────────
+
+load_page -> function(url) {
+    loading = true
+    update_ui()
+    
+    when url.startsWith("wave://") {
+        # Internal page
+        content -> load_internal_page(url)
+        render_content(content)
+    } else {
+        # HTTP request
+        response -> network.http_get(url)
+        
+        when response.status == 200 {
+            render_content(response.body)
+        } else {
+            render_error("Failed to load: " + url + " (" + response.status + ")")
+        }
+    }
+    
+    loading = false
+    update_ui()
+}
+
+load_internal_page -> function(url) {
+    when url == "wave://home" {
+        home_page() -> return
+    }
+    when url == "wave://bookmarks" {
+        bookmarks_page() -> return
+    }
+    when url == "wave://history" {
+        history_page() -> return
+    }
+    when url == "wave://settings" {
+        settings_page() -> return
+    }
+    when url == "wave://downloads" {
+        downloads_page() -> return
+    }
+    
+    error_page("Page not found: " + url) -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Internal Pages
+# ───────────────────────────────────────────────────────────────────
+
+home_page -> function() {
+    {
+        type: "html",
+        content: "
+            <div style='text-align: center; padding: 50px;'>
+                <h1>🌊 Wave Browser</h1>
+                <p>Welcome to Val-OS Browser</p>
+                <div style='margin-top: 30px;'>
+                    <input type='text' placeholder='Search or enter URL' 
+                           style='width: 400px; padding: 10px; font-size: 16px;'
+                           onkeypress='if(event.key==\"Enter\") search(this.value)'>
+                </div>
+                <div style='margin-top: 50px;'>
+                    <h3>Quick Links</h3>
+                    <a href='wave://bookmarks'>📚 Bookmarks</a> |
+                    <a href='wave://history'>📜 History</a> |
+                    <a href='wave://settings'>⚙️ Settings</a>
+                </div>
+            </div>
+        "
+    } -> return
+}
+
+bookmarks_page -> function() {
+    items = ""
+    bookmarks -> fate_each -> bm {
+        items = items + "<li><a href='" + bm.url + "'>" + bm.title + "</a></li>"
+    }
+    
+    {
+        type: "html",
+        content: "
+            <h1>📚 Bookmarks</h1>
+            <ul>" + items + "</ul>
+        "
+    } -> return
+}
+
+history_page -> function() {
+    items = ""
+    history -> fate_each -> entry {
+        items = items + "<li><a href='" + entry + "'>" + entry + "</a></li>"
+    }
+    
+    {
+        type: "html",
+        content: "
+            <h1>📜 History</h1>
+            <ul>" + items + "</ul>
+        "
+    } -> return
+}
+
+error_page -> function(message) {
+    {
+        type: "html",
+        content: "
+            <div style='text-align: center; padding: 50px;'>
+                <h1>❌ Error</h1>
+                <p>" + message + "</p>
+                <a href='wave://home'>Go Home</a>
+            </div>
+        "
+    } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Tabs
+# ───────────────────────────────────────────────────────────────────
+
+new_tab -> function() {
+    tab = {
+        id: tabs.length,
+        title: "New Tab",
+        url: "wave://home",
+        content: null
+    }
+    
+    tab -> tabs.push
+    active_tab = tabs.length - 1
+    
+    navigate("wave://home")
+}
+
+select_tab -> function(index) {
+    active_tab = index
+    current_url = tabs[index].url
+    update_ui()
+}
+
+close_tab -> function(index) {
+    when tabs.length <= 1 {
+        # Don't close last tab
+        return
+    }
+    
+    tabs.splice(index, 1)
+    
+    when active_tab >= tabs.length {
+        active_tab = tabs.length - 1
+    }
+    
+    current_url = tabs[active_tab].url
+    update_ui()
+}
+
+update_tab_title -> function(title) {
+    tabs[active_tab].title = title
+    update_ui()
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Rendering
+# ───────────────────────────────────────────────────────────────────
+
+render_content -> function(content) {
+    tabs[active_tab].content = content
+    update_ui()
+}
+
+render_error -> function(message) {
+    tabs[active_tab].content = error_page(message)
+    update_ui()
+}
+
+update_ui -> function() {
+    window.content.children[1].tabs = tabs
+    window.content.children[1].active = active_tab
+    window.content.children[2].url = current_url
+    window.content.children[2].loading = loading
+    window.content.children[3].content = tabs[active_tab].content
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Bookmarks
+# ───────────────────────────────────────────────────────────────────
+
+bookmarks = []
+
+add_bookmark -> function() {
+    {
+        title: tabs[active_tab].title,
+        url: current_url
+    } -> bookmarks.push
+    
+    alert("Bookmarked: " + tabs[active_tab].title)
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Search
+# ───────────────────────────────────────────────────────────────────
+
+search -> function(query) {
+    # Use DuckDuckGo
+    url = "https://duckduckgo.com/?q=" + encodeURIComponent(query)
+    navigate(url)
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Events
+# ───────────────────────────────────────────────────────────────────
+
+on_load_start -> function() {
+    loading = true
+    update_ui()
+}
+
+on_load_end -> function() {
+    loading = false
+    update_ui()
+}
+
+# Export
+module.exports = {
+    title,
+    icon,
+    start,
+    navigate
+}

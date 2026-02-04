@@ -1,0 +1,171 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Login Screen
+# Wave-native authentication
+# ═══════════════════════════════════════════════════════════════════
+
+# Users database
+users = {
+    admin: { password: "wave", role: "admin", home: "/home/admin" },
+    guest: { password: "", role: "guest", home: "/home/guest" }
+}
+
+current_user = null
+
+# ───────────────────────────────────────────────────────────────────
+# Login UI
+# ───────────────────────────────────────────────────────────────────
+
+show -> function() {
+    out ""
+    out "╔═══════════════════════════════════════════════════════════╗"
+    out "║                                                           ║"
+    out "║                    🌊 Val-OS Login                        ║"
+    out "║                                                           ║"
+    out "╠═══════════════════════════════════════════════════════════╣"
+    out "║                                                           ║"
+    out "║   Username: _                                             ║"
+    out "║   Password: _                                             ║"
+    out "║                                                           ║"
+    out "║              [ Login ]    [ Guest ]                       ║"
+    out "║                                                           ║"
+    out "╚═══════════════════════════════════════════════════════════╝"
+    out ""
+    
+    # Wait for input
+    login_loop()
+}
+
+login_loop -> function() {
+    loop {
+        out "Username: "
+        username -> input.read_line()
+        
+        out "Password: "
+        password -> input.read_line()
+        
+        # Authenticate
+        result -> authenticate(username, password)
+        
+        when result.success {
+            current_user = result.user
+            out ""
+            out "✓ Welcome, " + username + "!"
+            out ""
+            
+            # Start desktop
+            start_session(result.user)
+            return
+        } else {
+            out ""
+            out "✗ Invalid credentials. Try again."
+            out ""
+        }
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Authentication
+# ───────────────────────────────────────────────────────────────────
+
+authenticate -> function(username, password) {
+    user -> users[username]
+    
+    when user == null {
+        { success: false, error: "User not found" } -> return
+    }
+    
+    when user.password != password {
+        { success: false, error: "Wrong password" } -> return
+    }
+    
+    # Log authentication
+    { action: "login", user: username } -> fate_observe
+    
+    { success: true, user: { name: username, role: user.role, home: user.home } } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Session Management
+# ───────────────────────────────────────────────────────────────────
+
+start_session -> function(user) {
+    # Set environment
+    env.USER = user.name
+    env.HOME = user.home
+    env.ROLE = user.role
+    
+    # Change to home directory
+    current_dir = user.home
+    
+    # Start desktop
+    desktop.init()
+}
+
+logout -> function() {
+    current_user = null
+    
+    # Clear session
+    env.USER = null
+    env.HOME = null
+    
+    # Show login again
+    show()
+}
+
+# ───────────────────────────────────────────────────────────────────
+# User Management
+# ───────────────────────────────────────────────────────────────────
+
+add_user -> function(username, password, role) {
+    when current_user.role != "admin" {
+        out "Permission denied: admin required"
+        return
+    }
+    
+    users[username] = {
+        password: password,
+        role: role || "user",
+        home: "/home/" + username
+    }
+    
+    # Create home directory
+    storage.create_dir("/home/" + username)
+    
+    out "User " + username + " created"
+}
+
+remove_user -> function(username) {
+    when current_user.role != "admin" {
+        out "Permission denied: admin required"
+        return
+    }
+    
+    when username == "admin" {
+        out "Cannot remove admin user"
+        return
+    }
+    
+    delete users[username]
+    out "User " + username + " removed"
+}
+
+change_password -> function(old_pass, new_pass) {
+    when users[current_user.name].password != old_pass {
+        out "Wrong current password"
+        return
+    }
+    
+    users[current_user.name].password = new_pass
+    out "Password changed"
+}
+
+# Export
+module.exports = {
+    show,
+    authenticate,
+    logout,
+    add_user,
+    remove_user,
+    change_password,
+    current_user
+}

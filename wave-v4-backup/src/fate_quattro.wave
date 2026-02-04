@@ -1,0 +1,113 @@
+# 🌊 Fate+四元 内存管理器
+# Wave 自举核心组件
+# 无硬编码 - Fate 决定一切
+
+# ═══════════════════════════════════════════════════════
+# Fate 自主初始化
+# ═══════════════════════════════════════════════════════
+
+# Fate 检测可用内存并决定池大小
+available_memory -> fate_detect -> fate_decide_pools
+
+# Fate 决定的池配置 (非硬编码)
+# blackhole_size = fate_decide("large_pool")
+# meshbrain_size = fate_decide("index_pool")
+# multinova_size = fate_decide("parallel_pool")
+# baseforce_size = fate_decide("small_pool")
+
+# ═══════════════════════════════════════════════════════
+# 四元池 (Fate 动态配置)
+# ═══════════════════════════════════════════════════════
+
+# BlackHole - 大块连续内存
+blackhole -> fate_init_pool -> ready
+
+# MeshBrain - 智能索引内存
+meshbrain -> fate_init_pool -> ready
+
+# MultiNova - 并行分区内存
+multinova -> fate_init_pool -> ready
+
+# BaseForce - 小块碎片重用
+baseforce -> fate_init_pool -> ready
+
+# ═══════════════════════════════════════════════════════
+# Fate 学习系统
+# ═══════════════════════════════════════════════════════
+
+# 缓存: size -> pool 映射 (自动学习)
+fate_cache -> fate_init -> ready
+
+# 重用列表 (自动管理)
+reuse_lists -> fate_init -> ready
+
+# ═══════════════════════════════════════════════════════
+# Fate 决策 (无硬编码规则)
+# ═══════════════════════════════════════════════════════
+
+# fate_decide(request)
+#   1. 检查缓存 (已学习的映射)
+#   2. 分析请求特征
+#   3. 分析当前负载
+#   4. 选择最优池
+#   5. 记录学习
+
+request -> fate_analyze -> fate_select_pool -> allocate
+
+# ═══════════════════════════════════════════════════════
+# Fate 分配
+# ═══════════════════════════════════════════════════════
+
+# fate_alloc(size)
+#   pool = fate_decide(size)
+#   try reuse from pool
+#   or new alloc from pool
+#   learn pattern
+
+alloc_request -> fate_decide -> fate_try_reuse -> fate_new_alloc -> fate_learn
+
+# ═══════════════════════════════════════════════════════
+# Fate 释放
+# ═══════════════════════════════════════════════════════
+
+# fate_free(ptr)
+#   identify pool
+#   add to reuse list
+#   update stats
+
+free_request -> fate_identify_pool -> fate_add_reuse -> fate_update_stats
+
+# ═══════════════════════════════════════════════════════
+# Collapse (Fate 自主触发)
+# ═══════════════════════════════════════════════════════
+
+# Fate 检测边际收益
+# 阈值范围 (Fate 自主选择):
+#   边际收益阈值: 1%-5% (改善率低于此值触发 Collapse)
+#   性能阈值: 65%-80% (性能低于此值触发 Collapse)
+#   负载阈值: 60%-75% (负载高于此值开始监控)
+# collapse_check()
+#   when fate_detect_diminishing_returns() {
+#     collapse_trigger()
+#   }
+
+fate_monitor -> fate_detect_marginal -> fate_collapse_decision
+
+# collapse_trigger()
+#   -> fate_defragment()
+#   -> fate_release_unused()
+#   -> fate_rebalance_pools()
+
+collapse -> fate_defragment -> fate_release -> fate_rebalance -> recovered
+
+# ═══════════════════════════════════════════════════════
+# 状态 (Fate 跟踪)
+# ═══════════════════════════════════════════════════════
+
+# fate_stats()
+#   pools: fate_pool_stats()
+#   cache: fate_cache_stats()
+#   reuse: fate_reuse_stats()
+#   health: fate_health_check()
+
+stats_request -> fate_collect_stats -> report

@@ -1,0 +1,60 @@
+================================================================================
+Valhalla 下午训练 (2026-01-22) 完整对话记录
+================================================================================
+训练信息:
+  周期: 5
+  信号: 21,700,917
+  偏好: BH=25.01% MB=25.02% MN=24.99% BF=24.98%
+================================================================================
+
+     1	[english/movie] Cut the Doubting Thomas shit, Elaine.  I know where I'm coming from on this.
+     2	[english] By the way, where does he live?
+     3	[english] I've been there a few times.
+     4	[english] To my disappointment, he had already started.
+     5	[english/movie] He don't sound like he's from 'round here.
+     6	[chinese] 我們全體為日本祈禱。
+     7	[french] irak
+     8	[japanese] 混んでいる場合多いので、電話で確認した方が良いと思います。 (VERB SCONJ VERB NOUN ADJ SCONJ AUX PUNCT NOUN ADP VERB AUX AUX NOUN ADP ADJ ADP VERB AUX PUNCT)
+     9	[spanish] unirse
+    10	[🖼️ english/flickr30k] [/EN#276689/people Several men] with [/EN#276694/other disabilities] are competing in [/EN#276688/other a race] with [/EN#276692/other specialized wheelchairs] .
+    11	[russian] К месту событий подошли остальные корабли союзной эскадры и вступили в бой, как обычно, сосредоточив огонь на самом крупном корабле противника. (ADP NOUN NOUN VERB ADJ NOUN ADJ NOUN CCONJ VERB ADP NOUN PUNCT ADV ADV PUNCT VERB NOUN ADP ADJ ADJ NOUN NOUN PUNCT)
+    12	[🖼️ english/flickr30k] [/EN#143357/people A woman] standing in front of [/EN#143363/scene a dock] with [/EN#143366/other coolers] .
+    13	[🖼️ english/flickr30k] [/EN#205821/people Two people] are on [/EN#205832/scene a stage] playing [/EN#205823/instruments stringed instruments] for [/EN#205824/people a small crowd] .
+    14	[japanese] 秘書課長や総務部長を経て、1947年3月15日に上層部が公職追放で辞任したのを受けて、43歳で取締役になる。 (NOUN NOUN NOUN ADP NOUN NOUN ADP VERB SCONJ PUNCT NUM NOUN NUM NOUN NUM NOUN ADP NOUN NOUN ADP NOUN NOUN ADP VERB AUX AUX SCONJ ADP VERB SCONJ PUNCT NUM NOUN ADP NOUN NOUN ADP VERB PUNCT)
+    15	[english/convai] 4 your persona: i can tell right away if i m going to like someone.
+    16	[english] bargain
+    17	[russian] Высокослоистые облака -- разновидность облаков, представляющая собой плотный покров серого или беловатого цвета, вблизи солнца или луны образующий более светлую часть, сквозь которую виднеется бледный, слабосветящийся диск светила (``водянистое солнце&#39;&#39;). (ADJ NOUN PUNCT NOUN NOUN PUNCT VERB PRON ADJ NOUN ADJ CCONJ ADJ NOUN PUNCT ADP NOUN CCONJ NOUN VERB ADV ADJ NOUN PUNCT ADP PRON VERB ADJ PUNCT ADJ NOUN NOUN PUNCT PUNCT ADJ NOUN PUNCT PUNCT PUNCT)
+    18	[arabic] وصرح الدكتور هاشم يماني بأن مباحثاته مع الدكتور غالي تستهدف في المقام الأول الانتقال بمستوى التعاون الاقتصادي بين البلدين إلى مستويات أعلى ومجالات أوسع لتعزيز القدرات التنافسية للبلدين. (_ CCONJ VERB NOUN X X _ ADP SCONJ _ NOUN PRON ADP NOUN X VERB ADP NOUN ADJ NOUN _ ADP NOUN NOUN ADJ ADP NOUN ADP NOUN ADJ _ CCONJ NOUN ADJ _ ADP NOUN NOUN ADJ _ ADP NOUN PUNCT)
+    19	[english] Lorie Leigh 46093 (PROPN PROPN NUM)
+    20	[german] abgecasht
+    21	[english/convai] 4 your persona: i made my first movie when i was 18.
+    22	[🖼️ english/flickr30k] [/EN#15720/people A young girl] and [/EN#15719/people an older gentleman] hold [/EN#15721/bodyparts hands] as [/EN#0/notvisual he] points to [/EN#15724/other something] off [/EN#15722/other frame] .
+    23	[spanish] ¿Ya ha terminado los deberes?
+    24	[arabic] وفي فبراير من العام نفسه تأسس حزب الفضيلة كامتداد لحزب الرفاه المحظور، بزعامة رجائي قوطان وتراجعت أصوات الحزب في انتخابات أبريل 1999 من 21% عام 1995 إلى 15%. (_ CCONJ ADP NOUN ADP NOUN _ NOUN PRON VERB NOUN NOUN _ ADP NOUN _ ADP NOUN NOUN ADJ PUNCT _ ADP NOUN X X _ CCONJ VERB NOUN NOUN ADP NOUN NOUN NUM ADP NUM SYM NOUN NUM ADP NUM SYM PUNCT)
+    25	[english/movie] Where is my family?
+    26	[english] vector
+    27	[russian] Я им всем купил по подарку.
+    28	[🖼️ english/flickr30k] [/EN#77621/animals A large golden dog] sniffing [/EN#77623/animals the butt of a white dog]
+    29	[english/movie] How'd you know?
+    30	[english/convai] 6 partner's persona: i enjoy going on hikes.
+    31	[english] The United States understands this now, after September 11. (DET ADJ PROPN VERB PRON ADV PUNCT ADP PROPN NUM PUNCT)
+    32	[🖼️ english/flickr30k] [/EN#93112/people A surfer] in [/EN#93114/clothing a black surfing suit] in [/EN#93115/other motion] .
+    33	[spanish] baila
+    34	[german] Das Essen ist gut, aber der Service stimmt nicht mehr. (DET NOUN AUX ADJ PUNCT CCONJ DET NOUN VERB PART ADV PUNCT)
+    35	[🖼️ english/cc] person shows off the boat to person
+    36	[🖼️ english/cc] family of 4 riding a motorcycle
+    37	[arabic] تركت ليلى مهنتها كممرّضة.
+    38	[chinese] स्पेशल सेल को तभी से जनमेजय की तलाश थी, क्योंकि व्यापारी को धमकी देकर धन की मांग वही कर रहा था । (ADJ NOUN ADP PRON ADP PROPN ADP NOUN AUX PUNCT SCONJ NOUN ADP NOUN VERB NOUN ADP NOUN PRON VERB AUX AUX PUNCT)
+    39	[english/movie] I am your friend, and I'm worried sick about you.  But, you're like a locked safe.  You've gotta start dealing with reality.
+    40	[portuguese] Eu não sonhei noite passada.
+    41	[🖼️ english/flickr30k] [/EN#132644/people A skateboarder] in [/EN#132644/scene silhouette] jumps over [/EN#132645/other an orange traffic cone] .
+    42	[english/movie] If you love me so much, Jack, you'll realize how disconcerting it is to share one's breakfast with the living dead!
+    43	[portuguese] No sábado, serão realizadas as competições do Circuito e as finais do Circuitinho, das 10h às 12h30. (_ ADP DET PROPN PUNCT AUX VERB DET NOUN _ ADP DET PROPN CCONJ DET NOUN _ ADP DET PROPN PUNCT _ ADP DET NUM _ ADP DET NUM PUNCT)
+    44	[english] Whatever you do, you must do your best.
+    45	[🖼️ english/flickr30k] [/EN#277914/people Two men] in [/EN#277923/vehicles colorful uniforms bike] past [/EN#277916/people a crowd of people] .
+    46	[english/movie] She grabbed you?  Impossible.  The Precogs aren't even aware of us. In the milk all they see is the future.
+    47	[spanish] Había sido tomado de Aksum por el Ejército italiano durante la ocupación italiana de Etiopía en 1937. (AUX AUX VERB ADP PROPN ADP DET NOUN ADJ ADP DET NOUN ADJ ADP PROPN ADP NUM PUNCT)
+    48	[🖼️ english/flickr30k] [/EN#254157/people A young boy] wearing [/EN#254159/clothing a black jersey] is shooting [/EN#254158/other a basketball] .
+    49	[english/movie] How can I help you with the particles?
+
+=================================================================================

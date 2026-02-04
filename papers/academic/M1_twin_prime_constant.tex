@@ -1,0 +1,103 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+
+\title{Twin Prime Constant: Exact Algebraic Computation}
+\author{Valhalla Research Team}
+\date{January 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We compute the twin prime constant $C_2$ using exact rational arithmetic (S-wind EPR). The constant is defined as an infinite product over primes, and we compute exact truncated values. All computations are performed with infinite precision, yielding exact rational results for finite products. We also explore algebraic relationships with $\zeta(2)$.
+\end{abstract}
+
+\section{Definition}
+
+\begin{definition}[Twin Prime Constant]
+The twin prime constant $C_2$ is defined as:
+\begin{equation}
+C_2 = \prod_{p > 2} \left(1 - \frac{1}{(p-1)^2}\right)
+\end{equation}
+where the product runs over all odd primes.
+\end{definition}
+
+The known value is:
+\begin{equation}
+C_2 = 0.6601618158468695739278121100145...
+\end{equation}
+
+\section{Exact Computation}
+
+Using S-wind's EPR (Extended Precision Rational) arithmetic, we compute truncated products exactly.
+
+\begin{proposition}[Truncated Product]
+For the first 10 odd primes $\{3, 5, 7, 11, 13, 17, 19, 23, 29, 31\}$:
+\begin{equation}
+C_2^{(10)} = \prod_{i=1}^{10} \left(1 - \frac{1}{(p_i - 1)^2}\right) = \frac{42803602439}{64424509440}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Direct computation:
+\begin{align}
+&\left(1 - \frac{1}{4}\right) \times \left(1 - \frac{1}{16}\right) \times \left(1 - \frac{1}{36}\right) \times \cdots \\
+&= \frac{3}{4} \times \frac{15}{16} \times \frac{35}{36} \times \frac{99}{100} \times \frac{143}{144} \times \frac{255}{256} \times \frac{323}{324} \times \frac{483}{484} \times \frac{783}{784} \times \frac{899}{900}
+\end{align}
+Using exact rational multiplication yields the exact fraction.
+\end{proof}
+
+\section{Decimal Value}
+
+\begin{equation}
+C_2^{(10)} = \frac{42803602439}{64424509440} \approx 0.6644257...
+\end{equation}
+
+This is approximately 0.6\% above the infinite product value, as expected for a truncated product.
+
+\section{Relationship with $\zeta(2)$}
+
+\begin{proposition}[Product with $\zeta(2)$]
+\begin{equation}
+C_2 \times \zeta(2) = C_2 \times \frac{\pi^2}{6} \approx 1.0929...
+\end{equation}
+\end{proposition}
+
+\begin{remark}
+The product $C_2 \times \zeta(2) \approx 1.09$ is close to 1, suggesting a possible algebraic relationship. However, this is an observation, not a proven identity.
+\end{remark}
+
+\section{Structural Comparison}
+
+Both $C_2$ and $1/\zeta(2)$ are Euler products with quadratic terms:
+
+\begin{align}
+\frac{1}{\zeta(2)} &= \prod_{p} \left(1 - \frac{1}{p^2}\right) \\
+C_2 &= \prod_{p > 2} \left(1 - \frac{1}{(p-1)^2}\right)
+\end{align}
+
+The structural similarity suggests deep connections in prime number theory.
+
+\section{Technical Notes}
+
+\begin{itemize}
+    \item All computations use S-wind EPR (Extended Precision Rational)
+    \item No floating-point approximations
+    \item Results are exact for finite products
+    \item Convergence to infinite product follows standard analysis
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{hardy1979} Hardy, G.H. and Wright, E.M. (1979). \textit{An Introduction to the Theory of Numbers}. Oxford University Press.
+\bibitem{finch2003} Finch, S.R. (2003). \textit{Mathematical Constants}. Cambridge University Press.
+\end{thebibliography}
+
+\end{document}

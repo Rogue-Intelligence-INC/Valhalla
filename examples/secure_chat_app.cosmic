@@ -1,0 +1,614 @@
+/**
+ * Cosmic-C 安全聊天应用
+ * 
+ * 展示通信、认证、加密等特性的完整集成
+ * 使用一致的Cosmic-C语言风格
+ */
+
+use core.*
+use server.*
+use network.*
+use security.*
+use web.*
+use mobile.*
+
+// ========== 数据模型 ==========
+
+struct ChatUser {
+    id: i32
+    username: string
+    email: string
+    public_key: CryptoKey
+    is_online: bool
+    last_seen: string
+}
+
+struct ChatRoom {
+    id: string
+    name: string
+    description: string
+    is_private: bool
+    members: [ChatUser]
+    created_at: string
+}
+
+struct ChatMessage {
+    id: string
+    room_id: string
+    sender_id: i32
+    content: string
+    encrypted_content: string
+    timestamp: string
+    message_type: MessageType
+}
+
+type MessageType = enum {
+    Text
+    Image
+    File
+    System
+}
+
+// ========== 后端服务器 ==========
+
+server {
+    port: 8080
+    host: "localhost"
+    env: Development
+    
+    // 数据库配置
+    database postgres {
+        host: "localhost"
+        port: 5432
+        database: "secure_chat"
+        username: "chat_user"
+        password: "secure_pass"
+        ssl: true
+    }
+    
+    // 缓存配置
+    cache redis {
+        host: "localhost"
+        port: 6379
+        ttl: 3600
+        prefix: "chat:"
+    }
+    
+    // 安全配置
+    security {
+        encryption {
+            default_algorithm: AES256 { mode: GCM { iv: SecureRandom.bytes(12) } }
+            key_rotation_days: 30
+        }
+        
+        password_policy {
+            min_length: 8
+            require_uppercase: true
+            require_lowercase: true
+            require_digits: true
+            require_symbols: true
+            lockout_attempts: 5
+            lockout_duration: 900  // 15分钟
+        }
+        
+        jwt {
+            algorithm: HS256
+            expires_in: 86400  // 24小时
+            refresh_expires_in: 604800  // 7天
+        }
+        
+        rate_limiting {
+            enabled: true
+            per_user_limit: 100
+            per_ip_limit: 1000
+            window_size: 3600
+        }
+    }
+    
+    // 认证系统
+    auth jwt {
+        secret: env("JWT_SECRET")
+        expires_in: 86400
+        issuer: "secure_chat"
+        
+        // 多种认证方式
+        providers: [
+            EmailPassword,
+            OAuth { provider: "google", client_id: env("GOOGLE_CLIENT_ID") },
+            OAuth { provider: "github", client_id: env("GITHUB_CLIENT_ID") }
+        ]
+    }
+    
+    // 中间件
+    middleware cors({
+        origin: ["http://localhost:3000", "https://securechat.example.com"]
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        headers: ["Content-Type", "Authorization", "X-Requested-With"]
+        allow_credentials: true
+    })
+    
+    middleware rate_limit(100, 3600)
+    middleware logging()
+    middleware security_headers()
+    
+    // ========== 认证API ==========
+    
+    route POST "/api/auth/register" {
+        let user_data = request.json<RegisterRequest>()
+        
+        // 输入验证
+        security {
+            validation {
+                if !Validator.validate_email(user_data.email) {
+                    return status(400).json({"error": "Invalid email format"})
+                }
+                
+                let strength = Validator.validate_password_strength(user_data.password)
+                if strength < Strong {
+                    return status(400).json({"error": "Password too weak"})
+                }
+                
+                let safe_username = Sanitizer.sanitize_sql(user_data.username)
+            }
+        }
+        
+        // 生成密钥对
+        let (private_key, public_key) = CryptoKey.generate_key_pair(ECDSA { curve: P256 })
+        
+        // 密码哈希
+        let password_hash = PasswordHash { algorithm: Argon2id { memory: 64, iterations: 3, parallelism: 4 } }
+            .hash(user_data.password, None)
+        
+        // 创建用户
+        match database.query<ChatUser>(
+            "INSERT INTO users (username, email, password_hash, public_key) VALUES ($1, $2, $3, $4) RETURNING *",
+            [safe_username, user_data.email, password_hash, public_key.export_public()]
+        ) {
+            Ok(user) => {
+                // 审计日志
+                audit.log_event(AuditEvent {
+                    event_type: Authentication
+                    user_id: Some(user.id)
+                    action: Some("register")
+                    ip_address: Some(request.client_ip())
+                    details: {"username": user.username}
+                })
+                
+                return status(201).json({"user": user, "message": "Registration successful"})
+            }
+            Err(error) => {
+                return status(400).json({"error": "Registration failed"})
+            }
+        }
+    }
+    
+    route POST "/api/auth/login" {
+        let credentials = request.json<LoginRequest>()
+        
+        // 查找用户
+        let user = database.query<ChatUser>(
+            "SELECT * FROM users WHERE email = $1",
+            [credentials.email]
+        ).first()
+        
+        if user.is_none() {
+            audit.log_login(null, false, request.client_ip())
+            return status(401).json({"error": "Invalid credentials"})
+        }
+        
+        let user = user.unwrap()
+        
+        // 验证密码
+        let password_hash = PasswordHash { algorithm: Argon2id { memory: 64, iterations: 3, parallelism: 4 } }
+        if !password_hash.verify(credentials.password, user.password_hash) {
+            audit.log_login(user, false, request.client_ip())
+            return status(401).json({"error": "Invalid credentials"})
+        }
+        
+        // 生成JWT
+        let jwt_payload = JwtPayload {
+            sub: Some(user.id.to_string())
+            exp: Some(now() + 86400)
+            iat: Some(now())
+            claims: {
+                "username": user.username,
+                "email": user.email,
+                "role": "user"
+            }
+        }
+        
+        let token = JWT { algorithm: HS256, key: jwt_secret_key }.encode(jwt_payload)
+        
+        // 更新在线状态
+        cache.set("user_online:${user.id}", true, Some(3600))
+        
+        audit.log_login(user, true, request.client_ip())
+        
+        return json({
+            "token": token,
+            "user": user,
+            "expires_in": 86400
+        })
+    }
+    
+    // ========== 聊天室API ==========
+    
+    route GET "/api/rooms" [auth_required] {
+        let user_id = request.user.id
+        let rooms = database.query<ChatRoom>(
+            "SELECT * FROM rooms WHERE id IN (SELECT room_id FROM room_members WHERE user_id = $1)",
+            [user_id]
+        )
+        return json(rooms)
+    }
+    
+    route POST "/api/rooms" [auth_required] {
+        let room_data = request.json<CreateRoomRequest>()
+        let user_id = request.user.id
+        
+        let room_id = SecureRandom.uuid()
+        let room = database.query<ChatRoom>(
+            "INSERT INTO rooms (id, name, description, is_private, created_by) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [room_id, room_data.name, room_data.description, room_data.is_private, user_id]
+        ).first()
+        
+        // 添加创建者为成员
+        database.execute(
+            "INSERT INTO room_members (room_id, user_id, role) VALUES ($1, $2, 'admin')",
+            [room_id, user_id]
+        )
+        
+        return status(201).json(room)
+    }
+    
+    route POST "/api/rooms/:room_id/messages" [auth_required] {
+        let room_id = request.params.get("room_id")
+        let message_data = request.json<SendMessageRequest>()
+        let user_id = request.user.id
+        
+        // 检查用户是否有权限发送消息
+        if !access_control.check_permission(request.user, "room:${room_id}", "send_message") {
+            return status(403).json({"error": "Permission denied"})
+        }
+        
+        // 端到端加密
+        security {
+            encryption {
+                let room_key = cache.get<CryptoKey>("room_key:${room_id}")
+                    .unwrap_or_else(|| CryptoKey.generate(AES256 { mode: GCM }))
+                
+                let encrypted_content = Encryption { algorithm: AES256 { mode: GCM }, key: room_key }
+                    .encrypt_string(message_data.content)
+            }
+        }
+        
+        let message_id = SecureRandom.uuid()
+        let message = ChatMessage {
+            id: message_id,
+            room_id: room_id,
+            sender_id: user_id,
+            content: message_data.content,
+            encrypted_content: encrypted_content,
+            timestamp: now().to_string(),
+            message_type: Text
+        }
+        
+        // 保存消息
+        database.execute(
+            "INSERT INTO messages (id, room_id, sender_id, encrypted_content, timestamp, message_type) VALUES ($1, $2, $3, $4, $5, $6)",
+            [message.id, message.room_id, message.sender_id, message.encrypted_content, message.timestamp, message.message_type]
+        )
+        
+        // 实时广播
+        websocket.broadcast_to_room(room_id, json({
+            "type": "new_message",
+            "message": message
+        }))
+        
+        return status(201).json(message)
+    }
+    
+    // ========== WebSocket实时通信 ==========
+    
+    websocket "/ws" [auth_required] {
+        onConnect(client: WebSocket) {
+            let user_id = client.auth_context.user.id
+            
+            // 加入用户专属房间
+            client.join_room("user:${user_id}")
+            
+            // 更新在线状态
+            cache.set("user_online:${user_id}", true, Some(3600))
+            
+            // 通知其他用户
+            network {
+                websocket {
+                    client.broadcast("user_status", json({
+                        "type": "user_online",
+                        "user_id": user_id,
+                        "timestamp": now()
+                    }))
+                }
+            }
+            
+            client.send_json({
+                "type": "welcome",
+                "message": "Connected to secure chat",
+                "user_id": user_id
+            })
+        }
+        
+        onMessage(client: WebSocket, message: string) {
+            let data = parse_json(message)
+            let user_id = client.auth_context.user.id
+            
+            match data.type {
+                "join_room" => {
+                    let room_id = data.room_id
+                    
+                    // 验证权限
+                    if access_control.check_permission(client.auth_context.user, "room:${room_id}", "read") {
+                        client.join_room("room:${room_id}")
+                        
+                        client.send_json({
+                            "type": "room_joined",
+                            "room_id": room_id
+                        })
+                    } else {
+                        client.send_json({
+                            "type": "error",
+                            "message": "Access denied to room"
+                        })
+                    }
+                }
+                
+                "typing" => {
+                    let room_id = data.room_id
+                    client.broadcast_to_room("room:${room_id}", json({
+                        "type": "user_typing",
+                        "user_id": user_id,
+                        "room_id": room_id
+                    }))
+                }
+                
+                "ping" => {
+                    client.send_json({"type": "pong", "timestamp": now()})
+                }
+                
+                _ => {
+                    client.send_json({
+                        "type": "error",
+                        "message": "Unknown message type"
+                    })
+                }
+            }
+        }
+        
+        onDisconnect(client: WebSocket) {
+            let user_id = client.auth_context.user.id
+            
+            // 更新离线状态
+            cache.del("user_online:${user_id}")
+            cache.set("user_last_seen:${user_id}", now(), Some(86400 * 30))
+            
+            // 通知其他用户
+            client.broadcast("user_status", json({
+                "type": "user_offline",
+                "user_id": user_id,
+                "timestamp": now()
+            }))
+        }
+    }
+}
+
+// ========== Web前端 ==========
+
+web {
+    component ChatApp() {
+        let [user, setUser] = useState(null)
+        let [rooms, setRooms] = useState([])
+        let [currentRoom, setCurrentRoom] = useState(null)
+        let [messages, setMessages] = useState([])
+        let [ws, setWs] = useState(null)
+        
+        // 认证状态管理
+        useEffect(() => {
+            let token = localStorage.getItem("auth_token")
+            if token {
+                // 验证token
+                network {
+                    http {
+                        let client = HttpClient { base_url: "http://localhost:8080" }
+                        let response = client.get("/api/auth/verify", {
+                            headers: {"Authorization": "Bearer ${token}"}
+                        })
+                        
+                        if response.is_success() {
+                            let user_data = response.json<ChatUser>()
+                            setUser(user_data)
+                            connectWebSocket(token)
+                        }
+                    }
+                }
+            }
+        }, [])
+        
+        function connectWebSocket(token: string) {
+            network {
+                websocket {
+                    let ws_client = WebSocketClient {
+                        url: "ws://localhost:8080/ws"
+                        headers: {"Authorization": "Bearer ${token}"}
+                    }
+                    
+                    ws_client.on_open(|conn| {
+                        println("WebSocket connected")
+                        setWs(conn)
+                    })
+                    
+                    ws_client.on_message(|msg| {
+                        match msg {
+                            Text(content) => {
+                                let data = parse_json(content)
+                                handleWebSocketMessage(data)
+                            }
+                            _ => {}
+                        }
+                    })
+                    
+                    ws_client.connect()
+                }
+            }
+        }
+        
+        function handleWebSocketMessage(data: auto) {
+            match data.type {
+                "new_message" => {
+                    let message = data.message
+                    
+                    // 解密消息
+                    security {
+                        encryption {
+                            // 客户端解密逻辑
+                            message.content = decrypt_message(message.encrypted_content)
+                        }
+                    }
+                    
+                    setMessages(messages => [...messages, message])
+                }
+                "user_online" => {
+                    // 更新用户在线状态
+                    updateUserStatus(data.user_id, true)
+                }
+                "user_offline" => {
+                    updateUserStatus(data.user_id, false)
+                }
+                _ => {}
+            }
+        }
+        
+        async function sendMessage(content: string) {
+            if !currentRoom || !ws {
+                return
+            }
+            
+            // 发送消息到服务器
+            network {
+                http {
+                    let client = HttpClient { base_url: "http://localhost:8080" }
+                    let response = client.post("/api/rooms/${currentRoom.id}/messages", {
+                        content: content
+                    })
+                }
+            }
+        }
+        
+        return jsx {
+            <div className="chat-app">
+                {user ? (
+                    <div className="chat-interface">
+                        <RoomList rooms={rooms} onRoomSelect={setCurrentRoom} />
+                        <MessageView 
+                            room={currentRoom} 
+                            messages={messages} 
+                            onSendMessage={sendMessage} 
+                        />
+                        <UserList room={currentRoom} />
+                    </div>
+                ) : (
+                    <LoginForm onLogin={setUser} />
+                )}
+            </div>
+        }
+    }
+    
+    component LoginForm(props: {onLogin: fn(ChatUser)}) {
+        let [email, setEmail] = useState("")
+        let [password, setPassword] = useState("")
+        
+        async function handleLogin() {
+            network {
+                http {
+                    let client = HttpClient { base_url: "http://localhost:8080" }
+                    let response = client.post("/api/auth/login", {
+                        email: email,
+                        password: password
+                    })
+                    
+                    if response.is_success() {
+                        let data = response.json()
+                        localStorage.setItem("auth_token", data.token)
+                        props.onLogin(data.user)
+                    }
+                }
+            }
+        }
+        
+        return jsx {
+            <div className="login-form">
+                <h2>Secure Chat Login</h2>
+                <input 
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                />
+                <input 
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                />
+                <button onClick={handleLogin}>Login</button>
+            </div>
+        }
+    }
+}
+
+// ========== 移动端 ==========
+
+mobile {
+    screen ChatScreen {
+        let [user, setUser] = useState(null)
+        let [messages, setMessages] = useState([])
+        
+        return layout {
+            toolbar {
+                title: "Secure Chat"
+                actions: [
+                    action("settings", () => navigate_to(SettingsScreen))
+                ]
+            }
+            
+            messageList(messages)
+            
+            messageInput {
+                onSend: (text) => sendMessage(text)
+                placeholder: "Type a message..."
+                encryption_indicator: true
+            }
+        }
+    }
+}
+
+// ========== 应用启动 ==========
+
+function main() {
+    parallel {
+        // 启动后端服务器
+        task server_start: {
+            server.start()
+            println("🔒 Secure Chat Server started on port 8080")
+        }
+        
+        // 启动Web开发服务器
+        task web_start: {
+            web.start_dev_server(3000)
+            println("🌐 Web app available at http://localhost:3000")
+        }
+    }
+    
+    println("🚀 Secure Chat Application Running!")
+    println("   Features: End-to-end encryption, JWT auth, Real-time messaging")
+    println("   Security: Rate limiting, Input validation, Audit logging")
+} 

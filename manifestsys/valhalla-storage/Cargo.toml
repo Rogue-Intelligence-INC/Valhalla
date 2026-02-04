@@ -1,0 +1,9 @@
+[package]
+name = "valhalla-storage"
+version = "1.0.0"
+edition = "2021"
+description = "Valhalla 系统存储 - 简单的目录+文件操作权限"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

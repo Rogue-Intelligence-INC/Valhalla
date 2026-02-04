@@ -1,0 +1,10 @@
+[package]
+name = "fate"
+version = "2.0.0"
+edition = "2021"
+description = "Fate System v2.0 - 统一数学公式驱动的信号处理系统"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"

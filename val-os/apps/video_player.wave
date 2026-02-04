@@ -1,0 +1,205 @@
+# 🎬 Val-OS 视频播放器
+# 半GUI · Wave UI · 鼠标支持
+
+video_player -> ui_app {
+    title -> "🎬 视频播放器"
+    size -> { width: 70, height: 28 }
+    
+    state -> {
+        file_path: null,
+        playing: false,
+        progress: 0,
+        duration: 0,
+        volume: 80,
+        fullscreen: false,
+        show_controls: true,
+        subtitle_enabled: true
+    }
+    
+    render -> function() {
+        # 背景 (黑色)
+        draw_box(0, 0, 70, 28, rgb(0,0,0))
+        
+        # ─────────────────────────────────────────────
+        # 视频区域 (ASCII 模拟)
+        # ─────────────────────────────────────────────
+        video_h -> when state.fullscreen { 28 } else { 22 }
+        
+        when state.file_path {
+            # 渲染视频帧 (简化为 ASCII)
+            render_video_frame(2, 2, 66, video_h - 4)
+        } else {
+            # 无视频时显示占位
+            draw_box(2, 2, 66, video_h - 4, rgb(20,20,20))
+            draw_gradient_text("🎬", gradients.sunset, 33, 10)
+            draw_text("拖拽视频文件或点击打开", 22, 12, rgb(100,100,100))
+            
+            draw_button("📂 打开视频", 28, 14, open_video)
+        }
+        
+        # ─────────────────────────────────────────────
+        # 控制栏 (鼠标移动时显示)
+        # ─────────────────────────────────────────────
+        when state.show_controls && !state.fullscreen {
+            control_y -> 23
+            
+            # 进度条
+            progress_w -> 60
+            filled -> floor(progress_w * state.progress / max(state.duration, 1))
+            
+            draw_text(format_time(state.progress), 2, control_y, rgb(200,200,200))
+            
+            draw_line(10, control_y, progress_w, rgb(60,60,60))
+            draw_gradient_line(10, control_y, filled, gradients.ocean)
+            draw_text("●", 10 + filled, control_y, rgb(255,255,255))
+            
+            # 点击跳转
+            on_click(10, control_y, progress_w, 1) -> function(x, y) {
+                new_pos -> (x - 10) * state.duration / progress_w
+                video_seek(new_pos)
+            }
+            
+            # 底部控制
+            control_y2 -> 25
+            
+            # 播放/暂停
+            play_icon -> when state.playing { "⏸️" } else { "▶️" }
+            draw_icon_button(play_icon, 2, control_y2, toggle_play, rgb(255,255,255))
+            
+            # 停止
+            draw_icon_button("⏹️", 8, control_y2, stop_video)
+            
+            # 后退 10s
+            draw_icon_button("⏪", 14, control_y2, function() {
+                video_seek(max(0, state.progress - 10))
+            })
+            
+            # 前进 10s
+            draw_icon_button("⏩", 20, control_y2, function() {
+                video_seek(min(state.duration, state.progress + 10))
+            })
+            
+            # 音量
+            vol_icon -> when state.volume > 0 { "🔊" } else { "🔇" }
+            draw_icon_button(vol_icon, 28, control_y2, toggle_mute)
+            draw_slider(34, control_y2, 15, state.volume, 0, 100, function(v) {
+                state.volume -> v
+                video_set_volume(v)
+                refresh()
+            })
+            
+            # 字幕
+            sub_color -> when state.subtitle_enabled { rgb(100,200,255) } else { rgb(100,100,100) }
+            draw_icon_button("💬", 52, control_y2, toggle_subtitle, sub_color)
+            
+            # 全屏
+            draw_icon_button("⛶", 58, control_y2, toggle_fullscreen)
+            
+            # 设置
+            draw_icon_button("⚙️", 64, control_y2, show_video_settings)
+        }
+        
+        # 字幕显示
+        when state.subtitle_enabled && state.current_subtitle {
+            sub_y -> when state.fullscreen { 24 } else { 20 }
+            draw_text_centered(state.current_subtitle, 35, sub_y, rgb(255,255,255), bg: rgb(0,0,0,0.7))
+        }
+    }
+    
+    # 鼠标移动显示控制栏
+    on_mouse_move -> function() {
+        state.show_controls -> true
+        # 3秒后自动隐藏
+        set_timeout(3000, function() {
+            when state.playing {
+                state.show_controls -> false
+                refresh()
+            }
+        })
+        refresh()
+    }
+    
+    # 双击切换全屏
+    on_double_click -> function() {
+        toggle_fullscreen()
+    }
+    
+    # 键盘快捷键
+    on_key -> function(key) {
+        when key == "Space" {
+            toggle_play()
+        } else when key == "f" || key == "F" {
+            toggle_fullscreen()
+        } else when key == "ArrowLeft" {
+            video_seek(max(0, state.progress - 5))
+        } else when key == "ArrowRight" {
+            video_seek(min(state.duration, state.progress + 5))
+        } else when key == "ArrowUp" {
+            state.volume -> min(100, state.volume + 5)
+            video_set_volume(state.volume)
+        } else when key == "ArrowDown" {
+            state.volume -> max(0, state.volume - 5)
+            video_set_volume(state.volume)
+        } else when key == "m" || key == "M" {
+            toggle_mute()
+        }
+        refresh()
+    }
+    
+    # 控制函数
+    toggle_play -> function() {
+        state.playing -> !state.playing
+        when state.playing { video_play() } else { video_pause() }
+        refresh()
+    }
+    
+    stop_video -> function() {
+        state.playing -> false
+        state.progress -> 0
+        video_stop()
+        refresh()
+    }
+    
+    toggle_fullscreen -> function() {
+        state.fullscreen -> !state.fullscreen
+        refresh()
+    }
+    
+    toggle_mute -> function() {
+        when state.volume > 0 {
+            state.prev_volume -> state.volume
+            state.volume -> 0
+        } else {
+            state.volume -> state.prev_volume || 80
+        }
+        video_set_volume(state.volume)
+        refresh()
+    }
+    
+    toggle_subtitle -> function() {
+        state.subtitle_enabled -> !state.subtitle_enabled
+        refresh()
+    }
+    
+    open_video -> function() {
+        file -> file_picker({ filter: ["*.mp4", "*.mkv", "*.avi", "*.webm"] })
+        when file {
+            state.file_path -> file.path
+            state.duration -> get_video_duration(file.path)
+            state.progress -> 0
+            video_load(file.path)
+        }
+    }
+    
+    format_time -> function(seconds) {
+        h -> floor(seconds / 3600)
+        m -> floor((seconds % 3600) / 60)
+        s -> seconds % 60
+        
+        when h > 0 {
+            return "{h}:{pad_left(m, 2, '0')}:{pad_left(s, 2, '0')}"
+        } else {
+            return "{pad_left(m, 2, '0')}:{pad_left(s, 2, '0')}"
+        }
+    }
+}

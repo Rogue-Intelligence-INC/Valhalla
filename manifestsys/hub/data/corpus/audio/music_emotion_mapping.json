@@ -1,0 +1,22 @@
+{
+  "tempo_mapping": {
+    "very_slow": {"bpm_range": [40, 60], "emotions": ["sad", "peaceful", "meditative"]},
+    "slow": {"bpm_range": [60, 80], "emotions": ["relaxed", "romantic", "melancholic"]},
+    "moderate": {"bpm_range": [80, 110], "emotions": ["neutral", "steady", "conversational"]},
+    "fast": {"bpm_range": [110, 140], "emotions": ["energetic", "happy", "excited"]},
+    "very_fast": {"bpm_range": [140, 200], "emotions": ["intense", "aggressive", "frantic"]}
+  },
+  "key_mapping": {
+    "major": {"emotions": ["happy", "bright", "triumphant", "hopeful"]},
+    "minor": {"emotions": ["sad", "mysterious", "tense", "melancholic"]},
+    "diminished": {"emotions": ["anxious", "unstable", "suspenseful"]},
+    "augmented": {"emotions": ["dreamy", "surreal", "floating"]}
+  },
+  "dynamics_mapping": {
+    "pianissimo": {"range": [0, 0.2], "description": "very soft"},
+    "piano": {"range": [0.2, 0.4], "description": "soft"},
+    "mezzo": {"range": [0.4, 0.6], "description": "moderate"},
+    "forte": {"range": [0.6, 0.8], "description": "loud"},
+    "fortissimo": {"range": [0.8, 1.0], "description": "very loud"}
+  }
+}

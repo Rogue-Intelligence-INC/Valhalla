@@ -1,0 +1,130 @@
+# 向量搜索 - 小规模测试
+# 100向量 x 16维
+
+DIM = 16
+COUNT = 100
+
+# 规则映射: 数组操作
+fn arr.new size {
+    ptr = syscall.mmap(0, size * 8, 3, 34, 0 - 1, 0)
+    -> ptr
+}
+
+fn arr.set ptr idx val {
+    addr = ptr + idx * 8
+    poke(addr, val & 255)
+    poke(addr + 1, val / 256 & 255)
+    poke(addr + 2, val / 65536 & 255)
+    poke(addr + 3, val / 16777216 & 255)
+    poke(addr + 4, 0)
+    poke(addr + 5, 0)
+    poke(addr + 6, 0)
+    poke(addr + 7, 0)
+}
+
+fn arr.get ptr idx {
+    addr = ptr + idx * 8
+    b0 = peek(addr)
+    b1 = peek(addr + 1)
+    b2 = peek(addr + 2)
+    b3 = peek(addr + 3)
+    val = b0 + b1 * 256 + b2 * 65536 + b3 * 16777216
+    # 处理负数 (假设值在 -1000 到 1000)
+    when val > 2147483647 { val = val - 4294967296 }
+    -> val
+}
+
+# 全局状态
+seed = 42
+db_ptr = 0
+query_ptr = 0
+best_idx = 0
+best_score = 0
+
+# LCG随机数
+fn rand {
+    seed = seed * 1103515245 + 12345
+    seed = seed & 2147483647
+    -> seed % 2001 - 1000
+}
+
+# 点积
+fn vec.dot a b {
+    sum = 0
+    i = 0
+    loop {
+        when i >= DIM { -> sum }
+        va = arr.get(a, i)
+        vb = arr.get(b, i)
+        sum = sum + va * vb
+        i = i + 1
+    }
+}
+
+# 生成向量
+fn vec.fill ptr {
+    i = 0
+    loop {
+        when i >= DIM { -> 0 }
+        v = rand()
+        arr.set(ptr, i, v)
+        i = i + 1
+    }
+}
+
+# 初始化数据库
+fn db.init {
+    db_ptr = arr.new(COUNT)
+    seed = 42
+    i = 0
+    loop {
+        when i >= COUNT { -> 0 }
+        vec = arr.new(DIM)
+        vec.fill(vec)
+        arr.set(db_ptr, i, vec)
+        i = i + 1
+    }
+}
+
+# 初始化查询
+fn query.init {
+    query_ptr = arr.new(DIM)
+    seed = 12345
+    vec.fill(query_ptr)
+}
+
+# 搜索
+fn search {
+    best_idx = 0
+    best_score = 0 - 9999999999
+    i = 0
+    loop {
+        when i >= COUNT { -> best_idx }
+        vec = arr.get(db_ptr, i)
+        score = vec.dot(query_ptr, vec)
+        when score > best_score {
+            best_score = score
+            best_idx = i
+        }
+        i = i + 1
+    }
+}
+
+# 主程序
+out "=== Wave Vector Search (Small Test) ===\n"
+out "Dim: 16, Count: 100\n\n"
+
+out "[1] Init database...\n"
+db.init()
+out "    Done.\n\n"
+
+out "[2] Init query...\n"
+query.init()
+out "    Done.\n\n"
+
+out "[3] Searching...\n"
+search()
+out "    Done.\n\n"
+
+out "=== Search Complete ===\n"
+syscall.exit(0)

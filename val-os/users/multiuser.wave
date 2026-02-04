@@ -1,0 +1,151 @@
+# 👥 Val-OS 多用户系统
+# 简单实现 · Wave UI
+
+# ═══════════════════════════════════════════════════════
+# 用户管理
+# ═══════════════════════════════════════════════════════
+
+users_db -> fate_storage {
+    users -> list
+    sessions -> list
+    current_user -> null
+}
+
+# 创建用户
+create_user -> function(name, password, is_admin) {
+    user -> {
+        id: fate_generate_id(),
+        name: name,
+        password_hash: hash(password),
+        is_admin: is_admin || false,
+        home: "/home/{name}",
+        created: now(),
+        theme: "default"
+    }
+    
+    users_db.users.add(user)
+    fate_fs.mkdir(user.home)
+    
+    return user
+}
+
+# 登录
+login -> function(name, password) {
+    user -> users_db.users.find(u => u.name == name)
+    
+    when !user {
+        return { error: "用户不存在" }
+    }
+    
+    when hash(password) != user.password_hash {
+        return { error: "密码错误" }
+    }
+    
+    session -> {
+        id: fate_generate_id(),
+        user_id: user.id,
+        started: now()
+    }
+    
+    users_db.sessions.add(session)
+    users_db.current_user -> user
+    
+    return { success: true, user: user }
+}
+
+# 登出
+logout -> function() {
+    users_db.current_user -> null
+}
+
+# 切换用户
+switch_user -> function(name, password) {
+    logout()
+    return login(name, password)
+}
+
+# ═══════════════════════════════════════════════════════
+# 用户面板 UI
+# ═══════════════════════════════════════════════════════
+
+user_panel -> ui_app {
+    title -> "用户管理"
+    size -> { width: 50, height: 20 }
+    
+    render -> function() {
+        # 标题
+        draw_gradient_text("👥 用户管理", gradients.ocean, 2, 1)
+        
+        # 当前用户
+        user -> users_db.current_user
+        when user {
+            draw_text("当前用户: ", 2, 3)
+            draw_gradient_text(user.name, gradients.fate, 12, 3)
+            
+            when user.is_admin {
+                draw_text(" [管理员]", 12 + user.name.length, 3, rgb(255,200,0))
+            }
+        }
+        
+        # 用户列表
+        draw_line(2, 5, 46)
+        draw_text("用户列表:", 2, 6)
+        
+        y -> 7
+        for u in users_db.users {
+            icon -> when u.is_admin { "👑" } else { "👤" }
+            color -> when u.id == user?.id { rgb(100,255,100) } else { rgb(200,200,200) }
+            draw_text("{icon} {u.name}", 4, y, color)
+            y -> y + 1
+        }
+        
+        # 按钮
+        draw_button("添加用户", 2, 16, on_add_user)
+        draw_button("切换用户", 16, 16, on_switch_user)
+        draw_button("登出", 30, 16, on_logout)
+    }
+    
+    on_add_user -> function() {
+        show_dialog(add_user_dialog)
+    }
+    
+    on_switch_user -> function() {
+        show_dialog(switch_user_dialog)
+    }
+    
+    on_logout -> function() {
+        logout()
+        show_login_screen()
+    }
+}
+
+# 登录界面
+login_screen -> ui_app {
+    title -> "Val-OS 登录"
+    
+    render -> function() {
+        clear_screen()
+        
+        # Logo
+        draw_gradient_text("╔══════════════════════════════╗", gradients.fate, 10, 5)
+        draw_gradient_text("║       🖥️ Val-OS v2.2        ║", gradients.fate, 10, 6)
+        draw_gradient_text("╚══════════════════════════════╝", gradients.fate, 10, 7)
+        
+        # 输入框
+        draw_text("用户名:", 15, 10)
+        username_input -> draw_input(24, 10, 20)
+        
+        draw_text("密  码:", 15, 12)
+        password_input -> draw_input(24, 12, 20, password: true)
+        
+        # 登录按钮
+        draw_button("登录", 20, 15, function() {
+            result -> login(username_input.value, password_input.value)
+            when result.success {
+                start_desktop()
+            } else {
+                show_error(result.error)
+            }
+        })
+    }
+}

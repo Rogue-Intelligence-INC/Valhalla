@@ -1,0 +1,118 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+
+\title{Euler--Bernoulli--Zeta Relations: Exact Computation}
+\author{Valhalla Research Team}
+\date{January 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We verify classical relationships between Euler's Basel problem, Bernoulli numbers, and the Riemann zeta function using exact rational arithmetic (S-wind EPR). All computations are performed with infinite precision, demonstrating exact algebraic identities.
+\end{abstract}
+
+\section{The Basel Problem}
+
+\begin{theorem}[Euler, 1735]
+\begin{equation}
+\zeta(2) = \sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}
+\end{equation}
+\end{theorem}
+
+\section{Exact Partial Sums}
+
+Using S-wind EPR arithmetic:
+
+\begin{proposition}[Partial Sum]
+\begin{equation}
+S_N = \sum_{n=1}^{N} \frac{1}{n^2}
+\end{equation}
+For $N = 20$:
+\begin{equation}
+S_{20} = \frac{17299975731542641}{10838475198270720}
+\end{equation}
+\end{proposition}
+
+This is an \textbf{exact fraction}, not a floating-point approximation.
+
+\section{Bernoulli Number Connection}
+
+\begin{theorem}[Euler's Formula for Even Zeta Values]
+\begin{equation}
+\zeta(2n) = (-1)^{n+1} \frac{(2\pi)^{2n} B_{2n}}{2(2n)!}
+\end{equation}
+where $B_{2n}$ are Bernoulli numbers.
+\end{theorem}
+
+\subsection{First Few Values}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+$n$ & $\zeta(2n)$ & Exact Form \\
+\hline
+1 & $\zeta(2)$ & $\pi^2/6$ \\
+2 & $\zeta(4)$ & $\pi^4/90$ \\
+3 & $\zeta(6)$ & $\pi^6/945$ \\
+4 & $\zeta(8)$ & $\pi^8/9450$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Bernoulli Numbers (Exact)}
+
+Using S-wind EPR:
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+$n$ & $B_n$ \\
+\hline
+0 & $1$ \\
+1 & $-1/2$ \\
+2 & $1/6$ \\
+4 & $-1/30$ \\
+6 & $1/42$ \\
+8 & $-1/30$ \\
+10 & $5/66$ \\
+12 & $-691/2730$ \\
+\hline
+\end{tabular}
+\end{center}
+
+All values are exact fractions.
+
+\section{Verification}
+
+\begin{proposition}
+For $n = 1$ (Basel problem):
+\begin{equation}
+\zeta(2) = \frac{(2\pi)^2 \cdot (1/6)}{2 \cdot 2!} = \frac{4\pi^2 / 6}{4} = \frac{\pi^2}{6}
+\end{equation}
+\end{proposition}
+
+This confirms Euler's formula using exact algebraic manipulation.
+
+\section{Technical Notes}
+
+\begin{itemize}
+    \item All computations use S-wind EPR (infinite precision rationals)
+    \item Bernoulli numbers computed via standard recurrence
+    \item Partial sums are exact; convergence to $\pi^2/6$ follows analysis
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{euler1735} L. Euler, \textit{De summis serierum reciprocarum}, 1735.
+\bibitem{bernoulli1713} J. Bernoulli, \textit{Ars Conjectandi}, 1713.
+\bibitem{titchmarsh1986} E.C. Titchmarsh, \textit{The Theory of the Riemann Zeta-Function}, Oxford, 1986.
+\end{thebibliography}
+
+\end{document}

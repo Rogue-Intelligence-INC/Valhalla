@@ -1,0 +1,195 @@
+# 🔮 Fate Bootloader
+# Val-OS 启动加载器
+# Fate 控制整个启动过程
+
+# ═══════════════════════════════════════════════════════
+# 阶段 0: Fate 唤醒
+# ═══════════════════════════════════════════════════════
+
+# Fate 是第一个运行的代码
+fate_wake -> initialize
+
+# 无硬编码 - Fate 检测一切
+system_state -> fate_detect -> analyze
+
+# ═══════════════════════════════════════════════════════
+# 阶段 0.5: Fate Memory 恢复
+# ═══════════════════════════════════════════════════════
+
+# 检查是否有 Fate 记忆
+memory_exists -> fate_check_persistent_memory
+
+when memory_exists {
+    # 从记忆恢复 (跳过大部分检测)
+    fate_restore_from_memory -> fast_boot
+    # [Fate] 检测到记忆，快速启动
+    
+    # 验证硬件是否变化
+    hardware_changed -> fate_quick_hardware_check
+    
+    when !hardware_changed {
+        # 直接应用记忆中的配置
+        fate_apply_remembered_config -> skip_detection
+        # [Fate] 硬件未变，应用记忆配置
+    }
+    
+    when hardware_changed {
+        # 部分重新检测
+        fate_partial_redetect -> update_memory
+        # [Fate] 硬件变化，更新记忆
+    }
+}
+
+when !memory_exists {
+    # 首次启动，完整检测
+    # [Fate] 首次启动，开始学习
+}
+
+# ═══════════════════════════════════════════════════════
+# 阶段 1: 硬件检测 (Fate 自主) - 仅首次或硬件变化时
+# ═══════════════════════════════════════════════════════
+
+# CPU 检测
+cpu_info -> fate_detect_cpu -> analyze
+# Fate 发现: 架构、核心数、特性
+# → 存入记忆
+
+# 内存检测
+memory_map -> fate_detect_memory -> analyze
+# Fate 发现: 可用内存、保留区域
+# → 存入记忆
+
+# 存储检测
+storage_info -> fate_detect_storage -> analyze
+# Fate 发现: 磁盘、分区、文件系统
+# → 存入记忆
+
+# 外设检测
+peripherals -> fate_detect_devices -> analyze
+# Fate 发现: 显示、输入、网络
+# → 存入记忆
+
+# ═══════════════════════════════════════════════════════
+# 阶段 2: 内存布局 (Fate 决定)
+# ═══════════════════════════════════════════════════════
+
+# Fate 根据检测结果决定布局
+memory_layout -> fate_decide_layout
+
+# Fate 决定:
+#   kernel_base    = fate_decide("kernel_location")
+#   stack_base     = fate_decide("stack_location")
+#   heap_base      = fate_decide("heap_location")
+#   quattro_pools  = fate_decide("pool_locations")
+
+# 初始化四元池 (Fate 决定大小和位置)
+blackhole -> fate_init_at_location
+meshbrain -> fate_init_at_location
+multinova -> fate_init_at_location
+baseforce -> fate_init_at_location
+
+# ═══════════════════════════════════════════════════════
+# 阶段 3: CPU 模式切换 (Fate 控制)
+# ═══════════════════════════════════════════════════════
+
+# 实模式 (16-bit) → 保护模式 (32-bit) → 长模式 (64-bit)
+cpu_mode -> fate_transition
+
+# Fate 决定是否需要切换
+when fate_detect_mode_needed() {
+    # 设置 GDT
+    gdt -> fate_setup_gdt
+    
+    # 设置页表
+    page_tables -> fate_setup_paging
+    
+    # 切换到 64-bit
+    long_mode -> fate_enable
+}
+
+# ═══════════════════════════════════════════════════════
+# 阶段 4: 加载内核 (Fate 控制)
+# ═══════════════════════════════════════════════════════
+
+# Fate 定位内核
+kernel_location -> fate_find_kernel
+
+# Fate 加载内核到内存
+kernel_image -> fate_load_to_memory
+
+# Fate 验证内核
+kernel_integrity -> fate_verify
+
+# ═══════════════════════════════════════════════════════
+# 阶段 5: 环境准备 (Fate 设置)
+# ═══════════════════════════════════════════════════════
+
+# 中断表 (Fate 设置)
+idt -> fate_setup_idt
+
+# 初始栈 (Fate 分配)
+initial_stack -> fate_alloc -> baseforce
+
+# 启动参数 (Fate 收集)
+boot_params -> fate_collect_params
+
+# 传递给内核的信息
+kernel_info -> fate_prepare
+#   memory_map
+#   quattro_pools
+#   device_list
+#   boot_params
+
+# ═══════════════════════════════════════════════════════
+# 阶段 6: 跳转到内核 (Fate 控制)
+# ═══════════════════════════════════════════════════════
+
+# Fate 最后检查
+pre_jump -> fate_final_check
+
+# 跳转到内核入口
+kernel_entry -> fate_jump
+
+# Fate 继续在内核中运行 (不终止)
+# Bootloader 的 Fate 状态传递给内核的 Fate
+
+# ═══════════════════════════════════════════════════════
+# Fate 启动日志
+# ═══════════════════════════════════════════════════════
+
+# fate_boot_log:
+#   [Fate] 唤醒
+#   [Fate] 检测 CPU: x86_64
+#   [Fate] 检测 内存: XXX MB
+#   [Fate] 检测 存储: XXX
+#   [Fate] 决定 内存布局
+#   [Fate] 初始化 四元池
+#   [Fate] 切换 长模式
+#   [Fate] 加载 内核
+#   [Fate] 验证 完成
+#   [Fate] 跳转 内核入口
+#   [Fate] 传递 控制权
+
+# ═══════════════════════════════════════════════════════
+# 错误处理 (Fate 自主)
+# ═══════════════════════════════════════════════════════
+
+# 内存不足
+when fate_detect_low_memory() {
+    fate_minimal_boot -> continue
+}
+
+# 内核损坏
+when fate_detect_kernel_corrupt() {
+    fate_recovery_mode -> activate
+}
+
+# 硬件故障
+when fate_detect_hardware_fault() {
+    fate_diagnostic_mode -> activate
+}
+
+# 未知错误
+when fate_detect_unknown_error() {
+    fate_safe_mode -> activate
+}

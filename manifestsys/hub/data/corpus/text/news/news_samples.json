@@ -1,0 +1,11 @@
+{
+  "samples": [
+    {"lang": "en", "text": "The stock market reached new highs today as investors remain optimistic about economic recovery.", "category": "finance"},
+    {"lang": "en", "text": "Scientists discover new species of deep-sea fish near hydrothermal vents.", "category": "science"},
+    {"lang": "zh", "text": "人工智能技术在医疗领域的应用取得重大突破，新算法能够提前预测疾病风险。", "category": "technology"},
+    {"lang": "zh", "text": "全球气候变化会议召开，各国承诺减少碳排放。", "category": "environment"},
+    {"lang": "ja", "text": "新しい半導体工場が建設され、地域経済に大きな影響を与えると期待されています。", "category": "business"},
+    {"lang": "de", "text": "Die Bundesregierung kündigte neue Maßnahmen zur Förderung erneuerbarer Energien an.", "category": "politics"},
+    {"lang": "fr", "text": "Le festival de Cannes ouvre ses portes avec une sélection de films internationaux.", "category": "entertainment"}
+  ]
+}

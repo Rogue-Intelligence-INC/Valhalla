@@ -1,0 +1,62 @@
+{
+  "en": {
+    "word_order": "SVO",
+    "patterns": ["Subject + Verb + Object", "Adjective + Noun", "Noun + of + Noun"],
+    "tenses": ["present", "past", "future", "present_perfect", "past_perfect", "future_perfect"],
+    "features": ["articles", "prepositions", "auxiliary_verbs", "modal_verbs"]
+  },
+  "zh": {
+    "word_order": "SVO",
+    "patterns": ["主语 + 动词 + 宾语", "定语 + 的 + 名词", "状语 + 地 + 动词"],
+    "tenses": ["时态通过时间词表示"],
+    "features": ["量词", "语气词", "补语", "把字句", "被字句"]
+  },
+  "ja": {
+    "word_order": "SOV",
+    "patterns": ["主語 + 目的語 + 動詞", "名詞 + の + 名詞", "形容詞 + 名詞"],
+    "tenses": ["非過去形", "過去形", "進行形", "完了形"],
+    "features": ["助詞", "敬語", "受身", "使役"]
+  },
+  "de": {
+    "word_order": "SOV/V2",
+    "patterns": ["Subjekt + Verb + Objekt (Hauptsatz)", "Verb am Ende (Nebensatz)"],
+    "tenses": ["Präsens", "Präteritum", "Perfekt", "Plusquamperfekt", "Futur I", "Futur II"],
+    "features": ["cases", "gender", "separable_verbs", "modal_particles"]
+  },
+  "fr": {
+    "word_order": "SVO",
+    "patterns": ["Sujet + Verbe + Objet", "Nom + Adjectif", "Article + Nom"],
+    "tenses": ["présent", "passé_composé", "imparfait", "plus-que-parfait", "futur_simple", "conditionnel"],
+    "features": ["gender", "liaisons", "subjunctive", "reflexive_verbs"]
+  },
+  "es": {
+    "word_order": "SVO",
+    "patterns": ["Sujeto + Verbo + Objeto", "Nombre + Adjetivo", "Artículo + Nombre"],
+    "tenses": ["presente", "pretérito", "imperfecto", "futuro", "condicional", "subjuntivo"],
+    "features": ["gender", "ser_estar", "reflexive_verbs", "personal_a"]
+  },
+  "ru": {
+    "word_order": "SVO (flexible)",
+    "patterns": ["Субъект + Глагол + Объект", "Прилагательное + Существительное"],
+    "tenses": ["настоящее", "прошедшее", "будущее"],
+    "features": ["cases", "aspect", "gender", "animate_inanimate"]
+  },
+  "ar": {
+    "word_order": "VSO",
+    "patterns": ["فعل + فاعل + مفعول", "اسم + صفة", "مضاف + مضاف إليه"],
+    "tenses": ["الماضي", "المضارع", "الأمر"],
+    "features": ["root_system", "gender", "dual_number", "case_endings"]
+  },
+  "ko": {
+    "word_order": "SOV",
+    "patterns": ["주어 + 목적어 + 동사", "관형어 + 명사", "부사어 + 동사"],
+    "tenses": ["현재", "과거", "미래"],
+    "features": ["particles", "honorifics", "verb_endings", "topic_marker"]
+  },
+  "hi": {
+    "word_order": "SOV",
+    "patterns": ["कर्ता + कर्म + क्रिया", "विशेषण + संज्ञा"],
+    "tenses": ["वर्तमान", "भूत", "भविष्य"],
+    "features": ["postpositions", "gender", "honorifics", "compound_verbs"]
+  }
+}

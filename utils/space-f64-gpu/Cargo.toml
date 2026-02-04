@@ -1,0 +1,17 @@
+[package]
+name = "valhalla-space-f64-gpu"
+version = "1.0.0"
+edition = "2021"
+description = "Valhalla Space - GPU加速的高维计算系统"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.3"
+rayon = "1.10"
+
+# Fate 存储
+fate-f64 = { path = "../../systems/metasystems/fate-f64" }
+
+[features]
+default = []
+cuda = []  # 启用 CUDA 加速

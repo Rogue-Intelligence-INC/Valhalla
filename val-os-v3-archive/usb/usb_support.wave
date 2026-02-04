@@ -1,0 +1,130 @@
+# 🔌 Val-OS USB 支持
+# USB 2.0/3.0 · Fate 控制
+
+# ═══════════════════════════════════════════════════════
+# USB 设备结构
+# ═══════════════════════════════════════════════════════
+
+usb_device -> structure {
+    vendor_id -> u16
+    product_id -> u16
+    class -> u8
+    subclass -> u8
+    protocol -> u8
+    
+    # 端点
+    endpoints -> list
+    
+    # Fate 状态
+    power_state -> fate_track
+    transfer_mode -> fate_decide
+}
+
+# USB 类 (标准)
+usb_classes -> enum {
+    HID         -> 0x03   # 键盘、鼠标
+    MASS_STORAGE -> 0x08  # U盘、硬盘
+    HUB         -> 0x09   # 集线器
+    CDC         -> 0x0A   # 通信设备
+    AUDIO       -> 0x01   # 音频
+    VIDEO       -> 0x0E   # 视频
+}
+
+# ═══════════════════════════════════════════════════════
+# USB 控制器
+# ═══════════════════════════════════════════════════════
+
+usb_controller -> service {
+    # 检测到的设备
+    devices -> list
+    
+    # 初始化
+    init -> function() {
+        # 扫描 USB 总线
+        scan_bus()
+        
+        # Fate 决定电源策略
+        power_policy -> fate_decide
+    }
+    
+    # 扫描总线
+    scan_bus -> function() {
+        for port in 0..max_ports {
+            device -> probe_port(port)
+            when device {
+                devices.add(device)
+                load_driver(device)
+            }
+        }
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 设备驱动 (简化)
+# ═══════════════════════════════════════════════════════
+
+# 存储设备
+mass_storage_driver -> driver {
+    match -> usb_classes.MASS_STORAGE
+    
+    attach -> function(device) {
+        # 初始化存储
+        capacity -> read_capacity(device)
+        
+        # 注册到文件系统
+        fate_fs.register_device(device, capacity)
+    }
+    
+    read -> function(device, lba, count) {
+        # SCSI READ(10)
+        cmd -> scsi_read_10(lba, count)
+        transfer(device, cmd)
+    }
+    
+    write -> function(device, lba, data) {
+        # SCSI WRITE(10)
+        cmd -> scsi_write_10(lba, data)
+        transfer(device, cmd)
+    }
+}
+
+# HID 设备 (键盘/鼠标)
+hid_driver -> driver {
+    match -> usb_classes.HID
+    
+    attach -> function(device) {
+        # 获取 HID 描述符
+        descriptor -> get_hid_descriptor(device)
+        
+        # 注册输入设备
+        input.register(device, descriptor)
+    }
+    
+    poll -> function(device) {
+        # 中断传输获取输入
+        data -> interrupt_transfer(device)
+        input.process(data)
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 热插拔
+# ═══════════════════════════════════════════════════════
+
+hotplug -> service {
+    on_connect -> function(device) {
+        # Fate 识别设备
+        driver -> fate_find_driver(device)
+        
+        when driver {
+            driver.attach(device)
+            notify_user("USB 设备已连接: {device.name}")
+        }
+    }
+    
+    on_disconnect -> function(device) {
+        # 安全移除
+        fate_safe_remove(device)
+        notify_user("USB 设备已移除")
+    }
+}

@@ -1,0 +1,196 @@
+# Val-OS Network Stack
+# Wave v5 - TCP/IP over NE2000/RTL8139
+
+# Network state
+net_mac -> [0x52, 0x54, 0x00, 0x12, 0x34, 0x56]
+net_ip -> [192, 168, 1, 100]
+net_gateway -> [192, 168, 1, 1]
+net_dns -> [8, 8, 8, 8]
+
+# Packet buffer
+rx_buffer -> fate_alloc
+tx_buffer -> fate_alloc
+
+# ARP cache
+arp_cache -> fate_alloc
+
+# TCP connections
+tcp_connections -> fate_alloc
+tcp_conn_count -> 0
+
+# Init network
+net_init -> function() {
+    # Detect NIC (NE2000 or RTL8139 via PCI)
+    nic -> pci_find(0x10EC, 0x8139)  # RTL8139
+    when nic == 0 {
+        nic -> pci_find(0x10EC, 0x8029)  # NE2000
+    }
+    
+    # Init NIC
+    nic -> fate_analyze -> fate_decide
+    
+    out "Network initialized"
+    out "  MAC: " + format_mac(net_mac)
+    out "  IP:  " + format_ip(net_ip)
+}
+
+# Format MAC address
+format_mac -> function(mac) {
+    result -> mac[0] + ":" + mac[1] + ":" + mac[2] + ":" + mac[3] + ":" + mac[4] + ":" + mac[5]
+    result -> return
+}
+
+# Format IP address
+format_ip -> function(ip) {
+    result -> ip[0] + "." + ip[1] + "." + ip[2] + "." + ip[3]
+    result -> return
+}
+
+# Send ARP request
+arp_request -> function(target_ip) {
+    packet -> fate_alloc
+    # Build ARP packet
+    packet -> {
+        dest_mac: [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF],
+        src_mac: net_mac,
+        type: 0x0806,
+        hw_type: 1,
+        proto_type: 0x0800,
+        hw_size: 6,
+        proto_size: 4,
+        opcode: 1,
+        sender_mac: net_mac,
+        sender_ip: net_ip,
+        target_mac: [0, 0, 0, 0, 0, 0],
+        target_ip: target_ip
+    }
+    
+    send_packet -> call(packet)
+}
+
+# Send IP packet
+send_ip -> function(dest_ip, protocol, data) {
+    # Check ARP cache
+    dest_mac -> arp_lookup(dest_ip)
+    when dest_mac == 0 {
+        arp_request -> call(dest_ip)
+        # Wait for ARP reply
+        fate_monitor -> fate_detect_marginal
+        dest_mac -> arp_lookup(dest_ip)
+    }
+    
+    # Build IP packet
+    packet -> fate_alloc
+    packet -> {
+        dest_mac: dest_mac,
+        src_mac: net_mac,
+        type: 0x0800,
+        version: 4,
+        ihl: 5,
+        ttl: 64,
+        protocol: protocol,
+        src_ip: net_ip,
+        dest_ip: dest_ip,
+        data: data
+    }
+    
+    send_packet -> call(packet)
+}
+
+# TCP connect
+tcp_connect -> function(dest_ip, port) {
+    conn -> fate_alloc
+    conn -> {
+        state: "SYN_SENT",
+        local_port: 49152 + tcp_conn_count,
+        remote_port: port,
+        remote_ip: dest_ip,
+        seq: 1000,
+        ack: 0
+    }
+    
+    tcp_connections[tcp_conn_count] -> conn
+    tcp_conn_count -> tcp_conn_count + 1
+    
+    # Send SYN
+    send_tcp -> call(conn, "SYN", "")
+    
+    # Wait for SYN-ACK
+    fate_monitor -> fate_detect_marginal
+    
+    conn -> return
+}
+
+# TCP send
+tcp_send -> function(conn, data) {
+    send_tcp -> call(conn, "DATA", data)
+    conn.seq -> conn.seq + length(data)
+}
+
+# TCP receive
+tcp_recv -> function(conn) {
+    # Wait for data
+    fate_monitor -> fate_detect_marginal
+    data -> conn.rx_buffer
+    conn.rx_buffer -> ""
+    data -> return
+}
+
+# TCP close
+tcp_close -> function(conn) {
+    send_tcp -> call(conn, "FIN", "")
+    conn.state -> "FIN_WAIT"
+}
+
+# DNS lookup
+dns_lookup -> function(hostname) {
+    # Build DNS query
+    query -> fate_alloc
+    query -> {
+        id: 1234,
+        flags: 0x0100,
+        questions: 1,
+        name: hostname,
+        type: 1,
+        class: 1
+    }
+    
+    # Send UDP to DNS server
+    send_udp -> call(net_dns, 53, query)
+    
+    # Wait for response
+    fate_monitor -> fate_detect_marginal
+    
+    # Parse response
+    response -> recv_udp -> call(53)
+    ip -> parse_dns_response(response)
+    
+    ip -> return
+}
+
+# HTTP GET request
+http_get -> function(url) {
+    # Parse URL
+    parsed -> parse_url(url)
+    
+    # DNS lookup
+    ip -> dns_lookup -> call(parsed.host)
+    
+    # TCP connect
+    conn -> tcp_connect -> call(ip, parsed.port)
+    
+    # Send HTTP request
+    request -> "GET " + parsed.path + " HTTP/1.1\r\n"
+    request -> request + "Host: " + parsed.host + "\r\n"
+    request -> request + "Connection: close\r\n\r\n"
+    
+    tcp_send -> call(conn, request)
+    
+    # Receive response
+    response -> tcp_recv -> call(conn)
+    
+    # Close connection
+    tcp_close -> call(conn)
+    
+    response -> return
+}

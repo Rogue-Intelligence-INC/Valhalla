@@ -1,0 +1,315 @@
+# ⚙️ Val-OS 设置面板
+# 半GUI · Wave UI · 鼠标支持
+
+settings -> ui_app {
+    title -> "⚙️ 设置"
+    size -> { width: 70, height: 28 }
+    
+    state -> {
+        current_section: "general",
+        sections: [
+            { id: "general", icon: "🏠", label: "通用" },
+            { id: "display", icon: "🖥️", label: "显示" },
+            { id: "sound", icon: "🔊", label: "声音" },
+            { id: "network", icon: "🌐", label: "网络" },
+            { id: "users", icon: "👤", label: "用户" },
+            { id: "fate", icon: "🎲", label: "Fate 系统" },
+            { id: "about", icon: "ℹ️", label: "关于" }
+        ]
+    }
+    
+    render -> function() {
+        # 背景
+        draw_gradient_box(0, 0, 70, 28, gradients.night)
+        
+        # ─────────────────────────────────────────────
+        # 侧边栏
+        # ─────────────────────────────────────────────
+        draw_box(0, 0, 18, 28, rgb(35,40,50))
+        
+        draw_gradient_text("⚙️ 设置", gradients.fate, 3, 2)
+        draw_line(2, 4, 14, rgb(60,60,80))
+        
+        y -> 6
+        for section in state.sections {
+            is_selected -> section.id == state.current_section
+            bg -> when is_selected { rgb(50,60,80) } else { rgb(35,40,50) }
+            text_color -> when is_selected { rgb(255,255,255) } else { rgb(150,150,170) }
+            
+            draw_box(0, y, 18, 2, bg)
+            draw_text("{section.icon} {section.label}", 2, y, text_color)
+            
+            on_click(0, y, 18, 2) -> function() {
+                state.current_section -> section.id
+                refresh()
+            }
+            
+            y -> y + 2
+        }
+        
+        # ─────────────────────────────────────────────
+        # 内容区域
+        # ─────────────────────────────────────────────
+        content_x -> 20
+        content_w -> 48
+        
+        when state.current_section == "general" {
+            render_general_settings(content_x, 2, content_w)
+        } else when state.current_section == "display" {
+            render_display_settings(content_x, 2, content_w)
+        } else when state.current_section == "sound" {
+            render_sound_settings(content_x, 2, content_w)
+        } else when state.current_section == "network" {
+            render_network_settings(content_x, 2, content_w)
+        } else when state.current_section == "users" {
+            render_user_settings(content_x, 2, content_w)
+        } else when state.current_section == "fate" {
+            render_fate_settings(content_x, 2, content_w)
+        } else when state.current_section == "about" {
+            render_about(content_x, 2, content_w)
+        }
+    }
+    
+    # ═══════════════════════════════════════════════════════
+    # 通用设置
+    # ═══════════════════════════════════════════════════════
+    render_general_settings -> function(x, y, w) {
+        draw_text("🏠 通用设置", x, y, rgb(200,200,220))
+        draw_line(x, y + 1, w - 2, rgb(60,60,80))
+        
+        # 语言
+        draw_text("语言", x, y + 3, rgb(150,150,170))
+        draw_dropdown(x + 20, y + 3, 20, ["简体中文", "English", "日本語"], 0, function(v) {
+            set_language(v)
+        })
+        
+        # 时区
+        draw_text("时区", x, y + 5, rgb(150,150,170))
+        draw_dropdown(x + 20, y + 5, 20, ["UTC+8 北京", "UTC+9 东京", "UTC-5 纽约"], 0)
+        
+        # 日期格式
+        draw_text("日期格式", x, y + 7, rgb(150,150,170))
+        draw_dropdown(x + 20, y + 7, 20, ["YYYY-MM-DD", "DD/MM/YYYY", "MM/DD/YYYY"], 0)
+        
+        # 开机启动
+        draw_text("开机自动登录", x, y + 10, rgb(150,150,170))
+        draw_toggle(x + 25, y + 10, get_setting("auto_login"), function(v) {
+            set_setting("auto_login", v)
+        })
+        
+        # 自动更新
+        draw_text("自动检查更新", x, y + 12, rgb(150,150,170))
+        draw_toggle(x + 25, y + 12, get_setting("auto_update"), function(v) {
+            set_setting("auto_update", v)
+        })
+    }
+    
+    # ═══════════════════════════════════════════════════════
+    # 显示设置
+    # ═══════════════════════════════════════════════════════
+    render_display_settings -> function(x, y, w) {
+        draw_text("🖥️ 显示设置", x, y, rgb(200,200,220))
+        draw_line(x, y + 1, w - 2, rgb(60,60,80))
+        
+        # 主题
+        draw_text("主题", x, y + 3, rgb(150,150,170))
+        
+        themes -> ["暗黑", "明亮", "自动"]
+        tx -> x + 15
+        for i, theme in themes.enumerate() {
+            is_selected -> i == get_setting("theme")
+            bg -> when is_selected { rgb(80,100,150) } else { rgb(50,50,60) }
+            draw_button(theme, tx, y + 3, function() {
+                set_setting("theme", i)
+                apply_theme(i)
+                refresh()
+            }, bg: bg)
+            tx -> tx + 8
+        }
+        
+        # 亮度
+        draw_text("亮度", x, y + 6, rgb(150,150,170))
+        draw_slider(x + 15, y + 6, 25, get_setting("brightness"), 0, 100, function(v) {
+            set_setting("brightness", v)
+            set_screen_brightness(v)
+        })
+        draw_text("{get_setting('brightness')}%", x + 42, y + 6, rgb(100,100,120))
+        
+        # 字体大小
+        draw_text("字体大小", x, y + 9, rgb(150,150,170))
+        draw_dropdown(x + 15, y + 9, 15, ["小", "中", "大", "特大"], 1, function(v) {
+            set_setting("font_size", v)
+        })
+        
+        # 动画效果
+        draw_text("动画效果", x, y + 12, rgb(150,150,170))
+        draw_toggle(x + 25, y + 12, get_setting("animations"), function(v) {
+            set_setting("animations", v)
+        })
+        
+        # 渐变效果
+        draw_text("渐变效果", x, y + 14, rgb(150,150,170))
+        draw_toggle(x + 25, y + 14, get_setting("gradients"), function(v) {
+            set_setting("gradients", v)
+        })
+        
+        # 透明度
+        draw_text("窗口透明度", x, y + 17, rgb(150,150,170))
+        draw_slider(x + 15, y + 17, 25, get_setting("opacity"), 50, 100, function(v) {
+            set_setting("opacity", v)
+        })
+    }
+    
+    # ═══════════════════════════════════════════════════════
+    # 声音设置
+    # ═══════════════════════════════════════════════════════
+    render_sound_settings -> function(x, y, w) {
+        draw_text("🔊 声音设置", x, y, rgb(200,200,220))
+        draw_line(x, y + 1, w - 2, rgb(60,60,80))
+        
+        # 主音量
+        draw_text("主音量", x, y + 3, rgb(150,150,170))
+        draw_slider(x + 15, y + 3, 25, get_setting("volume"), 0, 100, function(v) {
+            set_setting("volume", v)
+            set_system_volume(v)
+        })
+        vol_icon -> when get_setting("volume") > 60 { "🔊" }
+                   else when get_setting("volume") > 30 { "🔉" }
+                   else { "🔈" }
+        draw_text(vol_icon + " {get_setting('volume')}%", x + 42, y + 3, rgb(100,100,120))
+        
+        # 系统声音
+        draw_text("系统声音", x, y + 6, rgb(150,150,170))
+        draw_toggle(x + 25, y + 6, get_setting("system_sounds"), function(v) {
+            set_setting("system_sounds", v)
+        })
+        
+        # 通知声音
+        draw_text("通知声音", x, y + 8, rgb(150,150,170))
+        draw_toggle(x + 25, y + 8, get_setting("notification_sounds"), function(v) {
+            set_setting("notification_sounds", v)
+        })
+        
+        # 输出设备
+        draw_text("输出设备", x, y + 11, rgb(150,150,170))
+        draw_dropdown(x + 15, y + 11, 25, ["扬声器", "耳机", "蓝牙音箱"], 0)
+    }
+    
+    # ═══════════════════════════════════════════════════════
+    # Fate 系统设置 (管理员专用)
+    # ═══════════════════════════════════════════════════════
+    render_fate_settings -> function(x, y, w) {
+        draw_gradient_text("🎲 Fate 系统设置", gradients.fate, x, y)
+        draw_line(x, y + 1, w - 2, rgb(60,60,80))
+        
+        user -> users_db.current_user
+        
+        when !user.is_admin {
+            draw_text("⚠️ 需要管理员权限", x, y + 5, rgb(255,150,100))
+            return
+        }
+        
+        # 性能模式
+        draw_text("性能模式", x, y + 3, rgb(150,150,170))
+        
+        modes -> [
+            { id: "powersave", label: "🔋 省电", desc: "降低性能，延长电池" },
+            { id: "balanced", label: "⚖️ 平衡", desc: "自动平衡性能与能耗" },
+            { id: "performance", label: "🚀 性能", desc: "最大性能，较高能耗" }
+        ]
+        
+        my -> y + 5
+        for mode in modes {
+            is_selected -> mode.id == fate_get_performance_mode()
+            bg -> when is_selected { rgb(60,80,100) } else { rgb(40,40,50) }
+            border -> when is_selected { gradients.fate[0] } else { rgb(60,60,70) }
+            
+            draw_box(x, my, w - 2, 3, bg, border: border)
+            draw_text(mode.label, x + 2, my + 1, rgb(200,200,220))
+            draw_text(mode.desc, x + 15, my + 1, rgb(100,100,120))
+            
+            on_click(x, my, w - 2, 3) -> function() {
+                fate_set_performance_mode(mode.id)
+                refresh()
+            }
+            
+            my -> my + 4
+        }
+        
+        # Fate 阈值 (高级)
+        draw_text("高级 Fate 参数", x, y + 18, rgb(150,150,170))
+        draw_text("⚠️ 修改可能影响系统稳定性", x, y + 19, rgb(255,150,100))
+        
+        # 边际效应阈值
+        draw_text("边际效应阈值 (1%-5%)", x, y + 21, rgb(120,120,140))
+        current_marginal -> fate_get_marginal_threshold() * 100
+        draw_slider(x + 25, y + 21, 15, current_marginal, 1, 5, function(v) {
+            fate_set_marginal_threshold(v / 100)
+        })
+        draw_text("{current_marginal}%", x + 42, y + 21, rgb(100,100,120))
+        
+        # 性能阈值
+        draw_text("性能触发阈值 (65%-80%)", x, y + 23, rgb(120,120,140))
+        current_perf -> fate_get_perf_threshold()
+        draw_slider(x + 25, y + 23, 15, current_perf, 65, 80, function(v) {
+            fate_set_perf_threshold(v)
+        })
+        draw_text("{current_perf}%", x + 42, y + 23, rgb(100,100,120))
+    }
+    
+    # ═══════════════════════════════════════════════════════
+    # 关于
+    # ═══════════════════════════════════════════════════════
+    render_about -> function(x, y, w) {
+        draw_gradient_text("ℹ️ 关于 Val-OS", gradients.fate, x, y)
+        draw_line(x, y + 1, w - 2, rgb(60,60,80))
+        
+        # Logo
+        draw_gradient_text("🖥️ Val-OS", gradients.ocean, x + 10, y + 4)
+        draw_text("Fate-Powered Operating System", x + 5, y + 6, rgb(150,150,170))
+        
+        draw_text("版本: 2.3", x, y + 9, rgb(180,180,180))
+        draw_text("构建: Wave Compiler v4.3", x, y + 10, rgb(150,150,150))
+        draw_text("内核: Fate+四元 Memory System", x, y + 11, rgb(150,150,150))
+        
+        draw_line(x, y + 13, w - 2, rgb(60,60,80))
+        
+        draw_text("开发: Rogue Intelligence Inc.", x, y + 14, rgb(180,180,180))
+        draw_text("许可: MIT License", x, y + 15, rgb(150,150,150))
+        
+        # 系统信息
+        draw_text("系统信息:", x, y + 18, rgb(200,200,220))
+        draw_text("CPU: Fate 自适应调度", x + 2, y + 19, rgb(120,120,140))
+        draw_text("内存: {get_memory_info()}", x + 2, y + 20, rgb(120,120,140))
+        draw_text("存储: {get_storage_info()}", x + 2, y + 21, rgb(120,120,140))
+        
+        # 检查更新
+        draw_button("检查更新", x, y + 24, check_for_updates)
+    }
+    
+    # UI 组件
+    draw_toggle -> function(x, y, value, on_change) {
+        bg -> when value { rgb(80,150,80) } else { rgb(60,60,70) }
+        draw_box(x, y, 4, 1, bg)
+        
+        knob_x -> when value { x + 2 } else { x }
+        draw_text("●", knob_x, y, rgb(255,255,255))
+        
+        on_click(x, y, 4, 1) -> function() {
+            on_change(!value)
+            refresh()
+        }
+    }
+    
+    draw_dropdown -> function(x, y, w, options, selected, on_change) {
+        draw_box(x, y, w, 1, rgb(50,50,60))
+        draw_text(options[selected] + " ▼", x + 1, y, rgb(200,200,200))
+        
+        on_click(x, y, w, 1) -> function() {
+            show_dropdown_menu(x, y + 1, options, function(i) {
+                on_change(i)
+                refresh()
+            })
+        }
+    }
+}

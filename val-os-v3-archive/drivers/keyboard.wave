@@ -1,0 +1,271 @@
+# ⌨️ Val-OS 键盘驱动
+# PS/2 键盘直接操作
+# Wave 原生实现
+
+# ═══════════════════════════════════════════════════════
+# 键盘硬件
+# ═══════════════════════════════════════════════════════
+
+keyboard -> hardware {
+    data_port: 0x60,
+    status_port: 0x64,
+    command_port: 0x64
+}
+
+keyboard_state -> {
+    shift_pressed: false,
+    ctrl_pressed: false,
+    alt_pressed: false,
+    caps_lock: false,
+    num_lock: false,
+    last_key: null,
+    buffer: []
+}
+
+# ═══════════════════════════════════════════════════════
+# 扫描码映射 (US 布局)
+# ═══════════════════════════════════════════════════════
+
+scancode_map -> {
+    0x02: '1', 0x03: '2', 0x04: '3', 0x05: '4', 0x06: '5',
+    0x07: '6', 0x08: '7', 0x09: '8', 0x0A: '9', 0x0B: '0',
+    0x0C: '-', 0x0D: '=', 0x0E: '\b',  # backspace
+    0x0F: '\t',  # tab
+    0x10: 'q', 0x11: 'w', 0x12: 'e', 0x13: 'r', 0x14: 't',
+    0x15: 'y', 0x16: 'u', 0x17: 'i', 0x18: 'o', 0x19: 'p',
+    0x1A: '[', 0x1B: ']', 0x1C: '\n',  # enter
+    0x1E: 'a', 0x1F: 's', 0x20: 'd', 0x21: 'f', 0x22: 'g',
+    0x23: 'h', 0x24: 'j', 0x25: 'k', 0x26: 'l', 0x27: ';',
+    0x28: "'", 0x29: '`',
+    0x2B: '\\',
+    0x2C: 'z', 0x2D: 'x', 0x2E: 'c', 0x2F: 'v', 0x30: 'b',
+    0x31: 'n', 0x32: 'm', 0x33: ',', 0x34: '.', 0x35: '/',
+    0x39: ' '   # space
+}
+
+# Shift 映射
+shift_map -> {
+    '1': '!', '2': '@', '3': '#', '4': '$', '5': '%',
+    '6': '^', '7': '&', '8': '*', '9': '(', '0': ')',
+    '-': '_', '=': '+', '[': '{', ']': '}', '\\': '|',
+    ';': ':', "'": '"', '`': '~', ',': '<', '.': '>', '/': '?'
+}
+
+# 特殊键扫描码
+special_keys -> {
+    0x2A: "left_shift",
+    0x36: "right_shift",
+    0x1D: "left_ctrl",
+    0x38: "left_alt",
+    0x3A: "caps_lock",
+    0x45: "num_lock",
+    0x01: "escape",
+    0x3B: "F1", 0x3C: "F2", 0x3D: "F3", 0x3E: "F4",
+    0x3F: "F5", 0x40: "F6", 0x41: "F7", 0x42: "F8",
+    0x43: "F9", 0x44: "F10", 0x57: "F11", 0x58: "F12",
+    0x48: "up", 0x50: "down", 0x4B: "left", 0x4D: "right",
+    0x47: "home", 0x4F: "end", 0x49: "page_up", 0x51: "page_down",
+    0x52: "insert", 0x53: "delete"
+}
+
+# ═══════════════════════════════════════════════════════
+# 底层操作
+# ═══════════════════════════════════════════════════════
+
+# 等待键盘可读
+wait_keyboard_ready -> function() {
+    while (inb(keyboard.status_port) & 1) == 0 {
+        # 等待
+    }
+}
+
+# 等待可写
+wait_keyboard_write -> function() {
+    while (inb(keyboard.status_port) & 2) != 0 {
+        # 等待
+    }
+}
+
+# 读取扫描码
+read_scancode -> function() {
+    return inb(keyboard.data_port)
+}
+
+# 发送命令
+send_keyboard_command -> function(cmd) {
+    wait_keyboard_write()
+    outb(keyboard.command_port, cmd)
+}
+
+# ═══════════════════════════════════════════════════════
+# 中断处理
+# ═══════════════════════════════════════════════════════
+
+keyboard_interrupt_handler -> function() {
+    scancode -> read_scancode()
+    
+    # 按键释放 (最高位为1)
+    is_release -> (scancode & 0x80) != 0
+    scancode -> scancode & 0x7F
+    
+    # 修饰键处理
+    when scancode == 0x2A || scancode == 0x36 {  # Shift
+        keyboard_state.shift_pressed -> !is_release
+        return
+    }
+    when scancode == 0x1D {  # Ctrl
+        keyboard_state.ctrl_pressed -> !is_release
+        return
+    }
+    when scancode == 0x38 {  # Alt
+        keyboard_state.alt_pressed -> !is_release
+        return
+    }
+    
+    # Caps Lock 切换
+    when scancode == 0x3A && !is_release {
+        keyboard_state.caps_lock -> !keyboard_state.caps_lock
+        return
+    }
+    
+    # 只处理按下事件
+    when is_release { return }
+    
+    # 特殊键
+    when special_keys[scancode] {
+        key_event -> {
+            type: "special",
+            key: special_keys[scancode],
+            ctrl: keyboard_state.ctrl_pressed,
+            alt: keyboard_state.alt_pressed,
+            shift: keyboard_state.shift_pressed
+        }
+        dispatch_key_event(key_event)
+        return
+    }
+    
+    # 普通字符
+    char -> scancode_map[scancode]
+    when char {
+        # Shift 或 Caps Lock 大写
+        when keyboard_state.shift_pressed {
+            when shift_map[char] {
+                char -> shift_map[char]
+            } else when is_alpha(char) {
+                char -> char.toUpperCase()
+            }
+        } else when keyboard_state.caps_lock && is_alpha(char) {
+            char -> char.toUpperCase()
+        }
+        
+        keyboard_state.last_key -> char
+        keyboard_state.buffer.push(char)
+        
+        key_event -> {
+            type: "char",
+            char: char,
+            ctrl: keyboard_state.ctrl_pressed,
+            alt: keyboard_state.alt_pressed,
+            shift: keyboard_state.shift_pressed
+        }
+        dispatch_key_event(key_event)
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 高级 API
+# ═══════════════════════════════════════════════════════
+
+# 事件监听器
+key_listeners -> []
+
+dispatch_key_event -> function(event) {
+    for listener in key_listeners {
+        listener(event)
+    }
+}
+
+on_key -> function(callback) {
+    key_listeners.push(callback)
+}
+
+off_key -> function(callback) {
+    index -> key_listeners.indexOf(callback)
+    when index >= 0 {
+        key_listeners.splice(index, 1)
+    }
+}
+
+# 读取一个字符 (阻塞)
+getchar -> function() {
+    while keyboard_state.buffer.length == 0 {
+        # 等待中断
+        __asm__ { hlt }
+    }
+    return keyboard_state.buffer.shift()
+}
+
+# 读取一行
+readline -> function(prompt) {
+    when prompt {
+        draw_string(cursor_x, cursor_y, prompt, colors.white, colors.blue)
+        cursor_x -> cursor_x + prompt.length
+    }
+    
+    line -> ""
+    while true {
+        char -> getchar()
+        
+        when char == '\n' {
+            cursor_y -> cursor_y + 1
+            cursor_x -> 0
+            break
+        }
+        
+        when char == '\b' && line.length > 0 {
+            line -> line.slice(0, -1)
+            cursor_x -> cursor_x - 1
+            draw_char(cursor_x, cursor_y, ' ', colors.white, colors.blue)
+            continue
+        }
+        
+        line -> line + char
+        draw_char(cursor_x, cursor_y, char.charCode(), colors.white, colors.blue)
+        cursor_x -> cursor_x + 1
+    }
+    
+    return line
+}
+
+# 检查是否有按键
+kbhit -> function() {
+    return keyboard_state.buffer.length > 0
+}
+
+# ═══════════════════════════════════════════════════════
+# 初始化
+# ═══════════════════════════════════════════════════════
+
+init_keyboard -> function() {
+    # 启用键盘
+    send_keyboard_command(0xAE)
+    
+    # 设置扫描码集 2
+    wait_keyboard_write()
+    outb(keyboard.data_port, 0xF0)
+    wait_keyboard_write()
+    outb(keyboard.data_port, 0x02)
+    
+    # 启用中断
+    send_keyboard_command(0x20)
+    config -> inb(keyboard.data_port)
+    config -> config | 1  # 启用 IRQ1
+    send_keyboard_command(0x60)
+    wait_keyboard_write()
+    outb(keyboard.data_port, config)
+    
+    # 注册中断处理
+    register_interrupt(0x21, keyboard_interrupt_handler)
+    
+    return true
+}

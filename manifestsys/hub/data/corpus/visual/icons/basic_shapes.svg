@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- 基础形状 -->
+  
+  <!-- 矩形 - 容器概念 -->
+  <rect id="container" x="10" y="10" width="80" height="60" fill="#3498db" rx="5"/>
+  
+  <!-- 圆形 - 完整/统一概念 -->
+  <circle id="unity" cx="150" cy="40" r="30" fill="#e74c3c"/>
+  
+  <!-- 三角形 - 方向/层次概念 -->
+  <polygon id="direction" points="250,10 220,70 280,70" fill="#2ecc71"/>
+  
+  <!-- 线段 - 连接概念 -->
+  <line id="connection" x1="320" y1="10" x2="380" y2="70" stroke="#9b59b6" stroke-width="3"/>
+  
+  <!-- 椭圆 - 变形概念 -->
+  <ellipse id="deformation" cx="50" cy="140" rx="40" ry="25" fill="#f39c12"/>
+  
+  <!-- 路径 - 流动概念 -->
+  <path id="flow" d="M120 120 Q160 100 200 120 T280 120" stroke="#1abc9c" fill="none" stroke-width="3"/>
+  
+  <!-- 星形 - 重要性概念 -->
+  <polygon id="importance" points="350,100 360,130 390,130 365,150 375,180 350,160 325,180 335,150 310,130 340,130" fill="#e67e22"/>
+  
+  <!-- 箭头 - 过程概念 -->
+  <path id="process" d="M30 220 L80 220 L80 210 L110 230 L80 250 L80 240 L30 240 Z" fill="#34495e"/>
+  
+  <!-- 齿轮 - 机制概念 -->
+  <circle id="mechanism" cx="180" cy="230" r="30" fill="#7f8c8d"/>
+  <rect x="175" y="195" width="10" height="15" fill="#7f8c8d"/>
+  <rect x="175" y="250" width="10" height="15" fill="#7f8c8d"/>
+  <rect x="145" y="225" width="15" height="10" fill="#7f8c8d"/>
+  <rect x="200" y="225" width="15" height="10" fill="#7f8c8d"/>
+  
+  <!-- 云 - 抽象概念 -->
+  <ellipse cx="300" cy="220" rx="25" ry="15" fill="#bdc3c7"/>
+  <ellipse cx="320" cy="210" rx="20" ry="12" fill="#bdc3c7"/>
+  <ellipse cx="340" cy="220" rx="25" ry="15" fill="#bdc3c7"/>
+  <ellipse cx="320" cy="230" rx="30" ry="15" fill="#bdc3c7"/>
+</svg>

@@ -1,0 +1,42 @@
+# PS/2 基础驱动
+# 键盘 + 鼠标
+
+ps2 -> {
+    # 端口
+    data: 0x60,
+    status: 0x64,
+    
+    # 键盘
+    keyboard -> {
+        buffer: fate_alloc,
+        
+        init -> function() {
+            # 启用键盘
+            out "Keyboard: PS/2"
+        },
+        
+        read -> function() {
+            # 从端口读取扫描码
+            scancode -> in(0x60)
+            scancode -> return
+        }
+    },
+    
+    # 鼠标
+    mouse -> {
+        x: 0,
+        y: 0,
+        buttons: 0,
+        
+        init -> function() {
+            # 启用鼠标 (发送 0xA8 到 0x64)
+            out "Mouse: PS/2"
+        },
+        
+        read -> function() {
+            # 读取鼠标包
+            packet -> in(0x60)
+            packet -> return
+        }
+    }
+}

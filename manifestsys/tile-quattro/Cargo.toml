@@ -1,0 +1,22 @@
+[package]
+name = "valhalla-tile-quattro"
+version = "2.2.0"
+edition = "2021"
+description = "TileQuattro Memory Manager for Val-OS (f64 Version) - 6.57x Performance with Quad-System Shell"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.3"# 系统存储 (旧版兼容)
+valhalla-storage = { path = "../valhalla-storage" }
+
+# 四元系统 (外壳容器)
+valhalla_metasystems_blackhole = { path = "../../systems/metasystems/blackhole" }
+valhalla_metasystems_meshbrain = { path = "../../systems/metasystems/meshbrain" }
+valhalla_metasystems_multinova = { path = "../../systems/metasystems/multinova" }
+valhalla_metasystems_baseforce = { path = "../../systems/metasystems/base-force" }
+
+# Triple-Fate (多层 Fate 架构)
+fate-f64 = { path = "../../systems/metasystems/fate-f64" }
+
+# Space GPU 高维计算
+valhalla-space-f64-gpu = { path = "../../utils/space-f64-gpu" }

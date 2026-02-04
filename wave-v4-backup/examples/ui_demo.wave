@@ -1,0 +1,132 @@
+# 🌊 Wave UI 演示
+# 三种模式切换
+
+# ═══════════════════════════════════════════════════════
+# 模式 1: 紧凑 (Compact)
+# ═══════════════════════════════════════════════════════
+
+demo_compact -> show {
+    output -> "=== COMPACT MODE ==="
+    output -> "Wave v4.2.0"
+    output -> "Compiling..."
+    output -> "Done: 1234 bytes"
+    output -> ""
+}
+
+# ═══════════════════════════════════════════════════════
+# 模式 2: 标准 (Standard) - 带色彩
+# ═══════════════════════════════════════════════════════
+
+demo_standard -> show {
+    # 青色标题
+    output -> "\x1b[36m=== STANDARD MODE ===\x1b[0m"
+    
+    # 加粗版本
+    output -> "\x1b[1m🌊 Wave v4.2.0\x1b[0m"
+    
+    # 黄色文件名
+    output -> "Compiling \x1b[33mtest.wave\x1b[0m..."
+    
+    # 绿色成功
+    output -> "\x1b[32m✓ Done\x1b[0m: 1234 bytes"
+    
+    output -> ""
+}
+
+# ═══════════════════════════════════════════════════════
+# 模式 3: 丰富 (Rich) - 色彩 + 面板
+# ═══════════════════════════════════════════════════════
+
+demo_rich -> show {
+    # 面板顶部
+    output -> "\x1b[36m╭──────────────────────────────╮\x1b[0m"
+    output -> "\x1b[36m│\x1b[0m \x1b[1m🌊 Wave v4.2.0\x1b[0m              \x1b[36m│\x1b[0m"
+    output -> "\x1b[36m├──────────────────────────────┤\x1b[0m"
+    
+    # 内容
+    output -> "\x1b[36m│\x1b[0m File:   \x1b[33mtest.wave\x1b[0m           \x1b[36m│\x1b[0m"
+    output -> "\x1b[36m│\x1b[0m Status: \x1b[32m✓ Complete\x1b[0m          \x1b[36m│\x1b[0m"
+    output -> "\x1b[36m│\x1b[0m Code:   \x1b[1m1234\x1b[0m bytes           \x1b[36m│\x1b[0m"
+    
+    # 面板底部
+    output -> "\x1b[36m╰──────────────────────────────╯\x1b[0m"
+    
+    output -> ""
+}
+
+# ═══════════════════════════════════════════════════════
+# 进度条演示
+# ═══════════════════════════════════════════════════════
+
+demo_progress -> show {
+    output -> "\x1b[36m=== PROGRESS BAR ===\x1b[0m"
+    
+    # 25% - 红色
+    output -> "[\x1b[31m████████\x1b[0m░░░░░░░░░░░░░░░░░░░░] 25%"
+    
+    # 50% - 黄色
+    output -> "[\x1b[33m████████████████\x1b[0m░░░░░░░░░░░░░░] 50%"
+    
+    # 75% - 黄绿
+    output -> "[\x1b[33m████████████████████████\x1b[0m░░░░░░░░] 75%"
+    
+    # 100% - 绿色
+    output -> "[\x1b[32m████████████████████████████████\x1b[0m] 100%"
+    
+    output -> ""
+}
+
+# ═══════════════════════════════════════════════════════
+# 状态指示器演示
+# ═══════════════════════════════════════════════════════
+
+demo_status -> show {
+    output -> "\x1b[36m=== STATUS INDICATORS ===\x1b[0m"
+    
+    output -> "\x1b[32m✓\x1b[0m Success - 操作成功"
+    output -> "\x1b[31m✗\x1b[0m Error   - 发生错误"
+    output -> "\x1b[33m⚠\x1b[0m Warning - 警告信息"
+    output -> "\x1b[36mℹ\x1b[0m Info    - 普通信息"
+    output -> "\x1b[34m◌\x1b[0m Running - 正在运行"
+    
+    output -> ""
+}
+
+# ═══════════════════════════════════════════════════════
+# 双面板布局演示
+# ═══════════════════════════════════════════════════════
+
+demo_dual_panel -> show {
+    output -> "\x1b[36m=== DUAL PANEL LAYOUT ===\x1b[0m"
+    output -> ""
+    
+    # 并排面板 (简化演示)
+    output -> "\x1b[32m╭─────────────╮\x1b[0m  \x1b[35m╭─────────────╮\x1b[0m"
+    output -> "\x1b[32m│\x1b[0m \x1b[1mInput\x1b[0m       \x1b[32m│\x1b[0m  \x1b[35m│\x1b[0m \x1b[1mOutput\x1b[0m      \x1b[35m│\x1b[0m"
+    output -> "\x1b[32m├─────────────┤\x1b[0m  \x1b[35m├─────────────┤\x1b[0m"
+    output -> "\x1b[32m│\x1b[0m test.wave   \x1b[32m│\x1b[0m  \x1b[35m│\x1b[0m test (ELF)  \x1b[35m│\x1b[0m"
+    output -> "\x1b[32m│\x1b[0m 45 lines    \x1b[32m│\x1b[0m  \x1b[35m│\x1b[0m 1234 bytes  \x1b[35m│\x1b[0m"
+    output -> "\x1b[32m╰─────────────╯\x1b[0m  \x1b[35m╰─────────────╯\x1b[0m"
+    
+    output -> ""
+}
+
+# ═══════════════════════════════════════════════════════
+# 运行所有演示
+# ═══════════════════════════════════════════════════════
+
+main -> run {
+    output -> "\x1b[1;35m╔══════════════════════════════════════╗\x1b[0m"
+    output -> "\x1b[1;35m║     🌊 Wave UI - 混合界面演示        ║\x1b[0m"
+    output -> "\x1b[1;35m╚══════════════════════════════════════╝\x1b[0m"
+    output -> ""
+    
+    demo_compact -> execute
+    demo_standard -> execute
+    demo_rich -> execute
+    demo_progress -> execute
+    demo_status -> execute
+    demo_dual_panel -> execute
+    
+    output -> "\x1b[2m[按任意键切换模式 | Fate 自动适应终端大小]\x1b[0m"
+}

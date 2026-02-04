@@ -1,0 +1,284 @@
+# 🌐 Val-OS 浏览器
+# 半GUI · Wave UI · 鼠标支持 · 标签页
+
+browser -> ui_app {
+    title -> "🌐 浏览器"
+    size -> { width: 80, height: 30 }
+    
+    state -> {
+        tabs: [
+            { id: 1, title: "新标签页", url: "valos://home", content: null, loading: false }
+        ],
+        active_tab: 0,
+        history: [],
+        history_index: -1,
+        bookmarks: [
+            { title: "Val-OS 主页", url: "valos://home" },
+            { title: "软件商店", url: "valos://store" },
+            { title: "设置", url: "valos://settings" }
+        ]
+    }
+    
+    render -> function() {
+        # 背景
+        draw_box(0, 0, 80, 30, rgb(35,35,45))
+        
+        # ─────────────────────────────────────────────
+        # 标签栏
+        # ─────────────────────────────────────────────
+        draw_box(0, 0, 80, 2, rgb(45,45,55))
+        
+        x -> 2
+        for i, tab in state.tabs.enumerate() {
+            is_active -> i == state.active_tab
+            tab_w -> min(tab.title.length + 6, 20)
+            
+            bg -> when is_active { rgb(35,35,45) } else { rgb(50,50,60) }
+            draw_box(x, 0, tab_w, 2, bg)
+            
+            # 加载指示
+            prefix -> when tab.loading { "⏳ " } else { "" }
+            draw_text(prefix + truncate(tab.title, 14), x + 1, 1, rgb(200,200,200))
+            
+            # 关闭按钮
+            draw_text("×", x + tab_w - 2, 1, rgb(150,150,150))
+            on_click(x + tab_w - 2, 1, 1, 1) -> function() {
+                close_tab(i)
+            }
+            
+            on_click(x, 0, tab_w - 2, 2) -> function() {
+                state.active_tab -> i
+                refresh()
+            }
+            
+            x -> x + tab_w + 1
+        }
+        
+        # 新标签按钮
+        draw_button("+", x, 1, new_tab)
+        
+        # ─────────────────────────────────────────────
+        # 导航栏
+        # ─────────────────────────────────────────────
+        draw_box(0, 2, 80, 3, rgb(40,40,50))
+        
+        tab -> state.tabs[state.active_tab]
+        
+        # 后退
+        back_color -> when can_go_back() { rgb(200,200,200) } else { rgb(80,80,80) }
+        draw_icon_button("◀", 2, 3, go_back, back_color)
+        
+        # 前进
+        fwd_color -> when can_go_forward() { rgb(200,200,200) } else { rgb(80,80,80) }
+        draw_icon_button("▶", 6, 3, go_forward, fwd_color)
+        
+        # 刷新/停止
+        refresh_icon -> when tab.loading { "✕" } else { "↻" }
+        draw_icon_button(refresh_icon, 10, 3, function() {
+            when tab.loading { stop_loading() } else { reload_page() }
+        })
+        
+        # 地址栏
+        draw_input_box(16, 3, 54, tab.url, function(new_url) {
+            navigate(new_url)
+        })
+        
+        # 书签按钮
+        is_bookmarked -> state.bookmarks.some(b => b.url == tab.url)
+        star_color -> when is_bookmarked { rgb(255,200,0) } else { rgb(150,150,150) }
+        draw_icon_button("⭐", 72, 3, toggle_bookmark, star_color)
+        
+        # 菜单
+        draw_icon_button("☰", 76, 3, show_menu)
+        
+        # ─────────────────────────────────────────────
+        # 书签栏
+        # ─────────────────────────────────────────────
+        draw_box(0, 5, 80, 1, rgb(45,45,55))
+        
+        bx -> 2
+        for bookmark in state.bookmarks.slice(0, 6) {
+            bm_w -> min(bookmark.title.length + 2, 12)
+            draw_text(truncate(bookmark.title, 10), bx, 5, rgb(150,150,200))
+            
+            on_click(bx, 5, bm_w, 1) -> function() {
+                navigate(bookmark.url)
+            }
+            
+            bx -> bx + bm_w + 2
+        }
+        
+        # ─────────────────────────────────────────────
+        # 内容区域
+        # ─────────────────────────────────────────────
+        content_y -> 6
+        content_h -> 23
+        
+        when tab.loading {
+            # 加载动画
+            draw_text("⏳ 加载中...", 35, 15, rgb(150,150,150))
+        } else when tab.url == "valos://home" {
+            render_home_page(content_y)
+        } else when tab.url == "valos://store" {
+            render_store_page(content_y)
+        } else when tab.url == "valos://settings" {
+            render_settings_page(content_y)
+        } else when tab.content {
+            render_page_content(tab.content, content_y, content_h)
+        } else {
+            draw_text("无法显示此页面", 30, 15, rgb(150,150,150))
+        }
+        
+        # ─────────────────────────────────────────────
+        # 状态栏
+        # ─────────────────────────────────────────────
+        draw_box(0, 29, 80, 1, rgb(40,40,50))
+        draw_text(tab.url, 2, 29, rgb(100,100,120))
+    }
+    
+    # 渲染主页
+    render_home_page -> function(y) {
+        draw_gradient_text("🖥️ Val-OS 浏览器", gradients.fate, 28, y + 2)
+        
+        # 搜索框
+        draw_box(20, y + 5, 40, 3, rgb(50,50,60))
+        draw_text("🔍 搜索或输入网址", 22, y + 6, rgb(150,150,150))
+        
+        on_click(20, y + 5, 40, 3) -> function() {
+            focus_address_bar()
+        }
+        
+        # 快速链接
+        draw_text("快速访问", 20, y + 10, rgb(150,150,170))
+        
+        quick_links -> [
+            { icon: "📦", title: "软件商店", url: "valos://store" },
+            { icon: "⚙️", title: "设置", url: "valos://settings" },
+            { icon: "📁", title: "文件", url: "valos://files" },
+            { icon: "🎵", title: "音乐", url: "valos://music" }
+        ]
+        
+        lx -> 20
+        for link in quick_links {
+            draw_box(lx, y + 12, 10, 4, rgb(50,50,60))
+            draw_text(link.icon, lx + 4, y + 13)
+            draw_text(link.title, lx + 2, y + 14, rgb(180,180,180))
+            
+            on_click(lx, y + 12, 10, 4) -> function() {
+                navigate(link.url)
+            }
+            
+            lx -> lx + 12
+        }
+    }
+    
+    # 渲染页面内容 (简化的 HTML 渲染)
+    render_page_content -> function(content, y, h) {
+        lines -> parse_html_simple(content)
+        
+        for i, line in lines.slice(0, h).enumerate() {
+            when line.type == "h1" {
+                draw_gradient_text(line.text, gradients.fate, 4, y + i)
+            } else when line.type == "h2" {
+                draw_text(line.text, 4, y + i, rgb(200,200,220))
+            } else when line.type == "link" {
+                draw_text(line.text, 4, y + i, rgb(100,150,255))
+                on_click(4, y + i, line.text.length, 1) -> function() {
+                    navigate(line.href)
+                }
+            } else {
+                draw_text(line.text, 4, y + i, rgb(180,180,180))
+            }
+        }
+    }
+    
+    # 导航函数
+    navigate -> function(url) {
+        tab -> state.tabs[state.active_tab]
+        
+        # 添加到历史
+        when tab.url != url {
+            state.history.add(tab.url)
+            state.history_index -> state.history.length - 1
+        }
+        
+        tab.url -> url
+        tab.loading -> true
+        tab.title -> "加载中..."
+        refresh()
+        
+        # 异步加载
+        fetch_page(url, function(content, title) {
+            tab.content -> content
+            tab.title -> title || get_title_from_url(url)
+            tab.loading -> false
+            refresh()
+        })
+    }
+    
+    new_tab -> function() {
+        state.tabs.add({
+            id: state.tabs.length + 1,
+            title: "新标签页",
+            url: "valos://home",
+            content: null,
+            loading: false
+        })
+        state.active_tab -> state.tabs.length - 1
+        refresh()
+    }
+    
+    close_tab -> function(index) {
+        when state.tabs.length > 1 {
+            state.tabs.remove(index)
+            when state.active_tab >= state.tabs.length {
+                state.active_tab -> state.tabs.length - 1
+            }
+            refresh()
+        }
+    }
+    
+    go_back -> function() {
+        when can_go_back() {
+            state.history_index -> state.history_index - 1
+            navigate(state.history[state.history_index])
+        }
+    }
+    
+    go_forward -> function() {
+        when can_go_forward() {
+            state.history_index -> state.history_index + 1
+            navigate(state.history[state.history_index])
+        }
+    }
+    
+    can_go_back -> function() {
+        return state.history_index > 0
+    }
+    
+    can_go_forward -> function() {
+        return state.history_index < state.history.length - 1
+    }
+    
+    toggle_bookmark -> function() {
+        tab -> state.tabs[state.active_tab]
+        index -> state.bookmarks.findIndex(b => b.url == tab.url)
+        
+        when index >= 0 {
+            state.bookmarks.remove(index)
+        } else {
+            state.bookmarks.add({ title: tab.title, url: tab.url })
+        }
+        refresh()
+    }
+    
+    # 键盘快捷键
+    on_key -> function(key) {
+        when key == "Ctrl+T" { new_tab() }
+        else when key == "Ctrl+W" { close_tab(state.active_tab) }
+        else when key == "Ctrl+R" { reload_page() }
+        else when key == "Alt+Left" { go_back() }
+        else when key == "Alt+Right" { go_forward() }
+        else when key == "Ctrl+L" { focus_address_bar() }
+    }
+}

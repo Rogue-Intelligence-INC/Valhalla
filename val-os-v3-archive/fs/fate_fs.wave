@@ -1,0 +1,191 @@
+# 🗄️ Fate 文件系统
+# Wave UI 风格 · Tab 容器 · Fate 控制
+
+# ═══════════════════════════════════════════════════════
+# 核心概念
+# ═══════════════════════════════════════════════════════
+
+# 文件不是传统的 inode + block
+# 而是 Fate 管理的容器 (Container)
+
+# 容器 = 数据 + 元数据 + Fate 状态
+# Tab = 容器的逻辑分组
+
+# ═══════════════════════════════════════════════════════
+# 容器 (Container)
+# ═══════════════════════════════════════════════════════
+
+container -> structure {
+    id -> fate_generate_id
+    name -> string
+    type -> enum { file, directory, link, special }
+    
+    # 数据
+    data -> bytes
+    size -> fate_track
+    
+    # 元数据
+    created -> timestamp
+    modified -> timestamp
+    accessed -> timestamp
+    
+    # Fate 状态
+    importance -> fate_evaluate     # 重要性
+    access_pattern -> fate_learn    # 访问模式
+    optimal_pool -> fate_decide     # 最优存储池
+    
+    # 权限
+    owner -> user_id
+    permissions -> mode
+}
+
+# ═══════════════════════════════════════════════════════
+# Tab 系统 (逻辑分组)
+# ═══════════════════════════════════════════════════════
+
+tab -> structure {
+    id -> fate_generate_id
+    name -> string
+    color -> rgb(r, g, b)  # Wave UI 色彩
+    
+    # 包含的容器
+    containers -> list
+    
+    # 视图设置
+    sort_by -> fate_decide  # 或用户指定
+    filter -> optional
+}
+
+# 预设 Tab
+tabs -> preset {
+    root     -> tab { name: "/", color: rgb(100,100,100) }
+    home     -> tab { name: "home", color: rgb(100,200,255) }
+    system   -> tab { name: "system", color: rgb(255,100,100) }
+    apps     -> tab { name: "apps", color: rgb(100,255,100) }
+    data     -> tab { name: "data", color: rgb(255,200,100) }
+}
+
+# ═══════════════════════════════════════════════════════
+# 文件操作
+# ═══════════════════════════════════════════════════════
+
+# 创建
+create -> function(path, type) {
+    container -> container {
+        name: path.filename,
+        type: type,
+        created: now(),
+        owner: current_user(),
+        permissions: default_mode(type)
+    }
+    
+    # Fate 决定存储位置
+    pool -> fate_decide_storage(container)
+    pool.store(container)
+    
+    return container
+}
+
+# 读取
+read -> function(path) {
+    container -> find_container(path)
+    
+    # 更新访问时间
+    container.accessed -> now()
+    
+    # Fate 学习访问模式
+    fate_learn_access(container)
+    
+    return container.data
+}
+
+# 写入
+write -> function(path, data) {
+    container -> find_container(path)
+    
+    # 权限检查
+    check_permission(container, WRITE)
+    
+    container.data -> data
+    container.size -> data.length
+    container.modified -> now()
+    
+    # Fate 可能迁移到更优池
+    when fate_should_migrate(container) {
+        fate_migrate(container)
+    }
+}
+
+# 删除
+delete -> function(path) {
+    container -> find_container(path)
+    check_permission(container, WRITE)
+    
+    # Fate 决定: 立即删除或标记待清理
+    fate_handle_delete(container)
+}
+
+# ═══════════════════════════════════════════════════════
+# Wave UI 文件浏览器
+# ═══════════════════════════════════════════════════════
+
+file_browser -> ui_component {
+    # Tab 栏 (渐变色)
+    tab_bar -> panel {
+        position -> top
+        height -> 1
+        
+        for tab in tabs {
+            render -> gradient_text(tab.name, tab.color)
+        }
+    }
+    
+    # 文件列表
+    file_list -> panel {
+        position -> center
+        
+        for container in current_tab.containers {
+            icon -> get_icon(container.type)
+            name -> container.name
+            size -> format_size(container.size)
+            modified -> format_time(container.modified)
+            
+            # 颜色根据类型
+            color -> fate_choose_color(container.type)
+        }
+    }
+    
+    # 状态栏
+    status_bar -> panel {
+        position -> bottom
+        height -> 1
+        
+        info -> "{count} items | {total_size} | Pool: {current_pool}"
+    }
+}
+
+# 图标 (Unicode)
+icons -> map {
+    file      -> "📄"
+    directory -> "📁"
+    link      -> "🔗"
+    special   -> "⚙️"
+    image     -> "🖼️"
+    audio     -> "🎵"
+    video     -> "🎬"
+    code      -> "💻"
+}
+
+# ═══════════════════════════════════════════════════════
+# 与四元池的关系
+# ═══════════════════════════════════════════════════════
+
+# Fate 自动选择存储池
+storage_decision -> fate_analyze {
+    # 大文件 → BlackHole
+    # 索引/目录 → MeshBrain
+    # 缓存/临时 → MultiNova
+    # 小文件 → BaseForce
+    
+    pool -> fate_decide_based_on_traits
+}

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <rect width="800" height="450" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" font-family="Times New Roman, serif" font-size="16" font-weight="bold" text-anchor="middle">FIG. 2 - BLACKHOLE SYSTEM (300) SIGNAL GENERATION</text>
+  
+  <!-- Core Formula -->
+  <rect x="200" y="50" width="400" height="60" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="75" font-family="Times New Roman, serif" font-size="14" text-anchor="middle" font-style="italic">attraction = G_c × (mass₁ × mass₂) / distance²</text>
+  <text x="400" y="100" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">(Inverse-Square Computational Formula)</text>
+  
+  <!-- Visual representation -->
+  <circle cx="200" cy="220" r="50" fill="none" stroke="black" stroke-width="2"/>
+  <text x="200" y="225" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">Center</text>
+  <text x="200" y="240" font-family="Times New Roman, serif" font-size="9" text-anchor="middle">(high priority)</text>
+  
+  <!-- Target entities -->
+  <circle cx="400" cy="180" r="15" fill="none" stroke="black" stroke-width="1"/>
+  <text x="400" y="185" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">E1</text>
+  
+  <circle cx="450" cy="280" r="15" fill="none" stroke="black" stroke-width="1"/>
+  <text x="450" y="285" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">E2</text>
+  
+  <circle cx="350" cy="320" r="15" fill="none" stroke="black" stroke-width="1"/>
+  <text x="350" y="325" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">E3</text>
+  
+  <!-- Attraction arrows (pointing toward center) -->
+  <line x1="385" y1="185" x2="255" y2="210" stroke="black" stroke-width="1.5" marker-end="url(#arrowBH)"/>
+  <line x1="435" y1="275" x2="255" y2="235" stroke="black" stroke-width="1"/>
+  <line x1="340" y1="310" x2="250" y2="250" stroke="black" stroke-width="1"/>
+  
+  <!-- Signal types box -->
+  <rect x="520" y="130" width="250" height="130" fill="none" stroke="black" stroke-width="1"/>
+  <text x="645" y="155" font-family="Times New Roman, serif" font-size="11" font-weight="bold" text-anchor="middle">SIGNAL TYPES</text>
+  <line x1="520" y1="165" x2="770" y2="165" stroke="black" stroke-width="1"/>
+  <text x="535" y="185" font-family="Times New Roman, serif" font-size="9">• Attraction: Pull toward center</text>
+  <text x="535" y="205" font-family="Times New Roman, serif" font-size="9">• Escape: Sufficient energy to leave</text>
+  <text x="535" y="225" font-family="Times New Roman, serif" font-size="9">• EventHorizon: Critical boundary</text>
+  <text x="535" y="250" font-family="Times New Roman, serif" font-size="9" font-style="italic">intensity = attraction / max_attraction</text>
+  
+  <!-- Output signal -->
+  <rect x="520" y="290" width="250" height="100" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="645" y="315" font-family="Times New Roman, serif" font-size="11" font-weight="bold" text-anchor="middle">OUTPUT SIGNAL</text>
+  <line x1="520" y1="325" x2="770" y2="325" stroke="black" stroke-width="1"/>
+  <text x="535" y="345" font-family="Times New Roman, serif" font-size="9">intensity: f64 [0.0, 1.0]</text>
+  <text x="535" y="363" font-family="Times New Roman, serif" font-size="9">direction: Vec toward center</text>
+  <text x="535" y="381" font-family="Times New Roman, serif" font-size="9">escape_velocity: computed value</text>
+  
+  <!-- Arrow definition -->
+  <defs>
+    <marker id="arrowBH" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+    </marker>
+  </defs>
+  
+  <!-- Use case -->
+  <rect x="50" y="350" width="350" height="80" fill="none" stroke="black" stroke-width="1"/>
+  <text x="225" y="375" font-family="Times New Roman, serif" font-size="10" font-weight="bold" text-anchor="middle">USE CASES</text>
+  <text x="60" y="395" font-family="Times New Roman, serif" font-size="9">• Resource consolidation</text>
+  <text x="60" y="412" font-family="Times New Roman, serif" font-size="9">• Attention focusing • Priority escalation</text>
+</svg>
+

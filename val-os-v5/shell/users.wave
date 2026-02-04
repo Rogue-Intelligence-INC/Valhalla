@@ -1,0 +1,279 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - User System
+# Multi-user with permissions
+# ═══════════════════════════════════════════════════════════════════
+
+# User database
+users_db = {}
+
+# Roles and permissions
+roles = {
+    admin: {
+        permissions: ["read", "write", "execute", "admin", "network", "hardware"]
+    },
+    user: {
+        permissions: ["read", "write", "execute", "network"]
+    },
+    guest: {
+        permissions: ["read", "execute"]
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Initialization
+# ───────────────────────────────────────────────────────────────────
+
+init -> function() {
+    # Create default users
+    users_db = {
+        admin: {
+            password_hash: hash("wave"),
+            role: "admin",
+            home: "/home/admin",
+            created: now()
+        },
+        guest: {
+            password_hash: hash(""),
+            role: "guest",
+            home: "/home/guest",
+            created: now()
+        }
+    }
+    
+    # Create home directories
+    storage.create_dir("/home")
+    storage.create_dir("/home/admin")
+    storage.create_dir("/home/guest")
+}
+
+# ───────────────────────────────────────────────────────────────────
+# User Operations
+# ───────────────────────────────────────────────────────────────────
+
+create_user -> function(username, password, role) {
+    # Check permission
+    check_permission("admin") -> ok
+    when !ok {
+        { error: "Permission denied" } -> return
+    }
+    
+    # Check if exists
+    when users_db[username] != null {
+        { error: "User already exists" } -> return
+    }
+    
+    # Create user
+    users_db[username] = {
+        password_hash: hash(password),
+        role: role || "user",
+        home: "/home/" + username,
+        created: now()
+    }
+    
+    # Create home directory
+    storage.create_dir("/home/" + username)
+    
+    { success: true, user: username } -> return
+}
+
+delete_user -> function(username) {
+    check_permission("admin") -> ok
+    when !ok {
+        { error: "Permission denied" } -> return
+    }
+    
+    when username == "admin" {
+        { error: "Cannot delete admin" } -> return
+    }
+    
+    when users_db[username] == null {
+        { error: "User not found" } -> return
+    }
+    
+    delete users_db[username]
+    
+    { success: true } -> return
+}
+
+modify_user -> function(username, changes) {
+    check_permission("admin") -> ok
+    when !ok {
+        { error: "Permission denied" } -> return
+    }
+    
+    user -> users_db[username]
+    when user == null {
+        { error: "User not found" } -> return
+    }
+    
+    # Apply changes
+    when changes.role != null {
+        user.role = changes.role
+    }
+    when changes.password != null {
+        user.password_hash = hash(changes.password)
+    }
+    
+    { success: true } -> return
+}
+
+list_users -> function() {
+    result = []
+    
+    users_db -> fate_each_key -> username {
+        user -> users_db[username]
+        {
+            name: username,
+            role: user.role,
+            home: user.home,
+            created: user.created
+        } -> result.push
+    }
+    
+    result -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Permission System
+# ───────────────────────────────────────────────────────────────────
+
+check_permission -> function(required) {
+    current -> login.current_user
+    
+    when current == null {
+        false -> return
+    }
+    
+    user_role -> roles[current.role]
+    
+    when user_role == null {
+        false -> return
+    }
+    
+    user_role.permissions -> includes(required) -> return
+}
+
+has_permission -> function(username, permission) {
+    user -> users_db[username]
+    
+    when user == null {
+        false -> return
+    }
+    
+    role -> roles[user.role]
+    
+    when role == null {
+        false -> return
+    }
+    
+    role.permissions -> includes(permission) -> return
+}
+
+grant_permission -> function(role_name, permission) {
+    check_permission("admin") -> ok
+    when !ok {
+        { error: "Permission denied" } -> return
+    }
+    
+    role -> roles[role_name]
+    when role == null {
+        { error: "Role not found" } -> return
+    }
+    
+    when !role.permissions -> includes(permission) {
+        permission -> role.permissions.push
+    }
+    
+    { success: true } -> return
+}
+
+revoke_permission -> function(role_name, permission) {
+    check_permission("admin") -> ok
+    when !ok {
+        { error: "Permission denied" } -> return
+    }
+    
+    role -> roles[role_name]
+    when role == null {
+        { error: "Role not found" } -> return
+    }
+    
+    permission -> role.permissions.remove
+    
+    { success: true } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# File Permissions
+# ───────────────────────────────────────────────────────────────────
+
+file_permissions = {}
+
+set_file_permission -> function(path, owner, mode) {
+    file_permissions[path] = {
+        owner: owner,
+        mode: mode  # e.g., "rwxr-xr-x"
+    }
+}
+
+check_file_access -> function(path, action) {
+    current -> login.current_user
+    perm -> file_permissions[path]
+    
+    # Admin has all access
+    when current.role == "admin" {
+        true -> return
+    }
+    
+    when perm == null {
+        # Default: owner can do anything
+        true -> return
+    }
+    
+    is_owner = perm.owner == current.name
+    
+    when action == "read" {
+        when is_owner && perm.mode[0] == "r" { true -> return }
+        when perm.mode[4] == "r" { true -> return }
+    }
+    when action == "write" {
+        when is_owner && perm.mode[1] == "w" { true -> return }
+        when perm.mode[5] == "w" { true -> return }
+    }
+    when action == "execute" {
+        when is_owner && perm.mode[2] == "x" { true -> return }
+        when perm.mode[6] == "x" { true -> return }
+    }
+    
+    false -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Helpers
+# ───────────────────────────────────────────────────────────────────
+
+hash -> function(str) {
+    # Simple hash for demo
+    h = 0
+    str -> fate_each_char -> c {
+        h = h * 31 + c.charCodeAt(0)
+    }
+    h -> return
+}
+
+now -> function() {
+    __time__() -> return
+}
+
+# Export
+module.exports = {
+    init,
+    create_user,
+    delete_user,
+    modify_user,
+    list_users,
+    check_permission,
+    has_permission,
+    check_file_access,
+    set_file_permission
+}

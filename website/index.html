@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S-wind | Autonomous Mathematical Discovery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0a0a0f;
+            --bg-card: #12121a;
+            --accent-cyan: #00f5d4;
+            --accent-purple: #9b5de5;
+            --accent-pink: #f15bb5;
+            --accent-yellow: #fee440;
+            --text-primary: #ffffff;
+            --text-secondary: #8b8b9e;
+            --gradient-1: linear-gradient(135deg, #00f5d4 0%, #9b5de5 100%);
+            --gradient-2: linear-gradient(135deg, #f15bb5 0%, #fee440 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0,245,212,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,245,212,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            top: -200px;
+            right: -200px;
+            background: var(--accent-cyan);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            bottom: -200px;
+            left: -200px;
+            background: var(--accent-purple);
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(50px, 50px); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            background: rgba(10,10,15,0.8);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-cyan);
+        }
+
+        .btn-demo {
+            padding: 0.8rem 1.8rem;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-deep);
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,245,212,0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.2rem;
+            background: rgba(0,245,212,0.1);
+            border: 1px solid rgba(0,245,212,0.3);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            margin-bottom: 2rem;
+        }
+
+        .hero-badge::before {
+            content: "✦";
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            max-width: 900px;
+        }
+
+        .hero h1 span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 3rem;
+        }
+
+        /* Feature Pills */
+        .feature-pills {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .pill:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        .pill-icon {
+            font-size: 2rem;
+        }
+
+        .pill-text {
+            text-align: left;
+        }
+
+        .pill-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .pill-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* CTA Buttons */
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            padding: 1rem 2.5rem;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 10px;
+            color: var(--bg-deep);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(0,245,212,0.4);
+        }
+
+        .btn-secondary {
+            padding: 1rem 2.5rem;
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        /* Stats Section */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            padding: 4rem 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* How It Works */
+        .section {
+            padding: 6rem 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Workflow */
+        .workflow {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .workflow-step {
+            flex: 1;
+            min-width: 280px;
+            max-width: 350px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .workflow-step:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 20px 60px rgba(0,245,212,0.15);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--bg-deep);
+        }
+
+        .step-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .workflow-step h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .workflow-step p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Demo Section */
+        .demo-section {
+            background: linear-gradient(180deg, transparent 0%, rgba(0,245,212,0.03) 100%);
+        }
+
+        .demo-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .demo-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .demo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .demo-dot.red { background: #ff5f57; }
+        .demo-dot.yellow { background: #febc2e; }
+        .demo-dot.green { background: #28c840; }
+
+        .demo-content {
+            padding: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        .demo-input {
+            color: var(--accent-cyan);
+        }
+
+        .demo-output {
+            color: var(--text-secondary);
+            margin-left: 1rem;
+        }
+
+        .demo-result {
+            color: var(--accent-yellow);
+            font-weight: 500;
+        }
+
+        .demo-chart {
+            height: 200px;
+            background: linear-gradient(180deg, rgba(0,245,212,0.1) 0%, transparent 100%);
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 1rem;
+        }
+
+        .chart-bar {
+            width: 40px;
+            background: var(--gradient-1);
+            border-radius: 5px 5px 0 0;
+            transition: height 0.5s ease;
+        }
+
+        /* Use Cases */
+        .use-cases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .use-case {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .use-case:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-5px);
+        }
+
+        .use-case-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .use-case h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .use-case p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p {
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 2rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 6rem 1.5rem 3rem;
+            }
+
+            .stats {
+                flex-wrap: wrap;
+                gap: 2rem;
+            }
+
+            .section {
+                padding: 4rem 1.5rem;
+            }
+
+            .feature-pills {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <nav>
+        <div class="logo">S-wind</div>
+        <div class="nav-links">
+            <a href="#workflow">How it Works</a>
+            <a href="#demo">Demo</a>
+            <a href="#use-cases">Use Cases</a>
+            <a href="#docs">Docs</a>
+        </div>
+        <button class="btn-demo">Try Now</button>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge">New Paradigm in Mathematical Discovery</div>
+        <h1>Input Data.<br><span>Discover Patterns.</span></h1>
+        <p class="hero-subtitle">
+            Autonomous algebraic exploration that finds hidden mathematical structures 
+            without any prior assumptions. Pure. Fast. Deterministic.
+        </p>
+
+        <div class="feature-pills">
+            <div class="pill">
+                <span class="pill-icon">🚀</span>
+                <div class="pill-text">
+                    <div class="pill-title">New Paradigm</div>
+                    <div class="pill-desc">Zero assumptions needed</div>
+                </div>
+            </div>
+            <div class="pill">
+                <span class="pill-icon">⚡</span>
+                <div class="pill-text">
+                    <div class="pill-title">Fully Automated</div>
+                    <div class="pill-desc">Just input your data</div>
+                </div>
+            </div>
+            <div class="pill">
+                <span class="pill-icon">🎯</span>
+                <div class="pill-text">
+                    <div class="pill-title">Instant Results</div>
+                    <div class="pill-desc">Millisecond discovery</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-cta">
+            <button class="btn-primary">Start Exploring</button>
+            <button class="btn-secondary">View Demo</button>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Deterministic</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">0</div>
+            <div class="stat-label">Prior Assumptions</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">&lt;1s</div>
+            <div class="stat-label">Discovery Time</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">∞</div>
+            <div class="stat-label">Exploration Depth</div>
+        </div>
+    </section>
+
+    <section class="section" id="workflow">
+        <div class="section-header">
+            <h2>How It Works</h2>
+            <p>Three steps to mathematical discovery</p>
+        </div>
+
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div class="step-icon">📥</div>
+                <h3>Input Your Data</h3>
+                <p>Enter any numerical sequence. No formatting required. Just raw observations.</p>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div class="step-icon">🔄</div>
+                <h3>Exhaustive Exploration</h3>
+                <p>S-wind automatically generates containers and tests all possible patterns until closure.</p>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div class="step-icon">📄</div>
+                <h3>Get Results</h3>
+                <p>Receive complete algebraic formulas with full derivation in LaTeX format.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section demo-section" id="demo">
+        <div class="section-header">
+            <h2>See It In Action</h2>
+            <p>From raw data to mathematical discovery</p>
+        </div>
+
+        <div class="demo-container">
+            <div class="demo-header">
+                <div class="demo-dot red"></div>
+                <div class="demo-dot yellow"></div>
+                <div class="demo-dot green"></div>
+            </div>
+            <div class="demo-content">
+                <div class="demo-input">→ input: 1, 4, 9, 16, 25</div>
+                <div class="demo-output">analyzing Δ¹ = {3, 5, 7, 9}</div>
+                <div class="demo-output">analyzing Δ² = {2, 2, 2} ← constant!</div>
+                <div class="demo-output">pattern: quadratic polynomial</div>
+                <div class="demo-result">✓ discovered: f(n) = n²</div>
+                <br>
+                <div class="demo-input">→ input: 22, 42, 122, 442, 1722</div>
+                <div class="demo-output">analyzing differences...</div>
+                <div class="demo-output">analyzing ratios...</div>
+                <div class="demo-result">✓ discovered: s[n+1] = 4·s[n] - 46</div>
+                <div class="demo-result">✓ discovered: Δ(n) = 20·4^(n-1)</div>
+
+                <!-- Placeholder chart -->
+                <div class="demo-chart">
+                    <div class="chart-bar" style="height: 20%"></div>
+                    <div class="chart-bar" style="height: 35%"></div>
+                    <div class="chart-bar" style="height: 55%"></div>
+                    <div class="chart-bar" style="height: 80%"></div>
+                    <div class="chart-bar" style="height: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="use-cases">
+        <div class="section-header">
+            <h2>Applications</h2>
+            <p>Discover patterns across any domain</p>
+        </div>
+
+        <div class="use-cases">
+            <div class="use-case">
+                <div class="use-case-icon">🔬</div>
+                <h3>Scientific Research</h3>
+                <p>Find hidden mathematical relationships in experimental data without bias.</p>
+            </div>
+            <div class="use-case">
+                <div class="use-case-icon">📊</div>
+                <h3>Data Analysis</h3>
+                <p>Automatically extract formulas from numerical patterns in your datasets.</p>
+            </div>
+            <div class="use-case">
+                <div class="use-case-icon">🎓</div>
+                <h3>Education</h3>
+                <p>Demonstrate mathematical derivation with complete, reproducible proofs.</p>
+            </div>
+            <div class="use-case">
+                <div class="use-case-icon">⚙️</div>
+                <h3>Engineering</h3>
+                <p>Discover governing equations from measured system behavior.</p>
+            </div>
+            <div class="use-case">
+                <div class="use-case-icon">💹</div>
+                <h3>Finance</h3>
+                <p>Identify recurrence patterns in time series with algebraic precision.</p>
+            </div>
+            <div class="use-case">
+                <div class="use-case-icon">🧬</div>
+                <h3>Bioinformatics</h3>
+                <p>Uncover mathematical structures in biological sequences.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 S-wind. Autonomous Mathematical Discovery.</p>
+    </footer>
+
+    <script>
+        // Animate chart bars on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const bars = entry.target.querySelectorAll('.chart-bar');
+                    bars.forEach((bar, i) => {
+                        setTimeout(() => {
+                            bar.style.height = bar.style.height;
+                        }, i * 100);
+                    });
+                }
+            });
+        });
+
+        document.querySelectorAll('.demo-chart').forEach(chart => {
+            observer.observe(chart);
+        });
+    </script>
+</body>
+</html>

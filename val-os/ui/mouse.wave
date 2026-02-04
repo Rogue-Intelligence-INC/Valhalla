@@ -1,0 +1,349 @@
+# 🖱️ Val-OS 鼠标支持
+# PS/2 + USB 鼠标 · 光标渲染 · 事件分发
+
+# ═══════════════════════════════════════════════════════
+# 鼠标状态
+# ═══════════════════════════════════════════════════════
+
+mouse_state -> {
+    x: 0,
+    y: 0,
+    buttons: {
+        left: false,
+        right: false,
+        middle: false
+    },
+    scroll_delta: 0,
+    visible: true,
+    cursor_style: "default"
+}
+
+# 光标样式
+cursor_styles -> {
+    default: "▲",
+    pointer: "👆",
+    text: "│",
+    wait: "⏳",
+    move: "✥",
+    resize_h: "↔",
+    resize_v: "↕",
+    resize_nwse: "⤡",
+    resize_nesw: "⤢",
+    not_allowed: "🚫"
+}
+
+# ═══════════════════════════════════════════════════════
+# 鼠标驱动初始化
+# ═══════════════════════════════════════════════════════
+
+init_mouse -> function() {
+    # 检测鼠标类型
+    mouse_type -> detect_mouse_type()
+    
+    when mouse_type == "usb" {
+        init_usb_mouse()
+    } else {
+        init_ps2_mouse()
+    }
+    
+    # 设置初始位置 (屏幕中心)
+    screen -> get_screen_size()
+    mouse_state.x -> screen.width / 2
+    mouse_state.y -> screen.height / 2
+    
+    # 注册中断处理
+    register_interrupt(0x2C, mouse_interrupt_handler)
+    
+    log("🖱️ 鼠标初始化完成: {mouse_type}")
+}
+
+# PS/2 鼠标初始化
+init_ps2_mouse -> function() {
+    # 启用辅助设备
+    outb(0x64, 0xA8)
+    
+    # 启用中断
+    outb(0x64, 0x20)
+    status -> inb(0x60)
+    status -> status | 2
+    outb(0x64, 0x60)
+    outb(0x60, status)
+    
+    # 设置默认参数
+    mouse_write(0xF6)  # 设置默认值
+    mouse_write(0xF4)  # 启用数据报告
+    
+    # 设置采样率
+    mouse_write(0xF3)
+    mouse_write(100)  # 100 samples/sec
+}
+
+# USB 鼠标初始化
+init_usb_mouse -> function() {
+    # 通过 USB 驱动处理
+    usb_register_device_handler("mouse", usb_mouse_handler)
+}
+
+# ═══════════════════════════════════════════════════════
+# 中断处理
+# ═══════════════════════════════════════════════════════
+
+mouse_packet -> { byte1: 0, byte2: 0, byte3: 0, byte4: 0, index: 0 }
+
+mouse_interrupt_handler -> function() {
+    data -> inb(0x60)
+    
+    # 收集数据包 (3 或 4 字节)
+    when mouse_packet.index == 0 {
+        # 验证数据包开始
+        when (data & 0x08) != 0 {
+            mouse_packet.byte1 -> data
+            mouse_packet.index -> 1
+        }
+    } else when mouse_packet.index == 1 {
+        mouse_packet.byte2 -> data
+        mouse_packet.index -> 2
+    } else when mouse_packet.index == 2 {
+        mouse_packet.byte3 -> data
+        mouse_packet.index -> 3
+        
+        # 处理完整数据包
+        process_mouse_packet()
+        mouse_packet.index -> 0
+    }
+}
+
+# 处理鼠标数据包
+process_mouse_packet -> function() {
+    byte1 -> mouse_packet.byte1
+    byte2 -> mouse_packet.byte2
+    byte3 -> mouse_packet.byte3
+    
+    # 按钮状态
+    left_changed -> mouse_state.buttons.left != ((byte1 & 0x01) != 0)
+    right_changed -> mouse_state.buttons.right != ((byte1 & 0x02) != 0)
+    middle_changed -> mouse_state.buttons.middle != ((byte1 & 0x04) != 0)
+    
+    mouse_state.buttons.left -> (byte1 & 0x01) != 0
+    mouse_state.buttons.right -> (byte1 & 0x02) != 0
+    mouse_state.buttons.middle -> (byte1 & 0x04) != 0
+    
+    # 移动量 (有符号)
+    dx -> byte2
+    dy -> byte3
+    
+    when (byte1 & 0x10) != 0 { dx -> dx | 0xFFFFFF00 }  # 符号扩展
+    when (byte1 & 0x20) != 0 { dy -> dy | 0xFFFFFF00 }
+    
+    dy -> -dy  # Y 轴翻转
+    
+    # 更新位置
+    screen -> get_screen_size()
+    mouse_state.x -> clamp(mouse_state.x + dx, 0, screen.width - 1)
+    mouse_state.y -> clamp(mouse_state.y + dy, 0, screen.height - 1)
+    
+    # 触发事件
+    dispatch_mouse_event({
+        type: "move",
+        x: mouse_state.x,
+        y: mouse_state.y,
+        dx: dx,
+        dy: dy
+    })
+    
+    when left_changed {
+        event_type -> when mouse_state.buttons.left { "mousedown" } else { "mouseup" }
+        dispatch_mouse_event({ type: event_type, button: "left", x: mouse_state.x, y: mouse_state.y })
+        
+        when !mouse_state.buttons.left {
+            dispatch_mouse_event({ type: "click", button: "left", x: mouse_state.x, y: mouse_state.y })
+        }
+    }
+    
+    when right_changed {
+        event_type -> when mouse_state.buttons.right { "mousedown" } else { "mouseup" }
+        dispatch_mouse_event({ type: event_type, button: "right", x: mouse_state.x, y: mouse_state.y })
+        
+        when !mouse_state.buttons.right {
+            dispatch_mouse_event({ type: "contextmenu", x: mouse_state.x, y: mouse_state.y })
+        }
+    }
+    
+    # 重绘光标
+    redraw_cursor()
+}
+
+# ═══════════════════════════════════════════════════════
+# 事件分发
+# ═══════════════════════════════════════════════════════
+
+mouse_listeners -> []
+hover_element -> null
+drag_state -> null
+
+dispatch_mouse_event -> function(event) {
+    # 找到目标元素
+    target -> find_element_at(event.x, event.y)
+    
+    # 悬停检测
+    when target != hover_element {
+        when hover_element {
+            trigger_event(hover_element, "mouseleave", event)
+        }
+        hover_element -> target
+        when hover_element {
+            trigger_event(hover_element, "mouseenter", event)
+        }
+    }
+    
+    # 拖拽处理
+    when event.type == "mousedown" && target {
+        drag_state -> {
+            element: target,
+            start_x: event.x,
+            start_y: event.y
+        }
+    }
+    
+    when event.type == "move" && drag_state {
+        trigger_event(drag_state.element, "drag", {
+            type: "drag",
+            x: event.x,
+            y: event.y,
+            dx: event.x - drag_state.start_x,
+            dy: event.y - drag_state.start_y
+        })
+    }
+    
+    when event.type == "mouseup" && drag_state {
+        trigger_event(drag_state.element, "dragend", event)
+        drag_state -> null
+    }
+    
+    # 分发到目标
+    when target {
+        trigger_event(target, event.type, event)
+    }
+    
+    # 全局监听器
+    for listener in mouse_listeners {
+        listener(event)
+    }
+}
+
+# 双击检测
+last_click -> { time: 0, x: 0, y: 0 }
+double_click_threshold -> 300  # ms
+
+detect_double_click -> function(event) {
+    now_time -> now_ms()
+    
+    when now_time - last_click.time < double_click_threshold {
+        when abs(event.x - last_click.x) < 5 && abs(event.y - last_click.y) < 5 {
+            dispatch_mouse_event({ type: "dblclick", x: event.x, y: event.y })
+        }
+    }
+    
+    last_click -> { time: now_time, x: event.x, y: event.y }
+}
+
+# ═══════════════════════════════════════════════════════
+# 光标渲染
+# ═══════════════════════════════════════════════════════
+
+cursor_buffer -> null
+
+redraw_cursor -> function() {
+    when !mouse_state.visible { return }
+    
+    # 恢复旧位置
+    when cursor_buffer {
+        restore_screen_area(cursor_buffer)
+    }
+    
+    # 保存新位置
+    cursor_buffer -> save_screen_area(mouse_state.x, mouse_state.y, 2, 1)
+    
+    # 绘制光标
+    cursor_char -> cursor_styles[mouse_state.cursor_style]
+    draw_char(cursor_char, mouse_state.x, mouse_state.y, rgb(255,255,255))
+}
+
+# 设置光标样式
+set_cursor -> function(style) {
+    when cursor_styles[style] {
+        mouse_state.cursor_style -> style
+        redraw_cursor()
+    }
+}
+
+# 显示/隐藏光标
+show_cursor -> function() {
+    mouse_state.visible -> true
+    redraw_cursor()
+}
+
+hide_cursor -> function() {
+    mouse_state.visible -> false
+    when cursor_buffer {
+        restore_screen_area(cursor_buffer)
+        cursor_buffer -> null
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 高级功能
+# ═══════════════════════════════════════════════════════
+
+# 滚轮支持 (扩展鼠标)
+enable_scroll_wheel -> function() {
+    # 设置 Intellimouse 模式
+    mouse_write(0xF3)
+    mouse_write(200)
+    mouse_write(0xF3)
+    mouse_write(100)
+    mouse_write(0xF3)
+    mouse_write(80)
+    
+    # 检查 ID
+    mouse_write(0xF2)
+    id -> mouse_read()
+    
+    return id == 3 || id == 4
+}
+
+# 鼠标加速
+mouse_acceleration -> {
+    enabled: true,
+    factor: 1.5,
+    threshold: 5
+}
+
+apply_acceleration -> function(dx, dy) {
+    when !mouse_acceleration.enabled {
+        return { dx: dx, dy: dy }
+    }
+    
+    speed -> sqrt(dx * dx + dy * dy)
+    
+    when speed > mouse_acceleration.threshold {
+        factor -> 1 + (speed - mouse_acceleration.threshold) * (mouse_acceleration.factor - 1) / 10
+        dx -> dx * factor
+        dy -> dy * factor
+    }
+    
+    return { dx: floor(dx), dy: floor(dy) }
+}
+
+# 注册全局监听器
+on_mouse -> function(callback) {
+    mouse_listeners.add(callback)
+}
+
+# 移除监听器
+off_mouse -> function(callback) {
+    index -> mouse_listeners.findIndex(l => l == callback)
+    when index >= 0 {
+        mouse_listeners.remove(index)
+    }
+}

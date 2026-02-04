@@ -1,0 +1,44 @@
+[package]
+name = "valhalla-compress"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[[bin]]
+name = "valhalla_cycle"
+path = "src/cycle.rs"
+
+[[bin]]
+name = "valhalla_restore"
+path = "src/restore.rs"
+
+[[bin]]
+name = "quad_test"
+path = "src/quad_test.rs"
+
+[dependencies]
+
+[[bin]]
+name = "valhalla_hub_compress"
+path = "src/hub_compress.rs"
+
+[[bin]]
+name = "valhalla_system_compare"
+path = "src/system_compare.rs"
+
+[[bin]]
+name = "valhalla_full_compare"
+path = "src/full_compare.rs"
+
+[[bin]]
+name = "valhalla_quality_compare"
+path = "src/quality_compare.rs"
+
+[[bin]]
+name = "valhalla_hub_no_mesh"
+path = "src/hub_no_mesh.rs"
+
+[[bin]]
+name = "valhalla_hub_1cycle"
+path = "src/hub_1cycle.rs"

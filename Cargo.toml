@@ -1,0 +1,51 @@
+[workspace]
+resolver = "2"
+members = [
+    # S-wind - Exact Algebraic Computation Framework
+    "s-wind-sim",
+    
+    # ═══════════════════════════════════════════════════════════════
+    # Rational (精确) 版本 - i128/i128 有理数
+    # ═══════════════════════════════════════════════════════════════
+    "valhalla-rational",
+    "systems/metasystems/fate",        # Fate Rational 版
+    
+    # ═══════════════════════════════════════════════════════════════
+    # f64 (高性能) 版本 - GPU 加速
+    # ═══════════════════════════════════════════════════════════════
+    "systems/metasystems/fate-f64",    # Fate f64 版 (NEW)
+    "systems/metasystems/blackhole",   # BlackHole f64
+    "systems/metasystems/meshbrain",   # MeshBrain f64
+    "systems/metasystems/multinova",   # MultiNova f64
+    "systems/metasystems/base-force",  # BaseForce f64
+    "manifestsys/hub-f64",             # Hub f64 版 (NEW)
+    
+    # ═══════════════════════════════════════════════════════════════
+    # Utility Libraries
+    # ═══════════════════════════════════════════════════════════════
+    "utils/voyager",
+    "utils/mathematics",
+    "utils/space",
+    "utils/space-f64-gpu",  # Space GPU 加速版
+    
+    # ═══════════════════════════════════════════════════════════════
+    # Yaksha Cipher - Symmetric Encryption with Stateful AEAD
+    # ═══════════════════════════════════════════════════════════════
+    "valhalla-crypto/yaksha-cipher",
+    "valhalla-crypto/yaksha-cipher-gpu",
+    
+    # ═══════════════════════════════════════════════════════════════
+    # Integration Systems (混合版)
+    # ═══════════════════════════════════════════════════════════════
+    "manifestsys/hub",                 # Hub Rational+f64 混合
+    "manifestsys/chamber",
+    "manifestsys/tile-quattro",
+    "manifestsys/stem-cell-optimized",
+    "manifestsys/stemhall-na",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Jouly"]
+description = "Valhalla - 统一物理场形变信号处理系统"

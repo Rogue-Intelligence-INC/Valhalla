@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 550" width="800" height="550">
+  <title>FIG. 6 - Dimensional Management System</title>
+  
+  <!-- Background -->
+  <rect width="800" height="550" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">FIG. 6 - Dimensional Management System</text>
+  
+  <!-- Input Complexity -->
+  <rect x="50" y="60" width="180" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="140" y="85" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">INPUT</text>
+  <text x="140" y="105" text-anchor="middle" font-family="Arial" font-size="10">Computational</text>
+  <text x="140" y="120" text-anchor="middle" font-family="Arial" font-size="10">Complexity Signal</text>
+  
+  <!-- Arrow -->
+  <line x1="230" y1="100" x2="280" y2="100" stroke="black" stroke-width="2"/>
+  <polygon points="280,100 270,95 270,105" fill="black"/>
+  
+  <!-- Dimensional Analyzer -->
+  <rect x="290" y="50" width="220" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="75" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">DIMENSIONAL ANALYZER</text>
+  <text x="400" y="100" text-anchor="middle" font-family="Arial" font-size="10">Assess complexity requirements</text>
+  <text x="400" y="120" text-anchor="middle" font-family="Arial" font-size="10">Determine optimal dimension</text>
+  <text x="400" y="140" text-anchor="middle" font-family="Arial" font-size="9">(Supports non-integer values)</text>
+  
+  <!-- Arrow -->
+  <line x1="510" y1="100" x2="560" y2="100" stroke="black" stroke-width="2"/>
+  <polygon points="560,100 550,95 550,105" fill="black"/>
+  
+  <!-- Current Dimension State -->
+  <rect x="570" y="60" width="180" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="660" y="85" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">CURRENT STATE</text>
+  <text x="660" y="110" text-anchor="middle" font-family="Arial" font-size="11">Dimension: D</text>
+  <text x="660" y="130" text-anchor="middle" font-family="Arial" font-size="10">(e.g., 2.3, 3.7, 4.0)</text>
+  
+  <!-- Central Process Box -->
+  <rect x="200" y="180" width="400" height="150" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="205" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold">DIMENSIONAL ADAPTATION PROCESS</text>
+  
+  <!-- Decision Diamond -->
+  <polygon points="400,225 470,265 400,305 330,265" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="400" y="260" text-anchor="middle" font-family="Arial" font-size="9">Complexity</text>
+  <text x="400" y="272" text-anchor="middle" font-family="Arial" font-size="9">Change?</text>
+  
+  <!-- Expand path -->
+  <line x1="470" y1="265" x2="530" y2="265" stroke="black" stroke-width="1.5"/>
+  <polygon points="530,265 520,260 520,270" fill="black"/>
+  <text x="495" y="255" font-family="Arial" font-size="9">Increase</text>
+  <rect x="535" y="245" width="50" height="40" fill="none" stroke="black" stroke-width="1"/>
+  <text x="560" y="265" text-anchor="middle" font-family="Arial" font-size="9">EXPAND</text>
+  <text x="560" y="278" text-anchor="middle" font-family="Arial" font-size="8">D+ΔD</text>
+  
+  <!-- Compress path -->
+  <line x1="330" y1="265" x2="270" y2="265" stroke="black" stroke-width="1.5"/>
+  <polygon points="270,265 280,260 280,270" fill="black"/>
+  <text x="295" y="255" font-family="Arial" font-size="9">Decrease</text>
+  <rect x="215" y="245" width="55" height="40" fill="none" stroke="black" stroke-width="1"/>
+  <text x="242" y="265" text-anchor="middle" font-family="Arial" font-size="9">COMPRESS</text>
+  <text x="242" y="278" text-anchor="middle" font-family="Arial" font-size="8">D-ΔD</text>
+  
+  <!-- Stable path -->
+  <line x1="400" y1="305" x2="400" y2="320" stroke="black" stroke-width="1.5"/>
+  <text x="420" y="315" font-family="Arial" font-size="9">Stable</text>
+  
+  <!-- Non-Integer Examples -->
+  <rect x="100" y="350" width="200" height="100" fill="none" stroke="black" stroke-width="1"/>
+  <text x="200" y="375" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold">NON-INTEGER DIMENSIONS</text>
+  <text x="200" y="400" text-anchor="middle" font-family="Arial" font-size="10">Example Values:</text>
+  <text x="200" y="420" text-anchor="middle" font-family="Arial" font-size="10">2.3D, 3.7D, 4.5D</text>
+  <text x="200" y="440" text-anchor="middle" font-family="Arial" font-size="9">(Enhanced modeling flexibility)</text>
+  
+  <!-- Stability Detection -->
+  <rect x="330" y="350" width="140" height="100" fill="none" stroke="black" stroke-width="1"/>
+  <text x="400" y="375" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold">STABILITY</text>
+  <text x="400" y="390" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold">DETECTION</text>
+  <text x="400" y="415" text-anchor="middle" font-family="Arial" font-size="9">Monitor variance</text>
+  <text x="400" y="430" text-anchor="middle" font-family="Arial" font-size="9">Detect stable regions</text>
+  <text x="400" y="445" text-anchor="middle" font-family="Arial" font-size="9">Trigger optimization</text>
+  
+  <!-- Collapse Optimization -->
+  <rect x="500" y="350" width="200" height="100" fill="none" stroke="black" stroke-width="1"/>
+  <text x="600" y="375" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold">COLLAPSE</text>
+  <text x="600" y="390" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold">OPTIMIZATION</text>
+  <text x="600" y="415" text-anchor="middle" font-family="Arial" font-size="9">Stable state →</text>
+  <text x="600" y="430" text-anchor="middle" font-family="Arial" font-size="9">Resource consolidation</text>
+  <text x="600" y="445" text-anchor="middle" font-family="Arial" font-size="9">Snapshot execution</text>
+  
+  <!-- Connections -->
+  <line x1="400" y1="320" x2="400" y2="350" stroke="black" stroke-width="1.5"/>
+  <line x1="300" y1="400" x2="330" y2="400" stroke="black" stroke-width="1"/>
+  <line x1="470" y1="400" x2="500" y2="400" stroke="black" stroke-width="1"/>
+  
+  <!-- Output -->
+  <rect x="280" y="480" width="240" height="50" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="505" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold">OPTIMIZED COORDINATION</text>
+  <text x="400" y="522" text-anchor="middle" font-family="Arial" font-size="9">Adaptive dimensional operation</text>
+  
+  <!-- Arrow to output -->
+  <line x1="400" y1="450" x2="400" y2="475" stroke="black" stroke-width="1.5"/>
+  <polygon points="400,475 395,465 405,465" fill="black"/>
+</svg>
+

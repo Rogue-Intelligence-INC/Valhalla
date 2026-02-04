@@ -1,0 +1,729 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Wave Native GUI Layer
+# 独立于 VGA 的原生 GUI 系统
+# ═══════════════════════════════════════════════════════════════════
+# 时间: 2026-01-23
+# 理念: Wave 声明 UI，Fate 决定渲染方式
+# ═══════════════════════════════════════════════════════════════════
+
+load "val-os-v5/gpu/gpu_core.wave" -> gpu_core
+
+# ─────────────────────────────────────────────────────────────────
+# Wave GUI 核心 - 声明式 UI
+# ─────────────────────────────────────────────────────────────────
+
+wave_gui -> {
+    # 渲染树
+    root: null,
+    
+    # 脏区域 (需要重绘)
+    dirty_rects: [],
+    
+    # 动画队列
+    animations: [],
+    
+    # 主题
+    theme: null,
+    
+    # 状态
+    initialized: false,
+    fps: 60,
+    frame_time: 0
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 主题系统
+# ═══════════════════════════════════════════════════════════════════
+
+themes -> {
+    # Val-OS 默认主题 (暗色)
+    dark: {
+        name: "Val-OS Dark",
+        
+        # 颜色
+        colors: {
+            bg_primary:    { r: 17,  g: 17,  b: 27  },
+            bg_secondary:  { r: 24,  g: 24,  b: 37  },
+            bg_tertiary:   { r: 30,  g: 30,  b: 46  },
+            surface:       { r: 49,  g: 50,  b: 68  },
+            overlay:       { r: 108, g: 112, b: 134 },
+            
+            text_primary:  { r: 205, g: 214, b: 244 },
+            text_secondary:{ r: 166, g: 173, b: 200 },
+            text_muted:    { r: 108, g: 112, b: 134 },
+            
+            accent:        { r: 137, g: 180, b: 250 },
+            accent_hover:  { r: 116, g: 160, b: 230 },
+            
+            success:       { r: 166, g: 227, b: 161 },
+            warning:       { r: 249, g: 226, b: 175 },
+            error:         { r: 243, g: 139, b: 168 },
+            info:          { r: 137, g: 220, b: 235 }
+        },
+        
+        # 圆角
+        radius: {
+            none: 0,
+            sm: 4,
+            md: 8,
+            lg: 12,
+            xl: 16,
+            full: 9999
+        },
+        
+        # 阴影
+        shadows: {
+            none: null,
+            sm: { x: 0, y: 1, blur: 2, color: { r: 0, g: 0, b: 0, a: 0.1 } },
+            md: { x: 0, y: 4, blur: 6, color: { r: 0, g: 0, b: 0, a: 0.15 } },
+            lg: { x: 0, y: 10, blur: 15, color: { r: 0, g: 0, b: 0, a: 0.2 } },
+            xl: { x: 0, y: 20, blur: 25, color: { r: 0, g: 0, b: 0, a: 0.25 } }
+        },
+        
+        # 字体大小
+        font_sizes: {
+            xs: 10,
+            sm: 12,
+            md: 14,
+            lg: 16,
+            xl: 20,
+            xxl: 24,
+            title: 32
+        },
+        
+        # 间距
+        spacing: {
+            xs: 4,
+            sm: 8,
+            md: 16,
+            lg: 24,
+            xl: 32
+        }
+    },
+    
+    # 亮色主题
+    light: {
+        name: "Val-OS Light",
+        colors: {
+            bg_primary:    { r: 239, g: 241, b: 245 },
+            bg_secondary:  { r: 230, g: 233, b: 239 },
+            bg_tertiary:   { r: 220, g: 224, b: 232 },
+            surface:       { r: 255, g: 255, b: 255 },
+            
+            text_primary:  { r: 76,  g: 79,  b: 105 },
+            text_secondary:{ r: 108, g: 111, b: 133 },
+            
+            accent:        { r: 30,  g: 102, b: 245 },
+            
+            success:       { r: 64,  g: 160, b: 43  },
+            warning:       { r: 223, g: 142, b: 29  },
+            error:         { r: 210, g: 15,  b: 57  }
+        }
+        # ... 其他属性继承 dark
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# UI 组件基类
+# ═══════════════════════════════════════════════════════════════════
+
+Component -> {
+    # 基础属性
+    id: null,
+    type: "component",
+    
+    # 布局
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    
+    # 状态
+    visible: true,
+    enabled: true,
+    focused: false,
+    hovered: false,
+    
+    # 子组件
+    children: [],
+    parent: null,
+    
+    # 样式
+    style: {},
+    
+    # 事件处理器
+    on_click: null,
+    on_hover: null,
+    on_focus: null,
+    on_key: null,
+    
+    # 渲染方法 (子类重写)
+    render -> function(ctx) {
+        # 默认渲染
+    },
+    
+    # 布局计算
+    layout -> function() {
+        # 计算子组件布局
+        self.children -> fate_each -> child {
+            child.layout()
+        }
+    },
+    
+    # 命中测试
+    hit_test -> function(px, py) {
+        when px >= self.x && px < self.x + self.width &&
+             py >= self.y && py < self.y + self.height {
+            # 检查子组件
+            result = null
+            self.children -> fate_each_reverse -> child {
+                when child.visible {
+                    hit = child.hit_test(px, py)
+                    when hit != null {
+                        result = hit
+                        break
+                    }
+                }
+            }
+            when result != null { result -> return }
+            self -> return
+        }
+        null -> return
+    },
+    
+    # 标记脏区域
+    invalidate -> function() {
+        wave_gui.dirty_rects.push({
+            x: self.x,
+            y: self.y,
+            width: self.width,
+            height: self.height
+        })
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 具体组件
+# ═══════════════════════════════════════════════════════════════════
+
+# 容器组件
+Box -> Component.extend({
+    type: "box",
+    
+    # Flex 布局
+    direction: "row",      # row, column
+    justify: "start",      # start, center, end, between, around
+    align: "start",        # start, center, end, stretch
+    gap: 0,
+    padding: 0,
+    
+    render -> function(ctx) {
+        theme = wave_gui.theme
+        bg = self.style.bg || theme.colors.surface
+        radius = self.style.radius || theme.radius.md
+        
+        # 绘制背景
+        ctx.fill_rounded_rect(self.x, self.y, self.width, self.height, radius, bg)
+        
+        # 绘制子组件
+        self.children -> fate_each -> child {
+            child.render(ctx)
+        }
+    },
+    
+    layout -> function() {
+        # Flex 布局算法
+        content_x = self.x + self.padding
+        content_y = self.y + self.padding
+        content_w = self.width - self.padding * 2
+        content_h = self.height - self.padding * 2
+        
+        when self.direction == "row" {
+            # 水平布局
+            x = content_x
+            self.children -> fate_each -> child {
+                child.x = x
+                child.y = content_y
+                child.layout()
+                x = x + child.width + self.gap
+            }
+        }
+        when self.direction == "column" {
+            # 垂直布局
+            y = content_y
+            self.children -> fate_each -> child {
+                child.x = content_x
+                child.y = y
+                child.layout()
+                y = y + child.height + self.gap
+            }
+        }
+    }
+})
+
+# 文本组件
+Text -> Component.extend({
+    type: "text",
+    
+    content: "",
+    font_size: 14,
+    color: null,
+    align: "left",
+    
+    render -> function(ctx) {
+        theme = wave_gui.theme
+        color = self.color || theme.colors.text_primary
+        
+        ctx.draw_text(self.content, self.x, self.y, self.font_size, color)
+    }
+})
+
+# 按钮组件
+Button -> Component.extend({
+    type: "button",
+    
+    label: "Button",
+    icon: null,
+    variant: "primary",  # primary, secondary, ghost, danger
+    size: "md",          # sm, md, lg
+    
+    render -> function(ctx) {
+        theme = wave_gui.theme
+        
+        # 根据状态选择颜色
+        bg = theme.colors.accent
+        text_color = theme.colors.bg_primary
+        
+        when self.variant == "secondary" {
+            bg = theme.colors.surface
+            text_color = theme.colors.text_primary
+        }
+        when self.variant == "ghost" {
+            bg = { r: 0, g: 0, b: 0, a: 0 }
+            text_color = theme.colors.accent
+        }
+        when self.variant == "danger" {
+            bg = theme.colors.error
+        }
+        
+        # 悬停效果
+        when self.hovered {
+            bg = color_lighten(bg, 0.1)
+        }
+        
+        # 禁用效果
+        when !self.enabled {
+            bg = theme.colors.overlay
+            text_color = theme.colors.text_muted
+        }
+        
+        # 绘制按钮
+        radius = theme.radius.md
+        ctx.fill_rounded_rect(self.x, self.y, self.width, self.height, radius, bg)
+        
+        # 绘制文本 (居中)
+        text_x = self.x + (self.width - text_width(self.label)) / 2
+        text_y = self.y + (self.height - 14) / 2
+        ctx.draw_text(self.label, text_x, text_y, 14, text_color)
+    }
+})
+
+# 输入框组件
+Input -> Component.extend({
+    type: "input",
+    
+    value: "",
+    placeholder: "",
+    input_type: "text",  # text, password, number
+    
+    render -> function(ctx) {
+        theme = wave_gui.theme
+        
+        # 背景
+        bg = theme.colors.bg_tertiary
+        border_color = self.focused ? theme.colors.accent : theme.colors.overlay
+        
+        ctx.fill_rounded_rect(self.x, self.y, self.width, self.height, theme.radius.sm, bg)
+        ctx.stroke_rounded_rect(self.x, self.y, self.width, self.height, theme.radius.sm, border_color)
+        
+        # 文本
+        display_text = self.value
+        when self.input_type == "password" {
+            display_text = "•".repeat(self.value.length)
+        }
+        when display_text == "" && self.placeholder != "" {
+            ctx.draw_text(self.placeholder, self.x + 8, self.y + 10, 14, theme.colors.text_muted)
+        } else {
+            ctx.draw_text(display_text, self.x + 8, self.y + 10, 14, theme.colors.text_primary)
+        }
+        
+        # 光标
+        when self.focused {
+            cursor_x = self.x + 8 + text_width(display_text)
+            ctx.fill_rect(cursor_x, self.y + 6, 2, self.height - 12, theme.colors.accent)
+        }
+    }
+})
+
+# 窗口组件
+Window -> Component.extend({
+    type: "window",
+    
+    title: "Window",
+    closable: true,
+    minimizable: true,
+    maximizable: true,
+    resizable: true,
+    
+    # 窗口状态
+    minimized: false,
+    maximized: false,
+    
+    render -> function(ctx) {
+        theme = wave_gui.theme
+        
+        # 阴影
+        shadow = theme.shadows.lg
+        ctx.fill_rounded_rect(
+            self.x + shadow.x, self.y + shadow.y,
+            self.width, self.height,
+            theme.radius.lg, shadow.color
+        )
+        
+        # 窗口背景
+        ctx.fill_rounded_rect(self.x, self.y, self.width, self.height, 
+            theme.radius.lg, theme.colors.bg_secondary)
+        
+        # 标题栏
+        ctx.fill_rounded_rect_top(self.x, self.y, self.width, 36, 
+            theme.radius.lg, theme.colors.surface)
+        
+        # 标题文本
+        ctx.draw_text(self.title, self.x + 12, self.y + 10, 14, theme.colors.text_primary)
+        
+        # 窗口按钮
+        btn_y = self.y + 10
+        btn_size = 14
+        
+        # 关闭按钮 (红)
+        when self.closable {
+            ctx.fill_circle(self.x + self.width - 20, btn_y + 7, btn_size / 2, theme.colors.error)
+        }
+        
+        # 最大化按钮 (绿)
+        when self.maximizable {
+            ctx.fill_circle(self.x + self.width - 40, btn_y + 7, btn_size / 2, theme.colors.success)
+        }
+        
+        # 最小化按钮 (黄)
+        when self.minimizable {
+            ctx.fill_circle(self.x + self.width - 60, btn_y + 7, btn_size / 2, theme.colors.warning)
+        }
+        
+        # 边框
+        ctx.stroke_rounded_rect(self.x, self.y, self.width, self.height,
+            theme.radius.lg, theme.colors.overlay)
+        
+        # 内容区域
+        content_y = self.y + 40
+        self.children -> fate_each -> child {
+            child.y = child.y + content_y
+            child.render(ctx)
+        }
+    }
+})
+
+# ═══════════════════════════════════════════════════════════════════
+# 渲染上下文 - GPU 加速
+# ═══════════════════════════════════════════════════════════════════
+
+RenderContext -> {
+    # 使用 GPU
+    gpu: gpu_core.gpu,
+    
+    # 变换矩阵
+    transform: {
+        translate_x: 0,
+        translate_y: 0,
+        scale_x: 1,
+        scale_y: 1
+    },
+    
+    # 裁剪区域
+    clip: null,
+    
+    # 基础绘图
+    fill_rect -> function(x, y, w, h, color) {
+        gpu_core.gpu_fill_rect(
+            x + self.transform.translate_x,
+            y + self.transform.translate_y,
+            w, h, color
+        )
+    },
+    
+    fill_rounded_rect -> function(x, y, w, h, r, color) {
+        # 中心矩形
+        self.fill_rect(x + r, y, w - 2 * r, h, color)
+        self.fill_rect(x, y + r, w, h - 2 * r, color)
+        
+        # 四角圆
+        self.fill_circle(x + r, y + r, r, color)
+        self.fill_circle(x + w - r, y + r, r, color)
+        self.fill_circle(x + r, y + h - r, r, color)
+        self.fill_circle(x + w - r, y + h - r, r, color)
+    },
+    
+    fill_rounded_rect_top -> function(x, y, w, h, r, color) {
+        self.fill_rect(x, y + r, w, h - r, color)
+        self.fill_rect(x + r, y, w - 2 * r, r, color)
+        self.fill_circle(x + r, y + r, r, color)
+        self.fill_circle(x + w - r, y + r, r, color)
+    },
+    
+    fill_circle -> function(cx, cy, r, color) {
+        # 使用 GPU 或软件渲染
+        limit r * 2 + 1; dy {
+            y = dy - r
+            limit r * 2 + 1; dx {
+                x = dx - r
+                when x * x + y * y <= r * r {
+                    gpu_core.gpu_set_pixel(
+                        cx + x + self.transform.translate_x,
+                        cy + y + self.transform.translate_y,
+                        color
+                    )
+                }
+            }
+        }
+    },
+    
+    stroke_rounded_rect -> function(x, y, w, h, r, color) {
+        # 顶边
+        self.draw_line(x + r, y, x + w - r, y, color)
+        # 底边
+        self.draw_line(x + r, y + h, x + w - r, y + h, color)
+        # 左边
+        self.draw_line(x, y + r, x, y + h - r, color)
+        # 右边
+        self.draw_line(x + w, y + r, x + w, y + h - r, color)
+        # 圆角弧 (简化为点)
+    },
+    
+    draw_line -> function(x1, y1, x2, y2, color) {
+        # Bresenham
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+        sx = x1 < x2 ? 1 : -1
+        sy = y1 < y2 ? 1 : -1
+        err = dx - dy
+        
+        loop {
+            gpu_core.gpu_set_pixel(
+                x1 + self.transform.translate_x,
+                y1 + self.transform.translate_y,
+                color
+            )
+            when x1 == x2 && y1 == y2 { break }
+            e2 = err * 2
+            when e2 > -dy { err = err - dy; x1 = x1 + sx }
+            when e2 < dx { err = err + dx; y1 = y1 + sy }
+        }
+    },
+    
+    draw_text -> function(text, x, y, size, color) {
+        # 使用位图字体
+        cx = x + self.transform.translate_x
+        cy = y + self.transform.translate_y
+        
+        text -> fate_each -> char {
+            glyph = bitmap_font.get_glyph(char, size)
+            glyph -> fate_each_pixel -> px, py, on {
+                when on {
+                    gpu_core.gpu_set_pixel(cx + px, cy + py, color)
+                }
+            }
+            cx = cx + glyph.advance
+        }
+    },
+    
+    # 渐变填充
+    fill_gradient -> function(x, y, w, h, color1, color2, direction) {
+        steps = direction == "vertical" ? h : w
+        
+        limit steps; i {
+            t = i / (steps - 1)
+            color = {
+                r: color1.r + (color2.r - color1.r) * t,
+                g: color1.g + (color2.g - color1.g) * t,
+                b: color1.b + (color2.b - color1.b) * t
+            }
+            
+            when direction == "vertical" {
+                self.fill_rect(x, y + i, w, 1, color)
+            } else {
+                self.fill_rect(x + i, y, 1, h, color)
+            }
+        }
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 位图字体
+# ═══════════════════════════════════════════════════════════════════
+
+bitmap_font -> {
+    glyphs: {},
+    
+    # 加载字体
+    load -> function(font_data) {
+        font_data -> fate_each -> char_data {
+            bitmap_font.glyphs[char_data.char] = char_data
+        }
+    },
+    
+    # 获取字形
+    get_glyph -> function(char, size) {
+        glyph = bitmap_font.glyphs[char]
+        when glyph == null {
+            glyph = bitmap_font.glyphs[' ']  # 默认空格
+        }
+        glyph -> return
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# Wave GUI 主循环
+# ═══════════════════════════════════════════════════════════════════
+
+wave_gui_init -> function(width, height) {
+    out "═══════════════════════════════════════════════════════════"
+    out "Wave GUI - Native Graphics Layer"
+    out "═══════════════════════════════════════════════════════════"
+    
+    # 初始化 GPU
+    gpu_core.gpu_init(width, height)
+    
+    # 设置主题
+    wave_gui.theme = themes.dark
+    
+    # 创建根组件
+    wave_gui.root = Box.new({
+        x: 0,
+        y: 0,
+        width: width,
+        height: height,
+        style: { bg: wave_gui.theme.colors.bg_primary }
+    })
+    
+    wave_gui.initialized = true
+    
+    out "Wave GUI initialized: " + width + "x" + height
+    out "Theme: " + wave_gui.theme.name
+    out "GPU: " + gpu_core.gpu.active.name
+    out "═══════════════════════════════════════════════════════════"
+}
+
+wave_gui_render -> function() {
+    when !wave_gui.initialized { return }
+    
+    ctx = RenderContext
+    
+    # 渲染脏区域或全屏
+    when wave_gui.dirty_rects.length > 0 {
+        wave_gui.dirty_rects -> fate_each -> rect {
+            # 只重绘脏区域
+            ctx.clip = rect
+            wave_gui.root.render(ctx)
+        }
+        wave_gui.dirty_rects = []
+    } else {
+        # 全屏重绘
+        wave_gui.root.render(ctx)
+    }
+    
+    # 交换缓冲区
+    gpu_core.gpu_swap_buffers()
+}
+
+wave_gui_run -> function() {
+    frame_start = 0
+    
+    loop {
+        frame_start = time_now()
+        
+        # 处理输入事件
+        wave_gui_process_events()
+        
+        # 更新动画
+        wave_gui_update_animations()
+        
+        # 渲染
+        wave_gui_render()
+        
+        # 帧率控制
+        frame_time = time_now() - frame_start
+        target_time = 1000 / wave_gui.fps
+        when frame_time < target_time {
+            sleep(target_time - frame_time)
+        }
+    }
+}
+
+wave_gui_process_events -> function() {
+    # 获取鼠标状态
+    mouse = get_mouse_state()
+    
+    # 命中测试
+    hit = wave_gui.root.hit_test(mouse.x, mouse.y)
+    
+    # 更新悬停状态
+    when hit != null && hit != wave_gui.hovered {
+        when wave_gui.hovered != null {
+            wave_gui.hovered.hovered = false
+            wave_gui.hovered.invalidate()
+        }
+        hit.hovered = true
+        hit.invalidate()
+        wave_gui.hovered = hit
+    }
+    
+    # 处理点击
+    when mouse.left_click {
+        when hit != null && hit.on_click != null {
+            hit.on_click(hit)
+        }
+    }
+    
+    # 处理键盘
+    key = get_key()
+    when key != null && wave_gui.focused != null {
+        when wave_gui.focused.on_key != null {
+            wave_gui.focused.on_key(wave_gui.focused, key)
+        }
+    }
+}
+
+wave_gui_update_animations -> function() {
+    wave_gui.animations -> fate_each -> anim {
+        anim.update()
+        when anim.finished {
+            wave_gui.animations -> fate_remove(anim)
+        }
+    }
+}
+
+# 导出
+export {
+    wave_gui,
+    themes,
+    Component,
+    Box,
+    Text,
+    Button,
+    Input,
+    Window,
+    RenderContext,
+    wave_gui_init,
+    wave_gui_render,
+    wave_gui_run
+}

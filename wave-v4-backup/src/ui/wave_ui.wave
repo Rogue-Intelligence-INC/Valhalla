@@ -1,0 +1,413 @@
+# 🌊 Wave UI - 混合界面系统
+# 不是 CLI，不是 GUI，是 Wave 特有的统一界面
+# 色彩 + 可移动 + 简单切换
+
+# ═══════════════════════════════════════════════════════
+# 核心理念
+# ═══════════════════════════════════════════════════════
+
+# 传统分离:
+#   CLI: 文字、无色、固定位置
+#   GUI: 窗口、图形、鼠标
+
+# Wave 统一:
+#   文字 + 色彩 + 位置控制 + 简单交互
+#   一个界面，两种体验
+
+# ═══════════════════════════════════════════════════════
+# 完整色彩系统 - 24-bit True Color
+# 16,777,216 种颜色 + 渐变 + 透明
+# ═══════════════════════════════════════════════════════
+
+# RGB 直接控制 (任意颜色)
+rgb -> function(r, g, b) {
+    foreground -> "\x1b[38;2;{r};{g};{b}m"
+    background -> "\x1b[48;2;{r};{g};{b}m"
+}
+
+# HSL 色彩空间 (更直观)
+hsl -> function(h, s, l) {
+    # h: 色相 0-360
+    # s: 饱和度 0-100
+    # l: 亮度 0-100
+    rgb_values -> fate_hsl_to_rgb(h, s, l)
+    result -> rgb(rgb_values)
+}
+
+# ═══════════════════════════════════════════════════════
+# 渐变系统
+# ═══════════════════════════════════════════════════════
+
+# 线性渐变
+gradient -> function(start, end, steps) {
+    # start: rgb(r1, g1, b1)
+    # end: rgb(r2, g2, b2)
+    # steps: Fate 决定 或 指定
+    
+    for i in 0..steps {
+        t -> i / (steps - 1)
+        r -> start.r + (end.r - start.r) * t
+        g -> start.g + (end.g - start.g) * t
+        b -> start.b + (end.b - start.b) * t
+        yield -> rgb(r, g, b)
+    }
+}
+
+# 多点渐变
+multi_gradient -> function(colors, steps) {
+    # colors: [rgb1, rgb2, rgb3, ...]
+    # 自动在多个颜色间插值
+    segment_steps -> steps / (colors.length - 1)
+    for i in 0..(colors.length - 1) {
+        gradient(colors[i], colors[i+1], segment_steps) -> yield_all
+    }
+}
+
+# 径向渐变 (用于面板背景)
+radial_gradient -> function(center_color, edge_color, radius) {
+    for y in 0..height {
+        for x in 0..width {
+            distance -> sqrt((x - cx)^2 + (y - cy)^2)
+            t -> min(distance / radius, 1.0)
+            color -> interpolate(center_color, edge_color, t)
+            yield -> (x, y, color)
+        }
+    }
+}
+
+# 预设渐变
+gradients -> preset {
+    fire    -> gradient(rgb(255,0,0), rgb(255,255,0))
+    ocean   -> gradient(rgb(0,0,139), rgb(0,255,255))
+    sunset  -> multi_gradient([rgb(255,94,77), rgb(255,154,0), rgb(138,43,226)])
+    forest  -> gradient(rgb(0,100,0), rgb(144,238,144))
+    neon    -> multi_gradient([rgb(255,0,255), rgb(0,255,255), rgb(255,255,0)])
+    fate    -> gradient(rgb(75,0,130), rgb(255,215,0))
+    rainbow -> multi_gradient([
+        rgb(255,0,0), rgb(255,127,0), rgb(255,255,0),
+        rgb(0,255,0), rgb(0,0,255), rgb(75,0,130), rgb(148,0,211)
+    ])
+}
+
+# ═══════════════════════════════════════════════════════
+# 透明度 / Alpha 混合
+# ═══════════════════════════════════════════════════════
+
+# 透明度混合
+alpha_blend -> function(fg_color, bg_color, alpha) {
+    # alpha: 0.0 = 完全透明, 1.0 = 完全不透明
+    r -> fg_color.r * alpha + bg_color.r * (1 - alpha)
+    g -> fg_color.g * alpha + bg_color.g * (1 - alpha)
+    b -> fg_color.b * alpha + bg_color.b * (1 - alpha)
+    result -> rgb(r, g, b)
+}
+
+# 半透明面板
+transparent_panel -> element {
+    opacity -> fate_decide  # 0.0 - 1.0
+    color -> alpha_blend(panel_color, background, opacity)
+}
+
+# ═══════════════════════════════════════════════════════
+# 动态色彩效果
+# ═══════════════════════════════════════════════════════
+
+# 渐变文字 (每个字符不同颜色)
+gradient_text -> function(text, gradient) {
+    colors -> gradient.generate(text.length)
+    for i, char in enumerate(text) {
+        output -> colors[i] + char
+    }
+    output -> reset
+}
+
+# 脉冲效果 (颜色随时间变化)
+pulse -> function(base_color, intensity, speed) {
+    t -> time() * speed
+    factor -> (sin(t) + 1) / 2 * intensity
+    result -> lighten(base_color, factor)
+}
+
+# 闪烁效果
+shimmer -> function(color, variance) {
+    offset -> random(-variance, variance)
+    result -> rgb(
+        clamp(color.r + offset, 0, 255),
+        clamp(color.g + offset, 0, 255),
+        clamp(color.b + offset, 0, 255)
+    )
+}
+
+# ═══════════════════════════════════════════════════════
+# 色彩工具函数
+# ═══════════════════════════════════════════════════════
+
+# 亮度调整
+lighten -> function(color, amount) {
+    r -> min(color.r + 255 * amount, 255)
+    g -> min(color.g + 255 * amount, 255)
+    b -> min(color.b + 255 * amount, 255)
+    result -> rgb(r, g, b)
+}
+
+darken -> function(color, amount) {
+    r -> max(color.r - 255 * amount, 0)
+    g -> max(color.g - 255 * amount, 0)
+    b -> max(color.b - 255 * amount, 0)
+    result -> rgb(r, g, b)
+}
+
+# 饱和度调整
+saturate -> function(color, amount) {
+    hsl_val -> rgb_to_hsl(color)
+    hsl_val.s -> min(hsl_val.s + amount, 100)
+    result -> hsl_to_rgb(hsl_val)
+}
+
+desaturate -> function(color, amount) {
+    hsl_val -> rgb_to_hsl(color)
+    hsl_val.s -> max(hsl_val.s - amount, 0)
+    result -> hsl_to_rgb(hsl_val)
+}
+
+# 互补色
+complement -> function(color) {
+    hsl_val -> rgb_to_hsl(color)
+    hsl_val.h -> (hsl_val.h + 180) % 360
+    result -> hsl_to_rgb(hsl_val)
+}
+
+# ═══════════════════════════════════════════════════════
+# 基础控制码
+# ═══════════════════════════════════════════════════════
+
+control -> codes {
+    reset     -> "\x1b[0m"
+    bold      -> "\x1b[1m"
+    dim       -> "\x1b[2m"
+    italic    -> "\x1b[3m"
+    underline -> "\x1b[4m"
+    blink     -> "\x1b[5m"
+    reverse   -> "\x1b[7m"
+    hidden    -> "\x1b[8m"
+    strike    -> "\x1b[9m"
+}
+
+# Fate 根据上下文选择颜色
+color -> fate_choose_color {
+    content_type -> fate_analyze
+    selected_color -> fate_decide_from_full_spectrum
+}
+
+# ═══════════════════════════════════════════════════════
+# 位置控制 - 可移动元素
+# ═══════════════════════════════════════════════════════
+
+# 光标位置控制
+cursor -> control {
+    move_to    -> "\x1b[{row};{col}H"
+    move_up    -> "\x1b[{n}A"
+    move_down  -> "\x1b[{n}B"
+    move_right -> "\x1b[{n}C"
+    move_left  -> "\x1b[{n}D"
+    save       -> "\x1b[s"
+    restore    -> "\x1b[u"
+}
+
+# 屏幕控制
+screen -> control {
+    clear      -> "\x1b[2J"
+    clear_line -> "\x1b[2K"
+    scroll_up  -> "\x1b[{n}S"
+    scroll_down -> "\x1b[{n}T"
+}
+
+# ═══════════════════════════════════════════════════════
+# 面板 (Panel) - 可移动的区域
+# ═══════════════════════════════════════════════════════
+
+panel -> element {
+    # 位置 (Fate 可调整)
+    position -> fate_decide {
+        row -> fate_choose
+        col -> fate_choose
+    }
+    
+    # 大小 (Fate 可调整)
+    size -> fate_decide {
+        width  -> fate_choose
+        height -> fate_choose
+    }
+    
+    # 边框样式
+    border -> style {
+        single -> "┌─┐│└─┘"
+        double -> "╔═╗║╚═╝"
+        rounded -> "╭─╮│╰─╯"
+        none   -> "       "
+    }
+    
+    # 标题
+    title -> optional
+    
+    # 内容
+    content -> fate_render
+}
+
+# 绘制面板
+draw_panel -> function {
+    # 顶边
+    cursor.move_to(position.row, position.col)
+    output -> border.top_left + border.horizontal * (size.width - 2) + border.top_right
+    
+    # 标题 (如果有)
+    when title {
+        cursor.move_to(position.row, position.col + 2)
+        output -> " " + title + " "
+    }
+    
+    # 中间行
+    for row in 1..(size.height - 1) {
+        cursor.move_to(position.row + row, position.col)
+        output -> border.vertical + " " * (size.width - 2) + border.vertical
+    }
+    
+    # 底边
+    cursor.move_to(position.row + size.height - 1, position.col)
+    output -> border.bottom_left + border.horizontal * (size.width - 2) + border.bottom_right
+}
+
+# ═══════════════════════════════════════════════════════
+# 模式切换 - 简单快捷
+# ═══════════════════════════════════════════════════════
+
+# 模式定义
+mode -> state {
+    # 紧凑模式: 纯文字，最小色彩
+    compact -> minimal {
+        colors -> essential_only
+        panels -> none
+        layout -> linear
+    }
+    
+    # 标准模式: 色彩 + 简单布局
+    standard -> balanced {
+        colors -> contextual
+        panels -> basic
+        layout -> structured
+    }
+    
+    # 丰富模式: 全色彩 + 面板
+    rich -> full {
+        colors -> full
+        panels -> movable
+        layout -> flexible
+    }
+}
+
+# 切换方式
+switch_mode -> action {
+    # 快捷键 (Fate 可自定义)
+    key -> fate_bind
+    
+    # 循环切换
+    compact -> standard -> rich -> compact
+    
+    # 或直接指定
+    set_mode -> target
+}
+
+# ═══════════════════════════════════════════════════════
+# 示例: Wave 编译器输出
+# ═══════════════════════════════════════════════════════
+
+# 紧凑模式
+compact_output -> example {
+    "Compiling test.wave..."
+    "Generated test"
+    "Code: 1234 bytes"
+}
+
+# 标准模式
+standard_output -> example {
+    "\x1b[36m🌊 Wave v4.2.0\x1b[0m"
+    "Compiling \x1b[33mtest.wave\x1b[0m..."
+    "\x1b[32m✓\x1b[0m Generated test"
+    "Code: \x1b[1m1234\x1b[0m bytes"
+}
+
+# 丰富模式
+rich_output -> example {
+    # ╭─────────────────────────────────╮
+    # │ 🌊 Wave v4.2.0                  │
+    # ├─────────────────────────────────┤
+    # │ File: test.wave                 │
+    # │ Status: ✓ Complete              │
+    # │ Code: 1234 bytes                │
+    # ╰─────────────────────────────────╯
+}
+
+# ═══════════════════════════════════════════════════════
+# 布局系统 - Fate 自适应
+# ═══════════════════════════════════════════════════════
+
+layout -> fate_adaptive {
+    # Fate 检测终端大小
+    terminal_size -> fate_detect
+    
+    # Fate 决定布局
+    when terminal_size.small {
+        layout -> compact
+    }
+    
+    when terminal_size.medium {
+        layout -> standard
+    }
+    
+    when terminal_size.large {
+        layout -> rich
+    }
+    
+    # 窗口大小变化时自动调整
+    on_resize -> fate_relayout
+}
+
+# ═══════════════════════════════════════════════════════
+# 交互元素
+# ═══════════════════════════════════════════════════════
+
+# 进度条
+progress_bar -> element {
+    position -> fate_decide
+    width -> fate_decide
+    
+    # 样式
+    filled   -> "█"
+    partial  -> "▓▒░"
+    empty    -> "░"
+    
+    # 颜色随进度变化
+    color -> fate_gradient {
+        0..30   -> red
+        30..70  -> yellow
+        70..100 -> green
+    }
+}
+
+# 状态指示器
+status -> element {
+    success -> "\x1b[32m✓\x1b[0m"
+    error   -> "\x1b[31m✗\x1b[0m"
+    warning -> "\x1b[33m⚠\x1b[0m"
+    info    -> "\x1b[36mℹ\x1b[0m"
+    running -> "\x1b[34m◌\x1b[0m"
+}
+
+# ═══════════════════════════════════════════════════════
+# 为什么 Wave 可以做到
+# ═══════════════════════════════════════════════════════
+
+# 1. 直接机器码 → 可直接操作终端/帧缓冲
+# 2. Fate 控制 → 自适应布局和色彩
+# 3. 无运行时依赖 → 轻量级
+# 4. 统一抽象 → CLI/GUI 无边界

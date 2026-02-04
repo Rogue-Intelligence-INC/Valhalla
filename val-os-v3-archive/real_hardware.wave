@@ -1,0 +1,26 @@
+# 🔬 真实硬件检测 - Wave v3
+# 使用管道读取并分析真实系统文件
+
+out "🔬 Real Hardware Detection"
+out "=========================="
+out ""
+
+out "📊 CPU Information:"
+out "-------------------"
+cpu_data = load "/proc/cpuinfo"
+analyze cpu_data
+
+out ""
+out "💾 Memory Information:"
+out "----------------------"
+mem_data = load "/proc/meminfo"
+analyze mem_data
+
+out ""
+out "🖥️ OS Information:"
+out "------------------"
+os_data = load "/etc/hostname"
+analyze os_data
+
+out ""
+out "✅ Real hardware data collected!"

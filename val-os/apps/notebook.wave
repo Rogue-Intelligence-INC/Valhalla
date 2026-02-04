@@ -1,0 +1,131 @@
+# 📝 Val-OS 记事本
+# 半GUI · Wave UI · 鼠标支持
+
+notebook -> ui_app {
+    title -> "📝 记事本"
+    size -> { width: 60, height: 25 }
+    
+    state -> {
+        content: "",
+        filename: "未命名.txt",
+        modified: false,
+        cursor_pos: { line: 0, col: 0 },
+        scroll_offset: 0
+    }
+    
+    render -> function() {
+        # 标题栏
+        draw_gradient_box(0, 0, 60, 1, gradients.ocean)
+        title_text -> state.filename + (when state.modified { " *" } else { "" })
+        draw_text("📝 " + title_text, 2, 0, rgb(255,255,255))
+        
+        # 菜单栏
+        draw_box(0, 1, 60, 1, rgb(50,50,60))
+        draw_menu_item("文件", 2, 1, file_menu)
+        draw_menu_item("编辑", 10, 1, edit_menu)
+        draw_menu_item("格式", 18, 1, format_menu)
+        
+        # 编辑区域
+        draw_box(0, 2, 60, 21, rgb(30,30,40))
+        
+        lines -> state.content.split("\n")
+        y -> 3
+        for i in state.scroll_offset..(state.scroll_offset + 19) {
+            when i < lines.length {
+                # 行号
+                draw_text(pad_left(i + 1, 4), 1, y, rgb(80,80,100))
+                
+                # 内容
+                draw_text(lines[i], 6, y, rgb(220,220,220))
+                
+                # 光标
+                when i == state.cursor_pos.line {
+                    cursor_x -> 6 + state.cursor_pos.col
+                    draw_text("│", cursor_x, y, rgb(255,255,0))
+                }
+            }
+            y -> y + 1
+        }
+        
+        # 状态栏
+        draw_box(0, 23, 60, 1, rgb(40,40,50))
+        draw_text("行 {state.cursor_pos.line + 1}, 列 {state.cursor_pos.col + 1}", 2, 23, rgb(150,150,150))
+        draw_text("{lines.length} 行 | {state.content.length} 字符", 40, 23, rgb(150,150,150))
+    }
+    
+    # 键盘输入
+    on_key -> function(key) {
+        when key == "Enter" {
+            insert_char("\n")
+        } else when key == "Backspace" {
+            delete_char()
+        } else when key.length == 1 {
+            insert_char(key)
+        } else when key == "ArrowUp" {
+            move_cursor(0, -1)
+        } else when key == "ArrowDown" {
+            move_cursor(0, 1)
+        } else when key == "ArrowLeft" {
+            move_cursor(-1, 0)
+        } else when key == "ArrowRight" {
+            move_cursor(1, 0)
+        }
+        
+        state.modified -> true
+        refresh()
+    }
+    
+    # 鼠标点击
+    on_click -> function(x, y) {
+        when y >= 3 && y < 22 {
+            line -> y - 3 + state.scroll_offset
+            col -> x - 6
+            lines -> state.content.split("\n")
+            
+            when line < lines.length {
+                state.cursor_pos.line -> line
+                state.cursor_pos.col -> min(col, lines[line].length)
+                refresh()
+            }
+        }
+    }
+    
+    # 鼠标滚轮
+    on_scroll -> function(delta) {
+        lines -> state.content.split("\n")
+        state.scroll_offset -> clamp(state.scroll_offset + delta, 0, max(0, lines.length - 19))
+        refresh()
+    }
+    
+    # 文件菜单
+    file_menu -> [
+        { label: "新建", shortcut: "Ctrl+N", action: new_file },
+        { label: "打开", shortcut: "Ctrl+O", action: open_file },
+        { label: "保存", shortcut: "Ctrl+S", action: save_file },
+        { label: "另存为", action: save_as },
+        { divider: true },
+        { label: "退出", action: close_app }
+    ]
+    
+    new_file -> function() {
+        when state.modified {
+            confirm_save(function() {
+                state.content -> ""
+                state.filename -> "未命名.txt"
+                state.modified -> false
+                refresh()
+            })
+        } else {
+            state.content -> ""
+            state.filename -> "未命名.txt"
+            refresh()
+        }
+    }
+    
+    save_file -> function() {
+        fate_fs.write("/home/{current_user.name}/" + state.filename, state.content)
+        state.modified -> false
+        notify("已保存: " + state.filename)
+        refresh()
+    }
+}

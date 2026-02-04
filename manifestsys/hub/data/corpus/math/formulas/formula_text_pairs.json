@@ -1,0 +1,34 @@
+{
+  "pairs": [
+    {
+      "latex": "E = mc^2",
+      "text_en": "Energy equals mass times the speed of light squared",
+      "text_zh": "能量等于质量乘以光速的平方"
+    },
+    {
+      "latex": "F = ma",
+      "text_en": "Force equals mass times acceleration",
+      "text_zh": "力等于质量乘以加速度"
+    },
+    {
+      "latex": "a^2 + b^2 = c^2",
+      "text_en": "The sum of squares of two legs equals the square of the hypotenuse",
+      "text_zh": "两条直角边的平方和等于斜边的平方"
+    },
+    {
+      "latex": "\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}",
+      "text_en": "The sum of integers from 1 to n equals n times n plus 1 divided by 2",
+      "text_zh": "从1到n的整数和等于n乘以n加1除以2"
+    },
+    {
+      "latex": "\\frac{d}{dx} e^x = e^x",
+      "text_en": "The derivative of e to the x equals e to the x",
+      "text_zh": "e的x次方的导数等于e的x次方"
+    },
+    {
+      "latex": "\\int \\frac{1}{x} dx = \\ln|x| + C",
+      "text_en": "The integral of 1 over x is the natural log of the absolute value of x plus a constant",
+      "text_zh": "1除以x的积分等于x绝对值的自然对数加常数"
+    }
+  ]
+}

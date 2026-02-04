@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <title>Figure 1 - System Architecture: Cyclic Processing Paradigm</title>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="black">
+    FIG. 1 - SYSTEM ARCHITECTURE: CYCLIC PROCESSING PARADIGM
+  </text>
+  
+  <!-- Main Cycle Circle -->
+  <ellipse cx="400" cy="320" rx="280" ry="200" fill="none" stroke="black" stroke-width="2" stroke-dasharray="10,5"/>
+  
+  <!-- Quad-System Box (Top) -->
+  <rect x="300" y="70" width="200" height="60" fill="white" stroke="black" stroke-width="2"/>
+  <text x="400" y="95" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">QUAD-SYSTEM</text>
+  <text x="400" y="115" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">Signal Generation</text>
+  
+  <!-- Arrow from Quad-System to Fate -->
+  <line x1="400" y1="130" x2="400" y2="160" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Fate Box -->
+  <rect x="300" y="160" width="200" height="60" fill="white" stroke="black" stroke-width="2"/>
+  <text x="400" y="185" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">FATE</text>
+  <text x="400" y="205" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">Unified Coordination</text>
+  
+  <!-- Arrow from Fate to Tile -->
+  <line x1="500" y1="190" x2="560" y2="190" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Tile Box (Right) -->
+  <rect x="560" y="160" width="120" height="60" fill="white" stroke="black" stroke-width="2"/>
+  <text x="620" y="185" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">TILE</text>
+  <text x="620" y="205" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">Analysis</text>
+  
+  <!-- Arrow from Tile to Voyager -->
+  <line x1="620" y1="220" x2="620" y2="280" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Voyager Box -->
+  <rect x="560" y="280" width="120" height="60" fill="white" stroke="black" stroke-width="2"/>
+  <text x="620" y="305" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">VOYAGER</text>
+  <text x="620" y="325" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">Exploration</text>
+  
+  <!-- Arrow from Voyager to Space -->
+  <line x1="620" y1="340" x2="620" y2="400" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Space Box -->
+  <rect x="560" y="400" width="120" height="60" fill="white" stroke="black" stroke-width="2"/>
+  <text x="620" y="425" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">SPACE</text>
+  <text x="620" y="445" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">Containerization</text>
+  
+  <!-- Arrow from Space to Processing -->
+  <line x1="560" y1="430" x2="500" y2="430" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Processing Box (Bottom) -->
+  <rect x="300" y="400" width="200" height="60" fill="white" stroke="black" stroke-width="2"/>
+  <text x="400" y="425" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">PROCESSING</text>
+  <text x="400" y="445" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">Quad-System Execution</text>
+  
+  <!-- Arrow from Processing to Feedback -->
+  <line x1="300" y1="430" x2="240" y2="430" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Feedback Box (Left) -->
+  <rect x="120" y="280" width="120" height="60" fill="white" stroke="black" stroke-width="2"/>
+  <text x="180" y="305" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">FEEDBACK</text>
+  <text x="180" y="325" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">State Update</text>
+  
+  <!-- Curved arrow from Feedback back to Fate -->
+  <path d="M 180 280 Q 180 190, 300 190" fill="none" stroke="black" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Self-Correction Box (Center) -->
+  <rect x="320" y="280" width="160" height="70" fill="white" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="400" y="305" font-family="Arial, sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="black">SELF-CORRECTION</text>
+  <text x="400" y="325" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="black">Anomaly Detection</text>
+  <text x="400" y="340" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="black">+ Auto Resolution</text>
+  
+  <!-- Cycle Label -->
+  <text x="400" y="520" font-family="Arial, sans-serif" font-size="11" font-style="italic" text-anchor="middle" fill="black">
+    Cyclic Flow: Quad-System → Fate → Tile → Voyager → Space → Processing → Feedback → (repeat)
+  </text>
+  
+  <!-- Reference Numbers -->
+  <text x="510" y="85" font-family="Arial, sans-serif" font-size="10" fill="black">100</text>
+  <text x="510" y="175" font-family="Arial, sans-serif" font-size="10" fill="black">110</text>
+  <text x="690" y="175" font-family="Arial, sans-serif" font-size="10" fill="black">120</text>
+  <text x="690" y="295" font-family="Arial, sans-serif" font-size="10" fill="black">130</text>
+  <text x="690" y="415" font-family="Arial, sans-serif" font-size="10" fill="black">140</text>
+  <text x="510" y="415" font-family="Arial, sans-serif" font-size="10" fill="black">150</text>
+  <text x="100" y="295" font-family="Arial, sans-serif" font-size="10" fill="black">160</text>
+  <text x="490" y="295" font-family="Arial, sans-serif" font-size="10" fill="black">170</text>
+  
+  <!-- Arrow Marker Definition -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="black"/>
+    </marker>
+  </defs>
+</svg>
+

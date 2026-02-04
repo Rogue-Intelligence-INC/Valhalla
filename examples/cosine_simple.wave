@@ -1,0 +1,88 @@
+# 向量余弦相似度搜索 - Wave简化版
+# 演示向量搜索算法
+
+# 配置 (简化版: 100向量 x 16维)
+DIM = 16
+COUNT = 100
+
+# 全局
+seed = 42
+db = 0
+query = 0
+
+# LCG伪随机
+fn rand {
+    seed = seed * 1103515245 + 12345
+    seed = seed & 0x7FFFFFFF
+    -> seed % 2001 - 1000
+}
+
+# 点积
+fn dot a b {
+    sum = 0
+    i = 0
+    loop {
+        when i >= DIM { -> sum }
+        va = peek64(a + i * 8)
+        vb = peek64(b + i * 8)
+        sum = sum + va * vb
+        i = i + 1
+    }
+}
+
+# 初始化
+fn init {
+    db = syscall.mmap(0, COUNT * DIM * 8, 3, 0x22, -1, 0)
+    query = syscall.mmap(0, DIM * 8, 3, 0x22, -1, 0)
+    
+    # 填充向量库
+    seed = 42
+    i = 0
+    loop {
+        when i >= COUNT * DIM { -> 0 }
+        poke64(db + i * 8, rand())
+        i = i + 1
+    }
+    
+    # 填充查询向量
+    seed = 12345
+    i = 0
+    loop {
+        when i >= DIM { -> 0 }
+        poke64(query + i * 8, rand())
+        i = i + 1
+    }
+}
+
+# 搜索
+fn search {
+    best = 0
+    best_score = -999999999
+    
+    i = 0
+    loop {
+        when i >= COUNT { -> best }
+        vec = db + i * DIM * 8
+        score = dot(query, vec)
+        when score > best_score {
+            best_score = score
+            best = i
+        }
+        i = i + 1
+    }
+}
+
+# 主程序
+out "=== Vector Cosine Search - Wave ===\n"
+out "Dim: 16, Count: 100\n\n"
+
+out "Initializing...\n"
+init()
+
+out "Searching...\n"
+result = search()
+
+out "Best match found!\n"
+out "=== Complete ===\n"
+
+syscall.exit(0)

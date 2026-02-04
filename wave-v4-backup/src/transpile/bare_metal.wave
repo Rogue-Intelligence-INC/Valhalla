@@ -1,0 +1,532 @@
+# 🌊 Wave 裸机编译器
+# Wave 代码 → 可启动镜像
+# 用 Wave 自举实现
+
+out "═══════════════════════════════════════════════════════"
+out "🌊 Wave Bare Metal Compiler v1.0"
+out "   Wave → Bootable Image"
+out "═══════════════════════════════════════════════════════"
+
+# ═══════════════════════════════════════════════════════
+# 配置
+# ═══════════════════════════════════════════════════════
+
+config -> {
+    target: "i386",           # i386 | x86_64
+    output_format: "img",     # img | elf | bin
+    entry_point: "main",
+    stack_size: 0x10000,
+    heap_size: 0x100000,
+    vga_mode: "text"          # text | graphics
+}
+
+# ═══════════════════════════════════════════════════════
+# 机器码生成器
+# ═══════════════════════════════════════════════════════
+
+code_buffer -> []
+data_buffer -> []
+string_table -> []
+symbol_table -> {}
+
+# 生成字节
+emit -> function(byte) {
+    code_buffer.push(byte & 0xFF)
+}
+
+# 生成多字节
+emit_bytes -> function(bytes) {
+    for b in bytes {
+        emit(b)
+    }
+}
+
+# 生成 16 位值
+emit_word -> function(value) {
+    emit(value & 0xFF)
+    emit((value >> 8) & 0xFF)
+}
+
+# 生成 32 位值
+emit_dword -> function(value) {
+    emit(value & 0xFF)
+    emit((value >> 8) & 0xFF)
+    emit((value >> 16) & 0xFF)
+    emit((value >> 24) & 0xFF)
+}
+
+# ═══════════════════════════════════════════════════════
+# x86 指令生成
+# ═══════════════════════════════════════════════════════
+
+x86 -> {
+    # 寄存器编号
+    eax: 0, ecx: 1, edx: 2, ebx: 3,
+    esp: 4, ebp: 5, esi: 6, edi: 7,
+    
+    # mov reg, imm32
+    mov_reg_imm: function(reg, value) {
+        emit(0xB8 + reg)
+        emit_dword(value)
+    },
+    
+    # mov [addr], al
+    mov_mem_al: function(addr) {
+        emit(0xA2)
+        emit_dword(addr)
+    },
+    
+    # mov al, [addr]
+    mov_al_mem: function(addr) {
+        emit(0xA0)
+        emit_dword(addr)
+    },
+    
+    # push reg
+    push_reg: function(reg) {
+        emit(0x50 + reg)
+    },
+    
+    # pop reg
+    pop_reg: function(reg) {
+        emit(0x58 + reg)
+    },
+    
+    # call addr
+    call_rel: function(offset) {
+        emit(0xE8)
+        emit_dword(offset)
+    },
+    
+    # ret
+    ret: function() {
+        emit(0xC3)
+    },
+    
+    # jmp rel
+    jmp_rel: function(offset) {
+        emit(0xE9)
+        emit_dword(offset)
+    },
+    
+    # jmp short
+    jmp_short: function(offset) {
+        emit(0xEB)
+        emit(offset & 0xFF)
+    },
+    
+    # hlt
+    hlt: function() {
+        emit(0xF4)
+    },
+    
+    # cli
+    cli: function() {
+        emit(0xFA)
+    },
+    
+    # sti
+    sti: function() {
+        emit(0xFB)
+    },
+    
+    # out dx, al
+    out_dx_al: function() {
+        emit(0xEE)
+    },
+    
+    # in al, dx
+    in_al_dx: function() {
+        emit(0xEC)
+    },
+    
+    # int n
+    int_n: function(n) {
+        emit(0xCD)
+        emit(n)
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# Wave → 机器码 编译
+# ═══════════════════════════════════════════════════════
+
+compile_wave_to_machine -> function(ast) {
+    for node in ast {
+        compile_node(node)
+    }
+}
+
+compile_node -> function(node) {
+    when node.type == "output" {
+        # out "string" → VGA 写入
+        compile_output(node.value)
+    }
+    
+    when node.type == "variable" {
+        # name -> value
+        compile_variable(node.name, node.value)
+    }
+    
+    when node.type == "function" {
+        # name -> function() { ... }
+        compile_function(node.name, node.params, node.body)
+    }
+    
+    when node.type == "asm_block" {
+        # __asm__ { ... }
+        compile_inline_asm(node.instructions)
+    }
+    
+    when node.type == "mem_write" {
+        # __mem_write_byte__(addr, value)
+        compile_mem_write(node.addr, node.value)
+    }
+    
+    when node.type == "mem_read" {
+        # __mem_read_byte__(addr)
+        compile_mem_read(node.addr)
+    }
+    
+    when node.type == "when" {
+        compile_when(node.condition, node.body, node.else_body)
+    }
+    
+    when node.type == "for" {
+        compile_for(node.iterator, node.range, node.body)
+    }
+    
+    when node.type == "while" {
+        compile_while(node.condition, node.body)
+    }
+}
+
+# 编译输出语句
+compile_output -> function(value) {
+    when typeof(value) == "string" {
+        # 添加字符串到数据段
+        str_offset -> data_buffer.length
+        for c in value {
+            data_buffer.push(c.charCode())
+        }
+        data_buffer.push(0)  # null 终止
+        
+        # 生成 VGA 打印代码
+        # mov esi, string_addr
+        x86.mov_reg_imm(x86.esi, 0x10000 + str_offset)
+        # call print_string
+        x86.call_rel(symbol_table["__print_string"] - code_buffer.length - 5)
+    }
+}
+
+# 编译变量
+compile_variable -> function(name, value) {
+    var_offset -> data_buffer.length
+    symbol_table[name] -> { type: "variable", offset: var_offset }
+    
+    when typeof(value) == "number" {
+        data_buffer.push(value & 0xFF)
+        data_buffer.push((value >> 8) & 0xFF)
+        data_buffer.push((value >> 16) & 0xFF)
+        data_buffer.push((value >> 24) & 0xFF)
+    }
+    when typeof(value) == "string" {
+        for c in value {
+            data_buffer.push(c.charCode())
+        }
+        data_buffer.push(0)
+    }
+}
+
+# 编译函数
+compile_function -> function(name, params, body) {
+    func_addr -> code_buffer.length
+    symbol_table[name] -> { type: "function", addr: func_addr }
+    
+    # 函数序言
+    x86.push_reg(x86.ebp)
+    emit_bytes([0x89, 0xE5])  # mov ebp, esp
+    
+    # 编译函数体
+    for stmt in body {
+        compile_node(stmt)
+    }
+    
+    # 函数尾声
+    emit_bytes([0x89, 0xEC])  # mov esp, ebp
+    x86.pop_reg(x86.ebp)
+    x86.ret()
+}
+
+# 编译内联汇编
+compile_inline_asm -> function(instructions) {
+    for instr in instructions {
+        when instr.op == "mov" {
+            # 简化: 只处理常见情况
+            when instr.dst == "ax" && typeof(instr.src) == "number" {
+                emit_bytes([0xB8])
+                emit_word(instr.src)
+            }
+            when instr.dst == "dx" && typeof(instr.src) == "number" {
+                emit_bytes([0xBA])
+                emit_word(instr.src)
+            }
+        }
+        when instr.op == "int" {
+            x86.int_n(instr.n)
+        }
+        when instr.op == "out" {
+            x86.out_dx_al()
+        }
+        when instr.op == "in" {
+            x86.in_al_dx()
+        }
+        when instr.op == "hlt" {
+            x86.hlt()
+        }
+    }
+}
+
+# 编译内存写入
+compile_mem_write -> function(addr, value) {
+    # mov eax, addr
+    x86.mov_reg_imm(x86.eax, addr)
+    # mov ebx, value
+    x86.mov_reg_imm(x86.ebx, value)
+    # mov [eax], bl
+    emit_bytes([0x88, 0x18])
+}
+
+# 编译内存读取
+compile_mem_read -> function(addr) {
+    # mov eax, addr
+    x86.mov_reg_imm(x86.eax, addr)
+    # mov al, [eax]
+    emit_bytes([0x8A, 0x00])
+}
+
+# ═══════════════════════════════════════════════════════
+# 内置运行时函数
+# ═══════════════════════════════════════════════════════
+
+generate_runtime -> function() {
+    # __print_string: 打印字符串到 VGA
+    symbol_table["__print_string"] -> { type: "function", addr: code_buffer.length }
+    
+    # VGA 文本内存地址
+    vga_addr -> 0xB8000
+    
+    # 保存起始位置
+    emit_bytes([0x89, 0xF7])  # mov edi, esi (字符串地址)
+    x86.mov_reg_imm(x86.ebx, vga_addr)  # mov ebx, 0xB8000
+    
+    # 循环打印
+    loop_start -> code_buffer.length
+    emit_bytes([0x8A, 0x07])  # mov al, [edi]
+    emit_bytes([0x84, 0xC0])  # test al, al
+    emit_bytes([0x74, 0x08])  # jz done
+    emit_bytes([0x88, 0x03])  # mov [ebx], al
+    emit_bytes([0xC6, 0x43, 0x01, 0x0F])  # mov byte [ebx+1], 0x0F (白色)
+    emit_bytes([0x47])        # inc edi
+    emit_bytes([0x83, 0xC3, 0x02])  # add ebx, 2
+    x86.jmp_short(loop_start - code_buffer.length - 2)
+    
+    # done:
+    x86.ret()
+    
+    # __clear_screen: 清屏
+    symbol_table["__clear_screen"] -> { type: "function", addr: code_buffer.length }
+    x86.mov_reg_imm(x86.edi, vga_addr)
+    x86.mov_reg_imm(x86.ecx, 80 * 25)
+    emit_bytes([0xB8, 0x20, 0x17, 0x00, 0x00])  # mov eax, 0x1720 (蓝底+空格)
+    emit(0xF3); emit(0xAB)  # rep stosd
+    x86.ret()
+}
+
+# ═══════════════════════════════════════════════════════
+# 引导扇区生成
+# ═══════════════════════════════════════════════════════
+
+generate_bootsector -> function() {
+    boot -> [0] * 512
+    pos -> 0
+    
+    # 16位代码
+    # cli
+    boot[pos] -> 0xFA; pos -> pos + 1
+    
+    # xor ax, ax
+    boot[pos] -> 0x31; boot[pos+1] -> 0xC0; pos -> pos + 2
+    # mov ds/es/ss, ax
+    boot[pos] -> 0x8E; boot[pos+1] -> 0xD8; pos -> pos + 2
+    boot[pos] -> 0x8E; boot[pos+1] -> 0xC0; pos -> pos + 2
+    boot[pos] -> 0x8E; boot[pos+1] -> 0xD0; pos -> pos + 2
+    # mov sp, 0x7C00
+    boot[pos] -> 0xBC; boot[pos+1] -> 0x00; boot[pos+2] -> 0x7C; pos -> pos + 3
+    
+    # 读取更多扇区到 0x8000
+    # mov bx, 0x8000
+    boot[pos] -> 0xBB; boot[pos+1] -> 0x00; boot[pos+2] -> 0x80; pos -> pos + 3
+    # mov ah, 0x02 (读扇区)
+    boot[pos] -> 0xB4; boot[pos+1] -> 0x02; pos -> pos + 2
+    # mov al, 64 (扇区数)
+    boot[pos] -> 0xB0; boot[pos+1] -> 0x40; pos -> pos + 2
+    # mov ch, 0 (柱面)
+    boot[pos] -> 0xB5; boot[pos+1] -> 0x00; pos -> pos + 2
+    # mov cl, 2 (起始扇区)
+    boot[pos] -> 0xB1; boot[pos+1] -> 0x02; pos -> pos + 2
+    # mov dh, 0 (磁头)
+    boot[pos] -> 0xB6; boot[pos+1] -> 0x00; pos -> pos + 2
+    # mov dl, 0 (驱动器)
+    boot[pos] -> 0xB2; boot[pos+1] -> 0x00; pos -> pos + 2
+    # int 0x13
+    boot[pos] -> 0xCD; boot[pos+1] -> 0x13; pos -> pos + 2
+    
+    # 设置文本模式
+    boot[pos] -> 0xB8; boot[pos+1] -> 0x03; boot[pos+2] -> 0x00; pos -> pos + 3
+    boot[pos] -> 0xCD; boot[pos+1] -> 0x10; pos -> pos + 2
+    
+    # 进入保护模式
+    # lgdt [gdt_desc]
+    gdt_desc_offset -> 0x80
+    boot[pos] -> 0x0F; boot[pos+1] -> 0x01; boot[pos+2] -> 0x16
+    boot[pos+3] -> gdt_desc_offset; boot[pos+4] -> 0x7C; pos -> pos + 5
+    
+    # mov eax, cr0; or al, 1; mov cr0, eax
+    boot[pos] -> 0x0F; boot[pos+1] -> 0x20; boot[pos+2] -> 0xC0; pos -> pos + 3
+    boot[pos] -> 0x0C; boot[pos+1] -> 0x01; pos -> pos + 2
+    boot[pos] -> 0x0F; boot[pos+1] -> 0x22; boot[pos+2] -> 0xC0; pos -> pos + 3
+    
+    # jmp far 0x08:0x8000
+    boot[pos] -> 0xEA
+    boot[pos+1] -> 0x00; boot[pos+2] -> 0x80  # offset
+    boot[pos+3] -> 0x08; boot[pos+4] -> 0x00  # selector
+    
+    # GDT 描述符 at 0x80
+    boot[0x80] -> 0x17; boot[0x81] -> 0x00
+    boot[0x82] -> 0x90; boot[0x83] -> 0x7C
+    boot[0x84] -> 0x00; boot[0x85] -> 0x00
+    
+    # GDT 表 at 0x90 (空+代码+数据)
+    # 代码段 0x08
+    boot[0x98] -> 0xFF; boot[0x99] -> 0xFF
+    boot[0x9A] -> 0x00; boot[0x9B] -> 0x00
+    boot[0x9C] -> 0x00; boot[0x9D] -> 0x9A
+    boot[0x9E] -> 0xCF; boot[0x9F] -> 0x00
+    # 数据段 0x10
+    boot[0xA0] -> 0xFF; boot[0xA1] -> 0xFF
+    boot[0xA2] -> 0x00; boot[0xA3] -> 0x00
+    boot[0xA4] -> 0x00; boot[0xA5] -> 0x92
+    boot[0xA6] -> 0xCF; boot[0xA7] -> 0x00
+    
+    # 引导签名
+    boot[510] -> 0x55
+    boot[511] -> 0xAA
+    
+    return boot
+}
+
+# ═══════════════════════════════════════════════════════
+# 32位保护模式头
+# ═══════════════════════════════════════════════════════
+
+generate_pm_header -> function() {
+    header -> []
+    
+    # mov ax, 0x10; mov ds/es/fs/gs/ss, ax
+    header.push(0xB8, 0x10, 0x00, 0x00, 0x00)
+    header.push(0x8E, 0xD8)  # ds
+    header.push(0x8E, 0xC0)  # es
+    header.push(0x8E, 0xE0)  # fs
+    header.push(0x8E, 0xE8)  # gs
+    header.push(0x8E, 0xD0)  # ss
+    
+    # mov esp, 0x90000
+    header.push(0xBC, 0x00, 0x00, 0x09, 0x00)
+    
+    return header
+}
+
+# ═══════════════════════════════════════════════════════
+# 主编译流程
+# ═══════════════════════════════════════════════════════
+
+compile_to_image -> function(wave_source, output_file) {
+    out "Parsing Wave source..."
+    ast -> parse_wave(wave_source)
+    
+    out "Generating runtime..."
+    generate_runtime()
+    
+    out "Compiling to machine code..."
+    compile_wave_to_machine(ast)
+    
+    out "Generating boot sector..."
+    bootsector -> generate_bootsector()
+    
+    out "Generating protected mode header..."
+    pm_header -> generate_pm_header()
+    
+    out "Assembling image..."
+    
+    # 创建镜像
+    image -> []
+    
+    # 引导扇区 (512 bytes)
+    image.push(...bootsector)
+    
+    # 填充到 0x1000 (第二扇区开始)
+    while image.length < 0x1000 {
+        image.push(0x00)
+    }
+    
+    # 保护模式头
+    image.push(...pm_header)
+    
+    # 代码段
+    image.push(...code_buffer)
+    
+    # 填充到 0x10000 (数据段)
+    while image.length < 0x10000 {
+        image.push(0x00)
+    }
+    
+    # 数据段
+    image.push(...data_buffer)
+    
+    # 填充到 64KB
+    while image.length < 0x10000 {
+        image.push(0x00)
+    }
+    
+    # 写入文件
+    write_file(output_file, image)
+    
+    out ""
+    out "✅ Generated: {output_file}"
+    out "   Boot sector: 512 bytes"
+    out "   Code: {code_buffer.length} bytes"
+    out "   Data: {data_buffer.length} bytes"
+    out "   Total: {image.length} bytes"
+    out ""
+    out "Run: qemu-system-i386 -fda {output_file}"
+}
+
+# ═══════════════════════════════════════════════════════
+# 命令行接口
+# ═══════════════════════════════════════════════════════
+
+when __main__ {
+    args -> get_args()
+    
+    when args.length < 2 {
+        out "Usage: wave bare_metal.wave <input.wave> [-o output.img]"
+        exit 1
+    }
+    
+    input_file -> args[1]
+    output_file -> args["-o"] || input_file.replace(".wave", ".img")
+    
+    source -> read_file(input_file)
+    compile_to_image(source, output_file)
+}

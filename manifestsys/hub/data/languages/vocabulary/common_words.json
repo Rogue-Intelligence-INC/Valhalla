@@ -1,0 +1,72 @@
+{
+  "en": {
+    "greetings": ["hello", "hi", "good morning", "good evening", "goodbye", "see you"],
+    "numbers": ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+    "colors": ["red", "blue", "green", "yellow", "black", "white", "orange", "purple", "pink", "brown"],
+    "common_verbs": ["be", "have", "do", "say", "get", "make", "go", "know", "take", "see", "come", "think", "look", "want", "give", "use", "find", "tell", "ask", "work", "seem", "feel", "try", "leave", "call"],
+    "common_nouns": ["time", "year", "people", "way", "day", "man", "thing", "woman", "life", "child", "world", "school", "state", "family", "student", "group", "country", "problem", "hand", "part"]
+  },
+  "zh": {
+    "greetings": ["你好", "早上好", "晚上好", "再见", "谢谢", "不客气"],
+    "numbers": ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"],
+    "colors": ["红色", "蓝色", "绿色", "黄色", "黑色", "白色", "橙色", "紫色", "粉色", "棕色"],
+    "common_verbs": ["是", "有", "做", "说", "去", "来", "看", "想", "知道", "给", "用", "找", "问", "工作", "学习", "吃", "喝", "走", "跑", "写"],
+    "common_nouns": ["时间", "人", "年", "天", "事", "东西", "地方", "问题", "工作", "生活", "世界", "国家", "学校", "家", "朋友", "孩子", "水", "书", "钱", "话"]
+  },
+  "ja": {
+    "greetings": ["こんにちは", "おはようございます", "こんばんは", "さようなら", "ありがとう", "すみません"],
+    "numbers": ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"],
+    "colors": ["赤", "青", "緑", "黄色", "黒", "白", "オレンジ", "紫", "ピンク", "茶色"],
+    "common_verbs": ["する", "ある", "いる", "なる", "言う", "行く", "来る", "見る", "思う", "知る", "取る", "使う", "出る", "入る", "持つ"],
+    "common_nouns": ["時間", "人", "年", "日", "事", "物", "所", "問題", "仕事", "生活", "世界", "国", "学校", "家", "友達"]
+  },
+  "de": {
+    "greetings": ["Hallo", "Guten Morgen", "Guten Abend", "Auf Wiedersehen", "Danke", "Bitte"],
+    "numbers": ["eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn"],
+    "colors": ["rot", "blau", "grün", "gelb", "schwarz", "weiß", "orange", "lila", "rosa", "braun"],
+    "common_verbs": ["sein", "haben", "werden", "können", "müssen", "sagen", "machen", "gehen", "wissen", "sehen", "lassen", "stehen", "finden", "bleiben", "liegen"],
+    "common_nouns": ["Zeit", "Jahr", "Mensch", "Tag", "Frau", "Mann", "Kind", "Land", "Teil", "Haus", "Welt", "Hand", "Leben", "Kopf", "Arbeit"]
+  },
+  "fr": {
+    "greetings": ["Bonjour", "Bonsoir", "Salut", "Au revoir", "Merci", "De rien"],
+    "numbers": ["un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"],
+    "colors": ["rouge", "bleu", "vert", "jaune", "noir", "blanc", "orange", "violet", "rose", "marron"],
+    "common_verbs": ["être", "avoir", "faire", "dire", "pouvoir", "aller", "voir", "savoir", "vouloir", "venir", "devoir", "prendre", "trouver", "donner", "falloir"],
+    "common_nouns": ["temps", "année", "jour", "homme", "femme", "vie", "monde", "main", "chose", "fois", "pays", "lieu", "travail", "cas", "fait"]
+  },
+  "es": {
+    "greetings": ["Hola", "Buenos días", "Buenas noches", "Adiós", "Gracias", "De nada"],
+    "numbers": ["uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"],
+    "colors": ["rojo", "azul", "verde", "amarillo", "negro", "blanco", "naranja", "morado", "rosa", "marrón"],
+    "common_verbs": ["ser", "estar", "haber", "tener", "hacer", "poder", "decir", "ir", "ver", "dar", "saber", "querer", "llegar", "pasar", "deber"],
+    "common_nouns": ["tiempo", "año", "día", "hombre", "mujer", "vida", "mundo", "mano", "cosa", "vez", "país", "lugar", "trabajo", "caso", "parte"]
+  },
+  "ru": {
+    "greetings": ["Привет", "Доброе утро", "Добрый вечер", "До свидания", "Спасибо", "Пожалуйста"],
+    "numbers": ["один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять"],
+    "colors": ["красный", "синий", "зелёный", "жёлтый", "чёрный", "белый", "оранжевый", "фиолетовый", "розовый", "коричневый"],
+    "common_verbs": ["быть", "мочь", "сказать", "знать", "стать", "хотеть", "говорить", "думать", "видеть", "идти", "стоять", "иметь", "взять", "дать", "понять"],
+    "common_nouns": ["время", "год", "человек", "день", "рука", "дело", "жизнь", "слово", "место", "лицо", "друг", "глаз", "вопрос", "дом", "сторона"]
+  },
+  "ar": {
+    "greetings": ["مرحبا", "صباح الخير", "مساء الخير", "مع السلامة", "شكرا", "عفوا"],
+    "numbers": ["واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة", "عشرة"],
+    "colors": ["أحمر", "أزرق", "أخضر", "أصفر", "أسود", "أبيض", "برتقالي", "بنفسجي", "وردي", "بني"],
+    "common_verbs": ["كان", "قال", "كون", "أخذ", "جاء", "علم", "أعطى", "وجد", "ذهب", "رأى", "أراد", "فعل", "وقف", "جعل", "عرف"],
+    "common_nouns": ["يوم", "سنة", "وقت", "رجل", "شيء", "بيت", "عمل", "حياة", "عالم", "امرأة", "ولد", "كلمة", "ماء", "مكان", "يد"]
+  },
+  "ko": {
+    "greetings": ["안녕하세요", "좋은 아침", "좋은 저녁", "안녕히 가세요", "감사합니다", "천만에요"],
+    "numbers": ["하나", "둘", "셋", "넷", "다섯", "여섯", "일곱", "여덟", "아홉", "열"],
+    "colors": ["빨강", "파랑", "초록", "노랑", "검정", "하양", "주황", "보라", "분홍", "갈색"],
+    "common_verbs": ["하다", "있다", "되다", "가다", "오다", "보다", "주다", "알다", "받다", "만들다", "먹다", "살다", "쓰다", "나가다", "들어오다"],
+    "common_nouns": ["사람", "것", "때", "말", "일", "집", "눈", "손", "곳", "날", "년", "물", "몸", "나라", "생각"]
+  },
+  "hi": {
+    "greetings": ["नमस्ते", "सुप्रभात", "शुभ संध्या", "अलविदा", "धन्यवाद", "कृपया"],
+    "numbers": ["एक", "दो", "तीन", "चार", "पाँच", "छह", "सात", "आठ", "नौ", "दस"],
+    "colors": ["लाल", "नीला", "हरा", "पीला", "काला", "सफेद", "नारंगी", "बैंगनी", "गुलाबी", "भूरा"],
+    "common_verbs": ["होना", "करना", "जाना", "आना", "देखना", "लेना", "देना", "कहना", "मिलना", "रहना", "चाहना", "सोचना", "बनाना", "पड़ना", "लगना"],
+    "common_nouns": ["समय", "साल", "आदमी", "दिन", "बात", "घर", "काम", "जगह", "हाथ", "आँख", "सिर", "दुनिया", "देश", "पानी", "जीवन"]
+  }
+}

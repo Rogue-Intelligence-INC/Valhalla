@@ -1,0 +1,49 @@
+# 测试基本数学运算
+
+out "Testing basic math:\n"
+
+# 加法
+a = 100
+b = 200
+c = a + b
+out "  100 + 200 = 300: "
+when c == 300 { out "PASS\n" }
+when c != 300 { out "FAIL\n" }
+
+# 乘法
+d = 42 * 100
+out "  42 * 100 = 4200: "
+when d == 4200 { out "PASS\n" }
+when d != 4200 { out "FAIL\n" }
+
+# 大数乘法
+e = 42 * 1000000
+out "  42 * 1000000 = 42000000: "
+when e == 42000000 { out "PASS\n" }
+when e != 42000000 { out "FAIL\n" }
+
+# 位与
+f = 255 & 15
+out "  255 & 15 = 15: "
+when f == 15 { out "PASS\n" }
+when f != 15 { out "FAIL\n" }
+
+# 大数位与
+g = 2147483647 & 2147483647
+out "  0x7FFFFFFF & 0x7FFFFFFF: "
+when g == 2147483647 { out "PASS\n" }
+when g != 2147483647 { out "FAIL\n" }
+
+# 取模
+h = 247 % 201
+out "  247 % 201 = 46: "
+when h == 46 { out "PASS\n" }
+when h != 46 { out "FAIL\n" }
+
+# 负数
+j = 0 - 100
+out "  0 - 100 < 0: "
+when j < 0 { out "PASS\n" }
+when j >= 0 { out "FAIL\n" }
+
+syscall.exit(0)

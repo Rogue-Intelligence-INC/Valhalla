@@ -1,0 +1,15 @@
+[package]
+name = "stemhall"
+version = "1.0.0"
+edition = "2021"
+description = "StemHall - Intelligent Load Allocation (f64 Performance Version)"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+
+# f64 metasystems
+valhalla-metasystems-blackhole = { path = "../../systems/metasystems/blackhole" }
+valhalla-metasystems-meshbrain = { path = "../../systems/metasystems/meshbrain" }
+valhalla-metasystems-multinova = { path = "../../systems/metasystems/multinova" }
+valhalla-metasystems-baseforce = { path = "../../systems/metasystems/base-force" }

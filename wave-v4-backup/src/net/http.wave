@@ -1,0 +1,187 @@
+# 🌊 Wave HTTP - 后端网络服务
+# 基础 HTTP 服务器 · Fate 控制
+
+# ═══════════════════════════════════════════════════════
+# HTTP 服务器
+# ═══════════════════════════════════════════════════════
+
+http_server -> service {
+    # 端口 (Fate 可决定或指定)
+    port -> fate_decide_or(8080)
+    
+    # 路由表
+    routes -> fate_managed_map
+    
+    # 连接池
+    connections -> fate_pool
+}
+
+# 创建服务器
+create_server -> function(config) {
+    server -> http_server {
+        port -> config.port || fate_decide
+        max_connections -> fate_decide
+    }
+    return server
+}
+
+# ═══════════════════════════════════════════════════════
+# 路由
+# ═══════════════════════════════════════════════════════
+
+route -> function(path, handler) {
+    routes.add(path, handler)
+}
+
+# GET 路由
+get -> function(path, handler) {
+    route(path, {method: "GET", handler: handler})
+}
+
+# POST 路由
+post -> function(path, handler) {
+    route(path, {method: "POST", handler: handler})
+}
+
+# 动态路由
+route_pattern -> function(pattern, handler) {
+    # /user/:id → 匹配 /user/123
+    routes.add_pattern(pattern, handler)
+}
+
+# ═══════════════════════════════════════════════════════
+# 请求处理
+# ═══════════════════════════════════════════════════════
+
+request -> structure {
+    method  -> string    # GET, POST, PUT, DELETE
+    path    -> string    # /api/users
+    headers -> map       # Content-Type, etc.
+    body    -> bytes     # 请求体
+    params  -> map       # 路由参数 :id
+    query   -> map       # ?key=value
+}
+
+response -> structure {
+    status  -> int       # 200, 404, 500
+    headers -> map
+    body    -> bytes
+}
+
+# ═══════════════════════════════════════════════════════
+# 响应构建
+# ═══════════════════════════════════════════════════════
+
+# 文本响应
+text_response -> function(content, status) {
+    response {
+        status: status || 200,
+        headers: {"Content-Type": "text/plain"},
+        body: content
+    }
+}
+
+# JSON 响应
+json_response -> function(data, status) {
+    response {
+        status: status || 200,
+        headers: {"Content-Type": "application/json"},
+        body: json_encode(data)
+    }
+}
+
+# HTML 响应
+html_response -> function(content, status) {
+    response {
+        status: status || 200,
+        headers: {"Content-Type": "text/html"},
+        body: content
+    }
+}
+
+# 重定向
+redirect -> function(url, status) {
+    response {
+        status: status || 302,
+        headers: {"Location": url},
+        body: ""
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 中间件
+# ═══════════════════════════════════════════════════════
+
+middleware -> function(handler) {
+    # CORS
+    cors -> function(req, res, next) {
+        res.headers["Access-Control-Allow-Origin"] -> "*"
+        next()
+    }
+    
+    # 日志
+    logger -> function(req, res, next) {
+        log("[{time}] {method} {path}")
+        next()
+    }
+    
+    # Fate 性能监控
+    fate_monitor -> function(req, res, next) {
+        start -> time()
+        next()
+        duration -> time() - start
+        fate_learn(req.path, duration)
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 启动服务器
+# ═══════════════════════════════════════════════════════
+
+start -> function(server) {
+    # 绑定端口
+    socket -> bind(server.port)
+    
+    # 监听循环
+    loop {
+        conn -> accept(socket)
+        
+        # Fate 决定: 同步或异步处理
+        fate_decide_handling(conn) {
+            when light_load { handle_sync(conn) }
+            when heavy_load { handle_async(conn) }
+        }
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 示例用法
+# ═══════════════════════════════════════════════════════
+
+example_server -> demo {
+    server -> create_server({port: 8080})
+    
+    # 首页
+    get "/" -> handler(req) {
+        html_response("<h1>Welcome to Wave!</h1>")
+    }
+    
+    # API
+    get "/api/status" -> handler(req) {
+        json_response({
+            status: "ok",
+            fate: fate_status(),
+            uptime: system_uptime()
+        })
+    }
+    
+    # POST 数据
+    post "/api/data" -> handler(req) {
+        data -> json_decode(req.body)
+        fate_db.store("data", data)
+        json_response({success: true})
+    }
+    
+    # 启动
+    server -> start
+}

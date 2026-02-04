@@ -1,0 +1,307 @@
+// 🚀 Todo应用 - 展示Cosmic-C渐进式语法特性
+// 从最简单的实现开始，逐步添加高级特性
+
+// === Level 1: 基础语法 ===
+
+// 简单的数据结构
+struct Task {
+    id: int
+    title: string
+    completed: bool
+}
+
+// 全局状态（简单开始）
+let tasks = []
+let next_id = 1
+
+// 基础函数
+function add_task(title) {
+    new_task = Task {
+        id: next_id,
+        title: title,
+        completed: false
+    }
+    tasks.append(new_task)
+    next_id = next_id + 1
+    return new_task
+}
+
+function complete_task(id) {
+    for task in tasks {
+        if task.id == id {
+            task.completed = true
+            return true
+        }
+    }
+    return false
+}
+
+function list_tasks() {
+    for task in tasks {
+        status = task.completed ? "✓" : "○"
+        print("${status} ${task.title}")
+    }
+}
+
+// === Level 2: 智能特性 ===
+
+// 智能类型推断和验证
+function add_task_smart(title) {
+    // 编译器自动建议验证
+    validate title is not_empty else return error("Title cannot be empty")
+    validate title.length <= 100 else return error("Title too long")
+    
+    // 智能ID生成
+    new_task = Task {
+        id: generate_unique_id(),
+        title: title.trim(),  // 自动建议trim
+        completed: false
+    }
+    
+    tasks.append(new_task)
+    log "Added task: ${title}"  // 自动建议日志
+    return success(new_task)
+}
+
+// 对话式语法（可选）
+function query_tasks() {
+    // 自然语言风格
+    completed_tasks = find tasks where completed is true
+    pending_tasks = find tasks where completed is false
+    
+    // 或传统语法
+    // completed_tasks = tasks.filter(t => t.completed)
+    // pending_tasks = tasks.filter(t => !t.completed)
+    
+    return {completed: completed_tasks, pending: pending_tasks}
+}
+
+// === Level 3: 工具集成 ===
+
+// 内置测试
+@test "can add and complete tasks" {
+    // 测试添加任务
+    task = add_task("Learn Cosmic-C")
+    expect task.title equals "Learn Cosmic-C"
+    expect task.completed equals false
+    
+    // 测试完成任务
+    result = complete_task(task.id)
+    expect result equals true
+    expect task.completed equals true
+}
+
+@test "validates task input" {
+    result = add_task_smart("")
+    expect result is error
+    expect result.message contains "empty"
+}
+
+// 内置文档
+@doc "Todo应用的核心任务管理功能"
+@example "add_task('买牛奶') -> Task{id: 1, title: '买牛奶', completed: false}"
+@complexity "O(1) for add, O(n) for find"
+module TaskManager {
+    
+    // 导出的公共API
+    export add_task, complete_task, list_tasks, query_tasks
+    
+    // 私有内部函数
+    private function generate_unique_id() {
+        return next_id++
+    }
+}
+
+// === Level 4: 上下文感知 ===
+
+// 项目上下文
+@project {
+    name: "todo-app"
+    type: "desktop_application"
+    ui_framework: "gtk"
+    storage: "local_file"
+}
+
+// 基于上下文的智能建议
+function save_tasks() {
+    // 系统知道这是桌面应用，建议本地存储
+    // 系统知道数据结构，自动生成序列化代码
+    file_data = serialize_tasks(tasks)
+    write_file("tasks.json", file_data)
+}
+
+function load_tasks() {
+    if file_exists("tasks.json") {
+        file_data = read_file("tasks.json")
+        tasks = deserialize_tasks(file_data)
+        next_id = tasks.map(t => t.id).max() + 1
+    }
+}
+
+// 代码演进
+@version(1.0, "basic task management")
+function basic_task_priority(task) {
+    return task.completed ? 0 : 1
+}
+
+@version(2.0, "added priority levels")
+function enhanced_task_priority(task) {
+    if task.completed return 0
+    
+    // 基于任务特征智能判断优先级
+    priority = 1
+    if task.title contains "urgent" priority += 2
+    if task.created_date < (today() - 7.days) priority += 1
+    return priority
+}
+
+// === Level 5: 生态系统集成 ===
+
+// 智能依赖管理
+@dependencies {
+    ui: "gtk4"
+    storage: "json"
+    datetime: "chrono"
+}
+
+// 部署配置
+@deployment {
+    target: "desktop"
+    platforms: ["linux", "windows", "macos"]
+    package_format: "appimage"
+}
+
+// UI集成
+@ui_component
+function task_list_view() {
+    return ListView {
+        data: tasks,
+        item_template: task_item_template,
+        on_item_click: toggle_task_completion
+    }
+}
+
+@ui_component  
+function task_item_template(task) {
+    return ListItem {
+        checkbox: Checkbox {
+            checked: task.completed,
+            on_toggle: () => complete_task(task.id)
+        },
+        label: Label {
+            text: task.title,
+            strikethrough: task.completed
+        },
+        delete_button: Button {
+            icon: "trash",
+            on_click: () => delete_task(task.id)
+        }
+    }
+}
+
+// 主应用入口
+@main_window
+function create_app() {
+    window = Window {
+        title: "Cosmic Todo",
+        width: 400,
+        height: 600,
+        
+        content: VBox {
+            header: Header {
+                title: "我的任务",
+                add_button: Button {
+                    text: "添加",
+                    on_click: show_add_task_dialog
+                }
+            },
+            
+            body: ScrollView {
+                content: task_list_view()
+            },
+            
+            footer: StatusBar {
+                text: "总计: ${tasks.length} 任务, 完成: ${completed_count()}"
+            }
+        }
+    }
+    
+    return window
+}
+
+// 智能对话式命令
+@command_interface
+function handle_voice_commands() {
+    listen_for {
+        "添加任务 {task_name}" -> add_task(task_name)
+        "完成任务 {task_name}" -> complete_task_by_name(task_name)  
+        "显示所有任务" -> list_tasks()
+        "显示未完成任务" -> show_pending_tasks()
+    }
+}
+
+// === 实际使用示例 ===
+
+function main() {
+    // Level 1: 基础使用
+    add_task("学习 Cosmic-C")
+    add_task("写项目文档")
+    add_task("测试新功能")
+    
+    list_tasks()
+    
+    // Level 2: 智能特性
+    result = add_task_smart("买牛奶")
+    match result {
+        success(task) -> print("任务添加成功: ${task.title}")
+        error(msg) -> print("错误: ${msg}")
+    }
+    
+    // Level 3: 查询和过滤
+    pending = find tasks where completed is false
+    print("待完成任务: ${pending.length}")
+    
+    // Level 4: 持久化
+    save_tasks()
+    
+    // Level 5: 启动UI
+    app = create_app()
+    app.run()
+}
+
+// 自动生成的功能
+@auto_generate
+function task_statistics() {
+    total = tasks.length
+    completed = tasks.count(t => t.completed)
+    completion_rate = completed / total * 100
+    
+    return {
+        total: total,
+        completed: completed,
+        pending: total - completed,
+        completion_rate: completion_rate
+    }
+}
+
+// 智能建议的辅助功能
+@suggested_by_ai
+function smart_task_suggestions() {
+    // 基于用户历史智能建议任务
+    common_patterns = analyze_task_patterns(tasks)
+    time_based_suggestions = get_time_based_suggestions()
+    
+    return merge(common_patterns, time_based_suggestions)
+}
+
+/*
+🎯 这个示例展示了：
+
+1. **渐进式学习**: 从简单的结构体和函数开始
+2. **智能辅助**: 自动验证、建议、类型推断
+3. **工具集成**: 内置测试、文档、部署配置
+4. **上下文感知**: 项目信息、代码演进、智能建议
+5. **生态集成**: UI框架、依赖管理、部署配置
+
+每个Level都可以独立工作，程序员可以根据需要逐步采用高级特性。
+*/ 

@@ -1,0 +1,239 @@
+# Val-OS Wave GUI System
+# Wave v5 - GUI through pipelines, not code
+
+# ═══════════════════════════════════════════════════════
+# Wave GUI Philosophy:
+#   Layout = Data pipeline
+#   Events = Intent pipeline
+#   Rendering = Fate decides
+# ═══════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════
+# Button: Intent -> Visual -> Action
+# ═══════════════════════════════════════════════════════
+
+button -> function(label, action) {
+    {
+        type: "button",
+        label: label,
+        action: action,
+        
+        # Visual state: Fate manages
+        state: "normal" -> fate_monitor,
+        
+        # Render: pipeline to display
+        render -> function(x, y, w, h) {
+            # Background gradient
+            { x: x, y: y, w: w, h: h, from: 0x33, to: 0x44 } -> display_driver.gradient
+            
+            # Border
+            { x: x, y: y, w: w, h: h, color: 0x55 } -> display_driver.rect
+            
+            # Label centered
+            label -> { x: x + 4, y: y + 4 } -> display_driver.text
+        },
+        
+        # Hover: Fate detects
+        hover -> function() {
+            state -> "hover"
+            { x: x, y: y, w: w, h: h, from: 0x44, to: 0x55 } -> display_driver.gradient
+        },
+        
+        # Click: trigger action
+        click -> function() {
+            state -> "active"
+            { x: x, y: y, w: w, h: h, color: 0x66 } -> display_driver.rect
+            action -> fate_decide
+        }
+    } -> fate_alloc
+}
+
+# ═══════════════════════════════════════════════════════
+# Panel: Container with layout
+# ═══════════════════════════════════════════════════════
+
+panel -> function(title) {
+    {
+        type: "panel",
+        title: title,
+        children: fate_alloc,
+        
+        # Auto-layout: Fate arranges children
+        layout -> "vertical" -> fate_decide,
+        
+        render -> function(x, y, w, h) {
+            # Panel background with gradient
+            { x: x, y: y, w: w, h: h, from: 0x10, to: 0x18 } -> display_driver.gradient
+            
+            # Title bar
+            { x: x, y: y, w: w, h: 16, color: 0x09 } -> display_driver.rect
+            title -> { x: x + 4, y: y + 4, color: 0x0F } -> display_driver.text
+            
+            # Children: Fate positions
+            children -> fate_analyze -> fate_decide
+        },
+        
+        # Add child: pipeline
+        add -> function(child) {
+            child -> children -> fate_decide
+        }
+    } -> fate_alloc
+}
+
+# ═══════════════════════════════════════════════════════
+# Window: Draggable panel
+# ═══════════════════════════════════════════════════════
+
+window -> function(title, w, h) {
+    {
+        type: "window",
+        title: title,
+        x: 50 -> fate_decide,  # Fate chooses position
+        y: 30 -> fate_decide,
+        w: w,
+        h: h,
+        dragging: false,
+        children: fate_alloc,
+        
+        render -> function() {
+            # Shadow
+            { x: x + 2, y: y + 2, w: w, h: h, color: 0x00 } -> display_driver.rect
+            
+            # Window body gradient
+            { x: x, y: y, w: w, h: h, from: 0x07, to: 0x0F } -> display_driver.gradient
+            
+            # Title bar gradient
+            { x: x, y: y, w: w, h: 18, from: 0x01, to: 0x09 } -> display_driver.gradient
+            
+            # Title
+            title -> { x: x + 4, y: y + 5, color: 0x0F } -> display_driver.text
+            
+            # Close button
+            "X" -> { x: x + w - 14, y: y + 5, color: 0x04 } -> display_driver.text
+            
+            # Content area
+            { x: x + 2, y: y + 20, w: w - 4, h: h - 22, color: 0x0F } -> display_driver.rect
+            
+            # Children
+            children -> fate_analyze -> fate_decide
+        },
+        
+        # Drag: Fate tracks mouse delta
+        drag -> function(dx, dy) {
+            x -> x + dx
+            y -> y + dy
+        },
+        
+        add -> function(child) {
+            child -> children -> fate_decide
+        }
+    } -> fate_alloc
+}
+
+# ═══════════════════════════════════════════════════════
+# Desktop Icon
+# ═══════════════════════════════════════════════════════
+
+icon -> function(name, symbol, action) {
+    {
+        type: "icon",
+        name: name,
+        symbol: symbol,
+        action: action,
+        
+        render -> function(x, y) {
+            # Icon background
+            { x: x, y: y, w: 48, h: 48, from: 0x07, to: 0x08 } -> display_driver.gradient
+            
+            # Symbol
+            symbol -> { x: x + 18, y: y + 12, color: 0x00 } -> display_driver.text
+            
+            # Label
+            name -> { x: x + 4, y: y + 52, color: 0x0F } -> display_driver.text
+        },
+        
+        click -> function() {
+            action -> fate_decide
+        }
+    } -> fate_alloc
+}
+
+# ═══════════════════════════════════════════════════════
+# Taskbar
+# ═══════════════════════════════════════════════════════
+
+taskbar -> {
+    type: "taskbar",
+    height: 24,
+    items: fate_alloc,
+    
+    render -> function() {
+        # Bar gradient
+        { x: 0, y: 176, w: 320, h: 24, from: 0x08, to: 0x07 } -> display_driver.gradient
+        
+        # Start button
+        { x: 2, y: 178, w: 50, h: 20, from: 0x02, to: 0x0A } -> display_driver.gradient
+        "Start" -> { x: 8, y: 183, color: 0x0F } -> display_driver.text
+        
+        # Clock: Fate gets time
+        time -> fate_decide
+        time -> { x: 280, y: 183, color: 0x0F } -> display_driver.text
+        
+        # Running apps
+        items -> fate_analyze -> fate_decide
+    },
+    
+    add_app -> function(app) {
+        app -> items -> fate_decide
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# Desktop: Root container
+# ═══════════════════════════════════════════════════════
+
+desktop -> {
+    type: "desktop",
+    icons: fate_alloc,
+    windows: fate_alloc,
+    
+    render -> function() {
+        # Background gradient (sky blue)
+        { x: 0, y: 0, w: 320, h: 176, from: 0x01, to: 0x09 } -> display_driver.gradient
+        
+        # Icons
+        icons -> fate_analyze -> fate_decide
+        
+        # Windows (Fate manages z-order)
+        windows -> fate_analyze -> fate_decide
+        
+        # Taskbar
+        taskbar.render -> call
+    },
+    
+    add_icon -> function(ic) {
+        ic -> icons -> fate_decide
+    },
+    
+    add_window -> function(win) {
+        win -> windows -> fate_decide
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# Event Loop: Fate-driven
+# ═══════════════════════════════════════════════════════
+
+event_loop -> function() {
+    # Fate monitors all inputs
+    fate_monitor -> fate_detect_marginal
+    
+    # Mouse event -> find target -> dispatch
+    mouse -> fate_analyze -> fate_decide
+    
+    # Keyboard event -> focused widget -> dispatch
+    key -> fate_analyze -> fate_decide
+    
+    # Redraw only changed areas (Fate optimizes)
+    "redraw" -> fate_analyze -> fate_collapse_decision
+}

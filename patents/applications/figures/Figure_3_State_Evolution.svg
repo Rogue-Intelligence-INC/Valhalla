@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <title>Figure 3 - State Evolution: Self-Learning Progression</title>
+  
+  <!-- Background -->
+  <rect width="800" height="500" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="black">
+    FIG. 3 - SELF-LEARNING STATE EVOLUTION
+  </text>
+  
+  <!-- Axis -->
+  <line x1="100" y1="400" x2="700" y2="400" stroke="black" stroke-width="2"/>
+  <line x1="100" y1="400" x2="100" y2="80" stroke="black" stroke-width="2"/>
+  
+  <!-- X-axis label -->
+  <text x="400" y="440" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="black">Processing Cycles</text>
+  
+  <!-- Y-axis label -->
+  <text x="50" y="240" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="black" transform="rotate(-90,50,240)">Affinity Value</text>
+  
+  <!-- Y-axis ticks -->
+  <line x1="95" y1="400" x2="100" y2="400" stroke="black" stroke-width="1"/>
+  <text x="85" y="405" font-family="Arial, sans-serif" font-size="10" text-anchor="end" fill="black">0.0</text>
+  <line x1="95" y1="320" x2="100" y2="320" stroke="black" stroke-width="1"/>
+  <text x="85" y="325" font-family="Arial, sans-serif" font-size="10" text-anchor="end" fill="black">0.25</text>
+  <line x1="95" y1="240" x2="100" y2="240" stroke="black" stroke-width="1"/>
+  <text x="85" y="245" font-family="Arial, sans-serif" font-size="10" text-anchor="end" fill="black">0.50</text>
+  <line x1="95" y1="160" x2="100" y2="160" stroke="black" stroke-width="1"/>
+  <text x="85" y="165" font-family="Arial, sans-serif" font-size="10" text-anchor="end" fill="black">0.75</text>
+  <line x1="95" y1="80" x2="100" y2="80" stroke="black" stroke-width="1"/>
+  <text x="85" y="85" font-family="Arial, sans-serif" font-size="10" text-anchor="end" fill="black">1.0</text>
+  
+  <!-- X-axis ticks -->
+  <line x1="100" y1="400" x2="100" y2="405" stroke="black" stroke-width="1"/>
+  <text x="100" y="420" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">0</text>
+  <line x1="220" y1="400" x2="220" y2="405" stroke="black" stroke-width="1"/>
+  <text x="220" y="420" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">3</text>
+  <line x1="340" y1="400" x2="340" y2="405" stroke="black" stroke-width="1"/>
+  <text x="340" y="420" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">6</text>
+  <line x1="460" y1="400" x2="460" y2="405" stroke="black" stroke-width="1"/>
+  <text x="460" y="420" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">9</text>
+  <line x1="580" y1="400" x2="580" y2="405" stroke="black" stroke-width="1"/>
+  <text x="580" y="420" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">12</text>
+  <line x1="700" y1="400" x2="700" y2="405" stroke="black" stroke-width="1"/>
+  <text x="700" y="420" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="black">15</text>
+  
+  <!-- Uniform distribution line (0.25) -->
+  <line x1="100" y1="320" x2="700" y2="320" stroke="black" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="720" y="325" font-family="Arial, sans-serif" font-size="9" fill="black">uniform</text>
+  
+  <!-- BlackHole line (solid) - stays around 0.07 -->
+  <polyline points="100,320 220,335 340,355 460,365 580,370 700,375" fill="none" stroke="black" stroke-width="2"/>
+  <circle cx="100" cy="320" r="4" fill="black"/>
+  <circle cx="220" cy="335" r="4" fill="black"/>
+  <circle cx="340" cy="355" r="4" fill="black"/>
+  <circle cx="460" cy="365" r="4" fill="black"/>
+  <circle cx="580" cy="370" r="4" fill="black"/>
+  <circle cx="700" cy="375" r="4" fill="black"/>
+  
+  <!-- MeshBrain line (dashed) - stays around 0.07 -->
+  <polyline points="100,320 220,340 340,360 460,368 580,372 700,378" fill="none" stroke="black" stroke-width="2" stroke-dasharray="8,4"/>
+  <rect x="96" y="316" width="8" height="8" fill="white" stroke="black" stroke-width="1"/>
+  <rect x="216" y="336" width="8" height="8" fill="white" stroke="black" stroke-width="1"/>
+  <rect x="336" y="356" width="8" height="8" fill="white" stroke="black" stroke-width="1"/>
+  <rect x="456" y="364" width="8" height="8" fill="white" stroke="black" stroke-width="1"/>
+  <rect x="576" y="368" width="8" height="8" fill="white" stroke="black" stroke-width="1"/>
+  <rect x="696" y="374" width="8" height="8" fill="white" stroke="black" stroke-width="1"/>
+  
+  <!-- MultiNova line (dotted) - rises to 0.794 -->
+  <polyline points="100,320 220,280 340,200 460,140 580,110 700,95" fill="none" stroke="black" stroke-width="2" stroke-dasharray="2,4"/>
+  <polygon points="100,320 96,312 104,312" fill="black"/>
+  <polygon points="220,280 216,272 224,272" fill="black"/>
+  <polygon points="340,200 336,192 344,192" fill="black"/>
+  <polygon points="460,140 456,132 464,132" fill="black"/>
+  <polygon points="580,110 576,102 584,102" fill="black"/>
+  <polygon points="700,95 696,87 704,87" fill="black"/>
+  
+  <!-- BaseForce line (dash-dot) - stays around 0.07 -->
+  <polyline points="100,320 220,345 340,362 460,370 580,375 700,380" fill="none" stroke="black" stroke-width="2" stroke-dasharray="12,4,2,4"/>
+  <line x1="96" y1="316" x2="104" y2="324" stroke="black" stroke-width="2"/>
+  <line x1="96" y1="324" x2="104" y2="316" stroke="black" stroke-width="2"/>
+  <line x1="216" y1="341" x2="224" y2="349" stroke="black" stroke-width="2"/>
+  <line x1="216" y1="349" x2="224" y2="341" stroke="black" stroke-width="2"/>
+  <line x1="336" y1="358" x2="344" y2="366" stroke="black" stroke-width="2"/>
+  <line x1="336" y1="366" x2="344" y2="358" stroke="black" stroke-width="2"/>
+  <line x1="456" y1="366" x2="464" y2="374" stroke="black" stroke-width="2"/>
+  <line x1="456" y1="374" x2="464" y2="366" stroke="black" stroke-width="2"/>
+  <line x1="576" y1="371" x2="584" y2="379" stroke="black" stroke-width="2"/>
+  <line x1="576" y1="379" x2="584" y2="371" stroke="black" stroke-width="2"/>
+  <line x1="696" y1="376" x2="704" y2="384" stroke="black" stroke-width="2"/>
+  <line x1="696" y1="384" x2="704" y2="376" stroke="black" stroke-width="2"/>
+  
+  <!-- Legend -->
+  <rect x="550" y="50" width="180" height="110" fill="white" stroke="black" stroke-width="1"/>
+  <text x="640" y="68" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="black">LEGEND (300)</text>
+  
+  <line x1="560" y1="85" x2="600" y2="85" stroke="black" stroke-width="2"/>
+  <circle cx="580" cy="85" r="3" fill="black"/>
+  <text x="610" y="89" font-family="Arial, sans-serif" font-size="9" fill="black">BlackHole (310)</text>
+  
+  <line x1="560" y1="105" x2="600" y2="105" stroke="black" stroke-width="2" stroke-dasharray="8,4"/>
+  <rect x="577" y="102" width="6" height="6" fill="white" stroke="black" stroke-width="1"/>
+  <text x="610" y="109" font-family="Arial, sans-serif" font-size="9" fill="black">MeshBrain (320)</text>
+  
+  <line x1="560" y1="125" x2="600" y2="125" stroke="black" stroke-width="2" stroke-dasharray="2,4"/>
+  <polygon points="580,125 577,120 583,120" fill="black"/>
+  <text x="610" y="129" font-family="Arial, sans-serif" font-size="9" fill="black">MultiNova (330)</text>
+  
+  <line x1="560" y1="145" x2="600" y2="145" stroke="black" stroke-width="2" stroke-dasharray="12,4,2,4"/>
+  <text x="610" y="149" font-family="Arial, sans-serif" font-size="9" fill="black">BaseForce (340)</text>
+  
+  <!-- Annotations -->
+  <text x="130" y="310" font-family="Arial, sans-serif" font-size="9" fill="black">Initial: 0.25 each</text>
+  <text x="650" y="85" font-family="Arial, sans-serif" font-size="9" fill="black">Final: 0.794</text>
+  <text x="650" y="385" font-family="Arial, sans-serif" font-size="9" fill="black">Final: ~0.07</text>
+  
+  <!-- Performance annotation -->
+  <text x="400" y="475" font-family="Arial, sans-serif" font-size="11" font-style="italic" text-anchor="middle" fill="black">
+    Affinity Improvement: &gt;200% | Confidence Evolution: 0.5 → 1.0
+  </text>
+</svg>
+

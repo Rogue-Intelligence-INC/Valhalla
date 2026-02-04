@@ -1,0 +1,212 @@
+# 🖥️ Val-OS 显示驱动
+# 直接操作 VGA 硬件
+# Wave 原生实现
+
+# ═══════════════════════════════════════════════════════
+# VGA 硬件地址
+# ═══════════════════════════════════════════════════════
+
+vga -> hardware {
+    text_memory: 0xB8000,    # VGA 文本模式内存
+    graphics_memory: 0xA0000, # VGA 图形模式内存
+    width: 80,
+    height: 25,
+    mode: "text"  # text | graphics
+}
+
+# 颜色定义 (VGA 16色)
+colors -> {
+    black: 0, blue: 1, green: 2, cyan: 3,
+    red: 4, magenta: 5, brown: 6, light_gray: 7,
+    dark_gray: 8, light_blue: 9, light_green: 10, light_cyan: 11,
+    light_red: 12, light_magenta: 13, yellow: 14, white: 15
+}
+
+# ═══════════════════════════════════════════════════════
+# 底层硬件操作 (Wave 直接生成机器码)
+# ═══════════════════════════════════════════════════════
+
+# 写入 VGA 内存
+vga_write -> function(offset, char, attr) {
+    addr -> vga.text_memory + offset * 2
+    __mem_write_byte__(addr, char)
+    __mem_write_byte__(addr + 1, attr)
+}
+
+# 读取 VGA 内存
+vga_read -> function(offset) {
+    addr -> vga.text_memory + offset * 2
+    char -> __mem_read_byte__(addr)
+    attr -> __mem_read_byte__(addr + 1)
+    return { char: char, attr: attr }
+}
+
+# 端口写入 (VGA 控制寄存器)
+outb -> function(port, value) {
+    __asm__ {
+        mov dx, port
+        mov al, value
+        out dx, al
+    }
+}
+
+# 端口读取
+inb -> function(port) {
+    __asm__ {
+        mov dx, port
+        in al, dx
+    }
+    return al
+}
+
+# ═══════════════════════════════════════════════════════
+# 高级绘图 API
+# ═══════════════════════════════════════════════════════
+
+# 清屏
+clear_screen -> function(bg_color) {
+    attr -> (bg_color << 4) | colors.light_gray
+    for i in 0..(vga.width * vga.height) {
+        vga_write(i, 0x20, attr)  # 空格
+    }
+}
+
+# 设置光标位置
+set_cursor -> function(x, y) {
+    pos -> y * vga.width + x
+    outb(0x3D4, 0x0F)
+    outb(0x3D5, pos & 0xFF)
+    outb(0x3D4, 0x0E)
+    outb(0x3D5, (pos >> 8) & 0xFF)
+}
+
+# 隐藏光标
+hide_cursor -> function() {
+    outb(0x3D4, 0x0A)
+    outb(0x3D5, 0x20)
+}
+
+# 显示光标
+show_cursor -> function() {
+    outb(0x3D4, 0x0A)
+    outb(0x3D5, 0x00)
+    outb(0x3D4, 0x0B)
+    outb(0x3D5, 0x0F)
+}
+
+# 绘制字符
+draw_char -> function(x, y, char, fg, bg) {
+    when x >= 0 && x < vga.width && y >= 0 && y < vga.height {
+        offset -> y * vga.width + x
+        attr -> (bg << 4) | fg
+        vga_write(offset, char, attr)
+    }
+}
+
+# 绘制字符串
+draw_string -> function(x, y, text, fg, bg) {
+    for i, c in text.enumerate() {
+        draw_char(x + i, y, c.charCode(), fg, bg)
+    }
+}
+
+# 绘制矩形
+draw_rect -> function(x, y, w, h, fg, bg) {
+    for row in y..(y + h) {
+        for col in x..(x + w) {
+            draw_char(col, row, 0x20, fg, bg)
+        }
+    }
+}
+
+# 绘制边框
+draw_border -> function(x, y, w, h, fg, bg) {
+    # 角
+    draw_char(x, y, 0xC9, fg, bg)          # ╔
+    draw_char(x + w - 1, y, 0xBB, fg, bg)  # ╗
+    draw_char(x, y + h - 1, 0xC8, fg, bg)  # ╚
+    draw_char(x + w - 1, y + h - 1, 0xBC, fg, bg)  # ╝
+    
+    # 横线
+    for i in 1..(w - 1) {
+        draw_char(x + i, y, 0xCD, fg, bg)          # ═
+        draw_char(x + i, y + h - 1, 0xCD, fg, bg)  # ═
+    }
+    
+    # 竖线
+    for i in 1..(h - 1) {
+        draw_char(x, y + i, 0xBA, fg, bg)          # ║
+        draw_char(x + w - 1, y + i, 0xBA, fg, bg)  # ║
+    }
+}
+
+# 绘制进度条
+draw_progress_bar -> function(x, y, w, percent, fg, bg) {
+    filled -> floor(w * percent / 100)
+    for i in 0..w {
+        char -> when i < filled { 0xDB } else { 0xB1 }  # █ or ▒
+        draw_char(x + i, y, char, fg, bg)
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 图形模式 (320x200 256色)
+# ═══════════════════════════════════════════════════════
+
+set_graphics_mode -> function() {
+    # 设置 VGA 模式 13h (320x200, 256色)
+    __asm__ {
+        mov ax, 0x0013
+        int 0x10
+    }
+    vga.mode -> "graphics"
+    vga.width -> 320
+    vga.height -> 200
+}
+
+set_text_mode -> function() {
+    # 设置 VGA 模式 03h (80x25 文本)
+    __asm__ {
+        mov ax, 0x0003
+        int 0x10
+    }
+    vga.mode -> "text"
+    vga.width -> 80
+    vga.height -> 25
+}
+
+# 在图形模式下画点
+put_pixel -> function(x, y, color) {
+    when vga.mode == "graphics" {
+        offset -> y * 320 + x
+        __mem_write_byte__(vga.graphics_memory + offset, color)
+    }
+}
+
+# 在图形模式下画线
+draw_line_graphics -> function(x1, y1, x2, y2, color) {
+    dx -> abs(x2 - x1)
+    dy -> abs(y2 - y1)
+    sx -> when x1 < x2 { 1 } else { -1 }
+    sy -> when y1 < y2 { 1 } else { -1 }
+    err -> dx - dy
+    
+    while true {
+        put_pixel(x1, y1, color)
+        when x1 == x2 && y1 == y2 { break }
+        e2 -> 2 * err
+        when e2 > -dy { err -> err - dy; x1 -> x1 + sx }
+        when e2 < dx { err -> err + dx; y1 -> y1 + sy }
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 初始化
+# ═══════════════════════════════════════════════════════
+
+init_display -> function() {
+    set_text_mode()
+    hide_cursor()
+    clear_screen(colors.blue)
+    return true
+}

@@ -1,0 +1,54 @@
+# 测试函数调用
+
+seed = 42
+
+fn rand {
+    seed = seed * 1103515245 + 12345
+    seed = seed & 0x7FFFFFFF
+    -> seed % 2001 - 1000
+}
+
+fn write32 addr val {
+    poke(addr, val & 255)
+    poke(addr + 1, val / 256 & 255)
+    poke(addr + 2, val / 65536 & 255)
+    poke(addr + 3, val / 16777216 & 255)
+}
+
+fn read32 addr {
+    b0 = peek(addr)
+    b1 = peek(addr + 1)
+    b2 = peek(addr + 2)
+    b3 = peek(addr + 3)
+    -> b0 + b1 * 256 + b2 * 65536 + b3 * 16777216
+}
+
+out "Testing functions...\n"
+
+# 分配内存
+ptr = syscall.mmap(0, 400, 3, 34, 0 - 1, 0)
+out "Memory allocated.\n"
+
+# 写入100个随机数
+i = 0
+loop {
+    when i >= 100 { break }
+    v = rand()
+    write32(ptr + i * 4, v)
+    i = i + 1
+}
+out "Random values written.\n"
+
+# 读取并求和
+sum = 0
+i = 0
+loop {
+    when i >= 100 { break }
+    v = read32(ptr + i * 4)
+    sum = sum + v
+    i = i + 1
+}
+out "Values read and summed.\n"
+
+out "Test complete!\n"
+syscall.exit(0)

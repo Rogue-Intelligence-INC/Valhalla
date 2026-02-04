@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" width="800" height="700">
+  <title>FIG. 7 - Coordinated Computation Flow</title>
+  
+  <!-- Background -->
+  <rect width="800" height="700" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">FIG. 7 - Coordinated Computation Flow</text>
+  
+  <!-- Step 1 -->
+  <rect x="280" y="55" width="240" height="50" fill="none" stroke="black" stroke-width="2"/>
+  <text x="305" y="80" font-family="Arial" font-size="11" font-weight="bold">S1:</text>
+  <text x="400" y="75" text-anchor="middle" font-family="Arial" font-size="11">Receive Computation Request</text>
+  <text x="400" y="92" text-anchor="middle" font-family="Arial" font-size="9">(Workload characteristics)</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="105" x2="400" y2="125" stroke="black" stroke-width="2"/>
+  <polygon points="400,125 395,115 405,115" fill="black"/>
+  
+  <!-- Step 2 -->
+  <rect x="280" y="130" width="240" height="50" fill="none" stroke="black" stroke-width="2"/>
+  <text x="305" y="155" font-family="Arial" font-size="11" font-weight="bold">S2:</text>
+  <text x="400" y="150" text-anchor="middle" font-family="Arial" font-size="11">Collect State Signals</text>
+  <text x="400" y="167" text-anchor="middle" font-family="Arial" font-size="9">(From all four subsystems)</text>
+  
+  <!-- Side boxes showing signal collection -->
+  <rect x="60" y="140" width="100" height="30" fill="none" stroke="black" stroke-width="1"/>
+  <text x="110" y="160" text-anchor="middle" font-family="Arial" font-size="9">System A Signal</text>
+  <line x1="160" y1="155" x2="275" y2="155" stroke="black" stroke-width="1"/>
+  
+  <rect x="60" y="175" width="100" height="30" fill="none" stroke="black" stroke-width="1"/>
+  <text x="110" y="195" text-anchor="middle" font-family="Arial" font-size="9">System B Signal</text>
+  <line x1="160" y1="190" x2="210" y2="190" stroke="black" stroke-width="1" stroke-dasharray="3,2"/>
+  
+  <rect x="640" y="140" width="100" height="30" fill="none" stroke="black" stroke-width="1"/>
+  <text x="690" y="160" text-anchor="middle" font-family="Arial" font-size="9">System C Signal</text>
+  <line x1="640" y1="155" x2="525" y2="155" stroke="black" stroke-width="1"/>
+  
+  <rect x="640" y="175" width="100" height="30" fill="none" stroke="black" stroke-width="1"/>
+  <text x="690" y="195" text-anchor="middle" font-family="Arial" font-size="9">System D Signal</text>
+  <line x1="640" y1="190" x2="590" y2="190" stroke="black" stroke-width="1" stroke-dasharray="3,2"/>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="180" x2="400" y2="215" stroke="black" stroke-width="2"/>
+  <polygon points="400,215 395,205 405,205" fill="black"/>
+  
+  <!-- Step 3 (CORE) -->
+  <rect x="230" y="220" width="340" height="80" fill="none" stroke="black" stroke-width="3"/>
+  <text x="260" y="250" font-family="Arial" font-size="11" font-weight="bold">S3:</text>
+  <text x="400" y="245" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">Apply Core Coordination</text>
+  <text x="400" y="265" text-anchor="middle" font-family="Arial" font-size="11">w = I × Q</text>
+  <text x="400" y="285" text-anchor="middle" font-family="Arial" font-size="11">A[k] = Σ(D[k] × w) / Σ(w)</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="300" x2="400" y2="330" stroke="black" stroke-width="2"/>
+  <polygon points="400,330 395,320 405,320" fill="black"/>
+  
+  <!-- Step 4 -->
+  <rect x="280" y="335" width="240" height="50" fill="none" stroke="black" stroke-width="2"/>
+  <text x="305" y="360" font-family="Arial" font-size="11" font-weight="bold">S4:</text>
+  <text x="400" y="355" text-anchor="middle" font-family="Arial" font-size="11">Generate Preference Vector</text>
+  <text x="400" y="372" text-anchor="middle" font-family="Arial" font-size="9">[A_aff, B_aff, C_aff, D_aff]</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="385" x2="400" y2="410" stroke="black" stroke-width="2"/>
+  <polygon points="400,410 395,400 405,400" fill="black"/>
+  
+  <!-- Step 5 (Decision) -->
+  <polygon points="400,415 490,455 400,495 310,455" fill="none" stroke="black" stroke-width="2"/>
+  <text x="335" y="445" font-family="Arial" font-size="11" font-weight="bold">S5:</text>
+  <text x="400" y="450" text-anchor="middle" font-family="Arial" font-size="10">Route to</text>
+  <text x="400" y="465" text-anchor="middle" font-family="Arial" font-size="10">Highest Affinity</text>
+  
+  <!-- Routing paths -->
+  <line x1="310" y1="455" x2="180" y2="455" stroke="black" stroke-width="1.5"/>
+  <text x="245" y="445" font-family="Arial" font-size="9">A wins</text>
+  <rect x="100" y="440" width="80" height="30" fill="none" stroke="black" stroke-width="1"/>
+  <text x="140" y="460" text-anchor="middle" font-family="Arial" font-size="9">System A</text>
+  
+  <line x1="490" y1="455" x2="620" y2="455" stroke="black" stroke-width="1.5"/>
+  <text x="555" y="445" font-family="Arial" font-size="9">B/C/D wins</text>
+  <rect x="620" y="440" width="80" height="30" fill="none" stroke="black" stroke-width="1"/>
+  <text x="660" y="460" text-anchor="middle" font-family="Arial" font-size="9">System B/C/D</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="495" x2="400" y2="520" stroke="black" stroke-width="2"/>
+  <polygon points="400,520 395,510 405,510" fill="black"/>
+  
+  <!-- Step 6 -->
+  <rect x="280" y="525" width="240" height="50" fill="none" stroke="black" stroke-width="2"/>
+  <text x="305" y="550" font-family="Arial" font-size="11" font-weight="bold">S6:</text>
+  <text x="400" y="545" text-anchor="middle" font-family="Arial" font-size="11">Execute Computation</text>
+  <text x="400" y="562" text-anchor="middle" font-family="Arial" font-size="9">(Within selected subsystem)</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="575" x2="400" y2="600" stroke="black" stroke-width="2"/>
+  <polygon points="400,600 395,590 405,590" fill="black"/>
+  
+  <!-- Step 7 -->
+  <rect x="280" y="605" width="240" height="50" fill="none" stroke="black" stroke-width="2"/>
+  <text x="305" y="630" font-family="Arial" font-size="11" font-weight="bold">S7:</text>
+  <text x="400" y="625" text-anchor="middle" font-family="Arial" font-size="11">Collect Results + Feedback</text>
+  <text x="400" y="642" text-anchor="middle" font-family="Arial" font-size="9">(Update system states)</text>
+  
+  <!-- Feedback Loop -->
+  <path d="M 520 630 L 700 630 L 700 80 L 525 80" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <polygon points="525,80 535,75 535,85" fill="black"/>
+  <text x="720" y="350" font-family="Arial" font-size="10" transform="rotate(90, 720, 350)">Cyclic Feedback (S8)</text>
+</svg>
+

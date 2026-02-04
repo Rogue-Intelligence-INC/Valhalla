@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <!-- 二次方程 -->
+  <mrow>
+    <mi>x</mi>
+    <mo>=</mo>
+    <mfrac>
+      <mrow>
+        <mo>-</mo>
+        <mi>b</mi>
+        <mo>±</mo>
+        <msqrt>
+          <mrow>
+            <msup><mi>b</mi><mn>2</mn></msup>
+            <mo>-</mo>
+            <mn>4</mn><mi>a</mi><mi>c</mi>
+          </mrow>
+        </msqrt>
+      </mrow>
+      <mrow>
+        <mn>2</mn><mi>a</mi>
+      </mrow>
+    </mfrac>
+  </mrow>
+  
+  <!-- 欧拉恒等式 -->
+  <mrow>
+    <msup><mi>e</mi><mrow><mi>i</mi><mi>π</mi></mrow></msup>
+    <mo>+</mo>
+    <mn>1</mn>
+    <mo>=</mo>
+    <mn>0</mn>
+  </mrow>
+  
+  <!-- 积分 -->
+  <mrow>
+    <msubsup>
+      <mo>∫</mo>
+      <mn>0</mn>
+      <mi>∞</mi>
+    </msubsup>
+    <msup><mi>e</mi><mrow><mo>-</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></msup>
+    <mi>d</mi><mi>x</mi>
+    <mo>=</mo>
+    <mfrac>
+      <msqrt><mi>π</mi></msqrt>
+      <mn>2</mn>
+    </mfrac>
+  </mrow>
+</math>

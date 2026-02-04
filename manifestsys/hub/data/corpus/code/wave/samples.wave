@@ -1,0 +1,47 @@
+// Wave 代码样本 - 用于 Valhalla 训练
+
+// 形变信号处理
+signal process_deformation(intensity: rational, direction: [rational]) -> signal {
+    let weighted = intensity * direction.magnitude()
+    emit weighted to fate
+    return weighted
+}
+
+// Fate 控制的内存分配
+fate allocate(size: u64) -> pointer {
+    let pool = fate.select_pool(size)
+    if pool.available >= size {
+        return pool.allocate(size)
+    } else {
+        fate.trigger_collapse()
+        return fate.reallocate(size)
+    }
+}
+
+// 四元系统协调
+quad coordinate(blackhole: signal, meshbrain: signal, multinova: signal, baseforce: signal) -> result {
+    let combined = fate.merge([blackhole, meshbrain, multinova, baseforce])
+    fate.learn(combined)
+    return combined.optimal_path()
+}
+
+// 自主调度
+scheduler fate_schedule(tasks: [task]) -> order {
+    let priorities = tasks.map(|t| fate.evaluate(t))
+    let sorted = priorities.sort_by_signal()
+    return sorted.to_order()
+}
+
+// 空间管理
+space voyager(dimensions: u8) -> container {
+    let container = space.create(dimensions)
+    container.set_expansion_rule(fate.adaptive)
+    return container
+}
+
+// 混合 UI
+ui render(element: component) -> frame {
+    let colors = ui.gradient(element.style)
+    let alpha = ui.transparency(element.layer)
+    return ui.compose(element, colors, alpha)
+}

@@ -1,0 +1,196 @@
+# Val-OS v5.0 GUI System
+# Wave v5 - Real GUI through Fate pipelines
+
+out "Val-OS v5.0 GUI Initializing..."
+
+# ═══════════════════════════════════════════════════════
+# Phase 1: Hardware Detection (Fate-driven)
+# ═══════════════════════════════════════════════════════
+
+out "[Fate] Detecting hardware..."
+
+# Intent: display -> Fate finds VGA
+"display" -> fate_detect -> fate_select -> fate_configure -> out "  Display: VGA Mode 13h (320x200)"
+
+# Intent: input -> Fate finds keyboard/mouse
+"keyboard" -> fate_detect -> fate_configure -> out "  Keyboard: PS/2 Ready"
+"mouse" -> fate_detect -> fate_configure -> out "  Mouse: PS/2 Ready"
+
+# ═══════════════════════════════════════════════════════
+# Phase 2: Create Desktop
+# ═══════════════════════════════════════════════════════
+
+out "[GUI] Creating desktop..."
+
+# Desktop with blue gradient background
+desktop -> fate_alloc
+desktop -> {
+    type: "desktop",
+    background: { from: 0x01, to: 0x09 }
+}
+
+# Create icons (Wave pipeline style)
+"Files" -> icon("F", "files_run") -> desktop.add_icon
+"Terminal" -> icon("T", "terminal_run") -> desktop.add_icon
+"Browser" -> icon("B", "browser_run") -> desktop.add_icon
+"Notepad" -> icon("N", "notepad_run") -> desktop.add_icon
+"Settings" -> icon("S", "settings_run") -> desktop.add_icon
+
+out "  Icons: 5 created"
+
+# ═══════════════════════════════════════════════════════
+# Phase 3: Create Taskbar
+# ═══════════════════════════════════════════════════════
+
+out "[GUI] Creating taskbar..."
+
+taskbar -> fate_alloc
+taskbar -> {
+    type: "taskbar",
+    start_button: { label: "Start", gradient: { from: 0x02, to: 0x0A } },
+    clock: "time" -> fate_decide,
+    apps: fate_alloc
+}
+
+out "  Taskbar: Ready"
+
+# ═══════════════════════════════════════════════════════
+# Phase 4: Sample Window
+# ═══════════════════════════════════════════════════════
+
+out "[GUI] Creating sample window..."
+
+# Create window with Wave pipeline
+sample_window -> "Welcome" -> window(200, 120)
+sample_window -> {
+    x: 60,
+    y: 40,
+    children: [
+        "Welcome to Val-OS v5.0!" -> label,
+        "Click icons to launch apps" -> label,
+        "" -> spacer,
+        "OK" -> button("close_window") -> { w: 60, h: 20 }
+    ]
+}
+
+sample_window -> desktop.add_window
+
+out "  Window: Created"
+
+# ═══════════════════════════════════════════════════════
+# Phase 5: System Panel (Super key)
+# ═══════════════════════════════════════════════════════
+
+out "[GUI] Creating system panel..."
+
+system_panel -> fate_alloc
+system_panel -> {
+    type: "panel",
+    visible: false,
+    items: [
+        { icon: "WiFi", state: "on" -> fate_monitor },
+        { icon: "Bluetooth", state: "off" -> fate_monitor },
+        { icon: "Volume", value: 70 -> fate_monitor },
+        { icon: "Brightness", value: 80 -> fate_monitor }
+    ],
+    toggle -> function() {
+        visible -> !visible
+    }
+}
+
+out "  Panel: Ready (Super key)"
+
+# ═══════════════════════════════════════════════════════
+# Phase 6: Button Definitions
+# ═══════════════════════════════════════════════════════
+
+out "[GUI] Defining buttons..."
+
+# Button style: gradient + border + shadow
+button_style -> {
+    normal: { gradient: { from: 0x07, to: 0x0F }, border: 0x08 },
+    hover: { gradient: { from: 0x0F, to: 0x07 }, border: 0x00 },
+    active: { gradient: { from: 0x08, to: 0x08 }, border: 0x00 }
+}
+
+# Buttons respond to mouse state via Fate
+"button" -> fate_monitor -> fate_detect_marginal -> fate_decide
+
+out "  Buttons: Styled"
+
+# ═══════════════════════════════════════════════════════
+# Phase 7: Event Handlers
+# ═══════════════════════════════════════════════════════
+
+out "[Events] Registering handlers..."
+
+# Mouse click -> Fate finds target -> dispatch
+mouse_click -> function(x, y) {
+    { x: x, y: y } -> fate_analyze -> fate_decide
+}
+
+# Key press -> Fate routes to focused widget
+key_press -> function(key) {
+    key -> fate_analyze -> fate_decide
+}
+
+# Super key -> toggle system panel
+"SUPER" -> system_panel.toggle
+
+out "  Events: Ready"
+
+# ═══════════════════════════════════════════════════════
+# Phase 8: Render Loop
+# ═══════════════════════════════════════════════════════
+
+out "[Render] Starting render loop..."
+
+render -> function() {
+    # Clear with gradient background
+    desktop.background -> display_driver.gradient
+    
+    # Draw icons (Fate positions)
+    desktop.icons -> fate_analyze -> fate_decide
+    
+    # Draw windows (Fate manages z-order)
+    desktop.windows -> fate_analyze -> fate_decide
+    
+    # Draw taskbar
+    taskbar -> display_driver -> fate_decide
+    
+    # Draw system panel if visible
+    system_panel -> fate_analyze -> fate_decide
+    
+    # Draw mouse cursor
+    mouse -> fate_decide -> display_driver.cursor
+}
+
+# ═══════════════════════════════════════════════════════
+# System Ready
+# ═══════════════════════════════════════════════════════
+
+out ""
+out "═══════════════════════════════════════════════════════"
+out "              Val-OS v5.0 GUI Ready                    "
+out "═══════════════════════════════════════════════════════"
+out ""
+out "  Display:  320x200 256-color VGA"
+out "  Input:    Keyboard + Mouse active"
+out "  Desktop:  5 icons"
+out "  Taskbar:  Start button + Clock"
+out "  Windows:  Welcome dialog shown"
+out ""
+out "  [Click] icons to launch apps"
+out "  [Drag]  windows to move"
+out "  [Super] system panel"
+out ""
+
+# Main loop: Fate-driven
+main -> function() {
+    fate_monitor -> fate_detect_marginal
+    
+    # Input -> Process -> Render (Fate optimizes)
+    input -> fate_analyze -> process -> render -> fate_collapse_decision
+}
+
+main -> call

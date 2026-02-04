@@ -1,0 +1,37 @@
+[package]
+name = "yaksha-cipher"
+version = "1.0.0"
+edition = "2021"
+authors = ["Rogue Intelligence Research Team"]
+description = "Yaksha Cipher: Parameterized symmetric encryption with stateful AEAD protocol"
+repository = "https://github.com/Rogue-Intelligence-INC/Valhalla"
+license = "MIT"
+keywords = ["encryption", "cryptography", "symmetric-cipher", "aead"]
+categories = ["cryptography", "algorithms"]
+
+[dependencies]
+rayon = "1.10"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[lib]
+name = "yaksha_cipher"
+path = "src/lib.rs"
+
+# Single comprehensive test binary
+[[bin]]
+name = "yaksha_test"
+path = "src/bin/yaksha_test.rs"
+
+[[bin]]
+name = "yaksha_bench"
+path = "src/bin/yaksha_bench.rs"
+
+[[bin]]
+name = "generate_test_data"
+path = "src/bin/generate_test_data.rs"
+
+[[bin]]
+name = "crypto_analysis"
+path = "src/bin/crypto_analysis.rs"

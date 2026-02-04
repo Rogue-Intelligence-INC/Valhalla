@@ -1,0 +1,47 @@
+# Val-OS Boot Sector Generator
+# Compiles to native code, outputs boot sector bytes
+# Run: ./bin/wave valos_boot.wave -o gen && ./gen > boot.bin
+
+out "Generating Val-OS boot sector..."
+
+# Boot sector machine code (16-bit)
+# Output as raw bytes via Wave's native code
+
+boot_code -> function() {
+    # These will be compiled to print the hex values
+    # Then converted externally
+    
+    # cli; xor ax,ax; mov ds/es/ss,ax; mov sp,0x7C00
+    out "FA31C08ED88EC08ED0BC007C"
+    
+    # mov ax,0x0003; int 0x10
+    out "B80300CD10"
+    
+    # Read 32 sectors to 0x1000
+    # mov bx,0x1000; mov ah,0x02; mov al,32
+    out "BB0010B402B020"
+    # mov ch,0; mov cl,2; mov dh,0; mov dl,0
+    out "B500B102B600B200"
+    # int 0x13
+    out "CD13"
+    
+    # Print message
+    # mov si, msg
+    out "BE507C"
+    # call print
+    out "E80200"
+    # jmp hang
+    out "EBFE"
+    
+    # print_string:
+    out "B40EACCD1008C075F9C3"
+    
+    # Message: "Val-OS v4"
+    out "56616C2D4F5320763400"
+}
+
+boot_code()
+
+# Padding (calculated)
+out ""
+out "Pad to 510, add 55AA"

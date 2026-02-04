@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 550" width="800" height="550">
+  <rect width="800" height="550" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="25" font-family="Times New Roman, serif" font-size="14" font-weight="bold" text-anchor="middle">FIG. 4 - MESHBRAIN (320) AND BASEFORCE (330) SYSTEMS</text>
+  
+  <!-- MeshBrain Section -->
+  <rect x="30" y="45" width="370" height="240" fill="none" stroke="black" stroke-width="2"/>
+  <text x="215" y="70" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">MESHBRAIN SYSTEM (320)</text>
+  <line x1="30" y1="80" x2="400" y2="80" stroke="black" stroke-width="1"/>
+  
+  <!-- MeshBrain Formula -->
+  <text x="215" y="100" font-family="Times New Roman, serif" font-size="10" text-anchor="middle" font-style="italic">frequency = √(tension / mass_density) / wavelength</text>
+  
+  <!-- Two modes -->
+  <rect x="45" y="115" width="160" height="80" fill="none" stroke="black" stroke-width="1"/>
+  <text x="125" y="135" font-family="Times New Roman, serif" font-size="9" font-weight="bold" text-anchor="middle">Fluctuation Mode</text>
+  <text x="125" y="155" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">Oscillatory signals</text>
+  <text x="125" y="175" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">Phase-based intensity</text>
+  <text x="125" y="190" font-family="Times New Roman, serif" font-size="8" text-anchor="middle" font-style="italic">~sin(ωt)</text>
+  
+  <rect x="220" y="115" width="165" height="80" fill="none" stroke="black" stroke-width="1"/>
+  <text x="302" y="135" font-family="Times New Roman, serif" font-size="9" font-weight="bold" text-anchor="middle">Reorganization Mode</text>
+  <text x="302" y="155" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">Structural changes</text>
+  <text x="302" y="175" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">Topology adjustment</text>
+  <text x="302" y="190" font-family="Times New Roman, serif" font-size="8" text-anchor="middle" font-style="italic">connectivity × activation</text>
+  
+  <!-- MeshBrain Output -->
+  <rect x="100" y="210" width="200" height="60" fill="none" stroke="black" stroke-width="1"/>
+  <text x="200" y="235" font-family="Times New Roman, serif" font-size="9" font-weight="bold" text-anchor="middle">MeshBrain Signal</text>
+  <text x="200" y="255" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">intensity, phase, reorg_vector</text>
+  
+  <!-- BaseForce Section -->
+  <rect x="420" y="45" width="360" height="240" fill="none" stroke="black" stroke-width="2"/>
+  <text x="600" y="70" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">BASEFORCE SYSTEM (330)</text>
+  <line x1="420" y1="80" x2="780" y2="80" stroke="black" stroke-width="1"/>
+  
+  <!-- Integration function -->
+  <text x="600" y="100" font-family="Times New Roman, serif" font-size="10" text-anchor="middle" font-style="italic">stability = balance × activity</text>
+  
+  <!-- Input signals -->
+  <rect x="435" y="115" width="80" height="45" fill="none" stroke="black" stroke-width="1"/>
+  <text x="475" y="138" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">BH Signal</text>
+  <text x="475" y="152" font-family="Times New Roman, serif" font-size="7" text-anchor="middle">(300)</text>
+  
+  <rect x="525" y="115" width="80" height="45" fill="none" stroke="black" stroke-width="1"/>
+  <text x="565" y="138" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">Nova Signal</text>
+  <text x="565" y="152" font-family="Times New Roman, serif" font-size="7" text-anchor="middle">(310)</text>
+  
+  <rect x="615" y="115" width="80" height="45" fill="none" stroke="black" stroke-width="1"/>
+  <text x="655" y="138" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">MB Signal</text>
+  <text x="655" y="152" font-family="Times New Roman, serif" font-size="7" text-anchor="middle">(320)</text>
+  
+  <!-- Integration block -->
+  <rect x="480" y="175" width="200" height="50" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="580" y="200" font-family="Times New Roman, serif" font-size="9" font-weight="bold" text-anchor="middle">Signal Integration</text>
+  <text x="580" y="216" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">weighted combination</text>
+  
+  <!-- Arrows to integration -->
+  <line x1="475" y1="160" x2="520" y2="175" stroke="black" stroke-width="1" marker-end="url(#arrowMB)"/>
+  <line x1="565" y1="160" x2="565" y2="175" stroke="black" stroke-width="1" marker-end="url(#arrowMB)"/>
+  <line x1="655" y1="160" x2="620" y2="175" stroke="black" stroke-width="1" marker-end="url(#arrowMB)"/>
+  
+  <!-- BaseForce Output -->
+  <rect x="480" y="240" width="200" height="40" fill="none" stroke="black" stroke-width="1"/>
+  <text x="580" y="260" font-family="Times New Roman, serif" font-size="9" font-weight="bold" text-anchor="middle">BaseForce Signal</text>
+  <text x="580" y="275" font-family="Times New Roman, serif" font-size="8" text-anchor="middle">stability, direction, dominant</text>
+  
+  <line x1="580" y1="225" x2="580" y2="240" stroke="black" stroke-width="1" marker-end="url(#arrowMB)"/>
+  
+  <!-- Unified Output Section -->
+  <rect x="150" y="320" width="500" height="120" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="345" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">UNIFIED DEFORMATION SIGNAL FORMAT</text>
+  <line x1="150" y1="355" x2="650" y2="355" stroke="black" stroke-width="1"/>
+  
+  <text x="170" y="380" font-family="Times New Roman, serif" font-size="10">pub struct DeformationSignal {</text>
+  <text x="190" y="398" font-family="Times New Roman, serif" font-size="9">source_system: SystemType,    // BlackHole|MultiNova|MeshBrain|BaseForce</text>
+  <text x="190" y="414" font-family="Times New Roman, serif" font-size="9">intensity: f64,               // [0.0, 1.0]</text>
+  <text x="190" y="430" font-family="Times New Roman, serif" font-size="9">direction: Vec&lt;f64&gt;,          // n-dimensional</text>
+  <text x="190" y="446" font-family="Times New Roman, serif" font-size="9">quality_score: f64,           // [0.0, 1.0]</text>
+  
+  <!-- Arrow from both systems to unified -->
+  <line x1="200" y1="285" x2="200" y2="300" stroke="black" stroke-width="1"/>
+  <line x1="200" y1="300" x2="350" y2="320" stroke="black" stroke-width="1.5" marker-end="url(#arrowMB)"/>
+  
+  <line x1="580" y1="280" x2="580" y2="300" stroke="black" stroke-width="1"/>
+  <line x1="580" y1="300" x2="450" y2="320" stroke="black" stroke-width="1.5" marker-end="url(#arrowMB)"/>
+  
+  <!-- Note -->
+  <rect x="150" y="460" width="500" height="40" fill="none" stroke="black" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="400" y="480" font-family="Times New Roman, serif" font-size="9" text-anchor="middle" font-style="italic">Compatible with weight = intensity × quality_score (VALHALLA-PROV-001)</text>
+  
+  <!-- Arrow definition -->
+  <defs>
+    <marker id="arrowMB" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+    </marker>
+  </defs>
+</svg>
+

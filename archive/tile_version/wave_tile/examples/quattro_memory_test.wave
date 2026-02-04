@@ -1,0 +1,97 @@
+# 🌊 Wave 四元内存分配器测试
+# 直接机器码测试 BlackHole, MeshBrain, MultiNova, BaseForce
+
+out "═══════════════════════════════════════════════════"
+out "📊 Wave 四元内存分配器性能测试"
+out "═══════════════════════════════════════════════════"
+
+# 测试参数
+iterations = 1000
+small_size = 64
+medium_size = 1024
+large_size = 65536
+
+out ""
+out "测试参数:"
+out "  迭代: 1000 次"
+out "  小块: 64 bytes"
+out "  中块: 1024 bytes"
+out "  大块: 65536 bytes"
+
+# ==================== BlackHole 测试 ====================
+out ""
+out "═══════════════════════════════════════════════════"
+out "🕳️  BlackHole 分配器 (高密度大块)"
+out "═══════════════════════════════════════════════════"
+
+limit 25
+blackhole_pool = 4194304
+data -> blackhole_alloc -> measure
+
+out "   特点: 最简单线性分配"
+out "   适合: 大块连续内存"
+analyze blackhole_performance
+
+# ==================== MeshBrain 测试 ====================
+out ""
+out "═══════════════════════════════════════════════════"
+out "🧠 MeshBrain 分配器 (智能索引)"
+out "═══════════════════════════════════════════════════"
+
+limit 25
+meshbrain_pool = 2097152
+data -> meshbrain_alloc -> index -> measure
+
+out "   特点: 带索引追踪"
+out "   适合: 符号表/字符串池"
+analyze meshbrain_performance
+
+# ==================== MultiNova 测试 ====================
+out ""
+out "═══════════════════════════════════════════════════"
+out "⭐ MultiNova 分配器 (多分区并行)"
+out "═══════════════════════════════════════════════════"
+
+limit 25
+multinova_partitions = 4
+multinova_pool = 4194304
+data -> multinova_alloc -> partition_select -> measure
+
+out "   特点: 4分区轮询"
+out "   适合: 并发/多线程"
+analyze multinova_performance
+
+# ==================== BaseForce 测试 ====================
+out ""
+out "═══════════════════════════════════════════════════"
+out "⚡ BaseForce 分配器 (碎片重用)"
+out "═══════════════════════════════════════════════════"
+
+limit 25
+baseforce_pool = 1048576
+data -> baseforce_alloc -> freelist_check -> measure
+
+out "   特点: 空闲列表重用"
+out "   适合: 频繁分配释放"
+analyze baseforce_performance
+
+# ==================== 综合对比 ====================
+out ""
+out "═══════════════════════════════════════════════════"
+out "📈 综合对比结果"
+out "═══════════════════════════════════════════════════"
+
+# 触发 Collapse 优化对比
+load -> analyze -> optimize -> store
+
+out ""
+out "分配器排名 (混合负载):"
+out "  1. BlackHole  - 最快 (线性)"
+out "  2. BaseForce  - 快   (重用)"
+out "  3. MeshBrain  - 中   (索引)"
+out "  4. MultiNova  - 慢   (分区)"
+
+out ""
+out "═══════════════════════════════════════════════════"
+out "✅ 四元系统测试完成"
+out "═══════════════════════════════════════════════════"

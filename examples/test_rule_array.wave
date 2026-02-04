@@ -1,0 +1,74 @@
+# 测试规则映射数组操作
+
+# 数组创建
+fn arr.new size {
+    bytes = size * 8
+    ptr = syscall.mmap(0, bytes, 3, 34, 0 - 1, 0)
+    -> ptr
+}
+
+# 数组写入
+fn arr.set ptr idx val {
+    addr = ptr + idx * 8
+    b0 = val & 255
+    b1 = val / 256 & 255
+    b2 = val / 65536 & 255
+    b3 = val / 16777216 & 255
+    poke(addr, b0)
+    poke(addr + 1, b1)
+    poke(addr + 2, b2)
+    poke(addr + 3, b3)
+    poke(addr + 4, 0)
+    poke(addr + 5, 0)
+    poke(addr + 6, 0)
+    poke(addr + 7, 0)
+}
+
+# 数组读取
+fn arr.get ptr idx {
+    addr = ptr + idx * 8
+    b0 = peek(addr)
+    b1 = peek(addr + 1)
+    b2 = peek(addr + 2)
+    b3 = peek(addr + 3)
+    val = b0 + b1 * 256 + b2 * 65536 + b3 * 16777216
+    -> val
+}
+
+# 测试
+out "Testing rule-mapped array...\n"
+
+# 创建数组
+arr = arr.new(10)
+out "Array allocated.\n"
+
+# 写入值
+i = 0
+loop {
+    when i >= 10 { break }
+    arr.set(arr, i, i * i)
+    i = i + 1
+}
+out "Values written (squares 0-9).\n"
+
+# 读取并求和
+sum = 0
+i = 0
+loop {
+    when i >= 10 { break }
+    v = arr.get(arr, i)
+    sum = sum + v
+    i = i + 1
+}
+out "Values read.\n"
+
+# 0+1+4+9+16+25+36+49+64+81 = 285
+out "Sum of squares 0-9 should be 285: "
+when sum == 285 {
+    out "PASS!\n"
+}
+when sum != 285 {
+    out "FAIL!\n"
+}
+
+syscall.exit(0)

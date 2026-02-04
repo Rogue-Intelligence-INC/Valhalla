@@ -1,0 +1,662 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Settings Panel
+# Full system configuration
+# ═══════════════════════════════════════════════════════════════════
+
+title = "Settings"
+icon = "⚙️"
+
+current_section = "appearance"
+
+# ───────────────────────────────────────────────────────────────────
+# Start
+# ───────────────────────────────────────────────────────────────────
+
+start -> function(window) {
+    out {
+        type: "window_content",
+        layout: "horizontal",
+        children: [
+            render_sidebar(),
+            render_content()
+        ]
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Sidebar Navigation
+# ───────────────────────────────────────────────────────────────────
+
+sections = [
+    { id: "appearance",  icon: "🎨", label: "Appearance" },
+    { id: "wallpaper",   icon: "🖼️", label: "Wallpaper" },
+    { id: "display",     icon: "🖥️", label: "Display" },
+    { id: "sound",       icon: "🔊", label: "Sound" },
+    { id: "network",     icon: "📶", label: "Network" },
+    { id: "bluetooth",   icon: "🔵", label: "Bluetooth" },
+    { id: "accounts",    icon: "👤", label: "Users & Accounts" },
+    { id: "datetime",    icon: "🕐", label: "Date & Time" },
+    { id: "language",    icon: "🌐", label: "Language" },
+    { id: "keyboard",    icon: "⌨️", label: "Keyboard" },
+    { id: "mouse",       icon: "🖱️", label: "Mouse & Touchpad" },
+    { id: "power",       icon: "🔋", label: "Power" },
+    { id: "privacy",     icon: "🔒", label: "Privacy & Security" },
+    { id: "storage",     icon: "💾", label: "Storage" },
+    { id: "apps",        icon: "📦", label: "Applications" },
+    { id: "updates",     icon: "🔄", label: "Updates" },
+    { id: "fate",        icon: "🔮", label: "Fate Engine" },
+    { id: "quattro",     icon: "📊", label: "Quattro Memory" },
+    { id: "about",       icon: "ℹ️", label: "About" }
+]
+
+render_sidebar -> function() {
+    {
+        type: "panel",
+        width: 250,
+        height: "100%",
+        background: theme.card_bg,
+        children: [
+            # Search
+            {
+                type: "input",
+                placeholder: "🔍 Search settings...",
+                margin: 15
+            },
+            
+            # Navigation list
+            {
+                type: "list",
+                children: sections -> map(s => {
+                    {
+                        type: "list_item",
+                        icon: s.icon,
+                        label: s.label,
+                        selected: s.id == current_section,
+                        on_click: () => select_section(s.id)
+                    }
+                })
+            }
+        ]
+    } -> return
+}
+
+select_section -> function(id) {
+    current_section = id
+    refresh_window()
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Content Panels
+# ───────────────────────────────────────────────────────────────────
+
+render_content -> function() {
+    {
+        type: "scroll_view",
+        padding: 30,
+        children: [
+            get_section_content(current_section)
+        ]
+    } -> return
+}
+
+get_section_content -> function(section) {
+    when section == "appearance" { appearance_panel() -> return }
+    when section == "wallpaper" { wallpaper_panel() -> return }
+    when section == "display" { display_panel() -> return }
+    when section == "sound" { sound_panel() -> return }
+    when section == "network" { network_panel() -> return }
+    when section == "accounts" { accounts_panel() -> return }
+    when section == "datetime" { datetime_panel() -> return }
+    when section == "privacy" { privacy_panel() -> return }
+    when section == "storage" { storage_panel() -> return }
+    when section == "fate" { fate_panel() -> return }
+    when section == "quattro" { quattro_panel() -> return }
+    when section == "about" { about_panel() -> return }
+    
+    # Default
+    { type: "text", content: "Coming soon..." } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# APPEARANCE
+# ═══════════════════════════════════════════════════════════════════
+
+appearance_panel -> function() {
+    {
+        type: "column",
+        gap: 20,
+        children: [
+            { type: "heading", text: "🎨 Appearance" },
+            
+            # Theme
+            settings_card("Theme", [
+                {
+                    type: "row",
+                    gap: 15,
+                    children: [
+                        theme_option("light", "☀️", "Light"),
+                        theme_option("dark", "🌙", "Dark"),
+                        theme_option("auto", "🔄", "Auto")
+                    ]
+                }
+            ]),
+            
+            # Accent Color
+            settings_card("Accent Color", [
+                {
+                    type: "row",
+                    gap: 10,
+                    children: [
+                        color_option("#e94560", true),
+                        color_option("#4a90d9", false),
+                        color_option("#2ecc71", false),
+                        color_option("#f39c12", false),
+                        color_option("#9b59b6", false),
+                        color_option("#1abc9c", false),
+                        color_option("#e74c3c", false),
+                        color_option("#95a5a6", false)
+                    ]
+                }
+            ]),
+            
+            # Window Effects
+            settings_card("Window Effects", [
+                settings_switch("Transparency", "Enable transparent windows", true),
+                settings_switch("Blur", "Enable background blur", true),
+                settings_switch("Animations", "Enable window animations", true),
+                settings_switch("Shadows", "Enable window shadows", true)
+            ]),
+            
+            # Font
+            settings_card("Font", [
+                {
+                    type: "select",
+                    label: "Interface Font",
+                    options: ["System Default", "Inter", "Roboto", "SF Pro", "Fira Sans"],
+                    value: "System Default"
+                },
+                {
+                    type: "slider",
+                    label: "Font Size",
+                    min: 10,
+                    max: 18,
+                    value: 14,
+                    unit: "px"
+                }
+            ])
+        ]
+    } -> return
+}
+
+theme_option -> function(id, icon, label) {
+    {
+        type: "theme_card",
+        id: id,
+        icon: icon,
+        label: label,
+        selected: current_theme == id,
+        on_click: () => set_theme(id)
+    } -> return
+}
+
+color_option -> function(color, selected) {
+    {
+        type: "color_swatch",
+        color: color,
+        size: 32,
+        selected: selected,
+        on_click: () => set_accent_color(color)
+    } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# WALLPAPER
+# ═══════════════════════════════════════════════════════════════════
+
+wallpapers = [
+    { id: "gradient1", type: "gradient", colors: ["#0f0c29", "#302b63", "#24243e"], name: "Midnight" },
+    { id: "gradient2", type: "gradient", colors: ["#141e30", "#243b55"], name: "Ocean" },
+    { id: "gradient3", type: "gradient", colors: ["#1a1a2e", "#16213e", "#0f3460"], name: "Deep Space" },
+    { id: "gradient4", type: "gradient", colors: ["#232526", "#414345"], name: "Slate" },
+    { id: "gradient5", type: "gradient", colors: ["#2c3e50", "#3498db"], name: "Sky" },
+    { id: "solid1", type: "solid", color: "#1a1a2e", name: "Dark Blue" },
+    { id: "solid2", type: "solid", color: "#2d2d2d", name: "Dark Gray" },
+    { id: "solid3", type: "solid", color: "#1e3a5f", name: "Navy" }
+]
+
+wallpaper_panel -> function() {
+    {
+        type: "column",
+        gap: 20,
+        children: [
+            { type: "heading", text: "🖼️ Wallpaper" },
+            
+            # Preview
+            {
+                type: "card",
+                padding: 20,
+                children: [
+                    {
+                        type: "wallpaper_preview",
+                        width: "100%",
+                        height: 200,
+                        wallpaper: current_wallpaper
+                    }
+                ]
+            },
+            
+            # Gallery
+            settings_card("Choose Wallpaper", [
+                {
+                    type: "grid",
+                    columns: 4,
+                    gap: 15,
+                    children: wallpapers -> map(wp => {
+                        {
+                            type: "wallpaper_thumb",
+                            wallpaper: wp,
+                            selected: current_wallpaper.id == wp.id,
+                            on_click: () => set_wallpaper(wp)
+                        }
+                    })
+                }
+            ]),
+            
+            # Custom
+            settings_card("Custom Wallpaper", [
+                {
+                    type: "button",
+                    icon: "📁",
+                    text: "Browse...",
+                    on_click: browse_wallpaper
+                }
+            ])
+        ]
+    } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# DISPLAY
+# ═══════════════════════════════════════════════════════════════════
+
+display_panel -> function() {
+    {
+        type: "column",
+        gap: 20,
+        children: [
+            { type: "heading", text: "🖥️ Display" },
+            
+            settings_card("Resolution", [
+                {
+                    type: "select",
+                    label: "Screen Resolution",
+                    options: ["1920 × 1080", "1366 × 768", "1280 × 720", "1024 × 768"],
+                    value: screen.width + " × " + screen.height
+                },
+                {
+                    type: "select",
+                    label: "Refresh Rate",
+                    options: ["60 Hz", "75 Hz", "120 Hz", "144 Hz"],
+                    value: "60 Hz"
+                }
+            ]),
+            
+            settings_card("Brightness", [
+                {
+                    type: "slider",
+                    label: "Brightness",
+                    icon: "☀️",
+                    min: 10,
+                    max: 100,
+                    value: 80,
+                    unit: "%"
+                },
+                settings_switch("Auto Brightness", "Adjust brightness automatically", false)
+            ]),
+            
+            settings_card("Night Mode", [
+                settings_switch("Night Mode", "Reduce blue light at night", true),
+                {
+                    type: "slider",
+                    label: "Color Temperature",
+                    min: 3000,
+                    max: 6500,
+                    value: 4500,
+                    unit: "K"
+                },
+                {
+                    type: "row",
+                    children: [
+                        { type: "text", content: "Schedule:" },
+                        { type: "text", content: "Sunset to Sunrise", color: theme.text_secondary }
+                    ]
+                }
+            ])
+        ]
+    } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# NETWORK
+# ═══════════════════════════════════════════════════════════════════
+
+network_panel -> function() {
+    {
+        type: "column",
+        gap: 20,
+        children: [
+            { type: "heading", text: "📶 Network" },
+            
+            settings_card("WiFi", [
+                {
+                    type: "row",
+                    children: [
+                        { type: "text", content: "WiFi", weight: "bold" },
+                        { type: "spacer" },
+                        { type: "switch", value: true }
+                    ]
+                },
+                { type: "divider" },
+                network_item("Home_WiFi_5G", "📶", "Connected", true),
+                network_item("Neighbor_Network", "📶", "Secured", false),
+                network_item("Coffee_Shop", "📶", "Open", false),
+                { type: "button", text: "Show More Networks...", style: "link" }
+            ]),
+            
+            settings_card("Ethernet", [
+                network_item("Ethernet", "🔌", "Not Connected", false)
+            ]),
+            
+            settings_card("VPN", [
+                {
+                    type: "row",
+                    children: [
+                        { type: "text", content: "VPN", weight: "bold" },
+                        { type: "spacer" },
+                        { type: "switch", value: false }
+                    ]
+                },
+                { type: "button", text: "+ Add VPN Connection", style: "link" }
+            ])
+        ]
+    } -> return
+}
+
+network_item -> function(name, icon, status, connected) {
+    {
+        type: "row",
+        padding: 10,
+        background: connected -> theme.card_bg : "transparent",
+        border_radius: 8,
+        children: [
+            { type: "icon", icon: icon },
+            { type: "column", children: [
+                { type: "text", content: name },
+                { type: "text", content: status, size: 12, color: theme.text_secondary }
+            ]},
+            { type: "spacer" },
+            when connected { { type: "icon", icon: "✓", color: "#2ecc71" } }
+        ]
+    } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# ACCOUNTS
+# ═══════════════════════════════════════════════════════════════════
+
+accounts_panel -> function() {
+    {
+        type: "column",
+        gap: 20,
+        children: [
+            { type: "heading", text: "👤 Users & Accounts" },
+            
+            # Current user
+            settings_card("Your Account", [
+                {
+                    type: "row",
+                    gap: 20,
+                    children: [
+                        { type: "avatar", size: 80, icon: "👤" },
+                        {
+                            type: "column",
+                            children: [
+                                { type: "text", content: current_user.name, size: 20, weight: "bold" },
+                                { type: "text", content: current_user.role, color: theme.text_secondary },
+                                { type: "button", text: "Change Avatar", style: "link", margin_top: 10 }
+                            ]
+                        }
+                    ]
+                }
+            ]),
+            
+            settings_card("Account Settings", [
+                { type: "button", text: "Change Password", icon: "🔑" },
+                { type: "button", text: "Manage Login Options", icon: "🔐" },
+                { type: "button", text: "Sign Out", icon: "🚪", style: "danger" }
+            ]),
+            
+            # Other users
+            settings_card("Other Users", [
+                user_item("Guest", "guest", false),
+                { type: "button", text: "+ Add User", style: "link" }
+            ])
+        ]
+    } -> return
+}
+
+user_item -> function(name, role, online) {
+    {
+        type: "row",
+        padding: 10,
+        children: [
+            { type: "avatar", size: 40, icon: "👤" },
+            { type: "column", children: [
+                { type: "text", content: name },
+                { type: "text", content: role, size: 12, color: theme.text_secondary }
+            ]},
+            { type: "spacer" },
+            { type: "text", content: online -> "Online" : "Offline", size: 12 }
+        ]
+    } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# FATE ENGINE
+# ═══════════════════════════════════════════════════════════════════
+
+fate_panel -> function() {
+    {
+        type: "column",
+        gap: 20,
+        children: [
+            { type: "heading", text: "🔮 Fate Engine" },
+            
+            # Status
+            settings_card("Status", [
+                status_row("State", fate.fate_brain.state, "✓"),
+                status_row("Mode", fate.fate_brain.mode, ""),
+                status_row("Collapse Trigger", fate.collapse_state.threshold, ""),
+                status_row("Collapses Triggered", fate.collapse_state.triggered, "")
+            ]),
+            
+            # Learning
+            settings_card("Learning System", [
+                status_row("Patterns Learned", fate.fate_brain.patterns.length, ""),
+                status_row("Meta Level", fate.meta_fate.level, ""),
+                status_row("Experience", fate.meta_fate.experience, ""),
+                { type: "progress", label: "Next Level", value: fate.meta_fate.experience % 100, max: 100 }
+            ]),
+            
+            # Controls
+            settings_card("Controls", [
+                { type: "button", text: "Trigger Collapse", icon: "💥", on_click: fate.fate_collapse },
+                { type: "button", text: "Reset Learning", icon: "🔄", style: "danger" },
+                { type: "button", text: "Export Patterns", icon: "📤" }
+            ])
+        ]
+    } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# QUATTRO MEMORY
+# ═══════════════════════════════════════════════════════════════════
+
+quattro_panel -> function() {
+    stats -> quattro.quattro_stats()
+    
+    {
+        type: "column",
+        gap: 20,
+        children: [
+            { type: "heading", text: "📊 Quattro Memory" },
+            
+            # Overview
+            settings_card("Memory Pools", [
+                pool_bar("🕳️ BlackHole", stats.blackhole.used, stats.blackhole.total, "#e94560"),
+                pool_bar("🧠 MeshBrain", stats.meshbrain.used, stats.meshbrain.total, "#4a90d9"),
+                pool_bar("⭐ MultiNova", stats.multinova.used, stats.multinova.total, "#2ecc71"),
+                pool_bar("⚡ BaseForce", stats.baseforce.used, stats.baseforce.total, "#f39c12")
+            ]),
+            
+            # Actions
+            settings_card("Maintenance", [
+                { type: "button", text: "Defragment", icon: "🔧", on_click: quattro.quattro_defragment },
+                { type: "button", text: "Compact Index", icon: "📦" },
+                { type: "button", text: "Clear Cache", icon: "🗑️" }
+            ])
+        ]
+    } -> return
+}
+
+pool_bar -> function(label, used, total, color) {
+    percent = (used / total) * 100
+    {
+        type: "column",
+        margin_bottom: 15,
+        children: [
+            {
+                type: "row",
+                children: [
+                    { type: "text", content: label },
+                    { type: "spacer" },
+                    { type: "text", content: format_bytes(used) + " / " + format_bytes(total), size: 12 }
+                ]
+            },
+            {
+                type: "progress",
+                value: percent,
+                max: 100,
+                color: color
+            }
+        ]
+    } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# ABOUT
+# ═══════════════════════════════════════════════════════════════════
+
+about_panel -> function() {
+    {
+        type: "column",
+        gap: 20,
+        align: "center",
+        children: [
+            { type: "spacer", height: 30 },
+            { type: "text", content: "🌊", size: 72 },
+            { type: "text", content: "Val-OS", size: 36, weight: "bold" },
+            { type: "text", content: "Version 5.0", size: 18, color: theme.text_secondary },
+            { type: "spacer", height: 20 },
+            
+            settings_card("System Information", [
+                info_row("OS", "Val-OS v5.0"),
+                info_row("Kernel", "Wave 5.0"),
+                info_row("Architecture", "x86-64"),
+                info_row("Memory", "64 MB"),
+                info_row("Fate Engine", fate.fate_brain.state),
+                info_row("Quattro", "4 pools active")
+            ]),
+            
+            settings_card("Built With", [
+                { type: "text", content: "🌊 Wave Language", margin: 5 },
+                { type: "text", content: "🔮 Fate Engine", margin: 5 },
+                { type: "text", content: "📦 Quattro Memory", margin: 5 }
+            ]),
+            
+            { type: "text", content: "© 2026 Rogue Intelligence LNC", size: 12, color: theme.text_secondary }
+        ]
+    } -> return
+}
+
+info_row -> function(label, value) {
+    {
+        type: "row",
+        children: [
+            { type: "text", content: label, color: theme.text_secondary },
+            { type: "spacer" },
+            { type: "text", content: value }
+        ]
+    } -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# HELPERS
+# ═══════════════════════════════════════════════════════════════════
+
+settings_card -> function(title, children) {
+    {
+        type: "card",
+        padding: 20,
+        background: theme.card_bg,
+        border_radius: 12,
+        children: [
+            when title != null {
+                { type: "text", content: title, weight: "bold", margin_bottom: 15 }
+            },
+            ...children
+        ]
+    } -> return
+}
+
+settings_switch -> function(label, description, value) {
+    {
+        type: "row",
+        margin_bottom: 10,
+        children: [
+            {
+                type: "column",
+                children: [
+                    { type: "text", content: label },
+                    when description != null {
+                        { type: "text", content: description, size: 12, color: theme.text_secondary }
+                    }
+                ]
+            },
+            { type: "spacer" },
+            { type: "switch", value: value }
+        ]
+    } -> return
+}
+
+status_row -> function(label, value, icon) {
+    {
+        type: "row",
+        margin_bottom: 8,
+        children: [
+            { type: "text", content: label, color: theme.text_secondary },
+            { type: "spacer" },
+            { type: "text", content: value.toString() },
+            when icon != "" { { type: "icon", icon: icon, color: "#2ecc71" } }
+        ]
+    } -> return
+}
+
+format_bytes -> function(bytes) {
+    when bytes < 1024 { bytes + " B" -> return }
+    when bytes < 1024 * 1024 { (bytes / 1024).toFixed(1) + " KB" -> return }
+    (bytes / 1024 / 1024).toFixed(1) + " MB" -> return
+}
+
+# Export
+module.exports = { title, icon, start }

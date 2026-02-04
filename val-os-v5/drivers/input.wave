@@ -1,0 +1,212 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Input Driver
+# Unified keyboard + mouse via Fate
+# ═══════════════════════════════════════════════════════════════════
+
+# Input state
+keyboard = {
+    pressed: [],
+    modifiers: { shift: false, ctrl: false, alt: false, super: false }
+}
+
+mouse = {
+    x: 0,
+    y: 0,
+    buttons: { left: false, right: false, middle: false }
+}
+
+# Event queue
+events = []
+
+# ───────────────────────────────────────────────────────────────────
+# Initialization
+# ───────────────────────────────────────────────────────────────────
+
+init -> function() {
+    # Fate probes available input devices
+    devices -> fate_probe_input
+    
+    # Initialize each device
+    devices -> fate_each -> device {
+        when device.type == "keyboard" {
+            device -> init_keyboard
+        }
+        when device.type == "mouse" {
+            device -> init_mouse
+        }
+        when device.type == "touchpad" {
+            device -> init_touchpad
+        }
+    }
+    
+    # Start input polling
+    fate_start_input_loop()
+}
+
+init_keyboard -> function(device) {
+    # Fate configures keyboard
+    device -> fate_configure_keyboard
+}
+
+init_mouse -> function(device) {
+    # Fate configures mouse
+    device -> fate_configure_mouse
+    
+    # Set initial position to center
+    mouse.x = display.width / 2
+    mouse.y = display.height / 2
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Input Loop (Fate-managed)
+# ───────────────────────────────────────────────────────────────────
+
+fate_start_input_loop -> function() {
+    # Fate manages input polling rate
+    loop {
+        # Poll hardware
+        raw_events -> hw_poll_input
+        
+        # Process each event
+        raw_events -> fate_each -> event {
+            event -> process_input_event
+        }
+        
+        # Fate decides sleep time
+        { action: "input_poll_rate" } -> fate_decide -> sleep_time
+        sleep(sleep_time)
+    }
+}
+
+process_input_event -> function(event) {
+    when event.type == "key_down" {
+        event.key -> keyboard.pressed.push
+        update_modifiers(event.key, true)
+        
+        # Emit Wave event
+        { type: "keydown", key: event.key, modifiers: keyboard.modifiers } -> events.push
+    }
+    
+    when event.type == "key_up" {
+        event.key -> keyboard.pressed.remove
+        update_modifiers(event.key, false)
+        
+        { type: "keyup", key: event.key } -> events.push
+    }
+    
+    when event.type == "mouse_move" {
+        mouse.x = mouse.x + event.dx
+        mouse.y = mouse.y + event.dy
+        
+        # Clamp to screen
+        when mouse.x < 0 { mouse.x = 0 }
+        when mouse.x >= display.width { mouse.x = display.width - 1 }
+        when mouse.y < 0 { mouse.y = 0 }
+        when mouse.y >= display.height { mouse.y = display.height - 1 }
+        
+        { type: "mousemove", x: mouse.x, y: mouse.y } -> events.push
+    }
+    
+    when event.type == "mouse_button" {
+        when event.button == 0 { mouse.buttons.left = event.pressed }
+        when event.button == 1 { mouse.buttons.right = event.pressed }
+        when event.button == 2 { mouse.buttons.middle = event.pressed }
+        
+        event_type = event.pressed -> "mousedown" : "mouseup"
+        { type: event_type, button: event.button, x: mouse.x, y: mouse.y } -> events.push
+        
+        # Generate click event
+        when !event.pressed {
+            { type: "click", button: event.button, x: mouse.x, y: mouse.y } -> events.push
+        }
+    }
+    
+    when event.type == "scroll" {
+        { type: "scroll", dx: event.dx, dy: event.dy } -> events.push
+    }
+}
+
+update_modifiers -> function(key, pressed) {
+    when key == "Shift" || key == "ShiftLeft" || key == "ShiftRight" {
+        keyboard.modifiers.shift = pressed
+    }
+    when key == "Control" || key == "ControlLeft" || key == "ControlRight" {
+        keyboard.modifiers.ctrl = pressed
+    }
+    when key == "Alt" || key == "AltLeft" || key == "AltRight" {
+        keyboard.modifiers.alt = pressed
+    }
+    when key == "Meta" || key == "MetaLeft" || key == "MetaRight" {
+        keyboard.modifiers.super = pressed
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Event API
+# ───────────────────────────────────────────────────────────────────
+
+get_event -> function() {
+    when events.length > 0 {
+        event -> events.shift
+        event -> return
+    }
+    null -> return
+}
+
+wait_event -> function() {
+    loop {
+        event -> get_event()
+        when event != null {
+            event -> return
+        }
+        sleep(1)
+    }
+}
+
+# Check if key is pressed
+is_key_pressed -> function(key) {
+    keyboard.pressed -> includes(key) -> return
+}
+
+# Get mouse position
+get_mouse_pos -> function() {
+    { x: mouse.x, y: mouse.y } -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Wave Input Syntax
+# ───────────────────────────────────────────────────────────────────
+
+# input -> var  (reads line from keyboard)
+read_line -> function() {
+    buffer = ""
+    
+    loop {
+        event -> wait_event()
+        
+        when event.type == "keydown" {
+            when event.key == "Enter" {
+                buffer -> return
+            }
+            when event.key == "Backspace" {
+                when buffer.length > 0 {
+                    buffer = buffer[0..-2]
+                }
+            }
+            when event.key.length == 1 {
+                # Printable character
+                buffer = buffer + event.key
+            }
+        }
+    }
+}
+
+# Export
+module.exports = {
+    init,
+    get_event,
+    wait_event,
+    is_key_pressed,
+    get_mouse_pos,
+    read_line
+}

@@ -1,0 +1,12 @@
+[package]
+name = "valhalla_mathematics"
+version = "0.1.0"
+edition = "2021"
+description = "Valhalla Mathematics - 被动数学库，提供公式查询和未知模式检测"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"
+env_logger = "0.10"
+uuid = { version = "1.0", features = ["v4"] }

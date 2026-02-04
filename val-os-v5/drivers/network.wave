@@ -1,0 +1,241 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Network Driver
+# Fate-managed networking
+# ═══════════════════════════════════════════════════════════════════
+
+# Network state
+network = {
+    interfaces: [],
+    active: null,
+    connections: []
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Initialization
+# ───────────────────────────────────────────────────────────────────
+
+init -> function() {
+    # Fate probes network interfaces
+    interfaces -> fate_probe_network
+    
+    interfaces -> fate_each -> iface {
+        iface -> network.interfaces.push
+    }
+    
+    # Fate selects best interface
+    network.active -> network.interfaces -> fate_select_best_interface
+    
+    # Initialize TCP/IP stack
+    init_tcpip()
+}
+
+init_tcpip -> function() {
+    # Allocate network buffers in MultiNova (parallel)
+    rx_buffer -> quattro_alloc(64 * 1024, "multinova")
+    tx_buffer -> quattro_alloc(64 * 1024, "multinova")
+    
+    network.rx_buffer = rx_buffer
+    network.tx_buffer = tx_buffer
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Socket API
+# ───────────────────────────────────────────────────────────────────
+
+socket -> function(type) {
+    sock = {
+        id: next_socket_id(),
+        type: type,
+        state: "created",
+        local: null,
+        remote: null,
+        rx_queue: [],
+        tx_queue: []
+    }
+    
+    sock -> network.connections.push
+    sock -> return
+}
+
+connect -> function(sock, host, port) {
+    # Fate resolves host
+    ip -> host -> fate_resolve_dns
+    
+    sock.remote = { ip: ip, port: port }
+    sock.state = "connecting"
+    
+    # TCP handshake
+    sock -> tcp_connect
+    
+    sock.state = "connected"
+}
+
+listen -> function(sock, port) {
+    sock.local = { port: port }
+    sock.state = "listening"
+    
+    # Register listener
+    sock -> hw_listen
+}
+
+accept -> function(sock) {
+    # Wait for connection
+    loop {
+        incoming -> sock -> hw_accept
+        
+        when incoming != null {
+            new_sock -> socket(sock.type)
+            new_sock.remote = incoming.remote
+            new_sock.state = "connected"
+            new_sock -> return
+        }
+        
+        sleep(1)
+    }
+}
+
+send -> function(sock, data) {
+    # Fate decides send strategy
+    { size: data.length, state: sock.state } -> fate_decide -> strategy
+    
+    when strategy == "immediate" {
+        data -> sock -> tcp_send
+    }
+    when strategy == "buffered" {
+        data -> sock.tx_queue.push
+        
+        when sock.tx_queue.length >= 1024 {
+            sock -> flush_tx
+        }
+    }
+}
+
+recv -> function(sock, size) {
+    # Check receive queue
+    when sock.rx_queue.length > 0 {
+        data -> sock.rx_queue.shift
+        data -> return
+    }
+    
+    # Wait for data
+    loop {
+        data -> sock -> tcp_recv(size)
+        
+        when data != null {
+            data -> return
+        }
+        
+        sleep(1)
+    }
+}
+
+close -> function(sock) {
+    # Flush pending
+    sock -> flush_tx
+    
+    # TCP close handshake
+    sock -> tcp_close
+    
+    sock.state = "closed"
+    sock -> network.connections.remove
+}
+
+# ───────────────────────────────────────────────────────────────────
+# HTTP (Wave-native)
+# ───────────────────────────────────────────────────────────────────
+
+http_get -> function(url) {
+    # Parse URL
+    { host, port, path } -> url -> parse_url
+    
+    # Create connection
+    sock -> socket("tcp")
+    sock -> connect(host, port || 80)
+    
+    # Send request
+    request = "GET " + path + " HTTP/1.1\r\n"
+    request = request + "Host: " + host + "\r\n"
+    request = request + "Connection: close\r\n\r\n"
+    
+    request -> sock -> send
+    
+    # Receive response
+    response = ""
+    loop {
+        data -> sock -> recv(4096)
+        
+        when data == null || data.length == 0 {
+            break
+        }
+        
+        response = response + data
+    }
+    
+    sock -> close
+    
+    # Parse response
+    response -> parse_http_response -> return
+}
+
+http_post -> function(url, body) {
+    { host, port, path } -> url -> parse_url
+    
+    sock -> socket("tcp")
+    sock -> connect(host, port || 80)
+    
+    request = "POST " + path + " HTTP/1.1\r\n"
+    request = request + "Host: " + host + "\r\n"
+    request = request + "Content-Length: " + body.length + "\r\n"
+    request = request + "Content-Type: application/json\r\n"
+    request = request + "Connection: close\r\n\r\n"
+    request = request + body
+    
+    request -> sock -> send
+    
+    response = ""
+    loop {
+        data -> sock -> recv(4096)
+        when data == null || data.length == 0 { break }
+        response = response + data
+    }
+    
+    sock -> close
+    
+    response -> parse_http_response -> return
+}
+
+# ───────────────────────────────────────────────────────────────────
+# DNS
+# ───────────────────────────────────────────────────────────────────
+
+fate_resolve_dns -> function(hostname) {
+    # Check cache
+    cached -> dns_cache[hostname]
+    when cached != null {
+        cached -> return
+    }
+    
+    # Query DNS
+    ip -> hostname -> hw_dns_query
+    
+    # Cache result
+    dns_cache[hostname] = ip
+    
+    ip -> return
+}
+
+dns_cache = {}
+
+# Export
+module.exports = {
+    init,
+    socket,
+    connect,
+    listen,
+    accept,
+    send,
+    recv,
+    close,
+    http_get,
+    http_post
+}

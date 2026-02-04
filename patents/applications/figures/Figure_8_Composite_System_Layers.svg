@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="700" viewBox="0 0 800 700">
+  <title>Figure 8 - Composite System Architecture Layers</title>
+  
+  <!-- Background -->
+  <rect width="800" height="700" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="black">
+    FIG. 8 - COMPOSITE SYSTEM ARCHITECTURE LAYERS
+  </text>
+  
+  <!-- Arrow Marker -->
+  <defs>
+    <marker id="arrow8" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="black"/>
+    </marker>
+  </defs>
+  
+  <!-- Layer 1: ROUTING LAYER -->
+  <rect x="100" y="50" width="600" height="90" fill="white" stroke="black" stroke-width="2"/>
+  <text x="400" y="75" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">ROUTING LAYER (800)</text>
+  
+  <rect x="250" y="90" width="300" height="40" fill="white" stroke="black" stroke-width="2"/>
+  <text x="400" y="115" font-family="Arial, sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="black">StemHall-NA (810)</text>
+  <text x="560" y="105" font-family="Arial, sans-serif" font-size="9" text-anchor="end" fill="black">Laws-Aware Router</text>
+  <text x="560" y="120" font-family="Arial, sans-serif" font-size="8" text-anchor="end" fill="black">score = speed × reliability × health</text>
+  
+  <!-- Arrows from StemHall-NA to Processing Layer -->
+  <line x1="350" y1="140" x2="250" y2="180" stroke="black" stroke-width="2" marker-end="url(#arrow8)"/>
+  <line x1="450" y1="140" x2="550" y2="180" stroke="black" stroke-width="2" marker-end="url(#arrow8)"/>
+  <text x="280" y="165" font-family="Arial, sans-serif" font-size="8" fill="black">route</text>
+  <text x="510" y="165" font-family="Arial, sans-serif" font-size="8" fill="black">route</text>
+  
+  <!-- Layer 2: PROCESSING LAYER -->
+  <rect x="100" y="180" width="600" height="150" fill="white" stroke="black" stroke-width="2"/>
+  <text x="400" y="205" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">PROCESSING LAYER (820)</text>
+  
+  <!-- Chamber -->
+  <rect x="120" y="220" width="250" height="95" fill="white" stroke="black" stroke-width="2"/>
+  <text x="245" y="245" font-family="Arial, sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="black">CHAMBER (821)</text>
+  <text x="245" y="260" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="black">Macro Orchestration</text>
+  <line x1="130" y1="270" x2="360" y2="270" stroke="black" stroke-width="1"/>
+  <text x="245" y="285" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">• Space containers</text>
+  <text x="245" y="298" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">• Math enhancement</text>
+  <text x="245" y="311" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">• Dimension management (0.18µs)</text>
+  
+  <!-- StemCell -->
+  <rect x="430" y="220" width="250" height="95" fill="white" stroke="black" stroke-width="2"/>
+  <text x="555" y="245" font-family="Arial, sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="black">STEMCELL (822)</text>
+  <text x="555" y="260" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="black">Micro Adaptation</text>
+  <line x1="440" y1="270" x2="670" y2="270" stroke="black" stroke-width="1"/>
+  <text x="555" y="285" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">• Cellular network</text>
+  <text x="555" y="298" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">• Bio-inspired processing</text>
+  <text x="555" y="311" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">• Differentiation stages (2.25µs)</text>
+  
+  <!-- Arrows to Coordination Layer -->
+  <line x1="245" y1="330" x2="400" y2="380" stroke="black" stroke-width="2" marker-end="url(#arrow8)"/>
+  <line x1="555" y1="330" x2="400" y2="380" stroke="black" stroke-width="2" marker-end="url(#arrow8)"/>
+  
+  <!-- Layer 3: COORDINATION LAYER -->
+  <rect x="100" y="370" width="600" height="100" fill="white" stroke="black" stroke-width="2"/>
+  <text x="400" y="395" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">COORDINATION LAYER (830)</text>
+  
+  <rect x="250" y="410" width="300" height="50" fill="white" stroke="black" stroke-width="3"/>
+  <text x="400" y="435" font-family="Arial, sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="black">FATE UNIFIED COORDINATION (831)</text>
+  <text x="400" y="455" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="black">weight = intensity × quality_score</text>
+  
+  <!-- Arrow to Signal Layer -->
+  <line x1="400" y1="470" x2="400" y2="510" stroke="black" stroke-width="2" marker-end="url(#arrow8)"/>
+  
+  <!-- Layer 4: SIGNAL GENERATION LAYER -->
+  <rect x="100" y="510" width="600" height="120" fill="white" stroke="black" stroke-width="2"/>
+  <text x="400" y="535" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="black">SIGNAL GENERATION LAYER (840)</text>
+  
+  <!-- Four subsystems -->
+  <rect x="115" y="550" width="130" height="65" fill="white" stroke="black" stroke-width="2"/>
+  <text x="180" y="575" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="black">BlackHole</text>
+  <text x="180" y="590" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">(841)</text>
+  <text x="180" y="605" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">Gravity</text>
+  
+  <rect x="260" y="550" width="130" height="65" fill="white" stroke="black" stroke-width="2"/>
+  <text x="325" y="575" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="black">MeshBrain</text>
+  <text x="325" y="590" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">(842)</text>
+  <text x="325" y="605" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">Membrane</text>
+  
+  <rect x="405" y="550" width="130" height="65" fill="white" stroke="black" stroke-width="2"/>
+  <text x="470" y="575" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="black">MultiNova</text>
+  <text x="470" y="590" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">(843)</text>
+  <text x="470" y="605" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">Stellar</text>
+  
+  <rect x="550" y="550" width="130" height="65" fill="white" stroke="black" stroke-width="2"/>
+  <text x="615" y="575" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="black">BaseForce</text>
+  <text x="615" y="590" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">(844)</text>
+  <text x="615" y="605" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="black">Coord</text>
+  
+  <!-- Upward signal arrows -->
+  <line x1="180" y1="550" x2="300" y2="470" stroke="black" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="325" y1="550" x2="350" y2="470" stroke="black" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="470" y1="550" x2="450" y2="470" stroke="black" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="615" y1="550" x2="500" y2="470" stroke="black" stroke-width="1" stroke-dasharray="3,2"/>
+  
+  <!-- Future Extension Box -->
+  <rect x="100" y="640" width="600" height="40" fill="white" stroke="black" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="400" y="665" font-family="Arial, sans-serif" font-size="10" font-style="italic" text-anchor="middle" fill="black">
+    FUTURE COMPOSITE EXTENSIONS (850): Quantum | Distributed | Streaming | Edge | Domain-Specific
+  </text>
+  
+  <!-- Layer labels on side -->
+  <text x="720" y="95" font-family="Arial, sans-serif" font-size="9" fill="black">L1</text>
+  <text x="720" y="255" font-family="Arial, sans-serif" font-size="9" fill="black">L2</text>
+  <text x="720" y="420" font-family="Arial, sans-serif" font-size="9" fill="black">L3</text>
+  <text x="720" y="570" font-family="Arial, sans-serif" font-size="9" fill="black">L4</text>
+</svg>
+

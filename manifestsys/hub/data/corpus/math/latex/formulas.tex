@@ -1,0 +1,82 @@
+% LaTeX 数学公式样本 - 用于 Valhalla 训练
+
+% 基础代数
+\begin{equation}
+ax^2 + bx + c = 0
+\end{equation}
+
+\begin{equation}
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+\end{equation}
+
+% 微积分
+\begin{equation}
+\frac{d}{dx}[f(x)g(x)] = f'(x)g(x) + f(x)g'(x)
+\end{equation}
+
+\begin{equation}
+\int_a^b f(x) \, dx = F(b) - F(a)
+\end{equation}
+
+\begin{equation}
+\lim_{x \to 0} \frac{\sin x}{x} = 1
+\end{equation}
+
+% 级数
+\begin{equation}
+e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}
+\end{equation}
+
+\begin{equation}
+\pi = 4 \sum_{k=0}^{\infty} \frac{(-1)^k}{2k+1}
+\end{equation}
+
+% 线性代数
+\begin{equation}
+\det(A) = \sum_{\sigma \in S_n} \text{sgn}(\sigma) \prod_{i=1}^n a_{i,\sigma(i)}
+\end{equation}
+
+\begin{equation}
+Ax = \lambda x
+\end{equation}
+
+% 概率统计
+\begin{equation}
+P(A|B) = \frac{P(B|A)P(A)}{P(B)}
+\end{equation}
+
+\begin{equation}
+E[X] = \int_{-\infty}^{\infty} x f(x) \, dx
+\end{equation}
+
+\begin{equation}
+\sigma^2 = E[(X - \mu)^2]
+\end{equation}
+
+% 傅里叶变换
+\begin{equation}
+\hat{f}(\xi) = \int_{-\infty}^{\infty} f(x) e^{-2\pi i x \xi} \, dx
+\end{equation}
+
+% 热方程
+\begin{equation}
+\frac{\partial u}{\partial t} = \alpha \nabla^2 u
+\end{equation}
+
+% 薛定谔方程
+\begin{equation}
+i\hbar \frac{\partial}{\partial t} \Psi = \hat{H} \Psi
+\end{equation}
+
+% 爱因斯坦场方程
+\begin{equation}
+R_{\mu\nu} - \frac{1}{2}Rg_{\mu\nu} + \Lambda g_{\mu\nu} = \frac{8\pi G}{c^4} T_{\mu\nu}
+\end{equation}
+
+% 麦克斯韦方程组
+\begin{align}
+\nabla \cdot \mathbf{E} &= \frac{\rho}{\varepsilon_0} \\
+\nabla \cdot \mathbf{B} &= 0 \\
+\nabla \times \mathbf{E} &= -\frac{\partial \mathbf{B}}{\partial t} \\
+\nabla \times \mathbf{B} &= \mu_0 \mathbf{J} + \mu_0 \varepsilon_0 \frac{\partial \mathbf{E}}{\partial t}
+\end{align}

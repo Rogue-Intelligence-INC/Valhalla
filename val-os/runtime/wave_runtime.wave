@@ -1,0 +1,398 @@
+# 🌊 Val-OS Wave 运行时
+# Wave 程序加载器和执行器
+# 让 Val-OS 能够直接运行 .wave 文件
+
+# ═══════════════════════════════════════════════════════
+# Wave 运行时核心
+# ═══════════════════════════════════════════════════════
+
+wave_runtime -> system {
+    version: "1.0.0",
+    loaded_programs: [],
+    current_program: null
+}
+
+# ═══════════════════════════════════════════════════════
+# 加载 Wave 程序
+# ═══════════════════════════════════════════════════════
+
+load_wave_program -> function(path) {
+    # 读取 .wave 文件
+    source -> fs_read(path)
+    
+    when !source {
+        error -> "Cannot load: {path}"
+        return null
+    }
+    
+    # 解析 Wave 代码
+    ast -> parse_wave(source)
+    
+    # 编译为可执行形式
+    executable -> compile_wave(ast)
+    
+    # 注册到运行时
+    program -> {
+        path: path,
+        name: path.split("/").last().replace(".wave", ""),
+        ast: ast,
+        executable: executable,
+        state: "loaded"
+    }
+    
+    wave_runtime.loaded_programs.add(program)
+    
+    out "[Runtime] Loaded: {program.name}"
+    return program
+}
+
+# ═══════════════════════════════════════════════════════
+# Wave 解析器 (自举)
+# ═══════════════════════════════════════════════════════
+
+parse_wave -> function(source) {
+    tokens -> tokenize(source)
+    ast -> []
+    
+    i -> 0
+    while i < tokens.length {
+        token -> tokens[i]
+        
+        # 变量/函数定义: name -> value
+        when tokens[i + 1]?.value == "->" {
+            name -> token.value
+            i -> i + 2
+            
+            # 函数定义
+            when tokens[i].value == "function" {
+                func -> parse_function(tokens, i)
+                ast.add({ type: "function", name: name, ...func })
+                i -> func.end_index
+            }
+            # 结构体/对象
+            else when tokens[i].value == "{" {
+                obj -> parse_object(tokens, i)
+                ast.add({ type: "object", name: name, ...obj })
+                i -> obj.end_index
+            }
+            # 简单值
+            else {
+                value -> parse_expression(tokens, i)
+                ast.add({ type: "variable", name: name, value: value.result })
+                i -> value.end_index
+            }
+        }
+        
+        # out 语句
+        when token.value == "out" {
+            i -> i + 1
+            value -> parse_expression(tokens, i)
+            ast.add({ type: "output", value: value.result })
+            i -> value.end_index
+        }
+        
+        # when 条件
+        when token.value == "when" {
+            cond -> parse_when(tokens, i)
+            ast.add(cond)
+            i -> cond.end_index
+        }
+        
+        # for 循环
+        when token.value == "for" {
+            loop -> parse_for(tokens, i)
+            ast.add(loop)
+            i -> loop.end_index
+        }
+        
+        else {
+            i -> i + 1
+        }
+    }
+    
+    return ast
+}
+
+# 词法分析
+tokenize -> function(source) {
+    tokens -> []
+    i -> 0
+    
+    while i < source.length {
+        c -> source[i]
+        
+        # 跳过空白
+        when c == ' ' || c == '\t' || c == '\n' || c == '\r' {
+            i -> i + 1
+            continue
+        }
+        
+        # 跳过注释
+        when c == '#' {
+            while i < source.length && source[i] != '\n' {
+                i -> i + 1
+            }
+            continue
+        }
+        
+        # 字符串
+        when c == '"' {
+            str -> ""
+            i -> i + 1
+            while i < source.length && source[i] != '"' {
+                str -> str + source[i]
+                i -> i + 1
+            }
+            i -> i + 1
+            tokens.add({ type: "string", value: str })
+            continue
+        }
+        
+        # 数字
+        when is_digit(c) {
+            num -> ""
+            while i < source.length && (is_digit(source[i]) || source[i] == '.') {
+                num -> num + source[i]
+                i -> i + 1
+            }
+            tokens.add({ type: "number", value: parse_number(num) })
+            continue
+        }
+        
+        # 标识符/关键字
+        when is_alpha(c) || c == '_' {
+            ident -> ""
+            while i < source.length && (is_alnum(source[i]) || source[i] == '_') {
+                ident -> ident + source[i]
+                i -> i + 1
+            }
+            tokens.add({ type: "identifier", value: ident })
+            continue
+        }
+        
+        # 操作符: ->
+        when c == '-' && source[i + 1] == '>' {
+            tokens.add({ type: "arrow", value: "->" })
+            i -> i + 2
+            continue
+        }
+        
+        # 其他单字符
+        tokens.add({ type: "symbol", value: c })
+        i -> i + 1
+    }
+    
+    return tokens
+}
+
+# ═══════════════════════════════════════════════════════
+# Wave 编译器 (生成字节码或直接执行)
+# ═══════════════════════════════════════════════════════
+
+compile_wave -> function(ast) {
+    bytecode -> []
+    
+    for node in ast {
+        when node.type == "output" {
+            bytecode.add({ op: "PUSH", value: node.value })
+            bytecode.add({ op: "CALL", func: "sys_print" })
+        }
+        
+        when node.type == "variable" {
+            bytecode.add({ op: "PUSH", value: node.value })
+            bytecode.add({ op: "STORE", name: node.name })
+        }
+        
+        when node.type == "function" {
+            bytecode.add({ op: "DEFINE_FUNC", name: node.name, body: node.body })
+        }
+        
+        when node.type == "object" {
+            bytecode.add({ op: "DEFINE_OBJ", name: node.name, fields: node.fields })
+        }
+    }
+    
+    return bytecode
+}
+
+# ═══════════════════════════════════════════════════════
+# Wave 虚拟机 (执行字节码)
+# ═══════════════════════════════════════════════════════
+
+wave_vm -> {
+    stack: [],
+    variables: {},
+    functions: {},
+    pc: 0  # program counter
+}
+
+execute_wave -> function(program) {
+    wave_runtime.current_program -> program
+    bytecode -> program.executable
+    
+    wave_vm.pc -> 0
+    while wave_vm.pc < bytecode.length {
+        instruction -> bytecode[wave_vm.pc]
+        
+        when instruction.op == "PUSH" {
+            wave_vm.stack.push(instruction.value)
+        }
+        
+        when instruction.op == "STORE" {
+            value -> wave_vm.stack.pop()
+            wave_vm.variables[instruction.name] -> value
+        }
+        
+        when instruction.op == "LOAD" {
+            value -> wave_vm.variables[instruction.name]
+            wave_vm.stack.push(value)
+        }
+        
+        when instruction.op == "CALL" {
+            when instruction.func == "sys_print" {
+                value -> wave_vm.stack.pop()
+                sys_print(value)
+            }
+            when instruction.func == "sys_draw" {
+                # 调用绘图系统
+                params -> wave_vm.stack.pop()
+                sys_draw(params)
+            }
+            when instruction.func == "sys_input" {
+                # 获取输入
+                result -> sys_input()
+                wave_vm.stack.push(result)
+            }
+            else {
+                # 用户定义函数
+                func -> wave_vm.functions[instruction.func]
+                when func {
+                    execute_function(func)
+                }
+            }
+        }
+        
+        when instruction.op == "DEFINE_FUNC" {
+            wave_vm.functions[instruction.name] -> instruction.body
+        }
+        
+        when instruction.op == "JUMP" {
+            wave_vm.pc -> instruction.target
+            continue
+        }
+        
+        when instruction.op == "JUMP_IF_FALSE" {
+            condition -> wave_vm.stack.pop()
+            when !condition {
+                wave_vm.pc -> instruction.target
+                continue
+            }
+        }
+        
+        wave_vm.pc -> wave_vm.pc + 1
+    }
+    
+    program.state -> "completed"
+}
+
+# ═══════════════════════════════════════════════════════
+# 系统调用接口 (Val-OS API)
+# ═══════════════════════════════════════════════════════
+
+# 打印输出
+sys_print -> function(value) {
+    # 调用 Val-OS UI 系统
+    ui_print(value)
+}
+
+# 绘图
+sys_draw -> function(params) {
+    when params.type == "rect" {
+        draw_rect(params.x, params.y, params.w, params.h, params.color)
+    }
+    when params.type == "text" {
+        draw_text(params.text, params.x, params.y, params.color)
+    }
+    when params.type == "line" {
+        draw_line(params.x1, params.y1, params.x2, params.y2, params.color)
+    }
+}
+
+# 鼠标事件
+sys_mouse -> function() {
+    return {
+        x: mouse_state.x,
+        y: mouse_state.y,
+        left: mouse_state.buttons.left,
+        right: mouse_state.buttons.right
+    }
+}
+
+# 键盘事件
+sys_keyboard -> function() {
+    return {
+        key: keyboard_state.last_key,
+        pressed: keyboard_state.keys_pressed
+    }
+}
+
+# 文件系统
+sys_fs_read -> function(path) {
+    return fs_read(path)
+}
+
+sys_fs_write -> function(path, data) {
+    return fs_write(path, data)
+}
+
+# 网络
+sys_net_request -> function(url) {
+    return http_get(url)
+}
+
+# Fate 内存分配
+sys_fate_alloc -> function(size) {
+    return fate_alloc(size)
+}
+
+# ═══════════════════════════════════════════════════════
+# 程序入口
+# ═══════════════════════════════════════════════════════
+
+run_wave -> function(path) {
+    program -> load_wave_program(path)
+    
+    when program {
+        execute_wave(program)
+        return program.state
+    }
+    
+    return "error"
+}
+
+# 交互式 Wave Shell
+wave_shell -> function() {
+    out "🌊 Wave Shell v1.0"
+    out "Type Wave code or 'exit' to quit"
+    
+    while true {
+        input -> readline("wave> ")
+        
+        when input == "exit" {
+            break
+        }
+        
+        # 解析并执行单行
+        ast -> parse_wave(input)
+        bytecode -> compile_wave(ast)
+        
+        # 临时程序
+        temp_program -> {
+            name: "shell",
+            executable: bytecode,
+            state: "running"
+        }
+        
+        execute_wave(temp_program)
+    }
+}

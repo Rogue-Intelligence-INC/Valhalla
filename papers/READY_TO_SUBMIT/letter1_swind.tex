@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{S-wind: Autonomous Algebraic Discovery with Formal Discovery Criterion}
+\author{Valhalla Research Team}
+\date{January 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Summary}
+
+We introduce \textbf{S-wind}, an autonomous algebraic discovery framework with two key innovations:
+
+\begin{enumerate}
+    \item \textbf{Extended Precision Rational (EPR)}: Arbitrary precision exact arithmetic with zero floating-point error
+    \item \textbf{Formal Discovery Criterion}: A result is a \emph{discovery} iff it differs from known authoritative formulas AND is verified correct
+\end{enumerate}
+
+\section*{Key Results}
+
+\begin{itemize}
+    \item \textbf{17 experiments} completed in 2.4 seconds
+    \item \textbf{8 known sequences} correctly recognized (Fibonacci, Lucas, Pell, etc.)
+    \item \textbf{6 pattern detections} correctly classified as non-discoveries
+    \item \textbf{3 impossibility theorems} automatically applied (primes, Catalan, partition)
+    \item \textbf{2 novel discoveries}: Harmonic numerators (degree-7 polynomial), Basel partial sum (degree-4 polynomial)
+\end{itemize}
+
+\section*{Significance}
+
+The formal discovery criterion distinguishes S-wind from existing CAS systems, which cannot distinguish between pattern fitting and genuine novelty.
+
+\section*{Availability}
+
+Source code: Valhalla/s-wind-sim (Rust, MIT License)
+
+\end{document}

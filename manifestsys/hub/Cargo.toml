@@ -1,0 +1,62 @@
+[package]
+name = "valhalla-hub"
+version = "0.1.0"
+edition = "2021"
+description = "Valhalla Hub System - 集成所有系统的统一入口（包含 BaseForce）"
+
+[dependencies]
+# 核心系统
+valhalla_space = { path = "../../utils/space" }
+valhalla_mathematics = { path = "../../utils/mathematics" }
+voyager = { path = "../../utils/voyager" }
+fate = { path = "../../systems/metasystems/fate" }
+
+# 四元系统
+valhalla_metasystems_blackhole = { path = "../../systems/metasystems/blackhole" }
+valhalla_metasystems_meshbrain = { path = "../../systems/metasystems/meshbrain" }
+valhalla_metasystems_multinova = { path = "../../systems/metasystems/multinova" }
+valhalla_metasystems_baseforce = { path = "../../systems/metasystems/base-force" }
+
+# 基础依赖
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4"] }
+thiserror = "1.0"
+log = "0.4"
+env_logger = "0.10"
+ctrlc = "3.4"
+chrono = "0.4"
+regex = "1.10"
+clap = { version = "4.4", features = ["derive"] }
+
+[[bin]]
+name = "run_hub"
+path = "src/bin/run_hub.rs"
+
+[[bin]]
+name = "language_core_extraction"
+path = "src/bin/language_core_extraction.rs"
+
+[[bin]]
+name = "continuous_multimodal_training"
+path = "src/bin/continuous_multimodal_training.rs"
+
+[[bin]]
+name = "valhalla_chat"
+path = "src/bin/valhalla_chat.rs"
+
+[[bin]]
+name = "cross_modal_experiment"
+path = "src/bin/cross_modal_experiment.rs"
+
+[[bin]]
+name = "cross_modal_large_experiment"
+path = "src/bin/cross_modal_large_experiment.rs"
+
+[[bin]]
+name = "qa_relevance_eval"
+path = "src/bin/qa_relevance_eval.rs"
+
+[lib]
+name = "hub"
+path = "src/lib.rs"

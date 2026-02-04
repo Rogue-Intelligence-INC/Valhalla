@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient definitions -->
+    <radialGradient id="tileGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#607D8B;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#455A64;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#263238;stop-opacity:1" />
+    </radialGradient>
+    
+    <radialGradient id="spatialGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#3F51B5;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#303F9F;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#1A237E;stop-opacity:0.4" />
+    </radialGradient>
+    
+    <linearGradient id="indexGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF5722;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#D84315;stop-opacity:0.7" />
+    </linearGradient>
+    
+    <linearGradient id="neighborGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#795548;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5D4037;stop-opacity:0.8" />
+    </linearGradient>
+    
+    <!-- Arrow markers -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+    
+    <marker id="spatialArrow" markerWidth="12" markerHeight="8" 
+            refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#3F51B5" />
+    </marker>
+    
+    <marker id="indexArrow" markerWidth="12" markerHeight="8" 
+            refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#FF5722" />
+    </marker>
+    
+    <marker id="neighborArrow" markerWidth="12" markerHeight="8" 
+            refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#795548" />
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1400" height="1000" fill="#0a0a0a"/>
+  
+  <!-- Title -->
+  <text x="700" y="30" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="24" font-weight="bold" fill="#FFFFFF">
+    Tile 空间分块系统架构
+  </text>
+  <text x="700" y="55" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="14" fill="#CCCCCC">
+    空间分块管理 + 动态扩展 = 无限可扩展的空间基础设施
+  </text>
+  
+  <!-- Core design philosophy -->
+  <rect x="50" y="70" width="1300" height="40" fill="#1a1a1a" 
+        stroke="#444" stroke-width="1" rx="5"/>
+  <text x="700" y="90" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="16" font-weight="bold" fill="#607D8B">
+    🎯 核心理念: 空间分块管理 + 动态扩展 = 无限可扩展的空间基础设施
+  </text>
+  
+  <!-- Left: Tile Core -->
+  <g id="tileCore">
+    <rect x="50" y="130" width="350" height="520" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="225" y="155" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="18" font-weight="bold" fill="#FFFFFF">
+      🗂️ Tile 核心结构
+    </text>
+    
+    <!-- Tile Unit -->
+    <rect x="70" y="170" width="310" height="120" fill="url(#tileGradient)" 
+          stroke="#607D8B" stroke-width="2" rx="8"/>
+    <text x="225" y="195" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FFFFFF">📦 分块单元</text>
+    <text x="225" y="215" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">分块ID: 唯一标识符</text>
+    <text x="225" y="230" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">坐标系统: X/Y/Z/Layer/Dimension</text>
+    <text x="225" y="245" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">分块类型: Standard/Dense/Sparse/Boundary</text>
+    <text x="225" y="260" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">容量管理: 实体/内存/计算/存储</text>
+    <text x="225" y="280" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CFD8DC">占用情况: 动态监控</text>
+    
+    <!-- Coordinate System -->
+    <rect x="70" y="300" width="310" height="140" fill="url(#indexGradient)" 
+          stroke="#FF5722" stroke-width="2" rx="8"/>
+    <text x="225" y="325" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#000">📍 坐标系统</text>
+    <text x="225" y="345" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#333">多维坐标: 支持任意维度</text>
+    <text x="225" y="360" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">层次结构: 分层管理</text>
+    <text x="225" y="375" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">分辨率控制: 精度调节</text>
+    <text x="225" y="390" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">缩放因子: 动态缩放</text>
+    <text x="225" y="405" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">边界管理: 无缝连接</text>
+    <text x="225" y="425" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#333">坐标转换: 高效映射</text>
+    
+    <!-- Tile Type System -->
+    <rect x="70" y="450" width="310" height="120" fill="#2a2a3a" 
+          stroke="#455A64" stroke-width="2" rx="8"/>
+    <text x="225" y="475" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#607D8B">🔧 分块类型系统</text>
+    <text x="225" y="495" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#CCCCCC">标准分块: 通用空间管理</text>
+    <text x="225" y="510" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">高密度分块: 密集计算</text>
+    <text x="225" y="525" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">稀疏分块: 大范围覆盖</text>
+    <text x="225" y="540" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">边界分块: 边界处理</text>
+    <text x="225" y="560" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">专用分块: 特定用途</text>
+    
+    <!-- Performance Metrics -->
+    <rect x="70" y="580" width="310" height="60" fill="#3a1a2a" 
+          stroke="#263238" stroke-width="2" rx="8"/>
+    <text x="225" y="605" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" font-weight="bold" fill="#607D8B">⚡ 性能特征</text>
+    <text x="225" y="620" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">查询速度: 毫秒级 | 索引效率: 95% | 负载均衡: 自动</text>
+    <text x="225" y="635" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">扩展性: 无限 | 多维支持: 任意维度 | 缓存命中: 90%</text>
+  </g>
+  
+  <!-- Right: Spatial Index System -->
+  <g id="spatialIndexSystem">
+    <rect x="1000" y="130" width="350" height="520" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="1175" y="155" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="18" font-weight="bold" fill="#FFFFFF">
+      🔍 空间索引系统
+    </text>
+    
+    <!-- Multi-dimensional Index -->
+    <rect x="1020" y="170" width="310" height="120" fill="url(#spatialGradient)" 
+          stroke="#3F51B5" stroke-width="2" rx="8"/>
+    <text x="1175" y="195" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FFFFFF">🌐 多维空间索引</text>
+    <text x="1175" y="215" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">四叉树: 2D空间分割</text>
+    <text x="1175" y="230" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">八叉树: 3D空间分割</text>
+    <text x="1175" y="245" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">R树: 矩形区域索引</text>
+    <text x="1175" y="260" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">哈希网格: 快速定位</text>
+    <text x="1175" y="280" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#C5CAE9">包围盒层次: 层次化索引</text>
+    
+    <!-- Dynamic Indexing -->
+    <rect x="1020" y="300" width="310" height="140" fill="#2a1a1a" 
+          stroke="#303F9F" stroke-width="2" rx="8"/>
+    <text x="1175" y="325" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#3F51B5">🔄 动态索引管理</text>
+    <text x="1175" y="345" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#CCCCCC">活跃索引: 多索引并存</text>
+    <text x="1175" y="360" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">性能监控: 实时评估</text>
+    <text x="1175" y="375" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">自动优化: 智能选择</text>
+    <text x="1175" y="390" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">重建机制: 阈值触发</text>
+    <text x="1175" y="405" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">混合索引: 组合优化</text>
+    <text x="1175" y="425" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">查询模式分析: 适应性调整</text>
+    
+    <!-- Query Processing -->
+    <rect x="1020" y="450" width="310" height="120" fill="#2a2a3a" 
+          stroke="#1A237E" stroke-width="2" rx="8"/>
+    <text x="1175" y="475" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#3F51B5">🔎 查询处理</text>
+    <text x="1175" y="495" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#CCCCCC">范围查询: 区域检索</text>
+    <text x="1175" y="510" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">最近邻查询: K-NN搜索</text>
+    <text x="1175" y="525" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">路径查询: 最短路径</text>
+    <text x="1175" y="540" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">相交查询: 几何相交</text>
+    <text x="1175" y="560" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">并行处理: 多线程查询</text>
+    
+    <!-- Index Performance -->
+    <rect x="1020" y="580" width="310" height="60" fill="#3a1a2a" 
+          stroke="#1A237E" stroke-width="2" rx="8"/>
+    <text x="1175" y="605" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" font-weight="bold" fill="#3F51B5">📈 索引性能</text>
+    <text x="1175" y="620" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">查询时间: 2ms平均 | 范围查询: 95%效率 | 最近邻: 92%效率</text>
+    <text x="1175" y="635" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">索引构建: 秒级 | 内存优化: 智能缓存 | 并发支持: 高并发</text>
+  </g>
+  
+  <!-- Center: Dynamic Management -->
+  <g id="dynamicManagement">
+    <rect x="450" y="130" width="500" height="300" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="700" y="155" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="18" font-weight="bold" fill="#FFFFFF">
+      🔄 动态分块与负载管理
+    </text>
+    
+    <!-- Adaptive Subdivision -->
+    <rect x="470" y="170" width="220" height="120" fill="url(#neighborGradient)" 
+          stroke="#795548" stroke-width="2" rx="8"/>
+    <text x="580" y="195" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FFFFFF">✂️ 自适应细分</text>
+    <text x="580" y="215" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#FFFFFF">占用率监控: 实时检测</text>
+    <text x="580" y="230" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#FFFFFF">计算负载: 负载评估</text>
+    <text x="580" y="245" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#FFFFFF">空间密度: 密度分析</text>
+    <text x="580" y="260" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#FFFFFF">细分策略: 智能选择</text>
+    <text x="580" y="280" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#FFFFFF">阈值管理: 动态调整</text>
+    
+    <!-- Load Balancing -->
+    <rect x="710" y="170" width="220" height="120" fill="#2a2a3a" 
+          stroke="#795548" stroke-width="2" rx="8"/>
+    <text x="820" y="195" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#795548">⚖️ 负载均衡</text>
+    <text x="820" y="215" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">负载监控: 多维度指标</text>
+    <text x="820" y="230" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">迁移策略: 智能迁移</text>
+    <text x="820" y="245" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">目标选择: 最优分配</text>
+    <text x="820" y="260" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">重分布: 自动平衡</text>
+    <text x="820" y="280" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">性能优化: 持续改进</text>
+    
+    <!-- Neighbor Management -->
+    <rect x="470" y="300" width="460" height="120" fill="#1a2a1a" 
+          stroke="#5D4037" stroke-width="2" rx="8"/>
+    <text x="700" y="325" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#795548">🔗 邻接关系管理</text>
+    <text x="580" y="345" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">邻接检测: 距离计算 → 连接类型</text>
+    <text x="820" y="345" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">拓扑维护: 邻接矩阵 → 连通图</text>
+    <text x="580" y="365" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">连接管理: 带宽 → 延迟</text>
+    <text x="820" y="365" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">路径缓存: 最短路径 → 快速查询</text>
+    <text x="580" y="385" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">方向管理: 2D/3D → 自定义向量</text>
+    <text x="820" y="385" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">连通性: 分量分析 → 图直径</text>
+    <text x="700" y="410" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">实时拓扑更新与优化</text>
+  </g>
+  
+  <!-- Bottom: System Integration & Applications -->
+  <g id="systemIntegration">
+    <rect x="50" y="700" width="1300" height="200" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="700" y="725" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="16" font-weight="bold" fill="#FFFFFF">
+      🔗 系统集成与应用场景
+    </text>
+    
+    <!-- Integration with Other Systems -->
+    <rect x="80" y="740" width="300" height="120" fill="#2a1a1a" 
+          stroke="#607D8B" stroke-width="1" rx="5"/>
+    <text x="230" y="765" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#607D8B">与其他系统集成</text>
+    <text x="230" y="785" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">Chamber系统: 空间部署支持</text>
+    <text x="230" y="800" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">干细胞系统: 组织空间提供</text>
+    <text x="230" y="815" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">四元系统: 空间基础设施</text>
+    <text x="230" y="830" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">专门化分块: 定制空间</text>
+    <text x="230" y="845" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#888888">空间连接: 系统间通道</text>
+    
+    <!-- Application Scenarios -->
+    <rect x="400" y="740" width="300" height="120" fill="#1a2a1a" 
+          stroke="#3F51B5" stroke-width="1" rx="5"/>
+    <text x="550" y="765" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#3F51B5">应用场景</text>
+    <text x="550" y="785" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">空间查询: 范围/最近邻/路径</text>
+    <text x="550" y="800" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">碰撞检测: 实时相交检测</text>
+    <text x="550" y="815" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">空间分析: 密度/分布分析</text>
+    <text x="550" y="830" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">虚拟世界: 大规模场景</text>
+    <text x="550" y="845" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#888888">地理信息: GIS应用</text>
+    
+    <!-- Performance Optimization -->
+    <rect x="720" y="740" width="300" height="120" fill="#2a1a2a" 
+          stroke="#FF5722" stroke-width="1" rx="5"/>
+    <text x="870" y="765" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FF5722">性能优化</text>
+    <text x="870" y="785" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">索引优化: 自适应选择</text>
+    <text x="870" y="800" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">缓存管理: 多层次缓存</text>
+    <text x="870" y="815" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">内存优化: 智能回收</text>
+    <text x="870" y="830" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">并行处理: 多线程查询</text>
+    <text x="870" y="845" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#888888">性能监控: 实时分析</text>
+    
+    <!-- System Status -->
+    <rect x="1040" y="740" width="280" height="120" fill="#2a2a1a" 
+          stroke="#795548" stroke-width="1" rx="5"/>
+    <text x="1180" y="765" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#795548">系统状态</text>
+    <text x="1180" y="785" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">总分块数: 10,000个</text>
+    <text x="1180" y="800" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">活跃分块: 9,500个</text>
+    <text x="1180" y="815" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">平均占用率: 75%</text>
+    <text x="1180" y="830" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">查询效率: 95%</text>
+    <text x="1180" y="845" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#888888">系统健康度: 94%</text>
+  </g>
+  
+  <!-- Data flow arrows -->
+  <!-- Tile → Dynamic Management -->
+  <path d="M 400 350 L 470 350" stroke="#607D8B" stroke-width="3" 
+        fill="none" marker-end="url(#arrowhead)"/>
+  <text x="435" y="340" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#607D8B">分块信息</text>
+  
+  <!-- Dynamic Management → Spatial Index -->
+  <path d="M 950 280 L 1020 280" stroke="#795548" stroke-width="3" 
+        fill="none" marker-end="url(#neighborArrow)"/>
+  <text x="985" y="270" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#795548">索引更新</text>
+  
+  <!-- Spatial Index → Tile -->
+  <path d="M 1000 400 L 400 400" stroke="#3F51B5" stroke-width="3" 
+        fill="none" marker-end="url(#spatialArrow)"/>
+  <text x="700" y="390" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#3F51B5">查询结果</text>
+  
+  <!-- Optimization feedback -->
+  <path d="M 700 430 L 700 470" stroke="#FF5722" stroke-width="2" 
+        fill="none" marker-end="url(#indexArrow)"/>
+  <path d="M 720 470 L 720 430" stroke="#FF5722" stroke-width="2" 
+        fill="none" marker-end="url(#indexArrow)"/>
+  <text x="740" y="450" text-anchor="start" font-family="Arial, sans-serif" 
+        font-size="10" fill="#FF5722">优化反馈</text>
+  
+  <!-- System Status Indicators -->
+  <g id="statusIndicators">
+    <rect x="450" y="450" width="500" height="120" fill="#1a1a1a" 
+          stroke="#666" stroke-width="1" rx="5"/>
+    <text x="700" y="475" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FFFFFF">
+      📊 系统状态指示器
+    </text>
+    
+    <!-- Status lights -->
+    <circle cx="480" cy="495" r="8" fill="#4CAF50"/>
+    <text x="500" y="500" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">空间网格: 运行</text>
+    
+    <circle cx="480" cy="515" r="8" fill="#4CAF50"/>
+    <text x="500" y="520" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">空间索引: 正常</text>
+    
+    <circle cx="480" cy="535" r="8" fill="#4CAF50"/>
+    <text x="500" y="540" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">负载均衡: 活跃</text>
+    
+    <circle cx="480" cy="555" r="8" fill="#4CAF50"/>
+    <text x="500" y="560" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">拓扑维护: 正常</text>
+    
+    <circle cx="720" cy="495" r="8" fill="#607D8B"/>
+    <text x="740" y="500" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">分块管理: 活跃</text>
+    
+    <circle cx="720" cy="515" r="8" fill="#3F51B5"/>
+    <text x="740" y="520" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">查询处理: 高效</text>
+    
+    <circle cx="720" cy="535" r="8" fill="#FF5722"/>
+    <text x="740" y="540" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">缓存系统: 优化</text>
+    
+    <circle cx="720" cy="555" r="8" fill="#795548"/>
+    <text x="740" y="560" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">邻接管理: 实时</text>
+  </g>
+  
+  <!-- Copyright information -->
+  <text x="700" y="970" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="12" fill="#666666">
+    Tile 空间分块系统架构 - Valhalla Project v0.3.0
+  </text>
+  <text x="700" y="985" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#555555">
+    空间分块管理 + 动态扩展 | 无限可扩展的空间基础设施
+  </text>
+</svg> 

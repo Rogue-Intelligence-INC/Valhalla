@@ -1,0 +1,36 @@
+# Val-OS v4.0 - Written in Wave
+# Compiled with: wave valos_v4.wave --bare-metal -o valos_v4.img
+
+out "Val-OS v4.0"
+out "==========="
+out ""
+out "Fate Engine: Active"
+out "Memory: Quattro Pools"
+out "Mode: 16-bit Binary"
+out ""
+
+# Initialize Fate
+fate -> fate_init
+out "Fate initialized"
+
+# Initialize Quattro memory pools
+blackhole -> fate_alloc
+meshbrain -> fate_alloc
+multinova -> fate_alloc
+baseforce -> fate_alloc
+out "Quattro pools ready"
+
+# System info
+out ""
+out "System Status:"
+out "  CPU: x86"
+out "  Boot: Direct Binary"
+out "  Wave: v4.3"
+out ""
+
+# Main loop
+out "Val-OS ready."
+out "Press any key..."
+
+# Halt
+halt

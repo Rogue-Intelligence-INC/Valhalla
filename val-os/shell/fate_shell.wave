@@ -1,0 +1,294 @@
+# 💻 Fate Shell
+# Wave UI 风格 · Tab 支持 · Fate 控制
+
+# ═══════════════════════════════════════════════════════
+# Shell 核心
+# ═══════════════════════════════════════════════════════
+
+shell -> service {
+    # 当前用户
+    user -> current_user
+    
+    # 当前目录
+    cwd -> "/"
+    
+    # 历史记录
+    history -> list
+    
+    # Tab (多终端)
+    tabs -> list
+    current_tab -> 0
+}
+
+# ═══════════════════════════════════════════════════════
+# Wave UI 界面
+# ═══════════════════════════════════════════════════════
+
+shell_ui -> ui_component {
+    # Tab 栏
+    tab_bar -> panel {
+        position -> top
+        height -> 1
+        
+        for i, tab in enumerate(tabs) {
+            when i == current_tab {
+                render -> "\x1b[48;2;50;50;80m Tab {i+1} \x1b[0m"
+            } else {
+                render -> " Tab {i+1} "
+            }
+        }
+        
+        # 新建 Tab 按钮
+        render -> " [+] "
+    }
+    
+    # 输出区域
+    output_area -> panel {
+        position -> center
+        scroll -> true
+        
+        content -> current_tab.output
+    }
+    
+    # 提示符
+    prompt -> panel {
+        position -> bottom
+        height -> 1
+        
+        # 渐变提示符
+        user_part -> gradient_text(user.name, gradients.ocean)
+        path_part -> gradient_text(cwd, gradients.forest)
+        
+        render -> "{user_part}@\x1b[1mval-os\x1b[0m:{path_part}$ "
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 内置命令
+# ═══════════════════════════════════════════════════════
+
+commands -> map {
+    # 文件操作
+    "ls"    -> cmd_ls
+    "cd"    -> cmd_cd
+    "pwd"   -> cmd_pwd
+    "cat"   -> cmd_cat
+    "mkdir" -> cmd_mkdir
+    "rm"    -> cmd_rm
+    "cp"    -> cmd_cp
+    "mv"    -> cmd_mv
+    
+    # 系统信息
+    "uname" -> cmd_uname
+    "ps"    -> cmd_ps
+    "top"   -> cmd_top
+    "free"  -> cmd_free
+    
+    # Fate 命令
+    "fate"  -> cmd_fate
+    "mode"  -> cmd_mode
+    
+    # 其他
+    "echo"  -> cmd_echo
+    "clear" -> cmd_clear
+    "exit"  -> cmd_exit
+    "help"  -> cmd_help
+}
+
+# ═══════════════════════════════════════════════════════
+# 命令实现
+# ═══════════════════════════════════════════════════════
+
+cmd_ls -> function(args) {
+    path -> args[0] || cwd
+    entries -> fate_fs.list(path)
+    
+    for entry in entries {
+        icon -> icons[entry.type]
+        color -> fate_choose_color(entry.type)
+        output -> "{icon} {color}{entry.name}\x1b[0m"
+    }
+}
+
+cmd_cd -> function(args) {
+    path -> args[0] || "/"
+    when fate_fs.is_directory(path) {
+        cwd -> resolve_path(path)
+    } else {
+        error -> "Not a directory: {path}"
+    }
+}
+
+cmd_cat -> function(args) {
+    for file in args {
+        content -> fate_fs.read(file)
+        output -> content
+    }
+}
+
+cmd_uname -> function(args) {
+    output -> "Val-OS v2.1 Wave x86_64"
+}
+
+cmd_ps -> function(args) {
+    processes -> fate_get_processes()
+    
+    output -> "  PID  STATE   NAME"
+    for proc in processes {
+        output -> "{proc.pid:5} {proc.state:7} {proc.name}"
+    }
+}
+
+cmd_top -> function(args) {
+    # 实时系统监控
+    loop {
+        clear()
+        
+        output -> gradient_text("=== Val-OS System Monitor ===", gradients.fate)
+        output -> ""
+        
+        # CPU
+        cpu -> fate_get_cpu_usage()
+        output -> "CPU: " + progress_bar(cpu, gradients.fire)
+        
+        # 内存
+        mem -> fate_get_memory_usage()
+        output -> "MEM: " + progress_bar(mem, gradients.ocean)
+        
+        # Fate 状态
+        fate -> fate_get_status()
+        output -> ""
+        output -> "Fate: {fate.mode} | Collapse: {fate.collapse_count}"
+        
+        # 进程列表
+        output -> ""
+        cmd_ps([])
+        
+        sleep(1000)
+        
+        when key_pressed() {
+            break
+        }
+    }
+}
+
+cmd_free -> function(args) {
+    mem -> fate_get_memory_info()
+    
+    output -> "       Total      Used      Free"
+    output -> "Mem:   {mem.total:8}  {mem.used:8}  {mem.free:8}"
+    output -> ""
+    output -> "四元池:"
+    output -> "  BlackHole: {mem.blackhole.used}/{mem.blackhole.total}"
+    output -> "  MeshBrain: {mem.meshbrain.used}/{mem.meshbrain.total}"
+    output -> "  MultiNova: {mem.multinova.used}/{mem.multinova.total}"
+    output -> "  BaseForce: {mem.baseforce.used}/{mem.baseforce.total}"
+}
+
+# ═══════════════════════════════════════════════════════
+# Fate 命令
+# ═══════════════════════════════════════════════════════
+
+cmd_fate -> function(args) {
+    subcommand -> args[0]
+    
+    when subcommand == "status" {
+        status -> fate_get_status()
+        output -> gradient_text("=== Fate Status ===", gradients.fate)
+        output -> "Mode: {status.mode}"
+        output -> "Collapse Count: {status.collapse_count}"
+        output -> "Marginal Threshold: {status.marginal_threshold}%"
+        output -> "Performance Threshold: {status.perf_threshold}%"
+    }
+    
+    when subcommand == "collapse" {
+        fate_trigger_collapse()
+        output -> "Collapse triggered manually"
+    }
+    
+    when subcommand == "help" {
+        output -> "fate status  - 显示 Fate 状态"
+        output -> "fate collapse - 手动触发 Collapse"
+    }
+}
+
+# 模式切换 (需要权限)
+cmd_mode -> function(args) {
+    mode -> args[0]
+    
+    # 检查权限
+    when !permission.can_change_mode(current_user) {
+        error -> "Permission denied: requires admin"
+        return
+    }
+    
+    when mode == "performance" {
+        fate_set_mode(PERFORMANCE)
+        output -> gradient_text("✓ 性能模式已启用", gradients.fire)
+    }
+    
+    when mode == "balanced" {
+        fate_set_mode(BALANCED)
+        output -> gradient_text("✓ 平衡模式已启用", gradients.ocean)
+    }
+    
+    when mode == "powersave" {
+        fate_set_mode(POWERSAVE)
+        output -> gradient_text("✓ 省电模式已启用", gradients.forest)
+    }
+    
+    when mode == "help" || !mode {
+        output -> "用法: mode <performance|balanced|powersave>"
+        output -> "  performance - 性能优先 (阈值: 1%, 65%)"
+        output -> "  balanced    - 平衡模式 (阈值: 3%, 70%)"
+        output -> "  powersave   - 省电模式 (阈值: 5%, 80%)"
+    }
+}
+
+cmd_help -> function(args) {
+    output -> gradient_text("=== Fate Shell 帮助 ===", gradients.fate)
+    output -> ""
+    output -> "文件操作: ls, cd, pwd, cat, mkdir, rm, cp, mv"
+    output -> "系统信息: uname, ps, top, free"
+    output -> "Fate:     fate status, mode <mode>"
+    output -> "其他:     echo, clear, exit, help"
+    output -> ""
+    output -> "Tab 操作: Ctrl+T 新建, Ctrl+W 关闭, Ctrl+Tab 切换"
+}
+
+# ═══════════════════════════════════════════════════════
+# 主循环
+# ═══════════════════════════════════════════════════════
+
+shell_main -> function() {
+    # 初始化
+    tabs.add(new_tab())
+    
+    # 显示欢迎
+    output -> gradient_text("Welcome to Val-OS Fate Shell", gradients.fate)
+    output -> "Type 'help' for commands"
+    output -> ""
+    
+    # 主循环
+    loop {
+        # 显示提示符
+        shell_ui.prompt.render()
+        
+        # 读取输入
+        input -> readline()
+        
+        # 添加到历史
+        history.add(input)
+        
+        # 解析执行
+        tokens -> parse(input)
+        cmd -> tokens[0]
+        args -> tokens[1..]
+        
+        when commands.has(cmd) {
+            commands[cmd](args)
+        } else when cmd {
+            error -> "Command not found: {cmd}"
+        }
+    }
+}

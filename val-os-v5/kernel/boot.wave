@@ -1,0 +1,171 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Boot Sequence
+# Wave 5.0 native boot
+# ═══════════════════════════════════════════════════════════════════
+
+out ""
+out "═══════════════════════════════════════════════════════════════"
+out "                      Val-OS v5.0                               "
+out "           Wave Language · Fate Engine · Quattro Memory         "
+out "═══════════════════════════════════════════════════════════════"
+out ""
+
+# ───────────────────────────────────────────────────────────────────
+# Phase 1: Fate Kernel
+# ───────────────────────────────────────────────────────────────────
+
+out "[Boot] Phase 1: Fate Kernel"
+
+fate -> require("./fate.wave")
+fate.fate_init()
+
+out "        ✓ Fate Brain active"
+out "        ✓ Decision engine ready"
+out "        ✓ Collapse system armed"
+
+# Fate Files - 智能文件管理系统
+fate_files -> require("./fate_files.wave")
+fate_files.fate_files_init()
+
+out "        ✓ Fate Files ready (保留区 + 智能整理)"
+out ""
+
+# ───────────────────────────────────────────────────────────────────
+# Phase 2: Quattro Memory
+# ───────────────────────────────────────────────────────────────────
+
+out "[Boot] Phase 2: Quattro Memory"
+
+quattro -> require("./quattro.wave")
+
+# Fate decides memory allocation
+total_memory = 64 * 1024 * 1024  # 64MB
+quattro.quattro_init(total_memory)
+
+out "        ✓ BlackHole pool ready"
+out "        ✓ MeshBrain pool ready"
+out "        ✓ MultiNova pool ready"
+out "        ✓ BaseForce pool ready"
+out ""
+
+# ───────────────────────────────────────────────────────────────────
+# Phase 3: Drivers
+# ───────────────────────────────────────────────────────────────────
+
+out "[Boot] Phase 3: Hardware Drivers"
+
+display -> require("../drivers/display.wave")
+input -> require("../drivers/input.wave")
+storage -> require("../drivers/storage.wave")
+network -> require("../drivers/network.wave")
+
+display.init()
+input.init()
+storage.init()
+network.init()
+
+out "        ✓ Display driver"
+out "        ✓ Input driver (keyboard + mouse)"
+out "        ✓ Storage driver"
+out "        ✓ Network driver"
+out ""
+
+# ───────────────────────────────────────────────────────────────────
+# Phase 4: Wave Runtime
+# ───────────────────────────────────────────────────────────────────
+
+out "[Boot] Phase 4: Wave Runtime"
+
+runtime -> require("../shell/runtime.wave")
+runtime.init()
+
+out "        ✓ Wave interpreter"
+out "        ✓ .wave execution ready"
+out ""
+
+# ───────────────────────────────────────────────────────────────────
+# Phase 5: User Interface
+# ───────────────────────────────────────────────────────────────────
+
+out "[Boot] Phase 5: User Interface"
+
+desktop -> require("../ui/desktop.wave")
+wm -> require("../ui/window.wave")
+
+wm.init()
+desktop.init()
+
+out "        ✓ Window manager"
+out "        ✓ Desktop environment"
+out ""
+
+# ───────────────────────────────────────────────────────────────────
+# Phase 6: Applications
+# ───────────────────────────────────────────────────────────────────
+
+out "[Boot] Phase 6: Applications"
+
+apps = [
+    { name: "Files",       icon: "📁", path: "../apps/files.wave", fate: true },  # Fate-powered
+    { name: "Terminal",    icon: "💻", path: "../apps/terminal.wave" },
+    { name: "Notepad",     icon: "📝", path: "../apps/notepad.wave" },
+    { name: "Browser",     icon: "🌐", path: "../apps/browser.wave" },
+    { name: "Settings",    icon: "⚙️", path: "../apps/settings.wave" },
+    { name: "Store",       icon: "🛒", path: "../apps/store.wave" },
+    { name: "Music",       icon: "🎵", path: "../apps/music.wave" },
+    { name: "Video",       icon: "🎬", path: "../apps/video.wave" },
+    { name: "Calculator",  icon: "🔢", path: "../apps/calculator.wave" },
+    { name: "Minesweeper", icon: "💣", path: "../apps/minesweeper.wave" }
+]
+
+out "        ✓ 📁 Files (Fate-powered 🔮)"
+out "        ✓ 💻 Terminal"
+out "        ✓ 📝 Notepad"
+out "        ✓ 🌐 Browser"
+out "        ✓ ⚙️ Settings"
+out "        ✓ 🛒 Store"
+out "        ✓ 🎵 Music"
+out "        ✓ 🎬 Video"
+out "        ✓ 🔢 Calculator"
+out "        ✓ 💣 Minesweeper"
+out ""
+
+# ───────────────────────────────────────────────────────────────────
+# Phase 7: User System
+# ───────────────────────────────────────────────────────────────────
+
+out "[Boot] Phase 7: User System"
+
+users -> require("../shell/users.wave")
+users.init()
+
+out "        ✓ Multi-user support"
+out "        ✓ Permission system"
+out ""
+
+# ───────────────────────────────────────────────────────────────────
+# Boot Complete
+# ───────────────────────────────────────────════════════════════════
+
+out "═══════════════════════════════════════════════════════════════"
+out "                    Boot Complete                               "
+out "═══════════════════════════════════════════════════════════════"
+out ""
+
+# Show system status
+out "  System Status:"
+out "  ─────────────────────────────────────────"
+out "  Fate Engine      [■■■■■■■■■■] Active"
+out "  Quattro Memory   [■■■■■■■■■■] 4 pools"
+out "  Drivers          [■■■■■■■■■■] 4 loaded"
+out "  Wave Runtime     [■■■■■■■■■■] Ready"
+out "  Desktop          [■■■■■■■■■■] Ready"
+out "  Applications     [■■■■■■■■■■] 10 apps"
+out ""
+
+# Start login
+out "Starting login..."
+out ""
+
+login -> require("../shell/login.wave")
+login.show()

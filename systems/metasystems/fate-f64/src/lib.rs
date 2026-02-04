@@ -1,0 +1,735 @@
+//! Fate System v3.0 - f64 GPU-Accelerated Version
+//!
+//! High-performance signal coordination using f64 arithmetic
+//! Designed for GPU acceleration with batch operations
+//!
+//! Core capabilities:
+//! 1. Signal coordination with f64 arithmetic (GPU-friendly)
+//! 2. Batch vector operations (parallelizable)
+//! 3. Internal space evolution
+//! 4. Signal-based time (deformation signal count)
+
+use serde::{Deserialize, Serialize};
+use rayon::prelude::*;
+
+// Native CUDA acceleration (direct FFI, supports CUDA 13.1)
+#[cfg(feature = "native_cuda")]
+pub mod native_cuda;
+
+// Triple-Fate: Multi-layer Fate architecture (from valhalla-rational)
+pub mod triple_fate;
+pub use triple_fate::{
+    TripleFateCombined, FateLoop, FateInFate, BaseFate, MetaFate,
+    TripleSignal, TripleFateState, TripleRule, TripleDiscovery,
+    SignalSource, DiscoveryType, RuleAction, VoyagerSpaceF64,
+    detect_pattern_f64, run_comparison_experiment, ExperimentResult,
+    OrganDetector,
+    // Fate 存储层
+    FateSlice, FateDataEntry,
+};
+
+// ============================================================================
+// System Types
+// ============================================================================
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub enum SystemType {
+    BlackHole,
+    MeshBrain,
+    MultiNova,
+    BaseForce,
+}
+
+// ============================================================================
+// Resource Configuration
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResourceLimits {
+    pub max_memory_mb: u64,
+    pub max_cpu_percent: u8,
+    pub max_buffer_size: usize,
+    pub processing_interval_ms: u64,
+    pub gpu_enabled: bool,
+    pub batch_size: usize,
+}
+
+impl Default for ResourceLimits {
+    fn default() -> Self {
+        Self {
+            max_memory_mb: 4096,
+            max_cpu_percent: 70,
+            max_buffer_size: 100000,
+            processing_interval_ms: 10,
+            gpu_enabled: true,
+            batch_size: 1024,
+        }
+    }
+}
+
+// ============================================================================
+// Deformation Signal (f64)
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeformationSignal {
+    pub source_system: SystemType,
+    pub intensity: f64,
+    pub direction: Vec<f64>,
+    pub signal_tick: u64,
+    pub quality_score: f64,
+}
+
+impl DeformationSignal {
+    pub fn new(source: SystemType, intensity: f64, direction: Vec<f64>) -> Self {
+        Self {
+            source_system: source,
+            intensity,
+            direction,
+            signal_tick: 0,
+            quality_score: 1.0, // No preset bias - neutral weight
+        }
+    }
+    
+    /// Compute weight = intensity × quality_score
+    #[inline]
+    pub fn weight(&self) -> f64 {
+        self.intensity * self.quality_score
+    }
+}
+
+// ============================================================================
+// Batch Operations (GPU-friendly)
+// ============================================================================
+
+/// Batch of signals for GPU processing
+#[derive(Debug, Clone)]
+pub struct SignalBatch {
+    pub intensities: Vec<f64>,
+    pub quality_scores: Vec<f64>,
+    pub directions: Vec<Vec<f64>>,
+    pub system_indices: Vec<usize>,
+}
+
+impl SignalBatch {
+    pub fn new() -> Self {
+        Self {
+            intensities: Vec::new(),
+            quality_scores: Vec::new(),
+            directions: Vec::new(),
+            system_indices: Vec::new(),
+        }
+    }
+    
+    pub fn with_capacity(cap: usize) -> Self {
+        Self {
+            intensities: Vec::with_capacity(cap),
+            quality_scores: Vec::with_capacity(cap),
+            directions: Vec::with_capacity(cap),
+            system_indices: Vec::with_capacity(cap),
+        }
+    }
+    
+    pub fn push(&mut self, signal: &DeformationSignal) {
+        self.intensities.push(signal.intensity);
+        self.quality_scores.push(signal.quality_score);
+        self.directions.push(signal.direction.clone());
+        self.system_indices.push(match signal.source_system {
+            SystemType::BlackHole => 0,
+            SystemType::MeshBrain => 1,
+            SystemType::MultiNova => 2,
+            SystemType::BaseForce => 3,
+        });
+    }
+    
+    pub fn len(&self) -> usize {
+        self.intensities.len()
+    }
+    
+    pub fn is_empty(&self) -> bool {
+        self.intensities.is_empty()
+    }
+    
+    /// Compute weights in batch (parallelized)
+    pub fn compute_weights_parallel(&self) -> Vec<f64> {
+        self.intensities.par_iter()
+            .zip(self.quality_scores.par_iter())
+            .map(|(i, q)| i * q)
+            .collect()
+    }
+    
+    /// Compute weighted direction sum (parallelized)
+    pub fn compute_weighted_direction_parallel(&self, dim: usize) -> Vec<f64> {
+        let weights = self.compute_weights_parallel();
+        let total_weight: f64 = weights.par_iter().sum();
+        
+        if total_weight.abs() < 1e-10 {
+            return vec![0.0; dim];
+        }
+        
+        let mut result = vec![0.0; dim];
+        for (i, dir) in self.directions.iter().enumerate() {
+            let w = weights[i];
+            for (j, &d) in dir.iter().enumerate().take(dim) {
+                result[j] += d * w;
+            }
+        }
+        
+        result.par_iter().map(|x| x / total_weight).collect()
+    }
+}
+
+impl Default for SignalBatch {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+// ============================================================================
+// System Preferences (f64)
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SystemPreferences {
+    pub affinities: Vec<f64>,
+}
+
+impl Default for SystemPreferences {
+    fn default() -> Self {
+        // 默认均匀分布，避免 NaN
+        Self {
+            affinities: vec![0.25, 0.25, 0.25, 0.25],
+        }
+    }
+}
+
+impl SystemPreferences {
+    /// Get preferred system index
+    pub fn preferred_system(&self) -> usize {
+        self.affinities.iter()
+            .enumerate()
+            .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+            .map(|(i, _)| i)
+            .unwrap_or(0)
+    }
+    
+    /// Check if preferences have diverged (one system dominates)
+    pub fn has_diverged(&self, threshold: f64) -> bool {
+        let max = self.affinities.iter().cloned().fold(0.0_f64, f64::max);
+        let sum: f64 = self.affinities.iter().sum();
+        if sum.abs() < 1e-10 { return false; }
+        (max / sum) > threshold
+    }
+}
+
+// ============================================================================
+// Fate Evaluation (f64)
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FateEvaluation {
+    pub quality: f64,
+    pub intensity: f64,
+    pub is_bootstrap: bool,
+}
+
+// ============================================================================
+// Resource Usage
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResourceUsage {
+    pub memory_bytes: usize,
+    pub buffer_usage: usize,
+    pub buffer_capacity: usize,
+    pub gpu_memory_mb: u64,
+}
+
+// ============================================================================
+// Internal Space (f64)
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InternalSpace {
+    pub dimensions: usize,
+    pub basis_vectors: Vec<Vec<f64>>,
+    pub expansion_count: u64,
+}
+
+impl InternalSpace {
+    pub fn new(dims: usize) -> Self {
+        let mut basis = Vec::with_capacity(dims);
+        for i in 0..dims {
+            let mut vec = vec![0.0; dims];
+            vec[i] = 1.0;
+            basis.push(vec);
+        }
+        Self {
+            dimensions: dims,
+            basis_vectors: basis,
+            expansion_count: 0,
+        }
+    }
+}
+
+impl Default for InternalSpace {
+    fn default() -> Self {
+        Self::new(4)
+    }
+}
+
+// ============================================================================
+// Fate System (f64 GPU-Accelerated)
+// ============================================================================
+
+#[derive(Debug, Clone)]
+pub struct FateSystem {
+    pub entity_id: String,
+    pub deformation_buffer: Vec<DeformationSignal>,
+    pub resource_limits: ResourceLimits,
+    pub is_active: bool,
+    pub internal_space: InternalSpace,
+    pub signal_tick: u64,
+    
+    // System-specific accumulators (for fast preference calculation)
+    system_weights: [f64; 4],
+    system_counts: [u64; 4],
+    
+    // 偏好历史 (用于代数形式的收敛检测)
+    preference_history: Vec<[f64; 4]>,
+    
+    // 数据流状态：只有数据处理完毕后才能判断收敛
+    // 每次 receive_signal 时设为 true，表示有数据在流入
+    // 调用 mark_epoch_complete 后设为 false，允许检查收敛
+    data_flowing: bool,
+}
+
+impl FateSystem {
+    pub fn new(entity_id: String, resource_limits: ResourceLimits) -> Self {
+        Self {
+            entity_id,
+            deformation_buffer: Vec::with_capacity(resource_limits.max_buffer_size),
+            resource_limits,
+            is_active: true,
+            internal_space: InternalSpace::default(),
+            signal_tick: 0,
+            // 初始均匀分布，避免首次计算偏好时产生 NaN
+            system_weights: [1.0; 4],
+            system_counts: [0; 4],
+            preference_history: Vec::new(),
+            data_flowing: true, // 初始假设有数据要处理
+        }
+    }
+    
+    /// Receive deformation signal
+    pub fn receive_signal(&mut self, mut signal: DeformationSignal) {
+        if !self.is_active { return; }
+        
+        // 有数据流入，标记为 flowing
+        self.data_flowing = true;
+        
+        self.signal_tick += 1;
+        signal.signal_tick = self.signal_tick;
+        
+        // Update system accumulators
+        let idx = match signal.source_system {
+            SystemType::BlackHole => 0,
+            SystemType::MeshBrain => 1,
+            SystemType::MultiNova => 2,
+            SystemType::BaseForce => 3,
+        };
+        self.system_weights[idx] += signal.weight();
+        self.system_counts[idx] += 1;
+        
+        // Buffer management
+        if self.deformation_buffer.len() >= self.resource_limits.max_buffer_size {
+            // Remove oldest and update accumulators
+            let old = self.deformation_buffer.remove(0);
+            let old_idx = match old.source_system {
+                SystemType::BlackHole => 0,
+                SystemType::MeshBrain => 1,
+                SystemType::MultiNova => 2,
+                SystemType::BaseForce => 3,
+            };
+            self.system_weights[old_idx] -= old.weight();
+            self.system_counts[old_idx] = self.system_counts[old_idx].saturating_sub(1);
+        }
+        
+        self.deformation_buffer.push(signal);
+    }
+    
+    /// Calculate system preferences (O(1) with accumulators)
+    pub fn calculate_system_preferences(&self) -> SystemPreferences {
+        let total: f64 = self.system_weights.iter().sum();
+        
+        if total.abs() < 1e-10 {
+            return SystemPreferences::default();
+        }
+        
+        SystemPreferences {
+            affinities: self.system_weights.iter()
+                .map(|w| w / total)
+                .collect(),
+        }
+    }
+    
+    /// 记录当前偏好到历史 (用于收敛检测)
+    pub fn record_preference_snapshot(&mut self) {
+        let prefs = self.calculate_system_preferences();
+        let snapshot: [f64; 4] = [
+            prefs.affinities.get(0).copied().unwrap_or(0.0),
+            prefs.affinities.get(1).copied().unwrap_or(0.0),
+            prefs.affinities.get(2).copied().unwrap_or(0.0),
+            prefs.affinities.get(3).copied().unwrap_or(0.0),
+        ];
+        self.preference_history.push(snapshot);
+        
+        // 保留最近 100 个快照
+        if self.preference_history.len() > 100 {
+            self.preference_history.remove(0);
+        }
+    }
+    
+    /// 标记一个 epoch 完成，此时才允许检查收敛
+    /// 只有数据处理完毕后，才能判断是否收敛
+    pub fn mark_epoch_complete(&mut self) {
+        self.data_flowing = false;
+        self.record_preference_snapshot();
+    }
+    
+    /// 检查数据是否还在流入
+    pub fn is_data_flowing(&self) -> bool {
+        self.data_flowing
+    }
+    
+    /// 代数形式的收敛检测 (Fate 自主判断)
+    /// 前提条件：数据必须处理完毕 (data_flowing == false)
+    /// 基于边际效应递减: 需要连续多次边际递减
+    /// 纯代数比较，但需要足够的历史才能判断
+    pub fn has_converged(&self) -> bool {
+        // 如果数据还在流入，不能收敛
+        // 必须等数据处理完毕才能判断
+        if self.data_flowing {
+            return false;
+        }
+        
+        let len = self.preference_history.len();
+        
+        // 需要至少 5 个快照才能判断收敛趋势
+        // (检查连续 3 次边际递减)
+        if len < 5 {
+            return false;
+        }
+        
+        let h = &self.preference_history;
+        
+        // 计算最近 4 次变化
+        let diffs: Vec<f64> = (1..5)
+            .map(|k| {
+                let idx = len - k;
+                (0..4)
+                    .map(|i| (h[idx][i] - h[idx-1][i]).abs())
+                    .sum()
+            })
+            .collect();
+        
+        // diffs[0] = 最新变化, diffs[1] = 上一次变化, ...
+        // 代数判断: 连续边际递减 (diff[n] < diff[n-1] < diff[n-2])
+        // 且最新变化必须非常小 (趋近于稳定)
+        let decreasing = diffs[0] < diffs[1] && diffs[1] < diffs[2];
+        let stable = diffs[0] < diffs[3] * 0.5; // 最新变化小于初始变化的一半
+        
+        decreasing && stable && diffs[2] > 0.0
+    }
+    
+    /// 检测当前模式 (代数形式)
+    pub fn detect_convergence_pattern(&self) -> Option<&'static str> {
+        let len = self.preference_history.len();
+        if len < 3 {
+            return None;
+        }
+        
+        let h = &self.preference_history;
+        
+        let diff1: f64 = (0..4)
+            .map(|i| (h[len-2][i] - h[len-3][i]).abs())
+            .sum();
+        
+        let diff2: f64 = (0..4)
+            .map(|i| (h[len-1][i] - h[len-2][i]).abs())
+            .sum();
+        
+        // 不动点
+        if diff1 == 0.0 && diff2 == 0.0 {
+            return Some("fixed_point");
+        }
+        
+        // 收敛: 边际递减
+        if diff2 < diff1 {
+            return Some("converging");
+        }
+        
+        // 发散: 边际增加
+        if diff2 > diff1 {
+            return Some("diverging");
+        }
+        
+        None
+    }
+    
+    /// Batch process signals (GPU-friendly)
+    pub fn create_batch(&self, max_size: usize) -> SignalBatch {
+        let size = self.deformation_buffer.len().min(max_size);
+        let mut batch = SignalBatch::with_capacity(size);
+        
+        for signal in self.deformation_buffer.iter().rev().take(size) {
+            batch.push(signal);
+        }
+        
+        batch
+    }
+    
+    /// Evaluate system (for Fate autonomous control)
+    pub fn evaluate_system(&self, system_index: usize) -> FateEvaluation {
+        if self.signal_tick == 0 {
+            return FateEvaluation {
+                quality: 0.0,
+                intensity: 0.0,
+                is_bootstrap: true,
+            };
+        }
+        
+        let count = self.system_counts[system_index];
+        if count == 0 {
+            return FateEvaluation {
+                quality: 0.0,
+                intensity: 0.0,
+                is_bootstrap: false,
+            };
+        }
+        
+        let avg_weight = self.system_weights[system_index] / count as f64;
+        
+        // Quality derived from accumulated weight performance
+        let quality = (avg_weight * 10.0).min(1.0).max(0.0);
+        
+        // Intensity derived from signal density
+        let density = count as f64 / self.signal_tick as f64;
+        let intensity = density.min(1.0);
+        
+        FateEvaluation {
+            quality,
+            intensity,
+            is_bootstrap: false,
+        }
+    }
+    
+    /// Get resource usage
+    pub fn get_resource_usage(&self) -> ResourceUsage {
+        ResourceUsage {
+            memory_bytes: self.deformation_buffer.len() * std::mem::size_of::<DeformationSignal>(),
+            buffer_usage: self.deformation_buffer.len(),
+            buffer_capacity: self.resource_limits.max_buffer_size,
+            gpu_memory_mb: 0, // Updated when GPU is used
+        }
+    }
+    
+    /// Get logical time
+    pub fn get_logical_time(&self) -> u64 {
+        self.signal_tick
+    }
+    
+    /// Cleanup old signals
+    pub fn cleanup_expired_signals(&mut self, max_age_ticks: u64) {
+        let current = self.signal_tick;
+        self.deformation_buffer.retain(|signal| {
+            current.saturating_sub(signal.signal_tick) < max_age_ticks
+        });
+        
+        // Recalculate accumulators after cleanup
+        self.recalculate_accumulators();
+    }
+    
+    fn recalculate_accumulators(&mut self) {
+        self.system_weights = [0.0; 4];
+        self.system_counts = [0; 4];
+        
+        for signal in &self.deformation_buffer {
+            let idx = match signal.source_system {
+                SystemType::BlackHole => 0,
+                SystemType::MeshBrain => 1,
+                SystemType::MultiNova => 2,
+                SystemType::BaseForce => 3,
+            };
+            self.system_weights[idx] += signal.weight();
+            self.system_counts[idx] += 1;
+        }
+    }
+}
+
+// ============================================================================
+// GPU Acceleration (when feature enabled)
+// ============================================================================
+
+#[cfg(feature = "cuda")]
+pub mod gpu {
+    use candle_core::{Device, Tensor, DType};
+    
+    pub struct GpuAccelerator {
+        device: Device,
+    }
+    
+    impl GpuAccelerator {
+        pub fn new() -> Result<Self, candle_core::Error> {
+            let device = Device::cuda_if_available(0)?;
+            Ok(Self { device })
+        }
+        
+        pub fn is_cuda_available(&self) -> bool {
+            matches!(self.device, Device::Cuda(_))
+        }
+        
+        /// Batch matrix multiplication on GPU
+        pub fn batch_matmul(&self, a: &[f64], b: &[f64], m: usize, n: usize, k: usize) 
+            -> Result<Vec<f64>, candle_core::Error> 
+        {
+            let a_tensor = Tensor::from_slice(a, (m, k), &self.device)?.to_dtype(DType::F64)?;
+            let b_tensor = Tensor::from_slice(b, (k, n), &self.device)?.to_dtype(DType::F64)?;
+            let result = a_tensor.matmul(&b_tensor)?;
+            result.to_vec2::<f64>().map(|v| v.into_iter().flatten().collect())
+        }
+        
+        /// Batch cosine similarity on GPU
+        pub fn batch_cosine_similarity(&self, vectors: &[Vec<f64>], query: &[f64]) 
+            -> Result<Vec<f64>, candle_core::Error>
+        {
+            if vectors.is_empty() {
+                return Ok(vec![]);
+            }
+            
+            let dim = query.len();
+            let n = vectors.len();
+            
+            // Flatten vectors
+            let flat: Vec<f64> = vectors.iter().flatten().cloned().collect();
+            
+            let v_tensor = Tensor::from_slice(&flat, (n, dim), &self.device)?.to_dtype(DType::F64)?;
+            let q_tensor = Tensor::from_slice(query, (dim, 1), &self.device)?.to_dtype(DType::F64)?;
+            
+            // Dot products
+            let dots = v_tensor.matmul(&q_tensor)?;
+            
+            // Magnitudes (simplified - proper impl would normalize)
+            let dots_vec: Vec<f64> = dots.to_vec2()?.into_iter().flatten().collect();
+            
+            Ok(dots_vec)
+        }
+    }
+}
+
+// ============================================================================
+// CPU Parallel Operations (fallback)
+// ============================================================================
+
+pub mod cpu {
+    use rayon::prelude::*;
+    
+    /// Batch cosine similarity (CPU parallel)
+    pub fn batch_cosine_similarity(vectors: &[Vec<f64>], query: &[f64]) -> Vec<f64> {
+        vectors.par_iter()
+            .map(|v| cosine_similarity(v, query))
+            .collect()
+    }
+    
+    pub fn cosine_similarity(a: &[f64], b: &[f64]) -> f64 {
+        let dot: f64 = a.iter().zip(b.iter()).map(|(x, y)| x * y).sum();
+        let mag_a: f64 = a.iter().map(|x| x * x).sum::<f64>().sqrt();
+        let mag_b: f64 = b.iter().map(|x| x * x).sum::<f64>().sqrt();
+        
+        if mag_a < 1e-10 || mag_b < 1e-10 {
+            return 0.0;
+        }
+        
+        dot / (mag_a * mag_b)
+    }
+    
+    /// Batch weighted sum (CPU parallel)
+    pub fn batch_weighted_sum(vectors: &[Vec<f64>], weights: &[f64]) -> Vec<f64> {
+        if vectors.is_empty() {
+            return vec![];
+        }
+        
+        let dim = vectors[0].len();
+        let total_weight: f64 = weights.iter().sum();
+        
+        if total_weight.abs() < 1e-10 {
+            return vec![0.0; dim];
+        }
+        
+        let mut result = vec![0.0; dim];
+        for (v, &w) in vectors.iter().zip(weights.iter()) {
+            for (i, &x) in v.iter().enumerate() {
+                result[i] += x * w;
+            }
+        }
+        
+        result.par_iter().map(|x| x / total_weight).collect()
+    }
+}
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_fate_system_f64() {
+        let limits = ResourceLimits::default();
+        let mut fate = FateSystem::new("test".to_string(), limits);
+        
+        assert_eq!(fate.get_logical_time(), 0);
+        
+        let signal = DeformationSignal {
+            source_system: SystemType::BlackHole,
+            intensity: 0.5,
+            direction: vec![1.0, 0.0, 0.0, 0.0],
+            signal_tick: 0,
+            quality_score: 0.8,
+        };
+        
+        fate.receive_signal(signal);
+        assert_eq!(fate.get_logical_time(), 1);
+    }
+    
+    #[test]
+    fn test_batch_operations() {
+        let mut batch = SignalBatch::new();
+        
+        for i in 0..100 {
+            let signal = DeformationSignal {
+                source_system: SystemType::BlackHole,
+                intensity: 0.5 + (i as f64 * 0.01),
+                direction: vec![1.0, 0.0, 0.0, 0.0],
+                signal_tick: i,
+                quality_score: 0.8,
+            };
+            batch.push(&signal);
+        }
+        
+        let weights = batch.compute_weights_parallel();
+        assert_eq!(weights.len(), 100);
+    }
+    
+    #[test]
+    fn test_cpu_cosine_similarity() {
+        let a = vec![1.0, 0.0, 0.0];
+        let b = vec![1.0, 0.0, 0.0];
+        let c = vec![0.0, 1.0, 0.0];
+        
+        assert!((cpu::cosine_similarity(&a, &b) - 1.0).abs() < 1e-10);
+        assert!((cpu::cosine_similarity(&a, &c) - 0.0).abs() < 1e-10);
+    }
+}

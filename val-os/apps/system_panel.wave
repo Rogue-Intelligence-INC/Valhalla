@@ -1,0 +1,332 @@
+# 🎛️ Val-OS 系统面板
+# 按系统键呼出 · 半GUI · 控制中心
+
+# ═══════════════════════════════════════════════════════
+# 系统面板 (按 Super/Meta 键呼出)
+# ═══════════════════════════════════════════════════════
+
+system_panel -> ui_overlay {
+    visible -> false
+    position -> { x: "center", y: "center" }
+    size -> { width: 60, height: 30 }
+    
+    state -> {
+        wifi_enabled: true,
+        wifi_connected: true,
+        wifi_name: "ValhallaNet",
+        wifi_signal: 85,
+        
+        bluetooth_enabled: false,
+        
+        volume: 70,
+        muted: false,
+        
+        brightness: 80,
+        
+        battery: 95,
+        charging: true,
+        
+        dnd_enabled: false,  # 勿扰模式
+        
+        theme: "dark",
+        
+        performance_mode: "balanced"  # balanced, performance, powersave
+    }
+    
+    render -> function() {
+        # 背景 (半透明渐变)
+        draw_gradient_box_alpha(0, 0, 60, 30, gradients.night, 0.9)
+        
+        # ─────────────────────────────────────────────
+        # 顶部: 时间和日期
+        # ─────────────────────────────────────────────
+        time_str -> format_time(now(), "HH:mm")
+        date_str -> format_date(now(), "YYYY年MM月DD日 dddd")
+        
+        draw_gradient_text(time_str, gradients.fate, 22, 2, font_size: 3)
+        draw_text(date_str, 18, 5, rgb(150,150,170))
+        
+        # ─────────────────────────────────────────────
+        # 快捷控制区
+        # ─────────────────────────────────────────────
+        draw_line(2, 7, 56, rgb(60,60,80))
+        
+        # WiFi
+        wifi_icon -> when state.wifi_enabled {
+            when state.wifi_connected { "📶" } else { "📡" }
+        } else { "📵" }
+        wifi_color -> when state.wifi_connected { rgb(100,200,100) } else { rgb(150,150,150) }
+        
+        draw_toggle_tile(2, 8, 12, 4, wifi_icon, "WiFi", state.wifi_enabled, wifi_color, function() {
+            state.wifi_enabled -> !state.wifi_enabled
+            refresh()
+        })
+        
+        # 蓝牙
+        bt_icon -> when state.bluetooth_enabled { "🔵" } else { "⚪" }
+        bt_color -> when state.bluetooth_enabled { rgb(100,150,255) } else { rgb(100,100,100) }
+        
+        draw_toggle_tile(16, 8, 12, 4, bt_icon, "蓝牙", state.bluetooth_enabled, bt_color, function() {
+            state.bluetooth_enabled -> !state.bluetooth_enabled
+            refresh()
+        })
+        
+        # 勿扰模式
+        dnd_icon -> when state.dnd_enabled { "🌙" } else { "🔔" }
+        dnd_color -> when state.dnd_enabled { rgb(180,100,200) } else { rgb(100,100,100) }
+        
+        draw_toggle_tile(30, 8, 12, 4, dnd_icon, "勿扰", state.dnd_enabled, dnd_color, function() {
+            state.dnd_enabled -> !state.dnd_enabled
+            refresh()
+        })
+        
+        # 主题切换
+        theme_icon -> when state.theme == "dark" { "🌙" } else { "☀️" }
+        
+        draw_toggle_tile(44, 8, 12, 4, theme_icon, "主题", state.theme == "dark", rgb(150,150,150), function() {
+            state.theme -> when state.theme == "dark" { "light" } else { "dark" }
+            apply_theme(state.theme)
+            refresh()
+        })
+        
+        # ─────────────────────────────────────────────
+        # 滑块控制区
+        # ─────────────────────────────────────────────
+        
+        # 音量
+        vol_icon -> when state.muted { "🔇" } else {
+            when state.volume > 60 { "🔊" }
+            else when state.volume > 30 { "🔉" }
+            else { "🔈" }
+        }
+        
+        draw_text(vol_icon, 2, 14)
+        draw_slider(6, 14, 35, state.volume, 0, 100, function(v) {
+            state.volume -> v
+            set_system_volume(v)
+            refresh()
+        })
+        draw_text("{state.volume}%", 43, 14, rgb(150,150,150))
+        
+        draw_icon_button("🔇", 50, 14, function() {
+            state.muted -> !state.muted
+            refresh()
+        })
+        
+        # 亮度
+        bright_icon -> when state.brightness > 60 { "🔆" } else { "🔅" }
+        
+        draw_text(bright_icon, 2, 16)
+        draw_slider(6, 16, 35, state.brightness, 0, 100, function(v) {
+            state.brightness -> v
+            set_screen_brightness(v)
+            refresh()
+        })
+        draw_text("{state.brightness}%", 43, 16, rgb(150,150,150))
+        
+        # ─────────────────────────────────────────────
+        # 性能模式
+        # ─────────────────────────────────────────────
+        draw_line(2, 18, 56, rgb(60,60,80))
+        draw_text("⚡ 性能模式", 2, 19, rgb(180,180,200))
+        
+        modes -> [
+            { id: "powersave", label: "省电", icon: "🔋", color: rgb(100,200,100) },
+            { id: "balanced", label: "平衡", icon: "⚖️", color: rgb(200,200,100) },
+            { id: "performance", label: "性能", icon: "🚀", color: rgb(255,150,100) }
+        ]
+        
+        x -> 2
+        for mode in modes {
+            is_selected -> state.performance_mode == mode.id
+            bg -> when is_selected { mode.color } else { rgb(50,50,60) }
+            
+            draw_button("{mode.icon} {mode.label}", x, 20, function() {
+                state.performance_mode -> mode.id
+                fate_set_performance_mode(mode.id)
+                refresh()
+            }, bg: bg, w: 18)
+            
+            x -> x + 19
+        }
+        
+        # ─────────────────────────────────────────────
+        # 网络详情
+        # ─────────────────────────────────────────────
+        draw_line(2, 22, 56, rgb(60,60,80))
+        
+        when state.wifi_connected {
+            draw_text("📶 {state.wifi_name}", 2, 23, rgb(100,200,100))
+            
+            # 信号强度条
+            signal_bars -> floor(state.wifi_signal / 25)
+            signal_str -> "▂" * signal_bars + "▁" * (4 - signal_bars)
+            draw_text(signal_str, 25, 23, rgb(100,200,100))
+            
+            draw_text("IP: 192.168.1.42", 35, 23, rgb(120,120,140))
+        } else {
+            draw_text("📵 未连接网络", 2, 23, rgb(150,100,100))
+            draw_button("连接", 25, 23, show_wifi_list)
+        }
+        
+        # ─────────────────────────────────────────────
+        # 底部: 用户信息和快捷操作
+        # ─────────────────────────────────────────────
+        draw_line(2, 25, 56, rgb(60,60,80))
+        
+        user -> users_db.current_user
+        draw_text("👤 {user.name}", 2, 26, rgb(180,180,200))
+        
+        when user.is_admin {
+            draw_text("[管理员]", 15, 26, rgb(255,200,100))
+        }
+        
+        # 电池状态
+        battery_icon -> when state.charging { "🔌" } else {
+            when state.battery > 80 { "🔋" }
+            else when state.battery > 40 { "🪫" }
+            else { "⚠️" }
+        }
+        battery_color -> when state.battery > 20 { rgb(100,200,100) } else { rgb(255,100,100) }
+        
+        draw_text("{battery_icon} {state.battery}%", 45, 26, battery_color)
+        
+        # 快捷按钮
+        draw_icon_button("⚙️", 2, 28, function() {
+            hide()
+            launch_app("settings")
+        })
+        
+        draw_icon_button("🔒", 8, 28, function() {
+            hide()
+            lock_screen()
+        })
+        
+        draw_icon_button("👤", 14, 28, function() {
+            hide()
+            launch_app("user_panel")
+        })
+        
+        draw_icon_button("⏻", 50, 28, show_power_menu)
+    }
+    
+    # 绘制可切换的图块
+    draw_toggle_tile -> function(x, y, w, h, icon, label, enabled, color, on_click) {
+        bg -> when enabled { rgb(60,70,80) } else { rgb(40,40,50) }
+        border -> when enabled { color } else { rgb(60,60,70) }
+        
+        draw_box(x, y, w, h, bg, border: border)
+        draw_text(icon, x + w/2 - 1, y + 1)
+        draw_text(label, x + w/2 - label.length/2, y + 2, color)
+        
+        on_mouse_click(x, y, w, h) -> on_click
+    }
+    
+    # 绘制滑块
+    draw_slider -> function(x, y, w, value, min_val, max_val, on_change) {
+        # 轨道
+        draw_line(x, y, w, rgb(60,60,80))
+        
+        # 填充
+        fill_w -> floor(w * (value - min_val) / (max_val - min_val))
+        draw_gradient_line(x, y, fill_w, gradients.ocean)
+        
+        # 滑块
+        knob_x -> x + fill_w
+        draw_text("●", knob_x, y, rgb(255,255,255))
+        
+        # 拖拽事件
+        on_drag(x, y, w, 1) -> function(dx, dy) {
+            new_val -> clamp(value + dx * (max_val - min_val) / w, min_val, max_val)
+            on_change(floor(new_val))
+        }
+        
+        # 点击事件
+        on_click(x, y, w, 1) -> function(click_x, click_y) {
+            new_val -> min_val + (click_x - x) * (max_val - min_val) / w
+            on_change(floor(new_val))
+        }
+    }
+    
+    # 显示/隐藏
+    show -> function() {
+        visible -> true
+        refresh()
+    }
+    
+    hide -> function() {
+        visible -> false
+    }
+    
+    toggle -> function() {
+        when visible { hide() } else { show() }
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 全局键盘处理
+# ═══════════════════════════════════════════════════════
+
+register_global_key("Super", function() {
+    system_panel.toggle()
+})
+
+register_global_key("Super+L", function() {
+    lock_screen()
+})
+
+# ═══════════════════════════════════════════════════════
+# WiFi 列表
+# ═══════════════════════════════════════════════════════
+
+show_wifi_list -> function() {
+    wifi_dialog -> create_dialog(40, 15)
+    
+    networks -> [
+        { ssid: "ValhallaNet", signal: 85, secured: true },
+        { ssid: "Guest_WiFi", signal: 60, secured: false },
+        { ssid: "Neighbor_5G", signal: 30, secured: true }
+    ]
+    
+    wifi_dialog.render -> function() {
+        draw_gradient_text("📶 可用网络", gradients.ocean, 2, 1)
+        draw_line(2, 2, 36)
+        
+        y -> 4
+        for net in networks {
+            signal_icon -> when net.signal > 70 { "📶" }
+                          else when net.signal > 40 { "📡" }
+                          else { "📵" }
+            lock_icon -> when net.secured { "🔒" } else { "" }
+            
+            draw_text("{signal_icon} {net.ssid} {lock_icon}", 4, y)
+            draw_button("连接", 30, y, function() {
+                connect_wifi(net)
+                wifi_dialog.close()
+            })
+            y -> y + 2
+        }
+    }
+    
+    wifi_dialog.show()
+}
+
+# ═══════════════════════════════════════════════════════
+# 电源菜单
+# ═══════════════════════════════════════════════════════
+
+show_power_menu -> function() {
+    power_dialog -> create_dialog(30, 12)
+    
+    power_dialog.render -> function() {
+        draw_gradient_text("⏻ 电源", gradients.sunset, 2, 1)
+        draw_line(2, 2, 26)
+        
+        draw_button("😴 睡眠", 4, 4, suspend_system)
+        draw_button("🔄 重启", 4, 6, restart_system)
+        draw_button("⏻ 关机", 4, 8, shutdown_system)
+        draw_button("❌ 取消", 4, 10, function() { power_dialog.close() })
+    }
+    
+    power_dialog.show()
+}

@@ -1,0 +1,335 @@
+// 🌌 Cosmic-C 完整语法示例
+// 最简洁而完整的编程语言，忠实于Valhalla理念
+
+// === 基础数据类型 ===
+
+let int_val: int = 42
+let float_val: float = 3.14
+let bool_val: bool = true
+let str_val: string = "Hello, Cosmic"
+let char_val: char = 'C'
+
+// 类型推导
+let auto_int = 100        // 自动推导为 int
+let auto_str = "World"    // 自动推导为 string
+
+// === 数组和集合 ===
+
+let numbers: [int] = [1, 2, 3, 4, 5]
+let mixed_array = [1, 2.5, "hello"]  // 混合类型数组
+
+// 数组操作
+let first = numbers[0]
+let length = numbers.length
+let sum = numbers.fold(+)
+let doubled = numbers.map(|x| x * 2)
+let evens = numbers.filter(|x| x % 2 == 0)
+
+// === 函数定义 ===
+
+// 基础函数
+fn greet(name: string) -> string {
+    return "Hello, " + name
+}
+
+// 带默认参数的函数
+fn multiply(a: int, b: int = 2) -> int {
+    return a * b
+}
+
+// 泛型函数
+fn identity<T>(value: T) -> T {
+    return value
+}
+
+// 高阶函数
+fn apply<T, U>(value: T, func: fn(T) -> U) -> U {
+    return func(value)
+}
+
+// === 控制流 ===
+
+// if/else
+fn check_number(x: int) -> string {
+    if x > 0 {
+        return "positive"
+    } else if x < 0 {
+        return "negative"
+    } else {
+        return "zero"
+    }
+}
+
+// 三元表达式
+let status = x > 0 ? "positive" : "non-positive"
+
+// === 循环 ===
+
+// for 循环
+fn sum_range(n: int) -> int {
+    let total = 0
+    for i in 0..n {
+        total += i
+    }
+    return total
+}
+
+// while 循环
+fn factorial(n: int) -> int {
+    let result = 1
+    let i = 1
+    while i <= n {
+        result *= i
+        i += 1
+    }
+    return result
+}
+
+// for-each 循环
+fn print_all(items: [string]) {
+    for item in items {
+        println(item)
+    }
+}
+
+// === 模式匹配 ===
+
+enum Color {
+    Red,
+    Green,
+    Blue,
+    RGB(int, int, int)
+}
+
+fn describe_color(color: Color) -> string {
+    match color {
+        Color.Red => "红色",
+        Color.Green => "绿色", 
+        Color.Blue => "蓝色",
+        Color.RGB(r, g, b) => "RGB(" + r + "," + g + "," + b + ")"
+    }
+}
+
+// === 结构体和方法 ===
+
+struct Point {
+    x: float
+    y: float
+}
+
+impl Point {
+    fn new(x: float, y: float) -> Point {
+        return Point { x: x, y: y }
+    }
+    
+    fn distance(&self, other: &Point) -> float {
+        let dx = self.x - other.x
+        let dy = self.y - other.y
+        return sqrt(dx * dx + dy * dy)
+    }
+}
+
+// === 错误处理 ===
+
+enum Result<T, E> {
+    Ok(T),
+    Err(E)
+}
+
+fn safe_divide(a: float, b: float) -> Result<float, string> {
+    if b == 0.0 {
+        return Result.Err("除零错误")
+    } else {
+        return Result.Ok(a / b)
+    }
+}
+
+// 使用 ? 操作符
+fn chain_operations(x: float) -> Result<float, string> {
+    let step1 = safe_divide(x, 2.0)?
+    let step2 = safe_divide(step1, 3.0)?
+    return Result.Ok(step2)
+}
+
+// === 可选类型 ===
+
+enum Option<T> {
+    Some(T),
+    None
+}
+
+fn find_first(items: [int], target: int) -> Option<int> {
+    for i in 0..items.length {
+        if items[i] == target {
+            return Option.Some(i)
+        }
+    }
+    return Option.None
+}
+
+// === 自适应存储特性 ===
+
+@adaptive
+struct Container<T> {
+    // Fate-Voyager自动选择最优数据结构
+    // Array, Hash, Tree, Cache
+}
+
+// 使用自适应容器
+let numbers = Container<int>()
+numbers.add(1)      // 可能选择Array (顺序访问)
+numbers.add(2) 
+numbers.find(1)     // 访问模式改变，可能转为Hash (随机访问)
+
+// === 编译器协作注解 ===
+
+// 自动优化提示
+@optimize
+fn heavy_computation(data: [float]) -> float {
+    let total = 0.0
+    for item in data {
+        total += item * item    // 编译器自动SIMD优化
+    }
+    return total
+}
+
+// 并行化提示
+@parallel
+fn parallel_map(data: [int], func: fn(int) -> int) -> [int] {
+    return data.map(func)  // 编译器自动并行化
+}
+
+// 内联提示
+@inline
+fn fast_add(a: int, b: int) -> int {
+    return a + b
+}
+
+// === 常量定义 ===
+
+const PI: float = 3.14159
+const MAX_SIZE: int = 1000
+const GREETING: string = "Welcome to Cosmic-C"
+
+// === 模块系统 ===
+
+// 导入标准库
+use std.io
+use std.math
+
+// 导入自定义模块
+use my_module.utils
+
+// 导出函数
+export fn public_function() {
+    // 公开函数
+}
+
+// === 实际应用示例：Todo应用 ===
+
+struct Todo {
+    id: int
+    title: string
+    done: bool
+    created_at: int  // timestamp
+}
+
+@adaptive
+let todos = Container<Todo>()
+
+fn add_todo(title: string) -> Result<int, string> {
+    if title.length == 0 {
+        return Result.Err("标题不能为空")
+    }
+    
+    let todo = Todo {
+        id: generate_id(),
+        title: title,
+        done: false,
+        created_at: current_timestamp()
+    }
+    
+    todos.add(todo)
+    return Result.Ok(todo.id)
+}
+
+fn find_todo(id: int) -> Option<Todo> {
+    return todos.find(|t| t.id == id)
+}
+
+fn toggle_todo(id: int) -> Result<(), string> {
+    match find_todo(id) {
+        Option.Some(todo) => {
+            todo.done = !todo.done
+            return Result.Ok(())
+        },
+        Option.None => {
+            return Result.Err("Todo不存在")
+        }
+    }
+}
+
+fn list_pending_todos() -> [Todo] {
+    return todos.filter(|t| !t.done)
+}
+
+// === 异步编程 ===
+
+@async
+fn fetch_data(url: string) -> Result<string, string> {
+    // 异步获取数据
+    let response = await http.get(url)
+    return response.text()
+}
+
+@async
+fn main() {
+    let data = await fetch_data("https://api.example.com/data")
+    match data {
+        Result.Ok(content) => println("数据: " + content),
+        Result.Err(error) => println("错误: " + error)
+    }
+}
+
+// === 内存管理 ===
+
+// 自动内存管理（默认）
+let auto_managed = "自动管理"
+
+// 手动内存管理（高级用法）
+@manual_memory
+fn low_level_operations() {
+    let ptr = malloc(1024)
+    // ... 操作 ...
+    free(ptr)
+}
+
+// === 渐进式复杂度演示 ===
+
+// Level 1: 基础语法
+let result = numbers.sum()
+
+// Level 2: 优化提示
+@optimize
+let fast_result = numbers.parallel_sum()
+
+// Level 3: 自适应算法
+@adaptive
+let smart_container = Container<int>()
+
+// Level 4: 手动控制（仅在必要时）
+@manual_optimization
+@simd(avx2)
+let ultra_fast_result = numbers.simd_sum()
+
+/*
+🌌 Cosmic-C 核心价值:
+
+1. 简洁性 - 最少的语法，最大的表达力
+2. 自适应 - Fate-Voyager算法自动优化数据结构
+3. 协作性 - 与编译器协作，不重复造轮子
+4. 渐进性 - 从简单到复杂的学习路径
+5. 实用性 - 现代编程语言的所有必要特性
+
+忠实于Valhalla: 智能、高效、优雅
+*/ 

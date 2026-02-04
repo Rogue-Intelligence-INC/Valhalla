@@ -1,0 +1,158 @@
+# Val-OS VGA Real Graphics
+# Wave v5 - True pixel-level GUI in Mode 13h
+
+# ═══════════════════════════════════════════════════════
+# VGA Mode 13h: 320x200, 256 colors
+# Framebuffer: 0xA000:0000 (linear 64KB)
+# Each pixel = 1 byte (palette index 0-255)
+# ═══════════════════════════════════════════════════════
+
+# Set VGA mode 13h
+# Machine code: mov ax, 0x0013 / int 0x10
+vga_init -> "B80013CD10"
+
+# Put pixel at (x, y) with color
+# offset = y * 320 + x
+# Write to ES:DI where ES = 0xA000
+put_pixel -> function(x, y, color) {
+    # mov ax, 0xA000 / mov es, ax
+    # mov di, y*320+x
+    # mov al, color / stosb
+    offset -> y * 320 + x
+    "B800A08EC0" + offset + color -> fate_decide
+}
+
+# Draw horizontal line
+hline -> function(x, y, width, color) {
+    # rep stosb with cx = width
+    offset -> y * 320 + x
+    "B800A08EC0BF" + offset + "B9" + width + "B0" + color + "F3AA" -> fate_decide
+}
+
+# Draw vertical line
+vline -> function(x, y, height, color) {
+    i -> 0
+    repeat height {
+        put_pixel -> call(x, y + i, color)
+        i -> i + 1
+    }
+}
+
+# Fill rectangle
+fill_rect -> function(x, y, w, h, color) {
+    i -> 0
+    repeat h {
+        hline -> call(x, y + i, w, color)
+        i -> i + 1
+    }
+}
+
+# Draw rectangle outline
+draw_rect -> function(x, y, w, h, color) {
+    hline -> call(x, y, w, color)           # top
+    hline -> call(x, y + h - 1, w, color)   # bottom
+    vline -> call(x, y, h, color)           # left
+    vline -> call(x + w - 1, y, h, color)   # right
+}
+
+# ═══════════════════════════════════════════════════════
+# Color Palette (256 colors)
+# ═══════════════════════════════════════════════════════
+
+colors -> {
+    black: 0,
+    blue: 1,
+    green: 2,
+    cyan: 3,
+    red: 4,
+    magenta: 5,
+    brown: 6,
+    light_gray: 7,
+    dark_gray: 8,
+    light_blue: 9,
+    light_green: 10,
+    light_cyan: 11,
+    light_red: 12,
+    light_magenta: 13,
+    yellow: 14,
+    white: 15,
+    # Extended colors 16-255 for gradients
+    gradient_blue_start: 16,
+    gradient_blue_end: 31
+}
+
+# Set custom palette color
+set_palette -> function(index, r, g, b) {
+    # out 0x3C8, index / out 0x3C9, r / out 0x3C9, g / out 0x3C9, b
+    "B0" + index + "BAC803EE" + "B0" + r + "BAC903EE" + "B0" + g + "EE" + "B0" + b + "EE" -> fate_decide
+}
+
+# Create blue gradient palette (indices 16-31)
+init_gradient_palette -> function() {
+    i -> 0
+    repeat 16 {
+        r -> 0
+        g -> i * 2
+        b -> 32 + i * 4
+        set_palette -> call(16 + i, r, g, b)
+        i -> i + 1
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# Gradient Fill
+# ═══════════════════════════════════════════════════════
+
+gradient_fill -> function(x, y, w, h, start_color, end_color) {
+    steps -> end_color - start_color
+    row -> 0
+    repeat h {
+        color -> start_color + (row * steps / h)
+        hline -> call(x, y + row, w, color)
+        row -> row + 1
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 8x8 Bitmap Font
+# ═══════════════════════════════════════════════════════
+
+# Character bitmaps (simplified)
+font_data -> fate_alloc
+
+draw_char -> function(x, y, char, fg, bg) {
+    # Get character bitmap
+    bitmap -> font_data[char * 8]
+    
+    row -> 0
+    repeat 8 {
+        col -> 0
+        repeat 8 {
+            bit -> (bitmap[row] >> (7 - col)) & 1
+            when bit == 1 {
+                put_pixel -> call(x + col, y + row, fg)
+            }
+            otherwise {
+                put_pixel -> call(x + col, y + row, bg)
+            }
+            col -> col + 1
+        }
+        row -> row + 1
+    }
+}
+
+draw_text -> function(x, y, text, fg, bg) {
+    i -> 0
+    repeat length(text) {
+        draw_char -> call(x + i * 8, y, text[i], fg, bg)
+        i -> i + 1
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# Clear Screen
+# ═══════════════════════════════════════════════════════
+
+clear_screen -> function(color) {
+    fill_rect -> call(0, 0, 320, 200, color)
+}

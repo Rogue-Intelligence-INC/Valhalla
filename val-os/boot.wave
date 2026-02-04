@@ -1,0 +1,44 @@
+# Val-OS Boot - Pure Wave
+# Complete 16-bit bootloader written in Wave
+
+# Hardware initialization
+__asm__ {
+    cli
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov sp, 0x7C00
+}
+
+# Set video mode
+__asm__ {
+    mov ax, 0x0003
+    int 0x10
+}
+
+# Read kernel from disk
+__asm__ {
+    mov bx, 0x1000
+    mov ah, 0x02
+    mov al, 32
+    mov ch, 0
+    mov cl, 2
+    mov dh, 0
+    mov dl, 0
+    int 0x13
+}
+
+# Print boot message
+out "Val-OS v4.0"
+out "Fate Engine Active"
+out ""
+
+# Enter protected mode and jump to kernel
+__asm__ {
+    lgdt [gdt_desc]
+    mov eax, cr0
+    or al, 1
+    mov cr0, eax
+    jmp 0x08:0x1000
+}

@@ -1,0 +1,232 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Display Driver
+# Fate-adaptive display management
+# ═══════════════════════════════════════════════════════════════════
+
+# Display state
+display = {
+    width: 0,
+    height: 0,
+    depth: 0,
+    mode: "text",
+    framebuffer: null
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Initialization (Fate detects best mode)
+# ───────────────────────────────────────────────────────────────────
+
+init -> function() {
+    # Fate probes available modes
+    available -> fate_probe_display
+    
+    # Fate selects optimal mode
+    best -> available -> fate_select_best_display
+    
+    display.width = best.width
+    display.height = best.height
+    display.depth = best.depth
+    display.mode = best.mode
+    
+    # Allocate framebuffer in Quattro
+    fb_size = display.width * display.height * (display.depth / 8)
+    display.framebuffer -> quattro_alloc(fb_size, "display")
+    
+    # Initialize hardware
+    best -> fate_init_display_hw
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Output (CLI = GUI unified)
+# ───────────────────────────────────────────────────────────────────
+
+# Wave's out statement routes here
+# Fate decides: text mode or GUI rendering
+
+out_render -> function(content) {
+    # Fate analyzes content
+    content -> fate_analyze_content -> type
+    
+    when type == "text" {
+        content -> render_text
+    }
+    when type == "widget" {
+        content -> render_widget
+    }
+    when type == "graphic" {
+        content -> render_graphic
+    }
+}
+
+render_text -> function(text) {
+    # Get cursor position
+    x = cursor.x
+    y = cursor.y
+    
+    text -> fate_each_char -> char {
+        when char == "\n" {
+            cursor.x = 0
+            cursor.y = cursor.y + font.height
+        } else {
+            char -> draw_char(x, y)
+            cursor.x = cursor.x + font.width
+        }
+    }
+    
+    # Trigger display update
+    fate_display_sync()
+}
+
+render_widget -> function(widget) {
+    when widget.type == "button" {
+        widget -> draw_button
+    }
+    when widget.type == "input" {
+        widget -> draw_input
+    }
+    when widget.type == "window" {
+        widget -> draw_window
+    }
+    when widget.type == "panel" {
+        widget -> draw_panel
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Drawing Primitives
+# ───────────────────────────────────────────────────────────────────
+
+draw_pixel -> function(x, y, color) {
+    when x >= 0 && x < display.width && y >= 0 && y < display.height {
+        offset = (y * display.width + x) * (display.depth / 8)
+        color -> display.framebuffer[offset]
+    }
+}
+
+draw_rect -> function(x, y, w, h, color) {
+    limit h; {
+        limit w; {
+            draw_pixel(x + w_i, y + h_i, color)
+        }
+    }
+}
+
+draw_rect_fill -> function(x, y, w, h, color) {
+    cy = 0
+    limit h; {
+        cx = 0
+        limit w; {
+            draw_pixel(x + cx, y + cy, color)
+            cx = cx + 1
+        }
+        cy = cy + 1
+    }
+}
+
+draw_char -> function(x, y, char) {
+    # Get font glyph
+    glyph -> font.get_glyph(char)
+    
+    # Draw glyph pixels
+    glyph -> fate_each_pixel -> px {
+        when px.on {
+            draw_pixel(x + px.x, y + px.y, color.foreground)
+        }
+    }
+}
+
+draw_string -> function(x, y, text) {
+    cx = x
+    text -> fate_each_char -> char {
+        draw_char(cx, y, char)
+        cx = cx + font.width
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# GUI Components (Wave-native)
+# ───────────────────────────────────────────────────────────────────
+
+draw_button -> function(btn) {
+    # Background with gradient
+    draw_gradient(btn.x, btn.y, btn.w, btn.h, btn.color1, btn.color2)
+    
+    # Border
+    draw_rect(btn.x, btn.y, btn.w, btn.h, color.border)
+    
+    # Text centered
+    tx = btn.x + (btn.w - btn.text.length * font.width) / 2
+    ty = btn.y + (btn.h - font.height) / 2
+    draw_string(tx, ty, btn.text)
+}
+
+draw_window -> function(win) {
+    # Shadow
+    draw_rect_fill(win.x + 4, win.y + 4, win.w, win.h, color.shadow)
+    
+    # Window background
+    draw_rect_fill(win.x, win.y, win.w, win.h, color.window_bg)
+    
+    # Title bar
+    draw_gradient(win.x, win.y, win.w, 24, color.title1, color.title2)
+    draw_string(win.x + 8, win.y + 4, win.title)
+    
+    # Close button
+    draw_button({ x: win.x + win.w - 20, y: win.y + 4, w: 16, h: 16, text: "×" })
+    
+    # Content area
+    win.content -> render_widget
+}
+
+draw_gradient -> function(x, y, w, h, color1, color2) {
+    cy = 0
+    limit h; {
+        # Interpolate color
+        t = cy / h
+        r = color1.r + (color2.r - color1.r) * t
+        g = color1.g + (color2.g - color1.g) * t
+        b = color1.b + (color2.b - color1.b) * t
+        color = { r: r, g: g, b: b }
+        
+        cx = 0
+        limit w; {
+            draw_pixel(x + cx, y + cy, color)
+            cx = cx + 1
+        }
+        cy = cy + 1
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Display Sync (Fate-managed)
+# ───────────────────────────────────────────────────────────────────
+
+fate_display_sync -> function() {
+    # Fate decides when to sync
+    # Could be immediate, vsync, or batched
+    
+    { action: "display_sync" } -> fate_decide -> timing
+    
+    when timing == "immediate" {
+        display.framebuffer -> hw_display_update
+    }
+    when timing == "vsync" {
+        display.framebuffer -> hw_wait_vsync -> hw_display_update
+    }
+    when timing == "batch" {
+        # Will sync on next frame
+    }
+}
+
+# Export
+module.exports = {
+    init,
+    out_render,
+    draw_pixel,
+    draw_rect,
+    draw_rect_fill,
+    draw_string,
+    draw_button,
+    draw_window,
+    draw_gradient
+}

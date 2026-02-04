@@ -1,0 +1,219 @@
+# 📦 Val-OS 包管理器
+# 软件商店风格 · 半GUI · 推荐系统
+
+# ═══════════════════════════════════════════════════════
+# 包数据库
+# ═══════════════════════════════════════════════════════
+
+pkg_db -> fate_storage {
+    packages -> [
+        { id: "notebook", name: "记事本", icon: "📝", category: "工具", installed: true, rating: 4.5 },
+        { id: "music", name: "音乐播放器", icon: "🎵", category: "媒体", installed: true, rating: 4.8 },
+        { id: "video", name: "视频播放器", icon: "🎬", category: "媒体", installed: true, rating: 4.6 },
+        { id: "minesweeper", name: "扫雷", icon: "💣", category: "游戏", installed: true, rating: 4.9 },
+        { id: "browser", name: "浏览器", icon: "🌐", category: "网络", installed: true, rating: 4.3 },
+        { id: "settings", name: "设置", icon: "⚙️", category: "系统", installed: true, rating: 4.7 },
+        { id: "terminal", name: "终端", icon: "💻", category: "系统", installed: true, rating: 4.5 },
+        { id: "files", name: "文件管理", icon: "📁", category: "系统", installed: true, rating: 4.4 },
+    ]
+    
+    categories -> ["全部", "工具", "媒体", "游戏", "网络", "系统"]
+}
+
+# ═══════════════════════════════════════════════════════
+# 包管理器 UI
+# ═══════════════════════════════════════════════════════
+
+pkg_manager -> ui_app {
+    title -> "📦 软件商店"
+    size -> { width: 70, height: 25 }
+    
+    state -> {
+        search_query: "",
+        selected_category: "全部",
+        selected_pkg: null,
+        scroll_offset: 0
+    }
+    
+    render -> function() {
+        # 标题栏 (渐变)
+        draw_gradient_box(0, 0, 70, 3, gradients.ocean)
+        draw_text("📦 Val-OS 软件商店", 2, 1, rgb(255,255,255))
+        
+        # 搜索栏
+        draw_box(2, 4, 50, 3, rgb(50,50,60))
+        draw_text("🔍", 3, 5)
+        search_input -> draw_input(6, 5, 44, placeholder: "搜索应用...")
+        search_input.on_change -> function(value) {
+            state.search_query -> value
+            refresh()
+        }
+        
+        # 分类标签
+        x -> 2
+        for cat in pkg_db.categories {
+            is_selected -> cat == state.selected_category
+            color -> when is_selected { gradients.fate[0] } else { rgb(100,100,100) }
+            
+            draw_button(cat, x, 8, function() {
+                state.selected_category -> cat
+                refresh()
+            }, bg: color)
+            
+            x -> x + cat.length + 3
+        }
+        
+        # 分隔线
+        draw_line(2, 10, 66, rgb(60,60,70))
+        
+        # 推荐区域
+        draw_gradient_text("⭐ 推荐", gradients.sunset, 2, 11)
+        
+        recommended -> get_recommended()
+        rx -> 2
+        for pkg in recommended.slice(0, 4) {
+            draw_app_card(pkg, rx, 12, 15, 6)
+            rx -> rx + 17
+        }
+        
+        # 应用列表
+        draw_text("所有应用", 2, 19, rgb(150,150,150))
+        
+        filtered -> filter_packages()
+        y -> 20
+        for pkg in filtered.slice(state.scroll_offset, state.scroll_offset + 4) {
+            draw_app_row(pkg, 2, y)
+            y -> y + 1
+        }
+        
+        # 滚动条
+        when filtered.length > 4 {
+            draw_scrollbar(68, 20, 4, state.scroll_offset, filtered.length)
+        }
+    }
+    
+    # 绘制应用卡片
+    draw_app_card -> function(pkg, x, y, w, h) {
+        # 背景
+        bg_color -> when pkg.installed { rgb(40,60,40) } else { rgb(40,40,50) }
+        draw_box(x, y, w, h, bg_color)
+        
+        # 图标
+        draw_text(pkg.icon, x + w/2 - 1, y + 1)
+        
+        # 名称
+        draw_text(pkg.name, x + 1, y + 3, rgb(200,200,200))
+        
+        # 评分
+        stars -> "★" * floor(pkg.rating) + "☆" * (5 - floor(pkg.rating))
+        draw_text(stars, x + 1, y + 4, rgb(255,200,0))
+        
+        # 点击事件
+        on_click(x, y, w, h) -> function() {
+            state.selected_pkg -> pkg
+            show_pkg_detail(pkg)
+        }
+    }
+    
+    # 绘制应用行
+    draw_app_row -> function(pkg, x, y) {
+        # 图标
+        draw_text(pkg.icon, x, y)
+        
+        # 名称
+        draw_text(pkg.name, x + 3, y, rgb(200,200,200))
+        
+        # 分类
+        draw_text(pkg.category, x + 20, y, rgb(100,100,100))
+        
+        # 状态
+        status -> when pkg.installed { "已安装" } else { "安装" }
+        status_color -> when pkg.installed { rgb(100,200,100) } else { rgb(100,150,255) }
+        draw_text(status, x + 35, y, status_color)
+        
+        # 评分
+        draw_text("{pkg.rating}⭐", x + 50, y, rgb(255,200,0))
+    }
+    
+    # 过滤包
+    filter_packages -> function() {
+        result -> pkg_db.packages
+        
+        when state.selected_category != "全部" {
+            result -> result.filter(p => p.category == state.selected_category)
+        }
+        
+        when state.search_query.length > 0 {
+            q -> state.search_query.lower()
+            result -> result.filter(p => p.name.lower().contains(q))
+        }
+        
+        return result
+    }
+    
+    # 获取推荐
+    get_recommended -> function() {
+        # Fate 分析用户行为推荐
+        user_apps -> fate_get_user_app_usage()
+        
+        # 按评分和使用频率排序
+        return pkg_db.packages
+            .sort((a, b) => b.rating - a.rating)
+            .slice(0, 4)
+    }
+    
+    # 鼠标滚轮
+    on_scroll -> function(delta) {
+        state.scroll_offset -> clamp(state.scroll_offset + delta, 0, pkg_db.packages.length - 4)
+        refresh()
+    }
+}
+
+# 包详情对话框
+show_pkg_detail -> function(pkg) {
+    dialog -> create_dialog(40, 15)
+    
+    dialog.render -> function() {
+        draw_text(pkg.icon + " " + pkg.name, 2, 1, rgb(255,255,255))
+        draw_line(2, 2, 36)
+        
+        draw_text("分类: " + pkg.category, 2, 4)
+        draw_text("评分: " + pkg.rating + "⭐", 2, 5)
+        draw_text("状态: " + (when pkg.installed { "已安装" } else { "未安装" }), 2, 6)
+        
+        when pkg.installed {
+            draw_button("打开", 2, 10, function() {
+                launch_app(pkg.id)
+                dialog.close()
+            })
+            draw_button("卸载", 12, 10, function() {
+                uninstall_pkg(pkg.id)
+                dialog.close()
+            })
+        } else {
+            draw_button("安装", 2, 10, function() {
+                install_pkg(pkg.id)
+                dialog.close()
+            })
+        }
+        
+        draw_button("关闭", 28, 10, function() {
+            dialog.close()
+        })
+    }
+    
+    dialog.show()
+}
+
+# 安装/卸载
+install_pkg -> function(id) {
+    pkg -> pkg_db.packages.find(p => p.id == id)
+    pkg.installed -> true
+    notify("已安装: " + pkg.name)
+}
+
+uninstall_pkg -> function(id) {
+    pkg -> pkg_db.packages.find(p => p.id == id)
+    pkg.installed -> false
+    notify("已卸载: " + pkg.name)
+}

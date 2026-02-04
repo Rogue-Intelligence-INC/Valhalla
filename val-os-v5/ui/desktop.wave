@@ -1,0 +1,265 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Desktop Environment
+# Wave-native desktop with Fate management
+# ═══════════════════════════════════════════════════════════════════
+
+# Desktop state
+desktop = {
+    wallpaper: null,
+    icons: [],
+    taskbar: null,
+    panel: null,
+    active_window: null
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Initialization
+# ───────────────────────────────────────────────────────────────────
+
+init -> function() {
+    # Set wallpaper
+    desktop.wallpaper = {
+        type: "gradient",
+        color1: { r: 30, g: 30, b: 60 },
+        color2: { r: 60, g: 30, b: 90 }
+    }
+    
+    # Create desktop icons
+    desktop.icons = [
+        { name: "Files",     icon: "📁", x: 20, y: 20,  app: "files" },
+        { name: "Terminal",  icon: "💻", x: 20, y: 100, app: "terminal" },
+        { name: "Browser",   icon: "🌐", x: 20, y: 180, app: "browser" },
+        { name: "Settings",  icon: "⚙️", x: 20, y: 260, app: "settings" },
+        { name: "Notepad",   icon: "📝", x: 20, y: 340, app: "notepad" }
+    ]
+    
+    # Create taskbar
+    desktop.taskbar = {
+        x: 0,
+        y: display.height - 40,
+        width: display.width,
+        height: 40,
+        items: []
+    }
+    
+    # Start desktop loop
+    desktop_loop()
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Rendering
+# ───────────────────────────────────────────────────────────────────
+
+render_desktop -> function() {
+    # Draw wallpaper
+    desktop.wallpaper -> draw_wallpaper
+    
+    # Draw icons
+    desktop.icons -> fate_each -> icon {
+        icon -> draw_icon
+    }
+    
+    # Draw windows
+    windows -> fate_each -> win {
+        win -> draw_window
+    }
+    
+    # Draw taskbar
+    desktop.taskbar -> draw_taskbar
+    
+    # Draw mouse cursor
+    { x: mouse.x, y: mouse.y } -> draw_cursor
+    
+    # Sync display
+    fate_display_sync()
+}
+
+draw_wallpaper -> function(wp) {
+    when wp.type == "gradient" {
+        draw_gradient(0, 0, display.width, display.height, wp.color1, wp.color2)
+    }
+    when wp.type == "solid" {
+        draw_rect_fill(0, 0, display.width, display.height, wp.color)
+    }
+    when wp.type == "image" {
+        wp.image -> draw_image(0, 0)
+    }
+}
+
+draw_icon -> function(icon) {
+    # Icon background (hover effect)
+    when icon.hover {
+        draw_rect_fill(icon.x - 5, icon.y - 5, 70, 80, { r: 255, g: 255, b: 255, a: 30 })
+    }
+    
+    # Icon emoji
+    draw_string(icon.x + 15, icon.y, icon.icon)
+    
+    # Icon name
+    draw_string(icon.x, icon.y + 50, icon.name)
+}
+
+draw_taskbar -> function(tb) {
+    # Taskbar background
+    draw_rect_fill(tb.x, tb.y, tb.width, tb.height, { r: 30, g: 30, b: 40, a: 200 })
+    
+    # Start button
+    draw_button({
+        x: tb.x + 5,
+        y: tb.y + 5,
+        w: 50,
+        h: 30,
+        text: "🚀",
+        color1: { r: 60, g: 60, b: 120 },
+        color2: { r: 40, g: 40, b: 80 }
+    })
+    
+    # Running apps
+    x = 60
+    tb.items -> fate_each -> item {
+        draw_taskbar_item(x, tb.y + 5, item)
+        x = x + 120
+    }
+    
+    # System tray
+    draw_system_tray(tb.width - 100, tb.y + 5)
+}
+
+draw_taskbar_item -> function(x, y, item) {
+    bg_color = item.active -> { r: 80, g: 80, b: 140 } : { r: 50, g: 50, b: 70 }
+    
+    draw_rect_fill(x, y, 110, 30, bg_color)
+    draw_string(x + 5, y + 8, item.icon + " " + item.title)
+}
+
+draw_system_tray -> function(x, y) {
+    # Clock
+    time -> get_time()
+    draw_string(x, y + 8, time.hour + ":" + time.minute)
+    
+    # Battery/Network icons
+    draw_string(x + 50, y + 8, "🔋🌐")
+}
+
+draw_cursor -> function(pos) {
+    # Simple arrow cursor
+    draw_pixel(pos.x, pos.y, { r: 255, g: 255, b: 255 })
+    draw_pixel(pos.x, pos.y + 1, { r: 255, g: 255, b: 255 })
+    draw_pixel(pos.x, pos.y + 2, { r: 255, g: 255, b: 255 })
+    draw_pixel(pos.x + 1, pos.y + 1, { r: 255, g: 255, b: 255 })
+    draw_pixel(pos.x + 2, pos.y + 2, { r: 255, g: 255, b: 255 })
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Event Handling
+# ───────────────────────────────────────────────────────────────────
+
+desktop_loop -> function() {
+    loop {
+        # Get input event
+        event -> get_event()
+        
+        when event != null {
+            event -> handle_desktop_event
+        }
+        
+        # Update hover states
+        update_hover()
+        
+        # Render
+        render_desktop()
+        
+        # Fate-controlled frame rate
+        { action: "desktop_fps" } -> fate_decide -> sleep_time
+        sleep(sleep_time)
+    }
+}
+
+handle_desktop_event -> function(event) {
+    when event.type == "click" {
+        # Check icon clicks
+        desktop.icons -> fate_each -> icon {
+            when point_in_rect(event.x, event.y, icon.x, icon.y, 60, 70) {
+                icon.app -> launch_app
+            }
+        }
+        
+        # Check taskbar clicks
+        when event.y >= desktop.taskbar.y {
+            handle_taskbar_click(event)
+        }
+        
+        # Check window clicks
+        windows -> fate_each -> win {
+            when point_in_rect(event.x, event.y, win.x, win.y, win.w, win.h) {
+                win -> focus_window
+            }
+        }
+    }
+    
+    when event.type == "keydown" {
+        # Super key = system panel
+        when event.key == "Meta" || event.key == "Super" {
+            toggle_system_panel()
+        }
+        
+        # Alt+Tab = switch windows
+        when event.modifiers.alt && event.key == "Tab" {
+            cycle_windows()
+        }
+    }
+}
+
+update_hover -> function() {
+    desktop.icons -> fate_each -> icon {
+        icon.hover = point_in_rect(mouse.x, mouse.y, icon.x, icon.y, 60, 70)
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# App Launching
+# ───────────────────────────────────────────────────────────────────
+
+launch_app -> function(app_name) {
+    out "[Desktop] Launching " + app_name
+    
+    # Load app
+    app -> require("../apps/" + app_name + ".wave")
+    
+    # Create window
+    win = {
+        title: app.title,
+        icon: app.icon,
+        x: 100,
+        y: 50,
+        w: 600,
+        h: 400,
+        app: app
+    }
+    
+    win -> windows.push
+    win -> focus_window
+    
+    # Add to taskbar
+    { title: app.title, icon: app.icon, window: win, active: true } -> desktop.taskbar.items.push
+    
+    # Start app
+    app.start(win)
+}
+
+# ───────────────────────────────────────────────────────────────────
+# System Panel
+# ───────────────────────────────────────────────────────────────────
+
+system_panel_visible = false
+
+toggle_system_panel -> function() {
+    system_panel_visible = !system_panel_visible
+}
+
+# Export
+module.exports = {
+    init,
+    launch_app,
+    render_desktop
+}

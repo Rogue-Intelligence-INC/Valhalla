@@ -1,0 +1,16 @@
+# 🔬 真实硬件测试 - 读取实际系统信息
+
+out "🔬 Real Hardware Test"
+out "====================="
+out ""
+
+# 读取真实的 CPU 信息
+out "📊 Reading /proc/cpuinfo..."
+"/proc/cpuinfo" -> load -> analyze -> store
+
+out ""
+out "📊 Reading /proc/meminfo..."
+"/proc/meminfo" -> load -> analyze -> store
+
+out ""
+out "✅ Real system data loaded by Fate"

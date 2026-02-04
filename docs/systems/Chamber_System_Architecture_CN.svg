@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient definitions -->
+    <radialGradient id="chamberGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#2196F3;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#1976D2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0D47A1;stop-opacity:1" />
+    </radialGradient>
+    
+    <radialGradient id="securityGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#F44336;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#D32F2F;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#B71C1C;stop-opacity:0.4" />
+    </radialGradient>
+    
+    <linearGradient id="containerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#388E3C;stop-opacity:0.7" />
+    </linearGradient>
+    
+    <linearGradient id="resourceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF9800;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F57C00;stop-opacity:0.8" />
+    </linearGradient>
+    
+    <!-- Arrow markers -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+    
+    <marker id="securityArrow" markerWidth="12" markerHeight="8" 
+            refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#F44336" />
+    </marker>
+    
+    <marker id="resourceArrow" markerWidth="12" markerHeight="8" 
+            refX="11" refY="4" orient="auto">
+      <polygon points="0 0, 12 4, 0 8" fill="#FF9800" />
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1400" height="1000" fill="#0a0a0a"/>
+  
+  <!-- Title -->
+  <text x="700" y="30" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="24" font-weight="bold" fill="#FFFFFF">
+    Chamber 容器系统架构
+  </text>
+  <text x="700" y="55" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="14" fill="#CCCCCC">
+    智能容器封装 + 隔离保护 = 安全可控的计算环境
+  </text>
+  
+  <!-- Core design philosophy -->
+  <rect x="50" y="70" width="1300" height="40" fill="#1a1a1a" 
+        stroke="#444" stroke-width="1" rx="5"/>
+  <text x="700" y="90" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="16" font-weight="bold" fill="#2196F3">
+    🎯 核心理念: 智能容器封装 + 隔离保护 = 安全可控的计算环境
+  </text>
+  
+  <!-- Left: Chamber Core -->
+  <g id="chamberCore">
+    <rect x="50" y="130" width="350" height="520" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="225" y="155" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="18" font-weight="bold" fill="#FFFFFF">
+      📦 Chamber 容器核心
+    </text>
+    
+    <!-- Container Core Structure -->
+    <rect x="70" y="170" width="310" height="120" fill="url(#chamberGradient)" 
+          stroke="#2196F3" stroke-width="2" rx="8"/>
+    <text x="225" y="195" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FFFFFF">🏗️ 容器核心结构</text>
+    <text x="225" y="215" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">容器ID: 唯一标识符</text>
+    <text x="225" y="230" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">容器类型: Micro/Standard/Large/Distributed</text>
+    <text x="225" y="245" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">隔离级别: Process/Container/Virtual/Hardware</text>
+    <text x="225" y="260" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">当前负载: 实时监控</text>
+    <text x="225" y="280" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#E3F2FD">包含单元: 动态管理</text>
+    
+    <!-- Container Type System -->
+    <rect x="70" y="300" width="310" height="140" fill="url(#containerGradient)" 
+          stroke="#4CAF50" stroke-width="2" rx="8"/>
+    <text x="225" y="325" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#000">🔧 容器类型系统</text>
+    <text x="225" y="345" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#333">微型容器: 轻量级隔离</text>
+    <text x="225" y="360" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">标准容器: 平衡性能与隔离</text>
+    <text x="225" y="375" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">大型容器: 高性能计算</text>
+    <text x="225" y="390" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">分布式容器: 跨节点部署</text>
+    <text x="225" y="405" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">专用容器: 特定用途定制</text>
+    <text x="225" y="425" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#333">隔离级别: 从进程到硬件级</text>
+    
+    <!-- Capacity Management -->
+    <rect x="70" y="450" width="310" height="120" fill="#2a2a3a" 
+          stroke="#1976D2" stroke-width="2" rx="8"/>
+    <text x="225" y="475" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#2196F3">⚖️ 容量管理</text>
+    <text x="225" y="495" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#CCCCCC">最大单元数: 动态调整</text>
+    <text x="225" y="510" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">内存限制: 智能分配</text>
+    <text x="225" y="525" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">CPU限制: 负载均衡</text>
+    <text x="225" y="540" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">存储限制: 弹性扩展</text>
+    <text x="225" y="560" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">网络带宽: 自适应调节</text>
+    
+    <!-- Performance Metrics -->
+    <rect x="70" y="580" width="310" height="60" fill="#3a1a2a" 
+          stroke="#0D47A1" stroke-width="2" rx="8"/>
+    <text x="225" y="605" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" font-weight="bold" fill="#2196F3">⚡ 性能特征</text>
+    <text x="225" y="620" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">创建速度: 毫秒级 | 隔离效率: 99.9% | 资源利用率: 85%</text>
+    <text x="225" y="635" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">故障恢复: 秒级 | 扩展性: 无限 | 安全性: 军用级</text>
+  </g>
+  
+  <!-- Right: Security & Isolation -->
+  <g id="securitySystem">
+    <rect x="1000" y="130" width="350" height="520" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="1175" y="155" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="18" font-weight="bold" fill="#FFFFFF">
+      🔒 安全与隔离系统
+    </text>
+    
+    <!-- Security Policy -->
+    <rect x="1020" y="170" width="310" height="120" fill="url(#securityGradient)" 
+          stroke="#F44336" stroke-width="2" rx="8"/>
+    <text x="1175" y="195" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FFFFFF">🛡️ 安全策略</text>
+    <text x="1175" y="215" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">访问控制: Public/Restricted/Private/Classified</text>
+    <text x="1175" y="230" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">加密级别: None/Basic/Advanced/Military</text>
+    <text x="1175" y="245" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">审计日志: 完整记录</text>
+    <text x="1175" y="260" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#FFFFFF">入侵检测: 实时监控</text>
+    <text x="1175" y="280" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#FFCDD2">沙箱模式: 完全隔离</text>
+    
+    <!-- Fault Isolation -->
+    <rect x="1020" y="300" width="310" height="140" fill="#2a1a1a" 
+          stroke="#D32F2F" stroke-width="2" rx="8"/>
+    <text x="1175" y="325" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#F44336">🚨 故障隔离系统</text>
+    <text x="1175" y="345" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#CCCCCC">故障检测: 实时监控</text>
+    <text x="1175" y="360" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">隔离策略: Immediate/Gradual/Selective/Complete</text>
+    <text x="1175" y="375" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">恢复机制: 自动修复</text>
+    <text x="1175" y="390" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">隔离区: 安全容器</text>
+    <text x="1175" y="405" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">故障传播阻断: 多层防护</text>
+    <text x="1175" y="425" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">快速响应: 毫秒级隔离</text>
+    
+    <!-- Health Check System -->
+    <rect x="1020" y="450" width="310" height="120" fill="#2a2a3a" 
+          stroke="#B71C1C" stroke-width="2" rx="8"/>
+    <text x="1175" y="475" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#F44336">💊 健康检查系统</text>
+    <text x="1175" y="495" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" fill="#CCCCCC">资源监控: CPU/内存/存储/网络</text>
+    <text x="1175" y="510" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">单元状态: 健康度评估</text>
+    <text x="1175" y="525" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">安全状态: 违规检测</text>
+    <text x="1175" y="540" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">性能指标: 实时分析</text>
+    <text x="1175" y="560" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">自动修复: 智能恢复</text>
+    
+    <!-- Security Performance -->
+    <rect x="1020" y="580" width="310" height="60" fill="#3a1a2a" 
+          stroke="#B71C1C" stroke-width="2" rx="8"/>
+    <text x="1175" y="605" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="12" font-weight="bold" fill="#F44336">🔐 安全性能</text>
+    <text x="1175" y="620" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">威胁检测: 实时 | 响应时间: 毫秒级 | 隔离成功率: 99.9%</text>
+    <text x="1175" y="635" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#CCCCCC">加密强度: 军用级 | 访问控制: 多级 | 审计完整性: 100%</text>
+  </g>
+  
+  <!-- Center: Resource Management -->
+  <g id="resourceManagement">
+    <rect x="450" y="130" width="500" height="300" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="700" y="155" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="18" font-weight="bold" fill="#FFFFFF">
+      🔄 资源管理与负载均衡
+    </text>
+    
+    <!-- Dynamic Resource Allocation -->
+    <rect x="470" y="170" width="220" height="120" fill="url(#resourceGradient)" 
+          stroke="#FF9800" stroke-width="2" rx="8"/>
+    <text x="580" y="195" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#000">⚡ 动态资源分配</text>
+    <text x="580" y="215" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">实时监控: 资源使用情况</text>
+    <text x="580" y="230" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">智能分配: 按需分配</text>
+    <text x="580" y="245" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">垃圾回收: 自动清理</text>
+    <text x="580" y="260" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#333">弹性扩展: 动态调整</text>
+    <text x="580" y="280" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#333">资源池: 统一管理</text>
+    
+    <!-- Load Balancing -->
+    <rect x="710" y="170" width="220" height="120" fill="#2a2a3a" 
+          stroke="#FF9800" stroke-width="2" rx="8"/>
+    <text x="820" y="195" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FF9800">⚖️ 负载均衡</text>
+    <text x="820" y="215" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">负载监控: 实时分析</text>
+    <text x="820" y="230" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">迁移策略: 智能调度</text>
+    <text x="820" y="245" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">容器扩展: 自动创建</text>
+    <text x="820" y="260" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">性能优化: 持续改进</text>
+    <text x="820" y="280" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">阈值管理: 动态调整</text>
+    
+    <!-- Container Lifecycle -->
+    <rect x="470" y="300" width="460" height="120" fill="#1a2a1a" 
+          stroke="#4CAF50" stroke-width="2" rx="8"/>
+    <text x="700" y="325" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#4CAF50">🔄 容器生命周期管理</text>
+    <text x="580" y="345" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">创建: 配置验证 → 资源分配 → 安全环境</text>
+    <text x="820" y="345" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">装载: 容量检查 → 安全验证 → 隔离环境</text>
+    <text x="580" y="365" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">运行: 监控 → 优化 → 维护</text>
+    <text x="820" y="365" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">迁移: 目标选择 → 数据传输 → 状态同步</text>
+    <text x="580" y="385" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">销毁: 数据备份 → 资源释放 → 清理</text>
+    <text x="820" y="385" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">恢复: 故障检测 → 状态恢复 → 服务重启</text>
+    <text x="700" y="410" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">全生命周期自动化管理</text>
+  </g>
+  
+  <!-- Bottom: System Integration -->
+  <g id="systemIntegration">
+    <rect x="50" y="700" width="1300" height="200" fill="#1a1a1a" 
+          stroke="#666" stroke-width="2" rx="10"/>
+    <text x="700" y="725" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="16" font-weight="bold" fill="#FFFFFF">
+      🔗 系统集成与应用场景
+    </text>
+    
+    <!-- Integration with Other Systems -->
+    <rect x="80" y="740" width="300" height="120" fill="#2a1a1a" 
+          stroke="#2196F3" stroke-width="1" rx="5"/>
+    <text x="230" y="765" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#2196F3">与其他系统集成</text>
+    <text x="230" y="785" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">干细胞系统: 提供培养环境</text>
+    <text x="230" y="800" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">Tile系统: 空间容器化服务</text>
+    <text x="230" y="815" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">四元系统: 运行环境提供</text>
+    <text x="230" y="830" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">BlackHole/MeshBrain/MultiNova/BaseForce</text>
+    <text x="230" y="845" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#888888">专用容器 + 隔离级别定制</text>
+    
+    <!-- Application Scenarios -->
+    <rect x="400" y="740" width="300" height="120" fill="#1a2a1a" 
+          stroke="#4CAF50" stroke-width="1" rx="5"/>
+    <text x="550" y="765" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#4CAF50">应用场景</text>
+    <text x="550" y="785" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">微服务容器化: 轻量级隔离</text>
+    <text x="550" y="800" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">高性能计算: 大型容器</text>
+    <text x="550" y="815" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">安全计算: 军用级加密</text>
+    <text x="550" y="830" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">分布式系统: 跨节点部署</text>
+    <text x="550" y="845" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#888888">智能调度 + 自动扩展</text>
+    
+    <!-- Performance Monitoring -->
+    <rect x="720" y="740" width="300" height="120" fill="#2a1a2a" 
+          stroke="#FF9800" stroke-width="1" rx="5"/>
+    <text x="870" y="765" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FF9800">性能监控</text>
+    <text x="870" y="785" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">实时指标: CPU/内存/存储/网络</text>
+    <text x="870" y="800" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">健康检查: 自动诊断</text>
+    <text x="870" y="815" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">告警系统: 异常通知</text>
+    <text x="870" y="830" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">性能优化: 智能调优</text>
+    <text x="870" y="845" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#888888">可视化监控 + 历史分析</text>
+    
+    <!-- System Status -->
+    <rect x="1040" y="740" width="280" height="120" fill="#2a2a1a" 
+          stroke="#9C27B0" stroke-width="1" rx="5"/>
+    <text x="1180" y="765" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#9C27B0">系统状态</text>
+    <text x="1180" y="785" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">总容器数: 1,000个</text>
+    <text x="1180" y="800" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">活跃容器: 950个</text>
+    <text x="1180" y="815" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">平均负载: 75%</text>
+    <text x="1180" y="830" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="10" fill="#AAAAAA">安全违规: 0个</text>
+    <text x="1180" y="845" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="9" fill="#888888">系统健康度: 98%</text>
+  </g>
+  
+  <!-- Data flow arrows -->
+  <!-- Chamber → Resource Management -->
+  <path d="M 400 350 L 470 350" stroke="#2196F3" stroke-width="3" 
+        fill="none" marker-end="url(#arrowhead)"/>
+  <text x="435" y="340" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#2196F3">资源请求</text>
+  
+  <!-- Resource Management → Security -->
+  <path d="M 950 280 L 1020 280" stroke="#FF9800" stroke-width="3" 
+        fill="none" marker-end="url(#resourceArrow)"/>
+  <text x="985" y="270" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#FF9800">安全验证</text>
+  
+  <!-- Security → Chamber -->
+  <path d="M 1000 400 L 400 400" stroke="#F44336" stroke-width="3" 
+        fill="none" marker-end="url(#securityArrow)"/>
+  <text x="700" y="390" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#F44336">安全策略</text>
+  
+  <!-- Bidirectional monitoring -->
+  <path d="M 700 430 L 700 470" stroke="#4CAF50" stroke-width="2" 
+        fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 720 470 L 720 430" stroke="#4CAF50" stroke-width="2" 
+        fill="none" marker-end="url(#arrowhead)"/>
+  <text x="740" y="450" text-anchor="start" font-family="Arial, sans-serif" 
+        font-size="10" fill="#4CAF50">监控反馈</text>
+  
+  <!-- System Status Indicators -->
+  <g id="statusIndicators">
+    <rect x="450" y="450" width="500" height="120" fill="#1a1a1a" 
+          stroke="#666" stroke-width="1" rx="5"/>
+    <text x="700" y="475" text-anchor="middle" font-family="Arial, sans-serif" 
+          font-size="14" font-weight="bold" fill="#FFFFFF">
+      📊 系统状态指示器
+    </text>
+    
+    <!-- Status lights -->
+    <circle cx="480" cy="495" r="8" fill="#4CAF50"/>
+    <text x="500" y="500" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">容器管理器: 运行</text>
+    
+    <circle cx="480" cy="515" r="8" fill="#4CAF50"/>
+    <text x="500" y="520" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">资源分配器: 正常</text>
+    
+    <circle cx="480" cy="535" r="8" fill="#4CAF50"/>
+    <text x="500" y="540" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">安全系统: 活跃</text>
+    
+    <circle cx="480" cy="555" r="8" fill="#4CAF50"/>
+    <text x="500" y="560" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">负载均衡: 启用</text>
+    
+    <circle cx="720" cy="495" r="8" fill="#2196F3"/>
+    <text x="740" y="500" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">监控系统: 正常</text>
+    
+    <circle cx="720" cy="515" r="8" fill="#FF9800"/>
+    <text x="740" y="520" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">性能优化: 活跃</text>
+    
+    <circle cx="720" cy="535" r="8" fill="#9C27B0"/>
+    <text x="740" y="540" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">健康检查: 正常</text>
+    
+    <circle cx="720" cy="555" r="8" fill="#4CAF50"/>
+    <text x="740" y="560" text-anchor="start" font-family="Arial, sans-serif" 
+          font-size="11" fill="#CCCCCC">故障恢复: 就绪</text>
+  </g>
+  
+  <!-- Copyright information -->
+  <text x="700" y="970" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="12" fill="#666666">
+    Chamber 容器系统架构 - Valhalla Project v0.3.0
+  </text>
+  <text x="700" y="985" text-anchor="middle" font-family="Arial, sans-serif" 
+        font-size="10" fill="#555555">
+    智能容器封装 + 隔离保护 | 安全可控的计算环境
+  </text>
+</svg> 

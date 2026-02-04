@@ -1,0 +1,247 @@
+# 🔒 Val-OS 权限系统
+# 传统 Unix 风格 + Fate 阈值保护
+
+# ═══════════════════════════════════════════════════════
+# 用户与组
+# ═══════════════════════════════════════════════════════
+
+user -> structure {
+    uid -> u16
+    name -> string
+    password_hash -> bytes
+    groups -> list
+    home -> string
+    shell -> string
+}
+
+group -> structure {
+    gid -> u16
+    name -> string
+    members -> list
+}
+
+# 预设用户
+users -> preset {
+    root -> user { uid: 0, name: "root", home: "/root", groups: [0] }
+    admin -> user { uid: 1000, name: "admin", home: "/home/admin", groups: [0, 1000] }
+}
+
+# 预设组
+groups -> preset {
+    root  -> group { gid: 0, name: "root" }
+    admin -> group { gid: 1000, name: "admin" }
+    users -> group { gid: 1001, name: "users" }
+}
+
+# ═══════════════════════════════════════════════════════
+# 文件权限 (Unix 风格)
+# ═══════════════════════════════════════════════════════
+
+# 权限位
+permission_bits -> enum {
+    READ    -> 0b100  # 4
+    WRITE   -> 0b010  # 2
+    EXECUTE -> 0b001  # 1
+}
+
+# 权限模式 (owner/group/other)
+file_mode -> structure {
+    owner -> u3  # rwx
+    group -> u3  # rwx
+    other -> u3  # rwx
+}
+
+# 默认权限
+default_modes -> map {
+    file      -> 0o644  # rw-r--r--
+    directory -> 0o755  # rwxr-xr-x
+    executable -> 0o755 # rwxr-xr-x
+}
+
+# 检查权限
+check_permission -> function(user, file, operation) {
+    # root 有所有权限
+    when user.uid == 0 {
+        return true
+    }
+    
+    # 获取适用的权限位
+    when file.owner == user.uid {
+        bits -> file.mode.owner
+    } else when user.groups.contains(file.group) {
+        bits -> file.mode.group
+    } else {
+        bits -> file.mode.other
+    }
+    
+    # 检查操作权限
+    when operation == READ {
+        return bits & READ != 0
+    }
+    when operation == WRITE {
+        return bits & WRITE != 0
+    }
+    when operation == EXECUTE {
+        return bits & EXECUTE != 0
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# Fate 阈值权限 (特殊)
+# ═══════════════════════════════════════════════════════
+
+# 只有管理员可以修改 Fate 阈值
+fate_permissions -> special {
+    # 可修改的阈值
+    adjustable_thresholds -> map {
+        marginal_threshold -> { min: 1, max: 5, default: 3 }
+        performance_threshold -> { min: 65, max: 80, default: 70 }
+        load_threshold -> { min: 60, max: 75, default: 65 }
+    }
+    
+    # 权限检查
+    can_modify_threshold -> function(user) {
+        # 必须是 root 或 admin 组成员
+        return user.uid == 0 || user.groups.contains(groups.admin.gid)
+    }
+    
+    # 修改阈值
+    set_threshold -> function(user, name, value) {
+        when !can_modify_threshold(user) {
+            error -> "Permission denied: requires admin"
+            return false
+        }
+        
+        threshold -> adjustable_thresholds[name]
+        when !threshold {
+            error -> "Unknown threshold: {name}"
+            return false
+        }
+        
+        when value < threshold.min || value > threshold.max {
+            error -> "Value out of range: {threshold.min}-{threshold.max}"
+            return false
+        }
+        
+        # 应用修改
+        fate_apply_threshold(name, value)
+        log_admin_action(user, "set_threshold", name, value)
+        return true
+    }
+}
+
+# ═══════════════════════════════════════════════════════
+# 运行模式权限
+# ═══════════════════════════════════════════════════════
+
+# 运行模式
+run_modes -> enum {
+    PERFORMANCE  # 性能模式
+    BALANCED     # 平衡模式
+    POWERSAVE    # 省电模式
+}
+
+# 模式配置
+mode_configs -> map {
+    PERFORMANCE -> {
+        marginal_threshold: 1,      # 1% - 更敏感
+        performance_threshold: 65,  # 65% - 更早优化
+        description: "性能优先，更频繁的 Collapse"
+    },
+    
+    BALANCED -> {
+        marginal_threshold: 3,      # 3% - 平衡
+        performance_threshold: 70,  # 70% - 默认
+        description: "平衡性能和资源消耗"
+    },
+    
+    POWERSAVE -> {
+        marginal_threshold: 5,      # 5% - 更宽容
+        performance_threshold: 80,  # 80% - 较少触发
+        description: "省电优先，减少 Collapse"
+    }
+}
+
+# 切换模式
+change_mode -> function(user, mode) {
+    when !fate_permissions.can_modify_threshold(user) {
+        error -> "Permission denied: requires admin"
+        return false
+    }
+    
+    config -> mode_configs[mode]
+    when !config {
+        error -> "Unknown mode: {mode}"
+        return false
+    }
+    
+    # 应用配置
+    fate_apply_threshold("marginal_threshold", config.marginal_threshold)
+    fate_apply_threshold("performance_threshold", config.performance_threshold)
+    
+    log_admin_action(user, "change_mode", mode)
+    return true
+}
+
+# ═══════════════════════════════════════════════════════
+# 认证
+# ═══════════════════════════════════════════════════════
+
+# 登录
+login -> function(username, password) {
+    user -> find_user(username)
+    
+    when !user {
+        error -> "User not found"
+        return null
+    }
+    
+    hash -> hash_password(password)
+    when hash != user.password_hash {
+        error -> "Invalid password"
+        log_security("login_failed", username)
+        return null
+    }
+    
+    log_security("login_success", username)
+    return user
+}
+
+# 修改密码
+change_password -> function(user, old_pass, new_pass) {
+    # 验证旧密码
+    when hash_password(old_pass) != user.password_hash {
+        error -> "Invalid current password"
+        return false
+    }
+    
+    # 设置新密码
+    user.password_hash -> hash_password(new_pass)
+    return true
+}
+
+# ═══════════════════════════════════════════════════════
+# 审计日志
+# ═══════════════════════════════════════════════════════
+
+log_admin_action -> function(user, action, params...) {
+    entry -> {
+        timestamp: now(),
+        user: user.name,
+        uid: user.uid,
+        action: action,
+        params: params
+    }
+    
+    audit_log.append(entry)
+}
+
+log_security -> function(event, details) {
+    entry -> {
+        timestamp: now(),
+        event: event,
+        details: details
+    }
+    
+    security_log.append(entry)
+}

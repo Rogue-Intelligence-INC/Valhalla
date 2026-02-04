@@ -1,0 +1,135 @@
+# 向量搜索 - 调试版
+# 验证每步执行
+
+DIM = 4
+COUNT = 5
+
+# 规则映射: 数组
+fn arr.new size {
+    ptr = syscall.mmap(0, size * 8, 3, 34, 0 - 1, 0)
+    -> ptr
+}
+
+fn arr.set ptr idx val {
+    addr = ptr + idx * 8
+    poke(addr, val & 255)
+    poke(addr + 1, val / 256 & 255)
+    poke(addr + 2, val / 65536 & 255)
+    poke(addr + 3, val / 16777216 & 255)
+    poke(addr + 4, 0)
+    poke(addr + 5, 0)
+    poke(addr + 6, 0)
+    poke(addr + 7, 0)
+}
+
+fn arr.get ptr idx {
+    addr = ptr + idx * 8
+    b0 = peek(addr)
+    b1 = peek(addr + 1)
+    b2 = peek(addr + 2)
+    b3 = peek(addr + 3)
+    -> b0 + b1 * 256 + b2 * 65536 + b3 * 16777216
+}
+
+seed = 42
+db_ptr = 0
+query_ptr = 0
+
+fn rand {
+    seed = seed * 1103515245 + 12345
+    seed = seed & 2147483647
+    -> seed % 101
+}
+
+# 测试
+out "=== Debug Test ===\n\n"
+
+out "[1] Create arrays...\n"
+db_ptr = arr.new(COUNT)
+query_ptr = arr.new(DIM)
+out "    db_ptr and query_ptr allocated.\n\n"
+
+out "[2] Fill query vector...\n"
+seed = 12345
+i = 0
+loop {
+    when i >= DIM { break }
+    v = rand()
+    arr.set(query_ptr, i, v)
+    out "    query["
+    # 输出进度
+    i = i + 1
+}
+out "    Query filled.\n\n"
+
+out "[3] Verify query...\n"
+sum = 0
+i = 0
+loop {
+    when i >= DIM { break }
+    v = arr.get(query_ptr, i)
+    sum = sum + v
+    i = i + 1
+}
+out "    Query sum: should be >0: "
+when sum > 0 {
+    out "PASS\n"
+}
+when sum == 0 {
+    out "FAIL (sum=0)\n"
+}
+out "\n"
+
+out "[4] Create vectors in db...\n"
+seed = 42
+vec_i = 0
+loop {
+    when vec_i >= COUNT { break }
+    vec = arr.new(DIM)
+    
+    j = 0
+    loop {
+        when j >= DIM { break }
+        v = rand()
+        arr.set(vec, j, v)
+        j = j + 1
+    }
+    
+    arr.set(db_ptr, vec_i, vec)
+    out "    vec created\n"
+    vec_i = vec_i + 1
+}
+out "    Database ready.\n\n"
+
+out "[5] Compute dot products...\n"
+best = 0
+best_score = 0
+i = 0
+loop {
+    when i >= COUNT { break }
+    
+    vec = arr.get(db_ptr, i)
+    
+    # dot product
+    score = 0
+    j = 0
+    loop {
+        when j >= DIM { break }
+        qa = arr.get(query_ptr, j)
+        va = arr.get(vec, j)
+        score = score + qa * va
+        j = j + 1
+    }
+    
+    out "    vec "
+    when score > best_score {
+        best_score = score
+        best = i
+    }
+    
+    i = i + 1
+}
+out "    Search done.\n\n"
+
+out "=== Result: Best match found! ===\n"
+syscall.exit(0)

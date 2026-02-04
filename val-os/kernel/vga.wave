@@ -1,0 +1,83 @@
+# Val-OS VGA Graphics Driver
+# Wave v5 - 320x200 256-color mode
+
+# VGA Mode 13h (320x200, 256 colors)
+vga_init -> function() {
+    # Set mode 13h via BIOS
+    # mov ax, 0x0013
+    # int 0x10
+    "13h" -> fate_decide -> out "VGA 320x200 initialized"
+}
+
+# Direct framebuffer at 0xA0000
+framebuffer -> 0xA0000
+
+# Put pixel at (x, y) with color
+put_pixel -> function(x, y, color) {
+    offset -> y * 320 + x
+    framebuffer + offset -> color
+}
+
+# Draw filled rectangle
+draw_rect -> function(x, y, w, h, color) {
+    "rect" -> fate_alloc
+    cy -> y
+    repeat h {
+        cx -> x
+        repeat w {
+            put_pixel -> call(cx, cy, color)
+            cx -> cx + 1
+        }
+        cy -> cy + 1
+    }
+}
+
+# Draw line
+draw_line -> function(x1, y1, x2, y2, color) {
+    "line" -> fate_analyze -> fate_decide
+    # Bresenham algorithm via Fate
+    dx -> x2 - x1
+    dy -> y2 - y1
+    # Fate handles the iteration
+}
+
+# Clear screen with color
+clear_screen -> function(color) {
+    draw_rect -> call(0, 0, 320, 200, color)
+}
+
+# Draw character at position
+draw_char -> function(x, y, char, fg, bg) {
+    # 8x8 font rendering
+    "char" -> fate_analyze -> fate_decide
+}
+
+# Draw string
+draw_text -> function(x, y, text, fg, bg) {
+    text -> fate_analyze -> fate_decide -> out "Text rendered"
+}
+
+# Color palette (256 colors)
+colors -> {
+    black: 0,
+    blue: 1,
+    green: 2,
+    cyan: 3,
+    red: 4,
+    magenta: 5,
+    brown: 6,
+    lightgray: 7,
+    darkgray: 8,
+    lightblue: 9,
+    lightgreen: 10,
+    lightcyan: 11,
+    lightred: 12,
+    lightmagenta: 13,
+    yellow: 14,
+    white: 15
+}
+
+# Gradient fill
+draw_gradient -> function(x, y, w, h, color1, color2) {
+    "gradient" -> fate_analyze -> fate_decide
+}

@@ -1,0 +1,232 @@
+# 🌊 Wave Boot Image Generator
+# 生成正确的可引导镜像
+# 包含完整的磁盘读取 + 实模式/保护模式引导
+
+out "═══════════════════════════════════════════════════════"
+out "🌊 Wave Boot Image Generator v1.0"
+out "═══════════════════════════════════════════════════════"
+
+# ═══════════════════════════════════════════════════════
+# 引导扇区生成 (512 bytes)
+# ═══════════════════════════════════════════════════════
+
+generate_working_bootsector -> function(kernel_sectors) {
+    boot -> []
+    
+    # 填充 512 字节
+    for i in 0..512 {
+        boot.push(0x00)
+    }
+    
+    pos -> 0
+    
+    # ─── 16-bit Real Mode 代码 ───
+    
+    # cli - 关中断
+    boot[pos] -> 0xFA
+    pos -> pos + 1
+    
+    # xor ax, ax
+    boot[pos] -> 0x31
+    boot[pos + 1] -> 0xC0
+    pos -> pos + 2
+    
+    # mov ds, ax
+    boot[pos] -> 0x8E
+    boot[pos + 1] -> 0xD8
+    pos -> pos + 2
+    
+    # mov es, ax
+    boot[pos] -> 0x8E
+    boot[pos + 1] -> 0xC0
+    pos -> pos + 2
+    
+    # mov ss, ax
+    boot[pos] -> 0x8E
+    boot[pos + 1] -> 0xD0
+    pos -> pos + 2
+    
+    # mov sp, 0x7C00
+    boot[pos] -> 0xBC
+    boot[pos + 1] -> 0x00
+    boot[pos + 2] -> 0x7C
+    pos -> pos + 3
+    
+    # ─── 设置文本模式 ───
+    # mov ax, 0x0003
+    boot[pos] -> 0xB8
+    boot[pos + 1] -> 0x03
+    boot[pos + 2] -> 0x00
+    pos -> pos + 3
+    
+    # int 0x10
+    boot[pos] -> 0xCD
+    boot[pos + 1] -> 0x10
+    pos -> pos + 2
+    
+    # ─── 初始化串口 (用于调试) ───
+    # mov dx, 0x03FB (COM1 line control)
+    boot[pos] -> 0xBA
+    boot[pos + 1] -> 0xFB
+    boot[pos + 2] -> 0x03
+    pos -> pos + 3
+    
+    # mov al, 0x03 (8N1)
+    boot[pos] -> 0xB0
+    boot[pos + 1] -> 0x03
+    pos -> pos + 2
+    
+    # out dx, al
+    boot[pos] -> 0xEE
+    pos -> pos + 1
+    
+    # ─── 读取磁盘扇区 ───
+    # mov bx, 0x7E00 (目标地址 - 紧接引导扇区)
+    boot[pos] -> 0xBB
+    boot[pos + 1] -> 0x00
+    boot[pos + 2] -> 0x7E
+    pos -> pos + 3
+    
+    # mov ah, 0x02 (BIOS 读扇区功能)
+    boot[pos] -> 0xB4
+    boot[pos + 1] -> 0x02
+    pos -> pos + 2
+    
+    # mov al, kernel_sectors (读取扇区数)
+    boot[pos] -> 0xB0
+    boot[pos + 1] -> kernel_sectors & 0xFF
+    pos -> pos + 2
+    
+    # mov ch, 0 (柱面 0)
+    boot[pos] -> 0xB5
+    boot[pos + 1] -> 0x00
+    pos -> pos + 2
+    
+    # mov cl, 2 (从扇区 2 开始)
+    boot[pos] -> 0xB1
+    boot[pos + 1] -> 0x02
+    pos -> pos + 2
+    
+    # mov dh, 0 (磁头 0)
+    boot[pos] -> 0xB6
+    boot[pos + 1] -> 0x00
+    pos -> pos + 2
+    
+    # mov dl, 0 (驱动器 0 = 软驱)
+    boot[pos] -> 0xB2
+    boot[pos + 1] -> 0x00
+    pos -> pos + 2
+    
+    # int 0x13 (BIOS 磁盘中断)
+    boot[pos] -> 0xCD
+    boot[pos + 1] -> 0x13
+    pos -> pos + 2
+    
+    # ─── 跳转到加载的代码 ───
+    # jmp far 0x0000:0x7E00 (实模式跳转)
+    boot[pos] -> 0xEA
+    boot[pos + 1] -> 0x00
+    boot[pos + 2] -> 0x7E
+    boot[pos + 3] -> 0x00
+    boot[pos + 4] -> 0x00
+    pos -> pos + 5
+    
+    # ─── 引导签名 ───
+    boot[510] -> 0x55
+    boot[511] -> 0xAA
+    
+    return boot
+}
+
+# ═══════════════════════════════════════════════════════
+# 内核启动代码 (从 0x7E00 运行)
+# ═══════════════════════════════════════════════════════
+
+generate_kernel_header -> function() {
+    code -> []
+    
+    # 16-bit 代码，在 0x7E00 运行
+    
+    # ─── 设置数据段 ───
+    # xor ax, ax
+    code.push(0x31)
+    code.push(0xC0)
+    
+    # mov ds, ax
+    code.push(0x8E)
+    code.push(0xD8)
+    
+    # ─── 显示字符串 ───
+    # mov si, message_offset (相对于 0x7E00)
+    msg_offset -> 32  # 消息在代码后面
+    code.push(0xBE)
+    code.push(msg_offset & 0xFF)
+    code.push(0x80)  # 0x8000 + offset (因为在 0x7E00 运行，ds=0，所以用绝对地址)
+    
+    # 打印循环
+    # .print_loop:
+    print_loop_pos -> code.length
+    
+    # lodsb (al = [ds:si++])
+    code.push(0xAC)
+    
+    # test al, al
+    code.push(0x84)
+    code.push(0xC0)
+    
+    # jz .done (条件跳转)
+    code.push(0x74)
+    code.push(0x0D)  # 跳过 13 字节到 done
+    
+    # mov ah, 0x0E (BIOS 打印字符)
+    code.push(0xB4)
+    code.push(0x0E)
+    
+    # mov bx, 0x0007 (灰色)
+    code.push(0xBB)
+    code.push(0x07)
+    code.push(0x00)
+    
+    # int 0x10
+    code.push(0xCD)
+    code.push(0x10)
+    
+    # 串口输出
+    # mov dx, 0x03F8
+    code.push(0xBA)
+    code.push(0xF8)
+    code.push(0x03)
+    
+    # out dx, al
+    code.push(0xEE)
+    
+    # jmp .print_loop
+    jump_back -> print_loop_pos - code.length - 2
+    code.push(0xEB)
+    code.push(jump_back & 0xFF)
+    
+    # .done:
+    # hlt
+    code.push(0xF4)
+    
+    # jmp $
+    code.push(0xEB)
+    code.push(0xFE)
+    
+    return code
+}
+
+# ═══════════════════════════════════════════════════════
+# 显示信息
+# ═══════════════════════════════════════════════════════
+
+out ""
+out "Boot sector structure:"
+out "  0x0000-0x01FF : Boot sector (512 bytes)"
+out "  0x0200+       : Kernel code & data"
+out ""
+out "Boot sequence:"
+out "  1. BIOS loads boot sector to 0x7C00"
+out "  2. Boot sector uses INT 13h to load kernel to 0x7E00"
+out "  3. Jump to 0x7E00 to execute kernel"
+out ""

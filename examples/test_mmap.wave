@@ -1,0 +1,41 @@
+# 测试 mmap + peek/poke
+
+out "Testing mmap and peek/poke...\n"
+
+# 分配 1000 字节内存
+ptr = syscall.mmap(0, 1000, 3, 34, 0 - 1, 0)
+
+out "Memory allocated.\n"
+
+# 写入一些值
+i = 0
+loop {
+    when i >= 100 { break }
+    poke(ptr + i, i)
+    i = i + 1
+}
+
+out "Values written.\n"
+
+# 读取并验证
+sum = 0
+i = 0
+loop {
+    when i >= 100 { break }
+    v = peek(ptr + i)
+    sum = sum + v
+    i = i + 1
+}
+
+out "Values read.\n"
+out "Sum should be 4950: "
+
+# 0+1+2+...+99 = 4950
+when sum == 4950 {
+    out "PASS!\n"
+}
+when sum != 4950 {
+    out "FAIL!\n"
+}
+
+syscall.exit(0)

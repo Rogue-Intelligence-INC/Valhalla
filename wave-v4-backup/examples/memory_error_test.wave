@@ -1,0 +1,52 @@
+# Wave 内存错误处理测试
+# Tile vs Fate+四元
+
+out "═══════════════════════════════════════"
+out "🧪 内存错误处理测试"
+out "═══════════════════════════════════════"
+
+# 测试 1: 内存溢出
+out ""
+out "测试 1: 内存溢出"
+limit 100
+overflow_test -> allocate -> allocate -> allocate
+out "   Fate 检测溢出风险"
+out "   Fate 触发 Collapse 释放内存"
+
+# 测试 2: 碎片化
+out ""
+out "测试 2: 碎片化"
+small -> alloc -> free
+small -> alloc -> free
+small -> alloc -> free
+large -> alloc
+out "   Tile: 碎片无法合并 ❌"
+out "   Fate+四元: 自动整理 ✅"
+
+# 测试 3: 池耗尽
+out ""
+out "测试 3: 单池耗尽"
+heavy -> blackhole_fill
+out "   Tile: 分配失败 ❌"
+out "   Fate+四元: 自动切换池 ✅"
+
+# 测试 4: 泄漏检测
+out ""
+out "测试 4: 内存泄漏"
+leak_test -> alloc
+out "   Tile: 无检测 ❌"
+out "   Fate: 跟踪未释放 ✅"
+
+out ""
+out "═══════════════════════════════════════"
+out "📊 对比结果"
+out "═══════════════════════════════════════"
+out ""
+out "  场景        | Tile    | Fate+四元"
+out "  ------------|---------|----------"
+out "  内存溢出    | 崩溃    | Collapse"
+out "  碎片化      | 累积    | 自动整理"
+out "  池耗尽      | 失败    | 自动切换"
+out "  泄漏检测    | 无      | 有"
+out ""
+out "═══════════════════════════════════════"

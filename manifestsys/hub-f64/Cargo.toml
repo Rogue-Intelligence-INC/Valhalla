@@ -1,0 +1,249 @@
+[package]
+name = "hub-f64"
+version = "1.0.0"
+edition = "2021"
+description = "Valhalla Hub System - f64 GPU-Accelerated Performance Version"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+log = "0.4"
+uuid = { version = "1.0", features = ["v4"] }
+rayon = "1.10"
+num_cpus = "1.16"
+ctrlc = "3.4"
+rand = "0.8"
+bzip2 = "0.4"
+chrono = "0.4"
+axum = { version = "0.7", features = ["ws"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.5", features = ["cors", "fs"] }
+futures = "0.3"
+
+# f64 metasystems with native CUDA (supports CUDA 13.1 / RTX 4090)
+fate-f64 = { path = "../../systems/metasystems/fate-f64", features = ["native_cuda"] }
+fate = { path = "../../systems/metasystems/fate" }
+valhalla_metasystems_blackhole = { path = "../../systems/metasystems/blackhole" }
+valhalla_metasystems_meshbrain = { path = "../../systems/metasystems/meshbrain" }
+valhalla_metasystems_multinova = { path = "../../systems/metasystems/multinova" }
+valhalla_metasystems_baseforce = { path = "../../systems/metasystems/base-force" }
+
+# 其他系统
+stem-cell = { path = "../stem-cell" }
+valhalla-tile-quattro = { path = "../tile-quattro" }
+chamber = { path = "../chamber" }
+
+# 系统存储
+valhalla-storage = { path = "../valhalla-storage" }
+
+# Space GPU 高维计算
+valhalla-space-f64-gpu = { path = "../../utils/space-f64-gpu" }
+
+[[bin]]
+name = "valhalla_train_f64"
+path = "src/bin/train.rs"
+
+[[bin]]
+name = "valhalla_chat_f64"
+path = "src/bin/chat.rs"
+
+[[bin]]
+name = "valhalla_multimodal_f64"
+path = "src/bin/multimodal_train.rs"
+
+[[bin]]
+name = "valhalla_speak"
+path = "src/bin/speak.rs"
+
+[[bin]]
+name = "valhalla_unified_multimodal"
+path = "src/bin/unified_multimodal.rs"
+
+[[bin]]
+name = "valhalla_cyclic_train"
+path = "src/bin/cyclic_train.rs"
+
+[[bin]]
+name = "valhalla_preprocess"
+path = "src/bin/preprocess_corpus.rs"
+
+[[bin]]
+name = "valhalla_compress"
+path = "src/bin/compress_corpus.rs"
+
+[[bin]]
+name = "valhalla_video"
+path = "src/bin/valhalla_video.rs"
+
+[[bin]]
+name = "valhalla_multimodal_convergence"
+path = "src/bin/multimodal_convergence_train.rs"
+
+[[bin]]
+name = "valhalla_persistent_train"
+path = "src/bin/persistent_multimodal_train.rs"
+
+[[bin]]
+name = "valhalla_visual_train"
+path = "src/bin/visual_training.rs"
+
+[[bin]]
+name = "valhalla_web_train"
+path = "src/bin/web_training.rs"
+
+[[bin]]
+name = "valhalla_dialogue"
+path = "src/bin/web_dialogue.rs"
+
+[[bin]]
+name = "valhalla_fate_train"
+path = "src/bin/fate_train.rs"
+
+[[bin]]
+name = "valhalla_system_test"
+path = "src/bin/system_test.rs"
+
+[[bin]]
+name = "valhalla_train_freeze"
+path = "src/bin/train_freeze.rs"
+
+[[bin]]
+name = "valhalla_interface"
+path = "src/bin/valhalla_interface.rs"
+
+[[bin]]
+name = "valhalla_train_continue"
+path = "src/bin/train_continue.rs"
+
+[[bin]]
+name = "valhalla_stemcell_fate"
+path = "src/bin/stemcell_fate_test.rs"
+
+[[bin]]
+name = "valhalla_tile_fate"
+path = "src/bin/tile_fate_train.rs"
+
+[[bin]]
+name = "valhalla_chamber_fate"
+path = "src/bin/chamber_fate_train.rs"
+
+[[bin]]
+name = "valhalla_complete_train"
+path = "src/bin/complete_train.rs"
+
+[[bin]]
+name = "valhalla_analyze_structure"
+path = "src/bin/analyze_structure.rs"
+
+[[bin]]
+name = "valhalla_stemcell_test"
+path = "src/bin/stemcell_test.rs"
+
+[[bin]]
+name = "valhalla_tile_test"
+path = "src/bin/tile_test.rs"
+
+[[bin]]
+name = "valhalla_structure_analysis"
+path = "src/bin/structure_analysis.rs"
+
+[[bin]]
+name = "valhalla_organ_train"
+path = "src/bin/organ_train.rs"
+
+[[bin]]
+name = "valhalla_organ_test"
+path = "src/bin/organ_test.rs"
+
+[[bin]]
+name = "valhalla_stemcell_infinite"
+path = "src/bin/stemcell_infinite.rs"
+
+[[bin]]
+name = "valhalla_stemcell_result_test"
+path = "src/bin/stemcell_result_test.rs"
+
+[[bin]]
+name = "valhalla_stemcell_interact"
+path = "src/bin/stemcell_interact.rs"
+
+[[bin]]
+name = "valhalla_aggregation_analysis"
+path = "src/bin/aggregation_analysis.rs"
+
+[[bin]]
+name = "valhalla_hub_interact"
+path = "src/bin/hub_interact.rs"
+
+[[bin]]
+name = "valhalla_crosslang_test"
+path = "src/bin/crosslang_test.rs"
+
+[[bin]]
+name = "valhalla_semantic_unity"
+path = "src/bin/semantic_unity_test.rs"
+
+[[bin]]
+name = "valhalla_response_match"
+path = "src/bin/response_match_test.rs"
+
+[[bin]]
+name = "valhalla_free_qa"
+path = "src/bin/free_qa_test.rs"
+
+[[bin]]
+name = "valhalla_storage_test"
+path = "src/bin/storage_test.rs"
+
+[[bin]]
+name = "valhalla_data_flow"
+path = "src/bin/data_flow_test.rs"
+
+[[bin]]
+name = "valhalla_fate_storage"
+path = "src/bin/fate_storage_test.rs"
+
+[[bin]]
+name = "valhalla_fate_corpus"
+path = "src/bin/fate_corpus_test.rs"
+
+[[bin]]
+name = "valhalla_space_benchmark"
+path = "src/bin/space_gpu_benchmark.rs"
+
+[[bin]]
+name = "valhalla_stemcell_train"
+path = "src/bin/stemcell_corpus_train.rs"
+
+[[bin]]
+name = "valhalla_stemcell_full_train"
+path = "src/bin/stemcell_full_corpus_train.rs"
+
+[[bin]]
+name = "valhalla_stemcell_organ_analysis"
+path = "src/bin/stemcell_organ_analysis.rs"
+
+[[bin]]
+name = "valhalla_stemcell_convergent"
+path = "src/bin/stemcell_convergent_train.rs"
+
+[[bin]]
+name = "valhalla_stemcell_differentiation"
+path = "src/bin/stemcell_differentiation_analysis.rs"
+
+[[bin]]
+name = "valhalla_stemcell_intelligence"
+path = "src/bin/stemcell_intelligence_test.rs"
+
+[[bin]]
+name = "valhalla_stemcell_space_intel"
+path = "src/bin/stemcell_space_intelligence.rs"
+
+[[bin]]
+name = "valhalla_fate_dimension_intel"
+path = "src/bin/stemcell_fate_dimension_intel.rs"
+
+[[bin]]
+name = "valhalla_stemcell_physics"
+path = "src/bin/stemcell_physics_intel.rs"

@@ -1,0 +1,83 @@
+# Wave 硬件层
+# BIOS = 现成驱动，Fate 声明需求即可
+
+# ═══════════════════════════════════════════════════════
+# Wave 方式：声明意图，Fate 自动选择最佳实现
+# ═══════════════════════════════════════════════════════
+
+# 显示：Fate 自动选择 BIOS/VBE/GPU
+"display" -> fate_require -> {
+    bios: "int 10h",      # 现成
+    vbe: "VBE 2.0+",      # BIOS 提供
+    vga: "0xA000/0xB8000" # 内存映射
+}
+
+# 键盘：Fate 自动选择 BIOS/USB
+"keyboard" -> fate_require -> {
+    bios: "int 16h",      # 现成
+    ps2: "IRQ1 0x60",     # 标准
+    usb: "BIOS USB"       # BIOS 提供 USB Legacy
+}
+
+# 鼠标：Fate 自动选择
+"mouse" -> fate_require -> {
+    bios: "int 33h",      # DOS 兼容
+    ps2: "IRQ12 0x60",    # 标准
+    usb: "BIOS USB"       # BIOS 提供
+}
+
+# 磁盘：Fate 自动选择
+"storage" -> fate_require -> {
+    bios: "int 13h",      # 现成
+    edd: "EDD 3.0"        # BIOS 扩展
+}
+
+# 定时器：BIOS 提供
+"timer" -> fate_require -> {
+    bios: "int 1Ah",      # 现成
+    pit: "IRQ0 0x40"      # 标准
+}
+
+# 网络：如果 BIOS 支持 PXE
+"network" -> fate_require -> {
+    pxe: "PXE API",       # 网络启动 BIOS 提供
+    rtl8139: "PCI",       # 通用网卡
+    e1000: "PCI"          # Intel 网卡
+}
+
+# ═══════════════════════════════════════════════════════
+# Fate 自动初始化
+# ═══════════════════════════════════════════════════════
+
+fate_hw_init -> function() {
+    # Fate 检测可用硬件，自动选择最佳
+    hw -> fate_detect_all
+    
+    # 显示
+    display -> hw.display -> fate_select_best -> fate_init
+    
+    # 输入
+    keyboard -> hw.keyboard -> fate_select_best -> fate_init
+    mouse -> hw.mouse -> fate_select_best -> fate_init
+    
+    # 存储
+    storage -> hw.storage -> fate_select_best -> fate_init
+    
+    # 可选
+    when hw.network {
+        network -> hw.network -> fate_select_best -> fate_init
+    }
+    
+    out "Hardware ready"
+}
+
+# ═══════════════════════════════════════════════════════
+# 使用方式
+# ═══════════════════════════════════════════════════════
+
+# Wave 代码只需声明意图：
+# out "Hello"          → Fate 选择显示方式
+# key -> input         → Fate 选择输入方式
+# data -> disk_read    → Fate 选择存储方式
+
+# Fate 在运行中观察使用模式，自动优化

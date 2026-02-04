@@ -1,0 +1,100 @@
+[chinese] अपर तै वक़्ते दे मताबक तिह्नां रुस्सेयाँ रिश्तेदारां जो रोटी खुआणे ते मना करी दित्ता। (CCONJ ADJ NOUN ADP ADP PRON ADJ NOUN ADP NOUN VERB ADP NOUN VERB AUX PUNCT)
+[english] "The ISO staff sat in a meeting with the governor's key energy advisers with poker faces, not saying a word about something that was going on at the exact same moment,'' Maviglio said. (PUNCT DET PROPN NOUN VERB ADP DET NOUN ADP DET _ NOUN PART ADJ NOUN NOUN ADP NOUN NOUN PUNCT PART VERB DET NOUN ADP PRON PRON AUX VERB ADP ADP DET ADV ADJ NOUN PUNCT PUNCT PROPN VERB PUNCT)
+[japanese] 彼女は娘のことを心配せずにはいられなかった。
+[korean] 우리는 후원자를 찾고 있습니다.
+[german] Der verurteilte Drogendealer war gewillt, sich den Behörden zu fügen, um seine Todesstrafe zu einer lebenslänglichen Freiheitsstrafe zu vermindern.
+[german] Als Dirigent setzte er sich bevorzugt für zeitgenössische Musik ein, beispielsweise für Benjamin Britten oder Michael Tippett. (ADP NOUN VERB PRON PRON ADJ ADP ADJ NOUN ADV PUNCT ADV ADP PROPN PROPN CCONJ PROPN PROPN PUNCT)
+[russian] Он измерил длину кровати.
+[russian] Он очень искренний человек.
+[arabic] مساعدة
+[portuguese] pacientes
+[english] aepyornis
+[english] ribbon
+[japanese] アクアマリンと組成を同じくするが、クロムCrやバナジウムVがドーパントとして混入している。 (NOUN ADP NOUN ADP ADV AUX SCONJ PUNCT NOUN NOUN NOUN ADP NOUN NOUN ADP NOUN ADP AUX SCONJ VERB AUX SCONJ VERB PUNCT)
+[chinese] 一唱三嘆
+[korean] 끝이
+[german] Die Filme wurden mit schwarzen Darstellern in Deutschland gedreht und boten schwarzen Deutschen und afrikanischen Migranten Beschäftigung und Schutz vor Verfolgung. (DET NOUN AUX ADP ADJ NOUN ADP PROPN VERB CCONJ VERB ADJ NOUN CCONJ ADJ NOUN NOUN CCONJ NOUN ADP NOUN PUNCT)
+[russian] Придерживайся этого, и ты преуспеешь.
+[spanish] discreción
+[arabic] يمضي الرئيس العراقي السابق صدام حسين في معتقله في معسكر الرضوانية نصف يومه للإجابة عن أسئلة المحققين الأمريكيين، بينما ينهي نصف يومه الآخر بين النوم وتنظيف زنزانته التي علقت فيها صور نجليه القتيلين عدي وقصي وبعض أركان نظامه المعتقلين في قسم خاص بسجن أبو غريب المركزي، فضلاً عن صور للرئيس الأمريكي جورج بوش. (VERB NOUN ADJ ADJ X X ADP _ NOUN PRON ADP NOUN X NOUN _ NOUN PRON _ ADP NOUN ADP NOUN NOUN ADJ PUNCT CCONJ VERB NOUN _ NOUN PRON ADJ ADP NOUN _ CCONJ NOUN _ NOUN PRON DET X _ ADP PRON NOUN _ NOUN PRON NOUN X _ CCONJ VERB _ CCONJ NOUN NOUN _ NOUN PRON NOUN ADP NOUN ADJ _ ADP NOUN X X ADJ PUNCT NOUN ADP NOUN _ ADP NOUN ADJ X X PUNCT)
+[portuguese] Não vou ficar com nenhum lutador, porque eu conheço eles. (ADV AUX VERB ADP DET NOUN PUNCT CCONJ PRON VERB PRON PUNCT)
+[english] aecidium
+[chinese] 不如休息一下吧？
+[japanese] 秘密はもうすっかり知れ渡っているよ。
+[korean] 헌혈은 이게 처음인가요?
+[french] Elle tente sa chance dans la sculpture et la danse à Berlin, sans réussite, et étudie à la Kunstschule avant de revenir à Paris. (PRON VERB DET NOUN ADP DET NOUN CCONJ DET NOUN ADP PROPN PUNCT ADP NOUN PUNCT CCONJ VERB ADP DET PROPN ADV ADP VERB ADP PROPN PUNCT)
+[french] protocole
+[german] abgesperrt
+[russian] Они попросили меня произнести речь, не дав достаточно времени на подготовку.
+[arabic] يجب أن تعتمد على نفسك فقط. لكن، ليس كثيرًا.
+[portuguese] campanha
+[english] these are short term transactions and requiring this documentation will cause us to lose business because competitive alternatives do not have such burdensome requirements. (PRON AUX ADJ NOUN NOUN CCONJ VERB DET NOUN AUX VERB PRON PART VERB NOUN SCONJ ADJ NOUN AUX PART VERB ADJ ADJ NOUN PUNCT)
+[chinese] जी ४ में भारत भी शामिल है । (PROPN PROPN ADP PROPN PART ADJ AUX PUNCT)
+[english] fizz
+[korean] 베를린이 나폴레옹의 지배를 받게 되자 그녀는 지금의 리투아니아에 위치한 메멜에서 자라게 되었다. (NOUN NOUN NOUN VERB VERB PRON NOUN ADV VERB ADV VERB VERB PUNCT)
+[korean] 않잖아
+[german] Er und sein bester Freund Tucker Cleigh versuchen, sich in die Playboyvilla einzuschleichen. (PRON CCONJ DET ADJ NOUN PROPN PROPN VERB PUNCT PRON ADP DET NOUN VERB PUNCT)
+[spanish] Sin embargo, ambas versiones fueron canceladas. (ADP NOUN PUNCT DET NOUN AUX VERB PUNCT)
+[spanish] cristina
+[arabic] قضى الملك على أعدائه.
+[portuguese] Sobrou pouca água.
+[english] We can record the past and present.
+[chinese] 你有沒有看過那部電影？
+[japanese] 不感症のようです。
+[korean] 톰이 나한테 메일 보냈어요.
+[korean] 보냈어
+[spanish] Sería divertido ver cómo las cosas cambian a través de los años.
+[spanish] Si la discusión requirió presunciones de oposición, sin embargo, el orador puede volcar la opinión anterior probando un caso opuesto. (SCONJ DET NOUN VERB NOUN ADP NOUN PUNCT ADP NOUN PUNCT DET NOUN AUX VERB DET NOUN ADJ VERB DET NOUN ADJ PUNCT)
+[russian] Заглядывай ко мне, если будет время.
+[arabic] مقتطفات من اقوال صحف بكين / اضافة اولى واخيرة / (NOUN ADP NOUN NOUN X PUNCT NOUN ADJ _ CCONJ ADJ PUNCT)
+[portuguese] Nalguns casos, os traficantes de crianças podem ser punidos com a pena de morte. (_ ADP DET NOUN PUNCT DET NOUN ADP NOUN AUX AUX VERB ADP DET NOUN ADP NOUN PUNCT)
+[english] We studied Greek culture from various aspects.
+[english] manufactured
+[japanese] 父はいつも言っている、「最善を尽くせ」と。
+[korean] 맛은 진짜 맛있는데 배달할 때 전화 받는 여자분 엄청 불친절해요 (NOUN ADV VERB VERB NOUN NOUN VERB NOUN ADV ADJ)
+[french] Il travaillait jour et nuit dans l'intérêt de son entreprise.
+[german] Seinen größten Erfolg feierte der mittlerweile 35 Jahre alte Hübner in der Saison 2001 / 02 als er für Piacenza Calcio in der Serie A 24 Tore erzielte und damit zusammen mit David Trezeguet von Juventus Turin in der Torjägerliste den ersten Platz belegte. (DET ADJ NOUN VERB DET ADV NUM NOUN ADJ PROPN ADP DET NOUN NUM PUNCT NUM SCONJ PRON ADP PROPN PROPN ADP DET NOUN PROPN NUM NOUN VERB CCONJ ADV ADV ADP PROPN PROPN ADP PROPN PROPN ADP DET NOUN DET ADJ NOUN VERB PUNCT)
+[german] abgeschlosseneres
+[russian] Конечный пункт ``Южно-Уэльской железной дороги&#39;&#39; на западе пришлось менять, как и на востоке. (ADJ NOUN PUNCT ADJ ADJ NOUN PUNCT ADP NOUN VERB VERB PUNCT ADV CCONJ ADP NOUN PUNCT)
+[arabic] لنغني هذه الأغنية بالإنجليزية.
+[portuguese] De olho no acesso, João Paulo alertou os companheiros e destacou a necessidade de permanecer focado na reta final da competição. (ADP NOUN _ ADP DET NOUN PUNCT PROPN PROPN VERB DET NOUN CCONJ VERB DET NOUN ADP VERB ADJ _ ADP DET NOUN ADJ _ ADP DET NOUN PUNCT)
+[english] 8. Where is the defined term Govt Authority used? (NUM PUNCT ADV AUX DET VERB NOUN NOUN NOUN VERB PUNCT)
+[chinese] लेकिन इस मामले में अबू सलेम पर मुकदमा चलेगा । (CCONJ DET NOUN ADP PROPN PROPN ADP NOUN VERB PUNCT)
+[japanese] 父は不眠不休で働いた。
+[korean] 그는 도시에서 살고 싶어 해요.
+[french] Chacun sait à un niveau ou un autre, ce que sont le bien et le mal ; certains feignent de l'ignorer.
+[german] Wir haben viel Wasser.
+[german] abgesaugte
+[spanish] honestos
+[arabic] ظ
+[portuguese] Faça o seu melhor!
+[english] admiralship
+[english] suspect
+[japanese] 前回と同じ12人が立候補を予定、現職9人全員と3新人が争う。 (NOUN ADP ADJ NUM NOUN ADP NOUN NOUN ADP NOUN PUNCT NOUN NUM NOUN NOUN ADP NUM NOUN ADP VERB PUNCT)
+[korean] 야니는 알제리로 간다.
+[french] Jacques de Chateauvieux, issu d'une famille de colon réunionnais, possède 20% de la société à travers sa holding Jaccar. (PROPN PROPN PROPN PUNCT ADJ ADP DET NOUN ADP NOUN ADJ PUNCT VERB NUM SYM ADP DET NOUN ADP NOUN DET NOUN PROPN PUNCT)
+[german] Die Außendienstmitarbeiter werden in einem Gruppentraining Berufliche Neuorientierung auf die Stellensuche oder Selbstständigkeit vorbereitet. (DET NOUN AUX ADP DET NOUN PROPN PROPN ADP DET NOUN CCONJ NOUN VERB PUNCT)
+[russian] Старайся изо всех сил, и ты добьёшься успеха.
+[spanish] bufete
+[arabic] هل يوجد مصعد؟
+[portuguese] Não confunda eficácia com eficiência.
+[english] adjunctively
+[english] cod
+[japanese] 文法的に正しい文章を作るよう心がけるべきだ。
+[chinese] PU
+[french] Il devient communiste à Vladivostok en 1918. (PRON VERB ADJ ADP PROPN ADP NUM PUNCT)
+[german] Das Zugunglück gilt als das schwerste in der Geschichte der DDR. (DET NOUN VERB ADP DET NOUN ADP DET NOUN DET PROPN PUNCT)
+[german] abgeplatzte
+[russian] Окончив Московский государственный строительный университет по специальности ``инженер&#39;&#39;, Легостаев прослужил год в армии. (VERB ADJ ADJ ADJ NOUN ADP NOUN PUNCT NOUN PUNCT PUNCT PROPN VERB NOUN ADP NOUN PUNCT)
+[arabic] تأكد جيدا من اغلاق الباب قبل ان تغادر.
+[portuguese] O pássaro está no seu ninho.
+[english] 09/16/99 10:16 AM (NUM NUM NOUN)
+[chinese] 有很多人在这里散步。
+[english] exhilaration
+[korean] 그녀는 불안해했다.
+[french] L'Alsace-Lorraine tombe aux mains des Prussiens. (DET PROPN VERB _ ADP DET NOUN _ ADP DET NOUN PUNCT)
+[german] Ich wickelte einen isolierten Draht um den Eisenkern.
+[spanish] No es novela negra, de contenido crítico o social, y no es un thriller rocambolesco donde la acción lo justifica todo. (ADV AUX NOUN ADJ PUNCT ADP NOUN ADJ CCONJ ADJ PUNCT CCONJ ADV AUX DET X ADJ ADV DET NOUN PRON VERB PRON PUNCT)
+[spanish] polonia
+[arabic] اختبأ توم تحت الطاولة.
+[portuguese] legal

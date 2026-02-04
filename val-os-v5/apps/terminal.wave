@@ -1,0 +1,362 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Terminal
+# Wave Shell interface
+# ═══════════════════════════════════════════════════════════════════
+
+title = "Terminal"
+icon = "💻"
+
+# State
+history = []
+history_index = 0
+current_line = ""
+output_buffer = []
+
+# ───────────────────────────────────────────────────────────────────
+# Start
+# ───────────────────────────────────────────────────────────────────
+
+start -> function(window) {
+    # Set up window content
+    window.content = {
+        type: "terminal",
+        lines: output_buffer,
+        prompt: get_prompt(),
+        input: current_line,
+        on_input: handle_input,
+        on_key: handle_key
+    }
+    
+    # Welcome message
+    add_output("🌊 Wave Shell v5.0")
+    add_output("Type 'help' for commands")
+    add_output("")
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Input Handling
+# ───────────────────────────────────────────────────────────────────
+
+handle_input -> function(line) {
+    # Add to history
+    when line != "" {
+        line -> history.push
+        history_index = history.length
+    }
+    
+    # Echo command
+    add_output(get_prompt() + line)
+    
+    # Execute
+    execute_command(line)
+    
+    # Reset
+    current_line = ""
+}
+
+handle_key -> function(key, modifiers) {
+    when key == "ArrowUp" {
+        # History up
+        when history_index > 0 {
+            history_index = history_index - 1
+            current_line = history[history_index]
+        }
+    }
+    
+    when key == "ArrowDown" {
+        # History down
+        when history_index < history.length - 1 {
+            history_index = history_index + 1
+            current_line = history[history_index]
+        } else {
+            history_index = history.length
+            current_line = ""
+        }
+    }
+    
+    when key == "Tab" {
+        # Auto-complete
+        current_line -> auto_complete -> completed
+        current_line = completed
+    }
+    
+    when modifiers.ctrl && key == "c" {
+        # Cancel
+        add_output("^C")
+        current_line = ""
+    }
+    
+    when modifiers.ctrl && key == "l" {
+        # Clear
+        output_buffer = []
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Command Execution
+# ───────────────────────────────────────────────────────────────────
+
+execute_command -> function(line) {
+    parts -> line.trim().split(" ")
+    cmd = parts[0]
+    args = parts[1..]
+    
+    when cmd == "" { return }
+    
+    when cmd == "help" { cmd_help() }
+    when cmd == "ls" || cmd == "dir" { cmd_ls(args) }
+    when cmd == "cd" { cmd_cd(args) }
+    when cmd == "pwd" { cmd_pwd() }
+    when cmd == "cat" { cmd_cat(args) }
+    when cmd == "echo" { cmd_echo(args) }
+    when cmd == "mkdir" { cmd_mkdir(args) }
+    when cmd == "rm" { cmd_rm(args) }
+    when cmd == "cp" { cmd_cp(args) }
+    when cmd == "mv" { cmd_mv(args) }
+    when cmd == "clear" { cmd_clear() }
+    when cmd == "wave" { cmd_wave(args) }
+    when cmd == "fate" { cmd_fate(args) }
+    when cmd == "quattro" { cmd_quattro(args) }
+    when cmd == "ps" { cmd_ps() }
+    when cmd == "kill" { cmd_kill(args) }
+    when cmd == "whoami" { cmd_whoami() }
+    when cmd == "date" { cmd_date() }
+    when cmd == "exit" { cmd_exit() }
+    else {
+        # Try to run as Wave program
+        path -> find_executable(cmd)
+        when path != null {
+            runtime.execute(path)
+        } else {
+            add_output("Command not found: " + cmd)
+        }
+    }
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Built-in Commands
+# ───────────────────────────────────────────────────────────────────
+
+cmd_help -> function() {
+    add_output("Wave Shell Commands:")
+    add_output("  help              Show this help")
+    add_output("  ls [path]         List directory")
+    add_output("  cd <path>         Change directory")
+    add_output("  pwd               Print working directory")
+    add_output("  cat <file>        Show file contents")
+    add_output("  echo <text>       Print text")
+    add_output("  mkdir <name>      Create directory")
+    add_output("  rm <path>         Remove file/directory")
+    add_output("  cp <src> <dst>    Copy file")
+    add_output("  mv <src> <dst>    Move file")
+    add_output("  clear             Clear screen")
+    add_output("  wave <file>       Run Wave program")
+    add_output("  fate              Show Fate status")
+    add_output("  quattro           Show memory status")
+    add_output("  ps                List processes")
+    add_output("  kill <pid>        Kill process")
+    add_output("  whoami            Show current user")
+    add_output("  date              Show date/time")
+    add_output("  exit              Exit terminal")
+}
+
+cmd_ls -> function(args) {
+    path = args[0] || env.PWD || "/"
+    
+    entries -> storage.list_dir(path)
+    
+    entries -> fate_each -> entry {
+        prefix = entry.type == "dir" -> "📁 " : "📄 "
+        size_str = entry.type == "file" -> " (" + entry.size + "B)" : ""
+        add_output(prefix + entry.name + size_str)
+    }
+}
+
+cmd_cd -> function(args) {
+    when args.length == 0 {
+        env.PWD = env.HOME
+        return
+    }
+    
+    path -> storage.resolve_path(args[0])
+    
+    # Check if exists and is directory
+    stat -> storage.stat(path)
+    when stat == null || stat.type != "dir" {
+        add_output("cd: not a directory: " + args[0])
+        return
+    }
+    
+    env.PWD = path
+}
+
+cmd_pwd -> function() {
+    add_output(env.PWD || "/")
+}
+
+cmd_cat -> function(args) {
+    when args.length == 0 {
+        add_output("cat: missing file")
+        return
+    }
+    
+    path -> storage.resolve_path(args[0])
+    handle -> storage.open(path, "r")
+    
+    when handle == null {
+        add_output("cat: cannot open: " + args[0])
+        return
+    }
+    
+    content -> storage.read(handle, 65536)
+    storage.close(handle)
+    
+    content.split("\n") -> fate_each -> line {
+        add_output(line)
+    }
+}
+
+cmd_echo -> function(args) {
+    add_output(args.join(" "))
+}
+
+cmd_mkdir -> function(args) {
+    when args.length == 0 {
+        add_output("mkdir: missing name")
+        return
+    }
+    
+    path -> storage.resolve_path(args[0])
+    storage.create_dir(path)
+    add_output("Created: " + args[0])
+}
+
+cmd_rm -> function(args) {
+    when args.length == 0 {
+        add_output("rm: missing path")
+        return
+    }
+    
+    path -> storage.resolve_path(args[0])
+    storage.remove(path)
+    add_output("Removed: " + args[0])
+}
+
+cmd_clear -> function() {
+    output_buffer = []
+}
+
+cmd_wave -> function(args) {
+    when args.length == 0 {
+        add_output("wave: missing file")
+        return
+    }
+    
+    path -> storage.resolve_path(args[0])
+    add_output("Running: " + path)
+    
+    result -> runtime.execute(path)
+}
+
+cmd_fate -> function(args) {
+    add_output("Fate Engine Status:")
+    add_output("  State: " + fate.fate_brain.state)
+    add_output("  Mode: " + fate.fate_brain.mode)
+    add_output("  Patterns learned: " + fate.fate_brain.patterns.length)
+    add_output("  Meta level: " + fate.meta_fate.level)
+}
+
+cmd_quattro -> function(args) {
+    stats -> quattro.quattro_stats()
+    
+    add_output("Quattro Memory:")
+    add_output("  BlackHole:  " + stats.blackhole.used + " / " + stats.blackhole.total)
+    add_output("  MeshBrain:  " + stats.meshbrain.used + " / " + stats.meshbrain.total)
+    add_output("  MultiNova:  " + stats.multinova.used + " / " + stats.multinova.total)
+    add_output("  BaseForce:  " + stats.baseforce.used + " / " + stats.baseforce.total)
+}
+
+cmd_ps -> function() {
+    add_output("PID  NAME            STATE")
+    add_output("1    fate            running")
+    add_output("2    desktop         running")
+    add_output("3    terminal        running")
+}
+
+cmd_whoami -> function() {
+    add_output(env.USER || "unknown")
+}
+
+cmd_date -> function() {
+    time -> __time__()
+    add_output(time.toString())
+}
+
+cmd_exit -> function() {
+    window -> close_window
+}
+
+# ───────────────────────────────────────────────────────────────────
+# Helpers
+# ───────────────────────────────────────────────────────────────────
+
+get_prompt -> function() {
+    user = env.USER || "user"
+    path = env.PWD || "/"
+    
+    user + "@valos:" + path + "$ " -> return
+}
+
+add_output -> function(line) {
+    line -> output_buffer.push
+    
+    # Limit buffer size
+    when output_buffer.length > 1000 {
+        output_buffer = output_buffer[100..]
+    }
+}
+
+find_executable -> function(name) {
+    # Check current directory
+    path = env.PWD + "/" + name + ".wave"
+    when storage.exists(path) {
+        path -> return
+    }
+    
+    # Check /bin
+    path = "/bin/" + name + ".wave"
+    when storage.exists(path) {
+        path -> return
+    }
+    
+    null -> return
+}
+
+auto_complete -> function(partial) {
+    # Get directory contents
+    entries -> storage.list_dir(env.PWD)
+    
+    # Find matches
+    matches = []
+    entries -> fate_each -> entry {
+        when entry.name.startsWith(partial) {
+            entry.name -> matches.push
+        }
+    }
+    
+    when matches.length == 1 {
+        matches[0] -> return
+    }
+    when matches.length > 1 {
+        add_output(matches.join("  "))
+    }
+    
+    partial -> return
+}
+
+# Export
+module.exports = {
+    title,
+    icon,
+    start
+}

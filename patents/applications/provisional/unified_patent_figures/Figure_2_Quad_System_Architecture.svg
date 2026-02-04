@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 650" width="800" height="650">
+  <title>FIG. 2 - Multi-Force Quad-System Architecture</title>
+  
+  <!-- Background -->
+  <rect width="800" height="650" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">FIG. 2 - Multi-Force Quad-System Architecture</text>
+  
+  <!-- Central Decision Engine (Fate) -->
+  <ellipse cx="400" cy="200" rx="120" ry="60" fill="none" stroke="black" stroke-width="3"/>
+  <text x="400" y="190" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold">DECISION ENGINE</text>
+  <text x="400" y="210" text-anchor="middle" font-family="Arial" font-size="11">(Core Coordination)</text>
+  <text x="400" y="228" text-anchor="middle" font-family="Arial" font-size="10">w = I × Q</text>
+  
+  <!-- Four Subsystems arranged around center -->
+  
+  <!-- System A (Top-Left) - Aggregation -->
+  <rect x="80" y="80" width="150" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="155" y="105" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">SYSTEM A</text>
+  <text x="155" y="125" text-anchor="middle" font-family="Arial" font-size="10">Aggregation</text>
+  <text x="155" y="140" text-anchor="middle" font-family="Arial" font-size="10">Compression</text>
+  <text x="155" y="155" text-anchor="middle" font-family="Arial" font-size="9" font-style="italic">(Gravitational Analog)</text>
+  <text x="155" y="170" text-anchor="middle" font-family="Arial" font-size="9">direction[0]</text>
+  
+  <!-- System B (Top-Right) - Network -->
+  <rect x="570" y="80" width="150" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="645" y="105" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">SYSTEM B</text>
+  <text x="645" y="125" text-anchor="middle" font-family="Arial" font-size="10">Network Connectivity</text>
+  <text x="645" y="140" text-anchor="middle" font-family="Arial" font-size="10">Distributed Processing</text>
+  <text x="645" y="155" text-anchor="middle" font-family="Arial" font-size="9" font-style="italic">(Electromagnetic Analog)</text>
+  <text x="645" y="170" text-anchor="middle" font-family="Arial" font-size="9">direction[1]</text>
+  
+  <!-- System C (Bottom-Left) - Parallel -->
+  <rect x="80" y="280" width="150" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="155" y="305" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">SYSTEM C</text>
+  <text x="155" y="325" text-anchor="middle" font-family="Arial" font-size="10">Parallel Computation</text>
+  <text x="155" y="340" text-anchor="middle" font-family="Arial" font-size="10">Energy Distribution</text>
+  <text x="155" y="355" text-anchor="middle" font-family="Arial" font-size="9" font-style="italic">(Strong Nuclear Analog)</text>
+  <text x="155" y="370" text-anchor="middle" font-family="Arial" font-size="9">direction[2]</text>
+  
+  <!-- System D (Bottom-Right) - Fundamental -->
+  <rect x="570" y="280" width="150" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="645" y="305" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">SYSTEM D</text>
+  <text x="645" y="325" text-anchor="middle" font-family="Arial" font-size="10">Signal Processing</text>
+  <text x="645" y="340" text-anchor="middle" font-family="Arial" font-size="10">Enhancement</text>
+  <text x="645" y="355" text-anchor="middle" font-family="Arial" font-size="9" font-style="italic">(Weak Nuclear Analog)</text>
+  <text x="645" y="370" text-anchor="middle" font-family="Arial" font-size="9">direction[3]</text>
+  
+  <!-- Bidirectional Arrows connecting systems to center -->
+  <!-- A to Center -->
+  <line x1="230" y1="140" x2="290" y2="175" stroke="black" stroke-width="1.5"/>
+  <polygon points="290,175 280,168 283,178" fill="black"/>
+  <polygon points="230,140 240,147 237,137" fill="black"/>
+  
+  <!-- B to Center -->
+  <line x1="570" y1="140" x2="510" y2="175" stroke="black" stroke-width="1.5"/>
+  <polygon points="510,175 520,168 517,178" fill="black"/>
+  <polygon points="570,140 560,147 563,137" fill="black"/>
+  
+  <!-- C to Center -->
+  <line x1="230" y1="320" x2="290" y2="225" stroke="black" stroke-width="1.5"/>
+  <polygon points="290,225 280,232 283,222" fill="black"/>
+  <polygon points="230,320 240,313 237,323" fill="black"/>
+  
+  <!-- D to Center -->
+  <line x1="570" y1="320" x2="510" y2="225" stroke="black" stroke-width="1.5"/>
+  <polygon points="510,225 520,232 517,222" fill="black"/>
+  <polygon points="570,320 560,313 563,323" fill="black"/>
+  
+  <!-- Signal labels -->
+  <text x="250" y="145" font-family="Arial" font-size="8">signals</text>
+  <text x="535" y="145" font-family="Arial" font-size="8">signals</text>
+  <text x="250" y="285" font-family="Arial" font-size="8">signals</text>
+  <text x="535" y="285" font-family="Arial" font-size="8">signals</text>
+  
+  <!-- Preference Output Section -->
+  <rect x="280" y="420" width="240" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="445" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold">SYSTEM PREFERENCES</text>
+  <text x="400" y="465" text-anchor="middle" font-family="Arial" font-size="10">[A_affinity, B_affinity,</text>
+  <text x="400" y="480" text-anchor="middle" font-family="Arial" font-size="10">C_affinity, D_affinity]</text>
+  
+  <!-- Arrow from center to preferences -->
+  <line x1="400" y1="260" x2="400" y2="415" stroke="black" stroke-width="2"/>
+  <polygon points="400,415 395,405 405,405" fill="black"/>
+  
+  <!-- Workload Routing -->
+  <rect x="280" y="530" width="240" height="50" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="555" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold">WORKLOAD ROUTING</text>
+  <text x="400" y="572" text-anchor="middle" font-family="Arial" font-size="9">(Route to highest affinity system)</text>
+  
+  <!-- Arrow from preferences to routing -->
+  <line x1="400" y1="500" x2="400" y2="525" stroke="black" stroke-width="2"/>
+  <polygon points="400,525 395,515 405,515" fill="black"/>
+  
+  <!-- Legend Box -->
+  <rect x="50" y="570" width="180" height="70" fill="none" stroke="black" stroke-width="1"/>
+  <text x="140" y="590" text-anchor="middle" font-family="Arial" font-size="10" font-weight="bold">LEGEND</text>
+  <line x1="60" y1="605" x2="90" y2="605" stroke="black" stroke-width="1.5"/>
+  <polygon points="90,605 82,601 82,609" fill="black"/>
+  <polygon points="60,605 68,601 68,609" fill="black"/>
+  <text x="100" y="608" font-family="Arial" font-size="9">Bidirectional Signal Flow</text>
+  <line x1="60" y1="625" x2="90" y2="625" stroke="black" stroke-width="2"/>
+  <polygon points="90,625 82,621 82,629" fill="black"/>
+  <text x="100" y="628" font-family="Arial" font-size="9">Output Flow</text>
+</svg>
+

@@ -1,0 +1,303 @@
+# ═══════════════════════════════════════════════════════════════════
+# Val-OS v5.0 - Driver Compatibility Layer
+# 驱动兼容层 - Fate 自适应硬件抽象
+# ═══════════════════════════════════════════════════════════════════
+# 时间: 2026-01-23 02:00:25
+# 作者: Wave Language Team
+# ═══════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────
+# 核心理念: Wave 不关心底层，Fate 自动选择最优驱动
+# ─────────────────────────────────────────────────────────────────
+
+# 硬件检测 - Fate 自动探测可用硬件
+hw_detect -> function() {
+    detected = {
+        display: null,
+        input: null,
+        storage: null,
+        network: null,
+        audio: null
+    }
+    
+    # Fate 探测显示设备
+    "display" -> fate_probe -> detected.display
+    
+    # Fate 探测输入设备
+    "input" -> fate_probe -> detected.input
+    
+    # Fate 探测存储设备
+    "storage" -> fate_probe -> detected.storage
+    
+    # Fate 探测网络设备
+    "network" -> fate_probe -> detected.network
+    
+    # Fate 探测音频设备
+    "audio" -> fate_probe -> detected.audio
+    
+    detected -> return
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 显示驱动兼容层
+# ═══════════════════════════════════════════════════════════════════
+
+display_compat -> {
+    # 支持的显示模式 (Fate 自动选择最佳)
+    modes: [
+        { name: "VGA_TEXT",   width: 80,   height: 25,  bpp: 4,  addr: 0xB8000 },
+        { name: "VGA_13H",    width: 320,  height: 200, bpp: 8,  addr: 0xA0000 },
+        { name: "VESA_640",   width: 640,  height: 480, bpp: 32, addr: "LFB" },
+        { name: "VESA_800",   width: 800,  height: 600, bpp: 32, addr: "LFB" },
+        { name: "VESA_1024",  width: 1024, height: 768, bpp: 32, addr: "LFB" },
+        { name: "VESA_1080",  width: 1920, height: 1080, bpp: 32, addr: "LFB" }
+    ],
+    
+    current_mode: null,
+    framebuffer: null,
+    
+    # 初始化显示
+    init -> function() {
+        # Fate 选择最佳模式
+        best_mode -> display_compat.modes -> fate_select_best
+        display_compat.current_mode = best_mode
+        
+        when best_mode.addr == "LFB" {
+            # VESA 线性帧缓冲
+            display_compat.framebuffer -> vbe_get_lfb_address
+        } else {
+            # 传统 VGA 地址
+            display_compat.framebuffer = best_mode.addr
+        }
+        
+        out "Display: " + best_mode.name + " (" + best_mode.width + "x" + best_mode.height + ")"
+    },
+    
+    # 设置像素
+    set_pixel -> function(x, y, color) {
+        mode = display_compat.current_mode
+        when mode.bpp == 8 {
+            # Mode 13h: 1 byte per pixel
+            offset = y * mode.width + x
+            display_compat.framebuffer[offset] = color
+        }
+        when mode.bpp == 32 {
+            # True color: 4 bytes per pixel (BGRA)
+            offset = (y * mode.width + x) * 4
+            display_compat.framebuffer[offset] = color.b
+            display_compat.framebuffer[offset + 1] = color.g
+            display_compat.framebuffer[offset + 2] = color.r
+            display_compat.framebuffer[offset + 3] = 0xFF
+        }
+    },
+    
+    # 填充矩形
+    fill_rect -> function(x, y, w, h, color) {
+        limit h; row {
+            limit w; col {
+                display_compat.set_pixel(x + col, y + row, color)
+            }
+        }
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 输入驱动兼容层
+# ═══════════════════════════════════════════════════════════════════
+
+input_compat -> {
+    # 支持的输入设备
+    devices: [
+        { type: "PS2_KEYBOARD", port: 0x60 },
+        { type: "PS2_MOUSE",    port: 0x60 },
+        { type: "USB_KEYBOARD", driver: "USB_HID" },
+        { type: "USB_MOUSE",    driver: "USB_HID" }
+    ],
+    
+    keyboard: null,
+    mouse: null,
+    
+    # 初始化输入
+    init -> function() {
+        # Fate 选择可用的键盘
+        input_compat.keyboard -> input_compat.devices -> fate_find("KEYBOARD")
+        # Fate 选择可用的鼠标
+        input_compat.mouse -> input_compat.devices -> fate_find("MOUSE")
+        
+        out "Keyboard: " + input_compat.keyboard.type
+        out "Mouse: " + input_compat.mouse.type
+    },
+    
+    # 读取按键
+    get_key -> function() {
+        when input_compat.keyboard.type == "PS2_KEYBOARD" {
+            # BIOS INT 16h
+            key -> bios_get_key
+            key -> return
+        }
+        when input_compat.keyboard.type == "USB_KEYBOARD" {
+            key -> usb_hid_get_key
+            key -> return
+        }
+        null -> return
+    },
+    
+    # 读取鼠标
+    get_mouse -> function() {
+        when input_compat.mouse.type == "PS2_MOUSE" {
+            # BIOS INT 33h
+            state -> bios_get_mouse
+            state -> return
+        }
+        when input_compat.mouse.type == "USB_MOUSE" {
+            state -> usb_hid_get_mouse
+            state -> return
+        }
+        null -> return
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 存储驱动兼容层
+# ═══════════════════════════════════════════════════════════════════
+
+storage_compat -> {
+    devices: [
+        { type: "FLOPPY",  bios_int: 0x13, drive: 0x00 },
+        { type: "HDD",     bios_int: 0x13, drive: 0x80 },
+        { type: "CDROM",   bios_int: 0x13, drive: 0xE0 },
+        { type: "USB",     driver: "USB_MASS" },
+        { type: "NVME",    driver: "NVME" }
+    ],
+    
+    boot_device: null,
+    
+    init -> function() {
+        storage_compat.boot_device -> storage_compat.devices -> fate_find_boot
+        out "Storage: " + storage_compat.boot_device.type
+    },
+    
+    read_sector -> function(lba, count, buffer) {
+        when storage_compat.boot_device.type == "FLOPPY" || 
+             storage_compat.boot_device.type == "HDD" {
+            # BIOS INT 13h
+            bios_read_sectors(lba, count, buffer)
+        }
+        when storage_compat.boot_device.type == "NVME" {
+            nvme_read(lba, count, buffer)
+        }
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 网络驱动兼容层
+# ═══════════════════════════════════════════════════════════════════
+
+network_compat -> {
+    devices: [
+        { type: "RTL8139",  pci_id: 0x813910EC },
+        { type: "E1000",    pci_id: 0x100E8086 },
+        { type: "VIRTIO",   pci_id: 0x10001AF4 }
+    ],
+    
+    active_nic: null,
+    mac_address: null,
+    
+    init -> function() {
+        network_compat.active_nic -> network_compat.devices -> fate_find_nic
+        when network_compat.active_nic != null {
+            network_compat.mac_address -> network_compat.active_nic -> get_mac
+            out "Network: " + network_compat.active_nic.type
+        } else {
+            out "Network: None"
+        }
+    },
+    
+    send_packet -> function(data) {
+        when network_compat.active_nic != null {
+            network_compat.active_nic -> driver_send(data)
+        }
+    },
+    
+    receive_packet -> function() {
+        when network_compat.active_nic != null {
+            packet -> network_compat.active_nic -> driver_receive
+            packet -> return
+        }
+        null -> return
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 音频驱动兼容层
+# ═══════════════════════════════════════════════════════════════════
+
+audio_compat -> {
+    devices: [
+        { type: "PC_SPEAKER", port: 0x61 },
+        { type: "SB16",       port: 0x220 },
+        { type: "AC97",       pci_class: 0x0401 },
+        { type: "HDA",        pci_class: 0x0403 }
+    ],
+    
+    active_audio: null,
+    
+    init -> function() {
+        audio_compat.active_audio -> audio_compat.devices -> fate_find_audio
+        when audio_compat.active_audio != null {
+            out "Audio: " + audio_compat.active_audio.type
+        } else {
+            out "Audio: PC Speaker (fallback)"
+            audio_compat.active_audio = audio_compat.devices[0]
+        }
+    },
+    
+    beep -> function(freq, duration) {
+        when audio_compat.active_audio.type == "PC_SPEAKER" {
+            pc_speaker_beep(freq, duration)
+        } else {
+            audio_compat.active_audio -> play_tone(freq, duration)
+        }
+    },
+    
+    play -> function(buffer, sample_rate) {
+        when audio_compat.active_audio.type != "PC_SPEAKER" {
+            audio_compat.active_audio -> driver_play(buffer, sample_rate)
+        }
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════
+# 统一初始化
+# ═══════════════════════════════════════════════════════════════════
+
+compat_init -> function() {
+    out "═══════════════════════════════════════════════════════════"
+    out "Val-OS v5.0 - Driver Compatibility Layer"
+    out "═══════════════════════════════════════════════════════════"
+    
+    # Fate 探测所有硬件
+    hw_detect() -> hardware
+    
+    # 初始化各驱动
+    display_compat.init()
+    input_compat.init()
+    storage_compat.init()
+    network_compat.init()
+    audio_compat.init()
+    
+    out "═══════════════════════════════════════════════════════════"
+    out "All drivers initialized"
+    out "═══════════════════════════════════════════════════════════"
+}
+
+# 导出
+export {
+    hw_detect,
+    display_compat,
+    input_compat,
+    storage_compat,
+    network_compat,
+    audio_compat,
+    compat_init
+}

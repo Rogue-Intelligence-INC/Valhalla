@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 550" width="800" height="550">
+  <rect width="800" height="550" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" font-family="Times New Roman, serif" font-size="16" font-weight="bold" text-anchor="middle">FIG. 1 - QUAD-SYSTEM ARCHITECTURE OVERVIEW</text>
+  
+  <!-- BlackHole System -->
+  <rect x="50" y="80" width="150" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="125" y="110" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">BlackHole</text>
+  <text x="125" y="128" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">System</text>
+  <text x="125" y="150" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">(300)</text>
+  <text x="125" y="170" font-family="Times New Roman, serif" font-size="9" text-anchor="middle" font-style="italic">Convergent</text>
+  
+  <!-- MultiNova System -->
+  <rect x="250" y="80" width="150" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="325" y="110" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">MultiNova</text>
+  <text x="325" y="128" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">System</text>
+  <text x="325" y="150" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">(310)</text>
+  <text x="325" y="170" font-family="Times New Roman, serif" font-size="9" text-anchor="middle" font-style="italic">Expansion</text>
+  
+  <!-- MeshBrain System -->
+  <rect x="450" y="80" width="150" height="100" fill="none" stroke="black" stroke-width="2"/>
+  <text x="525" y="110" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">MeshBrain</text>
+  <text x="525" y="128" font-family="Times New Roman, serif" font-size="12" font-weight="bold" text-anchor="middle">System</text>
+  <text x="525" y="150" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">(320)</text>
+  <text x="525" y="170" font-family="Times New Roman, serif" font-size="9" text-anchor="middle" font-style="italic">Oscillation</text>
+  
+  <!-- BaseForce System -->
+  <rect x="250" y="240" width="300" height="80" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="270" font-family="Times New Roman, serif" font-size="14" font-weight="bold" text-anchor="middle">BaseForce System (330)</text>
+  <text x="400" y="295" font-family="Times New Roman, serif" font-size="10" text-anchor="middle">Integration + Stability</text>
+  
+  <!-- Arrows from subsystems to BaseForce -->
+  <line x1="125" y1="180" x2="125" y2="220" stroke="black" stroke-width="1"/>
+  <line x1="125" y1="220" x2="280" y2="240" stroke="black" stroke-width="1.5" marker-end="url(#arrowQ1)"/>
+  
+  <line x1="325" y1="180" x2="325" y2="210" stroke="black" stroke-width="1"/>
+  <line x1="325" y1="210" x2="370" y2="240" stroke="black" stroke-width="1.5" marker-end="url(#arrowQ1)"/>
+  
+  <line x1="525" y1="180" x2="525" y2="220" stroke="black" stroke-width="1"/>
+  <line x1="525" y1="220" x2="520" y2="240" stroke="black" stroke-width="1.5" marker-end="url(#arrowQ1)"/>
+  
+  <!-- Signal labels -->
+  <text x="180" y="210" font-family="Times New Roman, serif" font-size="8">BH signal</text>
+  <text x="310" y="205" font-family="Times New Roman, serif" font-size="8">Nova signal</text>
+  <text x="540" y="210" font-family="Times New Roman, serif" font-size="8">MB signal</text>
+  
+  <!-- Signal Formatter -->
+  <rect x="300" y="360" width="200" height="60" fill="none" stroke="black" stroke-width="1.5"/>
+  <text x="400" y="385" font-family="Times New Roman, serif" font-size="11" font-weight="bold" text-anchor="middle">Signal Formatter</text>
+  <text x="400" y="405" font-family="Times New Roman, serif" font-size="9" text-anchor="middle">→ Unified Format</text>
+  
+  <!-- Arrow from BaseForce to Formatter -->
+  <line x1="400" y1="320" x2="400" y2="360" stroke="black" stroke-width="1.5" marker-end="url(#arrowQ1)"/>
+  
+  <!-- Coordination System -->
+  <rect x="300" y="460" width="200" height="60" fill="none" stroke="black" stroke-width="2"/>
+  <text x="400" y="485" font-family="Times New Roman, serif" font-size="11" font-weight="bold" text-anchor="middle">Coordination System</text>
+  <text x="400" y="505" font-family="Times New Roman, serif" font-size="9" text-anchor="middle">(VALHALLA-PROV-001)</text>
+  
+  <!-- Arrow from Formatter to Coordination -->
+  <line x1="400" y1="420" x2="400" y2="460" stroke="black" stroke-width="1.5" marker-end="url(#arrowQ1)"/>
+  
+  <!-- Formula boxes -->
+  <rect x="620" y="80" width="160" height="180" fill="none" stroke="black" stroke-width="1"/>
+  <text x="700" y="100" font-family="Times New Roman, serif" font-size="10" font-weight="bold" text-anchor="middle">CORE FORMULAS</text>
+  <line x1="620" y1="110" x2="780" y2="110" stroke="black" stroke-width="1"/>
+  <text x="630" y="130" font-family="Times New Roman, serif" font-size="8">BlackHole:</text>
+  <text x="640" y="145" font-family="Times New Roman, serif" font-size="8" font-style="italic">F = G(m₁m₂)/r²</text>
+  <text x="630" y="170" font-family="Times New Roman, serif" font-size="8">MultiNova:</text>
+  <text x="640" y="185" font-family="Times New Roman, serif" font-size="8" font-style="italic">E = E₀×c×f×i</text>
+  <text x="630" y="210" font-family="Times New Roman, serif" font-size="8">MeshBrain:</text>
+  <text x="640" y="225" font-family="Times New Roman, serif" font-size="8" font-style="italic">ω = √(T/ρ)/λ</text>
+  
+  <!-- Arrow definition -->
+  <defs>
+    <marker id="arrowQ1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+    </marker>
+  </defs>
+  
+  <!-- Note -->
+  <rect x="50" y="470" width="200" height="50" fill="none" stroke="black" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="150" y="490" font-family="Times New Roman, serif" font-size="9" text-anchor="middle" font-style="italic">Physics-inspired</text>
+  <text x="150" y="505" font-family="Times New Roman, serif" font-size="9" text-anchor="middle" font-style="italic">computational metaphors</text>
+</svg>
+

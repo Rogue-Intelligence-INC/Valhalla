@@ -1,0 +1,15 @@
+# 🔬 Wave v4 真实系统测试
+# 尝试读取真实系统文件
+
+out "🔬 Wave v4 Real System Test"
+out "==========================="
+out ""
+
+# 尝试用管道读取真实文件
+out "📊 Testing real file access..."
+
+"/proc/cpuinfo" -> load -> analyze -> store
+"/proc/meminfo" -> load -> analyze -> store
+
+out ""
+out "Test complete"

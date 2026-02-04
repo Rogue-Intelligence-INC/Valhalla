@@ -1,0 +1,217 @@
+# Val-OS Notepad
+# Wave v5 - Text Editor
+
+# Editor state
+notepad_window -> 0
+document -> ""
+cursor_x -> 0
+cursor_y -> 0
+scroll_y -> 0
+modified -> false
+filename -> "untitled.txt"
+
+# Init notepad
+notepad_init -> function() {
+    notepad_window -> create_window -> call("Notepad - " + filename, 30, 20, 260, 160)
+    document -> ""
+    cursor_x -> 0
+    cursor_y -> 0
+    out "Notepad initialized"
+}
+
+# Render editor
+render_editor -> function() {
+    win -> windows[notepad_window]
+    
+    # Menu bar
+    draw_rect -> call(win.x + 1, win.y + 17, win.width - 2, 14, 8)
+    draw_text -> call(win.x + 4, win.y + 20, "File", 15, 8)
+    draw_text -> call(win.x + 34, win.y + 20, "Edit", 15, 8)
+    draw_text -> call(win.x + 64, win.y + 20, "Help", 15, 8)
+    
+    # Text area
+    draw_rect -> call(win.x + 1, win.y + 31, win.width - 2, win.height - 47, 15)
+    
+    # Status bar
+    draw_rect -> call(win.x + 1, win.y + win.height - 15, win.width - 2, 14, 7)
+    status -> "Line " + (cursor_y + 1) + ", Col " + (cursor_x + 1)
+    when modified {
+        status -> status + " [Modified]"
+    }
+    draw_text -> call(win.x + 4, win.y + win.height - 12, status, 0, 7)
+    
+    # Draw text
+    lines -> split(document, "\n")
+    y -> win.y + 33 - scroll_y
+    i -> 0
+    repeat length(lines) {
+        when y >= win.y + 31 && y < win.y + win.height - 16 {
+            draw_text -> call(win.x + 4, y, lines[i], 0, 15)
+        }
+        y -> y + 10
+        i -> i + 1
+    }
+    
+    # Draw cursor
+    lines -> split(document, "\n")
+    cursor_screen_y -> win.y + 33 + cursor_y * 10 - scroll_y
+    cursor_screen_x -> win.x + 4 + cursor_x * 6
+    when cursor_screen_y >= win.y + 31 && cursor_screen_y < win.y + win.height - 16 {
+        draw_rect -> call(cursor_screen_x, cursor_screen_y, 1, 10, 0)
+    }
+}
+
+# Insert character
+insert_char -> function(c) {
+    lines -> split(document, "\n")
+    line -> lines[cursor_y]
+    
+    # Insert at cursor position
+    new_line -> line[0..cursor_x] + c + line[cursor_x..]
+    lines[cursor_y] -> new_line
+    
+    document -> join(lines, "\n")
+    cursor_x -> cursor_x + 1
+    modified -> true
+}
+
+# Delete character (backspace)
+delete_char -> function() {
+    when cursor_x > 0 {
+        lines -> split(document, "\n")
+        line -> lines[cursor_y]
+        new_line -> line[0..cursor_x-1] + line[cursor_x..]
+        lines[cursor_y] -> new_line
+        document -> join(lines, "\n")
+        cursor_x -> cursor_x - 1
+        modified -> true
+    }
+    when cursor_x == 0 && cursor_y > 0 {
+        # Join with previous line
+        lines -> split(document, "\n")
+        prev_line -> lines[cursor_y - 1]
+        curr_line -> lines[cursor_y]
+        cursor_x -> length(prev_line)
+        lines[cursor_y - 1] -> prev_line + curr_line
+        # Remove current line
+        new_lines -> []
+        i -> 0
+        repeat length(lines) {
+            when i != cursor_y {
+                new_lines -> append(new_lines, lines[i])
+            }
+            i -> i + 1
+        }
+        document -> join(new_lines, "\n")
+        cursor_y -> cursor_y - 1
+        modified -> true
+    }
+}
+
+# New line (enter)
+new_line -> function() {
+    lines -> split(document, "\n")
+    line -> lines[cursor_y]
+    
+    # Split current line
+    before -> line[0..cursor_x]
+    after -> line[cursor_x..]
+    
+    lines[cursor_y] -> before
+    # Insert new line after
+    new_lines -> []
+    i -> 0
+    repeat length(lines) {
+        new_lines -> append(new_lines, lines[i])
+        when i == cursor_y {
+            new_lines -> append(new_lines, after)
+        }
+        i -> i + 1
+    }
+    
+    document -> join(new_lines, "\n")
+    cursor_y -> cursor_y + 1
+    cursor_x -> 0
+    modified -> true
+}
+
+# Handle key event
+notepad_key -> function(key) {
+    when key == "\n" {
+        new_line -> call
+    }
+    when key == "\b" {
+        delete_char -> call
+    }
+    when key == "UP" {
+        when cursor_y > 0 {
+            cursor_y -> cursor_y - 1
+            lines -> split(document, "\n")
+            when cursor_x > length(lines[cursor_y]) {
+                cursor_x -> length(lines[cursor_y])
+            }
+        }
+    }
+    when key == "DOWN" {
+        lines -> split(document, "\n")
+        when cursor_y < length(lines) - 1 {
+            cursor_y -> cursor_y + 1
+            when cursor_x > length(lines[cursor_y]) {
+                cursor_x -> length(lines[cursor_y])
+            }
+        }
+    }
+    when key == "LEFT" {
+        when cursor_x > 0 {
+            cursor_x -> cursor_x - 1
+        }
+    }
+    when key == "RIGHT" {
+        lines -> split(document, "\n")
+        when cursor_x < length(lines[cursor_y]) {
+            cursor_x -> cursor_x + 1
+        }
+    }
+    otherwise {
+        insert_char -> call(key)
+    }
+    
+    render_editor -> call
+}
+
+# Save file
+save_file -> function(path) {
+    fs_write -> call(path, document)
+    filename -> path
+    modified -> false
+    notepad_window.title -> "Notepad - " + filename
+    render_editor -> call
+}
+
+# Open file
+open_file -> function(path) {
+    document -> fs_read -> call(path)
+    filename -> path
+    modified -> false
+    cursor_x -> 0
+    cursor_y -> 0
+    notepad_window.title -> "Notepad - " + filename
+    render_editor -> call
+}
+
+# New document
+new_document -> function() {
+    document -> ""
+    filename -> "untitled.txt"
+    modified -> false
+    cursor_x -> 0
+    cursor_y -> 0
+    notepad_window.title -> "Notepad - " + filename
+    render_editor -> call
+}
+
+# Run notepad
+notepad_run -> function() {
+    notepad_init -> call
+    render_editor -> call
+}

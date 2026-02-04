@@ -1,0 +1,316 @@
+# 💣 Val-OS 扫雷
+# 半GUI · Wave UI · 鼠标支持
+
+minesweeper -> ui_app {
+    title -> "💣 扫雷"
+    size -> { width: 45, height: 25 }
+    
+    state -> {
+        width: 9,
+        height: 9,
+        mines: 10,
+        board: [],
+        revealed: [],
+        flagged: [],
+        game_over: false,
+        won: false,
+        started: false,
+        time: 0,
+        flags_left: 10
+    }
+    
+    init -> function() {
+        new_game()
+    }
+    
+    new_game -> function() {
+        state.board -> create_board(state.width, state.height, state.mines)
+        state.revealed -> create_2d_array(state.width, state.height, false)
+        state.flagged -> create_2d_array(state.width, state.height, false)
+        state.game_over -> false
+        state.won -> false
+        state.started -> false
+        state.time -> 0
+        state.flags_left -> state.mines
+        refresh()
+    }
+    
+    render -> function() {
+        # 背景
+        draw_gradient_box(0, 0, 45, 25, gradients.night)
+        
+        # ─────────────────────────────────────────────
+        # 状态栏
+        # ─────────────────────────────────────────────
+        draw_box(2, 1, 41, 3, rgb(50,50,60))
+        
+        # 剩余地雷
+        draw_text("💣", 4, 2)
+        draw_text(pad_left(state.flags_left, 3), 7, 2, rgb(255,100,100))
+        
+        # 新游戏按钮
+        face -> when state.game_over {
+            when state.won { "😎" } else { "😵" }
+        } else { "😊" }
+        
+        draw_button(face, 19, 2, new_game)
+        
+        # 计时器
+        draw_text("⏱️", 32, 2)
+        draw_text(pad_left(state.time, 3), 35, 2, rgb(100,200,255))
+        
+        # ─────────────────────────────────────────────
+        # 游戏区域
+        # ─────────────────────────────────────────────
+        board_x -> 4
+        board_y -> 5
+        cell_w -> 4
+        cell_h -> 2
+        
+        for y in 0..state.height {
+            for x in 0..state.width {
+                cell_px -> board_x + x * cell_w
+                cell_py -> board_y + y * cell_h
+                
+                draw_cell(x, y, cell_px, cell_py, cell_w, cell_h)
+            }
+        }
+        
+        # ─────────────────────────────────────────────
+        # 游戏结束提示
+        # ─────────────────────────────────────────────
+        when state.game_over {
+            msg -> when state.won { "🎉 恭喜获胜!" } else { "💥 游戏结束!" }
+            color -> when state.won { gradients.fate } else { gradients.sunset }
+            
+            draw_gradient_box_alpha(10, 10, 25, 5, color, 0.9)
+            draw_text(msg, 14, 12, rgb(255,255,255))
+        }
+        
+        # ─────────────────────────────────────────────
+        # 难度选择
+        # ─────────────────────────────────────────────
+        draw_line(2, 22, 41, rgb(60,60,80))
+        draw_text("难度:", 4, 23, rgb(150,150,150))
+        
+        draw_button("简单", 12, 23, function() {
+            state.width -> 9
+            state.height -> 9
+            state.mines -> 10
+            new_game()
+        })
+        
+        draw_button("中等", 20, 23, function() {
+            state.width -> 16
+            state.height -> 16
+            state.mines -> 40
+            new_game()
+        })
+        
+        draw_button("困难", 28, 23, function() {
+            state.width -> 30
+            state.height -> 16
+            state.mines -> 99
+            new_game()
+        })
+    }
+    
+    # 绘制单元格
+    draw_cell -> function(x, y, px, py, w, h) {
+        is_revealed -> state.revealed[y][x]
+        is_flagged -> state.flagged[y][x]
+        cell_value -> state.board[y][x]
+        
+        # 背景颜色
+        bg -> when is_revealed {
+            when cell_value == -1 { rgb(200,50,50) }  # 地雷
+            else { rgb(40,40,50) }  # 已揭开
+        } else {
+            rgb(70,80,90)  # 未揭开
+        }
+        
+        draw_box(px, py, w - 1, h - 1, bg, border: rgb(30,30,40))
+        
+        # 内容
+        content -> when is_flagged && !is_revealed {
+            "🚩"
+        } else when is_revealed {
+            when cell_value == -1 { "💣" }
+            else when cell_value == 0 { " " }
+            else { cell_value.to_string() }
+        } else {
+            " "
+        }
+        
+        # 数字颜色
+        text_color -> get_number_color(cell_value)
+        
+        draw_text(content, px + 1, py, text_color)
+        
+        # 点击事件
+        when !state.game_over {
+            on_click(px, py, w - 1, h - 1) -> function() {
+                reveal_cell(x, y)
+            }
+            
+            on_right_click(px, py, w - 1, h - 1) -> function() {
+                toggle_flag(x, y)
+            }
+        }
+    }
+    
+    # 数字颜色
+    get_number_color -> function(n) {
+        when n == 1 { rgb(100,150,255) }
+        else when n == 2 { rgb(100,200,100) }
+        else when n == 3 { rgb(255,100,100) }
+        else when n == 4 { rgb(150,100,200) }
+        else when n == 5 { rgb(200,100,100) }
+        else when n == 6 { rgb(100,200,200) }
+        else when n == 7 { rgb(50,50,50) }
+        else when n == 8 { rgb(100,100,100) }
+        else { rgb(200,200,200) }
+    }
+    
+    # 揭开单元格
+    reveal_cell -> function(x, y) {
+        when state.flagged[y][x] { return }
+        when state.revealed[y][x] { return }
+        
+        # 开始计时
+        when !state.started {
+            state.started -> true
+            start_timer()
+        }
+        
+        state.revealed[y][x] -> true
+        
+        # 踩雷
+        when state.board[y][x] == -1 {
+            state.game_over -> true
+            reveal_all_mines()
+            stop_timer()
+            refresh()
+            return
+        }
+        
+        # 空白格展开
+        when state.board[y][x] == 0 {
+            flood_reveal(x, y)
+        }
+        
+        # 检查胜利
+        check_win()
+        refresh()
+    }
+    
+    # 标记旗帜
+    toggle_flag -> function(x, y) {
+        when state.revealed[y][x] { return }
+        
+        state.flagged[y][x] -> !state.flagged[y][x]
+        state.flags_left -> when state.flagged[y][x] {
+            state.flags_left - 1
+        } else {
+            state.flags_left + 1
+        }
+        refresh()
+    }
+    
+    # 递归展开空白
+    flood_reveal -> function(x, y) {
+        for dy in -1..2 {
+            for dx in -1..2 {
+                nx -> x + dx
+                ny -> y + dy
+                
+                when nx >= 0 && nx < state.width && ny >= 0 && ny < state.height {
+                    when !state.revealed[ny][nx] && !state.flagged[ny][nx] {
+                        state.revealed[ny][nx] -> true
+                        when state.board[ny][nx] == 0 {
+                            flood_reveal(nx, ny)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    # 检查胜利
+    check_win -> function() {
+        unrevealed -> 0
+        for y in 0..state.height {
+            for x in 0..state.width {
+                when !state.revealed[y][x] {
+                    unrevealed -> unrevealed + 1
+                }
+            }
+        }
+        
+        when unrevealed == state.mines {
+            state.game_over -> true
+            state.won -> true
+            stop_timer()
+        }
+    }
+    
+    # 创建棋盘
+    create_board -> function(w, h, mines) {
+        board -> create_2d_array(w, h, 0)
+        
+        # 放置地雷
+        placed -> 0
+        while placed < mines {
+            x -> random_int(0, w)
+            y -> random_int(0, h)
+            
+            when board[y][x] != -1 {
+                board[y][x] -> -1
+                placed -> placed + 1
+            }
+        }
+        
+        # 计算数字
+        for y in 0..h {
+            for x in 0..w {
+                when board[y][x] != -1 {
+                    board[y][x] -> count_adjacent_mines(board, x, y, w, h)
+                }
+            }
+        }
+        
+        return board
+    }
+    
+    # 计算相邻地雷
+    count_adjacent_mines -> function(board, x, y, w, h) {
+        count -> 0
+        for dy in -1..2 {
+            for dx in -1..2 {
+                nx -> x + dx
+                ny -> y + dy
+                when nx >= 0 && nx < w && ny >= 0 && ny < h {
+                    when board[ny][nx] == -1 {
+                        count -> count + 1
+                    }
+                }
+            }
+        }
+        return count
+    }
+    
+    # 计时器
+    start_timer -> function() {
+        timer_id -> set_interval(1000, function() {
+            state.time -> state.time + 1
+            refresh()
+        })
+        state.timer_id -> timer_id
+    }
+    
+    stop_timer -> function() {
+        when state.timer_id {
+            clear_interval(state.timer_id)
+        }
+    }
+}

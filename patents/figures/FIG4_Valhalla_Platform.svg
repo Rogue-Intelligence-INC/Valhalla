@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" font-family="Arial, sans-serif">
+  <defs>
+    <marker id="arw" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="700" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#111">
+    FIG. 4 - Valhalla Unified Platform Architecture
+  </text>
+  
+  <!-- Integration Components at Top -->
+  <rect x="50" y="60" width="180" height="70" rx="8" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="140" y="90" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">Wave Engine</text>
+  <text x="140" y="110" text-anchor="middle" font-size="10" fill="#666">Self-hosting Compiler</text>
+  
+  <rect x="260" y="60" width="180" height="70" rx="8" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="350" y="90" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">S-wind</text>
+  <text x="350" y="110" text-anchor="middle" font-size="10" fill="#666">Exact Computation</text>
+  
+  <rect x="470" y="60" width="180" height="70" rx="8" fill="#fce4ec" stroke="#c2185b" stroke-width="2"/>
+  <text x="560" y="90" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2185b">Val-OS</text>
+  <text x="560" y="110" text-anchor="middle" font-size="10" fill="#666">Adaptive System</text>
+  
+  <!-- Valhalla Core -->
+  <rect x="680" y="60" width="180" height="70" rx="8" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="770" y="90" text-anchor="middle" font-size="14" font-weight="bold" fill="#e65100">Valhalla Core</text>
+  <text x="770" y="110" text-anchor="middle" font-size="10" fill="#666">Unified Platform</text>
+  
+  <!-- Arrows to Valhalla -->
+  <line x1="230" y1="95" x2="260" y2="95" stroke="#333" stroke-width="1.5" marker-end="url(#arw)"/>
+  <line x1="440" y1="95" x2="470" y2="95" stroke="#333" stroke-width="1.5" marker-end="url(#arw)"/>
+  <line x1="650" y1="95" x2="680" y2="95" stroke="#333" stroke-width="1.5" marker-end="url(#arw)"/>
+  
+  <!-- 8 Natural Data Types -->
+  <rect x="50" y="160" width="400" height="220" rx="8" fill="#e0f7fa" stroke="#00838f" stroke-width="2"/>
+  <text x="250" y="185" text-anchor="middle" font-size="16" font-weight="bold" fill="#00838f">Organic Data Storage - 8 Natural Types</text>
+  
+  <!-- Type Grid -->
+  <rect x="70" y="200" width="85" height="50" rx="4" fill="#fff" stroke="#00838f"/>
+  <text x="112" y="220" text-anchor="middle" font-size="11" font-weight="bold" fill="#00838f">Seed</text>
+  <text x="112" y="238" text-anchor="middle" font-size="8" fill="#666">Small atomic</text>
+  
+  <rect x="165" y="200" width="85" height="50" rx="4" fill="#fff" stroke="#00838f"/>
+  <text x="207" y="220" text-anchor="middle" font-size="11" font-weight="bold" fill="#00838f">Tree</text>
+  <text x="207" y="238" text-anchor="middle" font-size="8" fill="#666">Hierarchical</text>
+  
+  <rect x="260" y="200" width="85" height="50" rx="4" fill="#fff" stroke="#00838f"/>
+  <text x="302" y="220" text-anchor="middle" font-size="11" font-weight="bold" fill="#00838f">River</text>
+  <text x="302" y="238" text-anchor="middle" font-size="8" fill="#666">Time-series</text>
+  
+  <rect x="355" y="200" width="85" height="50" rx="4" fill="#fff" stroke="#00838f"/>
+  <text x="397" y="220" text-anchor="middle" font-size="11" font-weight="bold" fill="#00838f">Crystal</text>
+  <text x="397" y="238" text-anchor="middle" font-size="8" fill="#666">Structured</text>
+  
+  <rect x="70" y="260" width="85" height="50" rx="4" fill="#fff" stroke="#00838f"/>
+  <text x="112" y="280" text-anchor="middle" font-size="11" font-weight="bold" fill="#00838f">Cloud</text>
+  <text x="112" y="298" text-anchor="middle" font-size="8" fill="#666">Distributed</text>
+  
+  <rect x="165" y="260" width="85" height="50" rx="4" fill="#fff" stroke="#00838f"/>
+  <text x="207" y="280" text-anchor="middle" font-size="11" font-weight="bold" fill="#00838f">Web</text>
+  <text x="207" y="298" text-anchor="middle" font-size="8" fill="#666">Graph/Relations</text>
+  
+  <rect x="260" y="260" width="85" height="50" rx="4" fill="#fff" stroke="#00838f"/>
+  <text x="302" y="280" text-anchor="middle" font-size="11" font-weight="bold" fill="#00838f">Ocean</text>
+  <text x="302" y="298" text-anchor="middle" font-size="8" fill="#666">Massive/Archive</text>
+  
+  <rect x="355" y="260" width="85" height="50" rx="4" fill="#fff" stroke="#00838f"/>
+  <text x="397" y="280" text-anchor="middle" font-size="11" font-weight="bold" fill="#00838f">Mountain</text>
+  <text x="397" y="298" text-anchor="middle" font-size="8" fill="#666">Critical</text>
+  
+  <!-- Auto Classifier -->
+  <rect x="120" y="320" width="260" height="45" rx="4" fill="#b2ebf2" stroke="#00838f"/>
+  <text x="250" y="347" text-anchor="middle" font-size="12" fill="#00697a">Automatic Classification Engine</text>
+  
+  <!-- Tile-StemCell UI -->
+  <rect x="470" y="160" width="390" height="220" rx="8" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="665" y="185" text-anchor="middle" font-size="16" font-weight="bold" fill="#7b1fa2">Tile-StemCell UI Framework</text>
+  
+  <!-- Stem Cell Diagram -->
+  <ellipse cx="665" cy="240" rx="40" ry="25" fill="#fff" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="665" y="245" text-anchor="middle" font-size="10" fill="#7b1fa2">StemCell</text>
+  
+  <!-- Differentiation arrows -->
+  <line x1="625" y1="250" x2="540" y2="300" stroke="#7b1fa2" stroke-width="1.5" marker-end="url(#arw)"/>
+  <line x1="665" y1="265" x2="665" y2="300" stroke="#7b1fa2" stroke-width="1.5" marker-end="url(#arw)"/>
+  <line x1="705" y1="250" x2="790" y2="300" stroke="#7b1fa2" stroke-width="1.5" marker-end="url(#arw)"/>
+  
+  <!-- Differentiated Components -->
+  <rect x="490" y="305" width="80" height="35" rx="4" fill="#fff" stroke="#7b1fa2"/>
+  <text x="530" y="327" text-anchor="middle" font-size="10" fill="#7b1fa2">DataTable</text>
+  
+  <rect x="625" y="305" width="80" height="35" rx="4" fill="#fff" stroke="#7b1fa2"/>
+  <text x="665" y="327" text-anchor="middle" font-size="10" fill="#7b1fa2">Form</text>
+  
+  <rect x="760" y="305" width="80" height="35" rx="4" fill="#fff" stroke="#7b1fa2"/>
+  <text x="800" y="327" text-anchor="middle" font-size="10" fill="#7b1fa2">Card</text>
+  
+  <!-- Context Label -->
+  <text x="665" y="365" text-anchor="middle" font-size="10" fill="#666">Context-aware differentiation</text>
+  
+  <!-- Intent-Driven Development -->
+  <rect x="50" y="400" width="400" height="120" rx="8" fill="#fff8e1" stroke="#f57c00" stroke-width="2"/>
+  <text x="250" y="425" text-anchor="middle" font-size="16" font-weight="bold" fill="#f57c00">Intent-Driven Development</text>
+  
+  <rect x="70" y="445" width="360" height="55" rx="4" fill="#fff" stroke="#f57c00"/>
+  <text x="250" y="465" text-anchor="middle" font-size="11" fill="#333" font-style="italic">"Create a user dashboard with activity charts</text>
+  <text x="250" y="480" text-anchor="middle" font-size="11" fill="#333" font-style="italic">and export to CSV capability"</text>
+  <text x="250" y="495" text-anchor="middle" font-size="9" fill="#666">→ Compiles to optimized application code</text>
+  
+  <!-- Full-Stack Compilation -->
+  <rect x="470" y="400" width="390" height="120" rx="8" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="665" y="425" text-anchor="middle" font-size="16" font-weight="bold" fill="#388e3c">Unified Full-Stack Compilation</text>
+  
+  <rect x="490" y="445" width="70" height="30" rx="4" fill="#fff" stroke="#388e3c"/>
+  <text x="525" y="465" text-anchor="middle" font-size="9" fill="#388e3c">@database</text>
+  
+  <rect x="570" y="445" width="70" height="30" rx="4" fill="#fff" stroke="#388e3c"/>
+  <text x="605" y="465" text-anchor="middle" font-size="9" fill="#388e3c">@backend</text>
+  
+  <rect x="650" y="445" width="70" height="30" rx="4" fill="#fff" stroke="#388e3c"/>
+  <text x="685" y="465" text-anchor="middle" font-size="9" fill="#388e3c">@frontend</text>
+  
+  <rect x="730" y="445" width="70" height="30" rx="4" fill="#fff" stroke="#388e3c"/>
+  <text x="765" y="465" text-anchor="middle" font-size="9" fill="#388e3c">@mobile</text>
+  
+  <text x="665" y="500" text-anchor="middle" font-size="11" fill="#666">Single .wave source → Multiple targets</text>
+  
+  <!-- Deployment Targets -->
+  <rect x="50" y="545" width="810" height="80" rx="8" fill="#eceff1" stroke="#607d8b" stroke-width="2"/>
+  <text x="455" y="570" text-anchor="middle" font-size="14" font-weight="bold" fill="#607d8b">Deployment Targets</text>
+  
+  <rect x="80" y="590" width="120" height="25" rx="4" fill="#fff" stroke="#607d8b"/>
+  <text x="140" y="607" text-anchor="middle" font-size="10" fill="#333">WebAssembly</text>
+  
+  <rect x="220" y="590" width="120" height="25" rx="4" fill="#fff" stroke="#607d8b"/>
+  <text x="280" y="607" text-anchor="middle" font-size="10" fill="#333">iOS Native</text>
+  
+  <rect x="360" y="590" width="120" height="25" rx="4" fill="#fff" stroke="#607d8b"/>
+  <text x="420" y="607" text-anchor="middle" font-size="10" fill="#333">Android Native</text>
+  
+  <rect x="500" y="590" width="120" height="25" rx="4" fill="#fff" stroke="#607d8b"/>
+  <text x="560" y="607" text-anchor="middle" font-size="10" fill="#333">Desktop</text>
+  
+  <rect x="640" y="590" width="120" height="25" rx="4" fill="#fff" stroke="#607d8b"/>
+  <text x="700" y="607" text-anchor="middle" font-size="10" fill="#333">Server Binary</text>
+  
+  <!-- Arrows to Deployment -->
+  <line x1="250" y1="520" x2="250" y2="535" stroke="#333" stroke-width="1.5"/>
+  <line x1="250" y1="535" x2="455" y2="545" stroke="#333" stroke-width="1.5" marker-end="url(#arw)"/>
+  <line x1="665" y1="520" x2="665" y2="535" stroke="#333" stroke-width="1.5"/>
+  <line x1="665" y1="535" x2="455" y2="545" stroke="#333" stroke-width="1.5" marker-end="url(#arw)"/>
+  
+  <!-- Key Innovation Label -->
+  <rect x="680" y="650" width="180" height="35" rx="4" fill="#fff3e0" stroke="#e65100"/>
+  <text x="770" y="672" text-anchor="middle" font-size="11" fill="#e65100">One Codebase, All Platforms</text>
+</svg>

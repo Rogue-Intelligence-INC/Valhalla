@@ -1,0 +1,32 @@
+[package]
+name = "val-crypt"
+version = "0.2.0"
+edition = "2021"
+authors = ["Valhalla Project"]
+description = "Dual-mode symmetric encryption: ARX block cipher & trajectory stream cipher"
+repository = "https://github.com/joulyman/val-crypt"
+license = "MIT"
+keywords = ["encryption", "cryptography", "arx", "valhalla"]
+categories = ["cryptography", "algorithms"]
+
+[dependencies]
+rayon = "1.10"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[lib]
+name = "val_crypt"
+path = "src/lib.rs"
+
+[[bin]]
+name = "security_test"
+path = "src/bin/security_test.rs"
+
+[[bin]]
+name = "prefix_depth_test"
+path = "src/bin/prefix_depth_test.rs"
+
+[[bin]]
+name = "dimension_security_test"
+path = "src/bin/dimension_security_test.rs"
