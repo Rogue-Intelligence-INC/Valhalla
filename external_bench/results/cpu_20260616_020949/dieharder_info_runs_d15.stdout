@@ -1,0 +1,10 @@
+#=============================================================================#
+#            dieharder version 3.31.1 Copyright 2003 Robert G. Brown          #
+#=============================================================================#
+   rng_name    |           filename             |rands/second|
+ file_input_raw|/home/jouly/AI/Valhalla/external_bench/results/cpu_20260616_020949/dieharder_stream.bin|  1.23e+08  |
+#=============================================================================#
+        test_name   |ntup| tsamples |psamples|  p-value |Assessment
+#=============================================================================#
+        diehard_runs|   0|      1000|    1000|0.00000000|  FAILED  
+        diehard_runs|   0|      1000|    1000|0.00000000|  FAILED  

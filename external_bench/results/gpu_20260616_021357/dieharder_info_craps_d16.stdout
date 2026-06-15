@@ -1,0 +1,10 @@
+#=============================================================================#
+#            dieharder version 3.31.1 Copyright 2003 Robert G. Brown          #
+#=============================================================================#
+   rng_name    |           filename             |rands/second|
+ file_input_raw|/home/jouly/AI/Valhalla/external_bench/results/gpu_20260616_021357/dieharder_stream.bin|  1.34e+08  |
+#=============================================================================#
+        test_name   |ntup| tsamples |psamples|  p-value |Assessment
+#=============================================================================#
+       diehard_craps|   0|      1000|    1000|0.74632014|  PASSED  
+       diehard_craps|   0|      1000|    1000|0.60139419|  PASSED  

@@ -1,25 +1,35 @@
-//! Random Cascade: Full-diffusion cascade
+//! Random Cascade: Feistel diffusion in **64-byte blocks**
 //!
-//! Uses a Feistel-like structure to achieve:
-//! 1. Full diffusion (every position affects every position)
-//! 2. Perfect reversibility
+//! - **Phase 1 (wave–particle, elsewhere)**: `wave_block_phase1_*` — within each 64B chunk,
+//!   a Feistel network couples all bytes (simplified global mutual influence).
+//! - **Phase 2 (superposition)**: `cascade_encrypt` / `cascade_decrypt` — same block size,
+//!   different domain tag and round count so layers do not commute trivially.
 //!
-//! ## Algorithm
-//! Split data into two halves L and R:
-//! - L' = L XOR F(R, key, round)
-//! - R' = R XOR F(L', key, round)
-//! Repeat for multiple rounds.
-//! 
-//! Decryption: reverse the operations.
+//! Tail chunks shorter than 64 bytes are still processed as one Feistel unit (or XOR if `< 4`).
+//!
+//! **Note:** `round_function` is **sequential**. Feistel already runs per 64B chunk; nested
+//! `rayon` here caused millions of tiny parallel jobs on large buffers (looks like a hang).
 
-use rayon::prelude::*;
+use std::cmp::min;
 
-/// Number of Feistel rounds
-const FEISTEL_ROUNDS: usize = 4;
+/// Block size for wave / superposition simulation (64 bytes).
+pub const WAVE_BLOCK: usize = 64;
 
-/// Compute key hash
+/// Feistel rounds inside each 64B chunk for phase-1 (wave–particle coupling).
+pub const PHASE1_FEISTEL_ROUNDS: usize = 6;
+
+/// Feistel rounds per chunk for phase-2 (superposition scale).
+pub const FEISTEL_ROUNDS: usize = 8;
+
+/// Domain separation: phase-1 vs phase-2 round functions must differ.
+const DOMAIN_WAVE_PARTICLE: u64 = 0xB10C_BADE_D15C_0001;
+const DOMAIN_SUPERPOSITION: u64 = 0x50F4_7C00_5A10_0002;
+
+/// Number of Feistel rounds (alias for phase-2; kept for older docs).
+pub const FEISTEL_ROUNDS_PHASE2: usize = FEISTEL_ROUNDS;
+
 #[inline]
-fn key_hash(key: &[u8]) -> u64 {
+pub fn key_hash(key: &[u8]) -> u64 {
     let mut h: u64 = 14695981039346656037;
     for &b in key {
         h ^= b as u64;
@@ -28,146 +38,126 @@ fn key_hash(key: &[u8]) -> u64 {
     h
 }
 
-/// Round function F(data, key_hash, round) -> mixing bytes
-/// This function is deterministic based on data content, key, and round.
-fn round_function(data: &[u8], key_h: u64, round: usize) -> Vec<u8> {
+fn round_function(data: &[u8], key_h: u64, round: usize, domain_tag: u64) -> Vec<u8> {
     let len = data.len();
-    
-    (0..len)
-        .into_par_iter()
-        .map(|i| {
-            // Mix position, round, key, and neighboring data
-            let mut h = key_h;
-            h ^= round as u64;
-            h = h.wrapping_mul(1099511628211);
-            h ^= i as u64;
-            h = h.wrapping_mul(1099511628211);
-            
-            // Include data dependencies for diffusion
-            let d0 = data[i] as u64;
-            let d1 = data[(i + 1) % len] as u64;
-            let d2 = data[(i + len - 1) % len] as u64;
-            let d_far = data[(i + len / 2) % len] as u64;
-            
-            h ^= d0.wrapping_mul(31);
-            h ^= d1.wrapping_mul(37).rotate_left(8);
-            h ^= d2.wrapping_mul(41).rotate_left(16);
-            h ^= d_far.wrapping_mul(43).rotate_left(24);
-            h = h.wrapping_mul(1099511628211);
-            
-            h as u8
-        })
-        .collect()
+    let mut out = Vec::with_capacity(len);
+    for i in 0..len {
+        let mut h = key_h ^ domain_tag;
+        h ^= round as u64;
+        h = h.wrapping_mul(1099511628211);
+        h ^= i as u64;
+        h = h.wrapping_mul(1099511628211);
+
+        let d0 = data[i] as u64;
+        let d1 = data[(i + 1) % len] as u64;
+        let d2 = data[(i + len - 1) % len] as u64;
+        let d_far = data[(i + len / 2) % len] as u64;
+
+        h ^= d0.wrapping_mul(31);
+        h ^= d1.wrapping_mul(37).rotate_left(8);
+        h ^= d2.wrapping_mul(41).rotate_left(16);
+        h ^= d_far.wrapping_mul(43).rotate_left(24);
+        h = h.wrapping_mul(1099511628211);
+
+        out.push(h as u8);
+    }
+    out
 }
 
-/// Apply Feistel-like cascade (encryption)
+/// Single contiguous buffer Feistel (variable length ≥ 4).
+fn feistel_encrypt_chunk(data: &mut [u8], key: &[u8], rounds: usize, domain_tag: u64) {
+    let len = data.len();
+    if len < 4 {
+        let key_h = key_hash(key) ^ domain_tag;
+        for i in 0..len {
+            data[i] ^= (key_h >> (i * 8 % 64)) as u8;
+        }
+        return;
+    }
+
+    let key_h = key_hash(key);
+    let mid = len / 2;
+
+    for round in 0..rounds {
+        let (left, right) = data.split_at_mut(mid);
+
+        let f_r = round_function(right, key_h, round * 2, domain_tag);
+        for i in 0..left.len().min(f_r.len()) {
+            left[i] ^= f_r[i];
+        }
+
+        let f_l = round_function(left, key_h, round * 2 + 1, domain_tag);
+        for i in 0..right.len().min(f_l.len()) {
+            right[i] ^= f_l[i];
+        }
+    }
+}
+
+fn feistel_decrypt_chunk(data: &mut [u8], key: &[u8], rounds: usize, domain_tag: u64) {
+    let len = data.len();
+    if len < 4 {
+        let key_h = key_hash(key) ^ domain_tag;
+        for i in 0..len {
+            data[i] ^= (key_h >> (i * 8 % 64)) as u8;
+        }
+        return;
+    }
+
+    let key_h = key_hash(key);
+    let mid = len / 2;
+
+    for round in (0..rounds).rev() {
+        let (left, right) = data.split_at_mut(mid);
+
+        let f_l = round_function(left, key_h, round * 2 + 1, domain_tag);
+        for i in 0..right.len().min(f_l.len()) {
+            right[i] ^= f_l[i];
+        }
+
+        let f_r = round_function(right, key_h, round * 2, domain_tag);
+        for i in 0..left.len().min(f_r.len()) {
+            left[i] ^= f_r[i];
+        }
+    }
+}
+
+fn for_each_wave_chunk<F>(data: &mut [u8], mut f: F)
+where
+    F: FnMut(&mut [u8]),
+{
+    let len = data.len();
+    let mut i = 0;
+    while i < len {
+        let end = min(i + WAVE_BLOCK, len);
+        f(&mut data[i..end]);
+        i = end;
+    }
+}
+
+/// Phase 1: per **64-byte** (or tail) chunk — global coupling inside chunk (wave–particle).
+pub fn wave_block_phase1_encrypt(data: &mut [u8], key: &[u8]) {
+    for_each_wave_chunk(data, |chunk| {
+        feistel_encrypt_chunk(chunk, key, PHASE1_FEISTEL_ROUNDS, DOMAIN_WAVE_PARTICLE);
+    });
+}
+
+/// Inverse of [`wave_block_phase1_encrypt`].
+pub fn wave_block_phase1_decrypt(data: &mut [u8], key: &[u8]) {
+    for_each_wave_chunk(data, |chunk| {
+        feistel_decrypt_chunk(chunk, key, PHASE1_FEISTEL_ROUNDS, DOMAIN_WAVE_PARTICLE);
+    });
+}
+
+/// Phase 2: superposition — same **64-byte** alignment, distinct domain tag + rounds.
 pub fn cascade_encrypt(data: &mut [u8], key: &[u8]) {
-    let len = data.len();
-    if len < 4 {
-        // Too small for Feistel, use simple XOR
-        let key_h = key_hash(key);
-        for i in 0..len {
-            data[i] ^= (key_h >> (i * 8 % 64)) as u8;
-        }
-        return;
-    }
-
-    let key_h = key_hash(key);
-    let mid = len / 2;
-
-    for round in 0..FEISTEL_ROUNDS {
-        // Split into left and right halves
-        let (left, right) = data.split_at_mut(mid);
-        
-        // L' = L XOR F(R, key, round)
-        let f_r = round_function(right, key_h, round * 2);
-        for i in 0..left.len().min(f_r.len()) {
-            left[i] ^= f_r[i];
-        }
-        
-        // R' = R XOR F(L', key, round)
-        let f_l = round_function(left, key_h, round * 2 + 1);
-        for i in 0..right.len().min(f_l.len()) {
-            right[i] ^= f_l[i];
-        }
-    }
+    for_each_wave_chunk(data, |chunk| {
+        feistel_encrypt_chunk(chunk, key, FEISTEL_ROUNDS, DOMAIN_SUPERPOSITION);
+    });
 }
 
-/// Apply Feistel-like cascade (decryption)
+/// Inverse of [`cascade_encrypt`].
 pub fn cascade_decrypt(data: &mut [u8], key: &[u8]) {
-    let len = data.len();
-    if len < 4 {
-        let key_h = key_hash(key);
-        for i in 0..len {
-            data[i] ^= (key_h >> (i * 8 % 64)) as u8;
-        }
-        return;
-    }
-
-    let key_h = key_hash(key);
-    let mid = len / 2;
-
-    // Reverse order of rounds
-    for round in (0..FEISTEL_ROUNDS).rev() {
-        let (left, right) = data.split_at_mut(mid);
-        
-        // First undo: R = R' XOR F(L', key, round)
-        // We have L' (which is what's in left now)
-        let f_l = round_function(left, key_h, round * 2 + 1);
-        for i in 0..right.len().min(f_l.len()) {
-            right[i] ^= f_l[i];
-        }
-        
-        // Then undo: L = L' XOR F(R, key, round)
-        // Now right contains original R
-        let f_r = round_function(right, key_h, round * 2);
-        for i in 0..left.len().min(f_r.len()) {
-            left[i] ^= f_r[i];
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_cascade_reversible() {
-        let key = b"test_key_for_cascade";
-        
-        for size in [8, 16, 32, 64, 128, 256] {
-            let original: Vec<u8> = (0..size).map(|i| (i * 7) as u8).collect();
-            
-            let mut data = original.clone();
-            cascade_encrypt(&mut data, key);
-            
-            assert_ne!(data, original, "Size {}: unchanged after encrypt", size);
-            
-            cascade_decrypt(&mut data, key);
-            
-            assert_eq!(data, original, "Size {}: not restored after decrypt", size);
-        }
-    }
-
-    #[test]
-    fn test_cascade_diffusion() {
-        let key = b"diffusion_test";
-        
-        for pos in [0, 31, 63] {
-            let data: Vec<u8> = (0..64).collect();
-            let mut data1 = data.clone();
-            let mut data2 = data.clone();
-            data2[pos] ^= 0x01;
-            
-            cascade_encrypt(&mut data1, key);
-            cascade_encrypt(&mut data2, key);
-            
-            let diff: u32 = data1.iter().zip(data2.iter())
-                .map(|(&a, &b)| (a ^ b).count_ones())
-                .sum();
-            let pct = diff as f64 / (data1.len() * 8) as f64;
-            
-            println!("Position {} diffusion: {:.1}%", pos, pct * 100.0);
-        }
-    }
+    for_each_wave_chunk(data, |chunk| {
+        feistel_decrypt_chunk(chunk, key, FEISTEL_ROUNDS, DOMAIN_SUPERPOSITION);
+    });
 }

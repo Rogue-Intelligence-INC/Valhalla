@@ -1,0 +1,117 @@
+warning: unnecessary parentheses around block return value
+   --> valhalla-crypto/yaksha-cipher/src/aead.rs:253:17
+    |
+253 |                 ((curr_val << 16) / prev_val.max(1))
+    |                 ^                                  ^
+    |
+    = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+    |
+253 -                 ((curr_val << 16) / prev_val.max(1))
+253 +                 (curr_val << 16) / prev_val.max(1)
+    |
+
+warning: unnecessary parentheses around method argument
+   --> valhalla-crypto/yaksha-cipher/src/geometric.rs:216:23
+    |
+216 |         .wrapping_add(((space.curvature * 255.0) as u8))
+    |                       ^                               ^
+    |
+help: remove these parentheses
+    |
+216 -         .wrapping_add(((space.curvature * 255.0) as u8))
+216 +         .wrapping_add((space.curvature * 255.0) as u8)
+    |
+
+warning: unnecessary parentheses around method argument
+   --> valhalla-crypto/yaksha-cipher/src/geometric.rs:240:23
+    |
+240 |         .wrapping_add(((space.curvature * 255.0) as u8))
+    |                       ^                               ^
+    |
+help: remove these parentheses
+    |
+240 -         .wrapping_add(((space.curvature * 255.0) as u8))
+240 +         .wrapping_add((space.curvature * 255.0) as u8)
+    |
+
+warning: field `pass_count` is never read
+   --> valhalla-crypto/yaksha-cipher/src/aead.rs:481:5
+    |
+469 | struct ConsistencyState {
+    |        ---------------- field in this struct
+...
+481 |     pass_count: u64,
+    |     ^^^^^^^^^^
+    |
+    = note: `ConsistencyState` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `yaksha-cipher` (lib) generated 4 warnings (run `cargo fix --lib -p yaksha-cipher` to apply 3 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.03s
+     Running `/home/jouly/AI/Valhalla/target/release/yaksha_aead_timing_keys 64 0.25 64`
+key0,seal_ns_op,open_ns_op
+0,2068199,2205384
+1,2567284,3259559
+2,1860603,1554955
+3,1611953,2222454
+4,2384431,1527683
+5,1499307,2118120
+6,2793931,6012877
+7,2370555,1973591
+8,2934279,2041329
+9,2120967,2062901
+10,2025302,3032437
+11,2868358,2435341
+12,3109496,2490458
+13,3846755,4003567
+14,2120562,2157911
+15,1897826,1907812
+16,2173422,1953762
+17,2190179,1606463
+18,1712434,2474171
+19,3125859,5958304
+20,2988675,2280337
+21,2121607,2381390
+22,2116408,2307451
+23,3200159,3350617
+24,1997896,1887302
+25,3138446,2644836
+26,5514859,6811648
+27,6319404,5078626
+28,2164959,1766131
+29,1478513,1692063
+30,1694970,2471473
+31,1991215,1737712
+32,1628281,2880822
+33,4961578,2999376
+34,1993946,3243539
+35,4198045,2692650
+36,3032087,2364756
+37,2201016,1432273
+38,1789241,3561401
+39,2142107,1603290
+40,1883109,1817383
+41,1990274,2658364
+42,2286782,2346446
+43,2459230,2049231
+44,6354384,2024364
+45,1988331,1901353
+46,1356794,1896689
+47,2008978,2043930
+48,2404327,2247390
+49,2456623,2232447
+50,2015010,2125218
+51,1819106,2110146
+52,2765472,2899411
+53,6284502,2854980
+54,3536404,2524402
+55,2360841,2063461
+56,2394852,2624314
+57,3762702,2665244
+58,2055571,1970625
+59,1633504,2242548
+60,2007603,1961553
+61,2045176,2486387
+62,4846766,2734996
+63,5250045,2442428

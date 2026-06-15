@@ -27,8 +27,9 @@
 //!
 //! ## Security Properties
 //!
-//! - **Avalanche effect**: ~50% (near-optimal)
-//! - **Key sensitivity**: ~50%
+//! - **Validation**: No in-crate statistical unit tests — run the **industry harness**
+//!   from repo root: `./external_bench/run_all.sh` (OpenSSL `speed`, **dieharder** on
+//!   generated ciphertext streams, AEAD bench, timing heuristic).
 //! - **Deterministic primitive**: Same key + plaintext = same ciphertext
 //! - **Protocol-level differentiation**: Stateful KDF provides session uniqueness
 //!
@@ -60,6 +61,24 @@ pub mod parametric;
 pub mod neural;
 pub mod aead;
 pub mod cascade;
+pub mod frac_container;
+pub mod ocean_pipeline;
+pub mod shell;
+
+pub use cascade::{
+    WAVE_BLOCK, FEISTEL_ROUNDS, PHASE1_FEISTEL_ROUNDS, FEISTEL_ROUNDS_PHASE2,
+    wave_block_phase1_encrypt, wave_block_phase1_decrypt,
+};
+pub use frac_container::{FracDimContainer, OCEAN_LATTICE_DIM, YAKSHA_DIMENSION};
+pub use ocean_pipeline::{decrypt_with_ocean, encrypt_with_ocean, primitive_session_anchor};
+pub use shell::{core_body_decrypt, core_body_encrypt, decrypt as shell_decrypt, decrypt_primitive as shell_decrypt_primitive, encrypt as shell_encrypt, encrypt_primitive as shell_encrypt_primitive};
+pub mod evolve;
+pub mod ocean_builtin;
+pub use ocean_builtin::{
+    fnv1a64, ocean_apply_inplace, ocean_phase, ocean_seed, ocean_stream_byte,
+    ocean_stream_byte_2d, OceanMaskContext, OCEAN_MIX_ROUNDS, OCEAN_MIX_ROUNDS_MAX,
+    OCEAN_MIX_ROUNDS_MIN,
+};
 
 // Legacy/experimental
 pub mod vector;
@@ -89,6 +108,21 @@ pub use geometric::{
     encrypt as geometric_encrypt,
     decrypt as geometric_decrypt,
     GeometricSpace,
+};
+
+// Experimental / evolve API re-exports
+pub use evolve::{
+    fate_neural_encrypt,
+    fate_neural_encrypt_with_control,
+    fate_neural_decrypt,
+    fate_decide_for,
+    FateYakshaControl,
+    FateMode,
+    CascadePattern,
+    Scenario,
+    DataTypeHint,
+    FateDecision,
+    FateRuleTemplate,
 };
 
 // Backward compatibility aliases

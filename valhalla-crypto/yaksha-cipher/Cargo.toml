@@ -35,3 +35,23 @@ path = "src/bin/generate_test_data.rs"
 [[bin]]
 name = "crypto_analysis"
 path = "src/bin/crypto_analysis.rs"
+
+[[bin]]
+name = "fate_neural_demo"
+path = "src/bin/fate_neural_demo.rs"
+
+[[bin]]
+name = "fate_evolve_effect"
+path = "src/bin/fate_evolve_effect.rs"
+
+[[bin]]
+name = "fate_decision_sweep"
+path = "src/bin/fate_decision_sweep.rs"
+
+[[bin]]
+name = "yaksha_aead_bench"
+path = "src/bin/yaksha_aead_bench.rs"
+
+[[bin]]
+name = "yaksha_aead_timing_keys"
+path = "src/bin/yaksha_aead_timing_keys.rs"

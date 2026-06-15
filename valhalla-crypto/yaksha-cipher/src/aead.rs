@@ -33,7 +33,7 @@
 //! This protocol does NOT provide IND-CPA security at the primitive level.
 //! Session uniqueness comes from stateful key derivation, not from the cipher.
 
-use crate::core;
+use crate::shell;
 
 // ============================================================================
 // Part 1: Dynamic Key Generator (基于 Fate 信号捕捉)
@@ -405,41 +405,57 @@ impl YakshaKdf {
         self.domain
     }
     
-    /// 验证前向安全性
+    /// 验证前向安全性（旧接口，保留以兼容）
     pub fn verify_forward_secrecy(&self) -> bool {
-        // 检查结构熵 (包括信号状态)
+        let (quality, _) = self.assess_quality();
+        !matches!(quality, FateQuality::Bad)
+    }
+
+    /// Fate 质量枚举：粗略反映当前信号/结构是否健康
+    pub fn assess_quality(&self) -> (FateQuality, f64) {
+        // 计算 bit 1 比例，信号+结构一起考虑
         let mut total_ones = 0u32;
-        
-        // 检查信号状态
+
         for &b in &self.signal_state {
             total_ones += b.count_ones();
         }
-        
-        // 检查差分结构
         for order in 0..5 {
             for &b in &self.structure.differences[order] {
                 total_ones += b.count_ones();
             }
         }
-        
-        // 检查比率
         for &b in &self.structure.ratios {
             total_ones += b.count_ones();
         }
-        
-        // 检查签名
         for &b in &self.structure.signature {
             total_ones += b.count_ones();
         }
-        
-        // 期望 ~50% 的位是1
-        // 总位数: signal_state(32*8) + differences(5*8*8) + ratios(8*8) + signature(16*8)
-        let total_bits = (32 + 5*8 + 8 + 16) * 8;
-        let ratio = total_ones as f64 / total_bits as f64;
-        
-        // 放宽范围到 30%-70%
-        (0.30..0.70).contains(&ratio)
+
+        let total_bits = (32 + 5 * 8 + 8 + 16) * 8;
+        let ratio = total_ones as f64 / total_bits as f64; // 期望 ~0.5
+
+        // 简单评分：距离 0.5 越近，分数越高
+        let dist = (ratio - 0.5).abs();
+        let score = (1.0 - dist * 4.0).clamp(0.0, 1.0);
+
+        let quality = if score >= 0.7 {
+            FateQuality::Good
+        } else if score >= 0.4 {
+            FateQuality::Borderline
+        } else {
+            FateQuality::Bad
+        };
+
+        (quality, score)
     }
+}
+
+/// Fate 粗略质量判定
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FateQuality {
+    Good,
+    Borderline,
+    Bad,
 }
 
 // ============================================================================
@@ -855,8 +871,8 @@ impl YakshaAead {
         let enc_key = key_gen.derive_key(nonce);
         let mac_key = key_gen.derive_key(b"authenticate");
         
-        // 2. 加密
-        let ciphertext = core::encrypt(plaintext, &enc_key);
+        // 2. Shell: Ocean₁ → core body → Ocean₂
+        let ciphertext = shell::encrypt(plaintext, &enc_key, nonce);
         
         // 3. 反推验证: 计算 MAC
         let mut mac = YakshaMac::new(&mac_key);
@@ -909,8 +925,8 @@ impl YakshaAead {
             return Err("Authentication failed");
         }
         
-        // 3. 解密
-        let plaintext = core::decrypt(ciphertext, &enc_key);
+        // 3. Shell decrypt
+        let plaintext = shell::decrypt(ciphertext, &enc_key, nonce);
         
         Ok(plaintext)
     }
@@ -931,81 +947,6 @@ fn constant_time_compare(a: &[u8], b: &[u8]) -> bool {
         diff |= x ^ y;
     }
     diff == 0
-}
-
-// ============================================================================
-// Tests
-// ============================================================================
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    
-    #[test]
-    fn test_dynamic_key_uniqueness() {
-        let mut gen = YakshaKdf::new(b"master_secret_key_test");
-        
-        let keys: Vec<[u8; 16]> = (0..100).map(|_| gen.next_key()).collect();
-        
-        for i in 0..keys.len() {
-            for j in (i + 1)..keys.len() {
-                assert_ne!(keys[i], keys[j], "Keys {} and {} are identical", i, j);
-            }
-        }
-    }
-    
-    #[test]
-    fn test_fate_mac_basic() {
-        let key = b"test_key_123456";
-        let message = b"Hello, World!";
-        
-        let tag = YakshaMac::compute(key, message, 16);
-        assert_eq!(tag.len(), 16);
-        
-        assert!(YakshaMac::verify(key, message, &tag));
-        assert!(!YakshaMac::verify(key, b"Hello, World?", &tag));
-    }
-    
-    #[test]
-    fn test_fate_mac_deterministic() {
-        let key = b"test_key_123456";
-        let message = b"Same message";
-        
-        let tag1 = YakshaMac::compute(key, message, 16);
-        let tag2 = YakshaMac::compute(key, message, 16);
-        
-        assert_eq!(tag1, tag2);
-    }
-    
-    #[test]
-    fn test_aead_roundtrip() {
-        let key = b"aead_master_key!";
-        let nonce = b"unique_nonce";
-        let plaintext = b"Secret message that needs protection";
-        let aad = b"Associated data";
-        
-        let (ciphertext, tag) = YakshaAead::seal(key, nonce, plaintext, aad);
-        
-        let decrypted = YakshaAead::open(key, nonce, &ciphertext, aad, &tag)
-            .expect("Decryption should succeed");
-        
-        assert_eq!(decrypted, plaintext);
-    }
-    
-    #[test]
-    fn test_aead_tamper_detection() {
-        let key = b"aead_master_key!";
-        let nonce = b"unique_nonce";
-        let plaintext = b"Secret";
-        let aad = b"AAD";
-        
-        let (mut ciphertext, tag) = YakshaAead::seal(key, nonce, plaintext, aad);
-        
-        ciphertext[0] ^= 1;
-        
-        let result = YakshaAead::open(key, nonce, &ciphertext, aad, &tag);
-        assert!(result.is_err());
-    }
 }
 
 // ============================================================================

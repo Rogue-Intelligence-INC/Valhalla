@@ -1,0 +1,82 @@
+{
+  "out_dir": "/home/jouly/AI/Valhalla/external_bench/results/cpu_20260616_020949",
+  "yaksha_aead_bench_parsed_rows": [
+    {
+      "size": "4 KB",
+      "size_bytes": 4096,
+      "seal_mb_s": 15.0,
+      "seal_ns_op": 253965.0,
+      "open_mb_s": 11.0,
+      "open_ns_op": 354395.0
+    },
+    {
+      "size": "64 KB",
+      "size_bytes": 65536,
+      "seal_mb_s": 27.0,
+      "seal_ns_op": 2303405.0,
+      "open_mb_s": 19.0,
+      "open_ns_op": 3302560.0
+    },
+    {
+      "size": "256 KB",
+      "size_bytes": 262144,
+      "seal_mb_s": 33.0,
+      "seal_ns_op": 7538850.0,
+      "open_mb_s": 31.0,
+      "open_ns_op": 8050404.0
+    },
+    {
+      "size": "1 MB",
+      "size_bytes": 1048576,
+      "seal_mb_s": 43.0,
+      "seal_ns_op": 23003568.0,
+      "open_mb_s": 41.0,
+      "open_ns_op": 24435381.0
+    },
+    {
+      "size": "4 MB",
+      "size_bytes": 4194304,
+      "seal_mb_s": 60.0,
+      "seal_ns_op": 67205965.0,
+      "open_mb_s": 60.0,
+      "open_ns_op": 66684105.0
+    },
+    {
+      "size": "16 MB",
+      "size_bytes": 16777216,
+      "seal_mb_s": 60.0,
+      "seal_ns_op": 266298990.0,
+      "open_mb_s": 62.0,
+      "open_ns_op": 256097613.0
+    }
+  ],
+  "yaksha_exit_codes": {
+    "yaksha_aead_bench_exit": 0,
+    "yaksha_test_exit": 0,
+    "yaksha_test_gpu_exit": null,
+    "yaksha_aead_timing_keys_exit": 0,
+    "dieharder_stream_gpu_generate_exit": null
+  },
+  "openssl_meta": {
+    "openssl_aead_aes-128-gcm.mr": {
+      "last_plus_F": "+F:25:AES-128-GCM:16377485.17:223232405.71:902724515.43:4612302952.55:9294437374.97:10239730763.93"
+    },
+    "openssl_aead_aes-256-gcm.mr": {
+      "last_plus_F": "+F:25:AES-256-GCM:15823051.50:218722355.66:887915819.82:4291292790.39:8203727106.31:8851874629.26"
+    },
+    "openssl_aead_chacha20-poly1305.mr": {
+      "last_plus_F": "+F:25:ChaCha20-Poly1305:203362557.72:680058487.69:1005257055.46:3407125371.77:3436915020.44:3500494901.30"
+    }
+  },
+  "dieharder_meta_keys": [
+    "dieharder_info_bitstream_d4.stdout",
+    "dieharder_info_byte_distribution_d205.stdout",
+    "dieharder_info_count1s_byte_d9.stdout",
+    "dieharder_info_craps_d16.stdout",
+    "dieharder_info_parking_lot_d10.stdout",
+    "dieharder_info_runs_d15.stdout",
+    "dieharder_sts_monobit_d100.stdout",
+    "dieharder_sts_runs_d101.stdout",
+    "dieharder_sts_serial_d102.stdout"
+  ]
+}

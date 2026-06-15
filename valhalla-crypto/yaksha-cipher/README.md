@@ -49,10 +49,19 @@ let (ciphertext, tag) = cipher.encrypt(data, b"aad");
 
 | Property | Value |
 |----------|-------|
-| Avalanche Effect | ~50% |
-| Key Sensitivity | ~50% |
 | Deterministic | Yes (primitive level) |
 | AEAD Support | Yes (via YakshaAead) |
+
+### Validation (industry gate — no in-crate statistical unit tests)
+
+From the **Valhalla repo root**:
+
+```bash
+./external_bench/run_all.sh        # CPU gate → results/cpu_<timestamp>/
+./external_bench/run_all_gpu.sh    # GPU gate (independent) → results/gpu_<timestamp>/
+```
+
+Runs OpenSSL AEAD baselines, **dieharder** (strict STS gate), Yaksha AEAD bench, timing keys, and CPU smoke `yaksha_test` (GPU script uses `yaksha_test_gpu` + GPU stream). See [../../external_bench/README.md](../../external_bench/README.md) and [docs/STRICT_TESTING.md](docs/STRICT_TESTING.md).
 
 ---
 

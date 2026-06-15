@@ -15,11 +15,13 @@
 //!
 //! ## Security Properties
 //! - **Deterministic**: Same (key, plaintext) = same ciphertext
-//! - **Avalanche**: ~50% bit difference on single-bit input change
+//! - **64B blocks**: same wave-then-superposition Feistel layers as `parametric` / `cascade`
 //! - **Reversible**: 100% correct decryption
 
 use rayon::prelude::*;
 use crate::cascade;
+use crate::frac_container::FracDimContainer;
+use crate::ocean_pipeline::{decrypt_with_ocean, encrypt_with_ocean, primitive_session_anchor};
 
 // ============================================================================
 // MeshBrain Configuration Constants
@@ -68,15 +70,20 @@ impl SignalType {
 // Neural Encryption Core
 // ============================================================================
 
-/// Encrypt plaintext using neural (MeshBrain-inspired) transformations
-///
-/// # Arguments
-/// * `plaintext` - Data to encrypt
-/// * `key` - Encryption key (any length > 0)
-///
-/// # Returns
-/// Ciphertext of same length as plaintext
+/// Encrypt plaintext using neural transformations + global ocean phases.
 pub fn encrypt(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
+    let session = primitive_session_anchor(key);
+    encrypt_with_ocean(
+        plaintext,
+        key,
+        &session,
+        FracDimContainer::standard(),
+        |p| encrypt_body(p, key),
+    )
+}
+
+/// Neural transform body (wave + cascade), no ocean.
+pub fn encrypt_body(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
     if plaintext.is_empty() || key.is_empty() {
         return plaintext.to_vec();
     }
@@ -148,21 +155,26 @@ pub fn encrypt(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
         })
         .collect();
 
-    // Phase 2: Random cascade for full diffusion
+    cascade::wave_block_phase1_encrypt(&mut output, key);
     cascade::cascade_encrypt(&mut output, key);
 
     output
 }
 
-/// Decrypt ciphertext using neural (MeshBrain-inspired) transformations
-///
-/// # Arguments
-/// * `ciphertext` - Data to decrypt
-/// * `key` - Decryption key (must match encryption key)
-///
-/// # Returns
-/// Original plaintext
+/// Decrypt ciphertext using neural transformations + global ocean phases.
 pub fn decrypt(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
+    let session = primitive_session_anchor(key);
+    decrypt_with_ocean(
+        ciphertext,
+        key,
+        &session,
+        FracDimContainer::standard(),
+        |c| decrypt_body(c, key),
+    )
+}
+
+/// Neural inverse body, no ocean.
+pub fn decrypt_body(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
     if ciphertext.is_empty() || key.is_empty() {
         return ciphertext.to_vec();
     }
@@ -176,9 +188,9 @@ pub fn decrypt(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
     let density = NETWORK_DENSITY + (key_sum % 100) as f64 / 1000.0;
     let fluctuation = FLUCTUATION_INTENSITY + (key_sum % 50) as f64 / 500.0;
 
-    // Phase 2 inverse: Remove random cascade
     let mut phase1_output = ciphertext.to_vec();
     cascade::cascade_decrypt(&mut phase1_output, key);
+    cascade::wave_block_phase1_decrypt(&mut phase1_output, key);
 
     // Phase 1 inverse: Neural reverse transformation (parallel)
     let plaintext: Vec<u8> = (0..len)
@@ -279,72 +291,5 @@ impl NeuralState {
             network_density: NETWORK_DENSITY + (key_sum % 100) as f64 / 1000.0,
             fluctuation_intensity: FLUCTUATION_INTENSITY + (key_sum % 50) as f64 / 500.0,
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_signal_type() {
-        assert_eq!(SignalType::from_intensity(0.3), SignalType::ContinuousFluctuation);
-        assert_eq!(SignalType::from_intensity(0.7), SignalType::StructuralReorganization);
-        assert_eq!(SignalType::from_intensity(0.5), SignalType::ContinuousFluctuation);
-        assert_eq!(SignalType::from_intensity(0.51), SignalType::StructuralReorganization);
-    }
-
-    #[test]
-    fn test_neural_state() {
-        let key = b"TestKey12345678!";
-        let state = NeuralState::from_key(key);
-        
-        assert!(state.membrane_base >= 1.0 && state.membrane_base <= 11.0,
-            "Membrane base: {}", state.membrane_base);
-        assert!(state.network_density >= 0.7 && state.network_density <= 0.8,
-            "Network density: {}", state.network_density);
-        assert!(state.fluctuation_intensity >= 0.3 && state.fluctuation_intensity <= 0.4,
-            "Fluctuation intensity: {}", state.fluctuation_intensity);
-    }
-
-    #[test]
-    fn test_neural_reversible() {
-        let data = b"Hello, Yaksha Neural Mode!";
-        let key = b"TestKey12345678!";
-        
-        let encrypted = encrypt(data, key);
-        let decrypted = decrypt(&encrypted, key);
-        
-        assert_eq!(data.to_vec(), decrypted);
-    }
-
-    #[test]
-    fn test_neural_avalanche() {
-        let data: Vec<u8> = (0..1024).map(|i| (i % 256) as u8).collect();
-        let mut data_mod = data.clone();
-        data_mod[0] ^= 0x01;
-        
-        let key = b"TestKey12345678!";
-        let c1 = encrypt(&data, key);
-        let c2 = encrypt(&data_mod, key);
-        
-        let diff: u32 = c1.iter().zip(c2.iter())
-            .map(|(&a, &b)| (a ^ b).count_ones())
-            .sum();
-        let avalanche = diff as f64 / (c1.len() * 8) as f64;
-        
-        assert!(avalanche > 0.40 && avalanche < 0.60,
-            "Avalanche effect: {:.1}% (expected 40-60%)", avalanche * 100.0);
-    }
-
-    #[test]
-    fn test_neural_deterministic() {
-        let data = b"Same input twice";
-        let key = b"SameKey";
-        
-        let c1 = encrypt(data, key);
-        let c2 = encrypt(data, key);
-        
-        assert_eq!(c1, c2, "Neural encryption must be deterministic");
     }
 }

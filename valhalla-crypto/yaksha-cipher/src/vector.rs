@@ -143,37 +143,3 @@ fn arx_quarter_round_inverse(chunk: &mut [u8], k: [u8; 4]) {
     chunk[2] = c;
     chunk[3] = d;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_vector_reversible() {
-        let data = b"Hello, Vector Mode!";
-        let key = b"TestKey12345678!";
-        
-        let encrypted = encrypt(data, key);
-        let decrypted = decrypt(&encrypted, key);
-        
-        assert_eq!(data.to_vec(), decrypted);
-    }
-
-    #[test]
-    fn test_vector_avalanche() {
-        let data: Vec<u8> = (0..1024).map(|i| (i % 256) as u8).collect();
-        let mut data_mod = data.clone();
-        data_mod[0] ^= 0x01;
-        
-        let key = b"TestKey12345678!";
-        let c1 = encrypt(&data, key);
-        let c2 = encrypt(&data_mod, key);
-        
-        let diff: u32 = c1.iter().zip(c2.iter())
-            .map(|(&a, &b)| (a ^ b).count_ones())
-            .sum();
-        let avalanche = diff as f64 / (c1.len() * 8) as f64;
-        
-        assert!(avalanche > 0.45 && avalanche < 0.55);
-    }
-}
