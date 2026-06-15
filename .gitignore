@@ -42,6 +42,7 @@ secrets/
 .keys/
 # Embedded repositories (managed separately)
 s-wind-sim/
+valhalla-crypto/yaksha-cipher-gpu/
 valhalla-rational/
 wave-asm/
 wave-bin/
@@ -59,7 +60,3 @@ node_modules/
 # Large binary files
 *.node
 s-wind-sim/
-
-# Yaksha local backups & bench streams (not for git)
-valhalla-crypto/*_backup*/
-external_bench/results/**/dieharder_stream*.bin

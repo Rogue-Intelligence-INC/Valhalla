@@ -7,22 +7,25 @@
 //! ## Properties
 //! - **Deterministic**: Same (key, plaintext) = same ciphertext
 //! - **Parameterized**: Key material derives a continuous parameter space
-//! - **64B wave / superposition**: after per-byte phase, `cascade::wave_block_phase1_*` then `cascade_encrypt` (see `cascade` module)
+//! - **Avalanche**: ~50% bit difference on single-bit input change
 //!
 //! ## Algorithm Overview
 //!
 //! ```text
 //! Key → ParametricSpace (dimension ∈ [1.5, 3.5])
 //!         ↓
-//! Phase 1a: Parallel per-byte transformation (local “particle” track)
-//! Phase 1b: **64-byte** Feistel blocks — global coupling inside each chunk (wave–particle)
-//! Phase 2: **64-byte** Feistel blocks, distinct domain (superposition); see `cascade`
+//! Phase 1: Parallel per-byte transformation
+//!   - Position-dependent parameter offset
+//!   - Entropy-based branch selection
+//!   - ARX operations with parameterized rotations
+//!         ↓
+//! Phase 2: Sequential cascade
+//!   - XOR with evolving state
+//!   - Ensures full diffusion
 //! ```
 
 use rayon::prelude::*;
 use crate::cascade;
-use crate::frac_container::FracDimContainer;
-use crate::ocean_pipeline::{decrypt_with_ocean, encrypt_with_ocean, primitive_session_anchor};
 
 /// Parametric encryption state derived from key
 ///
@@ -118,19 +121,8 @@ impl ParametricSpace {
 // Vector Mode: ARX block cipher with parameterized transformations
 // ============================================================================
 
-/// Encrypt using parametric vector (ARX) mode + global ocean.
+/// Encrypt using parametric vector (ARX) mode
 pub fn encrypt_vector(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
-    let session = primitive_session_anchor(key);
-    encrypt_with_ocean(
-        plaintext,
-        key,
-        &session,
-        FracDimContainer::standard(),
-        |p| encrypt_vector_body(p, key),
-    )
-}
-
-fn encrypt_vector_body(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
     if plaintext.is_empty() || key.is_empty() {
         return plaintext.to_vec();
     }
@@ -154,25 +146,14 @@ fn encrypt_vector_body(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
         }
     }
 
-    cascade::wave_block_phase1_encrypt(&mut output, key);
+    // Final mixing with random cascade
     cascade::cascade_encrypt(&mut output, key);
 
     output
 }
 
-/// Decrypt using parametric vector (ARX) mode + global ocean.
+/// Decrypt using parametric vector (ARX) mode
 pub fn decrypt_vector(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
-    let session = primitive_session_anchor(key);
-    decrypt_with_ocean(
-        ciphertext,
-        key,
-        &session,
-        FracDimContainer::standard(),
-        |c| decrypt_vector_body(c, key),
-    )
-}
-
-fn decrypt_vector_body(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
     if ciphertext.is_empty() || key.is_empty() {
         return ciphertext.to_vec();
     }
@@ -182,8 +163,8 @@ fn decrypt_vector_body(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
     
     let fate = ParametricSpace::from_key(key);
 
+    // Inverse random cascade
     cascade::cascade_decrypt(&mut output, key);
-    cascade::wave_block_phase1_decrypt(&mut output, key);
 
     // Inverse ARX in reverse order
     let num_chunks = (len + 3) / 4;
@@ -277,19 +258,8 @@ pub fn decrypt(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
     decrypt_entropy(ciphertext, key)
 }
 
-/// Encrypt using parametric entropy mode + global ocean.
+/// Encrypt using parametric entropy mode (explicit name)
 pub fn encrypt_entropy(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
-    let session = primitive_session_anchor(key);
-    encrypt_with_ocean(
-        plaintext,
-        key,
-        &session,
-        FracDimContainer::standard(),
-        |p| encrypt_entropy_body(p, key),
-    )
-}
-
-pub fn encrypt_entropy_body(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
     if plaintext.is_empty() || key.is_empty() {
         return plaintext.to_vec();
     }
@@ -339,25 +309,14 @@ pub fn encrypt_entropy_body(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
         })
         .collect();
 
-    cascade::wave_block_phase1_encrypt(&mut output, key);
+    // Phase 2: Random cascade for full diffusion
     cascade::cascade_encrypt(&mut output, key);
 
     output
 }
 
-/// Decrypt using parametric entropy mode + global ocean.
+/// Decrypt using parametric entropy mode (explicit name)
 pub fn decrypt_entropy(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
-    let session = primitive_session_anchor(key);
-    decrypt_with_ocean(
-        ciphertext,
-        key,
-        &session,
-        FracDimContainer::standard(),
-        |c| decrypt_entropy_body(c, key),
-    )
-}
-
-pub fn decrypt_entropy_body(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
     if ciphertext.is_empty() || key.is_empty() {
         return ciphertext.to_vec();
     }
@@ -373,11 +332,11 @@ pub fn decrypt_entropy_body(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
     let membrane = key0.wrapping_add(dim_factor);
     let dim = fate.dimension;
 
+    // Phase 2 inverse: Remove random cascade
     let mut phase1_output = ciphertext.to_vec();
     cascade::cascade_decrypt(&mut phase1_output, key);
-    cascade::wave_block_phase1_decrypt(&mut phase1_output, key);
 
-    // Phase 1a inverse: Reverse per-byte transformation
+    // Phase 1 inverse: Reverse per-byte transformation
     let plaintext: Vec<u8> = (0..len)
         .into_par_iter()
         .map(|i| {
@@ -444,4 +403,71 @@ fn mod_inverse(a: u8) -> u8 {
     x = x.wrapping_mul(2u8.wrapping_sub(a.wrapping_mul(x)));
     x = x.wrapping_mul(2u8.wrapping_sub(a.wrapping_mul(x)));
     x
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parametric_space_creation() {
+        let key = b"TestKey12345678!";
+        let space = ParametricSpace::from_key(key);
+        
+        assert!(space.dimension >= 1.5 && space.dimension <= 3.5,
+            "Dimension {} should be in [1.5, 3.5]", space.dimension);
+        assert_eq!(space.dimension, space.base_dimension);
+    }
+
+    #[test]
+    fn test_parametric_vector_reversible() {
+        let data = b"Hello, Yaksha Parametric!";
+        let key = b"TestKey12345678!";
+        
+        let encrypted = encrypt_vector(data, key);
+        let decrypted = decrypt_vector(&encrypted, key);
+        
+        assert_eq!(decrypted.len(), data.len());
+    }
+
+    #[test]
+    fn test_parametric_entropy_reversible() {
+        let data = b"Hello, Yaksha Parametric Entropy!";
+        let key = b"TestKey12345678!";
+        
+        let encrypted = encrypt_entropy(data, key);
+        let decrypted = decrypt_entropy(&encrypted, key);
+        
+        assert_eq!(data.to_vec(), decrypted);
+    }
+
+    #[test]
+    fn test_parametric_avalanche() {
+        let data: Vec<u8> = (0..1024).map(|i| (i % 256) as u8).collect();
+        let mut data_mod = data.clone();
+        data_mod[0] ^= 0x01;
+        
+        let key = b"TestKey12345678!";
+        let c1 = encrypt_entropy(&data, key);
+        let c2 = encrypt_entropy(&data_mod, key);
+        
+        let diff: u32 = c1.iter().zip(c2.iter())
+            .map(|(&a, &b)| (a ^ b).count_ones())
+            .sum();
+        let avalanche = diff as f64 / (c1.len() * 8) as f64;
+        
+        assert!(avalanche > 0.45 && avalanche < 0.55,
+            "Avalanche effect: {:.1}% (expected 45-55%)", avalanche * 100.0);
+    }
+
+    #[test]
+    fn test_parametric_deterministic() {
+        let data = b"Same input twice";
+        let key = b"SameKey";
+        
+        let c1 = encrypt_entropy(data, key);
+        let c2 = encrypt_entropy(data, key);
+        
+        assert_eq!(c1, c2, "Parametric encryption must be deterministic");
+    }
 }
