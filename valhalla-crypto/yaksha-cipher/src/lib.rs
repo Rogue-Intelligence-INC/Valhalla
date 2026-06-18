@@ -55,11 +55,19 @@
 //! ```
 
 // Core modules
+pub mod config;
 pub mod core;
 pub mod parametric;
 pub mod neural;
 pub mod aead;
 pub mod cascade;
+pub mod frac_container;
+pub mod ocean_builtin;
+pub mod ocean_pipeline;
+pub mod shell;
+pub mod mac_fast;
+
+pub use ocean_pipeline::{encrypt_with_ocean, decrypt_with_ocean, primitive_session_anchor};
 
 // Legacy/experimental
 pub mod vector;
@@ -85,6 +93,8 @@ pub use aead::{
     SignalStructure,
     SignalDomain,
 };
+pub use config::{MacMode, ThroughputProfile};
+pub use mac_fast::YakshaMacFast;
 pub use geometric::{
     encrypt as geometric_encrypt,
     decrypt as geometric_decrypt,

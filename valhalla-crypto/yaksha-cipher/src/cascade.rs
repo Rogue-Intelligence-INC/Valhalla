@@ -17,9 +17,9 @@ use rayon::prelude::*;
 /// Number of Feistel rounds
 const FEISTEL_ROUNDS: usize = 4;
 
-/// Compute key hash
+/// Compute key hash (exported for GPU cascade offload).
 #[inline]
-fn key_hash(key: &[u8]) -> u64 {
+pub fn key_hash(key: &[u8]) -> u64 {
     let mut h: u64 = 14695981039346656037;
     for &b in key {
         h ^= b as u64;

@@ -33,7 +33,9 @@
 //! This protocol does NOT provide IND-CPA security at the primitive level.
 //! Session uniqueness comes from stateful key derivation, not from the cipher.
 
-use crate::core;
+use crate::config::{self, MacMode};
+use crate::mac_fast::YakshaMacFast;
+use crate::shell;
 
 // ============================================================================
 // Part 1: Dynamic Key Generator (基于 Fate 信号捕捉)
@@ -842,6 +844,67 @@ impl YakshaMac {
 /// - Fate-MAC (反推验证) → 消息认证
 pub struct YakshaAead;
 
+fn aead_mac_message(
+    associated_data: &[u8],
+    nonce: &[u8],
+    ciphertext: &[u8],
+) -> Vec<u8> {
+    let mut msg = Vec::with_capacity(
+        associated_data.len() + nonce.len() + ciphertext.len() + 24,
+    );
+    msg.extend_from_slice(associated_data);
+    msg.extend_from_slice(&(associated_data.len() as u64).to_le_bytes());
+    msg.extend_from_slice(nonce);
+    msg.extend_from_slice(&(nonce.len() as u64).to_le_bytes());
+    msg.extend_from_slice(ciphertext);
+    msg.extend_from_slice(&(ciphertext.len() as u64).to_le_bytes());
+    msg
+}
+
+fn compute_aead_tag(
+    mac_key: &[u8; 16],
+    associated_data: &[u8],
+    nonce: &[u8],
+    ciphertext: &[u8],
+    tag_len: usize,
+) -> Vec<u8> {
+    match config::mac_mode() {
+        MacMode::Fast => {
+            let mac_input = aead_mac_message(associated_data, nonce, ciphertext);
+            YakshaMacFast::compute(mac_key, &mac_input, tag_len)
+        }
+        MacMode::Audit => {
+            let mut mac = YakshaMac::new(mac_key);
+            mac.update(associated_data);
+            mac.update(&(associated_data.len() as u64).to_le_bytes());
+            mac.update(nonce);
+            mac.update(&(nonce.len() as u64).to_le_bytes());
+            mac.update(ciphertext);
+            mac.update(&(ciphertext.len() as u64).to_le_bytes());
+            mac.finalize(tag_len)
+        }
+    }
+}
+
+fn verify_aead_tag(
+    mac_key: &[u8; 16],
+    associated_data: &[u8],
+    nonce: &[u8],
+    ciphertext: &[u8],
+    tag: &[u8],
+) -> bool {
+    match config::mac_mode() {
+        MacMode::Fast => {
+            let mac_input = aead_mac_message(associated_data, nonce, ciphertext);
+            YakshaMacFast::verify(mac_key, &mac_input, tag)
+        }
+        MacMode::Audit => {
+            let computed = compute_aead_tag(mac_key, associated_data, nonce, ciphertext, tag.len());
+            constant_time_compare(&computed, tag)
+        }
+    }
+}
+
 impl YakshaAead {
     /// 加密并认证
     pub fn seal(
@@ -850,34 +913,16 @@ impl YakshaAead {
         plaintext: &[u8],
         associated_data: &[u8],
     ) -> (Vec<u8>, Vec<u8>) {
-        // 1. 信号捕捉: 派生加密密钥和 MAC 密钥
         let mut key_gen = YakshaKdf::new(key);
         let enc_key = key_gen.derive_key(nonce);
         let mac_key = key_gen.derive_key(b"authenticate");
-        
-        // 2. 加密
-        let ciphertext = core::encrypt(plaintext, &enc_key);
-        
-        // 3. 反推验证: 计算 MAC
-        let mut mac = YakshaMac::new(&mac_key);
-        
-        // AAD
-        mac.update(associated_data);
-        mac.update(&(associated_data.len() as u64).to_le_bytes());
-        
-        // Nonce
-        mac.update(nonce);
-        mac.update(&(nonce.len() as u64).to_le_bytes());
-        
-        // Ciphertext
-        mac.update(&ciphertext);
-        mac.update(&(ciphertext.len() as u64).to_le_bytes());
-        
-        let tag = mac.finalize(16);
-        
+
+        let ciphertext = shell::encrypt(plaintext, &enc_key, nonce);
+        let tag = compute_aead_tag(&mac_key, associated_data, nonce, &ciphertext, 16);
+
         (ciphertext, tag)
     }
-    
+
     /// 解密并验证
     pub fn open(
         key: &[u8],
@@ -886,32 +931,15 @@ impl YakshaAead {
         associated_data: &[u8],
         tag: &[u8],
     ) -> Result<Vec<u8>, &'static str> {
-        // 1. 派生密钥
         let mut key_gen = YakshaKdf::new(key);
         let enc_key = key_gen.derive_key(nonce);
         let mac_key = key_gen.derive_key(b"authenticate");
-        
-        // 2. 验证 MAC (先验证后解密)
-        let mut mac = YakshaMac::new(&mac_key);
-        
-        mac.update(associated_data);
-        mac.update(&(associated_data.len() as u64).to_le_bytes());
-        
-        mac.update(nonce);
-        mac.update(&(nonce.len() as u64).to_le_bytes());
-        
-        mac.update(ciphertext);
-        mac.update(&(ciphertext.len() as u64).to_le_bytes());
-        
-        let computed_tag = mac.finalize(tag.len());
-        
-        if !constant_time_compare(&computed_tag, tag) {
+
+        if !verify_aead_tag(&mac_key, associated_data, nonce, ciphertext, tag) {
             return Err("Authentication failed");
         }
-        
-        // 3. 解密
-        let plaintext = core::decrypt(ciphertext, &enc_key);
-        
+
+        let plaintext = shell::decrypt(ciphertext, &enc_key, nonce);
         Ok(plaintext)
     }
 }
@@ -920,8 +948,8 @@ impl YakshaAead {
 // Helper Functions
 // ============================================================================
 
-/// 常量时间比较
-fn constant_time_compare(a: &[u8], b: &[u8]) -> bool {
+/// Constant-time byte comparison (shared with fast MAC).
+pub(crate) fn constant_time_compare(a: &[u8], b: &[u8]) -> bool {
     if a.len() != b.len() {
         return false;
     }
