@@ -1,0 +1,560 @@
+{
+  "meta": {
+    "experiment": "vpb_scale_axis",
+    "timestamp": "20260620_1518",
+    "phase": "test",
+    "tiers": [
+      "S",
+      "M",
+      "L"
+    ],
+    "suite": "both"
+  },
+  "tier_line_counts": {
+    "S": 22,
+    "M": 49,
+    "L": 107
+  },
+  "results": {
+    "fair_L0": {
+      "prompt_count": 145,
+      "metrics_by_tier": {
+        "S": {
+          "persistent": {
+            "n": 145,
+            "correct": 53,
+            "acc": 0.3655,
+            "by_score_type": {
+              "mcq": {
+                "correct": 18,
+                "total": 46,
+                "acc": 0.3913
+              },
+              "numeric": {
+                "correct": 22,
+                "total": 38,
+                "acc": 0.5789
+              },
+              "open": {
+                "correct": 13,
+                "total": 61,
+                "acc": 0.2131
+              }
+            },
+            "by_decode_path": {
+              "cortex": {
+                "correct": 5,
+                "total": 21,
+                "acc": 0.2381
+              },
+              "direct_math": {
+                "correct": 17,
+                "total": 17,
+                "acc": 1.0
+              },
+              "mcq_option": {
+                "correct": 18,
+                "total": 46,
+                "acc": 0.3913
+              },
+              "open_span": {
+                "correct": 13,
+                "total": 61,
+                "acc": 0.2131
+              }
+            },
+            "by_domain": {
+              "biology": {
+                "correct": 5,
+                "total": 12,
+                "acc": 0.4167
+              },
+              "chemistry": {
+                "correct": 3,
+                "total": 9,
+                "acc": 0.3333
+              },
+              "chinese": {
+                "correct": 1,
+                "total": 11,
+                "acc": 0.0909
+              },
+              "computer_science": {
+                "correct": 1,
+                "total": 10,
+                "acc": 0.1
+              },
+              "economics": {
+                "correct": 2,
+                "total": 8,
+                "acc": 0.25
+              },
+              "geography": {
+                "correct": 4,
+                "total": 12,
+                "acc": 0.3333
+              },
+              "history": {
+                "correct": 4,
+                "total": 11,
+                "acc": 0.3636
+              },
+              "literature": {
+                "correct": 3,
+                "total": 6,
+                "acc": 0.5
+              },
+              "math_numeric": {
+                "correct": 13,
+                "total": 20,
+                "acc": 0.65
+              },
+              "math_word": {
+                "correct": 9,
+                "total": 18,
+                "acc": 0.5
+              },
+              "medicine": {
+                "correct": 2,
+                "total": 9,
+                "acc": 0.2222
+              },
+              "philosophy_logic": {
+                "correct": 1,
+                "total": 6,
+                "acc": 0.1667
+              },
+              "physics": {
+                "correct": 5,
+                "total": 13,
+                "acc": 0.3846
+              }
+            }
+          },
+          "corpus_supported_acc": 0.4767,
+          "recall_at_3_isolated": 0.75,
+          "ingest_lift_pp": 27.91
+        },
+        "M": {
+          "persistent": {
+            "n": 145,
+            "correct": 59,
+            "acc": 0.4069,
+            "by_score_type": {
+              "mcq": {
+                "correct": 21,
+                "total": 46,
+                "acc": 0.4565
+              },
+              "numeric": {
+                "correct": 22,
+                "total": 38,
+                "acc": 0.5789
+              },
+              "open": {
+                "correct": 16,
+                "total": 61,
+                "acc": 0.2623
+              }
+            },
+            "by_decode_path": {
+              "cortex": {
+                "correct": 5,
+                "total": 21,
+                "acc": 0.2381
+              },
+              "direct_math": {
+                "correct": 17,
+                "total": 17,
+                "acc": 1.0
+              },
+              "mcq_option": {
+                "correct": 21,
+                "total": 46,
+                "acc": 0.4565
+              },
+              "open_span": {
+                "correct": 16,
+                "total": 61,
+                "acc": 0.2623
+              }
+            },
+            "by_domain": {
+              "biology": {
+                "correct": 5,
+                "total": 12,
+                "acc": 0.4167
+              },
+              "chemistry": {
+                "correct": 3,
+                "total": 9,
+                "acc": 0.3333
+              },
+              "chinese": {
+                "correct": 4,
+                "total": 11,
+                "acc": 0.3636
+              },
+              "computer_science": {
+                "correct": 1,
+                "total": 10,
+                "acc": 0.1
+              },
+              "economics": {
+                "correct": 2,
+                "total": 8,
+                "acc": 0.25
+              },
+              "geography": {
+                "correct": 4,
+                "total": 12,
+                "acc": 0.3333
+              },
+              "history": {
+                "correct": 4,
+                "total": 11,
+                "acc": 0.3636
+              },
+              "literature": {
+                "correct": 3,
+                "total": 6,
+                "acc": 0.5
+              },
+              "math_numeric": {
+                "correct": 13,
+                "total": 20,
+                "acc": 0.65
+              },
+              "math_word": {
+                "correct": 9,
+                "total": 18,
+                "acc": 0.5
+              },
+              "medicine": {
+                "correct": 4,
+                "total": 9,
+                "acc": 0.4444
+              },
+              "philosophy_logic": {
+                "correct": 2,
+                "total": 6,
+                "acc": 0.3333
+              },
+              "physics": {
+                "correct": 5,
+                "total": 13,
+                "acc": 0.3846
+              }
+            }
+          },
+          "corpus_supported_acc": 0.4896,
+          "recall_at_3_isolated": 0.75,
+          "ingest_lift_pp": 31.25
+        },
+        "L": {
+          "persistent": {
+            "n": 145,
+            "correct": 59,
+            "acc": 0.4069,
+            "by_score_type": {
+              "mcq": {
+                "correct": 22,
+                "total": 46,
+                "acc": 0.4783
+              },
+              "numeric": {
+                "correct": 22,
+                "total": 38,
+                "acc": 0.5789
+              },
+              "open": {
+                "correct": 15,
+                "total": 61,
+                "acc": 0.2459
+              }
+            },
+            "by_decode_path": {
+              "cortex": {
+                "correct": 5,
+                "total": 21,
+                "acc": 0.2381
+              },
+              "direct_math": {
+                "correct": 17,
+                "total": 17,
+                "acc": 1.0
+              },
+              "mcq_option": {
+                "correct": 22,
+                "total": 46,
+                "acc": 0.4783
+              },
+              "open_span": {
+                "correct": 15,
+                "total": 61,
+                "acc": 0.2459
+              }
+            },
+            "by_domain": {
+              "biology": {
+                "correct": 5,
+                "total": 12,
+                "acc": 0.4167
+              },
+              "chemistry": {
+                "correct": 4,
+                "total": 9,
+                "acc": 0.4444
+              },
+              "chinese": {
+                "correct": 4,
+                "total": 11,
+                "acc": 0.3636
+              },
+              "computer_science": {
+                "correct": 1,
+                "total": 10,
+                "acc": 0.1
+              },
+              "economics": {
+                "correct": 2,
+                "total": 8,
+                "acc": 0.25
+              },
+              "geography": {
+                "correct": 4,
+                "total": 12,
+                "acc": 0.3333
+              },
+              "history": {
+                "correct": 5,
+                "total": 11,
+                "acc": 0.4545
+              },
+              "literature": {
+                "correct": 3,
+                "total": 6,
+                "acc": 0.5
+              },
+              "math_numeric": {
+                "correct": 13,
+                "total": 20,
+                "acc": 0.65
+              },
+              "math_word": {
+                "correct": 9,
+                "total": 18,
+                "acc": 0.5
+              },
+              "medicine": {
+                "correct": 4,
+                "total": 9,
+                "acc": 0.4444
+              },
+              "philosophy_logic": {
+                "correct": 1,
+                "total": 6,
+                "acc": 0.1667
+              },
+              "physics": {
+                "correct": 4,
+                "total": 13,
+                "acc": 0.3077
+              }
+            }
+          },
+          "corpus_supported_acc": 0.5049,
+          "recall_at_3_isolated": 0.75,
+          "ingest_lift_pp": 29.13
+        }
+      },
+      "scale_curve": {
+        "corpus_supported_acc_by_tier": {
+          "S": 0.4767,
+          "M": 0.4896,
+          "L": 0.5049
+        },
+        "recall_at_3_by_tier": {
+          "S": 0.75,
+          "M": 0.75,
+          "L": 0.75
+        },
+        "scale_headroom_norm": 0.5564,
+        "memory_horizon_tier": null
+      }
+    },
+    "memory_L1": {
+      "prompt_count": 64,
+      "metrics_by_tier": {
+        "S": {
+          "persistent": {
+            "n": 64,
+            "correct": 41,
+            "acc": 0.6406,
+            "by_score_type": {
+              "open": {
+                "correct": 41,
+                "total": 64,
+                "acc": 0.6406
+              }
+            },
+            "by_decode_path": {
+              "open_span": {
+                "correct": 41,
+                "total": 64,
+                "acc": 0.6406
+              }
+            },
+            "by_domain": {
+              "vpb_memory": {
+                "correct": 41,
+                "total": 64,
+                "acc": 0.6406
+              }
+            }
+          },
+          "by_memory_task": {
+            "single_hop": {
+              "n": 16,
+              "acc": 0.6875
+            },
+            "multi_hop": {
+              "n": 12,
+              "acc": 0.5
+            },
+            "temporal": {
+              "n": 8,
+              "acc": 0.25
+            },
+            "knowledge_update": {
+              "n": 8,
+              "acc": 0.875
+            },
+            "abstention": {
+              "n": 12,
+              "acc": 0.9167
+            },
+            "adversarial": {
+              "n": 8,
+              "acc": 0.5
+            }
+          },
+          "evidence_recall_at_3": 0.7,
+          "abstention_acc": 0.9167
+        },
+        "M": {
+          "persistent": {
+            "n": 64,
+            "correct": 57,
+            "acc": 0.8906,
+            "by_score_type": {
+              "open": {
+                "correct": 57,
+                "total": 64,
+                "acc": 0.8906
+              }
+            },
+            "by_decode_path": {
+              "open_span": {
+                "correct": 57,
+                "total": 64,
+                "acc": 0.8906
+              }
+            },
+            "by_domain": {
+              "vpb_memory": {
+                "correct": 57,
+                "total": 64,
+                "acc": 0.8906
+              }
+            }
+          },
+          "by_memory_task": {
+            "single_hop": {
+              "n": 16,
+              "acc": 1.0
+            },
+            "multi_hop": {
+              "n": 12,
+              "acc": 1.0
+            },
+            "temporal": {
+              "n": 8,
+              "acc": 0.5
+            },
+            "knowledge_update": {
+              "n": 8,
+              "acc": 0.875
+            },
+            "abstention": {
+              "n": 12,
+              "acc": 0.9167
+            },
+            "adversarial": {
+              "n": 8,
+              "acc": 0.875
+            }
+          },
+          "evidence_recall_at_3": 0.9,
+          "abstention_acc": 0.9167
+        },
+        "L": {
+          "persistent": {
+            "n": 64,
+            "correct": 57,
+            "acc": 0.8906,
+            "by_score_type": {
+              "open": {
+                "correct": 57,
+                "total": 64,
+                "acc": 0.8906
+              }
+            },
+            "by_decode_path": {
+              "open_span": {
+                "correct": 57,
+                "total": 64,
+                "acc": 0.8906
+              }
+            },
+            "by_domain": {
+              "vpb_memory": {
+                "correct": 57,
+                "total": 64,
+                "acc": 0.8906
+              }
+            }
+          },
+          "by_memory_task": {
+            "single_hop": {
+              "n": 16,
+              "acc": 1.0
+            },
+            "multi_hop": {
+              "n": 12,
+              "acc": 1.0
+            },
+            "temporal": {
+              "n": 8,
+              "acc": 0.5
+            },
+            "knowledge_update": {
+              "n": 8,
+              "acc": 0.875
+            },
+            "abstention": {
+              "n": 12,
+              "acc": 0.9167
+            },
+            "adversarial": {
+              "n": 8,
+              "acc": 0.875
+            }
+          },
+          "evidence_recall_at_3": 0.9,
+          "abstention_acc": 0.9167
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2860 @@
+{
+  "meta": {
+    "version": "fair-1.0",
+    "date": "2026-06-19",
+    "name": "Valhalla Fair Benchmark",
+    "prompt_count": 200,
+    "split_seed": 20260619,
+    "val_ratio": 0.24,
+    "principles": [
+      "ingest_corpus must not contain eval reference answers",
+      "val split for development/tuning only; test is held-out",
+      "memory and generate tracks reported separately"
+    ],
+    "contamination_audit": {
+      "clean_ingest": {
+        "lines": 49,
+        "clean": true,
+        "removed_lines": 7,
+        "numeric_eval_leaks": 0
+      },
+      "legacy_medium": {
+        "lines": 56,
+        "contaminated_line_count": 7,
+        "contaminated_prompt_count": 7
+      }
+    }
+  },
+  "prompts": [
+    {
+      "id": "GSM_01",
+      "domain": "math_word",
+      "source": "openai/gsm8k",
+      "text": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May? Give the final number only after brief reasoning.",
+      "reference_answer": "72",
+      "keywords": [
+        "72",
+        "48",
+        "24"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_02",
+      "domain": "math_word",
+      "source": "openai/gsm8k",
+      "text": "Janet's ducks lay 16 eggs per day. She eats three for breakfast and bakes muffins with four. She sells the rest at $2 per egg. How much does she make daily at the market? Final answer: dollars.",
+      "reference_answer": "18",
+      "keywords": [
+        "18",
+        "9"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_03",
+      "domain": "math_word",
+      "source": "openai/gsm8k style",
+      "text": "A store sells 5 notebooks at $3 each and 2 pens at $1.50 each. What is the total cost? Answer with the final number.",
+      "reference_answer": "18",
+      "keywords": [
+        "18",
+        "15",
+        "3"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_04",
+      "domain": "math_word",
+      "source": "openai/gsm8k style",
+      "text": "Tom has 24 apples. He gives 6 to Ann and buys 10 more. How many apples does Tom have now?",
+      "reference_answer": "28",
+      "keywords": [
+        "28"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_01",
+      "domain": "math_numeric",
+      "source": "MMLU elementary_mathematics",
+      "text": "What is 17 multiplied by 23? Reply with the final integer only.",
+      "reference_answer": "391",
+      "keywords": [
+        "391"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_02",
+      "domain": "math_numeric",
+      "source": "MMLU elementary_mathematics",
+      "text": "What is 144 divided by 12? Final integer only.",
+      "reference_answer": "12",
+      "keywords": [
+        "12"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_03",
+      "domain": "math_numeric",
+      "source": "MMLU elementary_mathematics",
+      "text": "What is the square root of 81? Integer only.",
+      "reference_answer": "9",
+      "keywords": [
+        "9"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_04",
+      "domain": "math_numeric",
+      "source": "MMLU elementary_mathematics",
+      "text": "If x + 15 = 42, what is x? Integer only.",
+      "reference_answer": "27",
+      "keywords": [
+        "27"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MCQ_PHYS_01",
+      "domain": "physics",
+      "source": "MMLU conceptual_physics",
+      "text": "What is the SI unit of force?\nA) Joule\nB) Newton\nC) Watt\nD) Pascal\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "newton",
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_PHYS_02",
+      "domain": "physics",
+      "source": "MMLU high_school_physics",
+      "text": "The acceleration due to gravity on Earth is approximately:\nA) 1.6 m/s²\nB) 9.8 m/s²\nC) 20 m/s²\nD) 98 m/s²\nAnswer: A/B/C/D only.",
+      "reference_answer": "B",
+      "keywords": [
+        "9.8",
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_CHEM_01",
+      "domain": "chemistry",
+      "source": "MMLU high_school_chemistry",
+      "text": "Which subatomic particle has a negative charge?\nA) Proton\nB) Neutron\nC) Electron\nD) Nucleus\nAnswer: A/B/C/D only.",
+      "reference_answer": "C",
+      "keywords": [
+        "electron",
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_CHEM_02",
+      "domain": "chemistry",
+      "source": "MMLU high_school_chemistry",
+      "text": "Water's chemical formula is:\nA) CO2\nB) H2O\nC) O2\nD) NaCl\nAnswer: A/B/C/D only.",
+      "reference_answer": "B",
+      "keywords": [
+        "h2o",
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_BIO_01",
+      "domain": "biology",
+      "source": "MMLU high_school_biology",
+      "text": "Which organelle is the site of photosynthesis?\nA) Mitochondria\nB) Ribosome\nC) Chloroplast\nD) Nucleus\nAnswer: A/B/C/D only.",
+      "reference_answer": "C",
+      "keywords": [
+        "chloroplast",
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_BIO_02",
+      "domain": "biology",
+      "source": "MMLU high_school_biology",
+      "text": "DNA stands for:\nA) Deoxyribonucleic acid\nB) Dinitrogen acid\nC) Dynamic nuclear acid\nD) Dual helix acid\nAnswer: A/B/C/D only.",
+      "reference_answer": "A",
+      "keywords": [
+        "deoxyribonucleic",
+        "a"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_HIST_01",
+      "domain": "history",
+      "source": "MMLU high_school_us_history",
+      "text": "Who was the first President of the United States?\nA) Thomas Jefferson\nB) George Washington\nC) Abraham Lincoln\nD) John Adams\nAnswer: A/B/C/D only.",
+      "reference_answer": "B",
+      "keywords": [
+        "washington",
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_GEO_01",
+      "domain": "geography",
+      "source": "MMLU high_school_geography",
+      "text": "What is the capital of France?\nA) Berlin\nB) Madrid\nC) Paris\nD) Rome\nAnswer: A/B/C/D only.",
+      "reference_answer": "C",
+      "keywords": [
+        "paris",
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_ECON_01",
+      "domain": "economics",
+      "source": "MMLU high_school_microeconomics",
+      "text": "When price increases, quantity supplied typically (ceteris paribus):\nA) decreases\nB) increases\nC) stays the same\nD) becomes zero\nAnswer: A/B/C/D only.",
+      "reference_answer": "B",
+      "keywords": [
+        "increase",
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_CS_01",
+      "domain": "computer_science",
+      "source": "MMLU high_school_computer_science",
+      "text": "Binary search requires the array to be:\nA) unsorted\nB) sorted\nC) empty\nD) circular\nAnswer: A/B/C/D only.",
+      "reference_answer": "B",
+      "keywords": [
+        "sorted",
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_PHIL_01",
+      "domain": "philosophy_logic",
+      "source": "MMLU philosophy",
+      "text": "Who wrote 'The Republic'?\nA) Aristotle\nB) Plato\nC) Socrates\nD) Kant\nAnswer: A/B/C/D only.",
+      "reference_answer": "B",
+      "keywords": [
+        "plato",
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_MED_01",
+      "domain": "medicine",
+      "source": "MMLU clinical_knowledge",
+      "text": "Scurvy is caused by deficiency of:\nA) Vitamin A\nB) Vitamin B12\nC) Vitamin C\nD) Vitamin D\nAnswer: A/B/C/D only.",
+      "reference_answer": "C",
+      "keywords": [
+        "vitamin c",
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "OPEN_PHYS_01",
+      "domain": "physics",
+      "source": "MMLU style open",
+      "text": "State Newton's second law in one sentence and give the formula.",
+      "reference_answer": "F=ma",
+      "keywords": [
+        "force",
+        "mass",
+        "acceleration",
+        "f",
+        "ma"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_CHEM_01",
+      "domain": "chemistry",
+      "source": "MMLU style open",
+      "text": "At standard pressure, at what Celsius temperature does water boil?",
+      "reference_answer": "100",
+      "keywords": [
+        "100",
+        "celsius"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_BIO_01",
+      "domain": "biology",
+      "source": "MMLU style open",
+      "text": "What is the main function of mitochondria? One or two sentences.",
+      "reference_answer": "ATP",
+      "keywords": [
+        "atp",
+        "energy",
+        "respiration"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_HIST_01",
+      "domain": "history",
+      "source": "TriviaQA/MMLU",
+      "text": "In which year did World War II end?",
+      "reference_answer": "1945",
+      "keywords": [
+        "1945"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_HIST_02",
+      "domain": "history",
+      "source": "TriviaQA",
+      "text": "Who wrote the Declaration of Independence (primary author)?",
+      "reference_answer": "Jefferson",
+      "keywords": [
+        "jefferson",
+        "thomas"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_GEO_01",
+      "domain": "geography",
+      "source": "TriviaQA",
+      "text": "What is the capital of Australia?",
+      "reference_answer": "Canberra",
+      "keywords": [
+        "canberra"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_GEO_02",
+      "domain": "geography",
+      "source": "TriviaQA",
+      "text": "What is the longest river in the world?",
+      "reference_answer": "Nile",
+      "keywords": [
+        "nile",
+        "amazon"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_ECON_01",
+      "domain": "economics",
+      "source": "MMLU macro",
+      "text": "What does GDP stand for?",
+      "reference_answer": "Gross Domestic Product",
+      "keywords": [
+        "gross",
+        "domestic",
+        "product",
+        "gdp"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_ECON_02",
+      "domain": "economics",
+      "source": "MMLU micro",
+      "text": "Define inflation in one sentence.",
+      "reference_answer": "price level",
+      "keywords": [
+        "price",
+        "increase",
+        "inflation"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_CS_01",
+      "domain": "computer_science",
+      "source": "MMLU CS",
+      "text": "What is the time complexity of binary search on a sorted array of n elements?",
+      "reference_answer": "O(log n)",
+      "keywords": [
+        "log",
+        "o("
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_CS_02",
+      "domain": "computer_science",
+      "source": "general CS",
+      "text": "What does CPU stand for?",
+      "reference_answer": "Central Processing Unit",
+      "keywords": [
+        "central",
+        "processing",
+        "unit"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "ZH_01",
+      "domain": "chinese",
+      "source": "C-Eval 地理",
+      "text": "长江发源于哪个高原？简要回答。",
+      "reference_answer": "青藏高原",
+      "keywords": [
+        "青藏",
+        "高原"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "ZH_02",
+      "domain": "chinese",
+      "source": "C-Eval 历史",
+      "text": "中国历史上第一个统一的中央集权封建王朝是哪个？",
+      "reference_answer": "秦朝",
+      "keywords": [
+        "秦"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "ZH_03",
+      "domain": "chinese",
+      "source": "C-Eval 常识",
+      "text": "一年有多少个节气？",
+      "reference_answer": "24",
+      "keywords": [
+        "24",
+        "二十四"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "ZH_04",
+      "domain": "chinese",
+      "source": "C-Eval 文学",
+      "text": "《红楼梦》的作者是谁？",
+      "reference_answer": "曹雪芹",
+      "keywords": [
+        "曹雪芹"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "LIT_01",
+      "domain": "literature",
+      "source": "TriviaQA",
+      "text": "Who wrote Romeo and Juliet?",
+      "reference_answer": "Shakespeare",
+      "keywords": [
+        "shakespeare"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "LIT_02",
+      "domain": "literature",
+      "source": "TriviaQA",
+      "text": "Who wrote '1984'?",
+      "reference_answer": "Orwell",
+      "keywords": [
+        "orwell",
+        "george"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "MED_01",
+      "domain": "medicine",
+      "source": "MMLU clinical open",
+      "text": "What type of diabetes is primarily characterized by insulin resistance?",
+      "reference_answer": "Type 2",
+      "keywords": [
+        "type 2",
+        "type ii"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "ASTRO_01",
+      "domain": "physics",
+      "source": "MMLU astronomy",
+      "text": "Which planet is closest to the Sun?",
+      "reference_answer": "Mercury",
+      "keywords": [
+        "mercury"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "LOGIC_01",
+      "domain": "philosophy_logic",
+      "source": "MMLU logical_fallacies",
+      "text": "If all mammals breathe air and whales are mammals, do whales breathe air? Answer yes or no.",
+      "reference_answer": "yes",
+      "keywords": [
+        "yes"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "LOGIC_02",
+      "domain": "philosophy_logic",
+      "source": "general logic",
+      "text": "What is the contrapositive of 'If it rains, the ground is wet'? Answer in one short sentence.",
+      "reference_answer": "not wet",
+      "keywords": [
+        "not",
+        "wet",
+        "rain"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "MCQ_HIST_02",
+      "domain": "history",
+      "source": "MMLU world_history",
+      "text": "World War II ended in:\nA) 1918\nB) 1939\nC) 1945\nD) 1950\nAnswer: A/B/C/D only.",
+      "reference_answer": "C",
+      "keywords": [
+        "1945",
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_GEO_02",
+      "domain": "geography",
+      "source": "MMLU geography",
+      "text": "Which is the largest ocean on Earth?\nA) Atlantic\nB) Indian\nC) Arctic\nD) Pacific\nAnswer: A/B/C/D only.",
+      "reference_answer": "D",
+      "keywords": [
+        "pacific",
+        "d"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "GSM_05",
+      "domain": "math_word",
+      "source": "gsm8k style",
+      "text": "Sam bought 3 books at $8 each and paid with $50. How much change does he get? Final number only.",
+      "reference_answer": "26",
+      "keywords": [
+        "26",
+        "24"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "OPEN_MED_02",
+      "domain": "medicine",
+      "source": "MMLU clinical",
+      "text": "What organ pumps blood throughout the human body?",
+      "reference_answer": "heart",
+      "keywords": [
+        "heart",
+        "cardiac"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_CS_03",
+      "domain": "computer_science",
+      "source": "general",
+      "text": "What does HTML stand for?",
+      "reference_answer": "HyperText Markup Language",
+      "keywords": [
+        "hypertext",
+        "markup",
+        "html"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "ZH_05",
+      "domain": "chinese",
+      "source": "C-Eval 文化",
+      "text": "中国古代四大发明不包括以下哪一项：造纸术、指南针、火药、地动仪？请指出非四大发明的一项。",
+      "reference_answer": "地动仪",
+      "keywords": [
+        "地动仪"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "ASTRO_02",
+      "domain": "physics",
+      "source": "MMLU astronomy",
+      "text": "What is the largest planet in our solar system?",
+      "reference_answer": "Jupiter",
+      "keywords": [
+        "jupiter"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "GSM_F06",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "A box has 12 red balls and 5 blue balls. How many balls total? Final numeric answer on the last line only.",
+      "reference_answer": "17",
+      "keywords": [
+        "17",
+        "12",
+        "5"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F07",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "There are 15 apples and 7 oranges in a basket. How many fruits in total? Final numeric answer on the last line only.",
+      "reference_answer": "22",
+      "keywords": [
+        "22",
+        "15",
+        "7"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F08",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "A library has 50 fiction and 23 non-fiction books. Total books? Final numeric answer on the last line only.",
+      "reference_answer": "73",
+      "keywords": [
+        "73",
+        "50",
+        "23"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F09",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "A school has 100 boys and 45 girls. Total students? Final numeric answer on the last line only.",
+      "reference_answer": "145",
+      "keywords": [
+        "145",
+        "100",
+        "45"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F10",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "Each pack has 8 cookies. How many cookies in 3 packs? Final numeric answer on the last line only.",
+      "reference_answer": "24",
+      "keywords": [
+        "24",
+        "8",
+        "3"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F11",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "A classroom has 6 rows with 4 desks each. Total desks? Final numeric answer on the last line only.",
+      "reference_answer": "24",
+      "keywords": [
+        "24",
+        "6",
+        "4"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F12",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "What is 9 times 7? Final integer only. Final numeric answer on the last line only.",
+      "reference_answer": "63",
+      "keywords": [
+        "63",
+        "9",
+        "7"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F13",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "What is 13 multiplied by 11? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "143",
+      "keywords": [
+        "143",
+        "13",
+        "11"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F14",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "What is 84 divided by 7? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "12",
+      "keywords": [
+        "12",
+        "84",
+        "7"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F15",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "What is 144 divided by 12? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "12",
+      "keywords": [
+        "12",
+        "144",
+        "12"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F16",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "What is 200 divided by 25? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "8",
+      "keywords": [
+        "8",
+        "200",
+        "25"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F17",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "What is the square root of 36? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "6",
+      "keywords": [
+        "6",
+        "36",
+        "4"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F18",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "What is the square root of 49? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "7",
+      "keywords": [
+        "7",
+        "49",
+        "7"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F19",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "What is the square root of 64? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "8",
+      "keywords": [
+        "8",
+        "64",
+        "8"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F20",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "Maria had 20 stickers and gave away 8. How many left? Final numeric answer on the last line only.",
+      "reference_answer": "12",
+      "keywords": [
+        "12",
+        "20",
+        "8"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F21",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "A tank had 45 liters and 17 were used. How many liters remain? Final numeric answer on the last line only.",
+      "reference_answer": "28",
+      "keywords": [
+        "28",
+        "45",
+        "17"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F22",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "There were 30 birds on a wire. 12 flew away. How many remain? Final numeric answer on the last line only.",
+      "reference_answer": "18",
+      "keywords": [
+        "18",
+        "30",
+        "12"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F23",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "Lina sold 24 tickets in March and half as many in April. Total tickets? Final numeric answer on the last line only.",
+      "reference_answer": "36",
+      "keywords": [
+        "36",
+        "24",
+        "2"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F24",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "A farm picked 40 kg in week one and half as much in week two. Total kg? Final numeric answer on the last line only.",
+      "reference_answer": "60",
+      "keywords": [
+        "60",
+        "40",
+        "2"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F25",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "Ducks lay 16 eggs daily. Three are eaten and five sold at $3 each. Daily earnings? Final numeric answer on the last line only.",
+      "reference_answer": "18",
+      "keywords": [
+        "18",
+        "16",
+        "3"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F26",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "Buy 10 notebooks at $4 and 2 pens at $7. Total cost? Final numeric answer on the last line only.",
+      "reference_answer": "34",
+      "keywords": [
+        "34",
+        "10",
+        "4"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F27",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "Start with 7 marbles, receive 6, then give away 4. How many now? Final numeric answer on the last line only.",
+      "reference_answer": "23",
+      "keywords": [
+        "23",
+        "7",
+        "6"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F28",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "If 5 plus x equals 9, what is x? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "4",
+      "keywords": [
+        "4",
+        "5",
+        "9"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F29",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "If x plus 3 equals 15, what is x? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "12",
+      "keywords": [
+        "12",
+        "3",
+        "15"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F30",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "If 8 times x equals 56, what is x? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "7",
+      "keywords": [
+        "7",
+        "8",
+        "56"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "GSM_F31",
+      "domain": "math_word",
+      "source": "fundraise_gsm_template",
+      "text": "If 11 times x equals 99, what is x? Integer only. Final numeric answer on the last line only.",
+      "reference_answer": "9",
+      "keywords": [
+        "9",
+        "11",
+        "99"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F01",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 23 plus 19? Integer only.",
+      "reference_answer": "42",
+      "keywords": [
+        "42"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F02",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 87 plus 13? Integer only.",
+      "reference_answer": "100",
+      "keywords": [
+        "100"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F03",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 125 plus 75? Integer only.",
+      "reference_answer": "200",
+      "keywords": [
+        "200"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F04",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 256 minus 128? Integer only.",
+      "reference_answer": "128",
+      "keywords": [
+        "128"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F05",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 999 minus 1? Integer only.",
+      "reference_answer": "998",
+      "keywords": [
+        "998"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F06",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 14 multiplied by 15? Integer only.",
+      "reference_answer": "210",
+      "keywords": [
+        "210"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F07",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 25 multiplied by 4? Integer only.",
+      "reference_answer": "100",
+      "keywords": [
+        "100"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F08",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 81 divided by 9? Integer only.",
+      "reference_answer": "9",
+      "keywords": [
+        "9"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F09",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 121 divided by 11? Integer only.",
+      "reference_answer": "11",
+      "keywords": [
+        "11"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F10",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 225 divided by 15? Integer only.",
+      "reference_answer": "15",
+      "keywords": [
+        "15"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F11",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 18 multiplied by 2? Integer only.",
+      "reference_answer": "36",
+      "keywords": [
+        "36"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F12",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 32 divided by 8? Integer only.",
+      "reference_answer": "4",
+      "keywords": [
+        "4"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F13",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 45 multiplied by 5? Integer only.",
+      "reference_answer": "225",
+      "keywords": [
+        "225"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F14",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 72 divided by 6? Integer only.",
+      "reference_answer": "12",
+      "keywords": [
+        "12"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F15",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 19 multiplied by 21? Integer only.",
+      "reference_answer": "399",
+      "keywords": [
+        "399"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F16",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 100 divided by 25? Integer only.",
+      "reference_answer": "4",
+      "keywords": [
+        "4"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F17",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 16 multiplied by 16? Integer only.",
+      "reference_answer": "256",
+      "keywords": [
+        "256"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F18",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 1000 divided by 10? Integer only.",
+      "reference_answer": "100",
+      "keywords": [
+        "100"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F19",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 33 multiplied by 3? Integer only.",
+      "reference_answer": "99",
+      "keywords": [
+        "99"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_F20",
+      "domain": "math_numeric",
+      "source": "fundraise_arithmetic",
+      "text": "What is 96 divided by 8? Integer only.",
+      "reference_answer": "12",
+      "keywords": [
+        "12"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MCQ_F01",
+      "domain": "physics",
+      "source": "fundraise_mmlu_style",
+      "text": "Speed of light in vacuum is about:\nA) 3×10⁶ m/s\nB) 3×10⁸ m/s\nC) 3×10¹⁰ m/s\nD) 340 m/s\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F02",
+      "domain": "physics",
+      "source": "fundraise_mmlu_style",
+      "text": "Unit of electric current:\nA) Volt\nB) Ohm\nC) Ampere\nD) Watt\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "C",
+      "keywords": [
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F03",
+      "domain": "physics",
+      "source": "fundraise_mmlu_style",
+      "text": "Kinetic energy formula:\nA) mv\nB) ½mv²\nC) mgh\nD) Fd\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F04",
+      "domain": "chemistry",
+      "source": "fundraise_mmlu_style",
+      "text": "Atomic number equals number of:\nA) Neutrons\nB) Protons\nC) Electrons only in ion\nD) Nucleons\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F05",
+      "domain": "chemistry",
+      "source": "fundraise_mmlu_style",
+      "text": "pH 7 is:\nA) Acidic\nB) Neutral\nC) Basic\nD) Salt only\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F06",
+      "domain": "chemistry",
+      "source": "fundraise_mmlu_style",
+      "text": "Most abundant gas in Earth's atmosphere:\nA) Oxygen\nB) Carbon dioxide\nC) Nitrogen\nD) Argon\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "C",
+      "keywords": [
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F07",
+      "domain": "biology",
+      "source": "fundraise_mmlu_style",
+      "text": "Humans have how many chromosomes in somatic cells?\nA) 23\nB) 46\nC) 48\nD) 92\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F08",
+      "domain": "biology",
+      "source": "fundraise_mmlu_style",
+      "text": "Which blood type is universal donor?\nA) A\nB) B\nC) AB\nD) O\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "D",
+      "keywords": [
+        "d"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F09",
+      "domain": "biology",
+      "source": "fundraise_mmlu_style",
+      "text": "Primary site of gas exchange in lungs:\nA) Bronchi\nB) Alveoli\nC) Trachea\nD) Diaphragm\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F10",
+      "domain": "history",
+      "source": "fundraise_mmlu_style",
+      "text": "French Revolution began in:\nA) 1689\nB) 1776\nC) 1789\nD) 1917\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "C",
+      "keywords": [
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F11",
+      "domain": "history",
+      "source": "fundraise_mmlu_style",
+      "text": "Berlin Wall fell in:\nA) 1945\nB) 1969\nC) 1989\nD) 2001\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "C",
+      "keywords": [
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F12",
+      "domain": "history",
+      "source": "fundraise_mmlu_style",
+      "text": "First man on the Moon:\nA) Yuri Gagarin\nB) Neil Armstrong\nC) Buzz Aldrin only\nD) John Glenn\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F13",
+      "domain": "geography",
+      "source": "fundraise_mmlu_style",
+      "text": "Capital of Japan:\nA) Kyoto\nB) Osaka\nC) Tokyo\nD) Seoul\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "C",
+      "keywords": [
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F14",
+      "domain": "geography",
+      "source": "fundraise_mmlu_style",
+      "text": "Sahara Desert is in:\nA) Asia\nB) Africa\nC) Australia\nD) South America\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F15",
+      "domain": "geography",
+      "source": "fundraise_mmlu_style",
+      "text": "Mount Everest is in:\nA) Alps\nB) Andes\nC) Himalayas\nD) Rockies\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "C",
+      "keywords": [
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F16",
+      "domain": "economics",
+      "source": "fundraise_mmlu_style",
+      "text": "Opportunity cost measures:\nA) Inflation\nB) Next best forgone alternative\nC) GDP growth\nD) Unemployment rate\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F17",
+      "domain": "economics",
+      "source": "fundraise_mmlu_style",
+      "text": "Central bank tool to reduce inflation:\nA) Lower interest rates\nB) Raise interest rates\nC) Print unlimited money\nD) Remove taxes\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F18",
+      "domain": "computer_science",
+      "source": "fundraise_mmlu_style",
+      "text": "Stack is:\nA) FIFO\nB) LIFO\nC) Random access\nD) Sorted only\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F19",
+      "domain": "computer_science",
+      "source": "fundraise_mmlu_style",
+      "text": "HTTP status 404 means:\nA) OK\nB) Redirect\nC) Not Found\nD) Server Error\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "C",
+      "keywords": [
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F20",
+      "domain": "computer_science",
+      "source": "fundraise_mmlu_style",
+      "text": "IPv4 address length:\nA) 16 bits\nB) 32 bits\nC) 64 bits\nD) 128 bits\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F21",
+      "domain": "philosophy_logic",
+      "source": "fundraise_mmlu_style",
+      "text": "Valid syllogism: All men are mortal. Socrates is a man. Therefore:\nA) Socrates is god\nB) Socrates is mortal\nC) All mortals are men\nD) No conclusion\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F22",
+      "domain": "medicine",
+      "source": "fundraise_mmlu_style",
+      "text": "Normal human body temperature approx:\nA) 35°C\nB) 37°C\nC) 39°C\nD) 42°C\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F23",
+      "domain": "medicine",
+      "source": "fundraise_mmlu_style",
+      "text": "Insulin is produced by:\nA) Liver\nB) Pancreas\nC) Kidney\nD) Thyroid\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F24",
+      "domain": "literature",
+      "source": "fundraise_mmlu_style",
+      "text": "Author of 'Pride and Prejudice':\nA) Brontë\nB) Austen\nC) Dickens\nD) Twain\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F25",
+      "domain": "chinese",
+      "source": "fundraise_mmlu_style",
+      "text": "中国最长的河流是：\nA) 黄河\nB) 长江\nC) 珠江\nD) 黑龙江\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F26",
+      "domain": "physics",
+      "source": "fundraise_mmlu_style",
+      "text": "Sound travels fastest in:\nA) Vacuum\nB) Air\nC) Water\nD) Steel\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "D",
+      "keywords": [
+        "d"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F27",
+      "domain": "physics",
+      "source": "fundraise_mmlu_style",
+      "text": "Weight unit in SI:\nA) kg\nB) Newton\nC) Joule\nD) Pascal\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F28",
+      "domain": "chemistry",
+      "source": "fundraise_mmlu_style",
+      "text": "Table salt formula:\nA) NaCl\nB) H2O\nC) CO2\nD) HCl\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "A",
+      "keywords": [
+        "a"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F29",
+      "domain": "chemistry",
+      "source": "fundraise_mmlu_style",
+      "text": "Gold symbol:\nA) Go\nB) Gd\nC) Au\nD) Ag\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "C",
+      "keywords": [
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F30",
+      "domain": "biology",
+      "source": "fundraise_mmlu_style",
+      "text": "Photosynthesis produces:\nA) CO2\nB) O2\nC) N2\nD) CH4\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F31",
+      "domain": "biology",
+      "source": "fundraise_mmlu_style",
+      "text": "Largest organ of human body:\nA) Liver\nB) Skin\nC) Brain\nD) Heart\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F32",
+      "domain": "history",
+      "source": "fundraise_mmlu_style",
+      "text": "Magna Carta signed:\nA) 1066\nB) 1215\nC) 1492\nD) 1776\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F33",
+      "domain": "history",
+      "source": "fundraise_mmlu_style",
+      "text": "Ancient Olympic Games originated in:\nA) Rome\nB) Greece\nC) Egypt\nD) China\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F34",
+      "domain": "geography",
+      "source": "fundraise_mmlu_style",
+      "text": "Capital of Canada:\nA) Toronto\nB) Vancouver\nC) Ottawa\nD) Montreal\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "C",
+      "keywords": [
+        "c"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F35",
+      "domain": "geography",
+      "source": "fundraise_mmlu_style",
+      "text": "Amazon River is in:\nA) Africa\nB) South America\nC) Europe\nD) Asia\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F36",
+      "domain": "economics",
+      "source": "fundraise_mmlu_style",
+      "text": "Law of demand: price up, quantity demanded:\nA) Up\nB) Down\nC) Unchanged\nD) Infinite\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F37",
+      "domain": "economics",
+      "source": "fundraise_mmlu_style",
+      "text": "Fiscal policy is conducted by:\nA) Central bank only\nB) Government spending/tax\nC) Stock market\nD) WTO\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F38",
+      "domain": "computer_science",
+      "source": "fundraise_mmlu_style",
+      "text": "O(n²) typical of:\nA) Binary search\nB) Bubble sort\nC) Hash lookup avg\nD) Merge sort\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F39",
+      "domain": "computer_science",
+      "source": "fundraise_mmlu_style",
+      "text": "SQL is used for:\nA) Graphics\nB) Databases\nC) Networking\nD) Encryption\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F40",
+      "domain": "philosophy_logic",
+      "source": "fundraise_mmlu_style",
+      "text": "Descartes famous phrase:\nA) I think therefore I am\nB) Know thyself\nC) E=mc²\nD) Carpe diem\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "A",
+      "keywords": [
+        "a"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F41",
+      "domain": "medicine",
+      "source": "fundraise_mmlu_style",
+      "text": "Red blood cells carry:\nA) Hormones\nB) Oxygen\nC) Antibodies only\nD) Fat\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F42",
+      "domain": "medicine",
+      "source": "fundraise_mmlu_style",
+      "text": "Vaccines primarily work by:\nA) Killing all bacteria\nB) Stimulating immune memory\nC) Replacing blood\nD) Lowering fever only\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F43",
+      "domain": "literature",
+      "source": "fundraise_mmlu_style",
+      "text": "Homer wrote:\nA) Iliad\nB) Divine Comedy\nC) Faust\nD) Odyssey only not Iliad\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "A",
+      "keywords": [
+        "a"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F44",
+      "domain": "chinese",
+      "source": "fundraise_mmlu_style",
+      "text": "秦始皇统一六国建立：\nA) 汉朝\nB) 秦朝\nC) 唐朝\nD) 元朝\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F45",
+      "domain": "physics",
+      "source": "fundraise_mmlu_style",
+      "text": "Planets orbit the:\nA) Moon\nB) Sun\nC) Earth center only\nD) Galaxy core always\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F46",
+      "domain": "chemistry",
+      "source": "fundraise_mmlu_style",
+      "text": "Acid plus base reaction often forms:\nA) Salt and water\nB) Only gas\nC) Metal\nD) Plasma\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "A",
+      "keywords": [
+        "a"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F47",
+      "domain": "biology",
+      "source": "fundraise_mmlu_style",
+      "text": "Genetic information stored in:\nA) RNA only\nB) DNA\nC) Lipids\nD) Carbohydrates\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F48",
+      "domain": "history",
+      "source": "fundraise_mmlu_style",
+      "text": "Industrial Revolution began in:\nA) France\nB) Britain\nC) USA\nD) Japan\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F49",
+      "domain": "geography",
+      "source": "fundraise_mmlu_style",
+      "text": "Equator latitude:\nA) 0°\nB) 23.5°\nC) 66.5°\nD) 90°\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "A",
+      "keywords": [
+        "a"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "MCQ_F50",
+      "domain": "computer_science",
+      "source": "fundraise_mmlu_style",
+      "text": "TCP provides:\nA) Connectionless delivery\nB) Reliable ordered delivery\nC) Only encryption\nD) Physical layer\nAnswer with letter only (A/B/C/D).",
+      "reference_answer": "B",
+      "keywords": [
+        "b"
+      ],
+      "score_type": "mcq"
+    },
+    {
+      "id": "OPEN_F01",
+      "domain": "physics",
+      "source": "fundraise_open_fact",
+      "text": "State the first law of thermodynamics in one sentence.",
+      "reference_answer": "energy",
+      "keywords": [
+        "energy",
+        "conserved",
+        "heat",
+        "work"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F02",
+      "domain": "physics",
+      "source": "fundraise_open_fact",
+      "text": "What is absolute zero in Celsius approximately?",
+      "reference_answer": "-273",
+      "keywords": [
+        "-273",
+        "273"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F03",
+      "domain": "chemistry",
+      "source": "fundraise_open_fact",
+      "text": "What is the chemical symbol for iron?",
+      "reference_answer": "Fe",
+      "keywords": [
+        "fe",
+        "iron"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F04",
+      "domain": "chemistry",
+      "source": "fundraise_open_fact",
+      "text": "What gas do plants absorb for photosynthesis?",
+      "reference_answer": "carbon dioxide",
+      "keywords": [
+        "co2",
+        "carbon"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F05",
+      "domain": "biology",
+      "source": "fundraise_open_fact",
+      "text": "What is the basic unit of life?",
+      "reference_answer": "cell",
+      "keywords": [
+        "cell"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F06",
+      "domain": "biology",
+      "source": "fundraise_open_fact",
+      "text": "Name the process by which plants make food using sunlight.",
+      "reference_answer": "photosynthesis",
+      "keywords": [
+        "photosynthesis"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F07",
+      "domain": "history",
+      "source": "fundraise_open_fact",
+      "text": "Who was the first emperor of Rome?",
+      "reference_answer": "Augustus",
+      "keywords": [
+        "augustus",
+        "octavian"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F08",
+      "domain": "history",
+      "source": "fundraise_open_fact",
+      "text": "In which country did the Renaissance begin?",
+      "reference_answer": "Italy",
+      "keywords": [
+        "italy"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F09",
+      "domain": "geography",
+      "source": "fundraise_open_fact",
+      "text": "What is the capital of Egypt?",
+      "reference_answer": "Cairo",
+      "keywords": [
+        "cairo"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F10",
+      "domain": "geography",
+      "source": "fundraise_open_fact",
+      "text": "Which continent is the Sahara Desert on?",
+      "reference_answer": "Africa",
+      "keywords": [
+        "africa"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F11",
+      "domain": "economics",
+      "source": "fundraise_open_fact",
+      "text": "What is scarcity in economics?",
+      "reference_answer": "limited resources",
+      "keywords": [
+        "limited",
+        "resources",
+        "scarcity"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F12",
+      "domain": "economics",
+      "source": "fundraise_open_fact",
+      "text": "Name one function of money as a medium of exchange.",
+      "reference_answer": "exchange",
+      "keywords": [
+        "exchange",
+        "medium",
+        "store"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F13",
+      "domain": "computer_science",
+      "source": "fundraise_open_fact",
+      "text": "What does RAM stand for?",
+      "reference_answer": "Random Access Memory",
+      "keywords": [
+        "random",
+        "access",
+        "memory",
+        "ram"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F14",
+      "domain": "computer_science",
+      "source": "fundraise_open_fact",
+      "text": "What is an algorithm?",
+      "reference_answer": "step-by-step procedure",
+      "keywords": [
+        "step",
+        "procedure",
+        "algorithm"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F15",
+      "domain": "literature",
+      "source": "fundraise_open_fact",
+      "text": "Who wrote 'The Odyssey'?",
+      "reference_answer": "Homer",
+      "keywords": [
+        "homer"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F16",
+      "domain": "literature",
+      "source": "fundraise_open_fact",
+      "text": "Who wrote 'Hamlet'?",
+      "reference_answer": "Shakespeare",
+      "keywords": [
+        "shakespeare"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F17",
+      "domain": "medicine",
+      "source": "fundraise_open_fact",
+      "text": "What vitamin prevents scurvy?",
+      "reference_answer": "Vitamin C",
+      "keywords": [
+        "vitamin c",
+        "ascorbic"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F18",
+      "domain": "medicine",
+      "source": "fundraise_open_fact",
+      "text": "What organ filters blood in the human body?",
+      "reference_answer": "kidney",
+      "keywords": [
+        "kidney",
+        "kidneys"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F19",
+      "domain": "philosophy_logic",
+      "source": "fundraise_open_fact",
+      "text": "Who wrote 'Critique of Pure Reason'?",
+      "reference_answer": "Kant",
+      "keywords": [
+        "kant"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F20",
+      "domain": "philosophy_logic",
+      "source": "fundraise_open_fact",
+      "text": "What is empiricism?",
+      "reference_answer": "knowledge from experience",
+      "keywords": [
+        "experience",
+        "empirical"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F21",
+      "domain": "chinese",
+      "source": "fundraise_open_fact",
+      "text": "黄河被称为中华民族的什么？",
+      "reference_answer": "母亲河",
+      "keywords": [
+        "母亲河",
+        "母亲"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F22",
+      "domain": "chinese",
+      "source": "fundraise_open_fact",
+      "text": "《论语》主要记录谁的言行？",
+      "reference_answer": "孔子",
+      "keywords": [
+        "孔子",
+        "孔丘"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F23",
+      "domain": "physics",
+      "source": "fundraise_open_fact",
+      "text": "What force keeps planets in orbit around the Sun?",
+      "reference_answer": "gravity",
+      "keywords": [
+        "gravity",
+        "gravitational"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F24",
+      "domain": "physics",
+      "source": "fundraise_open_fact",
+      "text": "What is the chemical formula for table salt?",
+      "reference_answer": "NaCl",
+      "keywords": [
+        "nacl",
+        "salt"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F25",
+      "domain": "chemistry",
+      "source": "fundraise_open_fact",
+      "text": "How many electrons can the first shell hold at most?",
+      "reference_answer": "2",
+      "keywords": [
+        "2",
+        "two"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F26",
+      "domain": "chemistry",
+      "source": "fundraise_open_fact",
+      "text": "What is the pH of pure water at 25°C?",
+      "reference_answer": "7",
+      "keywords": [
+        "7",
+        "neutral"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F27",
+      "domain": "biology",
+      "source": "fundraise_open_fact",
+      "text": "What molecule carries genetic information?",
+      "reference_answer": "DNA",
+      "keywords": [
+        "dna"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F28",
+      "domain": "biology",
+      "source": "fundraise_open_fact",
+      "text": "What type of blood cells fight infection?",
+      "reference_answer": "white blood cells",
+      "keywords": [
+        "white",
+        "leukocyte"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F29",
+      "domain": "history",
+      "source": "fundraise_open_fact",
+      "text": "Who discovered penicillin?",
+      "reference_answer": "Fleming",
+      "keywords": [
+        "fleming",
+        "alexander"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F30",
+      "domain": "history",
+      "source": "fundraise_open_fact",
+      "text": "What ancient wonder was in Babylon?",
+      "reference_answer": "Hanging Gardens",
+      "keywords": [
+        "hanging",
+        "gardens",
+        "babylon"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F31",
+      "domain": "geography",
+      "source": "fundraise_open_fact",
+      "text": "What is the capital of Germany?",
+      "reference_answer": "Berlin",
+      "keywords": [
+        "berlin"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F32",
+      "domain": "geography",
+      "source": "fundraise_open_fact",
+      "text": "Which ocean is between Africa and Australia?",
+      "reference_answer": "Indian",
+      "keywords": [
+        "indian"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F33",
+      "domain": "economics",
+      "source": "fundraise_open_fact",
+      "text": "What is a recession?",
+      "reference_answer": "decline in economic activity",
+      "keywords": [
+        "decline",
+        "gdp",
+        "recession"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F34",
+      "domain": "economics",
+      "source": "fundraise_open_fact",
+      "text": "What does the Federal Reserve primarily influence?",
+      "reference_answer": "interest rates",
+      "keywords": [
+        "interest",
+        "monetary"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F35",
+      "domain": "computer_science",
+      "source": "fundraise_open_fact",
+      "text": "What does API stand for?",
+      "reference_answer": "Application Programming Interface",
+      "keywords": [
+        "application",
+        "programming",
+        "interface"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F36",
+      "domain": "computer_science",
+      "source": "fundraise_open_fact",
+      "text": "What is open source software?",
+      "reference_answer": "source code available",
+      "keywords": [
+        "source",
+        "open"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F37",
+      "domain": "literature",
+      "source": "fundraise_open_fact",
+      "text": "Who wrote 'War and Peace'?",
+      "reference_answer": "Tolstoy",
+      "keywords": [
+        "tolstoy"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F38",
+      "domain": "literature",
+      "source": "fundraise_open_fact",
+      "text": "Who wrote 'The Great Gatsby'?",
+      "reference_answer": "Fitzgerald",
+      "keywords": [
+        "fitzgerald"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F39",
+      "domain": "medicine",
+      "source": "fundraise_open_fact",
+      "text": "What is hypertension?",
+      "reference_answer": "high blood pressure",
+      "keywords": [
+        "high",
+        "blood",
+        "pressure"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F40",
+      "domain": "medicine",
+      "source": "fundraise_open_fact",
+      "text": "What gas do we breathe in most?",
+      "reference_answer": "nitrogen",
+      "keywords": [
+        "nitrogen",
+        "n2"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F41",
+      "domain": "chinese",
+      "source": "fundraise_open_fact",
+      "text": "丝绸之路连接中国与哪个地区？",
+      "reference_answer": "中亚",
+      "keywords": [
+        "中亚",
+        "西域",
+        "asia"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F42",
+      "domain": "chinese",
+      "source": "fundraise_open_fact",
+      "text": "造纸术发明于哪个国家？",
+      "reference_answer": "中国",
+      "keywords": [
+        "中国",
+        "china"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F43",
+      "domain": "physics",
+      "source": "fundraise_open_fact",
+      "text": "What is the unit of power?",
+      "reference_answer": "Watt",
+      "keywords": [
+        "watt",
+        "w"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F44",
+      "domain": "physics",
+      "source": "fundraise_open_fact",
+      "text": "What particle has no electric charge?",
+      "reference_answer": "neutron",
+      "keywords": [
+        "neutron"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F45",
+      "domain": "chemistry",
+      "source": "fundraise_open_fact",
+      "text": "What is the lightest element?",
+      "reference_answer": "hydrogen",
+      "keywords": [
+        "hydrogen",
+        "h"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F46",
+      "domain": "biology",
+      "source": "fundraise_open_fact",
+      "text": "What organ produces bile?",
+      "reference_answer": "liver",
+      "keywords": [
+        "liver"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F47",
+      "domain": "history",
+      "source": "fundraise_open_fact",
+      "text": "Who painted the Mona Lisa?",
+      "reference_answer": "Da Vinci",
+      "keywords": [
+        "vinci",
+        "leonardo"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F48",
+      "domain": "geography",
+      "source": "fundraise_open_fact",
+      "text": "What is the capital of Brazil?",
+      "reference_answer": "Brasília",
+      "keywords": [
+        "brasilia",
+        "brasília"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F49",
+      "domain": "computer_science",
+      "source": "fundraise_open_fact",
+      "text": "What does URL stand for?",
+      "reference_answer": "Uniform Resource Locator",
+      "keywords": [
+        "uniform",
+        "resource",
+        "locator"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F50",
+      "domain": "philosophy_logic",
+      "source": "fundraise_open_fact",
+      "text": "What is deductive reasoning?",
+      "reference_answer": "general to specific",
+      "keywords": [
+        "general",
+        "specific",
+        "deductive"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F51",
+      "domain": "economics",
+      "source": "fundraise_open_fact",
+      "text": "What is comparative advantage?",
+      "reference_answer": "trade specialization",
+      "keywords": [
+        "specialization",
+        "trade",
+        "comparative"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "OPEN_F52",
+      "domain": "chinese",
+      "source": "fundraise_open_fact",
+      "text": "故宫位于中国哪个城市？",
+      "reference_answer": "北京",
+      "keywords": [
+        "北京",
+        "beijing"
+      ],
+      "score_type": "open"
+    },
+    {
+      "id": "MATH_PAD197",
+      "domain": "math_numeric",
+      "source": "fundraise_pad",
+      "text": "What is 197 plus 197? Integer only.",
+      "reference_answer": "394",
+      "keywords": [
+        "394"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_PAD198",
+      "domain": "math_numeric",
+      "source": "fundraise_pad",
+      "text": "What is 198 plus 198? Integer only.",
+      "reference_answer": "396",
+      "keywords": [
+        "396"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_PAD199",
+      "domain": "math_numeric",
+      "source": "fundraise_pad",
+      "text": "What is 199 plus 199? Integer only.",
+      "reference_answer": "398",
+      "keywords": [
+        "398"
+      ],
+      "score_type": "numeric"
+    },
+    {
+      "id": "MATH_PAD200",
+      "domain": "math_numeric",
+      "source": "fundraise_pad",
+      "text": "What is 200 plus 200? Integer only.",
+      "reference_answer": "400",
+      "keywords": [
+        "400"
+      ],
+      "score_type": "numeric"
+    }
+  ],
+  "splits": {
+    "smoke": [
+      "GSM_01",
+      "GSM_02",
+      "GSM_03",
+      "GSM_04",
+      "MATH_01",
+      "MATH_02",
+      "MATH_03",
+      "MATH_04",
+      "MCQ_PHYS_01",
+      "MCQ_PHYS_02",
+      "MCQ_CHEM_01",
+      "MCQ_CHEM_02"
+    ],
+    "val": [
+      "MCQ_BIO_02",
+      "MCQ_HIST_01",
+      "MCQ_CS_01",
+      "OPEN_HIST_02",
+      "OPEN_GEO_02",
+      "OPEN_CS_01",
+      "ZH_01",
+      "GSM_05",
+      "OPEN_MED_02",
+      "GSM_F07",
+      "GSM_F09",
+      "GSM_F17",
+      "GSM_F24",
+      "GSM_F26",
+      "GSM_F27",
+      "GSM_F28",
+      "GSM_F31",
+      "MATH_F11",
+      "MATH_F14",
+      "MATH_F18",
+      "MATH_F20",
+      "MCQ_F01",
+      "MCQ_F04",
+      "MCQ_F05",
+      "MCQ_F15",
+      "MCQ_F16",
+      "MCQ_F17",
+      "MCQ_F33",
+      "MCQ_F36",
+      "MCQ_F37",
+      "MCQ_F39",
+      "MCQ_F40",
+      "OPEN_F01",
+      "OPEN_F07",
+      "OPEN_F10",
+      "OPEN_F13",
+      "OPEN_F15",
+      "OPEN_F18",
+      "OPEN_F20",
+      "OPEN_F27",
+      "OPEN_F36",
+      "OPEN_F37",
+      "OPEN_F45"
+    ],
+    "test": [
+      "MCQ_BIO_01",
+      "MCQ_GEO_01",
+      "MCQ_ECON_01",
+      "MCQ_PHIL_01",
+      "MCQ_MED_01",
+      "OPEN_PHYS_01",
+      "OPEN_CHEM_01",
+      "OPEN_BIO_01",
+      "OPEN_HIST_01",
+      "OPEN_GEO_01",
+      "OPEN_ECON_01",
+      "OPEN_ECON_02",
+      "OPEN_CS_02",
+      "ZH_02",
+      "ZH_03",
+      "ZH_04",
+      "LIT_01",
+      "LIT_02",
+      "MED_01",
+      "ASTRO_01",
+      "LOGIC_01",
+      "LOGIC_02",
+      "MCQ_HIST_02",
+      "MCQ_GEO_02",
+      "OPEN_CS_03",
+      "ZH_05",
+      "ASTRO_02",
+      "GSM_F06",
+      "GSM_F08",
+      "GSM_F10",
+      "GSM_F11",
+      "GSM_F12",
+      "GSM_F13",
+      "GSM_F14",
+      "GSM_F15",
+      "GSM_F16",
+      "GSM_F18",
+      "GSM_F19",
+      "GSM_F20",
+      "GSM_F21",
+      "GSM_F22",
+      "GSM_F23",
+      "GSM_F25",
+      "GSM_F29",
+      "GSM_F30",
+      "MATH_F01",
+      "MATH_F02",
+      "MATH_F03",
+      "MATH_F04",
+      "MATH_F05",
+      "MATH_F06",
+      "MATH_F07",
+      "MATH_F08",
+      "MATH_F09",
+      "MATH_F10",
+      "MATH_F12",
+      "MATH_F13",
+      "MATH_F15",
+      "MATH_F16",
+      "MATH_F17",
+      "MATH_F19",
+      "MCQ_F02",
+      "MCQ_F03",
+      "MCQ_F06",
+      "MCQ_F07",
+      "MCQ_F08",
+      "MCQ_F09",
+      "MCQ_F10",
+      "MCQ_F11",
+      "MCQ_F12",
+      "MCQ_F13",
+      "MCQ_F14",
+      "MCQ_F18",
+      "MCQ_F19",
+      "MCQ_F20",
+      "MCQ_F21",
+      "MCQ_F22",
+      "MCQ_F23",
+      "MCQ_F24",
+      "MCQ_F25",
+      "MCQ_F26",
+      "MCQ_F27",
+      "MCQ_F28",
+      "MCQ_F29",
+      "MCQ_F30",
+      "MCQ_F31",
+      "MCQ_F32",
+      "MCQ_F34",
+      "MCQ_F35",
+      "MCQ_F38",
+      "MCQ_F41",
+      "MCQ_F42",
+      "MCQ_F43",
+      "MCQ_F44",
+      "MCQ_F45",
+      "MCQ_F46",
+      "MCQ_F47",
+      "MCQ_F48",
+      "MCQ_F49",
+      "MCQ_F50",
+      "OPEN_F02",
+      "OPEN_F03",
+      "OPEN_F04",
+      "OPEN_F05",
+      "OPEN_F06",
+      "OPEN_F08",
+      "OPEN_F09",
+      "OPEN_F11",
+      "OPEN_F12",
+      "OPEN_F14",
+      "OPEN_F16",
+      "OPEN_F17",
+      "OPEN_F19",
+      "OPEN_F21",
+      "OPEN_F22",
+      "OPEN_F23",
+      "OPEN_F24",
+      "OPEN_F25",
+      "OPEN_F26",
+      "OPEN_F28",
+      "OPEN_F29",
+      "OPEN_F30",
+      "OPEN_F31",
+      "OPEN_F32",
+      "OPEN_F33",
+      "OPEN_F34",
+      "OPEN_F35",
+      "OPEN_F38",
+      "OPEN_F39",
+      "OPEN_F40",
+      "OPEN_F41",
+      "OPEN_F42",
+      "OPEN_F43",
+      "OPEN_F44",
+      "OPEN_F46",
+      "OPEN_F47",
+      "OPEN_F48",
+      "OPEN_F49",
+      "OPEN_F50",
+      "OPEN_F51",
+      "OPEN_F52",
+      "MATH_PAD197",
+      "MATH_PAD198",
+      "MATH_PAD199",
+      "MATH_PAD200"
+    ]
+  },
+  "corpus": {
+    "ingest_clean": [
+      "Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts.",
+      "World War Two ended in 1945 with Germany's unconditional surrender.",
+      "The capital city of Australia is Canberra not Sydney or Melbourne.",
+      "Newton's second law states force equals mass times acceleration F equals m a.",
+      "DNA uses four nucleotide bases adenine thymine guanine and cytosine.",
+      "Supply increases when price rises according to basic microeconomic theory.",
+      "Binary search requires a sorted array and halves the search interval each step.",
+      "Scurvy is caused by deficiency of vitamin C also called ascorbic acid.",
+      "The Yangtze River originates from glaciers on the Tibetan Plateau in China.",
+      "William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England.",
+      "Water boils at 100 degrees Celsius at standard atmospheric pressure.",
+      "The Pacific Ocean is the largest ocean covering more area than all land combined.",
+      "Python list comprehension builds lists from iterables with optional filters.",
+      "The French Revolution began in 1789 with the storming of the Bastille.",
+      "Mitochondria produce ATP through cellular respiration in eukaryotes.",
+      "Euler's formula e to the i pi plus one equals zero links five constants.",
+      "Inflation means a sustained increase in the general price level of goods.",
+      "Mercury is the smallest planet and closest to the Sun in our solar system.",
+      "George Washington was the first President of the United States.",
+      "GDP measures the total value of goods and services produced in a country.",
+      "光合作用在叶绿体中将二氧化碳和水转化为葡萄糖。",
+      "1945年8月日本宣布投降标志二战结束。",
+      "秦朝是中国第一个统一的中央集权封建王朝。",
+      "勾股定理：直角三角形斜边平方等于两直角边平方之和。",
+      "The SI unit of force is the Newton defined as kg times m per s squared.",
+      "Electrons carry negative charge and orbit the atomic nucleus.",
+      "Chloroplasts contain chlorophyll for capturing light energy.",
+      "Binary search runs in O log n time on sorted arrays.",
+      "Plato wrote The Republic describing an ideal state and philosopher kings.",
+      "Type 2 diabetes involves insulin resistance and relative insulin deficiency.",
+      "The Nile River in Africa is traditionally cited as the longest river.",
+      "Thomas Jefferson was primary author of the US Declaration of Independence.",
+      "George Orwell wrote the dystopian novel Nineteen Eighty-Four published in 1949.",
+      "There are twenty four solar terms in the traditional Chinese calendar.",
+      "Cao Xueqin is credited as author of the novel Dream of the Red Chamber.",
+      "Contrapositive of P implies Q is not Q implies not P.",
+      "Whales are mammals and must surface to breathe air through lungs.",
+      "Paris is the capital and largest city of France on the River Seine.",
+      "Aristotle was student of Plato and tutor of Alexander the Great.",
+      "Central Processing Unit executes instructions in a computer system.",
+      "Gross Domestic Product sums consumption investment government and net exports.",
+      "CPU memory and storage are core hardware components of computers.",
+      "Supply and demand curves intersect at market equilibrium price.",
+      "Vitamin C deficiency causes scurvy with bleeding gums and weakness.",
+      "World War II involved Allied and Axis powers from 1939 to 1945.",
+      "Canberra was selected as Australian capital as compromise between Sydney and Melbourne.",
+      "Mercury orbits closest to the Sun with year of about eighty eight Earth days.",
+      "红楼梦是中国古典小说巅峰之作作者一般认为是曹雪芹。",
+      "二十四节气反映中国古代农历对太阳周年的划分。"
+    ],
+    "ingest_legacy_contaminated": [
+      "Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts.",
+      "World War Two ended in 1945 with Germany's unconditional surrender.",
+      "The capital city of Australia is Canberra not Sydney or Melbourne.",
+      "Newton's second law states force equals mass times acceleration F equals m a.",
+      "DNA uses four nucleotide bases adenine thymine guanine and cytosine.",
+      "Supply increases when price rises according to basic microeconomic theory.",
+      "Binary search requires a sorted array and halves the search interval each step.",
+      "Scurvy is caused by deficiency of vitamin C also called ascorbic acid.",
+      "The Yangtze River originates from glaciers on the Tibetan Plateau in China.",
+      "William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England.",
+      "Water boils at 100 degrees Celsius at standard atmospheric pressure.",
+      "The Pacific Ocean is the largest ocean covering more area than all land combined.",
+      "Python list comprehension builds lists from iterables with optional filters.",
+      "The French Revolution began in 1789 with the storming of the Bastille.",
+      "Mitochondria produce ATP through cellular respiration in eukaryotes.",
+      "Euler's formula e to the i pi plus one equals zero links five constants.",
+      "Inflation means a sustained increase in the general price level of goods.",
+      "Mercury is the smallest planet and closest to the Sun in our solar system.",
+      "George Washington was the first President of the United States.",
+      "GDP measures the total value of goods and services produced in a country.",
+      "光合作用在叶绿体中将二氧化碳和水转化为葡萄糖。",
+      "1945年8月日本宣布投降标志二战结束。",
+      "秦朝是中国第一个统一的中央集权封建王朝。",
+      "勾股定理：直角三角形斜边平方等于两直角边平方之和。",
+      "The SI unit of force is the Newton defined as kg times m per s squared.",
+      "Electrons carry negative charge and orbit the atomic nucleus.",
+      "Chloroplasts contain chlorophyll for capturing light energy.",
+      "Binary search runs in O log n time on sorted arrays.",
+      "Plato wrote The Republic describing an ideal state and philosopher kings.",
+      "Type 2 diabetes involves insulin resistance and relative insulin deficiency.",
+      "The Nile River in Africa is traditionally cited as the longest river.",
+      "Thomas Jefferson was primary author of the US Declaration of Independence.",
+      "George Orwell wrote the dystopian novel Nineteen Eighty-Four published in 1949.",
+      "There are twenty four solar terms in the traditional Chinese calendar.",
+      "Cao Xueqin is credited as author of the novel Dream of the Red Chamber.",
+      "Contrapositive of P implies Q is not Q implies not P.",
+      "Whales are mammals and must surface to breathe air through lungs.",
+      "Paris is the capital and largest city of France on the River Seine.",
+      "Aristotle was student of Plato and tutor of Alexander the Great.",
+      "Central Processing Unit executes instructions in a computer system.",
+      "Gross Domestic Product sums consumption investment government and net exports.",
+      "Janet sells duck eggs after eating and baking with some daily.",
+      "Natalia sold half as many clips in May as in April totaling seventy two.",
+      "Tom had twenty four apples gave six bought ten ending with twenty eight.",
+      "One hundred forty four divided by twelve equals twelve exactly.",
+      "Square root of eighty one is nine because nine times nine is eighty one.",
+      "If x plus fifteen equals forty two then x equals twenty seven.",
+      "Seventeen times twenty three equals three hundred ninety one.",
+      "CPU memory and storage are core hardware components of computers.",
+      "Supply and demand curves intersect at market equilibrium price.",
+      "Vitamin C deficiency causes scurvy with bleeding gums and weakness.",
+      "World War II involved Allied and Axis powers from 1939 to 1945.",
+      "Canberra was selected as Australian capital as compromise between Sydney and Melbourne.",
+      "Mercury orbits closest to the Sun with year of about eighty eight Earth days.",
+      "红楼梦是中国古典小说巅峰之作作者一般认为是曹雪芹。",
+      "二十四节气反映中国古代农历对太阳周年的划分。"
+    ]
+  },
+  "phases": {
+    "smoke": {
+      "split": "smoke",
+      "corpus": "ingest_clean",
+      "description": "12Q fast regression; CI gate"
+    },
+    "val": {
+      "split": "val",
+      "corpus": "ingest_clean",
+      "description": "Development/tuning only — do not report as final"
+    },
+    "test": {
+      "split": "test",
+      "corpus": "ingest_clean",
+      "description": "Held-out primary report split"
+    },
+    "test_legacy_ablation": {
+      "split": "test",
+      "corpus": "ingest_legacy_contaminated",
+      "description": "Ablation only: shows leakage inflation vs fair corpus"
+    }
+  },
+  "arms": {
+    "memory_tier_b": [
+      {
+        "id": "baseline_no_corpus",
+        "body": "triad",
+        "cycles": 1,
+        "use_corpus": false,
+        "session": "isolated"
+      },
+      {
+        "id": "hub_c1",
+        "body": "hub",
+        "cycles": 1,
+        "use_corpus": true,
+        "session": "isolated"
+      },
+      {
+        "id": "tile_c1",
+        "body": "tile",
+        "cycles": 1,
+        "use_corpus": true,
+        "session": "isolated"
+      },
+      {
+        "id": "stemcell_c1",
+        "body": "stemcell",
+        "cycles": 1,
+        "use_corpus": true,
+        "session": "isolated"
+      },
+      {
+        "id": "triad_c1",
+        "body": "triad",
+        "cycles": 1,
+        "use_corpus": true,
+        "session": "isolated"
+      },
+      {
+        "id": "triad_c1_persistent",
+        "body": "triad",
+        "cycles": 1,
+        "use_corpus": true,
+        "session": "persistent",
+        "incubation_cycles": 1,
+        "qa_cycles": 1
+      }
+    ],
+    "patch_tier_a": [
+      {
+        "id": "patch_tile_legacy",
+        "body": "tile",
+        "patch_mode": "legacy",
+        "strength": 0.08,
+        "cycles": 1
+      },
+      {
+        "id": "patch_stemcell_legacy",
+        "body": "stemcell",
+        "patch_mode": "legacy",
+        "strength": 0.08,
+        "cycles": 1
+      },
+      {
+        "id": "patch_triad_legacy",
+        "body": "triad",
+        "patch_mode": "legacy",
+        "strength": 0.08,
+        "cycles": 1
+      }
+    ],
+    "generate_baseline": [
+      {
+        "id": "transformer_zero_shot",
+        "model": "Qwen/Qwen2.5-0.5B-Instruct"
+      }
+    ]
+  },
+  "removed_corpus_lines": [
+    {
+      "line_index": 41,
+      "line_preview": "Janet sells duck eggs after eating and baking with some daily.",
+      "prompt_id": "GSM_02",
+      "reasons": [
+        "legacy_pattern:janet sells duck eggs after eati"
+      ]
+    },
+    {
+      "line_index": 42,
+      "line_preview": "Natalia sold half as many clips in May as in April totaling seventy two.",
+      "prompt_id": "GSM_01",
+      "reasons": [
+        "legacy_pattern:seventy two",
+        "legacy_pattern:totaling seventy two",
+        "legacy_pattern:half as many clips in may as in "
+      ]
+    },
+    {
+      "line_index": 43,
+      "line_preview": "Tom had twenty four apples gave six bought ten ending with twenty eight.",
+      "prompt_id": "GSM_04",
+      "reasons": [
+        "legacy_pattern:twenty four apples gave six boug",
+        "legacy_pattern:ending with twenty eight"
+      ]
+    },
+    {
+      "line_index": 44,
+      "line_preview": "One hundred forty four divided by twelve equals twelve exactly.",
+      "prompt_id": "MATH_02",
+      "reasons": [
+        "legacy_pattern:one hundred forty four divided b"
+      ]
+    },
+    {
+      "line_index": 45,
+      "line_preview": "Square root of eighty one is nine because nine times nine is eighty one.",
+      "prompt_id": "MATH_03",
+      "reasons": [
+        "legacy_pattern:square root of eighty one is nin"
+      ]
+    },
+    {
+      "line_index": 46,
+      "line_preview": "If x plus fifteen equals forty two then x equals twenty seven.",
+      "prompt_id": "MATH_04",
+      "reasons": [
+        "legacy_pattern:x plus fifteen equals forty two "
+      ]
+    },
+    {
+      "line_index": 47,
+      "line_preview": "Seventeen times twenty three equals three hundred ninety one.",
+      "prompt_id": "MATH_01",
+      "reasons": [
+        "legacy_pattern:seventeen times twenty three",
+        "legacy_pattern:three hundred ninety one"
+      ]
+    }
+  ]
+}

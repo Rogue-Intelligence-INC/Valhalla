@@ -1,0 +1,392 @@
+{
+  "meta": {
+    "experiment": "vpb_scale_axis",
+    "timestamp": "20260620_1516",
+    "phase": "smoke",
+    "tiers": [
+      "S",
+      "M",
+      "L"
+    ],
+    "suite": "both"
+  },
+  "tier_line_counts": {
+    "S": 22,
+    "M": 49,
+    "L": 107
+  },
+  "results": {
+    "fair_L0": {
+      "prompt_count": 12,
+      "metrics_by_tier": {
+        "S": {
+          "persistent": {
+            "n": 12,
+            "correct": 10,
+            "acc": 0.8333,
+            "by_score_type": {
+              "mcq": {
+                "correct": 2,
+                "total": 4,
+                "acc": 0.5
+              },
+              "numeric": {
+                "correct": 8,
+                "total": 8,
+                "acc": 1.0
+              }
+            },
+            "by_decode_path": {
+              "direct_math": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              },
+              "mcq_option": {
+                "correct": 2,
+                "total": 4,
+                "acc": 0.5
+              },
+              "word_problem": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              }
+            },
+            "by_domain": {
+              "chemistry": {
+                "correct": 1,
+                "total": 2,
+                "acc": 0.5
+              },
+              "math_numeric": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              },
+              "math_word": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              },
+              "physics": {
+                "correct": 1,
+                "total": 2,
+                "acc": 0.5
+              }
+            }
+          },
+          "corpus_supported_acc": 0.6667,
+          "recall_at_3_isolated": 1.0
+        },
+        "M": {
+          "persistent": {
+            "n": 12,
+            "correct": 10,
+            "acc": 0.8333,
+            "by_score_type": {
+              "mcq": {
+                "correct": 2,
+                "total": 4,
+                "acc": 0.5
+              },
+              "numeric": {
+                "correct": 8,
+                "total": 8,
+                "acc": 1.0
+              }
+            },
+            "by_decode_path": {
+              "direct_math": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              },
+              "mcq_option": {
+                "correct": 2,
+                "total": 4,
+                "acc": 0.5
+              },
+              "word_problem": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              }
+            },
+            "by_domain": {
+              "chemistry": {
+                "correct": 1,
+                "total": 2,
+                "acc": 0.5
+              },
+              "math_numeric": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              },
+              "math_word": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              },
+              "physics": {
+                "correct": 1,
+                "total": 2,
+                "acc": 0.5
+              }
+            }
+          },
+          "corpus_supported_acc": 0.7143,
+          "recall_at_3_isolated": 1.0
+        },
+        "L": {
+          "persistent": {
+            "n": 12,
+            "correct": 10,
+            "acc": 0.8333,
+            "by_score_type": {
+              "mcq": {
+                "correct": 2,
+                "total": 4,
+                "acc": 0.5
+              },
+              "numeric": {
+                "correct": 8,
+                "total": 8,
+                "acc": 1.0
+              }
+            },
+            "by_decode_path": {
+              "direct_math": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              },
+              "mcq_option": {
+                "correct": 2,
+                "total": 4,
+                "acc": 0.5
+              },
+              "word_problem": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              }
+            },
+            "by_domain": {
+              "chemistry": {
+                "correct": 1,
+                "total": 2,
+                "acc": 0.5
+              },
+              "math_numeric": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              },
+              "math_word": {
+                "correct": 4,
+                "total": 4,
+                "acc": 1.0
+              },
+              "physics": {
+                "correct": 1,
+                "total": 2,
+                "acc": 0.5
+              }
+            }
+          },
+          "corpus_supported_acc": 0.8182,
+          "recall_at_3_isolated": 1.0
+        }
+      },
+      "scale_curve": {
+        "corpus_supported_acc_by_tier": {
+          "S": 0.6667,
+          "M": 0.7143,
+          "L": 0.8182
+        },
+        "recall_at_3_by_tier": {
+          "S": 1.0,
+          "M": 1.0,
+          "L": 1.0
+        },
+        "scale_headroom_norm": 0.803,
+        "memory_horizon_tier": "S"
+      }
+    },
+    "memory_L1": {
+      "prompt_count": 16,
+      "metrics_by_tier": {
+        "S": {
+          "persistent": {
+            "n": 16,
+            "correct": 13,
+            "acc": 0.8125,
+            "by_score_type": {
+              "open": {
+                "correct": 13,
+                "total": 16,
+                "acc": 0.8125
+              }
+            },
+            "by_decode_path": {
+              "open_span": {
+                "correct": 13,
+                "total": 16,
+                "acc": 0.8125
+              }
+            },
+            "by_domain": {
+              "vpb_memory": {
+                "correct": 13,
+                "total": 16,
+                "acc": 0.8125
+              }
+            }
+          },
+          "by_memory_task": {
+            "single_hop": {
+              "n": 4,
+              "acc": 0.5
+            },
+            "multi_hop": {
+              "n": 3,
+              "acc": 1.0
+            },
+            "temporal": {
+              "n": 2,
+              "acc": 1.0
+            },
+            "knowledge_update": {
+              "n": 2,
+              "acc": 0.5
+            },
+            "abstention": {
+              "n": 3,
+              "acc": 1.0
+            },
+            "adversarial": {
+              "n": 2,
+              "acc": 1.0
+            }
+          },
+          "evidence_recall_at_3": 0.8462,
+          "abstention_acc": 1.0
+        },
+        "M": {
+          "persistent": {
+            "n": 16,
+            "correct": 15,
+            "acc": 0.9375,
+            "by_score_type": {
+              "open": {
+                "correct": 15,
+                "total": 16,
+                "acc": 0.9375
+              }
+            },
+            "by_decode_path": {
+              "open_span": {
+                "correct": 15,
+                "total": 16,
+                "acc": 0.9375
+              }
+            },
+            "by_domain": {
+              "vpb_memory": {
+                "correct": 15,
+                "total": 16,
+                "acc": 0.9375
+              }
+            }
+          },
+          "by_memory_task": {
+            "single_hop": {
+              "n": 4,
+              "acc": 1.0
+            },
+            "multi_hop": {
+              "n": 3,
+              "acc": 1.0
+            },
+            "temporal": {
+              "n": 2,
+              "acc": 1.0
+            },
+            "knowledge_update": {
+              "n": 2,
+              "acc": 0.5
+            },
+            "abstention": {
+              "n": 3,
+              "acc": 1.0
+            },
+            "adversarial": {
+              "n": 2,
+              "acc": 1.0
+            }
+          },
+          "evidence_recall_at_3": 0.9231,
+          "abstention_acc": 1.0
+        },
+        "L": {
+          "persistent": {
+            "n": 16,
+            "correct": 15,
+            "acc": 0.9375,
+            "by_score_type": {
+              "open": {
+                "correct": 15,
+                "total": 16,
+                "acc": 0.9375
+              }
+            },
+            "by_decode_path": {
+              "open_span": {
+                "correct": 15,
+                "total": 16,
+                "acc": 0.9375
+              }
+            },
+            "by_domain": {
+              "vpb_memory": {
+                "correct": 15,
+                "total": 16,
+                "acc": 0.9375
+              }
+            }
+          },
+          "by_memory_task": {
+            "single_hop": {
+              "n": 4,
+              "acc": 1.0
+            },
+            "multi_hop": {
+              "n": 3,
+              "acc": 1.0
+            },
+            "temporal": {
+              "n": 2,
+              "acc": 1.0
+            },
+            "knowledge_update": {
+              "n": 2,
+              "acc": 0.5
+            },
+            "abstention": {
+              "n": 3,
+              "acc": 1.0
+            },
+            "adversarial": {
+              "n": 2,
+              "acc": 1.0
+            }
+          },
+          "evidence_recall_at_3": 0.8462,
+          "abstention_acc": 1.0
+        }
+      }
+    }
+  }
+}

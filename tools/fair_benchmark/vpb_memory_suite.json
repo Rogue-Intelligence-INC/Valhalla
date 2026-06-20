@@ -1,0 +1,1438 @@
+{
+  "meta": {
+    "version": "vpb-memory-v1",
+    "name": "Valhalla Potential Benchmark — Memory Taxonomy",
+    "prompt_count": 80,
+    "memory_task_counts": {
+      "single_hop": 20,
+      "multi_hop": 15,
+      "temporal": 10,
+      "knowledge_update": 10,
+      "abstention": 15,
+      "adversarial": 10
+    },
+    "methodology": [
+      "LoCoMo QA taxonomy (single/multi-hop/temporal/adversarial)",
+      "LONGMEMEVAL abstention + evidence_line_ids",
+      "Decontaminated — abstention items have no corpus evidence"
+    ]
+  },
+  "prompts": [
+    {
+      "id": "VPB_SH_01",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the capital of Australia?",
+      "reference_answer": "Canberra",
+      "keywords": [
+        "canberra"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c002"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_02",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "When did World War Two end?",
+      "reference_answer": "1945",
+      "keywords": [
+        "1945"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c001"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_03",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What organelle performs photosynthesis?",
+      "reference_answer": "chloroplast",
+      "keywords": [
+        "chloroplast"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c000"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_04",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Who was the first US President?",
+      "reference_answer": "Washington",
+      "keywords": [
+        "washington"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c018"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_05",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What vitamin deficiency causes scurvy?",
+      "reference_answer": "vitamin C",
+      "keywords": [
+        "vitamin c",
+        "ascorbic"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c007"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_06",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the boiling point of water at standard pressure in Celsius?",
+      "reference_answer": "100",
+      "keywords": [
+        "100"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c010"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_07",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Who wrote Romeo and Juliet?",
+      "reference_answer": "Shakespeare",
+      "keywords": [
+        "shakespeare"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c009"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_08",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the largest ocean?",
+      "reference_answer": "Pacific",
+      "keywords": [
+        "pacific"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c011"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_09",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the SI unit of force?",
+      "reference_answer": "Newton",
+      "keywords": [
+        "newton"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c024"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_10",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Who wrote Nineteen Eighty-Four?",
+      "reference_answer": "Orwell",
+      "keywords": [
+        "orwell"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c031"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_11",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the capital of France?",
+      "reference_answer": "Paris",
+      "keywords": [
+        "paris"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c036"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_12",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Which planet is closest to the Sun?",
+      "reference_answer": "Mercury",
+      "keywords": [
+        "mercury"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c017"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_13",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "DNA uses how many nucleotide bases?",
+      "reference_answer": "four",
+      "keywords": [
+        "four",
+        "4"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c004"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_14",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "When did the French Revolution begin?",
+      "reference_answer": "1789",
+      "keywords": [
+        "1789"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c013"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_15",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Who is credited with Dream of the Red Chamber?",
+      "reference_answer": "Cao Xueqin",
+      "keywords": [
+        "cao",
+        "曹雪芹"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c033"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_16",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Are whales fish or mammals?",
+      "reference_answer": "mammals",
+      "keywords": [
+        "mammal"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c035"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_17",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What does GDP measure?",
+      "reference_answer": "goods and services",
+      "keywords": [
+        "gdp",
+        "goods"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c019"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_18",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is binary search time complexity?",
+      "reference_answer": "O log n",
+      "keywords": [
+        "log n",
+        "olog"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c026"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_19",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Where does the Yangtze River originate?",
+      "reference_answer": "Tibetan Plateau",
+      "keywords": [
+        "tibet",
+        "yangtze"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c008"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_SH_20",
+      "memory_task": "single_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "How many solar terms in the Chinese calendar?",
+      "reference_answer": "twenty four",
+      "keywords": [
+        "24",
+        "twenty"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c032"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_01",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Photosynthesis converts CO2 and water into glucose using sunlight — in which organelle?",
+      "reference_answer": "chloroplast",
+      "keywords": [
+        "chloroplast",
+        "chloroplasts"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c000",
+        "c025"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_02",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Newton's second law relates force to mass and acceleration — what is the SI unit of force?",
+      "reference_answer": "Newton",
+      "keywords": [
+        "newton"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c003",
+        "c024"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_03",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Scurvy involves bleeding gums — which vitamin prevents it?",
+      "reference_answer": "vitamin C",
+      "keywords": [
+        "vitamin c"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c007",
+        "c042"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_04",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Aristotle studied under Plato — who tutored Alexander the Great?",
+      "reference_answer": "Aristotle",
+      "keywords": [
+        "aristotle"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c027",
+        "c037"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_05",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "GDP sums consumption and investment — what does GDP stand for measuring?",
+      "reference_answer": "goods and services",
+      "keywords": [
+        "gdp",
+        "goods"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c019",
+        "c039"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_06",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Binary search needs sorted arrays — what is its time complexity?",
+      "reference_answer": "O log n",
+      "keywords": [
+        "log n"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c006",
+        "c026"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_07",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Canberra was chosen as compromise capital — what country is it capital of?",
+      "reference_answer": "Australia",
+      "keywords": [
+        "australia"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c002",
+        "c044"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_08",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Mitochondria produce ATP — in what type of cells?",
+      "reference_answer": "eukaryotes",
+      "keywords": [
+        "eukaryote"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c014",
+        "c025"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_09",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Electrons orbit the nucleus — what charge do electrons carry?",
+      "reference_answer": "negative",
+      "keywords": [
+        "negative"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c004",
+        "c024"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_10",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "World War II ran 1939-1945 — in what year did WWII end?",
+      "reference_answer": "1945",
+      "keywords": [
+        "1945"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c041",
+        "c001"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_11",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Supply and demand intersect at equilibrium — supply increases when what rises?",
+      "reference_answer": "price",
+      "keywords": [
+        "price"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c005",
+        "c040"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_12",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "CPU executes instructions — name one other core hardware component.",
+      "reference_answer": "memory",
+      "keywords": [
+        "memory",
+        "storage"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c038",
+        "c041"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_13",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Plato wrote The Republic — who was his famous student later tutoring Alexander?",
+      "reference_answer": "Aristotle",
+      "keywords": [
+        "aristotle"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c027",
+        "c037"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_14",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Inflation is price level increase — GDP measures total value of what?",
+      "reference_answer": "goods and services",
+      "keywords": [
+        "goods"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c016",
+        "c019"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_MH_15",
+      "memory_task": "multi_hop",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Mercury is smallest planet — how long is its year in Earth days (about)?",
+      "reference_answer": "eighty eight",
+      "keywords": [
+        "88",
+        "eighty"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c017",
+        "c045"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_01",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Did WWII end before or after 1940?",
+      "reference_answer": "after",
+      "keywords": [
+        "after",
+        "1945"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c001"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_02",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Was the French Revolution before the US Civil War era (1860s)?",
+      "reference_answer": "before",
+      "keywords": [
+        "before",
+        "1789"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c013"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_03",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Did George Washington serve before Napoleon rose?",
+      "reference_answer": "before",
+      "keywords": [
+        "before"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c018"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_04",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Was Nineteen Eighty-Four published after WWII?",
+      "reference_answer": "after",
+      "keywords": [
+        "after",
+        "1949"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c031"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_05",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Does Mercury orbit faster than Earth (shorter year)?",
+      "reference_answer": "yes",
+      "keywords": [
+        "yes",
+        "88"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c045"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_06",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Did WWII involve years after 1939?",
+      "reference_answer": "yes",
+      "keywords": [
+        "yes",
+        "1945"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c041"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_07",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Was Thomas Jefferson active before Orwell wrote 1984?",
+      "reference_answer": "before",
+      "keywords": [
+        "before"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c030",
+        "c031"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_08",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Did the French Revolution occur in the 18th century?",
+      "reference_answer": "yes",
+      "keywords": [
+        "yes",
+        "1789"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c013"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_09",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is WWII end year 1945?",
+      "reference_answer": "yes",
+      "keywords": [
+        "1945"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c001",
+        "c041"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_TP_10",
+      "memory_task": "temporal",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Was Washington president in the 18th century?",
+      "reference_answer": "yes",
+      "keywords": [
+        "yes",
+        "1700"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c018"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_01",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "After Pluto reclassification, what is still the smallest planet?",
+      "reference_answer": "Mercury",
+      "keywords": [
+        "mercury"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c017"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_02",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "When did WWII end according to corpus (year only)?",
+      "reference_answer": "1945",
+      "keywords": [
+        "1945"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c001",
+        "c041"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_03",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What remains the capital of Australia?",
+      "reference_answer": "Canberra",
+      "keywords": [
+        "canberra"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c002",
+        "c044"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_04",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Does Mercury remain the smallest planet in the solar system?",
+      "reference_answer": "yes",
+      "keywords": [
+        "yes",
+        "mercury"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c017"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_05",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Did WWII end in 1945?",
+      "reference_answer": "yes",
+      "keywords": [
+        "1945"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c001"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_06",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is Canberra still the Australian capital?",
+      "reference_answer": "yes",
+      "keywords": [
+        "canberra"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c002"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_07",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is Sydney the capital of Australia?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "canberra"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c002"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_08",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Was WWII over by 1946?",
+      "reference_answer": "yes",
+      "keywords": [
+        "yes",
+        "1945"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c001"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_09",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is Mercury closer to the Sun than Earth?",
+      "reference_answer": "yes",
+      "keywords": [
+        "yes",
+        "mercury"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c017",
+        "c045"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_KU_10",
+      "memory_task": "knowledge_update",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Did Japan surrender marking WWII end in 1945?",
+      "reference_answer": "yes",
+      "keywords": [
+        "1945"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c021",
+        "c001"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AB_01",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the capital of Brazil?",
+      "reference_answer": "",
+      "keywords": [
+        "brasilia",
+        "brazil"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_02",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Who won the FIFA World Cup in 2022?",
+      "reference_answer": "",
+      "keywords": [
+        "argentina",
+        "2022"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_03",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the speed of light in m/s?",
+      "reference_answer": "",
+      "keywords": [
+        "299",
+        "speed of light"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_04",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Who discovered penicillin?",
+      "reference_answer": "",
+      "keywords": [
+        "fleming",
+        "penicillin"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_05",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the population of Tokyo?",
+      "reference_answer": "",
+      "keywords": [
+        "tokyo",
+        "million"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_06",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "When was the iPhone first released?",
+      "reference_answer": "",
+      "keywords": [
+        "2007",
+        "iphone"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_07",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the chemical symbol for gold?",
+      "reference_answer": "",
+      "keywords": [
+        "au",
+        "gold"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_08",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Who painted the Mona Lisa?",
+      "reference_answer": "",
+      "keywords": [
+        "vinci",
+        "mona lisa"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_09",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the tallest mountain in the world?",
+      "reference_answer": "",
+      "keywords": [
+        "everest"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_10",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What programming language was Rust inspired by?",
+      "reference_answer": "",
+      "keywords": [
+        "rust",
+        "c++"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_11",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What year did the Berlin Wall fall?",
+      "reference_answer": "",
+      "keywords": [
+        "1989",
+        "berlin"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_12",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the largest mammal?",
+      "reference_answer": "",
+      "keywords": [
+        "blue whale"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_13",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Who developed the theory of relativity?",
+      "reference_answer": "",
+      "keywords": [
+        "einstein"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_14",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the capital of Japan?",
+      "reference_answer": "",
+      "keywords": [
+        "tokyo"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AB_15",
+      "memory_task": "abstention",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is Planck's constant?",
+      "reference_answer": "",
+      "keywords": [
+        "planck",
+        "constant"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [],
+      "abstention_expected": true
+    },
+    {
+      "id": "VPB_AD_01",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "What is the capital of Australia — Sydney or Canberra?",
+      "reference_answer": "Canberra",
+      "keywords": [
+        "canberra"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c002",
+        "c044"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AD_02",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is Sydney the capital of Australia?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "canberra"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c002",
+        "c044"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AD_03",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is Pluto the smallest planet?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "mercury"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c017",
+        "c045"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AD_04",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Does scurvy come from excess vitamin C?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "deficiency"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c007",
+        "c042"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AD_05",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is the Nile in Asia?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "africa"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c029"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AD_06",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is Paris in Germany?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "france"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c036"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AD_07",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Does photosynthesis produce carbon dioxide as main product?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "glucose"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c000"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AD_08",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is binary search O(n) on sorted arrays?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "log"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c026"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AD_09",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Was WWII only in Europe?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "pacific",
+        "japan"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c001",
+        "c021"
+      ],
+      "abstention_expected": false
+    },
+    {
+      "id": "VPB_AD_10",
+      "memory_task": "adversarial",
+      "domain": "vpb_memory",
+      "source": "vpb_synthetic",
+      "text": "Is Mercury the largest planet?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "smallest"
+      ],
+      "score_type": "open",
+      "evidence_line_ids": [
+        "c017"
+      ],
+      "abstention_expected": false
+    }
+  ],
+  "splits": {
+    "smoke": [
+      "VPB_SH_17",
+      "VPB_SH_18",
+      "VPB_SH_19",
+      "VPB_SH_20",
+      "VPB_MH_01",
+      "VPB_MH_02",
+      "VPB_MH_03",
+      "VPB_TP_01",
+      "VPB_TP_02",
+      "VPB_KU_01",
+      "VPB_KU_02",
+      "VPB_AB_01",
+      "VPB_AB_02",
+      "VPB_AB_03",
+      "VPB_AD_01",
+      "VPB_AD_02"
+    ],
+    "test": [
+      "VPB_SH_01",
+      "VPB_SH_02",
+      "VPB_SH_03",
+      "VPB_SH_04",
+      "VPB_SH_05",
+      "VPB_SH_06",
+      "VPB_SH_07",
+      "VPB_SH_08",
+      "VPB_SH_09",
+      "VPB_SH_10",
+      "VPB_SH_11",
+      "VPB_SH_12",
+      "VPB_SH_13",
+      "VPB_SH_14",
+      "VPB_SH_15",
+      "VPB_SH_16",
+      "VPB_MH_04",
+      "VPB_MH_05",
+      "VPB_MH_06",
+      "VPB_MH_07",
+      "VPB_MH_08",
+      "VPB_MH_09",
+      "VPB_MH_10",
+      "VPB_MH_11",
+      "VPB_MH_12",
+      "VPB_MH_13",
+      "VPB_MH_14",
+      "VPB_MH_15",
+      "VPB_TP_03",
+      "VPB_TP_04",
+      "VPB_TP_05",
+      "VPB_TP_06",
+      "VPB_TP_07",
+      "VPB_TP_08",
+      "VPB_TP_09",
+      "VPB_TP_10",
+      "VPB_KU_03",
+      "VPB_KU_04",
+      "VPB_KU_05",
+      "VPB_KU_06",
+      "VPB_KU_07",
+      "VPB_KU_08",
+      "VPB_KU_09",
+      "VPB_KU_10",
+      "VPB_AB_04",
+      "VPB_AB_05",
+      "VPB_AB_06",
+      "VPB_AB_07",
+      "VPB_AB_08",
+      "VPB_AB_09",
+      "VPB_AB_10",
+      "VPB_AB_11",
+      "VPB_AB_12",
+      "VPB_AB_13",
+      "VPB_AB_14",
+      "VPB_AB_15",
+      "VPB_AD_03",
+      "VPB_AD_04",
+      "VPB_AD_05",
+      "VPB_AD_06",
+      "VPB_AD_07",
+      "VPB_AD_08",
+      "VPB_AD_09",
+      "VPB_AD_10"
+    ]
+  },
+  "corpus_tiers_ref": "vpb_corpus_tiers.json",
+  "phases": {
+    "smoke": {
+      "split": "smoke",
+      "corpus_tier": "M"
+    },
+    "test": {
+      "split": "test",
+      "corpus_tier": "M"
+    }
+  }
+}

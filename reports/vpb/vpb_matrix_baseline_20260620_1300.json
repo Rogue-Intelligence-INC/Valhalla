@@ -1,0 +1,1010 @@
+{
+  "meta": {
+    "benchmark": "valhalla_potential_v1",
+    "phase": "baseline",
+    "timestamp": "20260620_1300",
+    "source_json": "reports/fair_benchmark/fair_benchmark_test_20260620_0859.json",
+    "prompt_count": 145,
+    "corpus_lines": 49,
+    "methodology": [
+      "HELM scenario×metric matrix",
+      "LoCoMo/LONGMEMEVAL recall@3",
+      "RAGAS faithfulness proxy",
+      "hybrid oracle S6"
+    ]
+  },
+  "slices": {
+    "corpus_supported": [
+      "ASTRO_01",
+      "GSM_F06",
+      "GSM_F10",
+      "GSM_F11",
+      "GSM_F12",
+      "GSM_F14",
+      "GSM_F16",
+      "GSM_F18",
+      "GSM_F19",
+      "GSM_F20",
+      "GSM_F21",
+      "GSM_F23",
+      "GSM_F25",
+      "GSM_F29",
+      "GSM_F30",
+      "LIT_01",
+      "LIT_02",
+      "LOGIC_02",
+      "MATH_F02",
+      "MATH_F07",
+      "MATH_F08",
+      "MATH_F12",
+      "MATH_F16",
+      "MCQ_BIO_01",
+      "MCQ_ECON_01",
+      "MCQ_F02",
+      "MCQ_F03",
+      "MCQ_F06",
+      "MCQ_F07",
+      "MCQ_F08",
+      "MCQ_F09",
+      "MCQ_F10",
+      "MCQ_F11",
+      "MCQ_F12",
+      "MCQ_F13",
+      "MCQ_F14",
+      "MCQ_F18",
+      "MCQ_F19",
+      "MCQ_F20",
+      "MCQ_F21",
+      "MCQ_F22",
+      "MCQ_F23",
+      "MCQ_F24",
+      "MCQ_F25",
+      "MCQ_F26",
+      "MCQ_F27",
+      "MCQ_F28",
+      "MCQ_F29",
+      "MCQ_F30",
+      "MCQ_F31",
+      "MCQ_F32",
+      "MCQ_F34",
+      "MCQ_F35",
+      "MCQ_F38",
+      "MCQ_F41",
+      "MCQ_F42",
+      "MCQ_F43",
+      "MCQ_F44",
+      "MCQ_F45",
+      "MCQ_F46",
+      "MCQ_F47",
+      "MCQ_F48",
+      "MCQ_F49",
+      "MCQ_F50",
+      "MCQ_GEO_01",
+      "MCQ_GEO_02",
+      "MCQ_HIST_02",
+      "MCQ_MED_01",
+      "MCQ_PHIL_01",
+      "MED_01",
+      "OPEN_BIO_01",
+      "OPEN_CHEM_01",
+      "OPEN_CS_02",
+      "OPEN_ECON_01",
+      "OPEN_ECON_02",
+      "OPEN_F03",
+      "OPEN_F04",
+      "OPEN_F05",
+      "OPEN_F06",
+      "OPEN_F14",
+      "OPEN_F16",
+      "OPEN_F17",
+      "OPEN_F25",
+      "OPEN_F26",
+      "OPEN_F29",
+      "OPEN_F33",
+      "OPEN_F39",
+      "OPEN_F42",
+      "OPEN_F43",
+      "OPEN_F50",
+      "OPEN_GEO_01",
+      "OPEN_HIST_01",
+      "OPEN_PHYS_01",
+      "ZH_02",
+      "ZH_03",
+      "ZH_04"
+    ],
+    "numeric_compute": [
+      "GSM_F06",
+      "GSM_F08",
+      "GSM_F10",
+      "GSM_F11",
+      "GSM_F12",
+      "GSM_F13",
+      "GSM_F14",
+      "GSM_F15",
+      "GSM_F16",
+      "GSM_F18",
+      "GSM_F19",
+      "GSM_F20",
+      "GSM_F21",
+      "GSM_F22",
+      "GSM_F23",
+      "GSM_F25",
+      "GSM_F29",
+      "GSM_F30",
+      "MATH_F01",
+      "MATH_F02",
+      "MATH_F03",
+      "MATH_F04",
+      "MATH_F05",
+      "MATH_F06",
+      "MATH_F07",
+      "MATH_F08",
+      "MATH_F09",
+      "MATH_F10",
+      "MATH_F12",
+      "MATH_F13",
+      "MATH_F15",
+      "MATH_F16",
+      "MATH_F17",
+      "MATH_F19",
+      "MATH_PAD197",
+      "MATH_PAD198",
+      "MATH_PAD199",
+      "MATH_PAD200"
+    ],
+    "mcq_routing": [
+      "MCQ_BIO_01",
+      "MCQ_ECON_01",
+      "MCQ_F02",
+      "MCQ_F03",
+      "MCQ_F06",
+      "MCQ_F07",
+      "MCQ_F08",
+      "MCQ_F09",
+      "MCQ_F10",
+      "MCQ_F11",
+      "MCQ_F12",
+      "MCQ_F13",
+      "MCQ_F14",
+      "MCQ_F18",
+      "MCQ_F19",
+      "MCQ_F20",
+      "MCQ_F21",
+      "MCQ_F22",
+      "MCQ_F23",
+      "MCQ_F24",
+      "MCQ_F25",
+      "MCQ_F26",
+      "MCQ_F27",
+      "MCQ_F28",
+      "MCQ_F29",
+      "MCQ_F30",
+      "MCQ_F31",
+      "MCQ_F32",
+      "MCQ_F34",
+      "MCQ_F35",
+      "MCQ_F38",
+      "MCQ_F41",
+      "MCQ_F42",
+      "MCQ_F43",
+      "MCQ_F44",
+      "MCQ_F45",
+      "MCQ_F46",
+      "MCQ_F47",
+      "MCQ_F48",
+      "MCQ_F49",
+      "MCQ_F50",
+      "MCQ_GEO_01",
+      "MCQ_GEO_02",
+      "MCQ_HIST_02",
+      "MCQ_MED_01",
+      "MCQ_PHIL_01"
+    ],
+    "open_retrieval": [
+      "ASTRO_01",
+      "LIT_01",
+      "LIT_02",
+      "LOGIC_02",
+      "MED_01",
+      "OPEN_BIO_01",
+      "OPEN_CHEM_01",
+      "OPEN_CS_02",
+      "OPEN_ECON_01",
+      "OPEN_ECON_02",
+      "OPEN_F03",
+      "OPEN_F04",
+      "OPEN_F05",
+      "OPEN_F06",
+      "OPEN_F14",
+      "OPEN_F16",
+      "OPEN_F17",
+      "OPEN_F25",
+      "OPEN_F26",
+      "OPEN_F29",
+      "OPEN_F33",
+      "OPEN_F39",
+      "OPEN_F42",
+      "OPEN_F43",
+      "OPEN_F50",
+      "OPEN_GEO_01",
+      "OPEN_HIST_01",
+      "OPEN_PHYS_01",
+      "ZH_02",
+      "ZH_03",
+      "ZH_04"
+    ],
+    "open_generation": [
+      "ASTRO_02",
+      "LOGIC_01",
+      "OPEN_CS_03",
+      "OPEN_F02",
+      "OPEN_F08",
+      "OPEN_F09",
+      "OPEN_F11",
+      "OPEN_F12",
+      "OPEN_F19",
+      "OPEN_F21",
+      "OPEN_F22",
+      "OPEN_F23",
+      "OPEN_F24",
+      "OPEN_F28",
+      "OPEN_F30",
+      "OPEN_F31",
+      "OPEN_F32",
+      "OPEN_F34",
+      "OPEN_F35",
+      "OPEN_F38",
+      "OPEN_F40",
+      "OPEN_F41",
+      "OPEN_F44",
+      "OPEN_F46",
+      "OPEN_F47",
+      "OPEN_F48",
+      "OPEN_F49",
+      "OPEN_F51",
+      "OPEN_F52",
+      "ZH_05"
+    ]
+  },
+  "matrix": {
+    "S1_memory_platform": {
+      "scenario": "memory_platform",
+      "n": 96,
+      "M1_task_acc": 0.4896,
+      "M2_recall_at_3": 0.75,
+      "M3_ingest_lift_pp": 31.25,
+      "M4_faithfulness": 0.3474,
+      "M5_token_cost_est": 921.8
+    },
+    "S2_memory_retrieval": {
+      "scenario": "memory_retrieval",
+      "n": 96,
+      "M1_task_acc": 0.4167,
+      "M2_recall_at_3": 0.75,
+      "M3_ingest_lift_pp": 31.25,
+      "M4_faithfulness": 0.6,
+      "M5_token_cost_est": 3360.0
+    },
+    "S3_routing_mcq": {
+      "scenario": "routing_mcq",
+      "n": 46,
+      "M1_task_acc_valhalla": 0.4565,
+      "M1_task_acc_tf": 0.3696,
+      "M2_recall_at_3": 0.8478,
+      "M3_ingest_lift_pp": 32.61,
+      "M4_faithfulness": 0.2967,
+      "M5_token_cost_est": 922.1
+    },
+    "S4_numeric_compute": {
+      "scenario": "numeric_compute",
+      "n": 38,
+      "M1_task_acc_valhalla": 0.5789,
+      "M1_task_acc_tf": 0.7632,
+      "M1_task_acc_patch": 0.7632,
+      "M4_faithfulness": 0.5329,
+      "M5_token_cost_est": 920.6
+    },
+    "S5_open_retrieval": {
+      "scenario": "open_retrieval",
+      "n": 31,
+      "M1_task_acc_memory": 0.5161,
+      "M1_task_acc_patch": 0.9677,
+      "M1_task_acc_tf": 0.9677,
+      "M2_recall_at_3": 0.6129,
+      "M4_faithfulness": 0.3355
+    },
+    "S6_hybrid_product": {
+      "scenario": "hybrid_product",
+      "n": 145,
+      "M1_task_acc_hybrid": 0.7724,
+      "M1_task_acc_tf": 0.7103,
+      "M1_task_acc_persistent": 0.4069,
+      "M1_task_acc_patch": 0.6828,
+      "M4_faithfulness": 0.5431,
+      "M5_token_cost_est": 921.1,
+      "hybrid_source_counts": {
+        "persistent": 68,
+        "patch": 72,
+        "none": 5
+      }
+    }
+  },
+  "pfi": {
+    "pfi": 0.7706,
+    "interpretation": "strong_potential",
+    "components": {
+      "recall_norm": 0.8824,
+      "ingest_lift_norm": 1.0,
+      "wedge_score": 0.5,
+      "hybrid_minus_tf": 6.21,
+      "scale_headroom_norm": 0.5,
+      "velocity_norm": 0.5
+    },
+    "mcq_delta_pp": 8.69
+  },
+  "gates": {
+    "G1_recall_at_3_gte_0.70": true,
+    "G2_ingest_lift_gte_15pp": true,
+    "G3_mcq_wedge_gte_tf_plus_5pp": true,
+    "G4_hybrid_gte_tf_minus_5pp": true,
+    "G5_scale_headroom": null,
+    "G6_abstention": null,
+    "open_generation_memory_acc": 0.0,
+    "potential_benchmark_pass": true,
+    "interpretation": "platform_plus_wedge_or_hybrid"
+  },
+  "hybrid_summary": {
+    "n": 145,
+    "correct": 112,
+    "acc": 0.7724,
+    "by_score_type": {
+      "mcq": {
+        "correct": 21,
+        "total": 46,
+        "acc": 0.4565
+      },
+      "numeric": {
+        "correct": 33,
+        "total": 38,
+        "acc": 0.8684
+      },
+      "open": {
+        "correct": 58,
+        "total": 61,
+        "acc": 0.9508
+      }
+    },
+    "by_decode_path": {
+      "cortex": {
+        "correct": 16,
+        "total": 21,
+        "acc": 0.7619
+      },
+      "direct_math": {
+        "correct": 17,
+        "total": 17,
+        "acc": 1.0
+      },
+      "mcq_option": {
+        "correct": 21,
+        "total": 46,
+        "acc": 0.4565
+      },
+      "open_span": {
+        "correct": 58,
+        "total": 61,
+        "acc": 0.9508
+      }
+    },
+    "by_domain": {
+      "biology": {
+        "correct": 9,
+        "total": 12,
+        "acc": 0.75
+      },
+      "chemistry": {
+        "correct": 6,
+        "total": 9,
+        "acc": 0.6667
+      },
+      "chinese": {
+        "correct": 10,
+        "total": 11,
+        "acc": 0.9091
+      },
+      "computer_science": {
+        "correct": 6,
+        "total": 10,
+        "acc": 0.6
+      },
+      "economics": {
+        "correct": 8,
+        "total": 8,
+        "acc": 1.0
+      },
+      "geography": {
+        "correct": 8,
+        "total": 12,
+        "acc": 0.6667
+      },
+      "history": {
+        "correct": 8,
+        "total": 11,
+        "acc": 0.7273
+      },
+      "literature": {
+        "correct": 5,
+        "total": 6,
+        "acc": 0.8333
+      },
+      "math_numeric": {
+        "correct": 19,
+        "total": 20,
+        "acc": 0.95
+      },
+      "math_word": {
+        "correct": 14,
+        "total": 18,
+        "acc": 0.7778
+      },
+      "medicine": {
+        "correct": 6,
+        "total": 9,
+        "acc": 0.6667
+      },
+      "philosophy_logic": {
+        "correct": 4,
+        "total": 6,
+        "acc": 0.6667
+      },
+      "physics": {
+        "correct": 9,
+        "total": 13,
+        "acc": 0.6923
+      }
+    },
+    "retrieval": {
+      "recall_at_3": 0.0,
+      "mrr_mean": 0.0
+    }
+  },
+  "arm_summaries": {
+    "baseline": {
+      "n": 145,
+      "correct": 29,
+      "acc": 0.2,
+      "by_score_type": {
+        "mcq": {
+          "correct": 6,
+          "total": 46,
+          "acc": 0.1304
+        },
+        "numeric": {
+          "correct": 22,
+          "total": 38,
+          "acc": 0.5789
+        },
+        "open": {
+          "correct": 1,
+          "total": 61,
+          "acc": 0.0164
+        }
+      },
+      "by_decode_path": {
+        "cortex": {
+          "correct": 5,
+          "total": 21,
+          "acc": 0.2381
+        },
+        "direct_math": {
+          "correct": 17,
+          "total": 17,
+          "acc": 1.0
+        },
+        "mcq_option": {
+          "correct": 6,
+          "total": 46,
+          "acc": 0.1304
+        },
+        "open_reject_no_keywords": {
+          "correct": 1,
+          "total": 61,
+          "acc": 0.0164
+        }
+      },
+      "by_domain": {
+        "biology": {
+          "correct": 0,
+          "total": 12,
+          "acc": 0.0
+        },
+        "chemistry": {
+          "correct": 0,
+          "total": 9,
+          "acc": 0.0
+        },
+        "chinese": {
+          "correct": 0,
+          "total": 11,
+          "acc": 0.0
+        },
+        "computer_science": {
+          "correct": 3,
+          "total": 10,
+          "acc": 0.3
+        },
+        "economics": {
+          "correct": 0,
+          "total": 8,
+          "acc": 0.0
+        },
+        "geography": {
+          "correct": 1,
+          "total": 12,
+          "acc": 0.0833
+        },
+        "history": {
+          "correct": 0,
+          "total": 11,
+          "acc": 0.0
+        },
+        "literature": {
+          "correct": 0,
+          "total": 6,
+          "acc": 0.0
+        },
+        "math_numeric": {
+          "correct": 13,
+          "total": 20,
+          "acc": 0.65
+        },
+        "math_word": {
+          "correct": 9,
+          "total": 18,
+          "acc": 0.5
+        },
+        "medicine": {
+          "correct": 0,
+          "total": 9,
+          "acc": 0.0
+        },
+        "philosophy_logic": {
+          "correct": 1,
+          "total": 6,
+          "acc": 0.1667
+        },
+        "physics": {
+          "correct": 2,
+          "total": 13,
+          "acc": 0.1538
+        }
+      },
+      "retrieval": {
+        "recall_at_3": 0.4483,
+        "mrr_mean": 0.354
+      }
+    },
+    "isolated": {
+      "n": 145,
+      "correct": 52,
+      "acc": 0.3586,
+      "by_score_type": {
+        "mcq": {
+          "correct": 13,
+          "total": 46,
+          "acc": 0.2826
+        },
+        "numeric": {
+          "correct": 22,
+          "total": 38,
+          "acc": 0.5789
+        },
+        "open": {
+          "correct": 17,
+          "total": 61,
+          "acc": 0.2787
+        }
+      },
+      "by_decode_path": {
+        "cortex": {
+          "correct": 5,
+          "total": 21,
+          "acc": 0.2381
+        },
+        "direct_math": {
+          "correct": 17,
+          "total": 17,
+          "acc": 1.0
+        },
+        "mcq_option": {
+          "correct": 13,
+          "total": 46,
+          "acc": 0.2826
+        },
+        "open_span": {
+          "correct": 17,
+          "total": 61,
+          "acc": 0.2787
+        }
+      },
+      "by_domain": {
+        "biology": {
+          "correct": 2,
+          "total": 12,
+          "acc": 0.1667
+        },
+        "chemistry": {
+          "correct": 3,
+          "total": 9,
+          "acc": 0.3333
+        },
+        "chinese": {
+          "correct": 5,
+          "total": 11,
+          "acc": 0.4545
+        },
+        "computer_science": {
+          "correct": 2,
+          "total": 10,
+          "acc": 0.2
+        },
+        "economics": {
+          "correct": 2,
+          "total": 8,
+          "acc": 0.25
+        },
+        "geography": {
+          "correct": 3,
+          "total": 12,
+          "acc": 0.25
+        },
+        "history": {
+          "correct": 3,
+          "total": 11,
+          "acc": 0.2727
+        },
+        "literature": {
+          "correct": 2,
+          "total": 6,
+          "acc": 0.3333
+        },
+        "math_numeric": {
+          "correct": 13,
+          "total": 20,
+          "acc": 0.65
+        },
+        "math_word": {
+          "correct": 9,
+          "total": 18,
+          "acc": 0.5
+        },
+        "medicine": {
+          "correct": 3,
+          "total": 9,
+          "acc": 0.3333
+        },
+        "philosophy_logic": {
+          "correct": 1,
+          "total": 6,
+          "acc": 0.1667
+        },
+        "physics": {
+          "correct": 4,
+          "total": 13,
+          "acc": 0.3077
+        }
+      },
+      "retrieval": {
+        "recall_at_3": 0.5793,
+        "mrr_mean": 0.4897
+      }
+    },
+    "persistent": {
+      "n": 145,
+      "correct": 59,
+      "acc": 0.4069,
+      "by_score_type": {
+        "mcq": {
+          "correct": 21,
+          "total": 46,
+          "acc": 0.4565
+        },
+        "numeric": {
+          "correct": 22,
+          "total": 38,
+          "acc": 0.5789
+        },
+        "open": {
+          "correct": 16,
+          "total": 61,
+          "acc": 0.2623
+        }
+      },
+      "by_decode_path": {
+        "cortex": {
+          "correct": 5,
+          "total": 21,
+          "acc": 0.2381
+        },
+        "direct_math": {
+          "correct": 17,
+          "total": 17,
+          "acc": 1.0
+        },
+        "mcq_option": {
+          "correct": 21,
+          "total": 46,
+          "acc": 0.4565
+        },
+        "open_span": {
+          "correct": 16,
+          "total": 61,
+          "acc": 0.2623
+        }
+      },
+      "by_domain": {
+        "biology": {
+          "correct": 5,
+          "total": 12,
+          "acc": 0.4167
+        },
+        "chemistry": {
+          "correct": 3,
+          "total": 9,
+          "acc": 0.3333
+        },
+        "chinese": {
+          "correct": 4,
+          "total": 11,
+          "acc": 0.3636
+        },
+        "computer_science": {
+          "correct": 1,
+          "total": 10,
+          "acc": 0.1
+        },
+        "economics": {
+          "correct": 2,
+          "total": 8,
+          "acc": 0.25
+        },
+        "geography": {
+          "correct": 4,
+          "total": 12,
+          "acc": 0.3333
+        },
+        "history": {
+          "correct": 4,
+          "total": 11,
+          "acc": 0.3636
+        },
+        "literature": {
+          "correct": 3,
+          "total": 6,
+          "acc": 0.5
+        },
+        "math_numeric": {
+          "correct": 13,
+          "total": 20,
+          "acc": 0.65
+        },
+        "math_word": {
+          "correct": 9,
+          "total": 18,
+          "acc": 0.5
+        },
+        "medicine": {
+          "correct": 4,
+          "total": 9,
+          "acc": 0.4444
+        },
+        "philosophy_logic": {
+          "correct": 2,
+          "total": 6,
+          "acc": 0.3333
+        },
+        "physics": {
+          "correct": 5,
+          "total": 13,
+          "acc": 0.3846
+        }
+      },
+      "retrieval": {
+        "recall_at_3": 0.0,
+        "mrr_mean": 0.0
+      }
+    },
+    "patch": {
+      "n": 145,
+      "correct": 99,
+      "acc": 0.6828,
+      "by_score_type": {
+        "mcq": {
+          "correct": 12,
+          "total": 46,
+          "acc": 0.2609
+        },
+        "numeric": {
+          "correct": 29,
+          "total": 38,
+          "acc": 0.7632
+        },
+        "open": {
+          "correct": 58,
+          "total": 61,
+          "acc": 0.9508
+        }
+      },
+      "by_decode_path": {
+        "patch_legacy_triad": {
+          "correct": 99,
+          "total": 145,
+          "acc": 0.6828
+        }
+      },
+      "by_domain": {
+        "biology": {
+          "correct": 7,
+          "total": 12,
+          "acc": 0.5833
+        },
+        "chemistry": {
+          "correct": 6,
+          "total": 9,
+          "acc": 0.6667
+        },
+        "chinese": {
+          "correct": 9,
+          "total": 11,
+          "acc": 0.8182
+        },
+        "computer_science": {
+          "correct": 7,
+          "total": 10,
+          "acc": 0.7
+        },
+        "economics": {
+          "correct": 7,
+          "total": 8,
+          "acc": 0.875
+        },
+        "geography": {
+          "correct": 7,
+          "total": 12,
+          "acc": 0.5833
+        },
+        "history": {
+          "correct": 7,
+          "total": 11,
+          "acc": 0.6364
+        },
+        "literature": {
+          "correct": 5,
+          "total": 6,
+          "acc": 0.8333
+        },
+        "math_numeric": {
+          "correct": 17,
+          "total": 20,
+          "acc": 0.85
+        },
+        "math_word": {
+          "correct": 12,
+          "total": 18,
+          "acc": 0.6667
+        },
+        "medicine": {
+          "correct": 4,
+          "total": 9,
+          "acc": 0.4444
+        },
+        "philosophy_logic": {
+          "correct": 4,
+          "total": 6,
+          "acc": 0.6667
+        },
+        "physics": {
+          "correct": 7,
+          "total": 13,
+          "acc": 0.5385
+        }
+      }
+    },
+    "tf": {
+      "n": 145,
+      "correct": 103,
+      "acc": 0.7103,
+      "by_score_type": {
+        "mcq": {
+          "correct": 17,
+          "total": 46,
+          "acc": 0.3696
+        },
+        "numeric": {
+          "correct": 29,
+          "total": 38,
+          "acc": 0.7632
+        },
+        "open": {
+          "correct": 57,
+          "total": 61,
+          "acc": 0.9344
+        }
+      },
+      "by_decode_path": {
+        "transformer_generate": {
+          "correct": 103,
+          "total": 145,
+          "acc": 0.7103
+        }
+      },
+      "by_domain": {
+        "biology": {
+          "correct": 8,
+          "total": 12,
+          "acc": 0.6667
+        },
+        "chemistry": {
+          "correct": 7,
+          "total": 9,
+          "acc": 0.7778
+        },
+        "chinese": {
+          "correct": 9,
+          "total": 11,
+          "acc": 0.8182
+        },
+        "computer_science": {
+          "correct": 7,
+          "total": 10,
+          "acc": 0.7
+        },
+        "economics": {
+          "correct": 7,
+          "total": 8,
+          "acc": 0.875
+        },
+        "geography": {
+          "correct": 8,
+          "total": 12,
+          "acc": 0.6667
+        },
+        "history": {
+          "correct": 8,
+          "total": 11,
+          "acc": 0.7273
+        },
+        "literature": {
+          "correct": 5,
+          "total": 6,
+          "acc": 0.8333
+        },
+        "math_numeric": {
+          "correct": 17,
+          "total": 20,
+          "acc": 0.85
+        },
+        "math_word": {
+          "correct": 12,
+          "total": 18,
+          "acc": 0.6667
+        },
+        "medicine": {
+          "correct": 4,
+          "total": 9,
+          "acc": 0.4444
+        },
+        "philosophy_logic": {
+          "correct": 4,
+          "total": 6,
+          "acc": 0.6667
+        },
+        "physics": {
+          "correct": 7,
+          "total": 13,
+          "acc": 0.5385
+        }
+      }
+    }
+  }
+}
