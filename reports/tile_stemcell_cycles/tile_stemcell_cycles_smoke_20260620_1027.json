@@ -1,0 +1,2970 @@
+{
+  "meta": {
+    "experiment": "tile_stemcell_multi_cycle",
+    "timestamp": "20260620_1027",
+    "phase": "smoke",
+    "prompt_count": 12,
+    "corpus_lines": 49,
+    "cycles_tested": [
+      1,
+      5,
+      10,
+      20
+    ],
+    "protocols": [
+      "batch",
+      "export",
+      "isolated"
+    ],
+    "artifact_id": "3beed48570c4"
+  },
+  "export_structure": [
+    {
+      "body": "tile",
+      "cycles": 1,
+      "patch_hash": "2ff181b332274c5f",
+      "optimize_cycles": 1,
+      "tile_count": 177,
+      "stem_cell_count": 0,
+      "tile_ops": 178,
+      "stem_cells_reported": 0,
+      "cycle_trace_len": 1,
+      "cycle_trace_tail": [
+        {
+          "cycle": 1,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        }
+      ],
+      "patch_vector_head": [
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0
+      ]
+    },
+    {
+      "body": "tile",
+      "cycles": 5,
+      "patch_hash": "2ff181b332274c5f",
+      "optimize_cycles": 5,
+      "tile_count": 177,
+      "stem_cell_count": 0,
+      "tile_ops": 182,
+      "stem_cells_reported": 0,
+      "cycle_trace_len": 5,
+      "cycle_trace_tail": [
+        {
+          "cycle": 3,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        },
+        {
+          "cycle": 4,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        },
+        {
+          "cycle": 5,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        }
+      ],
+      "patch_vector_head": [
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0
+      ]
+    },
+    {
+      "body": "tile",
+      "cycles": 10,
+      "patch_hash": "2ff181b332274c5f",
+      "optimize_cycles": 10,
+      "tile_count": 177,
+      "stem_cell_count": 0,
+      "tile_ops": 187,
+      "stem_cells_reported": 0,
+      "cycle_trace_len": 10,
+      "cycle_trace_tail": [
+        {
+          "cycle": 8,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        },
+        {
+          "cycle": 9,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        },
+        {
+          "cycle": 10,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        }
+      ],
+      "patch_vector_head": [
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0
+      ]
+    },
+    {
+      "body": "tile",
+      "cycles": 20,
+      "patch_hash": "2ff181b332274c5f",
+      "optimize_cycles": 20,
+      "tile_count": 177,
+      "stem_cell_count": 0,
+      "tile_ops": 197,
+      "stem_cells_reported": 0,
+      "cycle_trace_len": 20,
+      "cycle_trace_tail": [
+        {
+          "cycle": 18,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        },
+        {
+          "cycle": 19,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        },
+        {
+          "cycle": 20,
+          "tile_completed": 177,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 48.95,
+          "stem_cells": 0,
+          "stem_connections": 0,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 4.0
+        }
+      ],
+      "patch_vector_head": [
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0,
+        0.12060453783110543,
+        0.0
+      ]
+    },
+    {
+      "body": "stemcell",
+      "cycles": 1,
+      "patch_hash": "af0f334aa497541b",
+      "optimize_cycles": 1,
+      "tile_count": 0,
+      "stem_cell_count": 277,
+      "tile_ops": 0,
+      "stem_cells_reported": 277,
+      "cycle_trace_len": 1,
+      "cycle_trace_tail": [
+        {
+          "cycle": 1,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        }
+      ],
+      "patch_vector_head": [
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0
+      ]
+    },
+    {
+      "body": "stemcell",
+      "cycles": 5,
+      "patch_hash": "12650c8e7bcbe1e6",
+      "optimize_cycles": 5,
+      "tile_count": 0,
+      "stem_cell_count": 277,
+      "tile_ops": 0,
+      "stem_cells_reported": 277,
+      "cycle_trace_len": 5,
+      "cycle_trace_tail": [
+        {
+          "cycle": 3,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        },
+        {
+          "cycle": 4,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        },
+        {
+          "cycle": 5,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        }
+      ],
+      "patch_vector_head": [
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0
+      ]
+    },
+    {
+      "body": "stemcell",
+      "cycles": 10,
+      "patch_hash": "f18e55bfa289c396",
+      "optimize_cycles": 10,
+      "tile_count": 0,
+      "stem_cell_count": 277,
+      "tile_ops": 0,
+      "stem_cells_reported": 277,
+      "cycle_trace_len": 10,
+      "cycle_trace_tail": [
+        {
+          "cycle": 8,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        },
+        {
+          "cycle": 9,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        },
+        {
+          "cycle": 10,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        }
+      ],
+      "patch_vector_head": [
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0
+      ]
+    },
+    {
+      "body": "stemcell",
+      "cycles": 20,
+      "patch_hash": "ca5d1f21c36c66f7",
+      "optimize_cycles": 20,
+      "tile_count": 0,
+      "stem_cell_count": 277,
+      "tile_ops": 0,
+      "stem_cells_reported": 277,
+      "cycle_trace_len": 20,
+      "cycle_trace_tail": [
+        {
+          "cycle": 18,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        },
+        {
+          "cycle": 19,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        },
+        {
+          "cycle": 20,
+          "tile_completed": 0,
+          "tile_merges": 0,
+          "tile_splits": 0,
+          "tile_dim": 4.0,
+          "stem_cells": 277,
+          "stem_connections": 3460,
+          "stem_merges": 0,
+          "stem_divisions": 0,
+          "stem_dim": 76.39535647180527
+        }
+      ],
+      "patch_vector_head": [
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0,
+        0.17677669529663687,
+        0.0
+      ]
+    }
+  ],
+  "results": [
+    {
+      "arm": "tile_c1_isolated",
+      "body": "tile",
+      "protocol": "isolated",
+      "cycles": 1,
+      "structure_unique": {
+        "tile_count": [
+          184,
+          185,
+          186,
+          188,
+          189,
+          192,
+          193
+        ],
+        "stem_cells": [
+          0
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 9,
+        "acc": 0.75,
+        "by_score_type": {
+          "mcq": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 9,
+            "total": 12,
+            "acc": 0.75
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 193,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 192,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 186,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 185,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 189,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 186,
+          "stem_cells": 0
+        }
+      ]
+    },
+    {
+      "arm": "tile_c5_isolated",
+      "body": "tile",
+      "protocol": "isolated",
+      "cycles": 5,
+      "structure_unique": {
+        "tile_count": [
+          183,
+          184,
+          186,
+          187,
+          188,
+          191,
+          192
+        ],
+        "stem_cells": [
+          0
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 9,
+        "acc": 0.75,
+        "by_score_type": {
+          "mcq": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 9,
+            "total": 12,
+            "acc": 0.75
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 192,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 191,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 187,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 186,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 183,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 183,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 183,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 187,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 186,
+          "stem_cells": 0
+        }
+      ]
+    },
+    {
+      "arm": "tile_c10_isolated",
+      "body": "tile",
+      "protocol": "isolated",
+      "cycles": 10,
+      "structure_unique": {
+        "tile_count": [
+          184,
+          185,
+          186,
+          188,
+          189,
+          192,
+          193
+        ],
+        "stem_cells": [
+          0
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 9,
+        "acc": 0.75,
+        "by_score_type": {
+          "mcq": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 9,
+            "total": 12,
+            "acc": 0.75
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 193,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 192,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 186,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 185,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 189,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 186,
+          "stem_cells": 0
+        }
+      ]
+    },
+    {
+      "arm": "tile_c20_isolated",
+      "body": "tile",
+      "protocol": "isolated",
+      "cycles": 20,
+      "structure_unique": {
+        "tile_count": [
+          184,
+          185,
+          186,
+          188,
+          189,
+          192,
+          193
+        ],
+        "stem_cells": [
+          0
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 9,
+        "acc": 0.75,
+        "by_score_type": {
+          "mcq": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 9,
+            "total": 12,
+            "acc": 0.75
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 193,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 192,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 186,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 185,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 184,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 189,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 188,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 186,
+          "stem_cells": 0
+        }
+      ]
+    },
+    {
+      "arm": "stemcell_c1_isolated",
+      "body": "stemcell",
+      "protocol": "isolated",
+      "cycles": 1,
+      "structure_unique": {
+        "tile_count": [
+          0
+        ],
+        "stem_cells": [
+          284,
+          285,
+          287,
+          288,
+          289,
+          293
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 9,
+        "acc": 0.75,
+        "by_score_type": {
+          "mcq": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 9,
+            "total": 12,
+            "acc": 0.75
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 293
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 293
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 288
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 287
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 285
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 288
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 289
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 289
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 287
+        }
+      ]
+    },
+    {
+      "arm": "stemcell_c5_isolated",
+      "body": "stemcell",
+      "protocol": "isolated",
+      "cycles": 5,
+      "structure_unique": {
+        "tile_count": [
+          0
+        ],
+        "stem_cells": [
+          283,
+          284,
+          286,
+          287,
+          288,
+          289,
+          292
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 9,
+        "acc": 0.75,
+        "by_score_type": {
+          "mcq": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 9,
+            "total": 12,
+            "acc": 0.75
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 292
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 292
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 287
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 286
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 283
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 283
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 283
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 287
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 289
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 288
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 286
+        }
+      ]
+    },
+    {
+      "arm": "stemcell_c10_isolated",
+      "body": "stemcell",
+      "protocol": "isolated",
+      "cycles": 10,
+      "structure_unique": {
+        "tile_count": [
+          0
+        ],
+        "stem_cells": [
+          284,
+          285,
+          286,
+          288,
+          289,
+          292,
+          293
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 9,
+        "acc": 0.75,
+        "by_score_type": {
+          "mcq": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 9,
+            "total": 12,
+            "acc": 0.75
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 293
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 292
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 288
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 286
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 285
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 288
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 289
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 288
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 286
+        }
+      ]
+    },
+    {
+      "arm": "stemcell_c20_isolated",
+      "body": "stemcell",
+      "protocol": "isolated",
+      "cycles": 20,
+      "structure_unique": {
+        "tile_count": [
+          0
+        ],
+        "stem_cells": [
+          284,
+          285,
+          286,
+          288,
+          289,
+          292,
+          293
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 9,
+        "acc": 0.75,
+        "by_score_type": {
+          "mcq": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 9,
+            "total": 12,
+            "acc": 0.75
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 293
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 292
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 288
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 286
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 285
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 284
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 288
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 289
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 288
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 286
+        }
+      ]
+    },
+    {
+      "arm": "tile_c1_batch",
+      "body": "tile",
+      "protocol": "batch",
+      "cycles": 1,
+      "structure_unique": {
+        "tile_count": [
+          10,
+          11,
+          12,
+          13
+        ],
+        "stem_cells": [
+          0
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 10,
+        "acc": 0.8333,
+        "by_score_type": {
+          "mcq": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 10,
+            "total": 12,
+            "acc": 0.8333
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 12,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 10,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 10,
+          "stem_cells": 0
+        }
+      ]
+    },
+    {
+      "arm": "tile_c5_batch",
+      "body": "tile",
+      "protocol": "batch",
+      "cycles": 5,
+      "structure_unique": {
+        "tile_count": [
+          10,
+          11,
+          12,
+          13
+        ],
+        "stem_cells": [
+          0
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 10,
+        "acc": 0.8333,
+        "by_score_type": {
+          "mcq": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 10,
+            "total": 12,
+            "acc": 0.8333
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 12,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 10,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 10,
+          "stem_cells": 0
+        }
+      ]
+    },
+    {
+      "arm": "tile_c10_batch",
+      "body": "tile",
+      "protocol": "batch",
+      "cycles": 10,
+      "structure_unique": {
+        "tile_count": [
+          10,
+          11,
+          12,
+          13
+        ],
+        "stem_cells": [
+          0
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 10,
+        "acc": 0.8333,
+        "by_score_type": {
+          "mcq": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 10,
+            "total": 12,
+            "acc": 0.8333
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 12,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 10,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 10,
+          "stem_cells": 0
+        }
+      ]
+    },
+    {
+      "arm": "tile_c20_batch",
+      "body": "tile",
+      "protocol": "batch",
+      "cycles": 20,
+      "structure_unique": {
+        "tile_count": [
+          10,
+          11,
+          12,
+          13
+        ],
+        "stem_cells": [
+          0
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 10,
+        "acc": 0.8333,
+        "by_score_type": {
+          "mcq": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 10,
+            "total": 12,
+            "acc": 0.8333
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 13,
+          "stem_cells": 0
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 12,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 10,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 11,
+          "stem_cells": 0
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 10,
+          "stem_cells": 0
+        }
+      ]
+    },
+    {
+      "arm": "stemcell_c1_batch",
+      "body": "stemcell",
+      "protocol": "batch",
+      "cycles": 1,
+      "structure_unique": {
+        "tile_count": [
+          0
+        ],
+        "stem_cells": [
+          157,
+          158,
+          159,
+          160
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 10,
+        "acc": 0.8333,
+        "by_score_type": {
+          "mcq": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 10,
+            "total": 12,
+            "acc": 0.8333
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 158
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 160
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 159
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 158
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 157
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 159
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 159
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 158
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 160
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 159
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 158
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 158
+        }
+      ]
+    },
+    {
+      "arm": "stemcell_c5_batch",
+      "body": "stemcell",
+      "protocol": "batch",
+      "cycles": 5,
+      "structure_unique": {
+        "tile_count": [
+          0
+        ],
+        "stem_cells": [
+          148,
+          149,
+          150,
+          152,
+          154
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 10,
+        "acc": 0.8333,
+        "by_score_type": {
+          "mcq": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 10,
+            "total": 12,
+            "acc": 0.8333
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 150
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 154
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 152
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 150
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 149
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 150
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 150
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 150
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 152
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 150
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 150
+        }
+      ]
+    },
+    {
+      "arm": "stemcell_c10_batch",
+      "body": "stemcell",
+      "protocol": "batch",
+      "cycles": 10,
+      "structure_unique": {
+        "tile_count": [
+          0
+        ],
+        "stem_cells": [
+          147,
+          148,
+          149,
+          151
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 10,
+        "acc": 0.8333,
+        "by_score_type": {
+          "mcq": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 10,
+            "total": 12,
+            "acc": 0.8333
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 151
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 149
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 147
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 149
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 147
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 148
+        }
+      ]
+    },
+    {
+      "arm": "stemcell_c20_batch",
+      "body": "stemcell",
+      "protocol": "batch",
+      "cycles": 20,
+      "structure_unique": {
+        "tile_count": [
+          0
+        ],
+        "stem_cells": [
+          147,
+          148,
+          149,
+          151
+        ]
+      },
+      "summary": {
+        "n": 12,
+        "correct": 10,
+        "acc": 0.8333,
+        "by_score_type": {
+          "mcq": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "numeric": {
+            "correct": 8,
+            "total": 8,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "direct_math": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          },
+          "mcq_option": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "word_problem": {
+            "correct": 4,
+            "total": 4,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "unknown": {
+            "correct": 10,
+            "total": 12,
+            "acc": 0.8333
+          }
+        }
+      },
+      "rows": [
+        {
+          "id": "GSM_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "GSM_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 151
+        },
+        {
+          "id": "GSM_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 149
+        },
+        {
+          "id": "GSM_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "word_problem",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MATH_01",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 147
+        },
+        {
+          "id": "MATH_02",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MATH_03",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MATH_04",
+          "score_type": "numeric",
+          "correct": true,
+          "decode_path": "direct_math",
+          "tile_count": 0,
+          "stem_cells": 148
+        },
+        {
+          "id": "MCQ_PHYS_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 149
+        },
+        {
+          "id": "MCQ_PHYS_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 147
+        },
+        {
+          "id": "MCQ_CHEM_01",
+          "score_type": "mcq",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 149
+        },
+        {
+          "id": "MCQ_CHEM_02",
+          "score_type": "mcq",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "tile_count": 0,
+          "stem_cells": 148
+        }
+      ]
+    }
+  ],
+  "verdict": "**tile structure**: patch_hash 不变 (c1≡c20) · counts c1→c20: (177, 0) → (177, 0). **stemcell structure**: patch_hash 随 cycle 变化 · counts c1→c20: (0, 277) → (0, 277). **tile QA isolated c1→c20**: +0.00 pp. **stemcell QA isolated c1→c20**: +0.00 pp."
+}
