@@ -17,6 +17,24 @@ use std::time::Instant;
 use std::path::Path;
 use uuid::Uuid;
 
+pub mod cortex;
+pub mod dl_front;
+pub mod native_qa;
+pub mod signal_ingress;
+pub mod smoke_report;
+
+pub use native_qa::{run_native_qa, run_native_qa_batch, NativeQaBatchRequest, NativeQaRequest, NativeQaResponse};
+pub use dl_front::{
+    encode_modality, build_body_ports, hash_embed, project_port, BodyFrontPorts, DlFrontConfig,
+    ModalityInput, DL_EMBED_DIM,
+};
+pub use signal_ingress::{
+    build_model_patch, encode_payload, BodyTarget, EncodingMode, IngressBudget, IngressPayload,
+    IngressStats, StemOrganCluster, TriadFeedReport, TriadSession, ValhallaModelPatch,
+    PATCH_VECTOR_DIM,
+};
+pub use smoke_report::{SmokeReport, SMOKE_CORPUS};
+
 // 系统存储
 pub use valhalla_storage::{SystemStorage, AllStorages, init_all_storages};
 

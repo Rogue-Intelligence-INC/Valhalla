@@ -41,6 +41,22 @@ valhalla-storage = { path = "../valhalla-storage" }
 valhalla-space-f64-gpu = { path = "../../utils/space-f64-gpu" }
 
 [[bin]]
+name = "valhalla_dl_front_smoke"
+path = "src/bin/valhalla_dl_front_smoke.rs"
+
+[[bin]]
+name = "valhalla_model_export"
+path = "src/bin/valhalla_model_export.rs"
+
+[[bin]]
+name = "valhalla_native_qa"
+path = "src/bin/valhalla_native_qa.rs"
+
+[[bin]]
+name = "valhalla_ingress_experiment"
+path = "src/bin/valhalla_ingress_experiment.rs"
+
+[[bin]]
 name = "valhalla_train_f64"
 path = "src/bin/train.rs"
 
@@ -173,6 +189,14 @@ name = "valhalla_aggregation_analysis"
 path = "src/bin/aggregation_analysis.rs"
 
 [[bin]]
+name = "valhalla_text_aggregation_compare"
+path = "src/bin/text_aggregation_compare.rs"
+
+[[bin]]
+name = "valhalla_text_aggregation_smoke"
+path = "src/bin/text_aggregation_smoke.rs"
+
+[[bin]]
 name = "valhalla_hub_interact"
 path = "src/bin/hub_interact.rs"
 
@@ -247,3 +271,7 @@ path = "src/bin/stemcell_fate_dimension_intel.rs"
 [[bin]]
 name = "valhalla_stemcell_physics"
 path = "src/bin/stemcell_physics_intel.rs"
+
+[[bin]]
+name = "valhalla_dashboard"
+path = "src/bin/valhalla_dashboard.rs"

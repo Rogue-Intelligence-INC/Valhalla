@@ -1,0 +1,496 @@
+{
+  "meta": {
+    "timestamp": "20260622_0246",
+    "decode": "mcq_option + weakened corpus boost",
+    "boost": {
+      "per_hit": 0.12,
+      "cap": 0.85,
+      "min_word_len": 5,
+      "keyword_domain_weight": 0.2
+    },
+    "baseline_persistent_c1": {
+      "correct": 21,
+      "total": 46
+    },
+    "delta_correct": 0
+  },
+  "summary": {
+    "n": 46,
+    "correct": 21,
+    "acc": 0.4565,
+    "by_score_type": {
+      "unknown": {
+        "correct": 21,
+        "total": 46,
+        "acc": 0.4565
+      }
+    },
+    "by_decode_path": {
+      "mcq_option": {
+        "correct": 21,
+        "total": 46,
+        "acc": 0.4565
+      }
+    },
+    "by_domain": {
+      "biology": {
+        "correct": 4,
+        "total": 7,
+        "acc": 0.5714
+      },
+      "chemistry": {
+        "correct": 1,
+        "total": 4,
+        "acc": 0.25
+      },
+      "chinese": {
+        "correct": 1,
+        "total": 2,
+        "acc": 0.5
+      },
+      "computer_science": {
+        "correct": 1,
+        "total": 5,
+        "acc": 0.2
+      },
+      "economics": {
+        "correct": 1,
+        "total": 1,
+        "acc": 1.0
+      },
+      "geography": {
+        "correct": 4,
+        "total": 7,
+        "acc": 0.5714
+      },
+      "history": {
+        "correct": 4,
+        "total": 6,
+        "acc": 0.6667
+      },
+      "literature": {
+        "correct": 1,
+        "total": 2,
+        "acc": 0.5
+      },
+      "medicine": {
+        "correct": 1,
+        "total": 5,
+        "acc": 0.2
+      },
+      "philosophy_logic": {
+        "correct": 1,
+        "total": 2,
+        "acc": 0.5
+      },
+      "physics": {
+        "correct": 2,
+        "total": 5,
+        "acc": 0.4
+      }
+    }
+  },
+  "decode_paths": {
+    "mcq_option": 46
+  },
+  "flips_vs_baseline": [
+    {
+      "id": "MCQ_F14",
+      "baseline": false,
+      "now": true,
+      "extracted": "B",
+      "gold": "B"
+    },
+    {
+      "id": "MCQ_F42",
+      "baseline": true,
+      "now": false,
+      "extracted": "D",
+      "gold": "B"
+    },
+    {
+      "id": "MCQ_F44",
+      "baseline": true,
+      "now": false,
+      "extracted": "C",
+      "gold": "B"
+    },
+    {
+      "id": "MCQ_F48",
+      "baseline": false,
+      "now": true,
+      "extracted": "B",
+      "gold": "B"
+    }
+  ],
+  "rows": [
+    {
+      "id": "MCQ_BIO_01",
+      "correct": true,
+      "extracted": "C",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "biology"
+    },
+    {
+      "id": "MCQ_GEO_01",
+      "correct": false,
+      "extracted": "A",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "geography"
+    },
+    {
+      "id": "MCQ_ECON_01",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "economics"
+    },
+    {
+      "id": "MCQ_PHIL_01",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "philosophy_logic"
+    },
+    {
+      "id": "MCQ_MED_01",
+      "correct": false,
+      "extracted": "B",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "medicine"
+    },
+    {
+      "id": "MCQ_HIST_02",
+      "correct": true,
+      "extracted": "C",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "history"
+    },
+    {
+      "id": "MCQ_GEO_02",
+      "correct": true,
+      "extracted": "D",
+      "gold": "D",
+      "decode_path": "mcq_option",
+      "domain": "geography"
+    },
+    {
+      "id": "MCQ_F02",
+      "correct": false,
+      "extracted": "D",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "physics"
+    },
+    {
+      "id": "MCQ_F03",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "physics"
+    },
+    {
+      "id": "MCQ_F06",
+      "correct": false,
+      "extracted": "B",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "chemistry"
+    },
+    {
+      "id": "MCQ_F07",
+      "correct": false,
+      "extracted": "A",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "biology"
+    },
+    {
+      "id": "MCQ_F08",
+      "correct": true,
+      "extracted": "D",
+      "gold": "D",
+      "decode_path": "mcq_option",
+      "domain": "biology"
+    },
+    {
+      "id": "MCQ_F09",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "biology"
+    },
+    {
+      "id": "MCQ_F10",
+      "correct": true,
+      "extracted": "C",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "history"
+    },
+    {
+      "id": "MCQ_F11",
+      "correct": false,
+      "extracted": "B",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "history"
+    },
+    {
+      "id": "MCQ_F12",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "history"
+    },
+    {
+      "id": "MCQ_F13",
+      "correct": true,
+      "extracted": "C",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "geography"
+    },
+    {
+      "id": "MCQ_F14",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "geography"
+    },
+    {
+      "id": "MCQ_F18",
+      "correct": false,
+      "extracted": "D",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "computer_science"
+    },
+    {
+      "id": "MCQ_F19",
+      "correct": false,
+      "extracted": "D",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "computer_science"
+    },
+    {
+      "id": "MCQ_F20",
+      "correct": false,
+      "extracted": "D",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "computer_science"
+    },
+    {
+      "id": "MCQ_F21",
+      "correct": false,
+      "extracted": "C",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "philosophy_logic"
+    },
+    {
+      "id": "MCQ_F22",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "medicine"
+    },
+    {
+      "id": "MCQ_F23",
+      "correct": false,
+      "extracted": "C",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "medicine"
+    },
+    {
+      "id": "MCQ_F24",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "literature"
+    },
+    {
+      "id": "MCQ_F25",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "chinese"
+    },
+    {
+      "id": "MCQ_F26",
+      "correct": false,
+      "extracted": "A",
+      "gold": "D",
+      "decode_path": "mcq_option",
+      "domain": "physics"
+    },
+    {
+      "id": "MCQ_F27",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "physics"
+    },
+    {
+      "id": "MCQ_F28",
+      "correct": false,
+      "extracted": "C",
+      "gold": "A",
+      "decode_path": "mcq_option",
+      "domain": "chemistry"
+    },
+    {
+      "id": "MCQ_F29",
+      "correct": false,
+      "extracted": "D",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "chemistry"
+    },
+    {
+      "id": "MCQ_F30",
+      "correct": false,
+      "extracted": "A",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "biology"
+    },
+    {
+      "id": "MCQ_F31",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "biology"
+    },
+    {
+      "id": "MCQ_F32",
+      "correct": false,
+      "extracted": "D",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "history"
+    },
+    {
+      "id": "MCQ_F34",
+      "correct": true,
+      "extracted": "C",
+      "gold": "C",
+      "decode_path": "mcq_option",
+      "domain": "geography"
+    },
+    {
+      "id": "MCQ_F35",
+      "correct": false,
+      "extracted": "D",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "geography"
+    },
+    {
+      "id": "MCQ_F38",
+      "correct": false,
+      "extracted": "A",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "computer_science"
+    },
+    {
+      "id": "MCQ_F41",
+      "correct": false,
+      "extracted": "C",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "medicine"
+    },
+    {
+      "id": "MCQ_F42",
+      "correct": false,
+      "extracted": "D",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "medicine"
+    },
+    {
+      "id": "MCQ_F43",
+      "correct": false,
+      "extracted": "D",
+      "gold": "A",
+      "decode_path": "mcq_option",
+      "domain": "literature"
+    },
+    {
+      "id": "MCQ_F44",
+      "correct": false,
+      "extracted": "C",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "chinese"
+    },
+    {
+      "id": "MCQ_F45",
+      "correct": false,
+      "extracted": "C",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "physics"
+    },
+    {
+      "id": "MCQ_F46",
+      "correct": true,
+      "extracted": "A",
+      "gold": "A",
+      "decode_path": "mcq_option",
+      "domain": "chemistry"
+    },
+    {
+      "id": "MCQ_F47",
+      "correct": false,
+      "extracted": "A",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "biology"
+    },
+    {
+      "id": "MCQ_F48",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "history"
+    },
+    {
+      "id": "MCQ_F49",
+      "correct": false,
+      "extracted": "D",
+      "gold": "A",
+      "decode_path": "mcq_option",
+      "domain": "geography"
+    },
+    {
+      "id": "MCQ_F50",
+      "correct": true,
+      "extracted": "B",
+      "gold": "B",
+      "decode_path": "mcq_option",
+      "domain": "computer_science"
+    }
+  ]
+}

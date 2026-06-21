@@ -1,0 +1,2180 @@
+{
+  "meta": {
+    "timestamp": "20260621_2330",
+    "mcq_count": 46,
+    "baseline_persistent_c1": {
+      "correct": 21,
+      "total": 46
+    }
+  },
+  "experiment_3_multicycle": [
+    {
+      "incubation_cycles": 1,
+      "entailment": false,
+      "summary": {
+        "n": 46,
+        "correct": 21,
+        "acc": 0.4565,
+        "by_score_type": {
+          "unknown": {
+            "correct": 21,
+            "total": 46,
+            "acc": 0.4565
+          }
+        },
+        "by_decode_path": {
+          "mcq_option": {
+            "correct": 21,
+            "total": 46,
+            "acc": 0.4565
+          }
+        },
+        "by_domain": {
+          "biology": {
+            "correct": 4,
+            "total": 7,
+            "acc": 0.5714
+          },
+          "chemistry": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "chinese": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "computer_science": {
+            "correct": 1,
+            "total": 5,
+            "acc": 0.2
+          },
+          "economics": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "geography": {
+            "correct": 3,
+            "total": 7,
+            "acc": 0.4286
+          },
+          "history": {
+            "correct": 3,
+            "total": 6,
+            "acc": 0.5
+          },
+          "literature": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "medicine": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          },
+          "philosophy_logic": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "physics": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          }
+        }
+      },
+      "decode_paths": {
+        "mcq_option": 46
+      },
+      "rows": [
+        {
+          "id": "MCQ_BIO_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_GEO_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_ECON_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "economics"
+        },
+        {
+          "id": "MCQ_PHIL_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_MED_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_HIST_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_GEO_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F02",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F03",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F06",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F07",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F08",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F09",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F10",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F11",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F12",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F13",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F14",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F18",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F19",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F20",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F21",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_F22",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F23",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F24",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F25",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F26",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F27",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F28",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F29",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F30",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F31",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F32",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F34",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F35",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F38",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F41",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F42",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F43",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F44",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F45",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F46",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F47",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F48",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F49",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F50",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        }
+      ]
+    },
+    {
+      "incubation_cycles": 5,
+      "entailment": false,
+      "summary": {
+        "n": 46,
+        "correct": 22,
+        "acc": 0.4783,
+        "by_score_type": {
+          "unknown": {
+            "correct": 22,
+            "total": 46,
+            "acc": 0.4783
+          }
+        },
+        "by_decode_path": {
+          "mcq_option": {
+            "correct": 22,
+            "total": 46,
+            "acc": 0.4783
+          }
+        },
+        "by_domain": {
+          "biology": {
+            "correct": 4,
+            "total": 7,
+            "acc": 0.5714
+          },
+          "chemistry": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "chinese": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "computer_science": {
+            "correct": 1,
+            "total": 5,
+            "acc": 0.2
+          },
+          "economics": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "geography": {
+            "correct": 3,
+            "total": 7,
+            "acc": 0.4286
+          },
+          "history": {
+            "correct": 3,
+            "total": 6,
+            "acc": 0.5
+          },
+          "literature": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "medicine": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          },
+          "philosophy_logic": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "physics": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          }
+        }
+      },
+      "decode_paths": {
+        "mcq_option": 46
+      },
+      "rows": [
+        {
+          "id": "MCQ_BIO_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_GEO_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_ECON_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "economics"
+        },
+        {
+          "id": "MCQ_PHIL_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_MED_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_HIST_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_GEO_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F02",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F03",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F06",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F07",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F08",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F09",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F10",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F11",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F12",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F13",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F14",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F18",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F19",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F20",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F21",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_F22",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F23",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F24",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F25",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F26",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F27",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F28",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F29",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F30",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F31",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F32",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F34",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F35",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F38",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F41",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F42",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F43",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F44",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F45",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F46",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F47",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F48",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F49",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F50",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        }
+      ]
+    },
+    {
+      "incubation_cycles": 10,
+      "entailment": false,
+      "summary": {
+        "n": 46,
+        "correct": 22,
+        "acc": 0.4783,
+        "by_score_type": {
+          "unknown": {
+            "correct": 22,
+            "total": 46,
+            "acc": 0.4783
+          }
+        },
+        "by_decode_path": {
+          "mcq_option": {
+            "correct": 22,
+            "total": 46,
+            "acc": 0.4783
+          }
+        },
+        "by_domain": {
+          "biology": {
+            "correct": 4,
+            "total": 7,
+            "acc": 0.5714
+          },
+          "chemistry": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "chinese": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "computer_science": {
+            "correct": 1,
+            "total": 5,
+            "acc": 0.2
+          },
+          "economics": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "geography": {
+            "correct": 3,
+            "total": 7,
+            "acc": 0.4286
+          },
+          "history": {
+            "correct": 3,
+            "total": 6,
+            "acc": 0.5
+          },
+          "literature": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "medicine": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          },
+          "philosophy_logic": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "physics": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          }
+        }
+      },
+      "decode_paths": {
+        "mcq_option": 46
+      },
+      "rows": [
+        {
+          "id": "MCQ_BIO_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_GEO_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_ECON_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "economics"
+        },
+        {
+          "id": "MCQ_PHIL_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_MED_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_HIST_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_GEO_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F02",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F03",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F06",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F07",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F08",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F09",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F10",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F11",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F12",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F13",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F14",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F18",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F19",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F20",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F21",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_F22",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F23",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F24",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F25",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F26",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F27",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F28",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F29",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F30",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F31",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F32",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F34",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F35",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F38",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F41",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F42",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F43",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F44",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F45",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F46",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F47",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F48",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F49",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F50",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        }
+      ]
+    },
+    {
+      "incubation_cycles": 20,
+      "entailment": false,
+      "summary": {
+        "n": 46,
+        "correct": 22,
+        "acc": 0.4783,
+        "by_score_type": {
+          "unknown": {
+            "correct": 22,
+            "total": 46,
+            "acc": 0.4783
+          }
+        },
+        "by_decode_path": {
+          "mcq_option": {
+            "correct": 22,
+            "total": 46,
+            "acc": 0.4783
+          }
+        },
+        "by_domain": {
+          "biology": {
+            "correct": 4,
+            "total": 7,
+            "acc": 0.5714
+          },
+          "chemistry": {
+            "correct": 2,
+            "total": 4,
+            "acc": 0.5
+          },
+          "chinese": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "computer_science": {
+            "correct": 1,
+            "total": 5,
+            "acc": 0.2
+          },
+          "economics": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "geography": {
+            "correct": 3,
+            "total": 7,
+            "acc": 0.4286
+          },
+          "history": {
+            "correct": 3,
+            "total": 6,
+            "acc": 0.5
+          },
+          "literature": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "medicine": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          },
+          "philosophy_logic": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "physics": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          }
+        }
+      },
+      "decode_paths": {
+        "mcq_option": 46
+      },
+      "rows": [
+        {
+          "id": "MCQ_BIO_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_GEO_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_ECON_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "economics"
+        },
+        {
+          "id": "MCQ_PHIL_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_MED_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_HIST_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_GEO_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F02",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F03",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F06",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F07",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F08",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F09",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F10",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F11",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F12",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F13",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F14",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F18",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F19",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F20",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F21",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_F22",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F23",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F24",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F25",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F26",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F27",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F28",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F29",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F30",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F31",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F32",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F34",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F35",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F38",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F41",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F42",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F43",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F44",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F45",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F46",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F47",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F48",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F49",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F50",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        }
+      ]
+    }
+  ],
+  "experiment_4_entailment": {
+    "baseline_c1": {
+      "incubation_cycles": 1,
+      "entailment": false,
+      "summary": {
+        "n": 46,
+        "correct": 21,
+        "acc": 0.4565,
+        "by_score_type": {
+          "unknown": {
+            "correct": 21,
+            "total": 46,
+            "acc": 0.4565
+          }
+        },
+        "by_decode_path": {
+          "mcq_option": {
+            "correct": 21,
+            "total": 46,
+            "acc": 0.4565
+          }
+        },
+        "by_domain": {
+          "biology": {
+            "correct": 4,
+            "total": 7,
+            "acc": 0.5714
+          },
+          "chemistry": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "chinese": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "computer_science": {
+            "correct": 1,
+            "total": 5,
+            "acc": 0.2
+          },
+          "economics": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "geography": {
+            "correct": 3,
+            "total": 7,
+            "acc": 0.4286
+          },
+          "history": {
+            "correct": 3,
+            "total": 6,
+            "acc": 0.5
+          },
+          "literature": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "medicine": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          },
+          "philosophy_logic": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "physics": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          }
+        }
+      },
+      "decode_paths": {
+        "mcq_option": 46
+      },
+      "rows": [
+        {
+          "id": "MCQ_BIO_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_GEO_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_ECON_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "economics"
+        },
+        {
+          "id": "MCQ_PHIL_01",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_MED_01",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_HIST_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_GEO_02",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F02",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F03",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F06",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F07",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F08",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F09",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F10",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F11",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F12",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F13",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F14",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F18",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F19",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F20",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F21",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_F22",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F23",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F24",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F25",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F26",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F27",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F28",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F29",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F30",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F31",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F32",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F34",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F35",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F38",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F41",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F42",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F43",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F44",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F45",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F46",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F47",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F48",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F49",
+          "correct": false,
+          "decode_path": "mcq_option",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F50",
+          "correct": true,
+          "decode_path": "mcq_option",
+          "domain": "computer_science"
+        }
+      ]
+    },
+    "entailment_c1": {
+      "incubation_cycles": 1,
+      "entailment": true,
+      "summary": {
+        "n": 46,
+        "correct": 21,
+        "acc": 0.4565,
+        "by_score_type": {
+          "unknown": {
+            "correct": 21,
+            "total": 46,
+            "acc": 0.4565
+          }
+        },
+        "by_decode_path": {
+          "mcq_entailment": {
+            "correct": 21,
+            "total": 46,
+            "acc": 0.4565
+          }
+        },
+        "by_domain": {
+          "biology": {
+            "correct": 4,
+            "total": 7,
+            "acc": 0.5714
+          },
+          "chemistry": {
+            "correct": 1,
+            "total": 4,
+            "acc": 0.25
+          },
+          "chinese": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "computer_science": {
+            "correct": 1,
+            "total": 5,
+            "acc": 0.2
+          },
+          "economics": {
+            "correct": 0,
+            "total": 1,
+            "acc": 0.0
+          },
+          "geography": {
+            "correct": 4,
+            "total": 7,
+            "acc": 0.5714
+          },
+          "history": {
+            "correct": 4,
+            "total": 6,
+            "acc": 0.6667
+          },
+          "literature": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "medicine": {
+            "correct": 1,
+            "total": 5,
+            "acc": 0.2
+          },
+          "philosophy_logic": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "physics": {
+            "correct": 2,
+            "total": 5,
+            "acc": 0.4
+          }
+        }
+      },
+      "decode_paths": {
+        "mcq_entailment": 46
+      },
+      "rows": [
+        {
+          "id": "MCQ_BIO_01",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_GEO_01",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_ECON_01",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "economics"
+        },
+        {
+          "id": "MCQ_PHIL_01",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_MED_01",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_HIST_02",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_GEO_02",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F02",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F03",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F06",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F07",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F08",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F09",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F10",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F11",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F12",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F13",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F14",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F18",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F19",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F20",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F21",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "philosophy_logic"
+        },
+        {
+          "id": "MCQ_F22",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F23",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F24",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F25",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F26",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F27",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F28",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F29",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F30",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F31",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F32",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F34",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F35",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F38",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "computer_science"
+        },
+        {
+          "id": "MCQ_F41",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F42",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "medicine"
+        },
+        {
+          "id": "MCQ_F43",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "literature"
+        },
+        {
+          "id": "MCQ_F44",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "chinese"
+        },
+        {
+          "id": "MCQ_F45",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "physics"
+        },
+        {
+          "id": "MCQ_F46",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "chemistry"
+        },
+        {
+          "id": "MCQ_F47",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "biology"
+        },
+        {
+          "id": "MCQ_F48",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "history"
+        },
+        {
+          "id": "MCQ_F49",
+          "correct": false,
+          "decode_path": "mcq_entailment",
+          "domain": "geography"
+        },
+        {
+          "id": "MCQ_F50",
+          "correct": true,
+          "decode_path": "mcq_entailment",
+          "domain": "computer_science"
+        }
+      ]
+    }
+  }
+}
