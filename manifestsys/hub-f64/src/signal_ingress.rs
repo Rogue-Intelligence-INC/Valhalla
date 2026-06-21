@@ -312,6 +312,9 @@ pub struct TriadFeedReport {
     pub optimize_cycles: usize,
     /// Per-cycle structure snapshot after each process cycle.
     pub cycle_trace: Vec<CycleSnapshot>,
+    /// MCQ Fate decompose/aggregate trace (`VALHALLA_MCQ_FATE_CYCLES=1`).
+    #[serde(default)]
+    pub mcq_fate_trace: Vec<crate::mcq_fate::McqFateCycleSnapshot>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -1009,6 +1012,7 @@ impl TriadSession {
             model_patch,
             optimize_cycles,
             cycle_trace: Vec::new(),
+            mcq_fate_trace: Vec::new(),
         }
     }
 

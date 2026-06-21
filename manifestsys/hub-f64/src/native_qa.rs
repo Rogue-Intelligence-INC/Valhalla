@@ -5,9 +5,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    cortex::TransformType, encode_payload, hash_embed, BodyFrontPorts, BodyTarget, DlFrontConfig,
-    EncodingMode, IngressBudget, IngressPayload, ModalityInput, TriadFeedReport, TriadSession,
-    DL_EMBED_DIM,
+    cortex::TransformType, encode_payload, hash_embed, mcq_fate, BodyFrontPorts, BodyTarget,
+    DlFrontConfig, EncodingMode, IngressBudget, IngressPayload, ModalityInput, TriadFeedReport,
+    TriadSession, DL_EMBED_DIM,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -98,6 +98,14 @@ pub struct NativeQaBatchItem {
     pub tile_avg_activation: f64,
     pub stem_organ_clusters: usize,
     pub correct: bool,
+    #[serde(default)]
+    pub mcq_fate_cycles: usize,
+    #[serde(default)]
+    pub mcq_fate_stopped: String,
+    #[serde(default)]
+    pub mcq_decompose_score: f64,
+    #[serde(default)]
+    pub mcq_aggregate_score: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -443,19 +451,7 @@ fn numbers_in_text(text: &str) -> Vec<f64> {
 }
 
 fn parse_mcq_options(question: &str) -> Vec<(char, String)> {
-    let mut opts = Vec::new();
-    for line in question.lines() {
-        let t = line.trim();
-        if t.len() >= 3 {
-            let c = t.chars().next().unwrap();
-            if matches!(c, 'A' | 'B' | 'C' | 'D') {
-                if t.chars().nth(1).map(|x| x == ')' || x == '.').unwrap_or(false) {
-                    opts.push((c, t.to_string()));
-                }
-            }
-        }
-    }
-    opts
+    mcq_fate::parse_mcq_options(question)
 }
 
 fn fate_tile_weight(hub_prefs: &[f64], idx: usize) -> f64 {
@@ -1484,7 +1480,29 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             corpus_idx: None,
         });
         qa_session.emit_body_ports(question_ports);
-        let report = qa_session.build_feed_report(mode_label, req.qa_cycles);
+        let (report, mcq_fate_meta) = if q.score_type == "mcq" && mcq_fate::mcq_fate_cycles_enabled() {
+            let outcome = mcq_fate::run_mcq_fate_pipeline(
+                &mut qa_session,
+                &q.question,
+                question_ports,
+                mode_label,
+                &front,
+            );
+            (
+                outcome.report,
+                Some((
+                    outcome.cycles_executed,
+                    outcome.stopped_reason,
+                    outcome.decompose_score,
+                    outcome.aggregate_score,
+                )),
+            )
+        } else {
+            (
+                qa_session.build_feed_report(mode_label, req.qa_cycles),
+                None,
+            )
+        };
         let (answer, _top, decode_path) = decode_from_report(
             &q.question,
             &q.score_type,
@@ -1495,6 +1513,11 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             dl,
             &front,
         );
+        let decode_path = if mcq_fate_meta.is_some() {
+            "mcq_fate_cycle".to_string()
+        } else {
+            decode_path
+        };
         results.push(NativeQaBatchItem {
             id: q.id.clone().unwrap_or_default(),
             answer,
@@ -1506,6 +1529,13 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             tile_avg_activation: report.model_patch.tile_avg_activation,
             stem_organ_clusters: report.model_patch.stem_organ_clusters.len(),
             correct: false,
+            mcq_fate_cycles: mcq_fate_meta.as_ref().map(|m| m.0).unwrap_or(0),
+            mcq_fate_stopped: mcq_fate_meta
+                .as_ref()
+                .map(|m| m.1.clone())
+                .unwrap_or_default(),
+            mcq_decompose_score: mcq_fate_meta.as_ref().map(|m| m.2).unwrap_or(0.0),
+            mcq_aggregate_score: mcq_fate_meta.as_ref().map(|m| m.3).unwrap_or(0.0),
         });
     }
 

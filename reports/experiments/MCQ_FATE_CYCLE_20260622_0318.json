@@ -1,0 +1,1015 @@
+{
+  "meta": {
+    "timestamp": "20260622_0318",
+    "mcq_count": 46,
+    "baseline_persistent": {
+      "correct": 21,
+      "total": 46
+    },
+    "protocol": "persistent whole-question + mcq_fate decompose/aggregate"
+  },
+  "results": {
+    "tile": {
+      "baseline": {
+        "body": "tile",
+        "fate_cycles": false,
+        "summary": {
+          "n": 46,
+          "correct": 22,
+          "acc": 0.4783,
+          "by_score_type": {
+            "unknown": {
+              "correct": 22,
+              "total": 46,
+              "acc": 0.4783
+            }
+          },
+          "by_decode_path": {
+            "mcq_option": {
+              "correct": 22,
+              "total": 46,
+              "acc": 0.4783
+            }
+          },
+          "by_domain": {
+            "unknown": {
+              "correct": 22,
+              "total": 46,
+              "acc": 0.4783
+            }
+          }
+        },
+        "decode_paths": {
+          "mcq_option": 46
+        },
+        "stop_reasons": {},
+        "avg_fate_cycles": 0,
+        "avg_decompose": 0.0,
+        "avg_aggregate": 0.0,
+        "rows": [
+          {
+            "id": "MCQ_BIO_01",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_GEO_01",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_ECON_01",
+            "correct": false,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_PHIL_01",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_MED_01",
+            "correct": false,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_HIST_02",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_GEO_02",
+            "correct": true,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F02",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F03",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F06",
+            "correct": false,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F07",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F08",
+            "correct": true,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F09",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F10",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F11",
+            "correct": false,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F12",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F13",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F14",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F18",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F19",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F20",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F21",
+            "correct": false,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F22",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F23",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F24",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F25",
+            "correct": false,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F26",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F27",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F28",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F29",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F30",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F31",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F32",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F34",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F35",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F38",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F41",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F42",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F43",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F44",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F45",
+            "correct": false,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F46",
+            "correct": true,
+            "extracted": "A",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F47",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F48",
+            "correct": false,
+            "extracted": "C",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F49",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          },
+          {
+            "id": "MCQ_F50",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_option",
+            "mcq_fate_cycles": 0,
+            "mcq_fate_stopped": "",
+            "mcq_decompose_score": 0.0,
+            "mcq_aggregate_score": 0.0
+          }
+        ]
+      },
+      "fate": {
+        "body": "tile",
+        "fate_cycles": true,
+        "summary": {
+          "n": 46,
+          "correct": 24,
+          "acc": 0.5217,
+          "by_score_type": {
+            "unknown": {
+              "correct": 24,
+              "total": 46,
+              "acc": 0.5217
+            }
+          },
+          "by_decode_path": {
+            "mcq_fate_cycle": {
+              "correct": 24,
+              "total": 46,
+              "acc": 0.5217
+            }
+          },
+          "by_domain": {
+            "unknown": {
+              "correct": 24,
+              "total": 46,
+              "acc": 0.5217
+            }
+          }
+        },
+        "decode_paths": {
+          "mcq_fate_cycle": 46
+        },
+        "stop_reasons": {
+          "fate_marginal_stable": 46
+        },
+        "avg_fate_cycles": 14.869565217391305,
+        "avg_decompose": 0.7460869565217392,
+        "avg_aggregate": 0.12084445106016015,
+        "rows": [
+          {
+            "id": "MCQ_BIO_01",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12516214022935251
+          },
+          {
+            "id": "MCQ_GEO_01",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.1187901094246998
+          },
+          {
+            "id": "MCQ_ECON_01",
+            "correct": false,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.74,
+            "mcq_aggregate_score": 0.12862927286787645
+          },
+          {
+            "id": "MCQ_PHIL_01",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12067571461263944
+          },
+          {
+            "id": "MCQ_MED_01",
+            "correct": false,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.74,
+            "mcq_aggregate_score": 0.11867640576322855
+          },
+          {
+            "id": "MCQ_HIST_02",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.9400000000000002,
+            "mcq_aggregate_score": 0.11608376482459937
+          },
+          {
+            "id": "MCQ_GEO_02",
+            "correct": true,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8600000000000001,
+            "mcq_aggregate_score": 0.12064056782587737
+          },
+          {
+            "id": "MCQ_F02",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8400000000000001,
+            "mcq_aggregate_score": 0.11805514668386276
+          },
+          {
+            "id": "MCQ_F03",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12205179681633418
+          },
+          {
+            "id": "MCQ_F06",
+            "correct": false,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.1254993223863196
+          },
+          {
+            "id": "MCQ_F07",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.11856014222590185
+          },
+          {
+            "id": "MCQ_F08",
+            "correct": true,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8,
+            "mcq_aggregate_score": 0.1219306033149947
+          },
+          {
+            "id": "MCQ_F09",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8,
+            "mcq_aggregate_score": 0.11491441265206917
+          },
+          {
+            "id": "MCQ_F10",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 16,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8200000000000001,
+            "mcq_aggregate_score": 0.12703480874678105
+          },
+          {
+            "id": "MCQ_F11",
+            "correct": false,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12196674546974126
+          },
+          {
+            "id": "MCQ_F12",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8,
+            "mcq_aggregate_score": 0.12068417826901046
+          },
+          {
+            "id": "MCQ_F13",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.74,
+            "mcq_aggregate_score": 0.12514595668211342
+          },
+          {
+            "id": "MCQ_F14",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.11850173223474388
+          },
+          {
+            "id": "MCQ_F18",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12192504298349523
+          },
+          {
+            "id": "MCQ_F19",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12538603813498356
+          },
+          {
+            "id": "MCQ_F20",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.78,
+            "mcq_aggregate_score": 0.1169874001267439
+          },
+          {
+            "id": "MCQ_F21",
+            "correct": false,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.74,
+            "mcq_aggregate_score": 0.1250571919811374
+          },
+          {
+            "id": "MCQ_F22",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8600000000000001,
+            "mcq_aggregate_score": 0.1220498786044322
+          },
+          {
+            "id": "MCQ_F23",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12075857906945403
+          },
+          {
+            "id": "MCQ_F24",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12704169732839896
+          },
+          {
+            "id": "MCQ_F25",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8,
+            "mcq_aggregate_score": 0.11288303254074267
+          },
+          {
+            "id": "MCQ_F26",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.9000000000000001,
+            "mcq_aggregate_score": 0.12110787519130939
+          },
+          {
+            "id": "MCQ_F27",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8,
+            "mcq_aggregate_score": 0.1207970869695134
+          },
+          {
+            "id": "MCQ_F28",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12078266758259756
+          },
+          {
+            "id": "MCQ_F29",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.74,
+            "mcq_aggregate_score": 0.11333501297019087
+          },
+          {
+            "id": "MCQ_F30",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.74,
+            "mcq_aggregate_score": 0.11681886822554743
+          },
+          {
+            "id": "MCQ_F31",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.11952599597310334
+          },
+          {
+            "id": "MCQ_F32",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12078122033740728
+          },
+          {
+            "id": "MCQ_F34",
+            "correct": true,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.12385997436387608
+          },
+          {
+            "id": "MCQ_F35",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8,
+            "mcq_aggregate_score": 0.12198208786591572
+          },
+          {
+            "id": "MCQ_F38",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.74,
+            "mcq_aggregate_score": 0.1206353345727014
+          },
+          {
+            "id": "MCQ_F41",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.78,
+            "mcq_aggregate_score": 0.11754003438679618
+          },
+          {
+            "id": "MCQ_F42",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.11766264029566696
+          },
+          {
+            "id": "MCQ_F43",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.1251091846912623
+          },
+          {
+            "id": "MCQ_F44",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.11607714066308769
+          },
+          {
+            "id": "MCQ_F45",
+            "correct": false,
+            "extracted": "C",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8,
+            "mcq_aggregate_score": 0.12075947384197296
+          },
+          {
+            "id": "MCQ_F46",
+            "correct": true,
+            "extracted": "A",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 18,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.9400000000000002,
+            "mcq_aggregate_score": 0.10990772498939921
+          },
+          {
+            "id": "MCQ_F47",
+            "correct": false,
+            "extracted": "A",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 14,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.8,
+            "mcq_aggregate_score": 0.12699151177230117
+          },
+          {
+            "id": "MCQ_F48",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.1194889270964402
+          },
+          {
+            "id": "MCQ_F49",
+            "correct": false,
+            "extracted": "D",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.74,
+            "mcq_aggregate_score": 0.12353958106837809
+          },
+          {
+            "id": "MCQ_F50",
+            "correct": true,
+            "extracted": "B",
+            "decode_path": "mcq_fate_cycle",
+            "mcq_fate_cycles": 15,
+            "mcq_fate_stopped": "fate_marginal_stable",
+            "mcq_decompose_score": 0.68,
+            "mcq_aggregate_score": 0.1270507241103663
+          }
+        ]
+      }
+    }
+  }
+}

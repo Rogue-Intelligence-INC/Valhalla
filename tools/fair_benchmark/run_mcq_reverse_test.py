@@ -14,7 +14,7 @@ sys.path.insert(0, str(FAIR))
 sys.path.insert(0, str(REPO / "tools/valhalla_artifact"))
 
 from artifact import load_artifact
-from hybrid_valhalla_lm import build_hybrid_rows, hybrid_summary, patch_prompt_ids
+from hybrid_valhalla_lm import MEMORY_TRIAD, build_hybrid_rows, hybrid_summary, patch_prompt_ids
 from metrics import summarize_rows
 from run_fair_benchmark import load_suite, run_memory_arm, select_prompts
 
@@ -56,8 +56,9 @@ def main() -> None:
     # hybrid with baseline patch rows (routing change only for patch subset)
     patch_ids = patch_prompt_ids(prompts, __import__("run_potential_analysis", fromlist=["classify_slices"]).classify_slices(prompts, corpus))
     patch_rows = [r for r in b_patch["rows"] if r["id"] in patch_ids]
-    hybrid_rows, slices = build_hybrid_rows(prompts, memory_rows, patch_rows, corpus)
-    summary = hybrid_summary(hybrid_rows, memory_rows, patch_rows, slices)
+    mem_src = {MEMORY_TRIAD: memory_rows}
+    hybrid_rows, slices = build_hybrid_rows(prompts, mem_src, patch_rows, corpus)
+    summary = hybrid_summary(hybrid_rows, mem_src, patch_rows, slices)
 
     h_mcq = mcq_acc(hybrid_rows)
     h_all = summarize_rows(hybrid_rows)

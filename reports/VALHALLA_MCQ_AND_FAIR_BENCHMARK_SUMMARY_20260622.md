@@ -3,6 +3,7 @@
 
 **Date / 日期**: 2026-06-22  
 **Author / 出品**: Rogue Intelligence LNC.  
+**Versions / 版本**: **Hybrid product hybrid-2.0** · Fair benchmark **fair-1.2** · hub-f64 **1.1.0**  
 **Benchmark / 基准**: Fair Benchmark test split · 145 questions (46 multiple-choice) · 49-line clean corpus  
 **Companion LLM / 配套语言模型**: Qwen2.5-0.5B-Instruct
 
@@ -21,14 +22,30 @@ This phase focuses on **four-option multiple-choice (MCQ)**: the same 46 questio
 
 ---
 
-## 2. Three ways to answer (plain language)  
-## 2. 三种答题方式（日常语言）
+## 2. One product: Hybrid Valhalla / 唯一产品：Hybrid Valhalla
+
+**EN:** All 145 questions go through **one router** — no separate “memory track” vs “LM track” for users. Internally:
+
+| Type / 题型 | Hybrid route / 路由 |
+|-------------|---------------------|
+| **open** / 开放题 | Valhalla patch + Qwen **generate** |
+| **mcq** / 多选题 | **best**(Tile+Fate memory, Triad memory) |
+| **numeric** / 数字题 | **max**(Tile+Fate, Triad, patch LM) |
+
+**Runner / 入口:** `python tools/fair_benchmark/run_hybrid_valhalla_lm.py --phase test`
+
+**中文：** 对外只有一个 **Hybrid 产品**；开放题走补丁 LM，多选题取 Tile+Fate 与 Triad 记忆的最优，数字题三路取最优。
+
+---
+
+## 3. Under-the-hood tracks (for engineers) / 内部轨道（工程用）
 
 | Mode / 方式 | Plain description / 说明 | MCQ output / 多选题输出 |
 |-------------|--------------------------|-------------------------|
 | **A. Native memory** / **原生记忆** | Corpus → internal structure → score each option → pick highest | Fixed `ANSWER: A/B/C/D` |
 | **B. LLM only** / **纯语言模型** | Load Qwen per question; generate free text | Extract letter from generated text |
 | **C. LLM + structure patch** / **模型 + 结构补丁** | Export structure from Valhalla corpus; tweak Qwen weights; then generate | Same as B |
+| **D. Hybrid (default product)** / **Hybrid（默认产品）** | Unified router above / 上表统一路由 | Best per type / 分题型最优 |
 
 **Fair Benchmark rules / 公平原则：**
 
@@ -68,6 +85,24 @@ This phase focuses on **four-option multiple-choice (MCQ)**: the same 46 questio
 **EN:** Qwen is strong on **open** (~93%) and **numeric** (~76%) questions. Native is competitive on numeric (~58% in benchmark) but weaker on open and MCQ decoding.
 
 **中文：** Qwen 在**开放题**、**数字题**仍强；原生数字题不错，弱项是开放题与多选题解码。
+
+> **Important / 重要：** The **26% open** figure above is **Tier B memory only** (retrieval). Open questions were **already solved at product level** via **Hybrid Valhalla LM** — see §3.3. Do **not** read 40.7% native total as “open is broken.”
+>
+> 上文 **26% open** 仅指 **Tier B 原生记忆（检索）**。**开放题在产品层已通过 Hybrid Valhalla LM 解决** — 见 §3.3。勿把 40.7% 原生总分误解为「open 没解决」。
+
+### 3.3 Unified Hybrid (all types) / 统一 Hybrid（全题型）
+
+**EN:** Single entry point merges **Triad memory**, **Tile+MCQ Fate memory**, and **patch LM**. Re-run:
+
+`python tools/fair_benchmark/run_hybrid_valhalla_lm.py --phase test --reuse-json reports/fair_benchmark/fair_benchmark_test_20260620_0859.json --skip-patch`
+
+| Component / 组件 | Role / 作用 |
+|------------------|-------------|
+| Tile + Fate | Best MCQ memory (**24/46** in experiments) |
+| Triad persistent | Numeric + MCQ fallback |
+| Patch LM | Open **~95%** + numeric candidate |
+
+**中文：** 全部题型经 **Hybrid 一条链路** 输出；MCQ 用 Tile+Fate，open 用 patch LM，numeric 三路取 max。
 
 ---
 
@@ -122,6 +157,7 @@ All on **46 MCQ**; JSON under `reports/experiments/`.
 | Stem-only query + joint embed / 仅题干+联合向量 | Less option pollution in query | 21→16 | Structure too weak alone / 结构不够 |
 | Weaker corpus word boost / 削弱词面加分 | Cap keyword matching | 21 flat | OK for one-shot / 一次孵化可保留 |
 | One-shot whole question / 整题·一次孵化 | Tile 22, Stem 19 | +9 vs reload | **Protocol wins / 协议有效** |
+| MCQ Fate dynamic cycles / MCQ Fate 动态轮次 | tag + decompose/aggregate | Tile **24/46** | Tile-only best / Tile 最高 |
 | Decode v2 + skip channel / decode v2 | Mixed stem, relative score | 18–22 | **Reverted / 已回滚** |
 
 **Works / 有效:** one-shot incubation, whole-question ingress, toned-down keyword boost.  
@@ -165,8 +201,10 @@ User question (whole: stem + options / 整题)
 | MCQ experiments / MCQ 实验 | `reports/experiments/MCQ_*`, `TILE_STEM_WHOLE_QUESTION_*` |
 | Build / 构建 | `cargo build -p hub-f64 --release --bin valhalla_native_qa` |
 | Whole-question test / 整题测试 | `python tools/fair_benchmark/run_tile_stem_whole_question_test.py` |
+| **Hybrid verify / Hybrid 统一入口** | `python tools/fair_benchmark/run_hybrid_valhalla_lm.py --phase test` |
+| MCQ Fate cycles / MCQ Fate 多循环 | `VALHALLA_MCQ_FATE_CYCLES=1` · `run_mcq_fate_cycle_test.py` |
 
-**Current code state / 当前代码：** decode v2 **reverted**; weakened corpus word boost **kept**; path `mcq_option`.
+**Current code state / 当前代码：** decode v2 **reverted**; weakened corpus word boost **kept**; path `mcq_option`; **Hybrid open routing unchanged**; optional `mcq_fate_cycle` for MCQ only.
 
 ---
 
@@ -174,8 +212,8 @@ User question (whole: stem + options / 整题)
 
 1. **Lock protocol / 锁定协议:** one-shot + whole question; tile module best on MCQ (22/46).
 2. **Fix the comparator / 改比较器:** stem-conditioned relative scores + corpus-to-option support (not more routing rules).
-3. **Split roles / 分工:** Qwen for open text; native for MCQ/numeric; do not expect patch to fix MCQ.
-4. **Report by type / 分题型报告:** never use 145Q accuracy alone for MCQ claims.
+3. **Split roles / 分工:** **Hybrid** for open (95%); native for MCQ/numeric; do not expect patch alone to fix MCQ.
+4. **Report by type / 分题型报告:** never use 145Q accuracy alone for MCQ claims; report **Hybrid** separately for open.
 
 ---
 
@@ -187,4 +225,4 @@ User question (whole: stem + options / 整题)
 
 ---
 
-*Rogue Intelligence LNC. · Report v1.1 bilingual · 2026-06-22*
+*Rogue Intelligence LNC. · Report v1.3 · hybrid-2.0 / fair-1.2 / hub-f64 1.1.0 · 2026-06-22*

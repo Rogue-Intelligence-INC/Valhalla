@@ -61,7 +61,7 @@ def build() -> dict:
 
     return {
         "meta": {
-            "version": "fair-1.1",
+            "version": "fair-1.2",
             "date": "2026-06-19",
             "name": "Valhalla Fair Benchmark",
             "prompt_count": len(prompts),

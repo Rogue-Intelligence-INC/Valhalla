@@ -19,6 +19,7 @@ use uuid::Uuid;
 
 pub mod cortex;
 pub mod dl_front;
+pub mod mcq_fate;
 pub mod native_qa;
 pub mod signal_ingress;
 pub mod smoke_report;
