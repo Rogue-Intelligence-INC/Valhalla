@@ -258,4 +258,4 @@ See **Due Diligence pack** §7. Top three:
 
 ---
 
-*Rogue Intelligence LNC. · Confidential · 2026-06-22*
+*Rogue Intelligence LNC. · Confidential · 2026-06-23*

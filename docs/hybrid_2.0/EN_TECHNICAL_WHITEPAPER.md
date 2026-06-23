@@ -164,6 +164,7 @@ Per-option independent scoring → argmax → `ANSWER: X`:
 | One-shot Triad (all modules) | 21/46 | 45.7% |
 | One-shot Tile only | 22/46 | 47.8% |
 | Tile + MCQ Fate cycles | 24/46 | 52.2% |
+| **Hybrid deploy + structure-guided patch** | **28/46** | **60.9%** |
 | Qwen zero-shot | 17/46 | 37.0% |
 
 **Conclusion**: Session protocol (+18 pp reload→one-shot) dominates small scoring tweaks. Bottleneck is **four-way option comparison**.
@@ -233,12 +234,11 @@ export VALHALLA_MCQ_FATE_CYCLES=1
 
 | Claim | Evidence | Status |
 |-------|----------|--------|
-| Hybrid 80% on 145Q test | `hybrid_unified_test_20260622_0345.json` | ✓ |
-| Open 95% via patch route | Same JSON, `by_score_type.open` | ✓ |
-| Native MCQ beats Qwen 0.5B alone | 24/46 vs 17/46 (Tile+Fate) | ✓ |
-| Patch does not fix MCQ | 12–13/46 patch MCQ historical | ✓ |
-| One-shot protocol critical | 28% → 46% MCQ | ✓ |
-| Hybrid beats Qwen 71% total | 80% vs 71% same split | ✓ |
+| Hybrid 80.7% on 145Q test | `hybrid_v4_mcq_patch_strengthen_final.json` | ✓ |
+| Open 93.4% via patch route | Same JSON, `by_score_type.open` | ✓ |
+| MCQ deploy uplift 52.2% → 60.9% | post_decode_fix vs final | ✓ |
+| Native MCQ memory baseline | 24/46 structure decode | ✓ |
+| Hybrid beats Qwen 71% total | 80.7% vs 71% same split | ✓ |
 | Beats GPT-4 / Claude general | — | ✗ not claimed |
 | FIPS-certified crypto | — | ✗ not claimed (Yaksha separate) |
 
@@ -248,7 +248,7 @@ export VALHALLA_MCQ_FATE_CYCLES=1
 
 ### 8.1 Limitations
 
-1. **MCQ ceiling ~54%**: comparator scores options independently, not relatively conditioned on stem.  
+1. **MCQ ceiling ~61% (deploy)**: option comparison still lags open generation; stem-conditioned relative comparator needed.  
 2. **Small companion LM**: 0.5B — demonstrates structure layer; not production LM choice.  
 3. **Corpus size**: 49 lines — vertical POC scale, not web-scale RAG.  
 4. **Tier B open retrieval alone ~25%**: open solved at **product** level via Hybrid, not memory-only.
@@ -277,12 +277,12 @@ export VALHALLA_MCQ_FATE_CYCLES=1
 
 | Document | Path |
 |----------|------|
-| MCQ & Fair summary | `reports/VALHALLA_MCQ_AND_FAIR_BENCHMARK_SUMMARY_20260622.md` |
-| Hybrid unified report | `reports/VALHALLA_HYBRID_UNIFIED_test_20260622_0345.md` |
+| MCQ & Fair summary | `docs/hybrid_2.0/DAY_SUMMARY_20260623.md` |
+| Hybrid final JSON | `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json` |
 | Public viz repo | https://github.com/Rogue-Intelligence-INC/valhalla-transformer (v2.0) |
 | Valhalla vs Transformer WP | `docs/valhalla_vs_transformer/en/04_TECHNICAL_WHITEPAPER.md` |
 | Product definition | `docs/VALHALLA_PRODUCT_DEFINITION.md` |
 
 ---
 
-*Rogue Intelligence LNC. · Hybrid Valhalla hybrid-2.0 · fair-1.2 · hub-f64 1.1.0 · 2026-06-22*
+*Rogue Intelligence LNC. · Hybrid Valhalla hybrid-2.0 · fair-1.2 · hub-f64 1.1.0 · 2026-06-23*

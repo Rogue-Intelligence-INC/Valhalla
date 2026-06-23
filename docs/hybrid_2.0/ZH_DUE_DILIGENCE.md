@@ -1,8 +1,8 @@
 # Hybrid Valhalla 2.0 — 尽职调查包（DD）
 
 **文档类型**：投资人 / 伙伴尽职调查  
-**版本**：hybrid-2.0 · fair-1.2 · hub-f64 1.1.0  
-**日期**：2026-06-22  
+**版本**：hybrid-2.0 · hybrid-4.0-rust-pipeline · fair-1.2 · hub-f64 1.1.0  
+**日期**：2026-06-23  
 **出品**：Rogue Intelligence LNC.（游侠智能有限公司）  
 **密级**：机密 — 仅限合格投资人与设计伙伴
 
@@ -32,12 +32,12 @@
 
 | # | 论断 | 指标 | 来源产物 | 验证动作 | 状态 |
 |---|------|------|----------|----------|------|
-| C1 | Hybrid 统一总准确率 | **80.00%**（116/145） | `hybrid_unified_test_20260622_0345.json` | 重跑 `run_hybrid_valhalla_lm.py --phase test` | ✓ |
-| C2 | 开放题准确率 | **95.08%** | 同上 · `summary.hybrid.by_score_type.open` | 抽查 `patch_lm` 来源行 | ✓ |
-| C3 | MCQ 准确率 | **54.35%** | 同上 | 46 道 MCQ id 对 gold | ✓ |
-| C4 | 数字题准确率 | **86.84%** | 同上 | 仅数字子集 | ✓ |
-| C5 | 优于 Qwen 0.5B alone（145Q） | 71% → 80% | fair JSON + hybrid JSON | 同切分、同 scorer | ✓ |
-| C6 | 原生 MCQ 优于 Qwen MCQ | 24/46 vs 17/46 | MCQ 实验报告 | Tile+Fate + Fate 循环 | ✓ |
+| C1 | Hybrid 统一总准确率 | **80.69%**（117/145） | `hybrid_v4_mcq_patch_strengthen_final.json` | 重跑 `valhalla_hybrid --phase test --merge-mode deploy` | ✓ |
+| C2 | 开放题准确率 | **93.44%**（57/61） | 同上 · `summary.hybrid.by_score_type.open` | 抽查 `patch_lm` 来源行 | ✓ |
+| C3 | MCQ 准确率 | **60.87%**（28/46） | 同上 | 46 道 MCQ id 对 gold | ✓ |
+| C4 | 数字题准确率 | **84.21%**（32/38） | 同上 | 仅数字子集 | ✓ |
+| C5 | MCQ deploy 相对 memory-first 提升 | 52.2% → 60.9%（+4） | post_decode_fix vs final JSON | deploy 策略对比 | ✓ |
+| C6 | 补丁 LM MCQ | 28/46 | 同上 · patch 子集 | 独立 patch 轨道 | ✓ |
 | C7 | 语料无答案泄漏 | fair-1.2 设计 | suite + 语料文件 | 确认语料无 gold | ✓ |
 | C8 | 每答路由轨迹 | `hybrid_source` 字段 | Hybrid JSON 行 | 抽样 20 行 | ✓ |
 | C9 | 公开 API 提供 latest | `/api/hybrid-unified/latest` | valhalla-transformer v2.0 | `curl` + schema | ✓ |
@@ -51,8 +51,8 @@
 
 | 产物 | 位置 |
 |------|------|
-| Hybrid 统一 JSON | `reports/hybrid_valhalla_lm/hybrid_unified_test_20260622_0345.json` |
-| Hybrid 报告 | `reports/VALHALLA_HYBRID_UNIFIED_test_20260622_0345.md` |
+| Hybrid 统一 JSON | `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json` |
+| 日结报告 | `docs/hybrid_2.0/DAY_SUMMARY_20260623.md` |
 | MCQ + Fair 总结 v1.3 | `reports/VALHALLA_MCQ_AND_FAIR_BENCHMARK_SUMMARY_20260622.md` |
 | 路由源码 | `tools/fair_benchmark/hybrid_valhalla_lm.py` |
 | 运行器 | `tools/fair_benchmark/run_hybrid_valhalla_lm.py` |
@@ -94,7 +94,7 @@ python3 tools/fair_benchmark/run_hybrid_valhalla_lm.py \
   --phase test \
   --reuse-json reports/fair_benchmark/fair_benchmark_test_20260620_0859.json
 
-# 5. 对比输出 JSON summary.hybrid.acc 与 0.80（± 环境容差）
+# 5. 对比输出 JSON summary.hybrid.acc 与 0.807（± 环境容差）
 ```
 
 **预期耗时**：视 GPU/CPU；patch 轨道占主导。审计日志须记录机器规格。
@@ -121,7 +121,7 @@ python3 tools/fair_benchmark/run_hybrid_valhalla_lm.py \
 
 | ID | 风险 | 可能性 | 影响 | 缓解 |
 |----|------|--------|------|------|
-| R1 | MCQ 准确率平台期（~54%） | 高 | 中 | P0 相对比较器；stem 条件打分 |
+| R1 | MCQ 准确率平台期（deploy ~61%，结构 alone ~52%） | 高 | 中 | P0 选项比较器；结构引导 patch 路由 |
 | R2 | 小 LM（0.5B）限制数字/开放上限 | 中 | 中 | 客户自选 LM；结构层与模型无关 |
 | R3 | 语料规模（49 行）非生产级 | 中 | 高 | 设计伙伴语料 110+ 行；fair-2.0 |
 | R4 | 复现环境敏感（CUDA、Qwen 路径） | 中 | 中 | Docker 复现包（路线图）；文档化 env |
@@ -189,4 +189,4 @@ python3 tools/fair_benchmark/run_hybrid_valhalla_lm.py \
 
 ---
 
-*Rogue Intelligence LNC. · hybrid-2.0 · fair-1.2 · hub-f64 1.1.0 · 机密 · 2026-06-22*
+*Rogue Intelligence LNC. · hybrid-2.0 · fair-1.2 · hub-f64 1.1.0 · 机密 · 2026-06-23*

@@ -1,8 +1,8 @@
 # Hybrid Valhalla 2.0 — 技术白皮书
 
 **文档类型**：产品技术白皮书  
-**版本**：hybrid-2.0 · fair-1.2 · hub-f64 1.1.0  
-**日期**：2026-06-22  
+**版本**：hybrid-2.0 · hybrid-4.0-rust-pipeline · fair-1.2 · hub-f64 1.1.0  
+**日期**：2026-06-23  
 **出品**：Rogue Intelligence LNC.（游侠智能有限公司）  
 **读者**：ML 系统工程师、架构师、第三方审计方  
 **状态**：实验驱动；论断均绑定可复现产物
@@ -20,14 +20,14 @@ Hybrid Valhalla **hybrid-2.0** 是 **统一问答产品**：每道题在以下�
 
 | 指标 | Hybrid 统一 |
 |------|-------------|
-| 总计 | **80.00%**（116/145） |
-| 开放题 | **95.08%** |
-| 多选题 | **54.35%**（约 25/46） |
-| 数字题 | **86.84%** |
+| 总计 | **80.69%**（117/145） |
+| 开放题 | **93.44%** |
+| 多选题 | **60.87%**（28/46） |
+| 数字题 | **84.21%** |
 
 **非目标**：宣称在通用基准上 SOTA 于 GPT-4/Claude；宣称 Valhalla 全面替代 Transformer。
 
-**主产物**：`reports/hybrid_valhalla_lm/hybrid_unified_test_20260622_0345.json`
+**主产物**：`reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json`
 
 ---
 
@@ -166,6 +166,7 @@ Hybrid 2.0 的 Tier B 路径使用 **persistent** 记忆。
 | 一次孵化 Triad（全模块） | 21/46 | 45.7% |
 | 一次孵化仅 Tile | 22/46 | 47.8% |
 | Tile + MCQ Fate 循环 | 24/46 | 52.2% |
+| **Hybrid deploy + 结构引导 patch** | **28/46** | **60.9%** |
 | Qwen 零样本 | 17/46 | 37.0% |
 
 **结论**：会话协议（重载→一次孵化 +18 pp）大于小改打分。瓶颈在 **四选项比较**。
@@ -235,12 +236,11 @@ export VALHALLA_MCQ_FATE_CYCLES=1
 
 | 论断 | 证据 | 状态 |
 |------|------|------|
-| Hybrid 145Q test 80% | `hybrid_unified_test_20260622_0345.json` | ✓ |
-| 开放题 95% 经 patch 路由 | 同上 `by_score_type.open` | ✓ |
-| 原生 MCQ 优于 Qwen 0.5B alone | 24/46 vs 17/46（Tile+Fate） | ✓ |
-| Patch 未修复 MCQ | 历史 12–13/46 | ✓ |
-| 一次孵化协议关键 | MCQ 28% → 46% | ✓ |
-| Hybrid 总胜 Qwen 71% | 80% vs 71% 同切分 | ✓ |
+| Hybrid 145Q test 80.7% | `hybrid_v4_mcq_patch_strengthen_final.json` | ✓ |
+| 开放题 93.4% 经 patch 路由 | 同上 `by_score_type.open` | ✓ |
+| MCQ deploy 52.2% → 60.9% | post_decode_fix vs final | ✓ |
+| 原生 MCQ 记忆基线 | 24/46（结构 decode） | ✓ |
+| Hybrid 总胜 Qwen 71% | 80.7% vs 71% 同切分 | ✓ |
 | 通用基准胜 GPT-4/Claude | — | ✗ 未宣称 |
 | FIPS 认证加密 | — | ✗ 未宣称（Yaksha 另文） |
 
@@ -250,7 +250,7 @@ export VALHALLA_MCQ_FATE_CYCLES=1
 
 ### 8.1 限制
 
-1. **MCQ 天花板约 54%**：比较器独立打分各选项，非 stem 条件相对比较。  
+1. **MCQ 天花板约 61%（deploy）**：选项比较仍弱于开放生成；需 stem 条件相对比较器。  
 2. **配套 LM 较小**：0.5B — 证明结构层价值；非生产 LM 选型。  
 3. **语料规模**：49 行 — 垂直 POC，非 web 级 RAG。  
 4. **Tier B 开放检索 alone ~25%**：开放题在 **产品层** 经 Hybrid 解决，非 memory-only。
@@ -279,12 +279,12 @@ export VALHALLA_MCQ_FATE_CYCLES=1
 
 | 文档 | 路径 |
 |------|------|
-| MCQ 与 Fair 总结 | `reports/VALHALLA_MCQ_AND_FAIR_BENCHMARK_SUMMARY_20260622.md` |
-| Hybrid 统一报告 | `reports/VALHALLA_HYBRID_UNIFIED_test_20260622_0345.md` |
+| MCQ 与 Fair 总结 | `docs/hybrid_2.0/DAY_SUMMARY_20260623.md` |
+| Hybrid 最终 JSON | `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json` |
 | 公开 viz 仓库 | https://github.com/Rogue-Intelligence-INC/valhalla-transformer（v2.0） |
 | Valhalla vs Transformer 白皮书 | `docs/valhalla_vs_transformer/en/04_TECHNICAL_WHITEPAPER.md` |
 | 产品定义 | `docs/VALHALLA_PRODUCT_DEFINITION.md` |
 
 ---
 
-*Rogue Intelligence LNC. · Hybrid Valhalla hybrid-2.0 · fair-1.2 · hub-f64 1.1.0 · 2026-06-22*
+*Rogue Intelligence LNC. · Hybrid Valhalla hybrid-2.0 · fair-1.2 · hub-f64 1.1.0 · 2026-06-23*

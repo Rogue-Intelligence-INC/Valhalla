@@ -1,6 +1,6 @@
 # Hybrid Structure Memory with Language-Model Patch Routing for Domain Question Answering
 
-**Draft v0.1 — 2026-06-23**  
+**Draft v0.2 — 2026-06-23**  
 **Authors**: Rogue Intelligence LNC. (working draft)  
 **Status**: Internal draft for submission preparation — **no product codenames**
 
@@ -165,7 +165,7 @@ We demonstrated that **persistent structure memory**, **structure-guided LM patc
 Future work:
 
 1. **Option-comparator memory** — dedicated pairwise stem–option scoring with calibrated margins.  
-2. **Certified routing** — fate-style spread thresholds learned from validation, not hand-tuned.  
+2. **Certified routing** — aggregate-spread thresholds learned from validation, not hand-tuned.  
 3. **Third-party audit** — publish fair-1.2 reproduction kit alongside public viz API.
 
 ---
@@ -176,6 +176,48 @@ Future work:
 - Hu et al., LoRA, ICLR 2022.  
 - Memory-augmented networks literature (Graves et al.; Santoro et al.).  
 - Fair benchmark spec: `tools/fair_benchmark/fair_benchmark_suite.json`.
+
+---
+
+## Appendix B — Memory-model vocabulary (external-facing)
+
+| Concept | Description |
+|---------|-------------|
+| **Structure memory** | Persistent checkpoint from one-shot corpus incubation; encodes domain regularities as activations and export vectors. |
+| **Memory track** | Parallel specialization within structure memory (e.g., block-structured, adaptive cluster, ensemble). |
+| **Structure patch** | Perturbation exported from recomposition to guide a compact LM without full fine-tuning. |
+| **Option affinity** | Letter-keyed scores from shard-wise incubation; ranks A–D before generation. |
+| **Aggregate scores** | Closure energies per option after multi-phase recomposition. |
+| **Deploy router** | Policy that selects memory vs patch at inference without gold labels. |
+| **Routing trace** | Per-answer metadata: chosen path, confidence subtag, score spreads. |
+
+---
+
+## Appendix C — System diagram
+
+```mermaid
+flowchart TB
+  C[Domain corpus no gold answers] --> INC[One-shot structure incubation]
+  INC --> CKPT[Structure checkpoint]
+  Q[Question q] --> DEC[Task-type decomposition]
+  DEC --> REC[Per-shard recomposition]
+  CKPT --> REC
+  REC --> PATCH[Structure patch + option affinity]
+  PATCH --> LM[Compact instruction LM]
+  REC --> MEM[Memory decoders]
+  LM --> ROUTER[Hybrid deploy router]
+  MEM --> ROUTER
+  ROUTER --> OUT[Answer + routing trace]
+```
+
+---
+
+## Appendix D — Open research questions
+
+1. Can **pairwise option-comparator memory** close the deploy–oracle gap (~17 pp on MCQ) without larger LMs?  
+2. Which spread thresholds are **calibration-stable** across corpora sizes?  
+3. Does structure memory **transfer** when incubated on corpus A and tested on related corpus B with shared ontology?  
+4. What is the minimum audit field set for **regulated deployment** (EU AI Act, sector-specific rules)?
 
 ---
 
