@@ -2,7 +2,7 @@
 
 **Company**: Rogue Intelligence LNC.  
 **Product**: Hybrid Valhalla **hybrid-2.0**  
-**Version**: 2.0 · **Date**: 2026-06-22  
+**Version**: 2.0 · **Date**: 2026-06-23  
 **Type**: Business plan (Hybrid product edition)  
 **Use**: Fundraising, enterprise partnership · **Confidential**
 
@@ -10,7 +10,7 @@
 
 ## Executive summary
 
-Rogue Intelligence ships **Hybrid Valhalla hybrid-2.0** — a deployable Q&A product that routes each question to native structure memory or a patched small language model. On the **fair-1.2** decontaminated benchmark (145 test prompts, Qwen2.5-0.5B companion), the unified product achieves **80.0% total accuracy** with **95.1% open**, **54.4% MCQ**, and **86.8% numeric**.
+Rogue Intelligence ships **Hybrid Valhalla hybrid-2.0** — a deployable Q&A product that routes each question to native structure memory or a patched small language model. On the **fair-1.2** decontaminated benchmark (145 test prompts, Qwen2.5-0.5B companion), the unified product achieves **80.7% total accuracy** with **93.4% open**, **60.9% MCQ**, and **84.2% numeric**.
 
 **We sell**: sovereign, auditable, structure-incubation infrastructure with a **measured hybrid product score** — not "beat GPT-4."
 
@@ -54,10 +54,10 @@ Rogue Intelligence ships **Hybrid Valhalla hybrid-2.0** — a deployable Q&A pro
 
 | Type | Route | Test acc |
 |------|-------|----------|
-| open | patch LM + generate | 95.1% |
-| mcq | best(Tile+Fate, Triad) | 54.4% |
-| numeric | max(all three) | 86.8% |
-| **Total** | unified | **80.0%** |
+| open | patch LM + generate | 93.4% |
+| mcq | structure memory ∨ patch LM (router) | 60.9% |
+| numeric | max(all tracks) | 84.2% |
+| **Total** | unified | **80.7%** |
 
 ### 2.2 Product matrix (modular)
 

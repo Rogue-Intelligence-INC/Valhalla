@@ -1,8 +1,8 @@
 # Hybrid Valhalla 2.0 — Due Diligence Pack
 
 **Document type**: Investor / partner due diligence  
-**Version**: hybrid-2.0 · fair-1.2 · hub-f64 1.1.0  
-**Date**: 2026-06-22  
+**Version**: hybrid-2.0 · hybrid-4.0-rust-pipeline · fair-1.2 · hub-f64 1.1.0  
+**Date**: 2026-06-23  
 **Publisher**: Rogue Intelligence LNC.  
 **Classification**: Confidential — qualified investors and design partners
 
@@ -32,12 +32,12 @@ This pack supports **technical and commercial due diligence** on Hybrid Valhalla
 
 | # | Claim | Metric | Source artifact | Verifier action | Status |
 |---|-------|--------|-----------------|-----------------|--------|
-| C1 | Unified Hybrid total accuracy | **80.00%** (116/145) | `hybrid_unified_test_20260622_0345.json` | Re-run `run_hybrid_valhalla_lm.py --phase test` | ✓ |
-| C2 | Open accuracy | **95.08%** | Same JSON · `summary.hybrid.by_score_type.open` | Inspect row-level `patch_lm` source | ✓ |
-| C3 | MCQ accuracy | **54.35%** | Same JSON | Compare 46 MCQ ids vs gold | ✓ |
-| C4 | Numeric accuracy | **86.84%** | Same JSON | Numeric subset only | ✓ |
-| C5 | Beats Qwen 0.5B alone (145Q) | 71% → 80% | `fair_benchmark_test_20260620_0859.json` + hybrid JSON | Same split, same scorer | ✓ |
-| C6 | Native MCQ beats Qwen MCQ | 24/46 vs 17/46 | MCQ experiment reports | Tile+Fate + Fate cycles | ✓ |
+| C1 | Unified Hybrid total accuracy | **80.69%** (117/145) | `hybrid_v4_mcq_patch_strengthen_final.json` | Re-run `valhalla_hybrid --phase test --merge-mode deploy` | ✓ |
+| C2 | Open accuracy | **93.44%** (57/61) | Same JSON · `summary.hybrid.by_score_type.open` | Inspect row-level `patch_lm` source | ✓ |
+| C3 | MCQ accuracy | **60.87%** (28/46) | Same JSON | Compare 46 MCQ ids vs gold | ✓ |
+| C4 | Numeric accuracy | **84.21%** (32/38) | Same JSON | Numeric subset only | ✓ |
+| C5 | MCQ deploy uplift vs memory-first | 52.2% → 60.9% (+4) | `hybrid_v4_test_deploy_post_decode_fix.json` vs final | Deploy policy diff | ✓ |
+| C6 | Patch LM MCQ | 28/46 | Same JSON · patch subset | Independent patch track | ✓ |
 | C7 | No corpus answer leakage | fair-1.2 design | `fair_benchmark_suite.json` + corpus files | Confirm no gold in corpus | ✓ |
 | C8 | Routing trace per answer | `hybrid_source` field | Hybrid JSON rows | Sample 20 rows | ✓ |
 | C9 | Public API serves latest | `/api/hybrid-unified/latest` | valhalla-transformer v2.0 | `curl` + schema check | ✓ |
@@ -51,13 +51,15 @@ This pack supports **technical and commercial due diligence** on Hybrid Valhalla
 
 | Artifact | Location |
 |----------|----------|
-| Hybrid unified JSON | `reports/hybrid_valhalla_lm/hybrid_unified_test_20260622_0345.json` |
-| Hybrid report | `reports/VALHALLA_HYBRID_UNIFIED_test_20260622_0345.md` |
-| MCQ + Fair summary v1.3 | `reports/VALHALLA_MCQ_AND_FAIR_BENCHMARK_SUMMARY_20260622.md` |
-| Router source | `tools/fair_benchmark/hybrid_valhalla_lm.py` |
-| Runner | `tools/fair_benchmark/run_hybrid_valhalla_lm.py` |
-| Native QA | `manifestsys/hub-f64/src/native_qa.rs` |
-| MCQ Fate | `manifestsys/hub-f64/src/mcq_fate.rs` |
+| Hybrid unified JSON | `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json` |
+| Day summary (2026-06-23) | `docs/hybrid_2.0/DAY_SUMMARY_20260623.md` |
+| Paper draft (memory model) | `papers/memory_hybrid/Hybrid_Structure_Memory_and_Routing.md` |
+| Hybrid report (prior) | `reports/VALHALLA_HYBRID_UNIFIED_test_20260622_0345.md` |
+| Router source | `manifestsys/hub-f64/src/hybrid.rs` |
+| Patch LM + MCQ resolve | `manifestsys/hub-f64/src/patch_lm.rs` |
+| Pipeline + merge | `manifestsys/hub-f64/src/pipeline.rs` |
+| Option affinity | `manifestsys/hub-f64/src/task_decompose.rs` |
+| Aggregate option scores | `manifestsys/hub-f64/src/mcq_fate.rs` |
 
 ### 4.2 Public mirror (valhalla-transformer v2.0)
 

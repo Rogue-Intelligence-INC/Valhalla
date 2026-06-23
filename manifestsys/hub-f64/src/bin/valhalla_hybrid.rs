@@ -148,13 +148,14 @@ fn main() {
     };
 
     eprintln!(
-        "valhalla_hybrid {} phase={} prompts={} corpus={} merge={:?} patch={}",
+        "valhalla_hybrid {} phase={} prompts={} corpus={} merge={:?} patch={} stem_parallel={}",
         HYBRID_PRODUCT_VERSION,
         cli.phase,
         prompts.len(),
         corpus.len(),
         cli.merge_mode,
-        if cli.run_patch { "generate" } else { "json" }
+        if cli.run_patch { "generate" } else { "json" },
+        cfg.stem_parallel,
     );
 
     let result = if cli.run_patch {

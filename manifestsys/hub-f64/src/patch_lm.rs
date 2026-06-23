@@ -9,12 +9,13 @@ use candle_transformers::generation::LogitsProcessor;
 use candle_transformers::models::qwen2::{Config, ModelForCausalLM};
 use tokenizers::Tokenizer;
 
-use crate::fair_score::{format_prompt_text, score_answer, extract_mcq_letter, FairPrompt};
+use crate::fair_score::{format_prompt_text, score_answer, FairPrompt};
 use crate::grinder::{default_port_cap, grind_text_hash};
 use crate::hybrid::PatchTrackRow;
 use crate::patch_export::{self, PATCH_ANCHOR};
-use crate::pipeline::{self, decode_mcq_from_recompose};
+use crate::pipeline::{self, pick_mcq_fate_letter, pick_mcq_affinity_letter};
 use crate::pipeline::PipelineConfig;
+use crate::mcq_fate::McqFateOutcome;
 use crate::signal_ingress::ValhallaModelPatch;
 
 pub const DEFAULT_STRENGTH: f64 = 0.08;
@@ -225,11 +226,12 @@ fn apply_legacy_patch_tensors(
     Ok(())
 }
 
-/// Boost embed/lm_head rows for MCQ option letters from Valhalla recompose affinity.
-fn apply_mcq_affinity_bias(
+/// Boost embed rows for MCQ letters using affinity + Fate option energies.
+fn apply_mcq_patch_bias(
     tensors: &mut HashMap<String, Tensor>,
     tokenizer: &Tokenizer,
     affinity: &[(char, f64)],
+    option_scores: &[(char, f64)],
     strength: f64,
     hidden: usize,
 ) -> Result<(), String> {
@@ -237,10 +239,35 @@ fn apply_mcq_affinity_bias(
     let Some(emb) = tensors.get_mut(emb_key) else {
         return Ok(());
     };
-    let mut rows = emb.to_vec2::<f32>().map_err(|e| e.to_string())?;
-    let boost_scale = (strength * 0.25) as f32;
+    let scale = std::env::var("VALHALLA_MCQ_PATCH_BIAS_SCALE")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0.35)
+        * strength;
 
-    for (letter, aff) in affinity {
+    let mut letter_weight: HashMap<char, f64> = HashMap::new();
+    if !affinity.is_empty() {
+        let mean = affinity.iter().map(|(_, s)| *s).sum::<f64>() / affinity.len() as f64;
+        for (letter, s) in affinity {
+            *letter_weight.entry(*letter).or_default() += (s - mean).max(0.0);
+        }
+    }
+    if option_scores.len() >= 2 {
+        let mean =
+            option_scores.iter().map(|(_, s)| *s).sum::<f64>() / option_scores.len() as f64;
+        for (letter, s) in option_scores {
+            *letter_weight.entry(*letter).or_default() += 0.85 * (s - mean).max(0.0);
+        }
+    }
+    if letter_weight.is_empty() {
+        return Ok(());
+    }
+
+    let mut rows = emb.to_vec2::<f32>().map_err(|e| e.to_string())?;
+    for (letter, w) in letter_weight {
+        if w <= 0.0 {
+            continue;
+        }
         let patterns = [
             letter.to_string(),
             format!("{letter})"),
@@ -254,7 +281,7 @@ fn apply_mcq_affinity_bias(
                 }
             }
         }
-        let delta_mag = (*aff * boost_scale as f64) as f32;
+        let delta_mag = (w * scale) as f32;
         for tid in token_ids {
             let idx = tid as usize;
             if idx >= rows.len() {
@@ -270,6 +297,91 @@ fn apply_mcq_affinity_bias(
     let vocab = emb.dim(0).map_err(|e| e.to_string())?;
     *emb = Tensor::from_vec(flat, (vocab, hidden), emb.device()).map_err(|e| e.to_string())?;
     Ok(())
+}
+
+/// Resolve patch MCQ answer: Valhalla latent signals + LM generate (no blind trust of wrong gen).
+fn resolve_patch_mcq_answer(
+    generated: &str,
+    affinity: &[(char, f64)],
+    mcq_fate: Option<&McqFateOutcome>,
+) -> (String, String, f64) {
+    use crate::fair_score::extract_mcq_letter;
+
+    let gen_l = extract_mcq_letter(generated);
+    let aff_l = pick_mcq_affinity_letter(affinity);
+    let fate_l = mcq_fate.and_then(|o| pick_mcq_fate_letter(&o.option_scores));
+    let aff_spread = pipeline::mcq_affinity_spread(affinity);
+    let fate_spread = mcq_fate
+        .map(|o| pipeline::mcq_fate_spread(&o.option_scores))
+        .unwrap_or(0.0);
+
+    let fate_min = pipeline::mcq_fate_min_spread();
+
+    let mut votes: HashMap<char, f64> = HashMap::new();
+    if let Some(c) = gen_l {
+        *votes.entry(c).or_default() += 1.0;
+    }
+    if let Some(c) = aff_l {
+        let w = if aff_spread >= pipeline::MCQ_AFFINITY_MIN_SPREAD {
+            1.15
+        } else {
+            0.35
+        };
+        *votes.entry(c).or_default() += w;
+    }
+    if let Some(c) = fate_l {
+        let w = if fate_spread >= fate_min {
+            1.25
+        } else {
+            0.2
+        };
+        *votes.entry(c).or_default() += w;
+    }
+
+    let pick = votes
+        .iter()
+        .max_by(|a, b| a.1.partial_cmp(b.1).unwrap_or(std::cmp::Ordering::Equal))
+        .map(|(c, _)| *c);
+    let confidence = pick
+        .and_then(|c| votes.get(&c).copied())
+        .unwrap_or(0.0);
+
+    if let Some(c) = pick {
+        let tag = if gen_l == Some(c) && fate_l == Some(c) && fate_spread >= fate_min {
+            "patch_mcq_gen_fate"
+        } else if fate_l == Some(c) && fate_spread >= fate_min && gen_l != Some(c) {
+            "patch_mcq_fate"
+        } else if gen_l == Some(c) && aff_l == Some(c) && aff_spread >= pipeline::MCQ_AFFINITY_MIN_SPREAD {
+            "patch_mcq_blend"
+        } else if gen_l == Some(c) {
+            "patch_mcq_gen_solo"
+        } else if aff_l == Some(c) {
+            if aff_spread >= pipeline::MCQ_AFFINITY_MIN_SPREAD {
+                "patch_mcq_affinity"
+            } else {
+                "patch_mcq_affinity_weak"
+            }
+        } else {
+            "patch_mcq_blend"
+        };
+        if gen_l == Some(c) && generated.to_uppercase().contains("ANSWER:") {
+            return (generated.trim().to_string(), tag.into(), confidence);
+        }
+        return (format!("ANSWER: {c}"), tag.into(), confidence);
+    }
+
+    if gen_l.is_some() {
+        return (
+            generated.to_string(),
+            "patch_mcq_gen_solo".into(),
+            confidence,
+        );
+    }
+    (
+        generated.to_string(),
+        "patch_mcq_gen_solo".into(),
+        confidence,
+    )
 }
 
 fn generate(
@@ -406,6 +518,11 @@ pub fn run_patch_track(
             assistant: Some(assistant),
             native_answer: None,
             decode_path: Some(decode_tag.clone()),
+            mcq_patch_subtag: None,
+            mcq_patch_confidence: None,
+            mcq_fate_spread: None,
+            mcq_fate_letter: None,
+            mcq_affinity_spread: None,
         });
     }
 
@@ -472,20 +589,28 @@ pub fn run_patch_track_v4(
             n_layers,
         )?;
 
-        if p.score_type == "mcq" && !outcome.recompose.mcq_option_affinity.is_empty() {
-            apply_mcq_affinity_bias(
-                &mut tensors,
-                &tokenizer,
-                &outcome.recompose.mcq_option_affinity,
-                cfg.strength,
-                hidden,
-            )?;
+        if p.score_type == "mcq" {
+            let fate_scores = outcome
+                .mcq_fate
+                .as_ref()
+                .map(|o| o.option_scores.as_slice())
+                .unwrap_or(&[]);
+            if !outcome.recompose.mcq_option_affinity.is_empty() || fate_scores.len() >= 2 {
+                apply_mcq_patch_bias(
+                    &mut tensors,
+                    &tokenizer,
+                    &outcome.recompose.mcq_option_affinity,
+                    fate_scores,
+                    cfg.strength,
+                    hidden,
+                )?;
+            }
         }
 
         let mut model = base.build_model(tensors)?;
         let decode_tag = format!("patch_pipeline_v4_{}", p.score_type);
 
-        let assistant = if p.score_type == "mcq" {
+        let (assistant, patch_subtag, patch_conf) = if p.score_type == "mcq" {
             let raw_prompt = format_chat_prompt(&user_text);
             let generated = generate(
                 &mut model,
@@ -496,22 +621,14 @@ pub fn run_patch_track_v4(
                 eos,
                 im_end,
             )?;
-            if let Some(letter) = decode_mcq_from_recompose(&outcome.recompose) {
-                let aff = format!("ANSWER: {letter}");
-                let gen_l = extract_mcq_letter(&generated);
-                if gen_l == Some(letter) {
-                    aff
-                } else if gen_l.is_some() {
-                    generated
-                } else {
-                    aff
-                }
-            } else {
-                generated
-            }
+            resolve_patch_mcq_answer(
+                &generated,
+                &outcome.recompose.mcq_option_affinity,
+                outcome.mcq_fate.as_ref(),
+            )
         } else {
             let raw_prompt = format_chat_prompt(&user_text);
-            generate(
+            let generated = generate(
                 &mut model,
                 &base.device,
                 &tokenizer,
@@ -519,7 +636,24 @@ pub fn run_patch_track_v4(
                 cfg.max_new,
                 eos,
                 im_end,
-            )?
+            )?;
+            (generated, "gen".into(), 0.0)
+        };
+
+        let (fate_spread, fate_letter, aff_spread) = if p.score_type == "mcq" {
+            let fs = outcome
+                .mcq_fate
+                .as_ref()
+                .map(|o| pipeline::mcq_fate_spread(&o.option_scores));
+            let fl = outcome
+                .mcq_fate
+                .as_ref()
+                .and_then(|o| pipeline::pick_mcq_fate_letter(&o.option_scores))
+                .map(|c| c.to_string());
+            let aff = pipeline::mcq_affinity_spread(&outcome.recompose.mcq_option_affinity);
+            (fs, fl, Some(aff))
+        } else {
+            (None, None, None)
         };
 
         let _sc = score_answer(&assistant, p);
@@ -527,7 +661,20 @@ pub fn run_patch_track_v4(
             id: p.id.clone(),
             assistant: Some(assistant),
             native_answer: None,
-            decode_path: Some(decode_tag),
+            decode_path: Some(format!("{decode_tag}/{patch_subtag}")),
+            mcq_patch_subtag: if p.score_type == "mcq" {
+                Some(patch_subtag)
+            } else {
+                None
+            },
+            mcq_patch_confidence: if p.score_type == "mcq" {
+                Some(patch_conf)
+            } else {
+                None
+            },
+            mcq_fate_spread: fate_spread,
+            mcq_fate_letter: fate_letter,
+            mcq_affinity_spread: aff_spread,
         });
     }
 

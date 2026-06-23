@@ -10,12 +10,27 @@ use crate::grinder::{default_port_cap, grind_text_hash};
 use crate::native_qa::{
     run_native_qa_batch, NativeQaBatchItem, NativeQaBatchRequest, NativeQaQuestionSpec,
 };
+use crate::pipeline::{
+    is_mcq_latent_memory_path, is_mcq_latent_memory_protected, is_mcq_memory_decoder_path,
+    mcq_fate_min_spread, mcq_patch_on_disagree_enabled,
+};
 
 pub const HYBRID_PRODUCT_VERSION: &str = "hybrid-4.0-rust-pipeline";
 pub const FAIR_BENCHMARK_VERSION: &str = "fair-1.2";
 
 pub const MEMORY_TRIAD: &str = "triad_persistent";
 pub const MEMORY_TILE_FATE: &str = "tile_fate_persistent";
+pub const MEMORY_STEM_FATE: &str = "stemcell_fate_persistent";
+
+/// Run stemcell memory track alongside tile (separate session; no cross-track signals).
+pub fn hybrid_stem_parallel_enabled() -> bool {
+    std::env::var("VALHALLA_HYBRID_STEM_PARALLEL")
+        .map(|v| {
+            let v = v.trim().to_ascii_lowercase();
+            v != "0" && v != "false" && v != "off"
+        })
+        .unwrap_or(true)
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -31,6 +46,8 @@ pub struct HybridConfig {
     pub qa_cycles: usize,
     pub port_cap: usize,
     pub pipeline_v4: bool,
+    /// Independent stemcell mcq_fate track (parallel to tile, not coupled).
+    pub stem_parallel: bool,
 }
 
 impl Default for HybridConfig {
@@ -41,6 +58,7 @@ impl Default for HybridConfig {
             qa_cycles: 1,
             port_cap: default_port_cap(),
             pipeline_v4: crate::pipeline::pipeline_v4_enabled(),
+            stem_parallel: hybrid_stem_parallel_enabled(),
         }
     }
 }
@@ -68,6 +86,21 @@ pub struct PatchTrackRow {
     pub native_answer: Option<String>,
     #[serde(default)]
     pub decode_path: Option<String>,
+    /// MCQ resolution subtag, e.g. patch_mcq_gen_fate (mirrors decode_path suffix).
+    #[serde(default)]
+    pub mcq_patch_subtag: Option<String>,
+    /// Vote margin for MCQ patch resolution (higher = more confident).
+    #[serde(default)]
+    pub mcq_patch_confidence: Option<f64>,
+    /// Fate option-score spread from pipeline (top-2 gap).
+    #[serde(default)]
+    pub mcq_fate_spread: Option<f64>,
+    /// Fate top letter from pipeline option_scores.
+    #[serde(default)]
+    pub mcq_fate_letter: Option<String>,
+    /// Recompose affinity spread (top-2 gap).
+    #[serde(default)]
+    pub mcq_affinity_spread: Option<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -94,7 +127,7 @@ pub struct TypeSummary {
     pub acc: f64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct TrackSummary {
     pub n: usize,
     pub correct: usize,
@@ -110,6 +143,8 @@ pub struct HybridEvalOutput {
     pub hybrid_rows: Vec<HybridRow>,
     pub memory_triad: Vec<MemoryTrackRow>,
     pub memory_tile_fate: Vec<MemoryTrackRow>,
+    #[serde(default)]
+    pub memory_stem_fate: Vec<MemoryTrackRow>,
     pub patch_rows: Vec<PatchTrackRow>,
     pub summary: HybridSummary,
 }
@@ -119,6 +154,8 @@ pub struct HybridSummary {
     pub hybrid: TrackSummary,
     pub memory_triad_persistent: TrackSummary,
     pub memory_tile_fate_persistent: TrackSummary,
+    #[serde(default)]
+    pub memory_stem_fate_persistent: TrackSummary,
     pub patch_lm_subset: TrackSummary,
     pub hybrid_source_counts: HashMap<String, usize>,
 }
@@ -270,6 +307,59 @@ fn answer_from_patch(row: &PatchTrackRow) -> String {
         .unwrap_or_default()
 }
 
+fn memory_track_tiebreak(key: &str) -> i32 {
+    match key {
+        MEMORY_TILE_FATE | MEMORY_STEM_FATE => 1,
+        MEMORY_TRIAD => 0,
+        _ => -1,
+    }
+}
+
+/// Pick best memory row among parallel tracks — rank only, no cross-track letter/signal merge.
+fn pick_memory_deploy<'a>(
+    tile: Option<&'a MemoryTrackRow>,
+    stem: Option<&'a MemoryTrackRow>,
+    triad: Option<&'a MemoryTrackRow>,
+) -> (&'static str, Option<&'a MemoryTrackRow>) {
+    let cands = [
+        (MEMORY_TILE_FATE, tile),
+        (MEMORY_STEM_FATE, stem),
+        (MEMORY_TRIAD, triad),
+    ];
+    let mut best: Option<(&'static str, &MemoryTrackRow)> = None;
+    for (key, row) in cands {
+        let Some(r) = row else { continue };
+        let rank = native_path_rank(&r.decode_path);
+        let tie = memory_track_tiebreak(key);
+        let replace = best.as_ref().is_none_or(|(best_key, prev)| {
+            let prev_rank = native_path_rank(&prev.decode_path);
+            let prev_tie = memory_track_tiebreak(best_key);
+            (rank, tie) > (prev_rank, prev_tie)
+        });
+        if replace {
+            best = Some((key, r));
+        }
+    }
+    best.map(|(k, r)| (k, Some(r))).unwrap_or(("none", None))
+}
+
+fn pick_memory_oracle<'a>(
+    tile: Option<&'a MemoryTrackRow>,
+    stem: Option<&'a MemoryTrackRow>,
+    triad: Option<&'a MemoryTrackRow>,
+) -> (&'static str, Option<&'a MemoryTrackRow>) {
+    for (key, row) in [
+        (MEMORY_TILE_FATE, tile),
+        (MEMORY_STEM_FATE, stem),
+        (MEMORY_TRIAD, triad),
+    ] {
+        if row.is_some_and(|r| r.correct) {
+            return (key, row);
+        }
+    }
+    pick_memory_deploy(tile, stem, triad)
+}
+
 fn pick_preferred<'a>(
     candidates: &[(&'static str, Option<&'a MemoryTrackRow>)],
     prefer: &[&'static str],
@@ -311,27 +401,17 @@ fn pick_oracle<'a>(
 
 fn pick_numeric_deploy<'a>(
     tile: Option<&'a MemoryTrackRow>,
+    stem: Option<&'a MemoryTrackRow>,
     triad: Option<&'a MemoryTrackRow>,
     patch: Option<&'a PatchTrackRow>,
 ) -> (&'static str, String, Option<String>) {
-    let natives: Vec<(&str, &MemoryTrackRow)> = [
-        (MEMORY_TILE_FATE, tile),
-        (MEMORY_TRIAD, triad),
-    ]
-    .into_iter()
-    .filter_map(|(k, v)| v.map(|r| (k, r)))
-    .collect();
-
-    if !natives.is_empty() {
-        let (key, row) = natives
-            .iter()
-            .max_by_key(|(k, r)| (native_path_rank(&r.decode_path), *k == MEMORY_TILE_FATE))
-            .unwrap();
-        if native_path_rank(&row.decode_path) >= 95 {
+    let (key, row) = pick_memory_deploy(tile, stem, triad);
+    if let Some(r) = row {
+        if native_path_rank(&r.decode_path) >= 95 {
             return (
-                *key,
-                row.native_answer.clone(),
-                Some(row.decode_path.clone()),
+                key,
+                r.native_answer.clone(),
+                Some(r.decode_path.clone()),
             );
         }
     }
@@ -344,11 +424,11 @@ fn pick_numeric_deploy<'a>(
         );
     }
 
-    if let Some((key, row)) = natives.first() {
+    if let Some(r) = row {
         return (
-            *key,
-            row.native_answer.clone(),
-            Some(row.decode_path.clone()),
+            key,
+            r.native_answer.clone(),
+            Some(r.decode_path.clone()),
         );
     }
 
@@ -358,11 +438,13 @@ fn pick_numeric_deploy<'a>(
 fn pick_numeric_oracle<'a>(
     prompt: &FairPrompt,
     tile: Option<&'a MemoryTrackRow>,
+    stem: Option<&'a MemoryTrackRow>,
     triad: Option<&'a MemoryTrackRow>,
     patch: Option<&'a PatchTrackRow>,
 ) -> (&'static str, String, Option<String>) {
-    let order: [(&str, Option<&MemoryTrackRow>, Option<&PatchTrackRow>); 3] = [
+    let order: [(&str, Option<&MemoryTrackRow>, Option<&PatchTrackRow>); 4] = [
         (MEMORY_TILE_FATE, tile, None),
+        (MEMORY_STEM_FATE, stem, None),
         (MEMORY_TRIAD, triad, None),
         ("patch_lm", None, patch),
     ];
@@ -385,26 +467,163 @@ fn pick_numeric_oracle<'a>(
             }
         }
     }
-    pick_numeric_deploy(tile, triad, patch)
+    pick_numeric_deploy(tile, stem, triad, patch)
+}
+
+fn patch_mcq_subtag(pr: &PatchTrackRow) -> &str {
+    if let Some(t) = pr.mcq_patch_subtag.as_deref() {
+        return legacy_patch_mcq_subtag(t);
+    }
+    let path = pr.decode_path.as_deref().unwrap_or("");
+    legacy_patch_mcq_subtag(path.rsplit('/').next().unwrap_or(path))
+}
+
+fn legacy_patch_mcq_subtag(sub: &str) -> &str {
+    if sub == "patch_mcq_gen" {
+        "patch_mcq_gen_solo"
+    } else {
+        sub
+    }
+}
+
+fn patch_mcq_triangulated_disagree(
+    pr: &PatchTrackRow,
+    tile: Option<&MemoryTrackRow>,
+    stem: Option<&MemoryTrackRow>,
+) -> bool {
+    let patch_l = match extract_mcq_letter(&answer_from_patch(pr)) {
+        Some(c) => c,
+        None => return false,
+    };
+    let tile_l = tile.and_then(|t| extract_mcq_letter(&t.native_answer));
+    let stem_l = stem.and_then(|s| extract_mcq_letter(&s.native_answer));
+    match (tile_l, stem_l) {
+        (Some(t), Some(s)) => t != patch_l && s != patch_l,
+        (Some(t), None) => t != patch_l,
+        (None, Some(s)) => s != patch_l,
+        (None, None) => false,
+    }
+}
+
+enum McqPatchDeployTier {
+    McqOption,
+    AffinityPath,
+    LatentMemory,
+}
+
+fn patch_mcq_gen_solo_override(
+    pr: &PatchTrackRow,
+    tile: Option<&MemoryTrackRow>,
+    stem: Option<&MemoryTrackRow>,
+) -> bool {
+    patch_mcq_triangulated_disagree(pr, tile, stem)
+}
+
+fn patch_mcq_deploy_override(
+    pr: &PatchTrackRow,
+    tier: McqPatchDeployTier,
+    tile: Option<&MemoryTrackRow>,
+    stem: Option<&MemoryTrackRow>,
+) -> bool {
+    let sub = patch_mcq_subtag(pr);
+    let conf = pr.mcq_patch_confidence.unwrap_or(0.0);
+    let fate_spread = pr.mcq_fate_spread.unwrap_or(0.0);
+    let fate_min = mcq_fate_min_spread();
+    let aff_spread = pr.mcq_affinity_spread.unwrap_or(0.0);
+    match tier {
+        McqPatchDeployTier::McqOption => {
+            matches!(sub, "patch_mcq_fate" | "patch_mcq_blend" | "patch_mcq_gen_fate")
+                || (sub == "patch_mcq_gen_solo" && patch_mcq_gen_solo_override(pr, tile, stem))
+                || (sub == "patch_mcq_affinity"
+                    && aff_spread >= crate::pipeline::MCQ_AFFINITY_MIN_SPREAD)
+                || (sub == "patch_mcq_affinity"
+                    && fate_spread >= fate_min
+                    && conf >= crate::pipeline::MCQ_AFFINITY_MIN_SPREAD)
+        }
+        McqPatchDeployTier::AffinityPath => {
+            matches!(sub, "patch_mcq_fate" | "patch_mcq_gen_fate" | "patch_mcq_blend")
+                || (sub == "patch_mcq_gen_solo" && patch_mcq_gen_solo_override(pr, tile, stem))
+        }
+        McqPatchDeployTier::LatentMemory => {
+            matches!(sub, "patch_mcq_fate" | "patch_mcq_gen_fate")
+                || (sub == "patch_mcq_gen_solo" && patch_mcq_gen_solo_override(pr, tile, stem))
+        }
+    }
+}
+
+fn pick_mcq_memory_deploy<'a>(
+    tile: Option<&'a MemoryTrackRow>,
+    stem: Option<&'a MemoryTrackRow>,
+    triad: Option<&'a MemoryTrackRow>,
+) -> (&'static str, Option<&'a MemoryTrackRow>) {
+    if let (Some(t), Some(s)) = (tile, stem) {
+        if t.decode_path == "mcq_option" && s.decode_path.starts_with("pipeline_v4_affinity_") {
+            return (MEMORY_TILE_FATE, Some(t));
+        }
+    }
+    pick_memory_deploy(tile, stem, triad)
 }
 
 fn pick_mcq_deploy<'a>(
     tile: Option<&'a MemoryTrackRow>,
+    stem: Option<&'a MemoryTrackRow>,
     triad: Option<&'a MemoryTrackRow>,
     patch: Option<&'a PatchTrackRow>,
 ) -> (&'static str, String, Option<String>) {
-    let mem_cands = [(MEMORY_TILE_FATE, tile), (MEMORY_TRIAD, triad)];
-    let prefer = [MEMORY_TILE_FATE, MEMORY_TRIAD];
-    let (mem_k, mem_r) = pick_preferred(&mem_cands, &prefer);
+    let (mem_k, mem_r) = pick_mcq_memory_deploy(tile, stem, triad);
 
     if let (Some(pr), Some(mr)) = (patch, mem_r) {
         let patch_ans = answer_from_patch(pr);
         let mem_ans = mr.native_answer.clone();
-        let same = extract_mcq_letter(&patch_ans) == extract_mcq_letter(&mem_ans);
-        if same {
+        let patch_l = extract_mcq_letter(&patch_ans);
+        let mem_l = extract_mcq_letter(&mem_ans);
+        if patch_l.is_some() && patch_l == mem_l {
             return (mem_k, mem_ans, Some(mr.decode_path.clone()));
         }
-        if mr.decode_path.contains("mcq") || mr.decode_path.contains("pipeline") {
+        // Any memory track agrees with patch → keep that track (no cross-track confirm).
+        for (k, m) in [
+            (MEMORY_TILE_FATE, tile),
+            (MEMORY_STEM_FATE, stem),
+            (MEMORY_TRIAD, triad),
+        ] {
+            if let Some(r) = m {
+                if extract_mcq_letter(&r.native_answer) == patch_l {
+                    return (
+                        k,
+                        r.native_answer.clone(),
+                        Some(r.decode_path.clone()),
+                    );
+                }
+            }
+        }
+        let path = mr.decode_path.as_str();
+        if is_mcq_latent_memory_protected(path, mem_l) {
+            if mcq_patch_on_disagree_enabled()
+                && patch_mcq_deploy_override(pr, McqPatchDeployTier::LatentMemory, tile, stem)
+            {
+                return ("patch_lm", patch_ans, pr.decode_path.clone());
+            }
+            return (mem_k, mem_ans, Some(mr.decode_path.clone()));
+        }
+        if is_mcq_latent_memory_path(path)
+            && mcq_patch_on_disagree_enabled()
+            && patch_mcq_deploy_override(pr, McqPatchDeployTier::LatentMemory, tile, stem)
+        {
+            return ("patch_lm", patch_ans, pr.decode_path.clone());
+        }
+        if is_mcq_memory_decoder_path(path)
+            && mcq_patch_on_disagree_enabled()
+            && patch_mcq_deploy_override(pr, McqPatchDeployTier::McqOption, tile, stem)
+        {
+            return ("patch_lm", patch_ans, pr.decode_path.clone());
+        }
+        if path.starts_with("pipeline_v4_affinity_")
+            && mcq_patch_on_disagree_enabled()
+            && patch_mcq_deploy_override(pr, McqPatchDeployTier::AffinityPath, tile, stem)
+        {
+            return ("patch_lm", patch_ans, pr.decode_path.clone());
+        }
+        if path.contains("mcq") || path.contains("pipeline") {
             return (mem_k, mem_ans, Some(mr.decode_path.clone()));
         }
         return ("patch_lm", patch_ans, pr.decode_path.clone());
@@ -430,11 +649,13 @@ fn pick_mcq_deploy<'a>(
 fn pick_mcq_oracle<'a>(
     prompt: &FairPrompt,
     tile: Option<&'a MemoryTrackRow>,
+    stem: Option<&'a MemoryTrackRow>,
     triad: Option<&'a MemoryTrackRow>,
     patch: Option<&'a PatchTrackRow>,
 ) -> (&'static str, String, Option<String>) {
-    let order: [(&str, Option<&MemoryTrackRow>, Option<&PatchTrackRow>); 3] = [
+    let order: [(&str, Option<&MemoryTrackRow>, Option<&PatchTrackRow>); 4] = [
         (MEMORY_TILE_FATE, tile, None),
+        (MEMORY_STEM_FATE, stem, None),
         (MEMORY_TRIAD, triad, None),
         ("patch_lm", None, patch),
     ];
@@ -457,7 +678,7 @@ fn pick_mcq_oracle<'a>(
             }
         }
     }
-    pick_mcq_deploy(tile, triad, patch)
+    pick_mcq_deploy(tile, stem, triad, patch)
 }
 
 fn summarize_typed(items: Vec<(&str, bool)>) -> TrackSummary {
@@ -513,12 +734,14 @@ pub fn build_hybrid_rows(
     corpus: &[String],
     triad: &[MemoryTrackRow],
     tile_fate: &[MemoryTrackRow],
+    stem_fate: &[MemoryTrackRow],
     patch_rows: &[PatchTrackRow],
     cfg: &HybridConfig,
 ) -> (Vec<HybridRow>, FairSlices) {
     let slices = classify_slices(prompts, corpus);
     let triad_map: HashMap<_, _> = triad.iter().map(|r| (r.id.as_str(), r)).collect();
     let tile_map: HashMap<_, _> = tile_fate.iter().map(|r| (r.id.as_str(), r)).collect();
+    let stem_map: HashMap<_, _> = stem_fate.iter().map(|r| (r.id.as_str(), r)).collect();
     let patch_map: HashMap<_, _> = patch_rows.iter().map(|r| (r.id.as_str(), r)).collect();
 
     let merge_label = match cfg.merge_mode {
@@ -531,6 +754,7 @@ pub fn build_hybrid_rows(
         let policy = hybrid_route(p, &slices, cfg.pipeline_v4);
         let triad_r = triad_map.get(p.id.as_str()).copied();
         let tile_r = tile_map.get(p.id.as_str()).copied();
+        let stem_r = stem_map.get(p.id.as_str()).copied();
         let patch_r = patch_map.get(p.id.as_str()).copied();
 
         let (src, answer, decode_path, path_rank) = match policy {
@@ -542,30 +766,20 @@ pub fn build_hybrid_rows(
                         pr.decode_path.clone(),
                         None,
                     )
-                } else if let Some(t) = tile_r {
-                    (
-                        MEMORY_TILE_FATE,
-                        t.native_answer.clone(),
-                        Some(t.decode_path.clone()),
-                        Some(native_path_rank(&t.decode_path)),
-                    )
-                } else if let Some(t) = triad_r {
-                    (
-                        MEMORY_TRIAD,
-                        t.native_answer.clone(),
-                        Some(t.decode_path.clone()),
-                        Some(native_path_rank(&t.decode_path)),
-                    )
                 } else {
-                    ("none", String::new(), None, None)
+                    let (k, r) = pick_memory_deploy(tile_r, stem_r, triad_r);
+                    (
+                        k,
+                        r.map(|x| x.native_answer.clone()).unwrap_or_default(),
+                        r.map(|x| x.decode_path.clone()),
+                        r.map(|x| native_path_rank(&x.decode_path)),
+                    )
                 }
             }
             "memory_mcq_best" => {
-                let cands = [(MEMORY_TILE_FATE, tile_r), (MEMORY_TRIAD, triad_r)];
-                let prefer = [MEMORY_TILE_FATE, MEMORY_TRIAD];
                 let (k, r) = match cfg.merge_mode {
-                    MergeMode::Deploy => pick_preferred(&cands, &prefer),
-                    MergeMode::Oracle => pick_oracle(&cands, &prefer),
+                    MergeMode::Deploy => pick_memory_deploy(tile_r, stem_r, triad_r),
+                    MergeMode::Oracle => pick_memory_oracle(tile_r, stem_r, triad_r),
                 };
                 (
                     k,
@@ -576,25 +790,23 @@ pub fn build_hybrid_rows(
             }
             "memory_mcq_dual" => {
                 let (k, ans, dp) = match cfg.merge_mode {
-                    MergeMode::Deploy => pick_mcq_deploy(tile_r, triad_r, patch_r),
-                    MergeMode::Oracle => pick_mcq_oracle(p, tile_r, triad_r, patch_r),
+                    MergeMode::Deploy => pick_mcq_deploy(tile_r, stem_r, triad_r, patch_r),
+                    MergeMode::Oracle => pick_mcq_oracle(p, tile_r, stem_r, triad_r, patch_r),
                 };
                 (k, ans, dp, None)
             }
             "numeric_confidence" => {
                 let (k, ans, dp) = match cfg.merge_mode {
-                    MergeMode::Deploy => pick_numeric_deploy(tile_r, triad_r, patch_r),
-                    MergeMode::Oracle => pick_numeric_oracle(p, tile_r, triad_r, patch_r),
+                    MergeMode::Deploy => pick_numeric_deploy(tile_r, stem_r, triad_r, patch_r),
+                    MergeMode::Oracle => pick_numeric_oracle(p, tile_r, stem_r, triad_r, patch_r),
                 };
                 let rank = dp.as_ref().map(|d| native_path_rank(d));
                 (k, ans, dp, rank)
             }
             _ => {
-                let cands = [(MEMORY_TRIAD, triad_r), (MEMORY_TILE_FATE, tile_r)];
-                let prefer = [MEMORY_TRIAD, MEMORY_TILE_FATE];
                 let (k, r) = match cfg.merge_mode {
-                    MergeMode::Deploy => pick_preferred(&cands, &prefer),
-                    MergeMode::Oracle => pick_oracle(&cands, &prefer),
+                    MergeMode::Deploy => pick_memory_deploy(tile_r, stem_r, triad_r),
+                    MergeMode::Oracle => pick_memory_oracle(tile_r, stem_r, triad_r),
                 };
                 (
                     k,
@@ -631,9 +843,22 @@ pub fn run_hybrid_eval(
 ) -> Result<HybridEvalOutput, String> {
     let triad = run_memory_track("triad", corpus, prompts, cfg, false)?;
     let tile_fate = run_memory_track("tile", corpus, prompts, cfg, true)?;
+    let stem_fate = if cfg.stem_parallel {
+        eprintln!("memory_stem_fate: parallel stemcell mcq_fate track (isolated from tile)");
+        run_memory_track("stemcell", corpus, prompts, cfg, true)?
+    } else {
+        Vec::new()
+    };
     let slices = classify_slices(prompts, corpus);
-    let (hybrid_rows, _) =
-        build_hybrid_rows(prompts, corpus, &triad, &tile_fate, patch_rows, cfg);
+    let (hybrid_rows, _) = build_hybrid_rows(
+        prompts,
+        corpus,
+        &triad,
+        &tile_fate,
+        &stem_fate,
+        patch_rows,
+        cfg,
+    );
 
     let patch_ids = patch_prompt_ids(prompts, &slices, cfg.pipeline_v4);
     let patch_subset: Vec<PatchTrackRow> = patch_rows
@@ -682,12 +907,14 @@ pub fn run_hybrid_eval(
             hybrid: summarize_rows(&hybrid_rows),
             memory_triad_persistent: summarize_memory(&triad),
             memory_tile_fate_persistent: summarize_memory(&tile_fate),
+            memory_stem_fate_persistent: summarize_memory(&stem_fate),
             patch_lm_subset: summarize_rows(&patch_scored),
             hybrid_source_counts: src_counts,
         },
         hybrid_rows,
         memory_triad: triad,
         memory_tile_fate: tile_fate,
+        memory_stem_fate: stem_fate,
         patch_rows: patch_subset,
     })
 }
@@ -715,4 +942,150 @@ pub fn run_hybrid_eval_full(
     );
     let patch_rows = crate::patch_lm::run_patch_track(&patch_prompts, corpus, patch_cfg, None)?;
     run_hybrid_eval(prompts, corpus, &patch_rows, cfg)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::fair_score::ScoreResult;
+
+    fn mem_row(id: &str, letter: char, path: &str, body: &str) -> MemoryTrackRow {
+        MemoryTrackRow {
+            id: id.into(),
+            score_type: "mcq".into(),
+            correct: false,
+            score: ScoreResult {
+                score_type: "mcq".into(),
+                correct: false,
+                extracted: Some(letter.to_string()),
+                reference: "C".into(),
+            },
+            native_answer: format!("ANSWER: {letter}"),
+            decode_path: path.into(),
+            memory_body: body.into(),
+            session: "persistent".into(),
+            mcq_fate_cycles: 1,
+        }
+    }
+
+    fn test_patch_row(letter: char, subtag: &str) -> PatchTrackRow {
+        PatchTrackRow {
+            id: "Q1".into(),
+            assistant: Some(format!("ANSWER: {letter}")),
+            native_answer: None,
+            decode_path: Some(format!("patch_pipeline_v4_mcq/{subtag}")),
+            mcq_patch_subtag: Some(subtag.into()),
+            mcq_patch_confidence: Some(2.35),
+            mcq_fate_spread: Some(0.12),
+            mcq_fate_letter: Some(letter.to_string()),
+            mcq_affinity_spread: Some(0.02),
+        }
+    }
+
+    #[test]
+    fn pick_mcq_deploy_prefers_patch_on_mcq_option_disagree() {
+        let tile = mem_row("Q1", 'A', "mcq_option", "tile");
+        let patch = test_patch_row('C', "patch_mcq_gen_fate");
+        let (k, ans, _) = pick_mcq_deploy(Some(&tile), None, None, Some(&patch));
+        assert_eq!(k, "patch_lm");
+        assert_eq!(ans, "ANSWER: C");
+    }
+
+    #[test]
+    fn pick_mcq_deploy_gen_solo_when_patch_triangulated() {
+        let tile = mem_row("Q1", 'A', "mcq_option", "tile");
+        let stem = mem_row("Q1", 'D', "mcq_option", "stemcell");
+        let patch = PatchTrackRow {
+            id: "Q1".into(),
+            assistant: Some("ANSWER: C".into()),
+            native_answer: None,
+            decode_path: Some("patch_pipeline_v4_mcq/patch_mcq_gen_solo".into()),
+            mcq_patch_subtag: Some("patch_mcq_gen_solo".into()),
+            mcq_patch_confidence: Some(1.0),
+            mcq_fate_spread: Some(0.12),
+            mcq_fate_letter: Some("C".into()),
+            mcq_affinity_spread: None,
+        };
+        let (k, ans, _) = pick_mcq_deploy(Some(&tile), Some(&stem), None, Some(&patch));
+        assert_eq!(k, "patch_lm");
+        assert_eq!(ans, "ANSWER: C");
+    }
+
+    #[test]
+    fn pick_mcq_deploy_gen_solo_blocked_on_tile_stem_consensus() {
+        let tile = mem_row("Q1", 'B', "mcq_option", "tile");
+        let stem = mem_row("Q1", 'D', "mcq_option", "stemcell");
+        let patch = PatchTrackRow {
+            id: "Q1".into(),
+            assistant: Some("ANSWER: C".into()),
+            native_answer: None,
+            decode_path: Some("patch_pipeline_v4_mcq/patch_mcq_gen_solo".into()),
+            mcq_patch_subtag: Some("patch_mcq_gen_solo".into()),
+            mcq_patch_confidence: Some(1.0),
+            mcq_fate_spread: Some(0.01),
+            mcq_fate_letter: Some("C".into()),
+            mcq_affinity_spread: None,
+        };
+        let (k, ans, _) = pick_mcq_deploy(Some(&tile), Some(&stem), None, Some(&patch));
+        assert_eq!(k, "patch_lm");
+        assert_eq!(ans, "ANSWER: C");
+    }
+
+    #[test]
+    fn pick_mcq_deploy_latent_gen_solo_with_triangulation() {
+        let tile = mem_row("Q1", 'A', "pipeline_v4_mcq_A", "tile");
+        let stem = mem_row("Q1", 'D', "pipeline_v4_mcq_D", "stemcell");
+        let patch = PatchTrackRow {
+            id: "Q1".into(),
+            assistant: Some("ANSWER: C".into()),
+            native_answer: None,
+            decode_path: Some("patch_pipeline_v4_mcq/patch_mcq_gen_solo".into()),
+            mcq_patch_subtag: Some("patch_mcq_gen_solo".into()),
+            mcq_patch_confidence: Some(1.0),
+            mcq_fate_spread: Some(0.12),
+            mcq_fate_letter: Some("C".into()),
+            mcq_affinity_spread: None,
+        };
+        let (k, ans, _) = pick_mcq_deploy(Some(&tile), Some(&stem), None, Some(&patch));
+        assert_eq!(k, "patch_lm");
+        assert_eq!(ans, "ANSWER: C");
+    }
+
+    #[test]
+    fn pick_mcq_deploy_latent_override_with_gen_fate() {
+        let tile = mem_row("Q1", 'A', "pipeline_v4_mcq_A", "tile");
+        let patch = test_patch_row('C', "patch_mcq_gen_fate");
+        let (k, ans, _) = pick_mcq_deploy(Some(&tile), None, None, Some(&patch));
+        assert_eq!(k, "patch_lm");
+        assert_eq!(ans, "ANSWER: C");
+    }
+
+    #[test]
+    fn pick_mcq_memory_prefers_tile_over_stem_affinity() {
+        let tile = mem_row("Q1", 'A', "mcq_option", "tile");
+        let stem = mem_row("Q1", 'D', "pipeline_v4_affinity_D", "stemcell");
+        let (k, r) = pick_mcq_memory_deploy(Some(&tile), Some(&stem), None);
+        assert_eq!(k, MEMORY_TILE_FATE);
+        assert_eq!(r.unwrap().native_answer, "ANSWER: A");
+    }
+
+    #[test]
+    fn pick_memory_deploy_tile_stem_equal_peer_by_path_rank() {
+        let tile = mem_row("Q1", 'A', "mcq_option", "tile");
+        let stem = mem_row("Q1", 'B', "pipeline_v4_mcq_C", "stemcell");
+        let (k, r) = pick_memory_deploy(Some(&tile), Some(&stem), None);
+        assert_eq!(k, MEMORY_STEM_FATE);
+        assert_eq!(r.unwrap().native_answer, "ANSWER: B");
+    }
+
+    #[test]
+    fn pick_memory_oracle_first_correct_independent_order() {
+        let tile = mem_row("Q1", 'A', "mcq_option", "tile");
+        let mut stem = mem_row("Q1", 'C', "mcq_option", "stemcell");
+        stem.correct = true;
+        stem.score.correct = true;
+        let (k, r) = pick_memory_oracle(Some(&tile), Some(&stem), None);
+        assert_eq!(k, MEMORY_STEM_FATE);
+        assert!(r.unwrap().correct);
+    }
 }

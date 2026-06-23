@@ -307,7 +307,7 @@ pub fn recompose_to_patch(
 
 fn mcq_option_affinity_from_report(
     plan: &DecomposePlan,
-    report: &TriadFeedReport,
+    _report: &TriadFeedReport,
     shard_scores: &[f64],
     fate_option_scores: Option<&[(char, f64)]>,
 ) -> Vec<(char, f64)> {
@@ -317,22 +317,22 @@ fn mcq_option_affinity_from_report(
     let fate_map: HashMap<char, f64> = fate_option_scores
         .map(|xs| xs.iter().copied().collect())
         .unwrap_or_default();
-    let fate = &report.model_patch.fate_affinities;
-    let tile_act = &report.model_patch.tile_activations;
 
     let mut raw = Vec::new();
-    for (i, (letter, _)) in parts.options.iter().enumerate() {
+    for (letter, _) in &parts.options {
         let shard_idx = plan
             .shards
             .iter()
             .position(|s| s.label == format!("MCQ_OPTION_{letter}"))
-            .unwrap_or(i + 1);
+            .unwrap_or(0);
         let shard_score = shard_scores.get(shard_idx).copied().unwrap_or(0.0);
-        let tile_boost = tile_act.get(i).copied().unwrap_or(0.0);
-        let fate_boost = fate.get(i % fate.len().max(1)).copied().unwrap_or(0.25);
         let opt_energy = fate_map.get(letter).copied().unwrap_or(0.0);
-        let s = shard_score * 0.3 + tile_boost * 0.35 + fate_boost * 0.2 + opt_energy * 0.15;
-        raw.push((*letter, s));
+        let score = if fate_map.len() >= 2 {
+            opt_energy * 0.68 + shard_score * 0.32
+        } else {
+            shard_score * 0.55 + opt_energy * 0.45
+        };
+        raw.push((*letter, score));
     }
     if raw.is_empty() {
         return raw;
@@ -357,6 +357,57 @@ mod tests {
         assert!(plan.shards.iter().any(|s| s.label == "MCQ_STEM"));
         assert!(plan.shards.iter().any(|s| s.label == "MCQ_OPTION_B"));
         assert!(plan.shards.iter().any(|s| s.label == "MCQ_AGGREGATE"));
+    }
+
+    #[test]
+    fn mcq_affinity_uses_letter_keyed_fate_scores() {
+        use crate::signal_ingress::{IngressStats, TriadFeedReport, ValhallaModelPatch};
+
+        let q = "Pick one\nA) 1\nB) 2\nC) 3\nD) 4";
+        let plan = plan_decomposition(q, "mcq", None);
+        let shard_scores: Vec<f64> = plan.shards.iter().map(|_| 0.5).collect();
+        let fate = vec![('A', 1.0), ('B', 2.0), ('C', 5.0), ('D', 1.5)];
+        let report = TriadFeedReport {
+            mode: "test".into(),
+            stats: IngressStats::default(),
+            hub_signals: 0,
+            hub_routed: [0; 4],
+            hub_prefs: vec![],
+            tile_completed: 0,
+            tile_ops: 0,
+            tile_dim: 0.0,
+            stem_cells: 0,
+            stem_connections: 0,
+            stem_dim: 0.0,
+            model_patch: ValhallaModelPatch {
+                body_source: "tile".into(),
+                fate_affinities: vec![],
+                hub_routed: [0; 4],
+                quad_layer_scales: [1.0; 4],
+                tile_signatures: vec![],
+                stem_signatures: vec![],
+                patch_vector: vec![],
+                signals_emitted: 0,
+                tile_count: 0,
+                stem_cell_count: 0,
+                tile_activations: vec![],
+                tile_connection_count: 0,
+                tile_avg_activation: 0.0,
+                stem_organ_clusters: vec![],
+                stem_cluster_signatures: vec![],
+                stem_cluster_energies: vec![],
+                ingress_encoder: String::new(),
+            },
+            optimize_cycles: 0,
+            cycle_trace: vec![],
+            mcq_fate_trace: vec![],
+        };
+        let aff = mcq_option_affinity_from_report(&plan, &report, &shard_scores, Some(&fate));
+        let top = aff
+            .iter()
+            .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
+            .map(|(c, _)| *c);
+        assert_eq!(top, Some('C'));
     }
 
     #[test]

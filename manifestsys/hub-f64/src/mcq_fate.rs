@@ -8,6 +8,8 @@
 //!   `VALHALLA_MCQ_FATE_HARD_MAX`   — safety ceiling (default 128)
 //!   `VALHALLA_MCQ_FATE_MIN_CYCLES` — minimum aggregate rounds before stop (default 5)
 
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::dl_front::{build_body_ports, hash_embed, BodyFrontPorts, DlFrontConfig, DL_EMBED_DIM};
@@ -440,7 +442,7 @@ pub fn run_mcq_fate_pipeline(
     let mut prev_stem = session.stem.cells.len();
     let mut parts_fed = 0usize;
     let mut stopped_reason = "hard_max".to_string();
-    let mut option_scores: Vec<(char, f64)> = Vec::new();
+    let mut option_scores: HashMap<char, f64> = HashMap::new();
 
     // --- Decompose: feed every shard; Fate may add polish rounds ---
     for (pi, shard) in shards.iter().enumerate() {
@@ -471,7 +473,10 @@ pub fn run_mcq_fate_pipeline(
                         .last()
                         .map(|t| t.energy.abs())
                         .unwrap_or(0.0);
-                    option_scores.push((letter, energy));
+                    option_scores
+                        .entry(letter)
+                        .and_modify(|e| *e = e.max(energy))
+                        .or_insert(energy);
                 }
             }
         }
@@ -564,6 +569,8 @@ pub fn run_mcq_fate_pipeline(
     report.optimize_cycles = cycle;
     report.mcq_fate_trace = trace.clone();
 
+    let option_scores = finalize_option_scores(&parts, option_scores);
+
     McqFateOutcome {
         report,
         trace,
@@ -574,4 +581,21 @@ pub fn run_mcq_fate_pipeline(
         parts_fed,
         option_scores,
     }
+}
+
+/// Return letter-aligned option scores from decompose collection only.
+fn finalize_option_scores(
+    parts: &McqParts,
+    collected: HashMap<char, f64>,
+) -> Vec<(char, f64)> {
+    let mut out: Vec<(char, f64)> = parts
+        .options
+        .iter()
+        .map(|(letter, _)| (*letter, collected.get(letter).copied().unwrap_or(0.0)))
+        .collect();
+    if out.len() >= 2 {
+        let mean = out.iter().map(|(_, s)| *s).sum::<f64>() / out.len() as f64;
+        out = out.into_iter().map(|(l, s)| (l, s - mean)).collect();
+    }
+    out
 }

@@ -23,6 +23,16 @@ pub const PIPELINE_VERSION: &str = "pipeline-v4-decompose";
 /// Minimum top-2 affinity gap before pipeline letter overrides memory decode.
 pub const MCQ_AFFINITY_MIN_SPREAD: f64 = 0.012;
 
+/// Minimum top-2 Fate option-score gap for patch/deploy fate-backed overrides.
+pub const MCQ_FATE_MIN_SPREAD: f64 = 0.06;
+
+pub fn mcq_fate_min_spread() -> f64 {
+    std::env::var("VALHALLA_MCQ_FATE_MIN_SPREAD")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(MCQ_FATE_MIN_SPREAD)
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PipelineConfig {
     pub incubation_body: BodyTarget,
@@ -149,15 +159,6 @@ pub fn run_question_pipeline(
     }
 }
 
-pub fn mcq_affinity_spread(affinities: &[(char, f64)]) -> f64 {
-    if affinities.len() < 2 {
-        return 0.0;
-    }
-    let mut vals: Vec<f64> = affinities.iter().map(|(_, s)| *s).collect();
-    vals.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
-    vals[0] - vals[1]
-}
-
 pub fn pick_mcq_affinity_letter(affinities: &[(char, f64)]) -> Option<char> {
     affinities
         .iter()
@@ -168,6 +169,67 @@ pub fn pick_mcq_affinity_letter(affinities: &[(char, f64)]) -> Option<char> {
 /// MCQ: pick letter from recompose affinities (deploy path for Tier B until LM round-trip).
 pub fn decode_mcq_from_recompose(recompose: &RecomposePatch) -> Option<char> {
     pick_mcq_affinity_letter(&recompose.mcq_option_affinity)
+}
+
+pub fn pick_mcq_fate_letter(option_scores: &[(char, f64)]) -> Option<char> {
+    option_scores
+        .iter()
+        .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal))
+        .map(|(c, _)| *c)
+}
+
+pub fn mcq_fate_spread(option_scores: &[(char, f64)]) -> f64 {
+    mcq_score_spread(option_scores)
+}
+
+pub fn mcq_affinity_spread(affinities: &[(char, f64)]) -> f64 {
+    mcq_score_spread(affinities)
+}
+
+fn mcq_score_spread(scores: &[(char, f64)]) -> f64 {
+    if scores.len() < 2 {
+        return 0.0;
+    }
+    let mut vals: Vec<f64> = scores.iter().map(|(_, s)| *s).collect();
+    vals.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
+    vals[0] - vals[1]
+}
+
+/// Corpus keyword decode paths — deploy may prefer patch LM when they disagree with patch.
+pub fn is_mcq_memory_decoder_path(path: &str) -> bool {
+    matches!(path, "mcq_option" | "mcq_entailment" | "mcq_fallback")
+}
+
+/// Valhalla latent merge paths (prefix only; use with letter validation for deploy).
+pub fn is_mcq_latent_memory_path(path: &str) -> bool {
+    path.starts_with("pipeline_v4_mcq_") || path.starts_with("pipeline_v4_latent_")
+}
+
+/// Letter suffix on `pipeline_v4_mcq_X` paths.
+pub fn latent_mcq_path_letter(path: &str) -> Option<char> {
+    path.strip_prefix("pipeline_v4_mcq_")
+        .and_then(|rest| rest.chars().next())
+        .filter(|c| matches!(c, 'A' | 'B' | 'C' | 'D' | 'E'))
+}
+
+/// Deploy/memory protect only when latent path letter matches the memory answer.
+pub fn is_mcq_latent_memory_protected(path: &str, mem_letter: Option<char>) -> bool {
+    if path.starts_with("pipeline_v4_latent_") {
+        return true;
+    }
+    match (latent_mcq_path_letter(path), mem_letter) {
+        (Some(path_l), Some(ans_l)) => path_l == ans_l,
+        _ => false,
+    }
+}
+
+pub fn mcq_patch_on_disagree_enabled() -> bool {
+    std::env::var("VALHALLA_MCQ_PATCH_ON_DISAGREE")
+        .map(|v| {
+            let v = v.trim().to_ascii_lowercase();
+            v != "0" && v != "false" && v != "off"
+        })
+        .unwrap_or(true)
 }
 
 /// v4 MCQ merge: memory decode vs pipeline affinity when spread is meaningful.
@@ -181,13 +243,13 @@ pub fn merge_mcq_pipeline_decode(
     let spread = mcq_affinity_spread(affinities);
 
     match (aff_letter, mem_letter) {
-        (Some(aff), Some(mem)) if aff == mem => {
+        (Some(aff), Some(mem)) if aff == mem && spread >= MCQ_AFFINITY_MIN_SPREAD => {
             (format!("ANSWER: {aff}"), format!("pipeline_v4_mcq_{aff}"))
         }
         (Some(aff), Some(_mem)) if spread >= MCQ_AFFINITY_MIN_SPREAD => {
             (format!("ANSWER: {aff}"), format!("pipeline_v4_affinity_{aff}"))
         }
-        (Some(aff), None) => {
+        (Some(aff), None) if spread >= MCQ_AFFINITY_MIN_SPREAD => {
             (format!("ANSWER: {aff}"), format!("pipeline_v4_affinity_{aff}"))
         }
         _ => (memory_ans.to_string(), memory_path.to_string()),
@@ -196,4 +258,31 @@ pub fn merge_mcq_pipeline_decode(
 
 pub fn patch_anchor_text() -> &'static str {
     PATCH_ANCHOR
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn latent_memory_path_detection() {
+        assert!(is_mcq_latent_memory_path("pipeline_v4_mcq_C"));
+        assert!(!is_mcq_latent_memory_path("pipeline_v4_affinity_B"));
+        assert!(!is_mcq_latent_memory_path("mcq_option"));
+    }
+
+    #[test]
+    fn latent_protect_requires_matching_letter() {
+        assert!(is_mcq_latent_memory_protected("pipeline_v4_mcq_C", Some('C')));
+        assert!(!is_mcq_latent_memory_protected("pipeline_v4_mcq_D", Some('B')));
+        assert!(is_mcq_latent_memory_protected("pipeline_v4_latent_x", Some('A')));
+    }
+
+    #[test]
+    fn merge_mcq_weak_agreement_keeps_memory_path() {
+        let aff = vec![('A', 0.001), ('B', 0.002)];
+        let (ans, path) = merge_mcq_pipeline_decode("ANSWER: A", "mcq_option", &aff);
+        assert_eq!(ans, "ANSWER: A");
+        assert_eq!(path, "mcq_option");
+    }
 }

@@ -1,8 +1,8 @@
 # Hybrid Valhalla 2.0 — Technical Whitepaper
 
 **Document type**: Product technical whitepaper  
-**Version**: hybrid-2.0 · fair-1.2 · hub-f64 1.1.0  
-**Date**: 2026-06-22  
+**Version**: hybrid-2.0 · hybrid-4.0-rust-pipeline · fair-1.2 · hub-f64 1.1.0  
+**Date**: 2026-06-23  
 **Publisher**: Rogue Intelligence LNC.  
 **Audience**: ML systems engineers, architects, third-party auditors  
 **Status**: Experiment-driven; claims tied to reproducible artifacts
@@ -20,14 +20,12 @@ On the **fair-1.2** benchmark test split (**145 prompts**, **49-line decontamina
 
 | Metric | Hybrid unified |
 |--------|----------------|
-| Total | **80.00%** (116/145) |
-| open | **95.08%** |
-| mcq | **54.35%** (~25/46) |
-| numeric | **86.84%** |
+| Total | **80.69%** (117/145) |
+| open | **93.44%** |
+| mcq | **60.87%** (28/46) |
+| numeric | **84.21%** |
 
-**Non-goals**: Claim general SOTA vs GPT-4/Claude; claim Valhalla replaces Transformers on all tasks.
-
-**Primary artifact**: `reports/hybrid_valhalla_lm/hybrid_unified_test_20260622_0345.json`
+**Primary artifact**: `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json`
 
 ---
 
