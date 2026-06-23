@@ -938,13 +938,30 @@ fn decode_mcq(
         }
     }
 
-    matches.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
-    let path = if use_entailment && used_entailment {
-        "mcq_entailment"
+    let mut decode_path = if use_entailment && used_entailment {
+        "mcq_entailment".to_string()
     } else {
-        "mcq_option"
+        "mcq_option".to_string()
     };
-    (format!("ANSWER: {}", best_letter), matches, path.into())
+
+    if crate::mcq_pairwise::mcq_pairwise_enabled() && opts.len() >= 2 {
+        let stem = mcq_stem(question);
+        let priors: Vec<(char, f64)> = opts
+            .iter()
+            .enumerate()
+            .map(|(idx, (l, _))| (*l, raw_scores.get(idx).copied().unwrap_or(0.0) - mean))
+            .collect();
+        let pw = crate::mcq_pairwise::pairwise_option_scores(&stem, &opts, &priors);
+        if crate::mcq_pairwise::pairwise_spread(&pw) >= 0.008 {
+            if let Some(pl) = crate::mcq_pairwise::pick_pairwise_letter(&pw) {
+                best_letter = pl;
+                decode_path = "mcq_pairwise".into();
+            }
+        }
+    }
+
+    matches.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    (format!("ANSWER: {}", best_letter), matches, decode_path)
 }
 
 fn decode_open(

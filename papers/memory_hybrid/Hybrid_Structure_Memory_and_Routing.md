@@ -12,7 +12,7 @@ Domain question answering on private corpora requires both **fluent generation**
 
 On the **fair-1.2** benchmark (145 held-out prompts, 49-line corpus without gold answers, Qwen2.5-0.5B-Instruct companion), the hybrid system achieves **80.7%** total accuracy, with **93.4%** on open-ended items, **84.2%** on numeric items, and **60.9%** on four-option multiple choice. A structure-memory-only stack reaches roughly **41%** total on the same split; the companion LM alone reaches **71%**. The hybrid gain is therefore not parameter scaling but **complementary routing** between persistent structure and generation.
 
-We report MCQ as the honest bottleneck: option discrimination remains harder than open generation. We describe deploy-time policies that improved MCQ routing from 52% to 61% without oracle labels, and outline a research agenda toward **option-comparator memory** rather than larger base models.
+We report MCQ as the honest bottleneck: option discrimination remains harder than open generation. We describe deploy-time policies that improved MCQ routing from 52% to 61% without oracle labels, and introduce a **stem-conditioned pairwise option comparator** for structure memory (Section 3.5).
 
 **Keywords**: structure memory, hybrid routing, model patching, domain QA, auditable inference, small language models
 
@@ -47,6 +47,14 @@ This paper makes four contributions:
 **Memory-augmented neural networks** (NTM, differentiable caches) learn memory end-to-end; we instead use **explicit structure incubation** with rule- and score-based decoders for audit and on-prem deployment.
 
 **Mixture-of-experts routing** selects internal layers; our router operates at **product level** across memory tracks and an external patched LM, with traces suitable for compliance review.
+
+**Knowledge distillation and small LMs** (Phi, Qwen2.5-0.5B) optimize general fluency; we show that a **0.5B companion** plus structure memory can exceed the base model on a domain slice without full fine-tuning.
+
+**Structured prediction for QA** (semantic parsing, AMR) decomposes questions into logical forms; our decomposition is **task-type driven** (open / numeric / MCQ shards) and feeds structure incubation rather than a fixed grammar.
+
+**Auditable AI / explainable routing** is increasingly required in regulated sectors; we export per-answer `hybrid_source`, decode path, and score spreads as first-class JSON fields—not post-hoc attention maps.
+
+**Benchmark design for vertical QA**: leaderboard benchmarks (MMLU, GSM8K) use public training overlap; **fair-1.2** holds out gold answers from the incubation corpus to measure domain adaptation without leakage.
 
 ---
 
@@ -101,6 +109,17 @@ Policies (high level):
 - For patch solo-generation override on MCQ: require **triangulated disagreement** (patch letter ≠ both parallel memory tracks).
 
 Every answer records `hybrid_source` and `decode_path` for audit.
+
+### 3.5 Stem-conditioned pairwise option comparator
+
+Independent per-option scoring treats each choice in isolation; MCQ errors often arise from **relative** discrimination (option B is plausible until compared with C under the same stem). We add a **pairwise memory comparator** enabled via `VALHALLA_MCQ_PAIRWISE=1`:
+
+1. Parse stem and option bodies from the question.  
+2. For each unordered pair \((i,j)\), compute a **stem-relative margin** from keyword overlap with the stem, unique lexical support, and demeaned shard/aggregate priors.  
+3. Aggregate margins into **Borda-style win counts**, demean, and blend with independent affinity (45% / 55%).  
+4. Emit decode path `mcq_pairwise` when pairwise spread exceeds a floor (0.008).
+
+This module is structure-only (no LM forward); deploy routing can still prefer patch LM when memory keyword paths disagree with high-confidence patch output.
 
 ---
 
@@ -164,9 +183,9 @@ We demonstrated that **persistent structure memory**, **structure-guided LM patc
 
 Future work:
 
-1. **Option-comparator memory** — dedicated pairwise stem–option scoring with calibrated margins.  
+1. **Calibrated pairwise margins** — learn stem–option weights from validation, not hand-tuned keyword overlap.  
 2. **Certified routing** — aggregate-spread thresholds learned from validation, not hand-tuned.  
-3. **Third-party audit** — publish fair-1.2 reproduction kit alongside public viz API.
+3. **Third-party audit** — publish fair-1.2 reproduction kit alongside public viz API (see Appendix E).
 
 ---
 
@@ -218,6 +237,20 @@ flowchart TB
 2. Which spread thresholds are **calibration-stable** across corpora sizes?  
 3. Does structure memory **transfer** when incubated on corpus A and tested on related corpus B with shared ontology?  
 4. What is the minimum audit field set for **regulated deployment** (EU AI Act, sector-specific rules)?
+
+---
+
+## Appendix E — fair-1.2 reproduction kit (third-party)
+
+| Component | Location |
+|-----------|----------|
+| Benchmark spec | `tools/fair_benchmark/BENCHMARK_SPEC.md` |
+| Suite JSON | `tools/fair_benchmark/fair_benchmark_suite.json` |
+| Hybrid runner | `tools/fair_benchmark/run_hybrid_valhalla_lm.py` |
+| Public mirror | [valhalla-transformer](https://github.com/Rogue-Intelligence-INC/valhalla-transformer) — `experiments/hybrid_unified_latest.json` |
+| Viz + API | `valhalla-transformer/viz` · `GET /api/hybrid-unified/latest` |
+
+**Audit checklist**: (1) confirm corpus files contain no gold answers; (2) re-run deploy merge mode without oracle flags; (3) compare `summary.hybrid.by_score_type` to published JSON; (4) sample 20 rows for non-empty `hybrid_source`.
 
 ---
 

@@ -197,7 +197,7 @@ fn mcq_score_spread(scores: &[(char, f64)]) -> f64 {
 
 /// Corpus keyword decode paths — deploy may prefer patch LM when they disagree with patch.
 pub fn is_mcq_memory_decoder_path(path: &str) -> bool {
-    matches!(path, "mcq_option" | "mcq_entailment" | "mcq_fallback")
+    matches!(path, "mcq_option" | "mcq_entailment" | "mcq_fallback" | "mcq_pairwise")
 }
 
 /// Valhalla latent merge paths (prefix only; use with letter validation for deploy).

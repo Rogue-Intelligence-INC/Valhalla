@@ -29,6 +29,7 @@ pub mod task_decompose;
 pub mod patch_lm;
 pub mod hybrid;
 pub mod mcq_fate;
+pub mod mcq_pairwise;
 pub mod native_qa;
 pub mod signal_ingress;
 pub mod smoke_report;

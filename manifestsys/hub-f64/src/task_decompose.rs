@@ -338,7 +338,21 @@ fn mcq_option_affinity_from_report(
         return raw;
     }
     let mean = raw.iter().map(|(_, s)| *s).sum::<f64>() / raw.len() as f64;
-    raw.into_iter().map(|(l, s)| (l, s - mean)).collect()
+    let mut aff: Vec<(char, f64)> = raw.into_iter().map(|(l, s)| (l, s - mean)).collect();
+
+    if crate::mcq_pairwise::mcq_pairwise_enabled() {
+        let parts = mcq_fate::parse_mcq_parts(&plan.whole_question);
+        let priors = aff.clone();
+        let pw = crate::mcq_pairwise::pairwise_option_scores(&parts.stem, &parts.options, &priors);
+        aff = aff
+            .into_iter()
+            .zip(pw.iter())
+            .map(|((l, a), (_, p))| (l, a * 0.45 + p * 0.55))
+            .collect();
+        let m2 = aff.iter().map(|(_, s)| *s).sum::<f64>() / aff.len() as f64;
+        aff = aff.into_iter().map(|(l, s)| (l, s - m2)).collect();
+    }
+    aff
 }
 
 /// Parse MCQ parts re-export for pipeline consumers.
