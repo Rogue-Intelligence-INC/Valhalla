@@ -55,6 +55,14 @@ name = "valhalla_dl_front_smoke"
 path = "src/bin/valhalla_dl_front_smoke.rs"
 
 [[bin]]
+name = "valhalla_tile_stem_tts_fusion"
+path = "src/bin/valhalla_tile_stem_tts_fusion.rs"
+
+[[bin]]
+name = "valhalla_multimodal_fusion_bench"
+path = "src/bin/valhalla_multimodal_fusion_bench.rs"
+
+[[bin]]
 name = "valhalla_model_export"
 path = "src/bin/valhalla_model_export.rs"
 

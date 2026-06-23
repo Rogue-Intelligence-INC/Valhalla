@@ -1,3 +1,122 @@
+# Valhalla / 瓦尔哈拉 Research Platform
+
+<p align="center">
+  <strong>🏔️ AI incubation · Hybrid memory routing · Multimodal structure fusion</strong><br>
+  <strong>AI 孵化 · 混合记忆路由 · 多模态结构融合</strong>
+</p>
+
+<p align="center">
+  <a href="#valhalla-english">English</a> •
+  <a href="#valhalla-中文">中文</a> •
+  <a href="#yaksha-cipher">Yaksha Cipher</a>
+</p>
+
+---
+
+<a name="valhalla-english"></a>
+## 🇬🇧 Valhalla — Hybrid Memory & Multimodal Fusion
+
+**Organization**: [Rogue Intelligence Inc.](https://github.com/Rogue-Intelligence-INC)
+
+Valhalla is an **AI research platform** for structure-driven incubation: memory bodies (Tile / StemCell / Fate) fuse with companion LMs via hybrid routing—not a standalone foundation model.
+
+### Hybrid 2.0 (Fair Benchmark, 145 questions)
+
+Primary artifact: `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json`
+
+| Metric | Result |
+|--------|--------|
+| **Total accuracy** | **117/145 (80.69%)** |
+| Open questions | 57/61 (93.44%) |
+| MCQ | 28/46 (60.87%) |
+| Numeric | 32/38 (84.21%) |
+
+Baseline Qwen2.5-0.5B zero-shot: 103/145 (71.03%). Structure memory alone: 59/145 (40.69%).
+
+```bash
+RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_hybrid
+./target/release/valhalla_hybrid --phase test --merge-mode deploy \
+  --model checkpoints/valhalla_patched/Qwen2.5-0.5B-Instruct_valhalla_s0.08 \
+  --out reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json
+```
+
+Docs: [`docs/hybrid_2.0/`](docs/hybrid_2.0/)
+
+### Multimodal Fusion Benchmark (NEW)
+
+Text + TTS audio → DL front → **Tile + StemCell Triad** structure fusion.
+
+```bash
+RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_multimodal_fusion_bench
+VALHALLA_DL_FRONT=1 python3 tools/valhalla_dl_front/run_multimodal_fusion_bench.py --cycles 3
+```
+
+| Gate | Result |
+|------|--------|
+| Tile superadditivity (12 pairs) | **58.3%** pass |
+| Stem superadditivity | **91.7%** pass |
+| Modality complementarity | **0.285** pass |
+| Audio/text tile ratio | **10.9×** |
+| Corpus batch fusion | **6.7 tiles/pair** |
+| **Overall** | **PASS** |
+
+Report: [`reports/tts_tile_stem_fusion/MULTIMODAL_FUSION_BENCH.md`](reports/tts_tile_stem_fusion/MULTIMODAL_FUSION_BENCH.md)
+
+### Repository layout
+
+```
+Valhalla/
+├── manifestsys/hub-f64/     # Hybrid pipeline, DL front, Tile/Stem ingress
+├── tools/valhalla_dl_front/ # Multimodal encoder sidecar + fusion bench
+├── tools/fair_benchmark/    # Fair QA benchmark harness
+├── docs/hybrid_2.0/         # Investor / technical doc pack
+├── s-wind-sim/              # S-wind symbolic discovery engine
+└── valhalla-crypto/         # Yaksha Cipher (see below)
+```
+
+---
+
+<a name="valhalla-中文"></a>
+## 🇨🇳 Valhalla — 混合记忆与多模态融合
+
+**组织**：[Rogue Intelligence Inc.](https://github.com/Rogue-Intelligence-INC)
+
+Valhalla 是 **AI 孵化研究平台**：结构记忆体（Tile / StemCell / Fate）与 companion LM 通过混合路由融合——不是独立基座大模型。
+
+### Hybrid 2.0（Fair Benchmark，145 题）
+
+主 artifact：`reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json`
+
+| 指标 | 结果 |
+|------|------|
+| **总准确率** | **117/145（80.69%）** |
+| 开放题 | 57/61（93.44%） |
+| 选择题 MCQ | 28/46（60.87%） |
+| 数值题 | 32/38（84.21%） |
+
+Qwen2.5-0.5B 零样本基线：103/145（71.03%）。纯结构记忆：59/145（40.69%）。
+
+文档：[`docs/hybrid_2.0/`](docs/hybrid_2.0/)
+
+### 多模态融合基准（新）
+
+文本 + TTS 语音 → DL front → **Tile + StemCell Triad** 结构融合。
+
+| 门禁 | 结果 |
+|------|------|
+| Tile 超加性（12 对） | **58.3%** 通过 |
+| Stem 超加性 | **91.7%** 通过 |
+| 模态互补性 | **0.285** 通过 |
+| 音频/文本 Tile 比 | **10.9×** |
+| 语料批量融合 | **6.7 tiles/对** |
+| **总评** | **PASS** |
+
+报告：[`reports/tts_tile_stem_fusion/MULTIMODAL_FUSION_BENCH.md`](reports/tts_tile_stem_fusion/MULTIMODAL_FUSION_BENCH.md)
+
+---
+
+<a name="yaksha-cipher"></a>
+
 # Yaksha Cipher / 夜叉密码 / 夜叉暗号
 
 <p align="center">

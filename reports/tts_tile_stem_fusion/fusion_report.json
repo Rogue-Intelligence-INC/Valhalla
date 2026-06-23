@@ -1,0 +1,248 @@
+{
+  "optimize_cycles": 2,
+  "sidecar": true,
+  "samples": [
+    {
+      "id": "s1",
+      "text": "Love is eternal",
+      "modes": [
+        {
+          "mode": "text_only",
+          "tile_completed": 3,
+          "tile_ops": 5,
+          "tile_dim": 4.0,
+          "stem_cells": 106,
+          "stem_connections": 426,
+          "stem_dim": 29.281273584905662,
+          "patch_norm": 0.9999999999999998,
+          "tile_sig_count": 3,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "audio_only",
+          "tile_completed": 45,
+          "tile_ops": 47,
+          "tile_dim": 14.605182926829269,
+          "stem_cells": 138,
+          "stem_connections": 508,
+          "stem_dim": 38.60687093379762,
+          "patch_norm": 1.0000000000000002,
+          "tile_sig_count": 45,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "text+audio_fusion",
+          "tile_completed": 43,
+          "tile_ops": 45,
+          "tile_dim": 14.606118421052633,
+          "stem_cells": 147,
+          "stem_connections": 468,
+          "stem_dim": 40.52809136552155,
+          "patch_norm": 1.0000000000000002,
+          "tile_sig_count": 43,
+          "stem_cluster_count": 1
+        }
+      ],
+      "text_audio_patch_cosine": 0.9958896747261656,
+      "fusion_vs_text_cosine": 0.9963474374330652,
+      "fusion_vs_audio_cosine": 0.9922754033303269,
+      "tile_text_audio_sig_cosine": 0.27593311157814643,
+      "stem_text_audio_sig_cosine": 0.0
+    },
+    {
+      "id": "s2",
+      "text": "The container holds many items",
+      "modes": [
+        {
+          "mode": "text_only",
+          "tile_completed": 4,
+          "tile_ops": 6,
+          "tile_dim": 4.0,
+          "stem_cells": 102,
+          "stem_connections": 416,
+          "stem_dim": 28.185343137254907,
+          "patch_norm": 0.9999999999999997,
+          "tile_sig_count": 4,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "audio_only",
+          "tile_completed": 44,
+          "tile_ops": 47,
+          "tile_dim": 14.054512195121953,
+          "stem_cells": 139,
+          "stem_connections": 508,
+          "stem_dim": 38.60667450517801,
+          "patch_norm": 0.9999999999999999,
+          "tile_sig_count": 44,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "text+audio_fusion",
+          "tile_completed": 43,
+          "tile_ops": 45,
+          "tile_dim": 12.953841463414633,
+          "stem_cells": 133,
+          "stem_connections": 456,
+          "stem_dim": 36.96083530353474,
+          "patch_norm": 1.0000000000000002,
+          "tile_sig_count": 43,
+          "stem_cluster_count": 1
+        }
+      ],
+      "text_audio_patch_cosine": 0.9956760928645413,
+      "fusion_vs_text_cosine": 0.9963488420131915,
+      "fusion_vs_audio_cosine": 0.9946435152067341,
+      "tile_text_audio_sig_cosine": 0.3296694760132011,
+      "stem_text_audio_sig_cosine": 0.0
+    },
+    {
+      "id": "s3",
+      "text": "What is the capital of France",
+      "modes": [
+        {
+          "mode": "text_only",
+          "tile_completed": 6,
+          "tile_ops": 8,
+          "tile_dim": 4.0,
+          "stem_cells": 102,
+          "stem_connections": 416,
+          "stem_dim": 28.185343137254907,
+          "patch_norm": 1.0,
+          "tile_sig_count": 6,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "audio_only",
+          "tile_completed": 43,
+          "tile_ops": 47,
+          "tile_dim": 15.70695945945946,
+          "stem_cells": 139,
+          "stem_connections": 508,
+          "stem_dim": 38.332244106259786,
+          "patch_norm": 0.9999999999999999,
+          "tile_sig_count": 43,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "text+audio_fusion",
+          "tile_completed": 52,
+          "tile_ops": 55,
+          "tile_dim": 16.254183673469388,
+          "stem_cells": 138,
+          "stem_connections": 460,
+          "stem_dim": 39.15555937093953,
+          "patch_norm": 0.9999999999999997,
+          "tile_sig_count": 52,
+          "stem_cluster_count": 1
+        }
+      ],
+      "text_audio_patch_cosine": 0.9952265291763351,
+      "fusion_vs_text_cosine": 0.9939666720735066,
+      "fusion_vs_audio_cosine": 0.9891642110802551,
+      "tile_text_audio_sig_cosine": 0.3508055568432682,
+      "stem_text_audio_sig_cosine": 0.0
+    },
+    {
+      "id": "s4",
+      "text": "Water boils at one hundred degrees Celsius",
+      "modes": [
+        {
+          "mode": "text_only",
+          "tile_completed": 5,
+          "tile_ops": 7,
+          "tile_dim": 4.0,
+          "stem_cells": 108,
+          "stem_connections": 430,
+          "stem_dim": 29.829351851851854,
+          "patch_norm": 1.0,
+          "tile_sig_count": 5,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "audio_only",
+          "tile_completed": 40,
+          "tile_ops": 47,
+          "tile_dim": 15.156428571428572,
+          "stem_cells": 134,
+          "stem_connections": 508,
+          "stem_dim": 38.05822051271961,
+          "patch_norm": 1.0000000000000002,
+          "tile_sig_count": 40,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "text+audio_fusion",
+          "tile_completed": 52,
+          "tile_ops": 55,
+          "tile_dim": 16.254183673469388,
+          "stem_cells": 140,
+          "stem_connections": 466,
+          "stem_dim": 39.70504813024519,
+          "patch_norm": 0.9999999999999998,
+          "tile_sig_count": 52,
+          "stem_cluster_count": 1
+        }
+      ],
+      "text_audio_patch_cosine": 0.9951635580381877,
+      "fusion_vs_text_cosine": 0.9940356542934904,
+      "fusion_vs_audio_cosine": 0.9892208138246898,
+      "tile_text_audio_sig_cosine": 0.2791910155918978,
+      "stem_text_audio_sig_cosine": 0.0
+    },
+    {
+      "id": "s5",
+      "text": "A quick brown fox jumps over the lazy dog",
+      "modes": [
+        {
+          "mode": "text_only",
+          "tile_completed": 5,
+          "tile_ops": 7,
+          "tile_dim": 4.0,
+          "stem_cells": 104,
+          "stem_connections": 422,
+          "stem_dim": 28.733533653846155,
+          "patch_norm": 1.0,
+          "tile_sig_count": 5,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "audio_only",
+          "tile_completed": 44,
+          "tile_ops": 47,
+          "tile_dim": 15.156025641025643,
+          "stem_cells": 135,
+          "stem_connections": 508,
+          "stem_dim": 38.058021237546306,
+          "patch_norm": 1.0,
+          "tile_sig_count": 44,
+          "stem_cluster_count": 1
+        },
+        {
+          "mode": "text+audio_fusion",
+          "tile_completed": 53,
+          "tile_ops": 55,
+          "tile_dim": 16.804744897959186,
+          "stem_cells": 140,
+          "stem_connections": 466,
+          "stem_dim": 39.15652768155908,
+          "patch_norm": 0.9999999999999999,
+          "tile_sig_count": 53,
+          "stem_cluster_count": 1
+        }
+      ],
+      "text_audio_patch_cosine": 0.9952552993694945,
+      "fusion_vs_text_cosine": 0.9938218908306964,
+      "fusion_vs_audio_cosine": 0.9892462724351668,
+      "tile_text_audio_sig_cosine": 0.3011773643531786,
+      "stem_text_audio_sig_cosine": 0.0
+    }
+  ],
+  "summary": {
+    "avg_fusion_vs_text_cosine": 0.99490409932879,
+    "avg_text_audio_patch_cosine": 0.995442230834945,
+    "fusion_grows_structure": true
+  },
+  "tts_backend": "espeak",
+  "wav_dir": "/home/jouly/AI/Valhalla/reports/tts_tile_stem_fusion"
+}
