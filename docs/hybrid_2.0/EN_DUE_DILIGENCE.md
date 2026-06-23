@@ -66,7 +66,8 @@ This pack supports **technical and commercial due diligence** on Hybrid Valhalla
 | Artifact | Path in public repo |
 |----------|---------------------|
 | Latest hybrid JSON | `experiments/hybrid_unified_latest.json` |
-| Timestamped run | `experiments/hybrid_unified_test_20260622_0345.json` |
+| Timestamped run (historical) | `experiments/hybrid_unified_test_20260622_0345.json` — superseded by **final** |
+| **Canonical deploy** | `experiments/hybrid_unified_latest.json` ← sync from `hybrid_v4_mcq_patch_strengthen_final.json` |
 | Docs 13/14 | `en/13_*`, `zh/13_*`, `en/14_*`, `zh/14_*` |
 | API | `api/server.js` — `/api/hybrid-unified` |
 

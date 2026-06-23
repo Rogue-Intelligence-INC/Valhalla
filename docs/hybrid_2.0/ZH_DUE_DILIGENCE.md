@@ -64,7 +64,8 @@
 | 产物 | 公开仓库路径 |
 |------|--------------|
 | 最新 hybrid JSON | `experiments/hybrid_unified_latest.json` |
-| 带时间戳运行 | `experiments/hybrid_unified_test_20260622_0345.json` |
+| 带时间戳运行（历史） | `experiments/hybrid_unified_test_20260622_0345.json` — 已被 **final** 取代 |
+| **Canonical deploy** | `experiments/hybrid_unified_latest.json` ← 由 final JSON 同步 |
 | 文档 13/14 | `en/13_*`、`zh/13_*`、`en/14_*`、`zh/14_*` |
 | API | `api/server.js` — `/api/hybrid-unified` |
 

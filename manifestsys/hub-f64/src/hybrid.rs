@@ -271,6 +271,7 @@ pub fn run_memory_track(
                 score_type: p.score_type.clone(),
                 question_ports: Some(grind_text_hash(&text, port_cap)),
                 id: Some(p.id.clone()),
+                audio_features: None,
             }
         })
         .collect();

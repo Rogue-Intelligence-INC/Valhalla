@@ -47,6 +47,17 @@ VALHALLA_DL_FRONT=1 python3 tools/valhalla_dl_front/run_multimodal_fusion_bench.
 4. **Corpus-level fusion** consolidates 12 utterances into shared structure (80 tiles, 292 stem cells).
 5. Not yet on QA path — structure/incubation layer only.
 
+## Open-question memory pilot (2026-06-19)
+
+Triad memory, 61 open Q, espeak + `VALHALLA_MULTIMODAL_FUSION=1`:
+
+| Track | Correct |
+|-------|---------|
+| text_only | 4/61 |
+| text + TTS audio | 4/61 |
+
+See `multimodal_memory_pilot.json` — wired, **no task delta yet**.
+
 ## Files
 
 | Path | Role |

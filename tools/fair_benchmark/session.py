@@ -62,6 +62,7 @@ def native_qa_batch_persistent(
     incubation_cycles: int = 1,
     qa_cycles: int = 1,
     grinder_backend: str = "hash",
+    audio_by_id: dict[str, list[float]] | None = None,
 ) -> list[dict]:
     """
     One incubation over full corpus, then sequential QA without re-ingesting corpus.
@@ -72,14 +73,15 @@ def native_qa_batch_persistent(
     q_specs = []
     for qtext, stype, qid in questions:
         q_ports = grind_shard_for_native_qa(grind_text(qtext, backend=grinder_backend))
-        q_specs.append(
-            {
+        spec: dict = {
                 "question": qtext,
                 "score_type": stype,
                 "question_ports": q_ports,
                 "id": qid or "",
             }
-        )
+        if audio_by_id and qid and qid in audio_by_id:
+            spec["audio_features"] = audio_by_id[qid]
+        q_specs.append(spec)
 
     resp = _run_native(
         {

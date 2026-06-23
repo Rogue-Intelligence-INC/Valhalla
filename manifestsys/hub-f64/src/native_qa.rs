@@ -66,6 +66,33 @@ fn default_qa_cycles() -> usize {
     1
 }
 
+fn multimodal_fusion_enabled() -> bool {
+    std::env::var("VALHALLA_MULTIMODAL_FUSION")
+        .map(|v| {
+            let v = v.trim().to_ascii_lowercase();
+            v == "1" || v == "true" || v == "on"
+        })
+        .unwrap_or(false)
+}
+
+fn feed_optional_audio(
+    session: &mut TriadSession,
+    audio: Option<&Vec<f64>>,
+    front: &DlFrontConfig,
+) {
+    if !multimodal_fusion_enabled() {
+        return;
+    }
+    if let Some(vals) = audio.filter(|v| !v.is_empty()) {
+        session.feed_modality(
+            ModalityInput::AudioFeatures {
+                values: vals.clone(),
+            },
+            front,
+        );
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NativeQaQuestionSpec {
     pub question: String,
@@ -74,6 +101,9 @@ pub struct NativeQaQuestionSpec {
     pub question_ports: Option<BodyFrontPorts>,
     #[serde(default)]
     pub id: Option<String>,
+    /// TTS / audio mel features — fused after question_ports when `VALHALLA_MULTIMODAL_FUSION=1`.
+    #[serde(default)]
+    pub audio_features: Option<Vec<f64>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -1573,6 +1603,11 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             corpus_idx: None,
         });
         qa_session.emit_body_ports(question_ports);
+        feed_optional_audio(
+            &mut qa_session,
+            q.audio_features.as_ref(),
+            &front,
+        );
 
         let use_mcq_fate = req.mcq_fate || mcq_fate::mcq_fate_cycles_enabled();
 

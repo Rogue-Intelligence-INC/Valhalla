@@ -45,13 +45,29 @@
 
 ---
 
+## Multimodal fusion (structure layer)
+
+Text + TTS → Tile/Stem Triad. Bench: `reports/tts_tile_stem_fusion/MULTIMODAL_FUSION_BENCH.md`
+
+| Gate | Result |
+|------|--------|
+| Tile superadditivity | 58.3% |
+| Stem superadditivity | 91.7% |
+| Overall | **PASS** |
+
+QA pilot (open memory): `tools/fair_benchmark/run_multimodal_memory_pilot.py`
+
+---
+
 ## Related artifacts
 
 | Artifact | Location |
 |----------|----------|
 | Hybrid deploy JSON (final) | `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json` |
 | Memory-first deploy (MCQ baseline) | `reports/hybrid_valhalla_lm/hybrid_v4_test_deploy_post_decode_fix.json` |
+| **Multimodal fusion bench** | `reports/tts_tile_stem_fusion/multimodal_fusion_bench.json` (**PASS** v1.0) |
 | Fair test suite | `reports/fair_benchmark/fair_benchmark_test_20260620_0859.json` |
 | Public mirror | [valhalla-transformer](https://github.com/Rogue-Intelligence-INC/valhalla-transformer) `experiments/hybrid_unified_latest.json` |
+| Archived pre-2.0 docs | `docs/archive/pre-hybrid-2.0/` |
 
 **Rule**: All percentages in this pack must match a cited JSON row (`correct/total`); do not round headline metrics for marketing.

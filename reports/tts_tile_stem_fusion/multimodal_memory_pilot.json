@@ -1,0 +1,754 @@
+{
+  "suite": "fair_benchmark_test_open_only",
+  "n_open": 61,
+  "text_only": {
+    "label": "text_only",
+    "correct": 4,
+    "total": 61,
+    "accuracy": 0.06557377049180328,
+    "rows": [
+      {
+        "id": "OPEN_PHYS_01",
+        "correct": false,
+        "answer": "[corpus:81] Think briefly, then end with exactly one line: ANSWER: X (X must be A, B, C, or D)",
+        "reference": null
+      },
+      {
+        "id": "OPEN_CHEM_01",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_BIO_01",
+        "correct": false,
+        "answer": "[corpus:40] How many remain? Final numeric answer on the last line only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_HIST_01",
+        "correct": false,
+        "answer": "[corpus:22] World War II ended in:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_GEO_01",
+        "correct": false,
+        "answer": "[corpus:136] What is the capital of Brazil?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_ECON_01",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_ECON_02",
+        "correct": false,
+        "answer": "[corpus:21] What is the contrapositive of 'If it rains, the ground is wet'? Answer in one short sentence",
+        "reference": null
+      },
+      {
+        "id": "OPEN_CS_02",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "ZH_02",
+        "correct": false,
+        "answer": "[corpus:67] French Revolution began in:",
+        "reference": null
+      },
+      {
+        "id": "ZH_03",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      },
+      {
+        "id": "ZH_04",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "LIT_01",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "LIT_02",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "MED_01",
+        "correct": false,
+        "answer": "[corpus:125] What does the Federal Reserve primarily influence?",
+        "reference": null
+      },
+      {
+        "id": "ASTRO_01",
+        "correct": false,
+        "answer": "[corpus:115] What force keeps planets in orbit around the Sun?",
+        "reference": null
+      },
+      {
+        "id": "LOGIC_01",
+        "correct": false,
+        "answer": "[corpus:27] A box has 12 red balls and 5 blue balls",
+        "reference": null
+      },
+      {
+        "id": "LOGIC_02",
+        "correct": false,
+        "answer": "[corpus:53] End your response with the final numeric answer alone on the last line",
+        "reference": null
+      },
+      {
+        "id": "OPEN_CS_03",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "ZH_05",
+        "correct": false,
+        "answer": "[corpus:131] \u9020\u7eb8\u672f\u53d1\u660e\u4e8e\u54ea\u4e2a\u56fd\u5bb6\uff1f",
+        "reference": null
+      },
+      {
+        "id": "ASTRO_02",
+        "correct": false,
+        "answer": "[corpus:53] End your response with the final numeric answer alone on the last line",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F02",
+        "correct": false,
+        "answer": "[corpus:6] At standard pressure, at what Celsius temperature does water boil?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F03",
+        "correct": false,
+        "answer": "[corpus:116] What is the chemical formula for table salt?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F04",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F05",
+        "correct": false,
+        "answer": "[corpus:132] What is the unit of power?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F06",
+        "correct": true,
+        "answer": "[corpus:102] What gas do plants absorb for photosynthesis?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F08",
+        "correct": false,
+        "answer": "[corpus:19] Which planet is closest to the Sun?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F09",
+        "correct": false,
+        "answer": "[corpus:9] What is the capital of Australia?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F11",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F12",
+        "correct": true,
+        "answer": "[corpus:66] Primary site of gas exchange in lungs:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F14",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F16",
+        "correct": false,
+        "answer": "[corpus:17] Who wrote '1984'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F17",
+        "correct": false,
+        "answer": "[corpus:4] Scurvy is caused by deficiency of:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F19",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F21",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F22",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F23",
+        "correct": false,
+        "answer": "[corpus:94] Planets orbit the:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F24",
+        "correct": true,
+        "answer": "[corpus:82] Table salt formula:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F25",
+        "correct": false,
+        "answer": "[corpus:40] How many remain? Final numeric answer on the last line only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F26",
+        "correct": false,
+        "answer": "[corpus:51] What is 25 multiplied by 4? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F28",
+        "correct": false,
+        "answer": "[corpus:18] What type of diabetes is primarily characterized by insulin resistance?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F29",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F30",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F31",
+        "correct": false,
+        "answer": "[corpus:9] What is the capital of Australia?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F32",
+        "correct": false,
+        "answer": "[corpus:71] B) Africa",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F33",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F34",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F35",
+        "correct": false,
+        "answer": "[corpus:24] What does HTML stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F38",
+        "correct": false,
+        "answer": "[corpus:3] Who wrote 'The Republic'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F39",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F40",
+        "correct": false,
+        "answer": "[corpus:102] What gas do plants absorb for photosynthesis?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F41",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F42",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F43",
+        "correct": true,
+        "answer": "[corpus:103] What is the basic unit of life?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F44",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F46",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F47",
+        "correct": false,
+        "answer": "[corpus:3] Who wrote 'The Republic'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F48",
+        "correct": false,
+        "answer": "[corpus:9] What is the capital of Australia?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F49",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F50",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F51",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F52",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      }
+    ]
+  },
+  "text_plus_tts_audio": {
+    "label": "text_plus_tts_audio",
+    "correct": 4,
+    "total": 61,
+    "accuracy": 0.06557377049180328,
+    "rows": [
+      {
+        "id": "OPEN_PHYS_01",
+        "correct": false,
+        "answer": "[corpus:81] Think briefly, then end with exactly one line: ANSWER: X (X must be A, B, C, or D)",
+        "reference": null
+      },
+      {
+        "id": "OPEN_CHEM_01",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_BIO_01",
+        "correct": false,
+        "answer": "[corpus:40] How many remain? Final numeric answer on the last line only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_HIST_01",
+        "correct": false,
+        "answer": "[corpus:22] World War II ended in:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_GEO_01",
+        "correct": false,
+        "answer": "[corpus:136] What is the capital of Brazil?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_ECON_01",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_ECON_02",
+        "correct": false,
+        "answer": "[corpus:21] What is the contrapositive of 'If it rains, the ground is wet'? Answer in one short sentence",
+        "reference": null
+      },
+      {
+        "id": "OPEN_CS_02",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "ZH_02",
+        "correct": false,
+        "answer": "[corpus:67] French Revolution began in:",
+        "reference": null
+      },
+      {
+        "id": "ZH_03",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      },
+      {
+        "id": "ZH_04",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "LIT_01",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "LIT_02",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "MED_01",
+        "correct": false,
+        "answer": "[corpus:125] What does the Federal Reserve primarily influence?",
+        "reference": null
+      },
+      {
+        "id": "ASTRO_01",
+        "correct": false,
+        "answer": "[corpus:115] What force keeps planets in orbit around the Sun?",
+        "reference": null
+      },
+      {
+        "id": "LOGIC_01",
+        "correct": false,
+        "answer": "[corpus:27] A box has 12 red balls and 5 blue balls",
+        "reference": null
+      },
+      {
+        "id": "LOGIC_02",
+        "correct": false,
+        "answer": "[corpus:53] End your response with the final numeric answer alone on the last line",
+        "reference": null
+      },
+      {
+        "id": "OPEN_CS_03",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "ZH_05",
+        "correct": false,
+        "answer": "[corpus:131] \u9020\u7eb8\u672f\u53d1\u660e\u4e8e\u54ea\u4e2a\u56fd\u5bb6\uff1f",
+        "reference": null
+      },
+      {
+        "id": "ASTRO_02",
+        "correct": false,
+        "answer": "[corpus:53] End your response with the final numeric answer alone on the last line",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F02",
+        "correct": false,
+        "answer": "[corpus:6] At standard pressure, at what Celsius temperature does water boil?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F03",
+        "correct": false,
+        "answer": "[corpus:116] What is the chemical formula for table salt?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F04",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F05",
+        "correct": false,
+        "answer": "[corpus:132] What is the unit of power?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F06",
+        "correct": true,
+        "answer": "[corpus:102] What gas do plants absorb for photosynthesis?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F08",
+        "correct": false,
+        "answer": "[corpus:19] Which planet is closest to the Sun?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F09",
+        "correct": false,
+        "answer": "[corpus:9] What is the capital of Australia?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F11",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F12",
+        "correct": true,
+        "answer": "[corpus:66] Primary site of gas exchange in lungs:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F14",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F16",
+        "correct": false,
+        "answer": "[corpus:17] Who wrote '1984'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F17",
+        "correct": false,
+        "answer": "[corpus:4] Scurvy is caused by deficiency of:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F19",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F21",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F22",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F23",
+        "correct": false,
+        "answer": "[corpus:94] Planets orbit the:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F24",
+        "correct": true,
+        "answer": "[corpus:82] Table salt formula:",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F25",
+        "correct": false,
+        "answer": "[corpus:40] How many remain? Final numeric answer on the last line only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F26",
+        "correct": false,
+        "answer": "[corpus:51] What is 25 multiplied by 4? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F28",
+        "correct": false,
+        "answer": "[corpus:18] What type of diabetes is primarily characterized by insulin resistance?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F29",
+        "correct": false,
+        "answer": "[corpus:110] Who wrote 'Hamlet'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F30",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F31",
+        "correct": false,
+        "answer": "[corpus:9] What is the capital of Australia?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F32",
+        "correct": false,
+        "answer": "[corpus:71] B) Africa",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F33",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F34",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F35",
+        "correct": false,
+        "answer": "[corpus:24] What does HTML stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F38",
+        "correct": false,
+        "answer": "[corpus:3] Who wrote 'The Republic'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F39",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F40",
+        "correct": false,
+        "answer": "[corpus:102] What gas do plants absorb for photosynthesis?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F41",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F42",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F43",
+        "correct": true,
+        "answer": "[corpus:103] What is the basic unit of life?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F44",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F46",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F47",
+        "correct": false,
+        "answer": "[corpus:3] Who wrote 'The Republic'?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F48",
+        "correct": false,
+        "answer": "[corpus:9] What is the capital of Australia?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F49",
+        "correct": false,
+        "answer": "[corpus:126] What does API stand for?",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F50",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F51",
+        "correct": false,
+        "answer": "[corpus:53] What is 121 divided by 11? Integer only",
+        "reference": null
+      },
+      {
+        "id": "OPEN_F52",
+        "correct": false,
+        "answer": "[corpus:40] There were 30 birds on a wire",
+        "reference": null
+      }
+    ]
+  },
+  "delta_correct": 0,
+  "delta_pp": 0.0
+}

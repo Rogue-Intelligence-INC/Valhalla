@@ -589,8 +589,10 @@ RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release \
 
 | 产物 | 路径 |
 |------|------|
-| Hybrid unified | `reports/hybrid_valhalla_lm/hybrid_unified_test_20260622_0345.json` |
+| **Hybrid deploy (canonical)** | `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json` |
 | Fair test base | `reports/fair_benchmark/fair_benchmark_test_20260620_0859.json` |
+| Multimodal fusion bench | `reports/tts_tile_stem_fusion/multimodal_fusion_bench.json` |
+| Archived hybrid runs | `reports/hybrid_valhalla_lm/archive/` |
 | MCQ 实验 | `reports/experiments/MCQ_*` |
 | 公开 mirror | `valhalla-transformer/experiments/hybrid_unified_latest.json` |
 

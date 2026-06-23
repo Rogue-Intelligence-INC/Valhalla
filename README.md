@@ -40,7 +40,7 @@ RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_h
   --out reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json
 ```
 
-Docs: [`docs/hybrid_2.0/`](docs/hybrid_2.0/)
+Docs: [`docs/hybrid_2.0/`](docs/hybrid_2.0/) · [`docs/README.md`](docs/README.md) · [`docs/archive/`](docs/archive/)
 
 ### Multimodal Fusion Benchmark (NEW)
 
@@ -61,6 +61,12 @@ VALHALLA_DL_FRONT=1 python3 tools/valhalla_dl_front/run_multimodal_fusion_bench.
 | **Overall** | **PASS** |
 
 Report: [`reports/tts_tile_stem_fusion/MULTIMODAL_FUSION_BENCH.md`](reports/tts_tile_stem_fusion/MULTIMODAL_FUSION_BENCH.md)
+
+Open-question memory pilot (text vs text+TTS):
+
+```bash
+VALHALLA_MULTIMODAL_FUSION=1 python3 tools/fair_benchmark/run_multimodal_memory_pilot.py
+```
 
 ### Repository layout
 
