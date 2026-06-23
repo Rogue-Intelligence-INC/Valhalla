@@ -5,9 +5,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    cortex::TransformType, encode_payload, hash_embed, mcq_fate, BodyFrontPorts, BodyTarget,
-    DlFrontConfig, EncodingMode, IngressBudget, IngressPayload, ModalityInput, TriadFeedReport,
-    TriadSession, DL_EMBED_DIM,
+    cortex::TransformType, encode_payload, hash_embed, mcq_fate,
+    pipeline, BodyFrontPorts, BodyTarget, DlFrontConfig, EncodingMode, IngressBudget,
+    IngressPayload, ModalityInput, TriadFeedReport, TriadSession, DL_EMBED_DIM,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -50,6 +50,12 @@ pub struct NativeQaBatchRequest {
     pub qa_cycles: usize,
     #[serde(default)]
     pub ingress_mode: Option<String>,
+    /// When true, run MCQ Fate pipeline for mcq items (overrides env when set in request).
+    #[serde(default)]
+    pub mcq_fate: bool,
+    /// v4: LM decompose → Valhalla → recompose decode path.
+    #[serde(default)]
+    pub pipeline_v4: bool,
 }
 
 fn default_incubation_cycles() -> usize {
@@ -262,6 +268,51 @@ fn mcq_corpus_option_boost(opt_line: &str, corpus_mem: &[&MemoryEntry]) -> f64 {
     boost.min(cap)
 }
 
+fn mcq_top_corpus_mem<'a>(
+    corpus_mem: &[&'a MemoryEntry],
+    query_sig: &[f64],
+    k: usize,
+) -> Vec<&'a MemoryEntry> {
+    let mut scored: Vec<_> = corpus_mem
+        .iter()
+        .map(|m| (*m, dot_cosine(query_sig, &m.signals)))
+        .collect();
+    scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+    scored.into_iter().take(k).map(|(m, _)| m).collect()
+}
+
+/// Reward options uniquely supported by top corpus rows (vs other options).
+fn mcq_unique_corpus_lift(
+    opt_line: &str,
+    all_opts: &[(char, String)],
+    top_mem: &[&MemoryEntry],
+) -> f64 {
+    let body = option_body(opt_line);
+    let per = env_f64("VALHALLA_MCQ_UNIQUE_LIFT", 0.14);
+    let cap = env_f64("VALHALLA_MCQ_UNIQUE_LIFT_CAP", 0.55);
+    let mut lift = 0.0;
+    for m in top_mem {
+        let mine = keyword_overlap_count(&body, &m.text);
+        if mine == 0 {
+            continue;
+        }
+        let max_other = all_opts
+            .iter()
+            .filter(|(_, line)| line.as_str() != opt_line)
+            .map(|(_, line)| keyword_overlap_count(&option_body(line), &m.text))
+            .max()
+            .unwrap_or(0);
+        if mine > max_other {
+            lift += (mine - max_other) as f64 * per;
+        }
+    }
+    lift.min(cap)
+}
+
+fn mcq_stem(question: &str) -> String {
+    mcq_fate::parse_mcq_parts(question).stem.to_lowercase()
+}
+
 fn mcq_entailment_enabled() -> bool {
     std::env::var("VALHALLA_MCQ_ENTAILMENT")
         .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
@@ -276,6 +327,7 @@ fn mcq_line_entails_option(
     opt_sig: &[f64],
 ) -> f64 {
     let body = option_body(opt_line);
+    let stem = mcq_stem(question);
     let ev_low = evidence.text.to_lowercase();
     let mut s = 0.0;
     let mut opt_word_hits = 0usize;
@@ -304,6 +356,7 @@ fn mcq_line_entails_option(
     }
 
     s += keyword_overlap_count(&body, &evidence.text) as f64 * 0.88;
+    s += keyword_overlap_count(&stem, &evidence.text) as f64 * 0.24;
     s += keyword_overlap_count(question, &evidence.text) as f64 * 0.18;
     s += dot_cosine(opt_sig, &evidence.signals) * 0.28;
     s
@@ -789,11 +842,13 @@ fn decode_mcq(
     };
     let forward_w = env_f64("VALHALLA_MCQ_ENTAILMENT_FORWARD_WEIGHT", 0.48);
     let entail_w = env_f64("VALHALLA_MCQ_ENTAILMENT_WEIGHT", 0.58);
+    let top_corpus = mcq_top_corpus_mem(&corpus_mem, query_sig, env_usize("VALHALLA_MCQ_TOP_CORPUS", 6));
     let mut used_entailment = false;
 
-    let mut best_letter = 'A';
+    let mut best_letter = opts.first().map(|(c, _)| *c).unwrap_or('A');
     let mut best_score = f64::NEG_INFINITY;
     let mut matches = Vec::new();
+    let mut raw_scores = Vec::with_capacity(opts.len());
 
     for (letter, opt_line) in &opts {
         let opt_sig = decode_signal(opt_line, "mcq", ingress_mode, budget, dl, front);
@@ -817,6 +872,7 @@ fn decode_mcq(
         } else {
             forward += mcq_corpus_option_boost(opt_line, &corpus_mem) * 0.1;
         }
+        forward += mcq_unique_corpus_lift(opt_line, &opts, &top_corpus);
         forward += keyword_overlap_count(question, opt_line) as f64 * 0.08;
         if !hub_prefs.is_empty() {
             forward += 0.1 * hub_prefs.iter().take(4).sum::<f64>() / hub_prefs.len().min(4) as f64;
@@ -841,6 +897,8 @@ fn decode_mcq(
             forward
         };
 
+        raw_scores.push(s);
+
         matches.push(NativeMatch {
             text: format!(
                 "{} (score={:.4}{})",
@@ -859,8 +917,23 @@ fn decode_mcq(
                 "mcq_option".into()
             },
         });
-        if s > best_score {
-            best_score = s;
+    }
+
+    let mean = if raw_scores.is_empty() {
+        0.0
+    } else {
+        raw_scores.iter().sum::<f64>() / raw_scores.len() as f64
+    };
+    for (idx, (letter, _)) in opts.iter().enumerate() {
+        let rel = raw_scores.get(idx).copied().unwrap_or(0.0) - mean;
+        let hub = if !hub_prefs.is_empty() {
+            hub_prefs.get(idx).copied().unwrap_or(0.25) * 0.02
+        } else {
+            0.0
+        };
+        let v = rel + hub;
+        if v > best_score {
+            best_score = v;
             best_letter = *letter;
         }
     }
@@ -1465,6 +1538,9 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
     };
 
     let mut results = Vec::with_capacity(req.questions.len());
+    let use_pipeline_v4 = req.pipeline_v4 || pipeline::pipeline_v4_enabled();
+    let pipe_cfg = pipeline::PipelineConfig::default();
+
     for q in &req.questions {
         let mut qa_session =
             TriadSession::from_incubation_snapshot(budget.clone(), body, snap.clone());
@@ -1480,7 +1556,30 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             corpus_idx: None,
         });
         qa_session.emit_body_ports(question_ports);
-        let (report, mcq_fate_meta) = if q.score_type == "mcq" && mcq_fate::mcq_fate_cycles_enabled() {
+
+        let use_mcq_fate = req.mcq_fate || mcq_fate::mcq_fate_cycles_enabled();
+
+        let (report, mcq_fate_meta, pipeline_outcome) = if use_pipeline_v4 {
+            let outcome = pipeline::run_question_pipeline(
+                &snap,
+                &q.question,
+                &q.score_type,
+                question_ports,
+                &pipe_cfg,
+                &front,
+                mode_label,
+            );
+            let report = outcome.report.clone();
+            let meta = outcome.mcq_fate.as_ref().map(|o| {
+                (
+                    o.cycles_executed,
+                    o.stopped_reason.clone(),
+                    o.decompose_score,
+                    o.aggregate_score,
+                )
+            });
+            (report, meta, Some(outcome))
+        } else if q.score_type == "mcq" && use_mcq_fate {
             let outcome = mcq_fate::run_mcq_fate_pipeline(
                 &mut qa_session,
                 &q.question,
@@ -1496,28 +1595,69 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                     outcome.decompose_score,
                     outcome.aggregate_score,
                 )),
+                None,
             )
         } else {
             (
                 qa_session.build_feed_report(mode_label, req.qa_cycles),
                 None,
+                None,
             )
         };
-        let (answer, _top, decode_path) = decode_from_report(
-            &q.question,
-            &q.score_type,
-            &memories,
-            &report,
-            &budget,
-            &mode,
-            dl,
-            &front,
-        );
-        let decode_path = if mcq_fate_meta.is_some() {
-            "mcq_fate_cycle".to_string()
+
+        let (mut answer, _top, mut decode_path) = if let Some(ref po) = pipeline_outcome {
+            if q.score_type == "mcq" {
+                let (dec_ans, _, dec_path) = decode_from_report(
+                    &q.question,
+                    &q.score_type,
+                    &memories,
+                    &report,
+                    &budget,
+                    &mode,
+                    dl,
+                    &front,
+                );
+                let (ans, path) = pipeline::merge_mcq_pipeline_decode(
+                    &dec_ans,
+                    &dec_path,
+                    &po.recompose.mcq_option_affinity,
+                );
+                (ans, Vec::new(), path)
+            } else {
+                let (a, t, _dp) = decode_from_report(
+                    &q.question,
+                    &q.score_type,
+                    &memories,
+                    &report,
+                    &budget,
+                    &mode,
+                    dl,
+                    &front,
+                );
+                (a, t, format!("pipeline_v4_{}", q.score_type))
+            }
         } else {
-            decode_path
+            decode_from_report(
+                &q.question,
+                &q.score_type,
+                &memories,
+                &report,
+                &budget,
+                &mode,
+                dl,
+                &front,
+            )
         };
+
+        if mcq_fate_meta.is_some() && pipeline_outcome.is_none() {
+            decode_path = "mcq_fate_cycle".to_string();
+        } else if let Some(ref po) = pipeline_outcome {
+            if q.score_type != "mcq" {
+                decode_path = po.decode_hint.clone();
+            } else if !decode_path.starts_with("pipeline_v4_") && !decode_path.starts_with("mcq_") {
+                decode_path = po.decode_hint.clone();
+            }
+        }
         results.push(NativeQaBatchItem {
             id: q.id.clone().unwrap_or_default(),
             answer,

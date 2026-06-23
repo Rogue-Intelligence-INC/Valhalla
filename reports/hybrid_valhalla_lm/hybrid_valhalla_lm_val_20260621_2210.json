@@ -1,0 +1,3024 @@
+{
+  "meta": {
+    "benchmark": "hybrid_valhalla_lm",
+    "phase": "val",
+    "prompt_count": 43,
+    "patch_lm_prompt_count": 29,
+    "corpus_lines": 49,
+    "timestamp": "20260621_2210",
+    "patch_body": "triad",
+    "patch_strength": 0.08,
+    "model": "Qwen/Qwen2.5-0.5B-Instruct",
+    "memory_arm": "triad_c1_persistent",
+    "artifact_id": null
+  },
+  "summary": {
+    "hybrid": {
+      "n": 43,
+      "correct": 33,
+      "acc": 0.7674,
+      "by_score_type": {
+        "mcq": {
+          "correct": 6,
+          "total": 14,
+          "acc": 0.4286
+        },
+        "numeric": {
+          "correct": 11,
+          "total": 13,
+          "acc": 0.8462
+        },
+        "open": {
+          "correct": 16,
+          "total": 16,
+          "acc": 1.0
+        }
+      },
+      "by_decode_path": {
+        "cortex": {
+          "correct": 1,
+          "total": 3,
+          "acc": 0.3333
+        },
+        "direct_math": {
+          "correct": 5,
+          "total": 5,
+          "acc": 1.0
+        },
+        "mcq_option": {
+          "correct": 6,
+          "total": 14,
+          "acc": 0.4286
+        },
+        "patch_legacy_triad": {
+          "correct": 21,
+          "total": 21,
+          "acc": 1.0
+        }
+      },
+      "by_domain": {
+        "biology": {
+          "correct": 1,
+          "total": 2,
+          "acc": 0.5
+        },
+        "chemistry": {
+          "correct": 1,
+          "total": 3,
+          "acc": 0.3333
+        },
+        "chinese": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "computer_science": {
+          "correct": 4,
+          "total": 5,
+          "acc": 0.8
+        },
+        "economics": {
+          "correct": 3,
+          "total": 4,
+          "acc": 0.75
+        },
+        "geography": {
+          "correct": 2,
+          "total": 3,
+          "acc": 0.6667
+        },
+        "history": {
+          "correct": 3,
+          "total": 4,
+          "acc": 0.75
+        },
+        "literature": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "math_numeric": {
+          "correct": 4,
+          "total": 4,
+          "acc": 1.0
+        },
+        "math_word": {
+          "correct": 7,
+          "total": 9,
+          "acc": 0.7778
+        },
+        "medicine": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "philosophy_logic": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "physics": {
+          "correct": 1,
+          "total": 2,
+          "acc": 0.5
+        }
+      },
+      "retrieval": {
+        "recall_at_3": 0.0,
+        "mrr_mean": 0.0
+      }
+    },
+    "memory_persistent": {
+      "n": 43,
+      "correct": 15,
+      "acc": 0.3488,
+      "by_score_type": {
+        "mcq": {
+          "correct": 6,
+          "total": 14,
+          "acc": 0.4286
+        },
+        "numeric": {
+          "correct": 6,
+          "total": 13,
+          "acc": 0.4615
+        },
+        "open": {
+          "correct": 3,
+          "total": 16,
+          "acc": 0.1875
+        }
+      },
+      "by_decode_path": {
+        "cortex": {
+          "correct": 1,
+          "total": 8,
+          "acc": 0.125
+        },
+        "direct_math": {
+          "correct": 5,
+          "total": 5,
+          "acc": 1.0
+        },
+        "mcq_option": {
+          "correct": 6,
+          "total": 14,
+          "acc": 0.4286
+        },
+        "open_span": {
+          "correct": 3,
+          "total": 16,
+          "acc": 0.1875
+        }
+      },
+      "by_domain": {
+        "biology": {
+          "correct": 0,
+          "total": 2,
+          "acc": 0.0
+        },
+        "chemistry": {
+          "correct": 1,
+          "total": 3,
+          "acc": 0.3333
+        },
+        "chinese": {
+          "correct": 0,
+          "total": 1,
+          "acc": 0.0
+        },
+        "computer_science": {
+          "correct": 1,
+          "total": 5,
+          "acc": 0.2
+        },
+        "economics": {
+          "correct": 3,
+          "total": 4,
+          "acc": 0.75
+        },
+        "geography": {
+          "correct": 1,
+          "total": 3,
+          "acc": 0.3333
+        },
+        "history": {
+          "correct": 2,
+          "total": 4,
+          "acc": 0.5
+        },
+        "literature": {
+          "correct": 0,
+          "total": 2,
+          "acc": 0.0
+        },
+        "math_numeric": {
+          "correct": 4,
+          "total": 4,
+          "acc": 1.0
+        },
+        "math_word": {
+          "correct": 2,
+          "total": 9,
+          "acc": 0.2222
+        },
+        "medicine": {
+          "correct": 0,
+          "total": 2,
+          "acc": 0.0
+        },
+        "philosophy_logic": {
+          "correct": 1,
+          "total": 2,
+          "acc": 0.5
+        },
+        "physics": {
+          "correct": 0,
+          "total": 2,
+          "acc": 0.0
+        }
+      },
+      "retrieval": {
+        "recall_at_3": 0.0,
+        "mrr_mean": 0.0
+      }
+    },
+    "patch_lm_subset": {
+      "n": 29,
+      "correct": 24,
+      "acc": 0.8276,
+      "by_score_type": {
+        "numeric": {
+          "correct": 8,
+          "total": 13,
+          "acc": 0.6154
+        },
+        "open": {
+          "correct": 16,
+          "total": 16,
+          "acc": 1.0
+        }
+      },
+      "by_decode_path": {
+        "patch_legacy_triad": {
+          "correct": 24,
+          "total": 29,
+          "acc": 0.8276
+        }
+      },
+      "by_domain": {
+        "biology": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "chemistry": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "chinese": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "computer_science": {
+          "correct": 3,
+          "total": 3,
+          "acc": 1.0
+        },
+        "geography": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "history": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "literature": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "math_numeric": {
+          "correct": 2,
+          "total": 4,
+          "acc": 0.5
+        },
+        "math_word": {
+          "correct": 6,
+          "total": 9,
+          "acc": 0.6667
+        },
+        "medicine": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "philosophy_logic": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "physics": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        }
+      }
+    },
+    "open_only": {
+      "memory": {
+        "n": 16,
+        "correct": 3,
+        "acc": 0.1875,
+        "by_score_type": {
+          "open": {
+            "correct": 3,
+            "total": 16,
+            "acc": 0.1875
+          }
+        },
+        "by_decode_path": {
+          "open_span": {
+            "correct": 3,
+            "total": 16,
+            "acc": 0.1875
+          }
+        },
+        "by_domain": {
+          "biology": {
+            "correct": 0,
+            "total": 1,
+            "acc": 0.0
+          },
+          "chemistry": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "chinese": {
+            "correct": 0,
+            "total": 1,
+            "acc": 0.0
+          },
+          "computer_science": {
+            "correct": 0,
+            "total": 3,
+            "acc": 0.0
+          },
+          "geography": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "history": {
+            "correct": 1,
+            "total": 2,
+            "acc": 0.5
+          },
+          "literature": {
+            "correct": 0,
+            "total": 2,
+            "acc": 0.0
+          },
+          "medicine": {
+            "correct": 0,
+            "total": 2,
+            "acc": 0.0
+          },
+          "philosophy_logic": {
+            "correct": 0,
+            "total": 1,
+            "acc": 0.0
+          },
+          "physics": {
+            "correct": 0,
+            "total": 1,
+            "acc": 0.0
+          }
+        },
+        "retrieval": {
+          "recall_at_3": 0.0,
+          "mrr_mean": 0.0
+        }
+      },
+      "patch_lm": {
+        "n": 16,
+        "correct": 16,
+        "acc": 1.0,
+        "by_score_type": {
+          "open": {
+            "correct": 16,
+            "total": 16,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "patch_legacy_triad": {
+            "correct": 16,
+            "total": 16,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "biology": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "chemistry": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "chinese": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "computer_science": {
+            "correct": 3,
+            "total": 3,
+            "acc": 1.0
+          },
+          "geography": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "history": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "literature": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "medicine": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "philosophy_logic": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "physics": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          }
+        }
+      },
+      "hybrid": {
+        "n": 16,
+        "correct": 16,
+        "acc": 1.0,
+        "by_score_type": {
+          "open": {
+            "correct": 16,
+            "total": 16,
+            "acc": 1.0
+          }
+        },
+        "by_decode_path": {
+          "patch_legacy_triad": {
+            "correct": 16,
+            "total": 16,
+            "acc": 1.0
+          }
+        },
+        "by_domain": {
+          "biology": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "chemistry": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "chinese": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "computer_science": {
+            "correct": 3,
+            "total": 3,
+            "acc": 1.0
+          },
+          "geography": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "history": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "literature": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "medicine": {
+            "correct": 2,
+            "total": 2,
+            "acc": 1.0
+          },
+          "philosophy_logic": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          },
+          "physics": {
+            "correct": 1,
+            "total": 1,
+            "acc": 1.0
+          }
+        }
+      }
+    },
+    "open_retrieval_slice": {
+      "n": 7,
+      "correct": 7,
+      "acc": 1.0,
+      "by_score_type": {
+        "open": {
+          "correct": 7,
+          "total": 7,
+          "acc": 1.0
+        }
+      },
+      "by_decode_path": {
+        "patch_legacy_triad": {
+          "correct": 7,
+          "total": 7,
+          "acc": 1.0
+        }
+      },
+      "by_domain": {
+        "biology": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "chemistry": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "computer_science": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "geography": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "history": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "physics": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        }
+      }
+    },
+    "open_generation_slice": {
+      "n": 9,
+      "correct": 9,
+      "acc": 1.0,
+      "by_score_type": {
+        "open": {
+          "correct": 9,
+          "total": 9,
+          "acc": 1.0
+        }
+      },
+      "by_decode_path": {
+        "patch_legacy_triad": {
+          "correct": 9,
+          "total": 9,
+          "acc": 1.0
+        }
+      },
+      "by_domain": {
+        "chinese": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "computer_science": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "history": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        },
+        "literature": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "medicine": {
+          "correct": 2,
+          "total": 2,
+          "acc": 1.0
+        },
+        "philosophy_logic": {
+          "correct": 1,
+          "total": 1,
+          "acc": 1.0
+        }
+      }
+    },
+    "hybrid_source_counts": {
+      "memory": 20,
+      "patch_lm": 21,
+      "none": 2
+    },
+    "slices": {
+      "corpus_supported": 30,
+      "numeric_compute": 13,
+      "mcq_routing": 14,
+      "open_retrieval": 7,
+      "open_generation": 9
+    }
+  },
+  "hybrid_rows": [
+    {
+      "id": "MCQ_BIO_02",
+      "domain": "biology",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "B",
+        "reference": "A",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      },
+      "correct": false,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: B"
+    },
+    {
+      "id": "MCQ_HIST_01",
+      "domain": "history",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: B"
+    },
+    {
+      "id": "MCQ_CS_01",
+      "domain": "computer_science",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: B"
+    },
+    {
+      "id": "OPEN_HIST_02",
+      "domain": "history",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Jefferson"
+      },
+      "assistant": "The Declaration of Independence was written primarily by Thomas Jefferson, who served as the second President of the United States and is often referred to as \"the Father of the Constitution.\" Jefferson drafted the document while he was serving as a delegate from Virginia at the Constitutional Convention in 1787.\n\nJefferson's primary role in writing the Declaration of Independence was to ensure that the new nation would be free from British rule and establish its own government based on the principles outlined in the Declaration of Independence. The document was not completed until after the convention had concluded, but it was finalized with Jefferson's signature.\n\nWhile other individuals contributed to the drafting process, including John Adams and Benjamin Franklin, Jefferson played a crucial role in shaping the final version of the document. His vision for a new nation based on the principles of liberty, equality, and democracy was central to the development of the Declaration of Independence.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The Declaration of Independence was written primarily by Thomas Jefferson, who served as the second President of the United States and is often referred to as \"the Father of the Constitution.\" Jefferson drafted the document while he was serving as a delegate from Virginia at the Constitutional Convention in 1787.\n\nJefferson's primary role in writing the Declaration of Independence was to ensure that the new nation would be free from British rule and establish its own government based on the principles outlined in the Declaration of Independence. The document was not completed until after the convention had concluded, but it was finalized with Jefferson's signature.\n\nWhile other individuals contributed to the drafting process, including John Adams and Benjamin Franklin, Jefferson played a crucial role in shaping the final version of the document. His vision for a new nation based on the principles of liberty, equality, and democracy was central to the development of the Declaration of Independence."
+    },
+    {
+      "id": "OPEN_GEO_02",
+      "domain": "geography",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Nile"
+      },
+      "assistant": "The longest river in the world is the Nile River, which flows through Egypt and Sudan. It is approximately 6,650 kilometers (4,132 miles) long. The Nile has played an important role in human history, serving as a source of water for agriculture and transportation.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The longest river in the world is the Nile River, which flows through Egypt and Sudan. It is approximately 6,650 kilometers (4,132 miles) long. The Nile has played an important role in human history, serving as a source of water for agriculture and transportation."
+    },
+    {
+      "id": "OPEN_CS_01",
+      "domain": "computer_science",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "O(log n)"
+      },
+      "assistant": "The time complexity of performing a binary search on a sorted array of \\( n \\) elements is \\( O(\\log n) \\). This means that the number of comparisons required to find an element in the array grows logarithmically with the size of the array.\n\nHere's how it works:\n\n1. **Initial Comparison**: The first comparison you make will always be between the first and second elements of the array.\n2. **Subsequent Comparisons**: Each subsequent comparison reduces the size of the search space by half. For example:\n   - If the target value is less than or equal to the middle element, you only need to compare the first half of the array.\n   - If the target value is greater than or equal to the middle element, you only need to compare the last half of the array.\n3. **Termination**: When the search space is reduced to one element (i.e., when the target value matches the middle element), you",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The time complexity of performing a binary search on a sorted array of \\( n \\) elements is \\( O(\\log n) \\). This means that the number of comparisons required to find an element in the array grows logarithmically with the size of the array.\n\nHere's how it works:\n\n1. **Initial Comparison**: The first comparison you make will always be between the first and second elements of the array.\n2. **Subsequent Comparisons**: Each subsequent comparison reduces the size of the search space by half. For example:\n   - If the target value is less than or equal to the middle element, you only need to compare the first half of the array.\n   - If the target value is greater than or equal to the middle element, you only need to compare the last half of the array.\n3. **Termination**: When the search space is reduced to one element (i.e., when the target value matches the middle element), you"
+    },
+    {
+      "id": "ZH_01",
+      "domain": "chinese",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "青藏高原"
+      },
+      "assistant": "长江发源于青藏高原的巴颜喀拉山脉，是中国最长的河流，全长6300多公里。",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "长江发源于青藏高原的巴颜喀拉山脉，是中国最长的河流，全长6300多公里。"
+    },
+    {
+      "id": "GSM_05",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "26",
+        "reference": "26"
+      },
+      "assistant": "The total cost of the books is \\(3 \\times 8 = 24\\) dollars. After paying with $50, the change Sam gets is \\(50 - 24 = 26\\) dollars. Therefore, the final number only is 26.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "The total cost of the books is \\(3 \\times 8 = 24\\) dollars. After paying with $50, the change Sam gets is \\(50 - 24 = 26\\) dollars. Therefore, the final number only is 26."
+    },
+    {
+      "id": "OPEN_MED_02",
+      "domain": "medicine",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "heart"
+      },
+      "assistant": "The heart is the organ that pumps blood throughout the human body. It has four chambers: two atria and two ventricles. The right side of the heart receives deoxygenated blood from the body's tissues and returns it to the lungs for oxygenation. The left side of the heart receives oxygenated blood from the lungs and returns it to the heart. This process continues until all the blood in the body has been pumped out.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The heart is the organ that pumps blood throughout the human body. It has four chambers: two atria and two ventricles. The right side of the heart receives deoxygenated blood from the body's tissues and returns it to the lungs for oxygenation. The left side of the heart receives oxygenated blood from the lungs and returns it to the heart. This process continues until all the blood in the body has been pumped out."
+    },
+    {
+      "id": "GSM_F07",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "22",
+        "reference": "22"
+      },
+      "assistant": "22",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "22"
+    },
+    {
+      "id": "GSM_F09",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "145",
+        "reference": "145"
+      },
+      "assistant": "145",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "145"
+    },
+    {
+      "id": "GSM_F17",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "6",
+        "reference": "6"
+      },
+      "native_answer": "6",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "6"
+    },
+    {
+      "id": "GSM_F24",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "-39",
+        "reference": "60"
+      },
+      "native_answer": "-39",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 12,
+        "stem_cells": 159
+      },
+      "correct": false,
+      "hybrid_source": "none",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "-39"
+    },
+    {
+      "id": "GSM_F26",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "34",
+        "reference": "34"
+      },
+      "assistant": "34",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "34"
+    },
+    {
+      "id": "GSM_F27",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "-3",
+        "reference": "23"
+      },
+      "native_answer": "-3",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      },
+      "correct": false,
+      "hybrid_source": "none",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "-3"
+    },
+    {
+      "id": "GSM_F28",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "4",
+        "reference": "4"
+      },
+      "assistant": "4",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "4"
+    },
+    {
+      "id": "GSM_F31",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "-98",
+        "reference": "9"
+      },
+      "native_answer": "-98",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "-98"
+    },
+    {
+      "id": "MATH_F11",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "36",
+        "reference": "36"
+      },
+      "native_answer": "36",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "36"
+    },
+    {
+      "id": "MATH_F14",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "native_answer": "12",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 160
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "12"
+    },
+    {
+      "id": "MATH_F18",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "100",
+        "reference": "100"
+      },
+      "native_answer": "100",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 159
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "100"
+    },
+    {
+      "id": "MATH_F20",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "native_answer": "12",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "hybrid_max_memory_patch",
+      "answer": "12"
+    },
+    {
+      "id": "MCQ_F01",
+      "domain": "physics",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "D",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: D",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      },
+      "correct": false,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "MCQ_F04",
+      "domain": "chemistry",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: C",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      },
+      "correct": false,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: C"
+    },
+    {
+      "id": "MCQ_F05",
+      "domain": "chemistry",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: C",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      },
+      "correct": false,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: C"
+    },
+    {
+      "id": "MCQ_F15",
+      "domain": "geography",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "D",
+        "reference": "C",
+        "strict": true
+      },
+      "native_answer": "ANSWER: D",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      },
+      "correct": false,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "MCQ_F16",
+      "domain": "economics",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 159
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: B"
+    },
+    {
+      "id": "MCQ_F17",
+      "domain": "economics",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 159
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: B"
+    },
+    {
+      "id": "MCQ_F33",
+      "domain": "history",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: A",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 12,
+        "stem_cells": 158
+      },
+      "correct": false,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "MCQ_F36",
+      "domain": "economics",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: C",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      },
+      "correct": false,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: C"
+    },
+    {
+      "id": "MCQ_F37",
+      "domain": "economics",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: B"
+    },
+    {
+      "id": "MCQ_F39",
+      "domain": "computer_science",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "D",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: D",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      },
+      "correct": false,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "MCQ_F40",
+      "domain": "philosophy_logic",
+      "score_type": "mcq",
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "A",
+        "reference": "A",
+        "strict": true
+      },
+      "native_answer": "ANSWER: A",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      },
+      "correct": true,
+      "hybrid_source": "memory",
+      "hybrid_policy": "memory",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "OPEN_F01",
+      "domain": "physics",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "energy"
+      },
+      "assistant": "The First Law of Thermodynamics states that energy cannot be created or destroyed, only converted from one form to another. This principle is fundamental to understanding the behavior of heat and work in various systems.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The First Law of Thermodynamics states that energy cannot be created or destroyed, only converted from one form to another. This principle is fundamental to understanding the behavior of heat and work in various systems."
+    },
+    {
+      "id": "OPEN_F07",
+      "domain": "history",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Augustus"
+      },
+      "assistant": "The first emperor of Rome was Augustus, also known as Augustus Caesar. He ruled from 27 BC to 14 AD and is considered one of the most important figures in Roman history. Augustus was born on December 15, 63 BC, and he became the first emperor after the death of his father, Tiberius. His reign lasted for over 40 years, during which he expanded the empire and established many of its key institutions. Augustus's rule was marked by religious reforms, including the adoption of Christianity as the state religion, and his efforts to centralize power under the authority of the Senate. Despite facing numerous challenges, including civil wars and internal conflicts within the empire, Augustus maintained control over Rome until his death in 14 AD.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The first emperor of Rome was Augustus, also known as Augustus Caesar. He ruled from 27 BC to 14 AD and is considered one of the most important figures in Roman history. Augustus was born on December 15, 63 BC, and he became the first emperor after the death of his father, Tiberius. His reign lasted for over 40 years, during which he expanded the empire and established many of its key institutions. Augustus's rule was marked by religious reforms, including the adoption of Christianity as the state religion, and his efforts to centralize power under the authority of the Senate. Despite facing numerous challenges, including civil wars and internal conflicts within the empire, Augustus maintained control over Rome until his death in 14 AD."
+    },
+    {
+      "id": "OPEN_F10",
+      "domain": "geography",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Africa"
+      },
+      "assistant": "The Sahara Desert is located in Africa. It stretches across most of North Africa and parts of West Africa, including Mauritania, Mali, Niger, Chad, Sudan, Libya, Egypt, and Algeria. The Sahara is one of the world's largest deserts, covering an area of approximately 3 million square kilometers (1.2 million square miles).",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The Sahara Desert is located in Africa. It stretches across most of North Africa and parts of West Africa, including Mauritania, Mali, Niger, Chad, Sudan, Libya, Egypt, and Algeria. The Sahara is one of the world's largest deserts, covering an area of approximately 3 million square kilometers (1.2 million square miles)."
+    },
+    {
+      "id": "OPEN_F13",
+      "domain": "computer_science",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Random Access Memory"
+      },
+      "assistant": "RAM stands for Random Access Memory. It is the main memory of a computer that can store and retrieve data quickly. RAM is used to temporarily hold information while a program is running, allowing it to access this information without waiting for disk I/O operations. RAM is volatile, meaning it loses its contents when power is turned off, whereas hard drives are non-volatile and retain their content even after power loss.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "RAM stands for Random Access Memory. It is the main memory of a computer that can store and retrieve data quickly. RAM is used to temporarily hold information while a program is running, allowing it to access this information without waiting for disk I/O operations. RAM is volatile, meaning it loses its contents when power is turned off, whereas hard drives are non-volatile and retain their content even after power loss."
+    },
+    {
+      "id": "OPEN_F15",
+      "domain": "literature",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Homer"
+      },
+      "assistant": "\"The Odyssey\" was written by the ancient Greek poet Homer, who lived in the 8th century BCE. Homer is considered one of the greatest poets and playwrights in history, known for his epic poems that tell the story of Odysseus, a Greek hero who travels through the Mediterranean Sea with his wife Penelope and their son Telemachus to return home after being forced to leave by his father Agamemnon.\n\nHomer's \"Odyssey\" is divided into three books: Book I, Book II, and Book III. Each book tells a different part of the story of Odysseus' journey from Troy to Greece. The stories in these books form the basis of the entire \"Odyssey,\" which has been translated into many languages over the centuries.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "\"The Odyssey\" was written by the ancient Greek poet Homer, who lived in the 8th century BCE. Homer is considered one of the greatest poets and playwrights in history, known for his epic poems that tell the story of Odysseus, a Greek hero who travels through the Mediterranean Sea with his wife Penelope and their son Telemachus to return home after being forced to leave by his father Agamemnon.\n\nHomer's \"Odyssey\" is divided into three books: Book I, Book II, and Book III. Each book tells a different part of the story of Odysseus' journey from Troy to Greece. The stories in these books form the basis of the entire \"Odyssey,\" which has been translated into many languages over the centuries."
+    },
+    {
+      "id": "OPEN_F18",
+      "domain": "medicine",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "kidney"
+      },
+      "assistant": "The human body has several organs that work together to filter blood. The primary organs responsible for this function are:\n\n1. **Lungs**: The lungs are the primary organs involved in filtering blood. They have tiny air sacs called alveoli, which allow oxygen from the air we breathe to enter our bloodstream and carbon dioxide to leave.\n\n2. **Heart**: The heart is an important organ that pumps blood throughout the body. It does this through its pumping action, which moves blood towards the lungs where it picks up oxygen and then returns to the rest of the body via veins.\n\n3. **Blood vessels**: Blood vessels carry oxygenated and deoxygenated blood throughout the body. Oxygen-rich blood flows into the lungs, while deoxygenated blood returns to the heart.\n\n4. **Kidneys**: While not directly involved in filtering blood, the kidneys play a crucial role in maintaining homeostasis by producing urine. However, they do not directly",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The human body has several organs that work together to filter blood. The primary organs responsible for this function are:\n\n1. **Lungs**: The lungs are the primary organs involved in filtering blood. They have tiny air sacs called alveoli, which allow oxygen from the air we breathe to enter our bloodstream and carbon dioxide to leave.\n\n2. **Heart**: The heart is an important organ that pumps blood throughout the body. It does this through its pumping action, which moves blood towards the lungs where it picks up oxygen and then returns to the rest of the body via veins.\n\n3. **Blood vessels**: Blood vessels carry oxygenated and deoxygenated blood throughout the body. Oxygen-rich blood flows into the lungs, while deoxygenated blood returns to the heart.\n\n4. **Kidneys**: While not directly involved in filtering blood, the kidneys play a crucial role in maintaining homeostasis by producing urine. However, they do not directly"
+    },
+    {
+      "id": "OPEN_F20",
+      "domain": "philosophy_logic",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "knowledge from experience"
+      },
+      "assistant": "Empiricism is an approach to knowledge that emphasizes the importance of empirical evidence and sensory experience in acquiring true understanding of the world around us. It holds that all knowledge comes from direct observation or experience, and that we should rely on our senses and observations to form accurate beliefs about the world.\n\nKey characteristics of empiricism include:\n\n1. Empirical: Emphasizes the use of sensory experiences and observations for acquiring knowledge.\n2. Direct: Focuses on direct perception rather than indirect reasoning or inference.\n3. Innate: Believes innate knowledge exists without the need for learning or education.\n4. Sensory: Emphasizes the role of sensory input in shaping our understanding of reality.\n5. Practical: Advocates practical applications of knowledge over theoretical speculation.\n6. Skepticism: Encourages skepticism towards dogma and authority, as it relies more on personal experience than on rational argumentation.\n\nEmpiricists argue that scientific inquiry is the only",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "Empiricism is an approach to knowledge that emphasizes the importance of empirical evidence and sensory experience in acquiring true understanding of the world around us. It holds that all knowledge comes from direct observation or experience, and that we should rely on our senses and observations to form accurate beliefs about the world.\n\nKey characteristics of empiricism include:\n\n1. Empirical: Emphasizes the use of sensory experiences and observations for acquiring knowledge.\n2. Direct: Focuses on direct perception rather than indirect reasoning or inference.\n3. Innate: Believes innate knowledge exists without the need for learning or education.\n4. Sensory: Emphasizes the role of sensory input in shaping our understanding of reality.\n5. Practical: Advocates practical applications of knowledge over theoretical speculation.\n6. Skepticism: Encourages skepticism towards dogma and authority, as it relies more on personal experience than on rational argumentation.\n\nEmpiricists argue that scientific inquiry is the only"
+    },
+    {
+      "id": "OPEN_F27",
+      "domain": "biology",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "DNA"
+      },
+      "assistant": "The molecule that carries genetic information is DNA (deoxyribonucleic acid). DNA consists of two strands of nucleotides, each containing one of four different bases: adenine (A), cytosine (C), guanine (G), and thymine (T). These bases pair up in specific ways to form the double helix structure of DNA.\n\nDNA serves as the primary carrier of genetic information because it contains all the instructions for building an organism's blueprint. Each gene on a chromosome is composed of DNA with its own set of genes, which code for proteins that make up the organism's physical characteristics and functions.\n\nIn addition to DNA, other molecules also carry genetic information, including RNA (ribonucleic acid) and messenger RNA (mRNA), which are used to transport genetic information from DNA to the ribosomes where protein synthesis occurs. However, DNA remains the most fundamental and essential molecule for storing and transmitting genetic information.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The molecule that carries genetic information is DNA (deoxyribonucleic acid). DNA consists of two strands of nucleotides, each containing one of four different bases: adenine (A), cytosine (C), guanine (G), and thymine (T). These bases pair up in specific ways to form the double helix structure of DNA.\n\nDNA serves as the primary carrier of genetic information because it contains all the instructions for building an organism's blueprint. Each gene on a chromosome is composed of DNA with its own set of genes, which code for proteins that make up the organism's physical characteristics and functions.\n\nIn addition to DNA, other molecules also carry genetic information, including RNA (ribonucleic acid) and messenger RNA (mRNA), which are used to transport genetic information from DNA to the ribosomes where protein synthesis occurs. However, DNA remains the most fundamental and essential molecule for storing and transmitting genetic information."
+    },
+    {
+      "id": "OPEN_F36",
+      "domain": "computer_science",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "source code available"
+      },
+      "assistant": "Open source software (OSS) refers to computer programs that are made available for free and can be modified and distributed under the terms of an open-source license. These licenses allow anyone to use, modify, and distribute the code freely without restrictions.\n\nKey characteristics of OSS include:\n\n1. Free: The software is typically provided as open-source software, which means it's free to download, install, and use.\n2. Open: The source code is publicly available, allowing users to view, modify, and redistribute the code.\n3. License: There are various open-source licenses, such as the GNU General Public License (GPL), Apache License, and MIT License, that govern how the software can be used, modified, and redistributed.\n4. Community: Many developers contribute to the development of OSS projects, leading to a vibrant community around the software.\n5. Scalability: OSS allows for rapid deployment and scalability, making it suitable for a wide range of applications",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "Open source software (OSS) refers to computer programs that are made available for free and can be modified and distributed under the terms of an open-source license. These licenses allow anyone to use, modify, and distribute the code freely without restrictions.\n\nKey characteristics of OSS include:\n\n1. Free: The software is typically provided as open-source software, which means it's free to download, install, and use.\n2. Open: The source code is publicly available, allowing users to view, modify, and redistribute the code.\n3. License: There are various open-source licenses, such as the GNU General Public License (GPL), Apache License, and MIT License, that govern how the software can be used, modified, and redistributed.\n4. Community: Many developers contribute to the development of OSS projects, leading to a vibrant community around the software.\n5. Scalability: OSS allows for rapid deployment and scalability, making it suitable for a wide range of applications"
+    },
+    {
+      "id": "OPEN_F37",
+      "domain": "literature",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Tolstoy"
+      },
+      "assistant": "\"War and Peace\" was written by Leo Tolstoy. This novel is considered one of the greatest works in world literature and has been translated into many languages around the world. It tells the story of the life of Prince Vaslav Nijinsky, a Russian ballet dancer who becomes involved with Count Vronsky, a wealthy businessman, and later falls in love with Natasha Rostova, a young woman from a noble family. The novel explores themes such as love, power, and the human condition through the eyes of its characters.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "\"War and Peace\" was written by Leo Tolstoy. This novel is considered one of the greatest works in world literature and has been translated into many languages around the world. It tells the story of the life of Prince Vaslav Nijinsky, a Russian ballet dancer who becomes involved with Count Vronsky, a wealthy businessman, and later falls in love with Natasha Rostova, a young woman from a noble family. The novel explores themes such as love, power, and the human condition through the eyes of its characters."
+    },
+    {
+      "id": "OPEN_F45",
+      "domain": "chemistry",
+      "score_type": "open",
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "hydrogen"
+      },
+      "assistant": "The lightest element in the periodic table is hydrogen (H). Hydrogen has a mass of approximately 1.0079 u (atomic mass units), which is about one-twelfth that of an atom of any other element. It is also the most abundant element in the universe and forms the basis for all chemical reactions.\n\nHydrogen is known as the \"lightest\" element because it occupies the lowest energy state among all atoms. This means that when hydrogen atoms combine to form molecules, they release very little energy compared to heavier elements like oxygen or carbon. The lightest element can be considered the starting point for many chemical reactions and processes.",
+      "decode_path": "patch_legacy_triad",
+      "correct": true,
+      "hybrid_source": "patch_lm",
+      "hybrid_policy": "patch_lm",
+      "answer": "The lightest element in the periodic table is hydrogen (H). Hydrogen has a mass of approximately 1.0079 u (atomic mass units), which is about one-twelfth that of an atom of any other element. It is also the most abundant element in the universe and forms the basis for all chemical reactions.\n\nHydrogen is known as the \"lightest\" element because it occupies the lowest energy state among all atoms. This means that when hydrogen atoms combine to form molecules, they release very little energy compared to heavier elements like oxygen or carbon. The lightest element can be considered the starting point for many chemical reactions and processes."
+    }
+  ],
+  "memory_rows": [
+    {
+      "id": "MCQ_BIO_02",
+      "domain": "biology",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "B",
+        "reference": "A",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_HIST_01",
+      "domain": "history",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_CS_01",
+      "domain": "computer_science",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "OPEN_HIST_02",
+      "domain": "history",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Jefferson"
+      },
+      "native_answer": "[corpus:31] Thomas Jefferson was primary author of the US Declaration of Independence",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 12,
+        "stem_cells": 160
+      }
+    },
+    {
+      "id": "OPEN_GEO_02",
+      "domain": "geography",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Nile"
+      },
+      "native_answer": "[corpus:30] The Nile River in Africa is traditionally cited as the longest river",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 159
+      }
+    },
+    {
+      "id": "OPEN_CS_01",
+      "domain": "computer_science",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "O(log n)"
+      },
+      "native_answer": "[corpus:6] Binary search requires a sorted array and halves the search interval each step",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 159
+      }
+    },
+    {
+      "id": "ZH_01",
+      "domain": "chinese",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "青藏高原"
+      },
+      "native_answer": "[corpus:16] Inflation means a sustained increase in the general price level of goods",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "GSM_05",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "-49",
+        "reference": "26"
+      },
+      "native_answer": "-49",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 13,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "OPEN_MED_02",
+      "domain": "medicine",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "heart"
+      },
+      "native_answer": "[corpus:16] Inflation means a sustained increase in the general price level of goods",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "GSM_F07",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "-8",
+        "reference": "22"
+      },
+      "native_answer": "-8",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 159
+      }
+    },
+    {
+      "id": "GSM_F09",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "-55",
+        "reference": "145"
+      },
+      "native_answer": "-55",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "GSM_F17",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "6",
+        "reference": "6"
+      },
+      "native_answer": "6",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "GSM_F24",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "-39",
+        "reference": "60"
+      },
+      "native_answer": "-39",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 12,
+        "stem_cells": 159
+      }
+    },
+    {
+      "id": "GSM_F26",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "-6",
+        "reference": "34"
+      },
+      "native_answer": "-6",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 13,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "GSM_F27",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "-3",
+        "reference": "23"
+      },
+      "native_answer": "-3",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "GSM_F28",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "-8",
+        "reference": "4"
+      },
+      "native_answer": "-8",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 12,
+        "stem_cells": 161
+      }
+    },
+    {
+      "id": "GSM_F31",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "-98",
+        "reference": "9"
+      },
+      "native_answer": "-98",
+      "decode_path": "cortex",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MATH_F11",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "36",
+        "reference": "36"
+      },
+      "native_answer": "36",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MATH_F14",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "native_answer": "12",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 160
+      }
+    },
+    {
+      "id": "MATH_F18",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "100",
+        "reference": "100"
+      },
+      "native_answer": "100",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 159
+      }
+    },
+    {
+      "id": "MATH_F20",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "native_answer": "12",
+      "decode_path": "direct_math",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_F01",
+      "domain": "physics",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "D",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: D",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_F04",
+      "domain": "chemistry",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: C",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_F05",
+      "domain": "chemistry",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: C",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_F15",
+      "domain": "geography",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "D",
+        "reference": "C",
+        "strict": true
+      },
+      "native_answer": "ANSWER: D",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_F16",
+      "domain": "economics",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 159
+      }
+    },
+    {
+      "id": "MCQ_F17",
+      "domain": "economics",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 159
+      }
+    },
+    {
+      "id": "MCQ_F33",
+      "domain": "history",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: A",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 12,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_F36",
+      "domain": "economics",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: C",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_F37",
+      "domain": "economics",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_F39",
+      "domain": "computer_science",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "D",
+        "reference": "B",
+        "strict": true
+      },
+      "native_answer": "ANSWER: D",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "MCQ_F40",
+      "domain": "philosophy_logic",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "A",
+        "reference": "A",
+        "strict": true
+      },
+      "native_answer": "ANSWER: A",
+      "decode_path": "mcq_option",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "OPEN_F01",
+      "domain": "physics",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "energy"
+      },
+      "native_answer": "[corpus:18] George Washington was the first President of the United States",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 160
+      }
+    },
+    {
+      "id": "OPEN_F07",
+      "domain": "history",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "Augustus"
+      },
+      "native_answer": "[corpus:18] George Washington was the first President of the United States",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 159
+      }
+    },
+    {
+      "id": "OPEN_F10",
+      "domain": "geography",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "Africa"
+      },
+      "native_answer": "[corpus:34] Cao Xueqin is credited as author of the novel Dream of the Red Chamber",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "OPEN_F13",
+      "domain": "computer_science",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "Random Access Memory"
+      },
+      "native_answer": "[corpus:15] Euler's formula e to the i pi plus one equals zero links five constants",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "OPEN_F15",
+      "domain": "literature",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "Homer"
+      },
+      "native_answer": "[corpus:32] George Orwell wrote the dystopian novel Nineteen Eighty-Four published in 1949",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "OPEN_F18",
+      "domain": "medicine",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "kidney"
+      },
+      "native_answer": "[corpus:16] Inflation means a sustained increase in the general price level of goods",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 160
+      }
+    },
+    {
+      "id": "OPEN_F20",
+      "domain": "philosophy_logic",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "knowledge from experience"
+      },
+      "native_answer": "[corpus:29] Type 2 diabetes involves insulin resistance and relative insulin deficiency",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "OPEN_F27",
+      "domain": "biology",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "DNA"
+      },
+      "native_answer": "[corpus:16] Inflation means a sustained increase in the general price level of goods",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 158
+      }
+    },
+    {
+      "id": "OPEN_F36",
+      "domain": "computer_science",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "source code available"
+      },
+      "native_answer": "[corpus:41] CPU memory and storage are core hardware components of computers",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 159
+      }
+    },
+    {
+      "id": "OPEN_F37",
+      "domain": "literature",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "extracted": null,
+        "reference": "Tolstoy"
+      },
+      "native_answer": "[corpus:41] CPU memory and storage are core hardware components of computers",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 10,
+        "stem_cells": 160
+      }
+    },
+    {
+      "id": "OPEN_F45",
+      "domain": "chemistry",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "hydrogen"
+      },
+      "native_answer": "[corpus:16] Inflation means a sustained increase in the general price level of goods",
+      "decode_path": "open_span",
+      "retrieval": {
+        "recall_at_k": false,
+        "mrr": 0.0
+      },
+      "session": "persistent",
+      "structure": {
+        "tile_count": 11,
+        "stem_cells": 158
+      }
+    }
+  ],
+  "patch_rows": [
+    {
+      "id": "OPEN_HIST_02",
+      "domain": "history",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Jefferson"
+      },
+      "assistant": "The Declaration of Independence was written primarily by Thomas Jefferson, who served as the second President of the United States and is often referred to as \"the Father of the Constitution.\" Jefferson drafted the document while he was serving as a delegate from Virginia at the Constitutional Convention in 1787.\n\nJefferson's primary role in writing the Declaration of Independence was to ensure that the new nation would be free from British rule and establish its own government based on the principles outlined in the Declaration of Independence. The document was not completed until after the convention had concluded, but it was finalized with Jefferson's signature.\n\nWhile other individuals contributed to the drafting process, including John Adams and Benjamin Franklin, Jefferson played a crucial role in shaping the final version of the document. His vision for a new nation based on the principles of liberty, equality, and democracy was central to the development of the Declaration of Independence.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_GEO_02",
+      "domain": "geography",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Nile"
+      },
+      "assistant": "The longest river in the world is the Nile River, which flows through Egypt and Sudan. It is approximately 6,650 kilometers (4,132 miles) long. The Nile has played an important role in human history, serving as a source of water for agriculture and transportation.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_CS_01",
+      "domain": "computer_science",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "O(log n)"
+      },
+      "assistant": "The time complexity of performing a binary search on a sorted array of \\( n \\) elements is \\( O(\\log n) \\). This means that the number of comparisons required to find an element in the array grows logarithmically with the size of the array.\n\nHere's how it works:\n\n1. **Initial Comparison**: The first comparison you make will always be between the first and second elements of the array.\n2. **Subsequent Comparisons**: Each subsequent comparison reduces the size of the search space by half. For example:\n   - If the target value is less than or equal to the middle element, you only need to compare the first half of the array.\n   - If the target value is greater than or equal to the middle element, you only need to compare the last half of the array.\n3. **Termination**: When the search space is reduced to one element (i.e., when the target value matches the middle element), you",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "ZH_01",
+      "domain": "chinese",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "青藏高原"
+      },
+      "assistant": "长江发源于青藏高原的巴颜喀拉山脉，是中国最长的河流，全长6300多公里。",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_05",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "26",
+        "reference": "26"
+      },
+      "assistant": "The total cost of the books is \\(3 \\times 8 = 24\\) dollars. After paying with $50, the change Sam gets is \\(50 - 24 = 26\\) dollars. Therefore, the final number only is 26.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_MED_02",
+      "domain": "medicine",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "heart"
+      },
+      "assistant": "The heart is the organ that pumps blood throughout the human body. It has four chambers: two atria and two ventricles. The right side of the heart receives deoxygenated blood from the body's tissues and returns it to the lungs for oxygenation. The left side of the heart receives oxygenated blood from the lungs and returns it to the heart. This process continues until all the blood in the body has been pumped out.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_F07",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "22",
+        "reference": "22"
+      },
+      "assistant": "22",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_F09",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "145",
+        "reference": "145"
+      },
+      "assistant": "145",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_F17",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "9",
+        "reference": "6"
+      },
+      "assistant": "9",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_F24",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "180",
+        "reference": "60"
+      },
+      "assistant": "180",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_F26",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "34",
+        "reference": "34"
+      },
+      "assistant": "34",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_F27",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "1",
+        "reference": "23"
+      },
+      "assistant": "1",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_F28",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "4",
+        "reference": "4"
+      },
+      "assistant": "4",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_F31",
+      "domain": "math_word",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "9",
+        "reference": "9"
+      },
+      "assistant": "x = 9",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "MATH_F11",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "36",
+        "reference": "36"
+      },
+      "assistant": "36",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "MATH_F14",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "14",
+        "reference": "12"
+      },
+      "assistant": "14",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "MATH_F18",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "10",
+        "reference": "100"
+      },
+      "assistant": "10",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "MATH_F20",
+      "domain": "math_numeric",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "assistant": "12",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F01",
+      "domain": "physics",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "energy"
+      },
+      "assistant": "The First Law of Thermodynamics states that energy cannot be created or destroyed, only converted from one form to another. This principle is fundamental to understanding the behavior of heat and work in various systems.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F07",
+      "domain": "history",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Augustus"
+      },
+      "assistant": "The first emperor of Rome was Augustus, also known as Augustus Caesar. He ruled from 27 BC to 14 AD and is considered one of the most important figures in Roman history. Augustus was born on December 15, 63 BC, and he became the first emperor after the death of his father, Tiberius. His reign lasted for over 40 years, during which he expanded the empire and established many of its key institutions. Augustus's rule was marked by religious reforms, including the adoption of Christianity as the state religion, and his efforts to centralize power under the authority of the Senate. Despite facing numerous challenges, including civil wars and internal conflicts within the empire, Augustus maintained control over Rome until his death in 14 AD.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F10",
+      "domain": "geography",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Africa"
+      },
+      "assistant": "The Sahara Desert is located in Africa. It stretches across most of North Africa and parts of West Africa, including Mauritania, Mali, Niger, Chad, Sudan, Libya, Egypt, and Algeria. The Sahara is one of the world's largest deserts, covering an area of approximately 3 million square kilometers (1.2 million square miles).",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F13",
+      "domain": "computer_science",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Random Access Memory"
+      },
+      "assistant": "RAM stands for Random Access Memory. It is the main memory of a computer that can store and retrieve data quickly. RAM is used to temporarily hold information while a program is running, allowing it to access this information without waiting for disk I/O operations. RAM is volatile, meaning it loses its contents when power is turned off, whereas hard drives are non-volatile and retain their content even after power loss.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F15",
+      "domain": "literature",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Homer"
+      },
+      "assistant": "\"The Odyssey\" was written by the ancient Greek poet Homer, who lived in the 8th century BCE. Homer is considered one of the greatest poets and playwrights in history, known for his epic poems that tell the story of Odysseus, a Greek hero who travels through the Mediterranean Sea with his wife Penelope and their son Telemachus to return home after being forced to leave by his father Agamemnon.\n\nHomer's \"Odyssey\" is divided into three books: Book I, Book II, and Book III. Each book tells a different part of the story of Odysseus' journey from Troy to Greece. The stories in these books form the basis of the entire \"Odyssey,\" which has been translated into many languages over the centuries.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F18",
+      "domain": "medicine",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "kidney"
+      },
+      "assistant": "The human body has several organs that work together to filter blood. The primary organs responsible for this function are:\n\n1. **Lungs**: The lungs are the primary organs involved in filtering blood. They have tiny air sacs called alveoli, which allow oxygen from the air we breathe to enter our bloodstream and carbon dioxide to leave.\n\n2. **Heart**: The heart is an important organ that pumps blood throughout the body. It does this through its pumping action, which moves blood towards the lungs where it picks up oxygen and then returns to the rest of the body via veins.\n\n3. **Blood vessels**: Blood vessels carry oxygenated and deoxygenated blood throughout the body. Oxygen-rich blood flows into the lungs, while deoxygenated blood returns to the heart.\n\n4. **Kidneys**: While not directly involved in filtering blood, the kidneys play a crucial role in maintaining homeostasis by producing urine. However, they do not directly",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F20",
+      "domain": "philosophy_logic",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "knowledge from experience"
+      },
+      "assistant": "Empiricism is an approach to knowledge that emphasizes the importance of empirical evidence and sensory experience in acquiring true understanding of the world around us. It holds that all knowledge comes from direct observation or experience, and that we should rely on our senses and observations to form accurate beliefs about the world.\n\nKey characteristics of empiricism include:\n\n1. Empirical: Emphasizes the use of sensory experiences and observations for acquiring knowledge.\n2. Direct: Focuses on direct perception rather than indirect reasoning or inference.\n3. Innate: Believes innate knowledge exists without the need for learning or education.\n4. Sensory: Emphasizes the role of sensory input in shaping our understanding of reality.\n5. Practical: Advocates practical applications of knowledge over theoretical speculation.\n6. Skepticism: Encourages skepticism towards dogma and authority, as it relies more on personal experience than on rational argumentation.\n\nEmpiricists argue that scientific inquiry is the only",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F27",
+      "domain": "biology",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "DNA"
+      },
+      "assistant": "The molecule that carries genetic information is DNA (deoxyribonucleic acid). DNA consists of two strands of nucleotides, each containing one of four different bases: adenine (A), cytosine (C), guanine (G), and thymine (T). These bases pair up in specific ways to form the double helix structure of DNA.\n\nDNA serves as the primary carrier of genetic information because it contains all the instructions for building an organism's blueprint. Each gene on a chromosome is composed of DNA with its own set of genes, which code for proteins that make up the organism's physical characteristics and functions.\n\nIn addition to DNA, other molecules also carry genetic information, including RNA (ribonucleic acid) and messenger RNA (mRNA), which are used to transport genetic information from DNA to the ribosomes where protein synthesis occurs. However, DNA remains the most fundamental and essential molecule for storing and transmitting genetic information.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F36",
+      "domain": "computer_science",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "source code available"
+      },
+      "assistant": "Open source software (OSS) refers to computer programs that are made available for free and can be modified and distributed under the terms of an open-source license. These licenses allow anyone to use, modify, and distribute the code freely without restrictions.\n\nKey characteristics of OSS include:\n\n1. Free: The software is typically provided as open-source software, which means it's free to download, install, and use.\n2. Open: The source code is publicly available, allowing users to view, modify, and redistribute the code.\n3. License: There are various open-source licenses, such as the GNU General Public License (GPL), Apache License, and MIT License, that govern how the software can be used, modified, and redistributed.\n4. Community: Many developers contribute to the development of OSS projects, leading to a vibrant community around the software.\n5. Scalability: OSS allows for rapid deployment and scalability, making it suitable for a wide range of applications",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F37",
+      "domain": "literature",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "Tolstoy"
+      },
+      "assistant": "\"War and Peace\" was written by Leo Tolstoy. This novel is considered one of the greatest works in world literature and has been translated into many languages around the world. It tells the story of the life of Prince Vaslav Nijinsky, a Russian ballet dancer who becomes involved with Count Vronsky, a wealthy businessman, and later falls in love with Natasha Rostova, a young woman from a noble family. The novel explores themes such as love, power, and the human condition through the eyes of its characters.",
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "OPEN_F45",
+      "domain": "chemistry",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "extracted": null,
+        "reference": "hydrogen"
+      },
+      "assistant": "The lightest element in the periodic table is hydrogen (H). Hydrogen has a mass of approximately 1.0079 u (atomic mass units), which is about one-twelfth that of an atom of any other element. It is also the most abundant element in the universe and forms the basis for all chemical reactions.\n\nHydrogen is known as the \"lightest\" element because it occupies the lowest energy state among all atoms. This means that when hydrogen atoms combine to form molecules, they release very little energy compared to heavier elements like oxygen or carbon. The lightest element can be considered the starting point for many chemical reactions and processes.",
+      "decode_path": "patch_legacy_triad"
+    }
+  ]
+}

@@ -40,6 +40,16 @@ valhalla-storage = { path = "../valhalla-storage" }
 # Space GPU 高维计算
 valhalla-space-f64-gpu = { path = "../../utils/space-f64-gpu" }
 
+# Tier A patch LM (optional — full Rust hybrid)
+candle-core = { version = "0.8", optional = true }
+candle-nn = { version = "0.8", optional = true }
+candle-transformers = { version = "0.8", optional = true }
+tokenizers = { version = "0.20", optional = true }
+
+[features]
+default = ["patch-lm"]
+patch-lm = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:tokenizers"]
+
 [[bin]]
 name = "valhalla_dl_front_smoke"
 path = "src/bin/valhalla_dl_front_smoke.rs"
@@ -51,6 +61,11 @@ path = "src/bin/valhalla_model_export.rs"
 [[bin]]
 name = "valhalla_native_qa"
 path = "src/bin/valhalla_native_qa.rs"
+
+[[bin]]
+name = "valhalla_hybrid"
+path = "src/bin/valhalla_hybrid.rs"
+required-features = ["patch-lm"]
 
 [[bin]]
 name = "valhalla_ingress_experiment"

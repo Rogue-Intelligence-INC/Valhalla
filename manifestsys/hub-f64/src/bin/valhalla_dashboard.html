@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valhalla Dashboard</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #141820;
+      --border: #2a3140;
+      --text: #e8eaed;
+      --muted: #8b93a7;
+      --bh: #ef4444;
+      --mb: #06b6d4;
+      --mn: #f59e0b;
+      --bf: #22c55e;
+      --pass: #22c55e;
+      --fail: #ef4444;
+      --accent: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "IBM Plex Sans", "Noto Sans SC", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
+    .sub { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .badge.pass { border-color: var(--pass); color: var(--pass); }
+    .badge.fail { border-color: var(--fail); color: var(--fail); }
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .card h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .arch {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+    .arch-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .arch-box {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .arch-arrow { color: var(--muted); }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 88px 1fr 48px;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+    .bar-track {
+      height: 10px;
+      background: var(--bg);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .bar-fill { height: 100%; border-radius: 5px; transition: width 0.4s ease; }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .stat {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .stat .label { font-size: 0.7rem; color: var(--muted); }
+    .stat .value { font-size: 1.35rem; font-weight: 600; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .prefs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .pref {
+      text-align: center;
+      padding: 10px 6px;
+      background: var(--bg);
+      border-radius: 8px;
+      border-top: 3px solid;
+    }
+    .pref .name { font-size: 0.65rem; color: var(--muted); }
+    .pref .pct { font-size: 1rem; font-weight: 600; margin-top: 4px; }
+    footer {
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Valhalla Dashboard</h1>
+        <p class="sub">Hub · Tile · StemCell — live smoke aggregation · Rogue Intelligence LNC.</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span class="badge" id="statusBadge">—</span>
+        <button type="button" id="rerunBtn">Re-run smoke</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card" style="grid-column: 1 / -1;">
+        <h2>Architecture / 架构</h2>
+        <div class="arch">
+          <div class="arch-row">
+            <span class="arch-box">Text / 训练文本</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-box">f64 signals</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-box">MicroContainer / MicroTile</span>
+          </div>
+          <div class="arch-row">
+            <span class="arch-box">Fate coordination</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-box" style="border-color:var(--bh)">BlackHole</span>
+            <span class="arch-box" style="border-color:var(--mb)">MeshBrain</span>
+            <span class="arch-box" style="border-color:var(--mn)">MultiNova</span>
+            <span class="arch-box" style="border-color:var(--bf)">BaseForce</span>
+          </div>
+          <div class="arch-row">
+            <span class="arch-box">Hub routing</span>
+            <span class="arch-box">Tile closure</span>
+            <span class="arch-box">StemCell graph</span>
+            <span class="arch-arrow">·</span>
+            <span class="arch-box">独立模块 / modular products</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Hub routing / 四系统路由</h2>
+        <div id="hubBars"></div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:8px;">
+          Signals: <strong id="hubSignals">—</strong> · explore-phase round-robin until Fate converges
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Fate preferences / 偏好向量</h2>
+        <div class="prefs" id="prefGrid"></div>
+      </div>
+
+      <div class="card">
+        <h2>Tile / 方块凝结</h2>
+        <div class="stat-grid">
+          <div class="stat"><div class="label">Completed tiles</div><div class="value" id="tileCompleted">—</div></div>
+          <div class="stat"><div class="label">Operations</div><div class="value" id="tileOps">—</div></div>
+          <div class="stat"><div class="label">Dimension</div><div class="value" id="tileDim">—</div></div>
+          <div class="stat"><div class="label">Status</div><div class="value" id="tileOk">—</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>StemCell / 细胞网络</h2>
+        <div class="stat-grid">
+          <div class="stat"><div class="label">Cells</div><div class="value" id="stemCells">—</div></div>
+          <div class="stat"><div class="label">Connections</div><div class="value" id="stemConn">—</div></div>
+          <div class="stat"><div class="label">Dimension</div><div class="value" id="stemDim">—</div></div>
+          <div class="stat"><div class="label">Status</div><div class="value" id="stemOk">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Last run: <span id="lastRun">—</span> ·
+      <code>valhalla_dashboard</code> · corpus: 10 multilingual sentences (smoke)
+    </footer>
+  </div>
+
+  <script>
+    const COLORS = ['var(--bh)', 'var(--mb)', 'var(--mn)', 'var(--bf)'];
+
+    async function fetchState() {
+      const r = await fetch('/api/state');
+      return r.json();
+    }
+
+    function render(data) {
+      const r = data.report;
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = r.overall_pass ? 'PASS' : 'FAIL';
+      badge.className = 'badge ' + (r.overall_pass ? 'pass' : 'fail');
+
+      document.getElementById('hubSignals').textContent = r.hub_signals;
+      const maxR = Math.max(...r.hub_routed, 1);
+      const hubBars = document.getElementById('hubBars');
+      hubBars.innerHTML = '';
+      data.quad_labels.forEach((name, i) => {
+        const pct = (r.hub_routed[i] / maxR) * 100;
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        row.innerHTML = `
+          <span style="color:${COLORS[i]}">${name}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${COLORS[i]}"></div></div>
+          <span>${r.hub_routed[i]}</span>`;
+        hubBars.appendChild(row);
+      });
+
+      const prefGrid = document.getElementById('prefGrid');
+      prefGrid.innerHTML = '';
+      const prefs = r.hub_prefs.length >= 4 ? r.hub_prefs : [0.25, 0.25, 0.25, 0.25];
+      data.quad_labels.forEach((name, i) => {
+        const el = document.createElement('div');
+        el.className = 'pref';
+        el.style.borderColor = COLORS[i];
+        el.innerHTML = `<div class="name">${name}</div><div class="pct" style="color:${COLORS[i]}">${(prefs[i] * 100).toFixed(1)}%</div>`;
+        prefGrid.appendChild(el);
+      });
+
+      document.getElementById('tileCompleted').textContent = r.tile_completed;
+      document.getElementById('tileOps').textContent = r.tile_ops;
+      document.getElementById('tileDim').textContent = r.tile_dim.toFixed(2);
+      document.getElementById('tileOk').textContent = r.tile_ok ? 'OK' : 'FAIL';
+      document.getElementById('stemCells').textContent = r.stem_cells;
+      document.getElementById('stemConn').textContent = r.stem_connections;
+      document.getElementById('stemDim').textContent = r.stem_dim.toFixed(2);
+      document.getElementById('stemOk').textContent = r.stem_ok ? 'OK' : 'FAIL';
+
+      const d = new Date(data.last_run_unix * 1000);
+      document.getElementById('lastRun').textContent = d.toLocaleString();
+    }
+
+    async function load() {
+      render(await fetchState());
+    }
+
+    document.getElementById('rerunBtn').addEventListener('click', async function () {
+      this.disabled = true;
+      try {
+        const r = await fetch('/api/rerun', { method: 'POST' });
+        render(await r.json());
+      } finally {
+        this.disabled = false;
+      }
+    });
+
+    load();
+    setInterval(load, 30000);
+  </script>
+</body>
+</html>

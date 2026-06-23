@@ -1,0 +1,725 @@
+{
+  "hybrid_product_version": "hybrid-3.1-rust-full",
+  "fair_benchmark_version": "fair-1.2",
+  "merge_mode": "deploy",
+  "hybrid_rows": [
+    {
+      "id": "GSM_01",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "72",
+        "reference": "72"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "numeric_confidence",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "72",
+      "decode_path": "word_problem",
+      "hybrid_native_path_rank": 95
+    },
+    {
+      "id": "GSM_02",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "18",
+        "reference": "18"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "numeric_confidence",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "18",
+      "decode_path": "word_problem",
+      "hybrid_native_path_rank": 95
+    },
+    {
+      "id": "GSM_03",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "18",
+        "reference": "18"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "numeric_confidence",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "18",
+      "decode_path": "word_problem",
+      "hybrid_native_path_rank": 95
+    },
+    {
+      "id": "GSM_04",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "28",
+        "reference": "28"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "numeric_confidence",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "28",
+      "decode_path": "word_problem",
+      "hybrid_native_path_rank": 95
+    },
+    {
+      "id": "MATH_01",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "391",
+        "reference": "391"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "numeric_confidence",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "391",
+      "decode_path": "direct_math",
+      "hybrid_native_path_rank": 100
+    },
+    {
+      "id": "MATH_02",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "numeric_confidence",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "12",
+      "decode_path": "direct_math",
+      "hybrid_native_path_rank": 100
+    },
+    {
+      "id": "MATH_03",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "9",
+        "reference": "9"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "numeric_confidence",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "9",
+      "decode_path": "direct_math",
+      "hybrid_native_path_rank": 100
+    },
+    {
+      "id": "MATH_04",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "27",
+        "reference": "27"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "numeric_confidence",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "27",
+      "decode_path": "direct_math",
+      "hybrid_native_path_rank": 100
+    },
+    {
+      "id": "MCQ_PHYS_01",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "memory_mcq_best",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "ANSWER: A",
+      "decode_path": "mcq_fate_cycle"
+    },
+    {
+      "id": "MCQ_PHYS_02",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "D",
+        "reference": "B"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "memory_mcq_best",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "ANSWER: D",
+      "decode_path": "mcq_fate_cycle"
+    },
+    {
+      "id": "MCQ_CHEM_01",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "memory_mcq_best",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "ANSWER: C",
+      "decode_path": "mcq_fate_cycle"
+    },
+    {
+      "id": "MCQ_CHEM_02",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "hybrid_source": "tile_fate_persistent",
+      "hybrid_policy": "memory_mcq_best",
+      "hybrid_merge_mode": "deploy",
+      "hybrid_product_version": "hybrid-3.1-rust-full",
+      "answer": "ANSWER: A",
+      "decode_path": "mcq_fate_cycle"
+    }
+  ],
+  "memory_triad": [
+    {
+      "id": "GSM_01",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "72",
+        "reference": "72"
+      },
+      "native_answer": "72",
+      "decode_path": "word_problem",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "GSM_02",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "18",
+        "reference": "18"
+      },
+      "native_answer": "18",
+      "decode_path": "word_problem",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "GSM_03",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "18",
+        "reference": "18"
+      },
+      "native_answer": "18",
+      "decode_path": "word_problem",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "GSM_04",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "28",
+        "reference": "28"
+      },
+      "native_answer": "28",
+      "decode_path": "word_problem",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MATH_01",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "391",
+        "reference": "391"
+      },
+      "native_answer": "391",
+      "decode_path": "direct_math",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MATH_02",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "native_answer": "12",
+      "decode_path": "direct_math",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MATH_03",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "9",
+        "reference": "9"
+      },
+      "native_answer": "9",
+      "decode_path": "direct_math",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MATH_04",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "27",
+        "reference": "27"
+      },
+      "native_answer": "27",
+      "decode_path": "direct_math",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MCQ_PHYS_01",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "native_answer": "ANSWER: B",
+      "decode_path": "mcq_option",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MCQ_PHYS_02",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "D",
+        "reference": "B"
+      },
+      "native_answer": "ANSWER: D",
+      "decode_path": "mcq_option",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MCQ_CHEM_01",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "native_answer": "ANSWER: C",
+      "decode_path": "mcq_option",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MCQ_CHEM_02",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "native_answer": "ANSWER: A",
+      "decode_path": "mcq_option",
+      "memory_body": "triad",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    }
+  ],
+  "memory_tile_fate": [
+    {
+      "id": "GSM_01",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "72",
+        "reference": "72"
+      },
+      "native_answer": "72",
+      "decode_path": "word_problem",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "GSM_02",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "18",
+        "reference": "18"
+      },
+      "native_answer": "18",
+      "decode_path": "word_problem",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "GSM_03",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "18",
+        "reference": "18"
+      },
+      "native_answer": "18",
+      "decode_path": "word_problem",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "GSM_04",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "28",
+        "reference": "28"
+      },
+      "native_answer": "28",
+      "decode_path": "word_problem",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MATH_01",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "391",
+        "reference": "391"
+      },
+      "native_answer": "391",
+      "decode_path": "direct_math",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MATH_02",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "native_answer": "12",
+      "decode_path": "direct_math",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MATH_03",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "9",
+        "reference": "9"
+      },
+      "native_answer": "9",
+      "decode_path": "direct_math",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MATH_04",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "27",
+        "reference": "27"
+      },
+      "native_answer": "27",
+      "decode_path": "direct_math",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 0
+    },
+    {
+      "id": "MCQ_PHYS_01",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "native_answer": "ANSWER: A",
+      "decode_path": "mcq_fate_cycle",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 15
+    },
+    {
+      "id": "MCQ_PHYS_02",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "D",
+        "reference": "B"
+      },
+      "native_answer": "ANSWER: D",
+      "decode_path": "mcq_fate_cycle",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 15
+    },
+    {
+      "id": "MCQ_CHEM_01",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "native_answer": "ANSWER: C",
+      "decode_path": "mcq_fate_cycle",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 15
+    },
+    {
+      "id": "MCQ_CHEM_02",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "native_answer": "ANSWER: A",
+      "decode_path": "mcq_fate_cycle",
+      "memory_body": "tile",
+      "session": "persistent",
+      "mcq_fate_cycles": 15
+    }
+  ],
+  "patch_rows": [
+    {
+      "id": "GSM_01",
+      "assistant": "Natalia sold 48/2 = 24 clips in May. Therefore, Natalia sold a total of 48 + 24 = 72 clips in April and May.",
+      "native_answer": null,
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_02",
+      "assistant": "To calculate how much Janet makes at the market each day, we need to follow these steps:\n\n1. Calculate the total number of eggs laid by the ducks in a day.\n2. Subtract the number of eggs she eats for breakfast and bakes muffins.\n3. Calculate the number of eggs she sells at the market.\n4. Determine the total revenue from selling the eggs at the market.\n\nLet's go through each step:\n\n1. Total eggs laid in a day:",
+      "native_answer": null,
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_03",
+      "assistant": "20",
+      "native_answer": null,
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "GSM_04",
+      "assistant": "Tom has 18 apples now.",
+      "native_answer": null,
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "MATH_01",
+      "assistant": "391",
+      "native_answer": null,
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "MATH_02",
+      "assistant": "12",
+      "native_answer": null,
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "MATH_03",
+      "assistant": "9",
+      "native_answer": null,
+      "decode_path": "patch_legacy_triad"
+    },
+    {
+      "id": "MATH_04",
+      "assistant": "27",
+      "native_answer": null,
+      "decode_path": "patch_legacy_triad"
+    }
+  ],
+  "summary": {
+    "hybrid": {
+      "n": 12,
+      "correct": 9,
+      "acc": 0.75,
+      "by_score_type": {
+        "numeric": {
+          "correct": 8,
+          "total": 8,
+          "acc": 1.0
+        },
+        "mcq": {
+          "correct": 1,
+          "total": 4,
+          "acc": 0.25
+        }
+      }
+    },
+    "memory_triad_persistent": {
+      "n": 12,
+      "correct": 10,
+      "acc": 0.8333333333333334,
+      "by_score_type": {
+        "mcq": {
+          "correct": 2,
+          "total": 4,
+          "acc": 0.5
+        },
+        "numeric": {
+          "correct": 8,
+          "total": 8,
+          "acc": 1.0
+        }
+      }
+    },
+    "memory_tile_fate_persistent": {
+      "n": 12,
+      "correct": 9,
+      "acc": 0.75,
+      "by_score_type": {
+        "mcq": {
+          "correct": 1,
+          "total": 4,
+          "acc": 0.25
+        },
+        "numeric": {
+          "correct": 8,
+          "total": 8,
+          "acc": 1.0
+        }
+      }
+    },
+    "patch_lm_subset": {
+      "n": 8,
+      "correct": 5,
+      "acc": 0.625,
+      "by_score_type": {
+        "numeric": {
+          "correct": 5,
+          "total": 8,
+          "acc": 0.625
+        }
+      }
+    },
+    "hybrid_source_counts": {
+      "tile_fate_persistent": 12
+    }
+  }
+}

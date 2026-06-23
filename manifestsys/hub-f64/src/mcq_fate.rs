@@ -54,6 +54,9 @@ pub struct McqFateOutcome {
     pub decompose_score: f64,
     pub aggregate_score: f64,
     pub parts_fed: usize,
+    /// Per-option tile energy after MCQ_OPTION shard ingress (for affinity spread).
+    #[serde(default)]
+    pub option_scores: Vec<(char, f64)>,
 }
 
 pub fn mcq_fate_cycles_enabled() -> bool {
@@ -437,6 +440,7 @@ pub fn run_mcq_fate_pipeline(
     let mut prev_stem = session.stem.cells.len();
     let mut parts_fed = 0usize;
     let mut stopped_reason = "hard_max".to_string();
+    let mut option_scores: Vec<(char, f64)> = Vec::new();
 
     // --- Decompose: feed every shard; Fate may add polish rounds ---
     for (pi, shard) in shards.iter().enumerate() {
@@ -457,6 +461,20 @@ pub fn run_mcq_fate_pipeline(
         decompose_score = ((parts_fed as f64 / shards.len() as f64) * 0.6
             + (structural_delta * 0.06).min(0.4))
             .clamp(0.0, 1.0);
+
+        if let Some(rest) = shard.strip_prefix("MCQ_OPTION ") {
+            if let Some(letter) = rest.chars().next() {
+                if matches!(letter, 'A' | 'B' | 'C' | 'D' | 'E') {
+                    let energy = session
+                        .tile
+                        .completed_tiles
+                        .last()
+                        .map(|t| t.energy.abs())
+                        .unwrap_or(0.0);
+                    option_scores.push((letter, energy));
+                }
+            }
+        }
 
         tracker.record(decompose_score, aggregate_score);
         pulse_fate_feedback(session, "decompose", decompose_score);
@@ -554,5 +572,6 @@ pub fn run_mcq_fate_pipeline(
         decompose_score,
         aggregate_score,
         parts_fed,
+        option_scores,
     }
 }

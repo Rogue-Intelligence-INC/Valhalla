@@ -19,6 +19,15 @@ use uuid::Uuid;
 
 pub mod cortex;
 pub mod dl_front;
+pub mod fair_score;
+pub mod fair_suite;
+pub mod grinder;
+pub mod patch_export;
+pub mod pipeline;
+pub mod task_decompose;
+#[cfg(feature = "patch-lm")]
+pub mod patch_lm;
+pub mod hybrid;
 pub mod mcq_fate;
 pub mod native_qa;
 pub mod signal_ingress;
