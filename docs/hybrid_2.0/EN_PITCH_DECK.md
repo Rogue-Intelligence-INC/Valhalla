@@ -1,7 +1,7 @@
 # Hybrid Valhalla 2.0 — Pitch Deck (Slide Outline)
 
 **Format**: 14 slides · ~10 min · Export to Google Slides / Keynote / PDF  
-**Version**: hybrid-2.0 · **Date**: 2026-06-22 · Rogue Intelligence LNC.
+**Version**: hybrid-2.0 · **Date**: 2026-06-23 · Rogue Intelligence LNC.
 
 > Each slide: **Title · Bullets · Speaker notes · Visual hint**
 
@@ -16,9 +16,9 @@
 - hybrid-2.0 · fair-1.2 · hub-f64 1.1.0
 - June 2026
 
-**Notes**: Open with the number: **80% on 145Q fair test** — then explain it's hybrid, not magic.
+**Notes**: Open with **80.69% (117/145)** on fair test — hybrid deploy, cited JSON.
 
-**Visual**: Logo + single metric badge `80.0% unified`
+**Visual**: Logo + metric badge `80.69% · 117/145`
 
 ---
 
@@ -74,12 +74,14 @@ Live: `valhalla-transformer` viz · `/api/hybrid-unified/latest`
 
 **Fair Benchmark test · 145 questions · decontaminated corpus**
 
-| | Hybrid | Qwen 0.5B alone |
+| | Hybrid deploy | Qwen 0.5B alone |
 |---|--------|-----------------|
-| **Total** | **80.0%** | 71.0% |
-| open | **95.1%** | ~93% |
-| mcq | **54.4%** | 37.0% |
-| numeric | **86.8%** | ~76% |
+| **Total** | **80.69% (117/145)** | 71.03% (103/145) |
+| open | **93.44% (57/61)** | 93.44% (57/61) |
+| mcq | **60.87% (28/46)** | 36.96% (17/46) |
+| numeric | **84.21% (32/38)** | 76.32% (29/38) |
+
+*Source: `hybrid_v4_mcq_patch_strengthen_final.json` · `fair_benchmark_test_20260620_0859.json`*
 
 **Notes**: Always show **by type** — MCQ is improving, not SOTA.
 
@@ -91,16 +93,12 @@ Live: `valhalla-transformer` viz · `/api/hybrid-unified/latest`
 
 **Synergy is measured, not claimed**
 
-| Track | Acc |
-|-------|-----|
-| Triad memory only | 39.3% |
-| Tile+Fate only | 41.4% |
-| Patch LM subset | 87.9%* |
-| **Hybrid unified** | **80.0%** |
-
-*Patch LM evaluated on routed subset (open + numeric candidates).
-
-**Notes**: 80% < 87.9% on subset because MCQ pulls average down — **honesty builds trust**.
+| Track | Acc (145Q test) |
+|-------|-----------------|
+| Triad memory only | 40.69% (59/145) |
+| Tile+Fate memory only | 40.69% (59/145) |
+| Patch LM track (final) | 80.69% (117/145) |
+| **Hybrid deploy** | **80.69% (117/145)** |
 
 **Visual**: Component vs product comparison
 

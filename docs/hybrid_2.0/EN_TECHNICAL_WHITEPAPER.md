@@ -124,15 +124,13 @@ Hybrid 2.0 uses **persistent** memory for Tier B paths.
 
 | Track | Total acc | open | mcq | numeric |
 |-------|-----------|------|-----|---------|
-| **Hybrid unified** | **80.00%** | 95.08% | 54.35% | 86.84% |
-| Triad memory only | 39.31% | 24.59% | 43.48% | 57.89% |
-| Tile+Fate memory only | 41.38% | 22.95% | 52.17% | 57.89% |
-| Patch LM (routed subset) | 87.88% | 95.08% | 0%* | 76.32% |
-| Qwen 0.5B zero-shot (145Q) | 71.0% | ~93% | 37.0% | ~76% |
+| **Hybrid deploy (final)** | **80.69% (117/145)** | 93.44% (57/61) | 60.87% (28/46) | 84.21% (32/38) |
+| Triad memory only | 40.69% (59/145) | 22.95% (14/61) | 50.00% (23/46) | 57.89% (22/38) |
+| Tile+Fate memory only | 40.69% (59/145) | 22.95% (14/61) | 50.00% (23/46) | 57.89% (22/38) |
+| Patch LM track (final run) | 80.69% (117/145) | 93.44% (57/61) | 60.87% (28/46) | 84.21% (32/38) |
+| Qwen 0.5B zero-shot (145Q) | 71.03% (103/145) | 93.44% (57/61) | 36.96% (17/46) | 76.32% (29/38) |
 
-*Patch LM not used as primary MCQ path in hybrid-2.0 policy.
-
-**Hybrid source mix (145Q)**: `tile_fate_persistent: 72`, `triad_persistent: 1`, `patch_lm: 72`
+**Hybrid source mix (145Q, final JSON)**: `tile_fate_persistent: 23`, `patch_lm: 122`
 
 ---
 
@@ -163,8 +161,8 @@ Per-option independent scoring → argmax → `ANSWER: X`:
 | Per-question reload | 13/46 | 28.3% |
 | One-shot Triad (all modules) | 21/46 | 45.7% |
 | One-shot Tile only | 22/46 | 47.8% |
-| Tile + MCQ Fate cycles | 24/46 | 52.2% |
-| **Hybrid deploy + structure-guided patch** | **28/46** | **60.9%** |
+| Tile + MCQ Fate cycles | 24/46 | 52.17% |
+| **Hybrid deploy + structure-guided patch** | **28/46** | **60.87%** |
 | Qwen zero-shot | 17/46 | 37.0% |
 
 **Conclusion**: Session protocol (+18 pp reload→one-shot) dominates small scoring tweaks. Bottleneck is **four-way option comparison**.
@@ -234,11 +232,11 @@ export VALHALLA_MCQ_FATE_CYCLES=1
 
 | Claim | Evidence | Status |
 |-------|----------|--------|
-| Hybrid 80.7% on 145Q test | `hybrid_v4_mcq_patch_strengthen_final.json` | ✓ |
-| Open 93.4% via patch route | Same JSON, `by_score_type.open` | ✓ |
-| MCQ deploy uplift 52.2% → 60.9% | post_decode_fix vs final | ✓ |
-| Native MCQ memory baseline | 24/46 structure decode | ✓ |
-| Hybrid beats Qwen 71% total | 80.7% vs 71% same split | ✓ |
+| Hybrid 80.69% on 145Q test | `hybrid_v4_mcq_patch_strengthen_final.json` | ✓ |
+| Open 93.44% via patch route | Same JSON, `by_score_type.open` | ✓ |
+| MCQ deploy uplift 52.17% → 60.87% | post_decode_fix vs final | ✓ |
+| Native MCQ memory baseline | 24/46 memory-first deploy | ✓ |
+| Hybrid beats Qwen 71.03% total | 80.69% vs 71.03% same split | ✓ |
 | Beats GPT-4 / Claude general | — | ✗ not claimed |
 | FIPS-certified crypto | — | ✗ not claimed (Yaksha separate) |
 
@@ -248,7 +246,7 @@ export VALHALLA_MCQ_FATE_CYCLES=1
 
 ### 8.1 Limitations
 
-1. **MCQ ceiling ~61% (deploy)**: option comparison still lags open generation; stem-conditioned relative comparator needed.  
+1. **MCQ ceiling 60.87% (28/46 deploy)**: option comparison still lags open generation; stem-conditioned relative comparator in progress (pairwise regressed in ablation — keep off for deploy).  
 2. **Small companion LM**: 0.5B — demonstrates structure layer; not production LM choice.  
 3. **Corpus size**: 49 lines — vertical POC scale, not web-scale RAG.  
 4. **Tier B open retrieval alone ~25%**: open solved at **product** level via Hybrid, not memory-only.

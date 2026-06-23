@@ -349,8 +349,8 @@ stateDiagram-v2
 | 配置 | MCQ 结果（46Q） |
 |------|-----------------|
 | Tile persistent, no Fate | 22/46 (47.8%) |
-| Tile + MCQ Fate cycles | **24/46 (52.2%)** |
-| Hybrid mcq route | **~25/46 (54.4%)** — best(Tile+Fate, Triad) |
+| Tile + MCQ Fate cycles | **24/46 (52.17%)** |
+| Hybrid mcq route (deploy, final) | **28/46 (60.87%)** |
 
 ---
 
@@ -519,12 +519,12 @@ tools/fair_benchmark/
 
 ### 10.3 题型分布（test）
 
-| score_type | 约计 | Hybrid test acc |
-|------------|------|-----------------|
-| open | ~61 | 95.08% |
-| mcq | 46 | 54.35% |
-| numeric | ~38 | 86.84% |
-| **total** | **145** | **80.00%** |
+| score_type | count | Hybrid deploy acc (final JSON) |
+|------------|------|-------------------------------|
+| open | 61 | 93.44% (57/61) |
+| mcq | 46 | 60.87% (28/46) |
+| numeric | 38 | 84.21% (32/38) |
+| **total** | **145** | **80.69% (117/145)** |
 
 ---
 
@@ -649,16 +649,18 @@ flowchart LR
 
 ---
 
-## 15. 当前性能锚点 / Performance anchor (2026-06-22)
+## 15. 当前性能锚点 / Performance anchor (2026-06-23)
 
-### 15.1 Hybrid 统一产品（145Q test）
+**Source / 来源**: `hybrid_v4_mcq_patch_strengthen_final.json` · `fair_benchmark_test_20260620_0859.json`
 
-| 指标 | Hybrid | Qwen 0.5B | Triad mem | Tile+Fate mem |
+### 15.1 Hybrid deploy（145Q test）
+
+| 指标 | Hybrid deploy | Qwen 0.5B | Triad mem | Tile+Fate mem |
 |------|--------|-----------|-----------|---------------|
-| **Total** | **80.00%** | 71.0% | 39.31% | 41.38% |
-| open | **95.08%** | ~93% | 24.59% | 22.95% |
-| mcq | **54.35%** | 37.0% | 43.48% | **52.17%** |
-| numeric | **86.84%** | ~76% | 57.89% | 57.89% |
+| **Total** | **80.69% (117/145)** | 71.03% (103/145) | 40.69% (59/145) | 40.69% (59/145) |
+| open | **93.44% (57/61)** | 93.44% (57/61) | 22.95% (14/61) | 22.95% (14/61) |
+| mcq | **60.87% (28/46)** | 36.96% (17/46) | 50.00% (23/46) | 50.00% (23/46) |
+| numeric | **84.21% (32/38)** | 76.32% (29/38) | 57.89% (22/38) | 57.89% (22/38) |
 
 ### 15.2 MCQ 细分（46Q）
 

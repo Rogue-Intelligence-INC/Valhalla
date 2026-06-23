@@ -36,7 +36,7 @@ This pack supports **technical and commercial due diligence** on Hybrid Valhalla
 | C2 | Open accuracy | **93.44%** (57/61) | Same JSON · `summary.hybrid.by_score_type.open` | Inspect row-level `patch_lm` source | ✓ |
 | C3 | MCQ accuracy | **60.87%** (28/46) | Same JSON | Compare 46 MCQ ids vs gold | ✓ |
 | C4 | Numeric accuracy | **84.21%** (32/38) | Same JSON | Numeric subset only | ✓ |
-| C5 | MCQ deploy uplift vs memory-first | 52.2% → 60.9% (+4) | `hybrid_v4_test_deploy_post_decode_fix.json` vs final | Deploy policy diff | ✓ |
+| C5 | MCQ deploy uplift vs memory-first | 24/46 (52.17%) → 28/46 (60.87%) | `hybrid_v4_test_deploy_post_decode_fix.json` vs final | Deploy policy diff | ✓ |
 | C6 | Patch LM MCQ | 28/46 | Same JSON · patch subset | Independent patch track | ✓ |
 | C7 | No corpus answer leakage | fair-1.2 design | `fair_benchmark_suite.json` + corpus files | Confirm no gold in corpus | ✓ |
 | C8 | Routing trace per answer | `hybrid_source` field | Hybrid JSON rows | Sample 20 rows | ✓ |

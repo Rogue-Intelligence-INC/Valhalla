@@ -8,14 +8,25 @@
 
 ## Headline metrics (test split)
 
-| Metric | Hybrid unified |
-|--------|----------------|
-| **Total accuracy** | **80.7%** (117/145) |
-| open | 93.4% |
-| mcq | **60.9%** (28/46) |
-| numeric | 84.2% |
+**Primary artifact**: `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json`  
+**Reproduce**: `valhalla_hybrid --phase test --merge-mode deploy` (see DAY_SUMMARY)
 
-**MCQ note**: +8.7 points vs memory-first deploy (52.2%) via structure-guided patch LM routing.
+| Metric | Hybrid deploy | Fraction |
+|--------|---------------|----------|
+| **Total accuracy** | **80.69%** | **117/145** |
+| open | 93.44% | 57/61 |
+| mcq | **60.87%** | **28/46** |
+| numeric | 84.21% | 32/38 |
+
+**MCQ deploy uplift** (same split, `hybrid_v4_test_deploy_post_decode_fix.json` → final): **24/46 (52.17%) → 28/46 (60.87%)**, **+4 questions (+8.70 pp)**.
+
+**Baselines (same fair test split, cited JSON)**:
+
+| Track | Total | MCQ | Source |
+|-------|-------|-----|--------|
+| Qwen2.5-0.5B zero-shot | 103/145 (71.03%) | 17/46 (36.96%) | `fair_benchmark_test_20260620_0859.json` |
+| Structure memory (tile+fate persistent) | 59/145 (40.69%) | 23/46 (50.00%) | final JSON `summary.memory_tile_fate_persistent` |
+| Patch LM track (final run) | 117/145 (80.69%) | 28/46 (60.87%) | final JSON `summary.patch_lm_subset` |
 
 ---
 
@@ -38,9 +49,9 @@
 
 | Artifact | Location |
 |----------|----------|
-| **Latest Hybrid JSON** | `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json` |
-| Prior unified JSON | `reports/hybrid_valhalla_lm/hybrid_unified_test_20260622_0345.json` |
-| Public viz repo | [Rogue-Intelligence-INC/valhalla-transformer](https://github.com/Rogue-Intelligence-INC/valhalla-transformer) v2.0 |
-| Rust runner | `./target/release/valhalla_hybrid --phase test --merge-mode deploy` |
+| Hybrid deploy JSON (final) | `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json` |
+| Memory-first deploy (MCQ baseline) | `reports/hybrid_valhalla_lm/hybrid_v4_test_deploy_post_decode_fix.json` |
+| Fair test suite | `reports/fair_benchmark/fair_benchmark_test_20260620_0859.json` |
+| Public mirror | [valhalla-transformer](https://github.com/Rogue-Intelligence-INC/valhalla-transformer) `experiments/hybrid_unified_latest.json` |
 
-**Confidential** — for qualified investors and design partners only.
+**Rule**: All percentages in this pack must match a cited JSON row (`correct/total`); do not round headline metrics for marketing.

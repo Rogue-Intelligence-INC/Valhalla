@@ -395,7 +395,7 @@ else                   → "memory_triad"
 
 **内部结论**：
 - **MCQ hybrid 54%** 在运行时 ≈ tile_fate 准确率（~52%）+ 少量 triad 救回（prefer 只在 tile 错 triad 对时改变 **计分**，不改变 tile 优先输出的产品行为——若产品只展示 prefer 第一条，则展示 tile 答案）。
-- **numeric 86.8%** 合并是 **best-of-3 oracle**：三轨都跑、取第一个 correct。部署若只跑 tile_fate 或固定优先级无 oracle，数字分会 **低于** 86.8%。
+- **numeric 84.21% (32/38)** 为 deploy 合并结果（`hybrid_v4_mcq_patch_strengthen_final.json`）。若只跑单轨 memory 或无 patch 路由，数字分会低于该值。
 - **open 95%** ≈ patch 子集（open 全走 patch），与 merge 逻辑一致。
 
 ### 7.3 patch_prompt_ids

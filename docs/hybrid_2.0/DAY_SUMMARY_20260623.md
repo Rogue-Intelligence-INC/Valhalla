@@ -6,17 +6,15 @@
 
 ## Executive summary
 
-Today we closed the **MCQ deploy gap**: hybrid multiple-choice accuracy moved from **52.2% → 60.9%** on the 46-question test slice, matching the patch-LM track and prior oracle-style deploy ceiling (~28/46). The work spans **structure-memory signal repair**, **structure-guided LM patching**, and **auditable deploy routing**—without gold labels at inference time.
-
-**Anchor artifact**: `reports/hybrid_valhalla_lm/hybrid_v4_mcq_patch_strengthen_final.json`
+Today we closed the **MCQ deploy gap**: hybrid multiple-choice accuracy moved from **52.17% → 60.87%** (**24/46 → 28/46**) on the test slice, matching the patch-LM track on the final run. Baseline: `hybrid_v4_test_deploy_post_decode_fix.json`; final: `hybrid_v4_mcq_patch_strengthen_final.json`.
 
 | Metric | Before (post-decode baseline) | After (final) | Δ |
 |--------|-------------------------------|---------------|---|
-| **Hybrid MCQ** | 24/46 (52.2%) | **28/46 (60.9%)** | **+4** |
-| Patch LM MCQ | 27/46 (58.7%) | **28/46 (60.9%)** | +1 |
-| Hybrid total (145Q) | 113/145 (77.9%) | **117/145 (80.7%)** | +4 |
-| Open | 57/61 (93.4%) | 57/61 (93.4%) | — |
-| Numeric | 32/38 (84.2%) | 32/38 (84.2%) | — |
+| **Hybrid MCQ** | 24/46 (52.17%) | **28/46 (60.87%)** | **+4** |
+| Patch LM MCQ | 27/46 (58.70%) | **28/46 (60.87%)** | +1 |
+| Hybrid total (145Q) | 113/145 (77.93%) | **117/145 (80.69%)** | +4 |
+| Open | 57/61 (93.44%) | 57/61 (93.44%) | — |
+| Numeric | 32/38 (84.21%) | 32/38 (84.21%) | — |
 
 ---
 
@@ -63,7 +61,7 @@ RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_h
 ## 中文摘要
 
 - **Hybrid MCQ**：24/46 → **28/46**（+4），deploy 路由与 patch 双轨对齐。
-- **全量 Hybrid**：117/145（**80.7%**），开放题 93.4%、数字题 84.2% 持平。
+- **全量 Hybrid**：117/145（**80.69%**），开放题 57/61（93.44%）、数字题 32/38（84.21%）持平。
 - **三项落地**：option_scores/affinity 源头修复；fate spread 导出与 deploy 门控；latent 路径字母校验。
 - **可复现 JSON**：`hybrid_v4_mcq_patch_strengthen_final.json`
 

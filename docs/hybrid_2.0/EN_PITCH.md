@@ -32,10 +32,10 @@ One product router. All question types. No user-facing “mode switch.”
 
 | Question type | Hybrid route | Test accuracy |
 |---------------|--------------|---------------|
-| **Open / generation** | Structure patch + Qwen generate | **93.4%** |
-| **Multiple choice (MCQ)** | Structure memory **or** patch LM (deploy router) | **60.9%** |
-| **Numeric** | max(structure memory, patch LM) | **84.2%** |
-| **All types (145Q)** | Unified router | **80.7%** |
+| **Open / generation** | Structure patch + Qwen generate | **93.44% (57/61)** |
+| **Multiple choice (MCQ)** | Structure memory **or** patch LM (deploy router) | **60.87% (28/46)** |
+| **Numeric** | max(structure memory, patch LM) | **84.21% (32/38)** |
+| **All types (145Q)** | Unified router | **80.69% (117/145)** |
 
 **Companion model**: Qwen2.5-0.5B-Instruct — deliberately small to prove the **structure layer** carries value, not parameter scale.
 
@@ -47,16 +47,16 @@ One product router. All question types. No user-facing “mode switch.”
 
 | Track (145Q test) | Accuracy |
 |-------------------|----------|
-| Qwen 0.5B zero-shot | 71.0% |
-| Triad memory only | 39.3% |
-| Tile+Fate memory only | 41.4% |
-| **Hybrid unified** | **80.7%** |
+| Qwen 0.5B zero-shot | 103/145 (71.03%) |
+| Triad memory only | 59/145 (40.69%) |
+| Tile+Fate memory only | 59/145 (40.69%) |
+| **Hybrid unified** | **117/145 (80.69%)** |
 
 Hybrid is not “another chat wrapper.” It is **auditable routing** over **incubated structure** and **optional LM generation**.
 
 ### 2. Honest wedge on MCQ
 
-Native structure memory reaches **~50% MCQ** on structure decode alone; **hybrid deploy with structure-guided patch LM** reaches **60.9%** (28/46) on the same fair test slice — **+8.7 points** vs memory-first deploy (52.2%). The bottleneck remains **option comparison**, not ingestion; we report by type and do not inflate headline numbers.
+Structure memory (tile+fate persistent) reaches **23/46 (50.00%)** on MCQ decode alone; **hybrid deploy with structure-guided patch LM** reaches **28/46 (60.87%)** on the same fair test slice — **+8.70 pp** vs memory-first deploy **24/46 (52.17%)** (`hybrid_v4_test_deploy_post_decode_fix.json` → final). The bottleneck remains **option comparison**; we report by type with cited JSON.
 
 ### 3. Fair, reproducible benchmark
 
@@ -105,7 +105,7 @@ We do **not** sell “beat GPT-4.” We sell **sovereign, auditable, structure-i
 ## Traction (June 2026)
 
 - **hybrid-4.0-rust-pipeline** shipped: unified router, structure-guided patch LM, MCQ deploy routing (+4 MCQ on fair test).  
-- **80.7% / 93% / 61% / 84%** on type-split fair test (total / open / mcq / numeric).  
+- **80.69% / 93.44% / 60.87% / 84.21%** on type-split fair test (117/145 · 57/61 · 28/46 · 32/38).  
 - Anchor JSON: `hybrid_v4_mcq_patch_strengthen_final.json` · day summary: `DAY_SUMMARY_20260623.md`.  
 - Public repo **valhalla-transformer v2.0**: experiments JSON, `/api/hybrid-unified`, Fair Benchmark viz.  
 - Draft paper: `papers/memory_hybrid/Hybrid_Structure_Memory_and_Routing.md` (memory-model framing, no codenames).

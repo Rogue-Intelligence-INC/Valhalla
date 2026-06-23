@@ -19,7 +19,7 @@
 \begin{abstract}
 Domain question answering on private corpora requires both fluent generation and persistent structural memory that survives beyond a single context window. Pure language models memorize poorly under small-parameter budgets; pure retrieval systems lack compositional answering and auditable decision traces. We present a \textbf{hybrid memory--language architecture} that (1)~incubates multi-track \textbf{structure memory} from a decontaminated corpus in one shot, (2)~exports memory state as \textbf{structure-guided perturbations} to a compact instruction-tuned model, and (3)~deploys a \textbf{type-aware router} that selects, per question, the best answer among memory decoders and the patched language model---recording the chosen path for audit.
 
-On the \textbf{fair-1.2} benchmark (145 held-out prompts, 49-line corpus without gold answers, Qwen2.5-0.5B-Instruct companion), the hybrid system achieves \textbf{80.7\%} total accuracy, with \textbf{93.4\%} on open-ended items, \textbf{84.2\%} on numeric items, and \textbf{60.9\%} on four-option multiple choice. Structure memory alone reaches roughly 41\% total; the companion LM alone reaches 71\%. The hybrid gain is therefore complementary routing between persistent structure and generation, not parameter scaling. We report MCQ as the honest bottleneck and describe deploy policies that improved MCQ routing from 52\% to 61\% without oracle labels.
+On the \textbf{fair-1.2} benchmark (145 held-out prompts, 49-line corpus without gold answers, Qwen2.5-0.5B-Instruct companion), the hybrid system achieves \textbf{80.69\%} total accuracy (117/145), with \textbf{93.44\%} open (57/61), \textbf{84.21\%} numeric (32/38), and \textbf{60.87\%} MCQ (28/46). Structure memory (tile+fate persistent) reaches 40.69\% (59/145); Qwen2.5-0.5B zero-shot reaches 71.03\% (103/145). Deploy MCQ routing improved from 52.17\% (24/46) to 60.87\% (28/46) without oracle labels.
 \end{abstract}
 
 \section{Introduction}
@@ -31,7 +31,7 @@ We treat question answering as a \textbf{memory ensemble routing problem}. A str
 \begin{enumerate}
   \item A reproducible pipeline: corpus incubation $\rightarrow$ per-question decomposition $\rightarrow$ structure recomposition $\rightarrow$ optional LM patch $\rightarrow$ hybrid merge.
   \item Benchmark protocol \textbf{fair-1.2}: decontaminated corpus, typed prompts, JSON artifacts with per-row routing fields.
-  \item Empirical hybrid synergy: +9.7 points total accuracy vs.\ Qwen2.5-0.5B zero-shot on 145 test prompts; MCQ deploy policy +8.7 points vs.\ memory-first baseline.
+  \item Empirical hybrid synergy: +9.66 pp total accuracy vs.\ Qwen2.5-0.5B zero-shot (80.69\% vs 71.03\%); MCQ deploy policy +8.70 pp vs memory-first baseline.
   \item Failure analysis quantifying where pre-decode structure signals remain weak (MCQ affinity) and where patch routing recovers accuracy.
 \end{enumerate}
 
@@ -85,10 +85,10 @@ Primary artifact & \texttt{hybrid\_v4\_mcq\_patch\_strengthen\_final.json} \\
 \toprule
 System & Total & Open & MCQ & Numeric \\
 \midrule
-Qwen2.5-0.5B zero-shot & 71.0\% & --- & $\sim$37\% & --- \\
-Structure memory (single track) & $\sim$41\% & $\sim$23\% & $\sim$50\% & $\sim$58\% \\
-Patch LM (structure-guided) & 80.7\% & 93.4\% & 60.9\% & 84.2\% \\
-\textbf{Hybrid deploy} & \textbf{80.7\%} & \textbf{93.4\%} & \textbf{60.9\%} & \textbf{84.2\%} \\
+Qwen2.5-0.5B zero-shot & 71.03\% & 93.44\% & 36.96\% & 76.32\% \\
+Structure memory (tile+fate) & 40.69\% & 22.95\% & 50.00\% & 57.89\% \\
+Patch LM (structure-guided) & 80.69\% & 93.44\% & 60.87\% & 84.21\% \\
+\textbf{Hybrid deploy} & \textbf{80.69\%} & \textbf{93.44\%} & \textbf{60.87\%} & \textbf{84.21\%} \\
 \bottomrule
 \end{tabular}
 \caption{Hybrid equals patch on the final run; MCQ deploy improvements aligned hybrid MCQ with patch MCQ (28/46).}
@@ -101,14 +101,14 @@ Patch LM (structure-guided) & 80.7\% & 93.4\% & 60.9\% & 84.2\% \\
 \toprule
 Policy & MCQ accuracy \\
 \midrule
-Memory-first (always keep memory on MCQ paths) & 24/46 (52.2\%) \\
-+ Patch on disagreements (triangulated + spread gates) & \textbf{28/46 (60.9\%)} \\
-Oracle best-of-track (evaluation only) & $\sim$36/46 ($\sim$78\%) --- not deployable \\
+Memory-first (always keep memory on MCQ paths) & 24/46 (52.17\%) \\
++ Patch on disagreements (triangulated + spread gates) & \textbf{28/46 (60.87\%)} \\
+Oracle best-of-track (evaluation only) & 29/46 (63.04\%) --- not deployable \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The gap between 61\% deploy and $\sim$78\% oracle quantifies remaining routing and signal work.
+The gap between 60.87\% deploy and 63.04\% oracle (29/46) quantifies remaining routing and signal work.
 
 \section{Discussion}
 Open items benefit from fluent patch generation after structure bias; MCQ requires \textbf{pairwise option discrimination}. Pre-decode affinity from structure alone remains near chance on many items; deploy therefore relies on patch LM and careful merge policy. Patch and memory disagree on $\sim$26/46 MCQ items; blind memory lock-in forfeits $\sim$12 patch wins; blind patch override loses $\sim$8 memory wins. Triangulated, spread-gated policies recover net +4 on deploy.

@@ -126,13 +126,13 @@ Hybrid 2.0 的 Tier B 路径使用 **persistent** 记忆。
 
 | 轨道 | 总准确率 | 开放 | MCQ | 数字 |
 |------|----------|------|-----|------|
-| **Hybrid 统一** | **80.00%** | 95.08% | 54.35% | 86.84% |
-| 仅 Triad 记忆 | 39.31% | 24.59% | 43.48% | 57.89% |
-| 仅 Tile+Fate | 41.38% | 22.95% | 52.17% | 57.89% |
-| 补丁 LM（路由子集） | 87.88% | 95.08% | 0%* | 76.32% |
-| Qwen 0.5B 零样本（145Q） | 71.0% | ~93% | 37.0% | ~76% |
+| **Hybrid deploy（final）** | **80.69%（117/145）** | 93.44%（57/61） | 60.87%（28/46） | 84.21%（32/38） |
+| 仅 Triad 记忆 | 40.69%（59/145） | 22.95%（14/61） | 50.00%（23/46） | 57.89%（22/38） |
+| 仅 Tile+Fate | 40.69%（59/145） | 22.95%（14/61） | 50.00%（23/46） | 57.89%（22/38） |
+| 补丁 LM 轨道（final） | 80.69%（117/145） | 93.44%（57/61） | 60.87%（28/46） | 84.21%（32/38） |
+| Qwen 0.5B 零样本（145Q） | 71.03%（103/145） | 93.44%（57/61） | 36.96%（17/46） | 76.32%（29/38） |
 
-*hybrid-2.0 策略下 patch LM 非 MCQ 主路径。
+**Hybrid 路由来源（145Q，final JSON）**：`tile_fate_persistent: 23`，`patch_lm: 122`
 
 **Hybrid 来源混合（145Q）**：`tile_fate_persistent: 72`、`triad_persistent: 1`、`patch_lm: 72`
 
@@ -165,8 +165,8 @@ Hybrid 2.0 的 Tier B 路径使用 **persistent** 记忆。
 | 逐题重载 | 13/46 | 28.3% |
 | 一次孵化 Triad（全模块） | 21/46 | 45.7% |
 | 一次孵化仅 Tile | 22/46 | 47.8% |
-| Tile + MCQ Fate 循环 | 24/46 | 52.2% |
-| **Hybrid deploy + 结构引导 patch** | **28/46** | **60.9%** |
+| Tile + MCQ Fate 循环 | 24/46 | 52.17% |
+| **Hybrid deploy + 结构引导 patch** | **28/46** | **60.87%** |
 | Qwen 零样本 | 17/46 | 37.0% |
 
 **结论**：会话协议（重载→一次孵化 +18 pp）大于小改打分。瓶颈在 **四选项比较**。
@@ -236,11 +236,11 @@ export VALHALLA_MCQ_FATE_CYCLES=1
 
 | 论断 | 证据 | 状态 |
 |------|------|------|
-| Hybrid 145Q test 80.7% | `hybrid_v4_mcq_patch_strengthen_final.json` | ✓ |
-| 开放题 93.4% 经 patch 路由 | 同上 `by_score_type.open` | ✓ |
-| MCQ deploy 52.2% → 60.9% | post_decode_fix vs final | ✓ |
-| 原生 MCQ 记忆基线 | 24/46（结构 decode） | ✓ |
-| Hybrid 总胜 Qwen 71% | 80.7% vs 71% 同切分 | ✓ |
+| Hybrid 145Q test 80.69% | `hybrid_v4_mcq_patch_strengthen_final.json` | ✓ |
+| 开放题 93.44% 经 patch 路由 | 同上 `by_score_type.open` | ✓ |
+| MCQ deploy 52.17% → 60.87% | post_decode_fix vs final | ✓ |
+| 原生 MCQ memory-first 基线 | 24/46 | ✓ |
+| Hybrid 总胜 Qwen 71.03% | 80.69% vs 71.03% 同切分 | ✓ |
 | 通用基准胜 GPT-4/Claude | — | ✗ 未宣称 |
 | FIPS 认证加密 | — | ✗ 未宣称（Yaksha 另文） |
 

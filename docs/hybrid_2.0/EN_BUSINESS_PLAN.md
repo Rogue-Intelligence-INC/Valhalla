@@ -10,7 +10,7 @@
 
 ## Executive summary
 
-Rogue Intelligence ships **Hybrid Valhalla hybrid-2.0** — a deployable Q&A product that routes each question to native structure memory or a patched small language model. On the **fair-1.2** decontaminated benchmark (145 test prompts, Qwen2.5-0.5B companion), the unified product achieves **80.7% total accuracy** with **93.4% open**, **60.9% MCQ**, and **84.2% numeric**.
+Rogue Intelligence ships **Hybrid Valhalla hybrid-2.0** — a deployable Q&A product that routes each question to native structure memory or a patched small language model. On the **fair-1.2** decontaminated benchmark (145 test prompts, Qwen2.5-0.5B companion), the unified product achieves **80.69% total accuracy (117/145)** with **93.44% open (57/61)**, **60.87% MCQ (28/46)**, and **84.21% numeric (32/38)** — source: `hybrid_v4_mcq_patch_strengthen_final.json`.
 
 **We sell**: sovereign, auditable, structure-incubation infrastructure with a **measured hybrid product score** — not "beat GPT-4."
 
@@ -54,10 +54,10 @@ Rogue Intelligence ships **Hybrid Valhalla hybrid-2.0** — a deployable Q&A pro
 
 | Type | Route | Test acc |
 |------|-------|----------|
-| open | patch LM + generate | 93.4% |
-| mcq | structure memory ∨ patch LM (router) | 60.9% |
-| numeric | max(all tracks) | 84.2% |
-| **Total** | unified | **80.7%** |
+| open | patch LM + generate | 93.44% (57/61) |
+| mcq | structure memory ∨ patch LM (router) | 60.87% (28/46) |
+| numeric | max(all tracks) | 84.21% (32/38) |
+| **Total** | unified | **80.69% (117/145)** |
 
 ### 2.2 Product matrix (modular)
 
@@ -83,9 +83,9 @@ Hybrid Valhalla: corpus → [incubate structure] → router picks memory OR patc
 
 | Track | 145Q test acc | Role |
 |-------|---------------|------|
-| Qwen 0.5B alone | 71.0% | Language baseline |
-| Memory only | 39–41% | Structure baseline |
-| **Hybrid unified** | **80.0%** | **Product proof** |
+| Qwen 0.5B alone | 103/145 (71.03%) | Language baseline |
+| Memory only (tile+fate persistent) | 59/145 (40.69%) | Structure baseline |
+| **Hybrid unified** | **117/145 (80.69%)** | **Product proof** |
 
 Transformers solve **how to say it**. Valhalla solves **what structure to route on** and **whether it is auditable offline**.
 
@@ -241,11 +241,11 @@ See **Due Diligence pack** §7. Top three:
 
 | Metric | Value | Source |
 |--------|-------|--------|
-| Hybrid total | 80.0% | hybrid_unified_test_20260622_0345.json |
-| open | 95.1% | same |
-| mcq | 54.4% | same |
-| numeric | 86.8% | same |
-| Qwen 0.5B baseline | 71.0% | fair_benchmark_test_20260620_0859.json |
+| Hybrid total | 80.69% (117/145) | hybrid_v4_mcq_patch_strengthen_final.json |
+| open | 93.44% (57/61) | same |
+| mcq | 60.87% (28/46) | same |
+| numeric | 84.21% (32/38) | same |
+| Qwen 0.5B baseline | 71.03% (103/145) | fair_benchmark_test_20260620_0859.json |
 
 ## Appendix B — Document cross-reference
 

@@ -36,7 +36,7 @@
 | C2 | 开放题准确率 | **93.44%**（57/61） | 同上 · `summary.hybrid.by_score_type.open` | 抽查 `patch_lm` 来源行 | ✓ |
 | C3 | MCQ 准确率 | **60.87%**（28/46） | 同上 | 46 道 MCQ id 对 gold | ✓ |
 | C4 | 数字题准确率 | **84.21%**（32/38） | 同上 | 仅数字子集 | ✓ |
-| C5 | MCQ deploy 相对 memory-first 提升 | 52.2% → 60.9%（+4） | post_decode_fix vs final JSON | deploy 策略对比 | ✓ |
+| C5 | MCQ deploy 相对 memory-first 提升 | 24/46（52.17%）→ 28/46（60.87%） | post_decode_fix vs final JSON | deploy 策略对比 | ✓ |
 | C6 | 补丁 LM MCQ | 28/46 | 同上 · patch 子集 | 独立 patch 轨道 | ✓ |
 | C7 | 语料无答案泄漏 | fair-1.2 设计 | suite + 语料文件 | 确认语料无 gold | ✓ |
 | C8 | 每答路由轨迹 | `hybrid_source` 字段 | Hybrid JSON 行 | 抽样 20 行 | ✓ |
