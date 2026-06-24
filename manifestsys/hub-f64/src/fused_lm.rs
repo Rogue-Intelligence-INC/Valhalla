@@ -122,26 +122,33 @@ pub fn run_fused_eval(
     prompts: &[FairPrompt],
     corpus: &[String],
     cfg: &PatchLmConfig,
+    audio_by_id: Option<&HashMap<String, Vec<f64>>>,
 ) -> Result<FusedEvalOutput, String> {
     let mut fused_cfg = cfg.clone();
     fused_cfg.pipeline_v4 = true;
     fused_cfg.mcq_decode = McqDecodeMode::LogprobBatch;
 
+    let baked = !fused_cfg.effective_runtime_patch(&fused_cfg.model_dir);
     eprintln!(
-        "fused_lm: {} prompts · body={} · strength={} · mcq=logprob_batch · no hybrid router",
+        "fused_lm: {} prompts · body={} · baked={baked} · mcq=logprob_batch",
         prompts.len(),
         fused_cfg.patch_body,
-        fused_cfg.strength,
     );
 
-    let patch_rows = run_patch_track_v4(prompts, corpus, &fused_cfg, None)?;
+    let patch_rows = run_patch_track_v4(prompts, corpus, &fused_cfg, audio_by_id)?;
     let fused_rows = patch_rows_to_fused(&patch_rows, prompts);
     let _slices = classify_slices(prompts, corpus);
 
     Ok(FusedEvalOutput {
         fused_product_version: FUSED_PRODUCT_VERSION.to_string(),
         fair_benchmark_version: FAIR_BENCHMARK_VERSION.to_string(),
-        protocol: "single_lm_forward_v4_logprob_mcq".into(),
+        protocol: if audio_by_id.map(|m| !m.is_empty()).unwrap_or(false) {
+            "baked_or_fused_lm_multimodal_tts".into()
+        } else if baked {
+            "baked_lm_forward_logprob_mcq".into()
+        } else {
+            "single_lm_forward_v4_logprob_mcq".into()
+        },
         summary: summarize_rows(&fused_rows),
         fused_rows,
     })

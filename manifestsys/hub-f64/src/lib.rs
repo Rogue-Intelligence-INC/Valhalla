@@ -23,6 +23,7 @@ pub mod fair_score;
 pub mod fair_suite;
 pub mod grinder;
 pub mod patch_export;
+pub mod model_export;
 pub mod pipeline;
 pub mod task_decompose;
 #[cfg(feature = "patch-lm")]

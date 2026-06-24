@@ -1,5 +1,6 @@
 //! Fused Valhalla LM — one patched Qwen forward per question (no hybrid memory router).
 
+use std::collections::HashMap;
 use std::env;
 use std::path::PathBuf;
 use std::time::SystemTime;
@@ -11,8 +12,8 @@ use hub_f64::patch_lm::{resolve_model_dir, PatchLmConfig, DEFAULT_MAX_NEW, DEFAU
 fn usage() -> ! {
     eprintln!(
         "Usage: valhalla_fused_lm --phase smoke|val|test [options]\n\
-         Single LLM product: pipeline v4 Valhalla patch + Qwen generate.\n\
-         MCQ: 4-way logprob batch (no memory track, no hybrid router).\n\
+         Single/baked LM: no hybrid router. MCQ via logprob batch.\n\
+         --multimodal-audio-json PATH  TTS mel features (open prompts, VALHALLA_MULTIMODAL_FUSION=1)\n\
          Options: [--suite PATH] [--model PATH|HF_ID] [--patch-body triad]\n\
                   [--strength 0.08] [--max-new 192] [--out PATH] [--cpu]"
     );
@@ -26,6 +27,7 @@ struct Cli {
     patch_body: String,
     strength: f64,
     max_new: usize,
+    multimodal_audio_json: Option<PathBuf>,
     out: Option<PathBuf>,
     use_cpu: bool,
 }
@@ -38,6 +40,7 @@ fn parse_args() -> Cli {
     let mut strength = DEFAULT_STRENGTH;
     let mut max_new = DEFAULT_MAX_NEW;
     let mut out: Option<PathBuf> = None;
+    let mut multimodal_audio_json: Option<PathBuf> = None;
     let mut use_cpu = false;
 
     let args: Vec<String> = env::args().collect();
@@ -78,6 +81,10 @@ fn parse_args() -> Cli {
                 i += 1;
                 out = Some(PathBuf::from(args.get(i).unwrap_or_else(|| usage())));
             }
+            "--multimodal-audio-json" => {
+                i += 1;
+                multimodal_audio_json = Some(PathBuf::from(args.get(i).unwrap_or_else(|| usage())));
+            }
             "--cpu" => use_cpu = true,
             "-h" | "--help" => usage(),
             other => {
@@ -96,6 +103,7 @@ fn parse_args() -> Cli {
         strength,
         max_new,
         out,
+        multimodal_audio_json,
         use_cpu,
     }
 }
@@ -127,16 +135,37 @@ fn main() {
         ..PatchLmConfig::default()
     };
 
+    let audio_by_id: Option<HashMap<String, Vec<f64>>> = cli.multimodal_audio_json.as_ref().map(|path| {
+        let raw = std::fs::read_to_string(path).unwrap_or_else(|e| {
+            eprintln!("read multimodal audio json: {e}");
+            std::process::exit(1);
+        });
+        let map: HashMap<String, Vec<f64>> = serde_json::from_str(&raw).unwrap_or_else(|e| {
+            eprintln!("parse multimodal audio json: {e}");
+            std::process::exit(1);
+        });
+        eprintln!("multimodal: {} TTS audio vectors", map.len());
+        std::env::set_var("VALHALLA_MULTIMODAL_FUSION", "1");
+        map
+    });
+
     eprintln!(
-        "valhalla_fused_lm {} phase={} prompts={} corpus={} model={}",
+        "valhalla_fused_lm {} phase={} prompts={} corpus={} model={} multimodal={}",
         FUSED_PRODUCT_VERSION,
         cli.phase,
         prompts.len(),
         corpus.len(),
         patch_cfg.model_dir.display(),
+        audio_by_id.as_ref().map(|m| m.len()).unwrap_or(0),
     );
 
-    let result = run_fused_eval(&prompts, &corpus, &patch_cfg).unwrap_or_else(|e| {
+    let result = run_fused_eval(
+        &prompts,
+        &corpus,
+        &patch_cfg,
+        audio_by_id.as_ref(),
+    )
+    .unwrap_or_else(|e| {
         eprintln!("fused eval: {e}");
         std::process::exit(1);
     });

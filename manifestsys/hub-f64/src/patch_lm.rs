@@ -43,6 +43,16 @@ pub struct PatchLmConfig {
     pub use_cpu: bool,
     pub pipeline_v4: bool,
     pub mcq_decode: McqDecodeMode,
+    /// When `None`, auto: false if `valhalla_manifest.json` exists in model_dir.
+    pub runtime_patch: Option<bool>,
+}
+
+impl PatchLmConfig {
+    pub fn effective_runtime_patch(&self, model_dir: &Path) -> bool {
+        self.runtime_patch.unwrap_or_else(|| {
+            !crate::model_export::ValhallaBakedManifest::is_baked_checkpoint(model_dir)
+        })
+    }
 }
 
 impl Default for PatchLmConfig {
@@ -56,6 +66,7 @@ impl Default for PatchLmConfig {
             use_cpu: true,
             pipeline_v4: true,
             mcq_decode: McqDecodeMode::GenerateResolve,
+            runtime_patch: None,
         }
     }
 }
@@ -642,12 +653,18 @@ pub fn run_patch_track(
 }
 
 /// v4: per-question pipeline recompose → patch tensors → LM generate.
+/// When `model_dir` contains `valhalla_manifest.json`, loads pre-baked weights only (no runtime surgery).
 pub fn run_patch_track_v4(
     prompts: &[FairPrompt],
     corpus: &[String],
     cfg: &PatchLmConfig,
     audio_by_id: Option<&HashMap<String, Vec<f64>>>,
 ) -> Result<Vec<PatchTrackRow>, String> {
+    let runtime_patch = cfg.effective_runtime_patch(&cfg.model_dir);
+    if !runtime_patch {
+        return run_baked_track_v4(prompts, corpus, cfg, audio_by_id);
+    }
+
     let snap = patch_export::build_grinder_incubation_snapshot(
         &cfg.patch_body,
         corpus,
@@ -824,6 +841,154 @@ pub fn run_patch_track_v4(
             mcq_fate_spread: fate_spread,
             mcq_fate_letter: fate_letter,
             mcq_affinity_spread: aff_spread,
+        });
+    }
+
+    Ok(rows)
+}
+
+/// Inference on a pre-baked Valhalla checkpoint — no per-question weight patch.
+fn run_baked_track_v4(
+    prompts: &[FairPrompt],
+    corpus: &[String],
+    cfg: &PatchLmConfig,
+    audio_by_id: Option<&HashMap<String, Vec<f64>>>,
+) -> Result<Vec<PatchTrackRow>, String> {
+    if let Ok(m) = crate::model_export::load_manifest(&cfg.model_dir) {
+        eprintln!(
+            "baked_lm: {} body={} tiles={} stem={} base={} (runtime_patch=false)",
+            cfg.model_dir.display(),
+            m.incubation.body,
+            m.incubation.tile_count,
+            m.incubation.stem_cell_count,
+            m.bake.base_model_id,
+        );
+    } else {
+        eprintln!(
+            "baked_lm: {} (valhalla_manifest.json present, no runtime patch)",
+            cfg.model_dir.display()
+        );
+    }
+
+    let base = BaseWeights::load(&cfg.model_dir, cfg.use_cpu)?;
+    let tokenizer = Tokenizer::from_file(cfg.model_dir.join("tokenizer.json"))
+        .map_err(|e| e.to_string())?;
+    let eos = tokenizer
+        .token_to_id("<|endoftext|>")
+        .or_else(|| tokenizer.token_to_id("<|im_end|>"))
+        .unwrap_or(151645);
+    let im_end = tokenizer.token_to_id("<|im_end|>").unwrap_or(151645);
+
+    let mut model = base.build_model(base.clone_tensors()?)?;
+    let mut rows = Vec::with_capacity(prompts.len());
+    let cap = default_port_cap();
+    let front = crate::dl_front::DlFrontConfig::default();
+    let pipe_cfg = PipelineConfig::default();
+    let snap = patch_export::build_grinder_incubation_snapshot(
+        &cfg.patch_body,
+        corpus,
+        cfg.export_cycles,
+    );
+    let multimodal = crate::multimodal::fusion_enabled();
+
+    for (i, p) in prompts.iter().enumerate() {
+        eprintln!("baked_lm [{}/{}] {}", i + 1, prompts.len(), p.id);
+        let user_text = format_prompt_text(p);
+        let audio = audio_by_id.and_then(|m| m.get(&p.id).map(|v| v.as_slice()));
+        let q_ports = grind_text_hash(&user_text, cap);
+
+        let open_structure_score = if p.score_type == "open" && multimodal && audio.is_some() {
+            let outcome = pipeline::run_question_pipeline(
+                &snap,
+                &user_text,
+                &p.score_type,
+                &q_ports,
+                &pipe_cfg,
+                &front,
+                "baked_lm_multimodal",
+                audio,
+            );
+            outcome.recompose.open_structure_score
+        } else {
+            0.0
+        };
+
+        let decode_tag = if p.score_type == "open" && audio.is_some() && multimodal {
+            format!("baked_lm_{}_multimodal/s{open_structure_score:.3}", p.score_type)
+        } else {
+            format!("baked_lm_{}", p.score_type)
+        };
+
+        let max_new = if open_structure_score > 0.0 {
+            cfg.max_new + (open_structure_score * 48.0).round() as usize
+        } else {
+            cfg.max_new
+        };
+
+        let (assistant, patch_subtag, patch_conf) = if p.score_type == "mcq" {
+            let raw_prompt = format_chat_prompt(&user_text);
+            if cfg.mcq_decode == McqDecodeMode::LogprobBatch {
+                let (letter, lps) =
+                    decode_mcq_logprob_batch(&mut model, &base.device, &tokenizer, &raw_prompt)?;
+                let margin = {
+                    let mut vals: Vec<f64> = lps.values().copied().collect();
+                    vals.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
+                    if vals.len() >= 2 {
+                        vals[0] - vals[1]
+                    } else {
+                        0.0
+                    }
+                };
+                (
+                    format!("ANSWER: {letter}"),
+                    "baked_mcq_logprob".into(),
+                    margin,
+                )
+            } else {
+                let generated = generate(
+                    &mut model,
+                    &base.device,
+                    &tokenizer,
+                    &raw_prompt,
+                    cfg.max_new.min(96),
+                    eos,
+                    im_end,
+                )?;
+                (generated, "baked_mcq_gen".into(), 0.0)
+            }
+        } else {
+            let raw_prompt = format_chat_prompt(&user_text);
+            let generated = generate(
+                &mut model,
+                &base.device,
+                &tokenizer,
+                &raw_prompt,
+                max_new,
+                eos,
+                im_end,
+            )?;
+            (generated, "gen".into(), 0.0)
+        };
+
+        let _sc = score_answer(&assistant, p);
+        rows.push(PatchTrackRow {
+            id: p.id.clone(),
+            assistant: Some(assistant),
+            native_answer: None,
+            decode_path: Some(format!("{decode_tag}/{patch_subtag}")),
+            mcq_patch_subtag: if p.score_type == "mcq" {
+                Some(patch_subtag)
+            } else {
+                None
+            },
+            mcq_patch_confidence: if p.score_type == "mcq" {
+                Some(patch_conf)
+            } else {
+                None
+            },
+            mcq_fate_spread: None,
+            mcq_fate_letter: None,
+            mcq_affinity_spread: None,
         });
     }
 

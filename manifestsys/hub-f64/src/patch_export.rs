@@ -9,7 +9,7 @@ use crate::signal_ingress::{
 pub const PATCH_ANCHOR: &str =
     "Valhalla incubation anchor: structure from Hub Tile StemCell Fate converges into model weights.";
 
-#[derive(Debug, Clone, serde::Serialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ExportDoc {
     pub body: String,
     pub encoding: String,
