@@ -687,12 +687,12 @@ pub fn run_patch_track_v4(
 
     for (i, p) in prompts.iter().enumerate() {
         eprintln!("patch_v4 [{}/{}] {}", i + 1, prompts.len(), p.id);
-        let user_text = format_prompt_text(p);
-        let q_ports = grind_text_hash(&user_text, cap);
+        let base_user_text = format_prompt_text(p);
+        let q_ports = grind_text_hash(&base_user_text, cap);
         let audio = audio_by_id.and_then(|m| m.get(&p.id).map(|v| v.as_slice()));
         let outcome = pipeline::run_question_pipeline(
             &snap,
-            &user_text,
+            &base_user_text,
             &p.score_type,
             &q_ports,
             &pipe_cfg,
@@ -700,6 +700,11 @@ pub fn run_patch_track_v4(
             "patch_pipeline_v4",
             audio,
         );
+        let user_text = if outcome.recompose.compose_protocol.is_empty() {
+            base_user_text
+        } else {
+            crate::task_decompose::build_compose_lm_user_text(&outcome.plan, &outcome.recompose)
+        };
 
         let mut token_ids = tokenizer
             .encode(PATCH_ANCHOR, false)
@@ -747,7 +752,12 @@ pub fn run_patch_track_v4(
         }
 
         let mut model = base.build_model(tensors)?;
-        let decode_tag = if p.score_type == "open" && audio.is_some() {
+        let decode_tag = if !outcome.recompose.compose_protocol.is_empty() {
+            format!(
+                "patch_pipeline_v4_compose_{}/x{:.3}",
+                p.score_type, outcome.recompose.cross_modal_score
+            )
+        } else if p.score_type == "open" && audio.is_some() {
             format!("patch_pipeline_v4_{}_multimodal", p.score_type)
         } else {
             format!("patch_pipeline_v4_{}", p.score_type)
@@ -893,36 +903,39 @@ fn run_baked_track_v4(
 
     for (i, p) in prompts.iter().enumerate() {
         eprintln!("baked_lm [{}/{}] {}", i + 1, prompts.len(), p.id);
-        let user_text = format_prompt_text(p);
+        let base_user_text = format_prompt_text(p);
         let audio = audio_by_id.and_then(|m| m.get(&p.id).map(|v| v.as_slice()));
-        let q_ports = grind_text_hash(&user_text, cap);
 
-        let open_structure_score = if p.score_type == "open" && multimodal && audio.is_some() {
+        let (user_text, decode_tag, max_new) = if multimodal && audio.is_some() && p.score_type == "open" {
+            let q_ports = grind_text_hash(&base_user_text, cap);
             let outcome = pipeline::run_question_pipeline(
                 &snap,
-                &user_text,
+                &base_user_text,
                 &p.score_type,
                 &q_ports,
                 &pipe_cfg,
                 &front,
-                "baked_lm_multimodal",
+                "baked_lm_compose",
                 audio,
             );
-            outcome.recompose.open_structure_score
+            let composed =
+                crate::task_decompose::build_compose_lm_user_text(&outcome.plan, &outcome.recompose);
+            let mn = cfg.max_new
+                + (outcome.recompose.open_structure_score * 48.0).round() as usize;
+            (
+                composed,
+                format!(
+                    "baked_lm_compose_open/x{:.3}",
+                    outcome.recompose.cross_modal_score
+                ),
+                mn,
+            )
         } else {
-            0.0
-        };
-
-        let decode_tag = if p.score_type == "open" && audio.is_some() && multimodal {
-            format!("baked_lm_{}_multimodal/s{open_structure_score:.3}", p.score_type)
-        } else {
-            format!("baked_lm_{}", p.score_type)
-        };
-
-        let max_new = if open_structure_score > 0.0 {
-            cfg.max_new + (open_structure_score * 48.0).round() as usize
-        } else {
-            cfg.max_new
+            (
+                base_user_text.clone(),
+                format!("baked_lm_{}", p.score_type),
+                cfg.max_new,
+            )
         };
 
         let (assistant, patch_subtag, patch_conf) = if p.score_type == "mcq" {

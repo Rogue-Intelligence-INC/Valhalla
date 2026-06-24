@@ -34,6 +34,7 @@ pub mod fused_lm;
 pub mod mcq_fate;
 pub mod mcq_pairwise;
 pub mod multimodal;
+pub mod multimodal_compose;
 pub mod native_qa;
 pub mod signal_ingress;
 pub mod smoke_report;
