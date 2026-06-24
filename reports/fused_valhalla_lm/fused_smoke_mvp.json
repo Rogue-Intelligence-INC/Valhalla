@@ -1,0 +1,206 @@
+{
+  "fused_product_version": "fused-1.0-valhalla-lm",
+  "fair_benchmark_version": "fair-1.2",
+  "protocol": "single_lm_forward_v4_logprob_mcq",
+  "summary": {
+    "total": {
+      "n": 12,
+      "correct": 6,
+      "acc": 0.5
+    },
+    "open": {
+      "n": 0,
+      "correct": 0,
+      "acc": 0.0
+    },
+    "mcq": {
+      "n": 4,
+      "correct": 2,
+      "acc": 0.5
+    },
+    "numeric": {
+      "n": 8,
+      "correct": 4,
+      "acc": 0.5
+    },
+    "other": {
+      "n": 0,
+      "correct": 0,
+      "acc": 0.0
+    },
+    "decode_path_counts": {
+      "patch_pipeline_v4_numeric/gen": 8,
+      "patch_pipeline_v4_mcq/fused_mcq_logprob": 4
+    }
+  },
+  "fused_rows": [
+    {
+      "id": "GSM_01",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "72",
+        "reference": "72"
+      },
+      "answer": "Natalia sold 48 clips in April and half that amount in May, which is 48 / 2 = 24 clips. Therefore, Natalia sold a total of 48 + 24 = 72 clips in April and May.",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_02",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "48",
+        "reference": "18"
+      },
+      "answer": "$48",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_03",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "19",
+        "reference": "18"
+      },
+      "answer": "19",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_04",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "18",
+        "reference": "28"
+      },
+      "answer": "Tom has 18 apples now.",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_01",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "331",
+        "reference": "391"
+      },
+      "answer": "331",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_02",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "answer": "12",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_03",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "9",
+        "reference": "9"
+      },
+      "answer": "9",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_04",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "27",
+        "reference": "27"
+      },
+      "answer": "27",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_PHYS_01",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_PHYS_02",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_CHEM_01",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "C"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_CHEM_02",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    }
+  ]
+}

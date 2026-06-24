@@ -76,6 +76,11 @@ path = "src/bin/valhalla_hybrid.rs"
 required-features = ["patch-lm"]
 
 [[bin]]
+name = "valhalla_fused_lm"
+path = "src/bin/valhalla_fused_lm.rs"
+required-features = ["patch-lm"]
+
+[[bin]]
 name = "valhalla_ingress_experiment"
 path = "src/bin/valhalla_ingress_experiment.rs"
 

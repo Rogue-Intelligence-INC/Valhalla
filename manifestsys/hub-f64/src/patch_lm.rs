@@ -21,6 +21,18 @@ use crate::signal_ingress::ValhallaModelPatch;
 pub const DEFAULT_STRENGTH: f64 = 0.08;
 pub const DEFAULT_MAX_NEW: usize = 192;
 
+const MCQ_LETTERS: [char; 4] = ['A', 'B', 'C', 'D'];
+
+/// How MCQ answers are chosen inside the patched LM (no external memory decode).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum McqDecodeMode {
+    /// Generate + Valhalla affinity/fate vote (legacy hybrid patch path).
+    #[default]
+    GenerateResolve,
+    /// Four-way teacher-forced logprob on `ANSWER: X` — single LM forward per option.
+    LogprobBatch,
+}
+
 #[derive(Debug, Clone)]
 pub struct PatchLmConfig {
     pub model_dir: PathBuf,
@@ -30,6 +42,7 @@ pub struct PatchLmConfig {
     pub export_cycles: usize,
     pub use_cpu: bool,
     pub pipeline_v4: bool,
+    pub mcq_decode: McqDecodeMode,
 }
 
 impl Default for PatchLmConfig {
@@ -42,6 +55,7 @@ impl Default for PatchLmConfig {
             export_cycles: 1,
             use_cpu: true,
             pipeline_v4: true,
+            mcq_decode: McqDecodeMode::GenerateResolve,
         }
     }
 }
@@ -384,6 +398,103 @@ fn resolve_patch_mcq_answer(
     )
 }
 
+fn logprob_of_token(logits: &Tensor, token_id: u32) -> Result<f64, String> {
+    let logits = logits
+        .to_dtype(DType::F32)
+        .map_err(|e| e.to_string())?;
+    let logits_vec = logits.to_vec1::<f32>().map_err(|e| e.to_string())?;
+    if logits_vec.is_empty() {
+        return Ok(f64::NEG_INFINITY);
+    }
+    let max = logits_vec
+        .iter()
+        .cloned()
+        .fold(f32::NEG_INFINITY, f32::max);
+    let sum_exp: f32 = logits_vec.iter().map(|x| (x - max).exp()).sum();
+    let log_sum = (sum_exp.max(1e-30)).ln() + max;
+    let tok = token_id as usize;
+    if tok >= logits_vec.len() {
+        return Ok(f64::NEG_INFINITY);
+    }
+    Ok((logits_vec[tok] - log_sum) as f64)
+}
+
+/// Sum log P(token[i] | token[0..i]) for i in `score_from`..len.
+fn sequence_logprob_from(
+    model: &mut ModelForCausalLM,
+    device: &Device,
+    tokens: &[u32],
+    score_from: usize,
+) -> Result<f64, String> {
+    if tokens.len() <= score_from || tokens.len() < 2 {
+        return Ok(f64::NEG_INFINITY);
+    }
+    model.clear_kv_cache();
+    let mut total = 0.0f64;
+    for i in 1..tokens.len() {
+        let (ctxt, start_pos) = if i == 1 {
+            (&tokens[0..1], 0)
+        } else {
+            (&tokens[i - 1..i], i - 1)
+        };
+        let input = Tensor::new(ctxt, device)
+            .map_err(|e| e.to_string())?
+            .unsqueeze(0)
+            .map_err(|e| e.to_string())?;
+        let logits = model.forward(&input, start_pos).map_err(|e| e.to_string())?;
+        let logits = logits
+            .squeeze(0)
+            .map_err(|e| e.to_string())?
+            .squeeze(0)
+            .map_err(|e| e.to_string())?;
+        if i >= score_from {
+            total += logprob_of_token(&logits, tokens[i])?;
+        }
+    }
+    Ok(total)
+}
+
+/// Score `ANSWER: X` suffix for each MCQ letter; pick argmax logprob (single LM, no router).
+pub fn decode_mcq_logprob_batch(
+    model: &mut ModelForCausalLM,
+    device: &Device,
+    tokenizer: &Tokenizer,
+    raw_prompt: &str,
+) -> Result<(char, HashMap<char, f64>), String> {
+    let prompt_tokens = tokenizer
+        .encode(raw_prompt, true)
+        .map_err(|e| e.to_string())?
+        .get_ids()
+        .to_vec();
+    let score_from = prompt_tokens.len();
+
+    let mut scores: HashMap<char, f64> = HashMap::new();
+    let mut best_l = 'A';
+    let mut best_lp = f64::NEG_INFINITY;
+
+    for &letter in &MCQ_LETTERS {
+        let suffix = format!("ANSWER: {letter}");
+        let full = format!("{raw_prompt}{suffix}");
+        let full_tokens = tokenizer
+            .encode(full.as_str(), true)
+            .map_err(|e| e.to_string())?
+            .get_ids()
+            .to_vec();
+        if full_tokens.len() <= score_from {
+            scores.insert(letter, f64::NEG_INFINITY);
+            continue;
+        }
+        let lp = sequence_logprob_from(model, device, &full_tokens, score_from)?;
+        scores.insert(letter, lp);
+        if lp > best_lp {
+            best_lp = lp;
+            best_l = letter;
+        }
+    }
+
+    Ok((best_l, scores))
+}
+
 fn generate(
     model: &mut ModelForCausalLM,
     device: &Device,
@@ -627,20 +738,43 @@ pub fn run_patch_track_v4(
 
         let (assistant, patch_subtag, patch_conf) = if p.score_type == "mcq" {
             let raw_prompt = format_chat_prompt(&user_text);
-            let generated = generate(
-                &mut model,
-                &base.device,
-                &tokenizer,
-                &raw_prompt,
-                cfg.max_new.min(96),
-                eos,
-                im_end,
-            )?;
-            resolve_patch_mcq_answer(
-                &generated,
-                &outcome.recompose.mcq_option_affinity,
-                outcome.mcq_fate.as_ref(),
-            )
+            if cfg.mcq_decode == McqDecodeMode::LogprobBatch {
+                let (letter, lps) = decode_mcq_logprob_batch(
+                    &mut model,
+                    &base.device,
+                    &tokenizer,
+                    &raw_prompt,
+                )?;
+                let margin = {
+                    let mut vals: Vec<f64> = lps.values().copied().collect();
+                    vals.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
+                    if vals.len() >= 2 {
+                        vals[0] - vals[1]
+                    } else {
+                        0.0
+                    }
+                };
+                (
+                    format!("ANSWER: {letter}"),
+                    "fused_mcq_logprob".into(),
+                    margin,
+                )
+            } else {
+                let generated = generate(
+                    &mut model,
+                    &base.device,
+                    &tokenizer,
+                    &raw_prompt,
+                    cfg.max_new.min(96),
+                    eos,
+                    im_end,
+                )?;
+                resolve_patch_mcq_answer(
+                    &generated,
+                    &outcome.recompose.mcq_option_affinity,
+                    outcome.mcq_fate.as_ref(),
+                )
+            }
         } else {
             let raw_prompt = format_chat_prompt(&user_text);
             let generated = generate(

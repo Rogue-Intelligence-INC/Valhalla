@@ -28,6 +28,8 @@ pub mod task_decompose;
 #[cfg(feature = "patch-lm")]
 pub mod patch_lm;
 pub mod hybrid;
+#[cfg(feature = "patch-lm")]
+pub mod fused_lm;
 pub mod mcq_fate;
 pub mod mcq_pairwise;
 pub mod multimodal;

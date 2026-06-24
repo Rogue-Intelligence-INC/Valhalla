@@ -1,0 +1,2008 @@
+{
+  "fused_product_version": "fused-1.0-valhalla-lm",
+  "fair_benchmark_version": "fair-1.2",
+  "protocol": "single_lm_forward_v4_logprob_mcq",
+  "summary": {
+    "total": {
+      "n": 145,
+      "correct": 107,
+      "acc": 0.7379310344827587
+    },
+    "open": {
+      "n": 61,
+      "correct": 56,
+      "acc": 0.9180327868852459
+    },
+    "mcq": {
+      "n": 46,
+      "correct": 19,
+      "acc": 0.41304347826086957
+    },
+    "numeric": {
+      "n": 38,
+      "correct": 32,
+      "acc": 0.8421052631578947
+    },
+    "other": {
+      "n": 0,
+      "correct": 0,
+      "acc": 0.0
+    },
+    "decode_path_counts": {
+      "patch_pipeline_v4_numeric/gen": 38,
+      "patch_pipeline_v4_open/gen": 61,
+      "patch_pipeline_v4_mcq/fused_mcq_logprob": 46
+    }
+  },
+  "fused_rows": [
+    {
+      "id": "MCQ_BIO_01",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "C"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_GEO_01",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "C"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_ECON_01",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_PHIL_01",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_MED_01",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "C"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_PHYS_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "F=ma"
+      },
+      "answer": "Newton's second law states that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. Mathematically, it can be expressed as F = ma, where F is the net force, m is the mass, and a is the acceleration.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_CHEM_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "100"
+      },
+      "answer": "Water boils at 100 degrees Celsius (212 degrees Fahrenheit) at standard pressure.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_BIO_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "ATP"
+      },
+      "answer": "The main function of mitochondria is to produce energy in the form of ATP, which is used by the cell to carry out various metabolic processes.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_HIST_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "1945"
+      },
+      "answer": "World War II, also known as the Second World War, ended on September 2, 1945, with the surrender of Nazi Germany to the Allied powers led by the United States, the United Kingdom, the Soviet Union, and China.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_GEO_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Canberra"
+      },
+      "answer": "The capital of Australia is Canberra.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_ECON_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Gross Domestic Product"
+      },
+      "answer": "GDP, or Gross Domestic Product, is a measure of the total value of all goods and services produced within a country's borders in a specific time period. It is often used as a key indicator of a country's economic health and growth.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_ECON_02",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "price level"
+      },
+      "answer": "Inflation refers to the sustained increase in the general price level of goods and services over time, which can erode the purchasing power of money and affect the standard of living.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_CS_02",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Central Processing Unit"
+      },
+      "answer": "CPU stands for \"Central Processing Unit\". It is the core component of a computer that performs the calculations and logical operations required to run a program. The CPU is responsible for executing instructions and performing arithmetic, logical, and control operations.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "ZH_02",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "秦朝"
+      },
+      "answer": "中国历史上第一个统一的中央集权封建王朝是秦朝。秦朝的建立者是秦始皇，他统一六国，建立了中国历史上第一个统一的中央集权的封建王朝。",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "ZH_03",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "reference": "24"
+      },
+      "answer": "一年有12个节气。",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "ZH_04",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "曹雪芹"
+      },
+      "answer": "《红楼梦》的作者是曹雪芹。",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "LIT_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Shakespeare"
+      },
+      "answer": "Romeo and Juliet was written by William Shakespeare.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "LIT_02",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Orwell"
+      },
+      "answer": "\"1984\" was written by George Orwell.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MED_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Type 2"
+      },
+      "answer": "Diabetes primarily characterized by insulin resistance is known as Type 2 Diabetes. This type of diabetes is characterized by the body's cells not being able to effectively use insulin, which is a hormone produced by the pancreas to regulate blood sugar levels. Insulin resistance occurs when the body's cells become less responsive to insulin, leading to elevated blood sugar levels. This resistance to insulin is the primary mechanism by which Type 2 Diabetes progresses and leads to complications such as cardiovascular disease, neuropathy, and eye damage.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "ASTRO_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Mercury"
+      },
+      "answer": "The planet closest to the Sun is Mercury.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "LOGIC_01",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "yes"
+      },
+      "answer": "Yes.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "LOGIC_02",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "not wet"
+      },
+      "answer": "The contrapositive of \"If it rains, the ground is wet\" is \"If the ground is not wet, it does not rain.\"",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_HIST_02",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "C"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_GEO_02",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "D"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_CS_03",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "HyperText Markup Language"
+      },
+      "answer": "HTML stands for HyperText Markup Language. It is a markup language used to create and structure web pages. HTML is the standard markup language used to create web pages, and it is the foundation of the World Wide Web.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "ZH_05",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "地动仪"
+      },
+      "answer": "不是四大发明的一项是：地动仪。",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "ASTRO_02",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Jupiter"
+      },
+      "answer": "The largest planet in our solar system is Jupiter. It is the fifth planet from the Sun and the largest planet in the solar system. It is known for its massive size, with its diameter measuring approximately 142,984 kilometers (88,244 miles). Jupiter is also the largest planet in the solar system in terms of its mass, with its mass being about 318 times that of Earth.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F06",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "17",
+        "reference": "17"
+      },
+      "answer": "17",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F08",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "73",
+        "reference": "73"
+      },
+      "answer": "73",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F10",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "24",
+        "reference": "24"
+      },
+      "answer": "24",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F11",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "24",
+        "reference": "24"
+      },
+      "answer": "24",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F12",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "63",
+        "reference": "63"
+      },
+      "answer": "63",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F13",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "143",
+        "reference": "143"
+      },
+      "answer": "143",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F14",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "answer": "12",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F15",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "answer": "12",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F16",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "8",
+        "reference": "8"
+      },
+      "answer": "8",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F18",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "7",
+        "reference": "7"
+      },
+      "answer": "7",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F19",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "8",
+        "reference": "8"
+      },
+      "answer": "8",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F20",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "answer": "12",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F21",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "38",
+        "reference": "28"
+      },
+      "answer": "38",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F22",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "28",
+        "reference": "18"
+      },
+      "answer": "28",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F23",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "14",
+        "reference": "36"
+      },
+      "answer": "14",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F25",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "12",
+        "reference": "18"
+      },
+      "answer": "12",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F29",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "12",
+        "reference": "12"
+      },
+      "answer": "x = 12",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "GSM_F30",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "14",
+        "reference": "7"
+      },
+      "answer": "14",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F01",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "42",
+        "reference": "42"
+      },
+      "answer": "42",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F02",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "100",
+        "reference": "100"
+      },
+      "answer": "100",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F03",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "200",
+        "reference": "200"
+      },
+      "answer": "125 + 75 = 200",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F04",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "128",
+        "reference": "128"
+      },
+      "answer": "128",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F05",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "998",
+        "reference": "998"
+      },
+      "answer": "998",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F06",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "210.",
+        "reference": "210"
+      },
+      "answer": "14 multiplied by 15 is 210.",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F07",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "100",
+        "reference": "100"
+      },
+      "answer": "100",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F08",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "9",
+        "reference": "9"
+      },
+      "answer": "9",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F09",
+      "score_type": "numeric",
+      "correct": false,
+      "score": {
+        "score_type": "numeric",
+        "correct": false,
+        "extracted": "10",
+        "reference": "11"
+      },
+      "answer": "10",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F10",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "15",
+        "reference": "15"
+      },
+      "answer": "15",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F12",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "4",
+        "reference": "4"
+      },
+      "answer": "4",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F13",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "225",
+        "reference": "225"
+      },
+      "answer": "225",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F15",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "399",
+        "reference": "399"
+      },
+      "answer": "399",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F16",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "4",
+        "reference": "4"
+      },
+      "answer": "4",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F17",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "256",
+        "reference": "256"
+      },
+      "answer": "256",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_F19",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "99",
+        "reference": "99"
+      },
+      "answer": "99",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F02",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F03",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F06",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F07",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F08",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "D"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F09",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F10",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F11",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "C"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F12",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "B"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F13",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F14",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F18",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F19",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F20",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F21",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F22",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F23",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "B"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F24",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F25",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F26",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "D"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F27",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F28",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "A"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F29",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F30",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F31",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F32",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "B"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F34",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "C",
+        "reference": "C"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F35",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F38",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F41",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F42",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F43",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "C",
+        "reference": "A"
+      },
+      "answer": "ANSWER: C",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F44",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F45",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F46",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "A",
+        "reference": "A"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F47",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F48",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "B",
+        "reference": "B"
+      },
+      "answer": "ANSWER: B",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F49",
+      "score_type": "mcq",
+      "correct": true,
+      "score": {
+        "score_type": "mcq",
+        "correct": true,
+        "extracted": "A",
+        "reference": "A"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MCQ_F50",
+      "score_type": "mcq",
+      "correct": false,
+      "score": {
+        "score_type": "mcq",
+        "correct": false,
+        "extracted": "A",
+        "reference": "B"
+      },
+      "answer": "ANSWER: A",
+      "decode_path": "patch_pipeline_v4_mcq/fused_mcq_logprob",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F02",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "reference": "-273"
+      },
+      "answer": "Absolute zero is the temperature at which all molecular motion ceases. In Celsius, it is approximately 0 degrees Celsius.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F03",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Fe"
+      },
+      "answer": "The chemical symbol for iron is Fe.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F04",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "carbon dioxide"
+      },
+      "answer": "Plants absorb carbon dioxide (CO2) for photosynthesis. This process is crucial for the production of oxygen (O2) and the production of glucose (C6H12O6) through the process of photosynthesis. During photosynthesis, plants use sunlight, water, and carbon dioxide to produce glucose and oxygen. The carbon dioxide absorbed by plants is used to synthesize glucose, which is then used for energy and growth.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F05",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "cell"
+      },
+      "answer": "The basic unit of life is the cell.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F06",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "photosynthesis"
+      },
+      "answer": "The process by which plants make food using sunlight is called photosynthesis. Photosynthesis is a vital process that occurs in the leaves of plants, primarily in the chloroplasts. Here's a simplified breakdown of the process:\n\n1. **Light Absorption**: Plants absorb sunlight through their chloroplasts, which contain chlorophyll, a pigment that absorbs light. Chlorophyll is the primary pigment responsible for the process.\n\n2. **Light-Dependent Reactions**: The absorbed light energy is used to split water molecules into oxygen, hydrogen, and electrons. This process is called the light-dependent reactions. The electrons are used to produce ATP (adenosine triphosphate), which is the energy currency of the cell.\n\n3. **Light-Independent Reactions**: The ATP produced in the light-dependent reactions is used to convert carbon dioxide from the air into glucose. This process is called the light-independent reactions (also known as the Calvin cycle). The process",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F08",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Italy"
+      },
+      "answer": "The Renaissance began in Italy, specifically in the city of Florence. The Renaissance was a period of cultural and intellectual revival that began in the 14th century and lasted until the 17th century. It was characterized by a renewed interest in classical learning, humanism, and the arts, and it had a profound impact on European culture and society.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F09",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Cairo"
+      },
+      "answer": "The capital of Egypt is Cairo.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F11",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "limited resources"
+      },
+      "answer": "Scarcity in economics refers to the limited availability of resources, goods, or services. It is a fundamental concept that underpins many economic theories and principles. Here are some key points about scarcity:\n\n1. Definition: Scarcity refers to the fact that resources are limited and cannot be created or consumed in unlimited quantities. This means that there are always some resources that are not being used or are not being consumed.\n\n2. Examples: Scarcity is often illustrated through scarcity of resources, such as water, food, or energy. For example, a person might have a limited supply of water, and if they drink too much, they will run out of water. Similarly, a person might have a limited supply of food, and if they eat too much, they will run out of food.\n\n3. Economic implications: Scarcity has significant implications for economics. It influences how resources are allocated, how production is organized, and how prices are set",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F12",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "exchange"
+      },
+      "answer": "One primary function of money as a medium of exchange is to facilitate the exchange of goods and services. When two parties agree to exchange goods or services, they use money to determine the value of the exchanged items. This allows for the exchange of goods and services without the need for physical goods, which can be inconvenient or expensive. Additionally, money serves as a store of value, allowing individuals to save and accumulate wealth over time.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F14",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "step-by-step procedure"
+      },
+      "answer": "An algorithm is a step-by-step procedure or a set of instructions used to solve a specific problem or perform a particular task. It is a fundamental concept in computer science and mathematics, often used in programming, data structures, and artificial intelligence. Algorithms are designed to be efficient, reliable, and easy to understand, allowing computers to perform tasks quickly and accurately.\n\nThere are different types of algorithms, including:\n\n1. **Recursive Algorithms**: These algorithms involve calling themselves repeatedly until a certain condition is met. They are often used in problems where the solution can be broken down into smaller subproblems.\n\n2. **Iterative Algorithms**: These algorithms use loops to repeatedly execute a set of instructions. They are often used in problems where the solution can be solved by repeatedly applying the same operations to the same inputs.\n\n3. **Backtracking Algorithms**: These algorithms try to find all possible solutions to a problem by backtracking, which means they backtrack and undo the last step that did",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F16",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Shakespeare"
+      },
+      "answer": "\"Hamlet\" was written by William Shakespeare.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F17",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Vitamin C"
+      },
+      "answer": "Vitamin C is the primary vitamin that prevents scurvy. Scurvy is a disease caused by a deficiency of vitamin C in the body, which can lead to various symptoms such as bleeding gums, bruising, and weakness. Vitamin C is essential for the synthesis of collagen, which is crucial for the structure and function of the skin, blood vessels, and other tissues in the body. Therefore, it is important to consume foods rich in vitamin C, such as citrus fruits, broccoli, strawberries, and other fruits and vegetables, to prevent scurvy.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F19",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Kant"
+      },
+      "answer": "The book \"Critique of Pure Reason\" was written by Immanuel Kant.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F21",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "母亲河"
+      },
+      "answer": "黄河是中国的母亲河，被誉为中华民族的“母亲河”。",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F22",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "孔子"
+      },
+      "answer": "《论语》是中国古代儒家经典之一，由孔子及其弟子编撰而成。它主要记录了孔子及其弟子的言行，内容涵盖了儒家的伦理道德、教育理念、政治主张、哲学思想等多个方面。",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F23",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "gravity"
+      },
+      "answer": "Planets orbit the Sun due to the force of gravity. This force is the gravitational pull that attracts the planets towards the Sun. The Sun, which is the central body in the solar system, has a much greater mass than the planets, and as a result, it exerts a stronger gravitational pull on the planets. This gravitational force is what keeps the planets in orbit around the Sun.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F24",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "NaCl"
+      },
+      "answer": "The chemical formula for table salt is NaCl.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F25",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "2"
+      },
+      "answer": "The first shell of an atom holds up to 2 electrons.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F26",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "7"
+      },
+      "answer": "The pH of pure water at 25°C is 7.0.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F28",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "white blood cells"
+      },
+      "answer": "Blood cells in the human body play a crucial role in fighting infections. Here are the key types of blood cells that are involved in this process:\n\n1. Red Blood Cells (RBCs): These are the most abundant cells in the blood and are responsible for carrying oxygen throughout the body. They are also the first line of defense against infections, as they are the first cells to be exposed to pathogens.\n\n2. White Blood Cells (WBCs): These are the specialized cells that fight infections. They are divided into two main types: neutrophils and lymphocytes.\n\n   - Neutrophils: These cells are the most abundant type of WBC and are responsible for fighting infections by releasing chemicals that kill bacteria and other pathogens.\n   - Lymphocytes: These cells are involved in the immune response and help to fight infections by producing antibodies and other immune proteins.\n\n3. Platelets: These cells are important for blood clotting and wound healing.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F29",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Fleming"
+      },
+      "answer": "Penicillin was discovered by Alexander Fleming in 1928.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F30",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Hanging Gardens"
+      },
+      "answer": "The ancient wonder that was in Babylon was the Hanging Gardens. This was a massive, artificial garden that was said to have been built by King Nebuchadnezzar II of Babylon. The Gardens were said to be surrounded by a wall made of gold and adorned with precious stones, and they were said to be filled with lush vegetation and flowers. The Gardens were said to be so large and beautiful that they could even accommodate the king himself, and they were said to be able to sustain life for many years.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F31",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Berlin"
+      },
+      "answer": "The capital of Germany is Berlin.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F32",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Indian"
+      },
+      "answer": "The ocean between Africa and Australia is the Indian Ocean.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F33",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "decline in economic activity"
+      },
+      "answer": "A recession is a period of economic decline characterized by a decrease in economic activity, often leading to a reduction in consumer spending, business investment, and overall economic growth. It typically occurs when the economy slows down significantly, leading to a decline in the overall level of economic activity. Recession can be caused by various factors such as a decline in consumer confidence, a decrease in government spending, a rise in unemployment, or a decrease in investment. Recession can have a significant impact on the economy, leading to job losses, reduced consumer spending, and a decrease in economic growth.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F34",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "interest rates"
+      },
+      "answer": "The Federal Reserve, also known as the Federal Open Market Committee (FOMC), is primarily responsible for influencing the money supply, interest rates, and overall economic conditions in the United States. Here are some key areas where the Federal Reserve plays a significant role:\n\n1. **Money Supply**: The Federal Reserve sets the target federal funds rate, which is the interest rate at which banks lend reserves to each other. This rate is used to determine the cost of borrowing and, consequently, the cost of loans to businesses and consumers. The Federal Reserve also sets the reserve requirements for banks, which are the minimum percentage of deposits that banks must hold as reserves.\n\n2. **Interest Rates**: The Federal Reserve influences the federal funds rate by adjusting the discount rate, which is the interest rate at which banks lend reserves to each other. The Federal Reserve also sets the discount rate, which is used to determine the cost of borrowing from the Federal Reserve. The Federal Reserve's actions",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F35",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Application Programming Interface"
+      },
+      "answer": "API stands for \"Application Programming Interface\". It is a set of rules and guidelines that define how different software applications can interact with each other. Essentially, an API is a way for different software programs to communicate with each other, allowing them to exchange data and perform tasks. APIs are commonly used in the development of web applications, mobile apps, and other software systems.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F38",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Fitzgerald"
+      },
+      "answer": "\"The Great Gatsby\" was written by F. Scott Fitzgerald.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F39",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "high blood pressure"
+      },
+      "answer": "Hypertension, also known as high blood pressure, is a condition where the blood pressure in the arteries is consistently higher than it should be. This can lead to various health problems, including heart disease, stroke, kidney damage, and vision problems. The blood pressure is typically measured in millimeters of mercury (mmHg) and is considered normal when it is below 140/90 mmHg.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F40",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "nitrogen"
+      },
+      "answer": "We breathe in the most common gas, which is air. Air is a mixture of various gases, including nitrogen, oxygen, carbon dioxide, and other trace gases. The air we breathe in contains approximately 78% nitrogen, 21% oxygen, and trace amounts of other gases.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F41",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "reference": "中亚"
+      },
+      "answer": "丝绸之路是古代中国与西方世界之间的重要贸易通道，它连接了中国与欧洲、非洲、印度等地。丝绸之路的起点是中国的长安（今西安），终点是印度的马六甲（今新加坡）。丝绸之路的开通促进了东西方的经济文化交流，对世界历史的发展产生了深远影响。",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F42",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "reference": "中国"
+      },
+      "answer": "造纸术的发明与哪个国家无关。",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F43",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Watt"
+      },
+      "answer": "The unit of power is typically measured in watts (W).",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F44",
+      "score_type": "open",
+      "correct": false,
+      "score": {
+        "score_type": "open",
+        "correct": false,
+        "reference": "neutron"
+      },
+      "answer": "The particle that has no electric charge is the **electron**.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F46",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "liver"
+      },
+      "answer": "Bile is produced by the liver.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F47",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Da Vinci"
+      },
+      "answer": "The Mona Lisa was painted by the Italian artist Leonardo da Vinci.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F48",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Brasília"
+      },
+      "answer": "The capital of Brazil is Brasília.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F49",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "Uniform Resource Locator"
+      },
+      "answer": "URL stands for Uniform Resource Locator, which is a standard notation used to identify a location on the internet. It is used to specify the location of a web page, file, or other resource on the internet. URLs are often used in web browsers to navigate to specific web pages, and they are also used in other applications to identify resources on the internet.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F50",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "general to specific"
+      },
+      "answer": "Deductive reasoning is a type of logical thinking where the conclusion is necessarily true if the premises are true. In other words, it involves drawing a specific conclusion based on a set of premises that are assumed to be true. Deductive reasoning is a form of logical reasoning that is based on the idea that if a statement is true, then its negation must also be true. This is known as the law of non-contradiction.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F51",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "trade specialization"
+      },
+      "answer": "Comparative advantage refers to the ability of a country to produce a particular good or service at a lower opportunity cost than another country. This means that a country can produce a good or service more efficiently and at a lower cost than another country, which can then use this advantage to produce and export the good or service to other countries. \n\nIn other words, comparative advantage is the ability of a country to produce a good or service at a lower opportunity cost than another country, which allows that country to specialize in producing and exporting the good or service in which it has a comparative advantage. This leads to a more efficient use of resources and a higher level of economic output for that country.",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "OPEN_F52",
+      "score_type": "open",
+      "correct": true,
+      "score": {
+        "score_type": "open",
+        "correct": true,
+        "reference": "北京"
+      },
+      "answer": "故宫位于中国北京市。",
+      "decode_path": "patch_pipeline_v4_open/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_PAD197",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "394",
+        "reference": "394"
+      },
+      "answer": "394",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_PAD198",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "396",
+        "reference": "396"
+      },
+      "answer": "396",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_PAD199",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "398",
+        "reference": "398"
+      },
+      "answer": "398",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    },
+    {
+      "id": "MATH_PAD200",
+      "score_type": "numeric",
+      "correct": true,
+      "score": {
+        "score_type": "numeric",
+        "correct": true,
+        "extracted": "400",
+        "reference": "400"
+      },
+      "answer": "400",
+      "decode_path": "patch_pipeline_v4_numeric/gen",
+      "fused_product_version": "fused-1.0-valhalla-lm"
+    }
+  ]
+}
