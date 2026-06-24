@@ -101,8 +101,16 @@ pub fn run_question_pipeline(
     cfg: &PipelineConfig,
     front: &DlFrontConfig,
     mode_label: &str,
+    audio_features: Option<&[f64]>,
 ) -> PipelineOutcome {
-    let plan = plan_decomposition(question, score_type, cfg.decompose_mode_override);
+    let use_mm = crate::multimodal::fusion_enabled()
+        && audio_features.map(|a| !a.is_empty()).unwrap_or(false);
+    let mode_override = if use_mm && score_type == "open" {
+        Some(crate::task_decompose::DecomposeMode::OpenRetrieval)
+    } else {
+        cfg.decompose_mode_override
+    };
+    let plan = plan_decomposition(question, score_type, mode_override);
     let budget = IngressBudget::experiment();
     let mut session = TriadSession::from_incubation_snapshot(budget, cfg.qa_body, snap.clone());
 
@@ -117,6 +125,8 @@ pub fn run_question_pipeline(
         let scores = shard_scores_from_mcq_fate(&plan, &outcome);
         (outcome.report.clone(), Some(outcome), scores)
     } else {
+        session.emit_body_ports(whole_ports);
+        crate::multimodal::feed_audio(&mut session, audio_features, front);
         let scores = crate::task_decompose::feed_decompose_plan(
             &mut session,
             &plan,

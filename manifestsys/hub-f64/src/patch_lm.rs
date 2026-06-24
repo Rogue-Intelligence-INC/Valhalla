@@ -456,9 +456,10 @@ pub fn run_patch_track(
     corpus: &[String],
     cfg: &PatchLmConfig,
     export_doc: Option<&patch_export::ExportDoc>,
+    audio_by_id: Option<&HashMap<String, Vec<f64>>>,
 ) -> Result<Vec<PatchTrackRow>, String> {
     if cfg.pipeline_v4 || pipeline::pipeline_v4_enabled() {
-        return run_patch_track_v4(prompts, corpus, cfg);
+        return run_patch_track_v4(prompts, corpus, cfg, audio_by_id);
     }
     let export = match export_doc {
         Some(d) => d.clone(),
@@ -534,6 +535,7 @@ pub fn run_patch_track_v4(
     prompts: &[FairPrompt],
     corpus: &[String],
     cfg: &PatchLmConfig,
+    audio_by_id: Option<&HashMap<String, Vec<f64>>>,
 ) -> Result<Vec<PatchTrackRow>, String> {
     let snap = patch_export::build_grinder_incubation_snapshot(
         &cfg.patch_body,
@@ -559,6 +561,7 @@ pub fn run_patch_track_v4(
         eprintln!("patch_v4 [{}/{}] {}", i + 1, prompts.len(), p.id);
         let user_text = format_prompt_text(p);
         let q_ports = grind_text_hash(&user_text, cap);
+        let audio = audio_by_id.and_then(|m| m.get(&p.id).map(|v| v.as_slice()));
         let outcome = pipeline::run_question_pipeline(
             &snap,
             &user_text,
@@ -567,6 +570,7 @@ pub fn run_patch_track_v4(
             &pipe_cfg,
             &front,
             "patch_pipeline_v4",
+            audio,
         );
 
         let mut token_ids = tokenizer
@@ -580,10 +584,17 @@ pub fn run_patch_track_v4(
 
         let mut tensors = base.clone_tensors()?;
         let mp = &outcome.recompose.model_patch;
+        let effective_strength = if p.score_type == "open" {
+            let boost = 1.0
+                + outcome.recompose.open_structure_score * crate::multimodal::open_patch_bias_scale();
+            cfg.strength * boost
+        } else {
+            cfg.strength
+        };
         apply_legacy_patch_tensors(
             &mut tensors,
             mp,
-            cfg.strength,
+            effective_strength,
             &token_ids,
             hidden,
             n_layers,
@@ -608,7 +619,11 @@ pub fn run_patch_track_v4(
         }
 
         let mut model = base.build_model(tensors)?;
-        let decode_tag = format!("patch_pipeline_v4_{}", p.score_type);
+        let decode_tag = if p.score_type == "open" && audio.is_some() {
+            format!("patch_pipeline_v4_{}_multimodal", p.score_type)
+        } else {
+            format!("patch_pipeline_v4_{}", p.score_type)
+        };
 
         let (assistant, patch_subtag, patch_conf) = if p.score_type == "mcq" {
             let raw_prompt = format_chat_prompt(&user_text);

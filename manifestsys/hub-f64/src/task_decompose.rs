@@ -117,6 +117,9 @@ pub struct RecomposePatch {
     /// MCQ only: affinity per option letter A–D from structure (for lm_head bias later).
     #[serde(default)]
     pub mcq_option_affinity: Vec<(char, f64)>,
+    /// Open/numeric: mean decompose shard closure (for patch strength bias).
+    #[serde(default)]
+    pub open_structure_score: f64,
 }
 
 pub fn plan_decomposition(
@@ -296,12 +299,29 @@ pub fn recompose_to_patch(
     } else {
         Vec::new()
     };
+    let open_structure_score = if matches!(plan.task, TaskKind::Open | TaskKind::Auto) {
+        let decompose: Vec<f64> = plan
+            .shards
+            .iter()
+            .zip(shard_scores.iter())
+            .filter(|(s, _)| s.phase == ShardPhase::Decompose)
+            .map(|(_, sc)| *sc)
+            .collect();
+        if decompose.is_empty() {
+            0.0
+        } else {
+            decompose.iter().sum::<f64>() / decompose.len() as f64
+        }
+    } else {
+        0.0
+    };
     RecomposePatch {
         model_patch: report.model_patch.clone(),
         patch_token_ids: anchor_token_ids.to_vec(),
         lm_user_text: plan.whole_question.clone(),
         shard_scores: shard_scores.to_vec(),
         mcq_option_affinity,
+        open_structure_score,
     }
 }
 

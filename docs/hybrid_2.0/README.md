@@ -57,6 +57,16 @@ Text + TTS → Tile/Stem Triad. Bench: `reports/tts_tile_stem_fusion/MULTIMODAL_
 
 QA pilot (open memory): `tools/fair_benchmark/run_multimodal_memory_pilot.py`
 
+**Hybrid open + v4 recompose (multimodal)**:
+
+```bash
+python3 tools/fair_benchmark/run_hybrid_multimodal_open.py --phase test
+# → TTS audio JSON + valhalla_hybrid --multimodal-audio-json
+# Pipeline: OpenRetrieval decompose + audio ingress + open_structure_score patch bias
+```
+
+Env: `VALHALLA_MULTIMODAL_FUSION=1` · `VALHALLA_OPEN_PATCH_BIAS_SCALE=0.15`
+
 ---
 
 ## Related artifacts

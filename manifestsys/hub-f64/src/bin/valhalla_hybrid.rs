@@ -16,6 +16,7 @@ fn usage() -> ! {
         "Usage: valhalla_hybrid --phase smoke|val|test [options]\n\
          全 Rust 模式（默认）: --run-patch [--model PATH|HF_ID] [--patch-body triad] [--strength 0.08]\n\
          复用 patch JSON: --patch-json PATH\n\
+         多模态 open: --multimodal-audio-json PATH (sets VALHALLA_MULTIMODAL_FUSION=1)\n\
          通用: [--suite PATH] [--merge-mode deploy|oracle] [--out PATH] [--cpu]"
     );
     std::process::exit(2);
@@ -25,6 +26,7 @@ struct Cli {
     phase: String,
     suite: PathBuf,
     patch_json: Option<PathBuf>,
+    multimodal_audio_json: Option<PathBuf>,
     run_patch: bool,
     model: String,
     patch_body: String,
@@ -39,6 +41,7 @@ fn parse_args() -> Cli {
     let mut phase = "test".to_string();
     let mut suite = PathBuf::from("tools/fair_benchmark/fair_benchmark_suite.json");
     let mut patch_json: Option<PathBuf> = None;
+    let mut multimodal_audio_json: Option<PathBuf> = None;
     let mut run_patch = true;
     let mut model = "Qwen/Qwen2.5-0.5B-Instruct".to_string();
     let mut patch_body = "triad".to_string();
@@ -64,6 +67,10 @@ fn parse_args() -> Cli {
                 i += 1;
                 patch_json = Some(PathBuf::from(args.get(i).unwrap_or_else(|| usage())));
                 run_patch = false;
+            }
+            "--multimodal-audio-json" => {
+                i += 1;
+                multimodal_audio_json = Some(PathBuf::from(args.get(i).unwrap_or_else(|| usage())));
             }
             "--run-patch" => run_patch = true,
             "--model" => {
@@ -114,6 +121,7 @@ fn parse_args() -> Cli {
         phase,
         suite,
         patch_json,
+        multimodal_audio_json,
         run_patch,
         model,
         patch_body,
@@ -141,11 +149,26 @@ fn main() {
         std::process::exit(1);
     });
 
-    let cfg = HybridConfig {
+    let mut cfg = HybridConfig {
         merge_mode: cli.merge_mode,
         pipeline_v4: true,
         ..HybridConfig::default()
     };
+
+    if let Some(path) = &cli.multimodal_audio_json {
+        let raw = std::fs::read_to_string(path).unwrap_or_else(|e| {
+            eprintln!("read multimodal audio json: {e}");
+            std::process::exit(1);
+        });
+        let map: std::collections::HashMap<String, Vec<f64>> =
+            serde_json::from_str(&raw).unwrap_or_else(|e| {
+                eprintln!("parse multimodal audio json: {e}");
+                std::process::exit(1);
+            });
+        eprintln!("multimodal: {} audio feature vectors loaded", map.len());
+        cfg.audio_by_id = map;
+        std::env::set_var("VALHALLA_MULTIMODAL_FUSION", "1");
+    }
 
     eprintln!(
         "valhalla_hybrid {} phase={} prompts={} corpus={} merge={:?} patch={} stem_parallel={}",

@@ -48,6 +48,8 @@ pub struct HybridConfig {
     pub pipeline_v4: bool,
     /// Independent stemcell mcq_fate track (parallel to tile, not coupled).
     pub stem_parallel: bool,
+    /// Optional TTS audio features keyed by prompt id (`VALHALLA_MULTIMODAL_FUSION=1`).
+    pub audio_by_id: HashMap<String, Vec<f64>>,
 }
 
 impl Default for HybridConfig {
@@ -59,6 +61,7 @@ impl Default for HybridConfig {
             port_cap: default_port_cap(),
             pipeline_v4: crate::pipeline::pipeline_v4_enabled(),
             stem_parallel: hybrid_stem_parallel_enabled(),
+            audio_by_id: HashMap::new(),
         }
     }
 }
@@ -271,7 +274,7 @@ pub fn run_memory_track(
                 score_type: p.score_type.clone(),
                 question_ports: Some(grind_text_hash(&text, port_cap)),
                 id: Some(p.id.clone()),
-                audio_features: None,
+                audio_features: cfg.audio_by_id.get(&p.id).cloned(),
             }
         })
         .collect();
@@ -941,7 +944,17 @@ pub fn run_hybrid_eval_full(
         patch_cfg.patch_body,
         patch_cfg.strength
     );
-    let patch_rows = crate::patch_lm::run_patch_track(&patch_prompts, corpus, patch_cfg, None)?;
+    let patch_rows = crate::patch_lm::run_patch_track(
+        &patch_prompts,
+        corpus,
+        patch_cfg,
+        None,
+        if cfg.audio_by_id.is_empty() {
+            None
+        } else {
+            Some(&cfg.audio_by_id)
+        },
+    )?;
     run_hybrid_eval(prompts, corpus, &patch_rows, cfg)
 }
 

@@ -66,33 +66,6 @@ fn default_qa_cycles() -> usize {
     1
 }
 
-fn multimodal_fusion_enabled() -> bool {
-    std::env::var("VALHALLA_MULTIMODAL_FUSION")
-        .map(|v| {
-            let v = v.trim().to_ascii_lowercase();
-            v == "1" || v == "true" || v == "on"
-        })
-        .unwrap_or(false)
-}
-
-fn feed_optional_audio(
-    session: &mut TriadSession,
-    audio: Option<&Vec<f64>>,
-    front: &DlFrontConfig,
-) {
-    if !multimodal_fusion_enabled() {
-        return;
-    }
-    if let Some(vals) = audio.filter(|v| !v.is_empty()) {
-        session.feed_modality(
-            ModalityInput::AudioFeatures {
-                values: vals.clone(),
-            },
-            front,
-        );
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NativeQaQuestionSpec {
     pub question: String,
@@ -1603,9 +1576,9 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             corpus_idx: None,
         });
         qa_session.emit_body_ports(question_ports);
-        feed_optional_audio(
+        crate::multimodal::feed_audio(
             &mut qa_session,
-            q.audio_features.as_ref(),
+            q.audio_features.as_deref(),
             &front,
         );
 
@@ -1620,6 +1593,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                 &pipe_cfg,
                 &front,
                 mode_label,
+                q.audio_features.as_deref(),
             );
             let report = outcome.report.clone();
             let meta = outcome.mcq_fate.as_ref().map(|o| {
