@@ -1,0 +1,42 @@
+{
+  "protocol": "valhalla-universal-core-v1",
+  "phase": "smoke",
+  "sample_count": 4,
+  "common_core_rate": 1.0,
+  "universal_core_formation_rate": 1.0,
+  "avg_shared_patch": 0.8485597563202918,
+  "avg_fusion_vs_centroid": 0.8623739649420417,
+  "avg_core_tightening": 0.013814208621749813,
+  "avg_universal_core_score": 0.7620839565487421,
+  "verdict": "UNIVERSAL_CORE_CONFIRMED: same-task modalities share Fate patch core; fusion consolidates universal core",
+  "per_task": [
+    {
+      "id": "MCQ_PHYS_01",
+      "shared_patch": 0.8776256959287513,
+      "fusion_vs_centroid": 0.8544412388826101,
+      "shares_common_core": true,
+      "universal_core_formed": true
+    },
+    {
+      "id": "MCQ_PHYS_02",
+      "shared_patch": 0.8896538362624997,
+      "fusion_vs_centroid": 0.8716845128040229,
+      "shares_common_core": true,
+      "universal_core_formed": true
+    },
+    {
+      "id": "MCQ_CHEM_01",
+      "shared_patch": 0.813636702168573,
+      "fusion_vs_centroid": 0.8626240067845254,
+      "shares_common_core": true,
+      "universal_core_formed": true
+    },
+    {
+      "id": "MCQ_CHEM_02",
+      "shared_patch": 0.8133227909213434,
+      "fusion_vs_centroid": 0.8607461012970081,
+      "shares_common_core": true,
+      "universal_core_formed": true
+    }
+  ]
+}

@@ -711,6 +711,221 @@ pub fn run_free_trimodal_fate(
     outcome
 }
 
+// ── Universal core: same task via text / TTS / image ─────────────────────
+
+pub const UNIVERSAL_CORE_PROTOCOL: &str = "valhalla-universal-core-v1";
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModalityIsolationOutcome {
+    pub mode: String,
+    pub patch_vector: Vec<f64>,
+    pub hub_prefs: Vec<f64>,
+    pub tile_count: usize,
+    pub stem_count: usize,
+    pub signals_emitted: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UniversalCoreMetrics {
+    /// Same task, three isolated runs — avg pairwise patch cosine (shared core?)
+    pub shared_patch_pairwise_avg: f64,
+    pub patch_text_audio: f64,
+    pub patch_text_image: f64,
+    pub patch_audio_image: f64,
+    pub shared_hub_pairwise_avg: f64,
+    pub shared_embedding_pairwise_avg: f64,
+    pub shares_common_core: bool,
+    /// Centroid of isolated patches = pre-fusion universal core candidate
+    pub modality_centroid: Vec<f64>,
+    /// After tri-modal fusion
+    pub fusion_vs_centroid_cosine: f64,
+    pub fusion_vs_text: f64,
+    pub fusion_vs_audio: f64,
+    pub fusion_vs_image: f64,
+    /// fusion alignment − pre-fusion shared (positive ⇒ fusion tightened core)
+    pub core_tightening: f64,
+    pub universal_core_score: f64,
+    pub universal_core_formed: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SameTaskUniversalCoreOutcome {
+    pub task_id: String,
+    pub text_isolation: ModalityIsolationOutcome,
+    pub audio_isolation: ModalityIsolationOutcome,
+    pub image_isolation: ModalityIsolationOutcome,
+    pub metrics: UniversalCoreMetrics,
+    pub fusion_adaptation_rounds: usize,
+    pub fusion_aggregate_score: f64,
+}
+
+pub fn universal_core_isolation_rounds() -> usize {
+    env_usize("VALHALLA_UNIVERSAL_CORE_ISOLATION_ROUNDS", 6).clamp(2, 32)
+}
+
+fn report_to_isolation(r: &TriadFeedReport, mode: &str) -> ModalityIsolationOutcome {
+    ModalityIsolationOutcome {
+        mode: mode.to_string(),
+        patch_vector: r.model_patch.patch_vector.clone(),
+        hub_prefs: r.hub_prefs.clone(),
+        tile_count: r.tile_completed,
+        stem_count: r.stem_cells,
+        signals_emitted: r.stats.signals_emitted,
+    }
+}
+
+/// One modality completes the same task in isolation (free pulse, no preset routing).
+fn run_modality_isolated_task(ports: &BodyFrontPorts, mode: &str) -> TriadFeedReport {
+    let budget = IngressBudget::incubation();
+    let mut session = TriadSession::with_body(budget, BodyTarget::Triad);
+    install_free_rules(&mut session);
+    let rounds = universal_core_isolation_rounds();
+    for r in 0..rounds {
+        free_pulse(&mut session, ports);
+        let _ = session
+            .hub
+            .triple_fate
+            .store_string(&format!("{mode}_isolation_round={r}"));
+    }
+    session.build_feed_report(mode, rounds)
+}
+
+fn patch_centroid(patches: &[Vec<f64>]) -> Vec<f64> {
+    if patches.is_empty() {
+        return Vec::new();
+    }
+    let dim = patches.iter().map(|p| p.len()).max().unwrap_or(0);
+    let mut c = vec![0.0f64; dim];
+    for p in patches {
+        for (i, slot) in c.iter_mut().enumerate().take(dim) {
+            *slot += p.get(i).copied().unwrap_or(0.0);
+        }
+    }
+    let n = patches.len() as f64;
+    for x in c.iter_mut() {
+        *x /= n;
+    }
+    normalize_vec(&mut c);
+    c
+}
+
+fn pairwise_avg(values: &[Vec<f64>]) -> f64 {
+    if values.len() < 2 {
+        return 0.0;
+    }
+    let mut sum = 0.0f64;
+    let mut n = 0usize;
+    for i in 0..values.len() {
+        for j in (i + 1)..values.len() {
+            sum += cosine(&values[i], &values[j]);
+            n += 1;
+        }
+    }
+    if n == 0 {
+        0.0
+    } else {
+        sum / n as f64
+    }
+}
+
+fn tri_cos(a: &[f64], b: &[f64], c: &[f64]) -> (f64, f64, f64) {
+    (cosine(a, b), cosine(a, c), cosine(b, c))
+}
+
+/// Same task → text-only / TTS-only / image-only isolation → fusion → universal core metrics.
+pub fn run_same_task_universal_core(
+    task_id: &str,
+    llm_ports: &BodyFrontPorts,
+    tts_ports: &BodyFrontPorts,
+    img_ports: &BodyFrontPorts,
+) -> SameTaskUniversalCoreOutcome {
+    let text_r = run_modality_isolated_task(llm_ports, "task_via_text");
+    let audio_r = run_modality_isolated_task(tts_ports, "task_via_tts");
+    let image_r = run_modality_isolated_task(img_ports, "task_via_image");
+
+    let text_iso = report_to_isolation(&text_r, "task_via_text");
+    let audio_iso = report_to_isolation(&audio_r, "task_via_tts");
+    let image_iso = report_to_isolation(&image_r, "task_via_image");
+
+    let patches = vec![
+        text_iso.patch_vector.clone(),
+        audio_iso.patch_vector.clone(),
+        image_iso.patch_vector.clone(),
+    ];
+    let (patch_ta, patch_ti, patch_ai) = tri_cos(&patches[0], &patches[1], &patches[2]);
+    let shared_patch = (patch_ta + patch_ti + patch_ai) / 3.0;
+
+    let hub_vecs = vec![
+        text_iso.hub_prefs.clone(),
+        audio_iso.hub_prefs.clone(),
+        image_iso.hub_prefs.clone(),
+    ];
+    let shared_hub = pairwise_avg(&hub_vecs);
+
+    let emb_vecs = vec![
+        llm_ports.embedding.clone(),
+        tts_ports.embedding.clone(),
+        img_ports.embedding.clone(),
+    ];
+    let shared_emb = pairwise_avg(&emb_vecs);
+
+    let centroid = patch_centroid(&patches);
+
+    let budget = IngressBudget::incubation();
+    let mut fusion_session = TriadSession::with_body(budget, BodyTarget::Triad);
+    let fusion = run_free_trimodal_fate(
+        &mut fusion_session,
+        llm_ports,
+        tts_ports,
+        img_ports,
+        "universal_core_fusion",
+    );
+    let fused = fusion.report.model_patch.patch_vector.clone();
+
+    let fusion_vs_centroid = cosine(&fused, &centroid);
+    let fusion_vs_text = cosine(&fused, &patches[0]);
+    let fusion_vs_audio = cosine(&fused, &patches[1]);
+    let fusion_vs_image = cosine(&fused, &patches[2]);
+    let core_tightening = fusion_vs_centroid - shared_patch;
+
+    let shares_common_core =
+        shared_patch >= 0.40 || (shared_patch >= 0.20 && shared_hub >= 0.94);
+    let universal_core_score = (shared_patch * 0.40
+        + fusion_vs_centroid * 0.35
+        + shared_hub * 0.15
+        + shared_emb * 0.10)
+        .clamp(0.0, 1.0);
+    let universal_core_formed = universal_core_score >= 0.55
+        && fusion_vs_centroid >= shared_patch * 0.92
+        && core_tightening > -0.08;
+
+    SameTaskUniversalCoreOutcome {
+        task_id: task_id.to_string(),
+        text_isolation: text_iso,
+        audio_isolation: audio_iso,
+        image_isolation: image_iso,
+        metrics: UniversalCoreMetrics {
+            shared_patch_pairwise_avg: shared_patch,
+            patch_text_audio: patch_ta,
+            patch_text_image: patch_ti,
+            patch_audio_image: patch_ai,
+            shared_hub_pairwise_avg: shared_hub,
+            shared_embedding_pairwise_avg: shared_emb,
+            shares_common_core,
+            modality_centroid: centroid,
+            fusion_vs_centroid_cosine: fusion_vs_centroid,
+            fusion_vs_text,
+            fusion_vs_audio,
+            fusion_vs_image,
+            core_tightening,
+            universal_core_score,
+            universal_core_formed,
+        },
+        fusion_adaptation_rounds: fusion.adaptation_rounds,
+        fusion_aggregate_score: fusion.aggregate_score,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -771,5 +986,17 @@ mod tests {
         assert!(out.tri_modal);
         assert_eq!(out.mix_weights.len(), 3);
         assert!(out.report.tile_completed > 0);
+    }
+
+    #[test]
+    fn same_task_universal_core_runs() {
+        std::env::set_var("VALHALLA_UNIVERSAL_CORE_ISOLATION_ROUNDS", "3");
+        std::env::set_var("VALHALLA_FREE_MULTIMODAL_MIN_CYCLES", "2");
+        let llm = dummy_ports(0.1);
+        let tts = dummy_ports(0.5);
+        let img = dummy_ports(0.9);
+        let out = run_same_task_universal_core("t1", &llm, &tts, &img);
+        assert!(!out.text_isolation.patch_vector.is_empty());
+        assert!(out.metrics.universal_core_score >= 0.0);
     }
 }
