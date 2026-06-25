@@ -1,0 +1,19 @@
+{
+  "out_dir": "models/hf/Qwen2.5-0.5B-Instruct-Valhalla-TriModal-Fusion-v3-smoke-s0.10",
+  "phase": "smoke",
+  "sample_count": 4,
+  "persistent_fusion": {
+    "protocol": "valhalla-free-multimodal-fusion-v3",
+    "tri_modal": true,
+    "aggregate_score": 0.638,
+    "mix_weights": [0.4, 0.3, 0.3],
+    "tile_count": 72,
+    "stem_count": 154,
+    "signals_emitted": 152064
+  },
+  "potential": {
+    "emergence_rate": 1.0,
+    "avg_natural_score": 0.64,
+    "verdict": "TRIMODAL_POTENTIAL_CONFIRMED"
+  }
+}

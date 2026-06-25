@@ -109,8 +109,9 @@ def verify_hf_loadable(model_dir: Path, *, skip: bool = False) -> None:
     )
     ids = tokenizer.encode("Hello", add_special_tokens=False)
     if ids:
+        dev = next(model.parameters()).device
         with torch.no_grad():
-            model(torch.tensor([ids]))
+            model(torch.tensor([ids], device=dev))
     print(f"  HF verify OK: {model_dir}", file=sys.stderr)
 
 

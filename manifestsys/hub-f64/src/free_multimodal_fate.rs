@@ -17,10 +17,11 @@ use crate::signal_ingress::{BodyTarget, IngressBudget, TriadFeedReport, TriadSes
 
 pub const FREE_MULTIMODAL_PROTOCOL: &str = "valhalla-free-multimodal-fusion-v1";
 pub const FREE_MULTIMODAL_FUSION_V2: &str = "valhalla-free-multimodal-fusion-v2";
+pub const FREE_MULTIMODAL_FUSION_V3: &str = "valhalla-free-multimodal-fusion-v3";
 
 const FREE_FUSION_RULES: &[&str] = &[
     "task_tag:free_multimodal_fusion",
-    "no_preset_routing: text and audio may enter hub tile stem freely",
+    "no_preset_routing: text audio image may enter hub tile stem freely",
     "fate_adapt: multi-round until cross-modal closure or marginal stable",
     "discovery_only: no fixed multimodal phenomenon list",
 ];
@@ -30,6 +31,16 @@ pub struct FreeMultimodalSample {
     pub id: String,
     pub text: String,
     pub audio_features: Vec<f64>,
+    #[serde(default)]
+    pub image_features: Vec<f64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TriModalSample {
+    pub id: String,
+    pub text: String,
+    pub audio_features: Vec<f64>,
+    pub image_features: Vec<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -124,6 +135,56 @@ fn free_multimodal_mix_alpha() -> f64 {
         .clamp(0.15, 0.85)
 }
 
+pub fn free_multimodal_tri_mix_weights() -> [f64; 3] {
+    let llm = std::env::var("VALHALLA_FREE_MULTIMODAL_MIX_LLM")
+        .ok()
+        .and_then(|v| v.parse::<f64>().ok())
+        .unwrap_or(0.40);
+    let tts = std::env::var("VALHALLA_FREE_MULTIMODAL_MIX_TTS")
+        .ok()
+        .and_then(|v| v.parse::<f64>().ok())
+        .unwrap_or(0.30);
+    let img = std::env::var("VALHALLA_FREE_MULTIMODAL_MIX_IMG")
+        .ok()
+        .and_then(|v| v.parse::<f64>().ok())
+        .unwrap_or(0.30);
+    let sum = (llm + tts + img).max(1e-9);
+    [llm / sum, tts / sum, img / sum]
+}
+
+pub fn mix_ports_weighted(ports: &[&BodyFrontPorts], weights: &[f64]) -> BodyFrontPorts {
+    let dim = ports
+        .iter()
+        .map(|p| p.embed_dim)
+        .max()
+        .unwrap_or(1)
+        .max(1);
+    let mut emb = vec![0.0; dim];
+    for (p, w) in ports.iter().zip(weights.iter()) {
+        for i in 0..dim {
+            let v = p.embedding.get(i % p.embedding.len()).copied().unwrap_or(0.0);
+            emb[i] += v * w;
+        }
+    }
+    normalize_vec(&mut emb);
+    let labels: Vec<&str> = ports.iter().map(|p| p.modality_label.as_str()).collect();
+    let mut mixed = build_body_ports(
+        &emb,
+        &DlFrontConfig::default(),
+        "free_fusion/tri_mix",
+        &labels.join("+"),
+    );
+    mixed.modality_label = "free_trimodal".into();
+    mixed
+}
+
+fn normalize_vec(v: &mut [f64]) {
+    let n: f64 = v.iter().map(|x| x * x).sum::<f64>().sqrt().max(1e-9);
+    for x in v.iter_mut() {
+        *x /= n;
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PersistentFusionOutcome {
     pub report: TriadFeedReport,
@@ -135,6 +196,10 @@ pub struct PersistentFusionOutcome {
     pub deep_fusion: bool,
     pub mix_alpha: f64,
     pub aggregate_score: f64,
+    #[serde(default)]
+    pub tri_modal: bool,
+    #[serde(default)]
+    pub mix_weights: Vec<f64>,
 }
 
 fn install_free_rules(session: &mut TriadSession) {
@@ -187,7 +252,7 @@ fn mix_ports(a: &BodyFrontPorts, b: &BodyFrontPorts) -> BodyFrontPorts {
 }
 
 /// Pulse ports into **all** bodies — no Stem=text / Tile=audio preset.
-fn free_pulse(session: &mut TriadSession, ports: &BodyFrontPorts) {
+pub fn free_pulse(session: &mut TriadSession, ports: &BodyFrontPorts) {
     let pulse_cycles = free_multimodal_optimize_cycles_per_pulse();
     for target in [
         BodyTarget::Hub,
@@ -263,6 +328,79 @@ pub fn run_persistent_corpus_fusion(
         deep_fusion: free_multimodal_deep_enabled(),
         mix_alpha: alpha,
         aggregate_score: aggregate,
+        tri_modal: false,
+        mix_weights: vec![alpha, 1.0 - alpha],
+    }
+}
+
+/// One corpus line: LLM + TTS + image-gen free fusion (persistent incubation, v3).
+fn fuse_sample_persistent_tri(
+    session: &mut TriadSession,
+    llm_ports: &BodyFrontPorts,
+    tts_ports: &BodyFrontPorts,
+    img_ports: &BodyFrontPorts,
+    rounds: usize,
+    weights: &[f64; 3],
+) {
+    let mixed = mix_ports_weighted(&[llm_ports, tts_ports, img_ports], weights);
+    for r in 0..rounds {
+        free_pulse(session, llm_ports);
+        free_pulse(session, tts_ports);
+        free_pulse(session, img_ports);
+        free_pulse(session, &mixed);
+        session.emit_body_ports(&mixed);
+        let _ = session.hub.triple_fate.store_string(&format!(
+            "persistent_trimodal_round={r}"
+        ));
+    }
+}
+
+/// Feed all LLM+TTS+image-gen triples into one Triad session → export fused structure (v3).
+pub fn run_persistent_corpus_fusion_tri(
+    triples: &[(BodyFrontPorts, BodyFrontPorts, BodyFrontPorts)],
+    mode_label: &str,
+) -> PersistentFusionOutcome {
+    let budget = IngressBudget::incubation();
+    let mut session = TriadSession::with_body(budget, BodyTarget::Triad);
+    install_free_rules(&mut session);
+
+    let rounds = free_multimodal_rounds_per_sample();
+    let closure = free_multimodal_closure_rounds();
+    let pulse_cycles = free_multimodal_optimize_cycles_per_pulse();
+    let weights = free_multimodal_tri_mix_weights();
+
+    for (llm, tts, img) in triples {
+        fuse_sample_persistent_tri(&mut session, llm, tts, img, rounds, &weights);
+    }
+
+    let mut last_mixed = triples
+        .last()
+        .map(|(l, t, i)| mix_ports_weighted(&[l, t, i], &weights));
+    for _ in 0..closure {
+        if let Some(ref mixed) = last_mixed {
+            free_pulse(&mut session, mixed);
+            session.emit_body_ports(mixed);
+        }
+        session.run_optimize_cycles_target(pulse_cycles, BodyTarget::Triad);
+        mark_epoch_if_hub(&mut session);
+    }
+
+    let aggregate = compute_aggregate(&session);
+    let mut report = session.build_feed_report(mode_label, closure);
+    report.optimize_cycles = triples.len() * rounds * 4 + closure;
+
+    PersistentFusionOutcome {
+        report,
+        protocol: FREE_MULTIMODAL_FUSION_V3.into(),
+        samples_fed: triples.len(),
+        rounds_per_sample: rounds,
+        closure_rounds: closure,
+        pulse_cycles,
+        deep_fusion: free_multimodal_deep_enabled(),
+        mix_alpha: weights[0],
+        aggregate_score: aggregate,
+        tri_modal: true,
+        mix_weights: weights.to_vec(),
     }
 }
 
@@ -546,6 +684,33 @@ pub fn run_free_multimodal_fate(
     }
 }
 
+/// LLM + TTS + image-gen → extend dual free fusion with image pulses each adapt round.
+pub fn run_free_trimodal_fate(
+    session: &mut TriadSession,
+    llm_ports: &BodyFrontPorts,
+    tts_ports: &BodyFrontPorts,
+    img_ports: &BodyFrontPorts,
+    mode_label: &str,
+) -> FreeMultimodalOutcome {
+    let weights = free_multimodal_tri_mix_weights();
+    let mixed = mix_ports_weighted(&[llm_ports, tts_ports, img_ports], &weights);
+    let mut outcome = run_free_multimodal_fate(session, llm_ports, tts_ports, mode_label, None);
+    free_pulse(session, img_ports);
+    free_pulse(session, &mixed);
+    session.emit_body_ports(&mixed);
+    let binding_boost = cosine(
+        &outcome.report.model_patch.patch_vector,
+        &img_ports.embedding,
+    )
+    .abs()
+    .min(0.2);
+    outcome.emergence.cross_modal_binding =
+        (outcome.emergence.cross_modal_binding + binding_boost).min(1.0);
+    outcome.emergence.natural_multimodal_score =
+        (outcome.emergence.natural_multimodal_score + binding_boost * 0.5).min(1.0);
+    outcome
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -584,5 +749,27 @@ mod tests {
         assert!(out.report.tile_completed > 0);
         assert!(out.report.stem_cells > 0);
         assert!(out.aggregate_score > 0.0);
+    }
+
+    #[test]
+    fn persistent_trimodal_fusion_accumulates_structure() {
+        std::env::set_var("VALHALLA_FREE_MULTIMODAL_DEEP", "1");
+        std::env::set_var("VALHALLA_FREE_MULTIMODAL_ROUNDS_PER_SAMPLE", "2");
+        std::env::set_var("VALHALLA_FREE_MULTIMODAL_CLOSURE_ROUNDS", "3");
+        let triples: Vec<_> = (0..3)
+            .map(|i| {
+                let s = i as f64 * 0.13;
+                (
+                    dummy_ports(s),
+                    dummy_ports(s + 0.4),
+                    dummy_ports(s + 0.8),
+                )
+            })
+            .collect();
+        let out = run_persistent_corpus_fusion_tri(&triples, "test_trimodal");
+        assert_eq!(out.samples_fed, 3);
+        assert!(out.tri_modal);
+        assert_eq!(out.mix_weights.len(), 3);
+        assert!(out.report.tile_completed > 0);
     }
 }

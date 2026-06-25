@@ -1,0 +1,5 @@
+# Image generation model weights (download via download_image_model.py)
+*
+!.gitignore
+!model_id.txt
+!README.md

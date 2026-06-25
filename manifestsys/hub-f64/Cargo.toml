@@ -79,6 +79,14 @@ name = "valhalla_free_multimodal_incubate"
 path = "src/bin/valhalla_free_multimodal_incubate.rs"
 
 [[bin]]
+name = "valhalla_trimodal"
+path = "src/bin/valhalla_trimodal.rs"
+
+[[bin]]
+name = "valhalla_trimodal_incubate"
+path = "src/bin/valhalla_trimodal_incubate.rs"
+
+[[bin]]
 name = "valhalla_native_qa"
 path = "src/bin/valhalla_native_qa.rs"
 

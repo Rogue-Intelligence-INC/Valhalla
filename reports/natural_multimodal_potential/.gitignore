@@ -1,2 +1,5 @@
 # Full per-sample Fate traces (use potential_test_summary.json)
 potential_test.json
+trimodal_potential_*.json
+trimodal_samples_*.json
+!trimodal_potential_*_summary.json

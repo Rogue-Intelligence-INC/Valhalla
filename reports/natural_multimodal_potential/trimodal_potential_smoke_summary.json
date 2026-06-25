@@ -1,0 +1,18 @@
+{
+  "protocol": "valhalla-free-multimodal-fusion-v3",
+  "phase": "smoke",
+  "models": ["Qwen/Qwen2.5-0.5B-Instruct", "espeak-TTS", "stabilityai/sd-turbo"],
+  "summary": {
+    "sample_count": 4,
+    "emergence_rate": 1.0,
+    "avg_natural_multimodal_score": 0.64,
+    "tile_superadditive_rate": 1.0,
+    "potential_confirmed": true,
+    "verdict": "TRIMODAL_POTENTIAL_CONFIRMED"
+  },
+  "bake": {
+    "out_dir": "models/hf/Qwen2.5-0.5B-Instruct-Valhalla-TriModal-Fusion-v3-smoke-s0.10",
+    "aggregate_score": 0.638,
+    "mix_weights": [0.4, 0.3, 0.3]
+  }
+}
