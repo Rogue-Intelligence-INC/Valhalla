@@ -1,0 +1,52 @@
+{
+  "layout": "compare",
+  "phase": "smoke",
+  "sample_count": 4,
+  "avg_shared_patch_isolated": 0.8495356555566161,
+  "avg_shared_patch_non_isolated": 0.9997027789679396,
+  "avg_fusion_centroid_isolated": 0.862142603418739,
+  "avg_fusion_centroid_non_isolated": 0.9994520224158268,
+  "avg_universal_score_isolated": 0.7631823549212722,
+  "avg_universal_score_non_isolated": 0.880195524044056,
+  "non_isolated_wins": 4,
+  "isolated_wins": 0,
+  "verdict": "NON_ISOLATED_BETTER: single-session concurrent fusion tightens universal core more",
+  "per_task": [
+    {
+      "id": "MCQ_PHYS_01",
+      "isolated_shared": 0.8782949143473019,
+      "non_isolated_shared": 0.9997553680625358,
+      "isolated_universal": true,
+      "non_isolated_universal": true,
+      "score_delta": 0.10784316717519038,
+      "non_isolated_better": true
+    },
+    {
+      "id": "MCQ_PHYS_02",
+      "isolated_shared": 0.8892744203651946,
+      "non_isolated_shared": 0.9997646467388549,
+      "isolated_universal": true,
+      "non_isolated_universal": true,
+      "score_delta": 0.09695081319687016,
+      "non_isolated_better": true
+    },
+    {
+      "id": "MCQ_CHEM_01",
+      "isolated_shared": 0.8199529003088825,
+      "non_isolated_shared": 0.9997777979346569,
+      "isolated_universal": true,
+      "non_isolated_universal": true,
+      "score_delta": 0.12978192892970408,
+      "non_isolated_better": true
+    },
+    {
+      "id": "MCQ_CHEM_02",
+      "isolated_shared": 0.8106203872050858,
+      "non_isolated_shared": 0.9995133031357106,
+      "isolated_universal": true,
+      "non_isolated_universal": true,
+      "score_delta": 0.13347676718937074,
+      "non_isolated_better": true
+    }
+  ]
+}

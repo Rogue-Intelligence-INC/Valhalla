@@ -714,6 +714,16 @@ pub fn run_free_trimodal_fate(
 // ── Universal core: same task via text / TTS / image ─────────────────────
 
 pub const UNIVERSAL_CORE_PROTOCOL: &str = "valhalla-universal-core-v1";
+pub const UNIVERSAL_CORE_NON_ISOLATED: &str = "valhalla-universal-core-v1-non-isolated";
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum UniversalCoreLayout {
+    Isolated,
+    NonIsolated,
+    #[default]
+    Compare,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModalityIsolationOutcome {
@@ -757,6 +767,30 @@ pub struct SameTaskUniversalCoreOutcome {
     pub metrics: UniversalCoreMetrics,
     pub fusion_adaptation_rounds: usize,
     pub fusion_aggregate_score: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SameTaskUniversalCoreNonIsolatedOutcome {
+    pub task_id: String,
+    pub layout: String,
+    /// In-session snapshot after each modality pulse (same session, cumulative)
+    pub text_track: ModalityIsolationOutcome,
+    pub audio_track: ModalityIsolationOutcome,
+    pub image_track: ModalityIsolationOutcome,
+    pub metrics: UniversalCoreMetrics,
+    pub fusion_adaptation_rounds: usize,
+    pub fusion_aggregate_score: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UniversalCoreCompareOutcome {
+    pub task_id: String,
+    pub isolated: SameTaskUniversalCoreOutcome,
+    pub non_isolated: SameTaskUniversalCoreNonIsolatedOutcome,
+    pub shared_patch_delta: f64,
+    pub fusion_centroid_delta: f64,
+    pub universal_score_delta: f64,
+    pub non_isolated_better: bool,
 }
 
 pub fn universal_core_isolation_rounds() -> usize {
@@ -832,6 +866,56 @@ fn tri_cos(a: &[f64], b: &[f64], c: &[f64]) -> (f64, f64, f64) {
     (cosine(a, b), cosine(a, c), cosine(b, c))
 }
 
+fn snapshot_patch(session: &mut TriadSession, mode: &str) -> ModalityIsolationOutcome {
+    let r = session.build_feed_report(mode, 0);
+    report_to_isolation(&r, mode)
+}
+
+fn compute_universal_core_metrics(
+    patches: &[Vec<f64>],
+    hub_vecs: &[Vec<f64>],
+    emb_vecs: &[Vec<f64>],
+    fused: &[f64],
+) -> UniversalCoreMetrics {
+    let (patch_ta, patch_ti, patch_ai) = tri_cos(&patches[0], &patches[1], &patches[2]);
+    let shared_patch = (patch_ta + patch_ti + patch_ai) / 3.0;
+    let shared_hub = pairwise_avg(hub_vecs);
+    let shared_emb = pairwise_avg(emb_vecs);
+    let centroid = patch_centroid(patches);
+    let fusion_vs_centroid = cosine(fused, &centroid);
+    let fusion_vs_text = cosine(fused, &patches[0]);
+    let fusion_vs_audio = cosine(fused, &patches[1]);
+    let fusion_vs_image = cosine(fused, &patches[2]);
+    let core_tightening = fusion_vs_centroid - shared_patch;
+    let shares_common_core =
+        shared_patch >= 0.40 || (shared_patch >= 0.20 && shared_hub >= 0.94);
+    let universal_core_score = (shared_patch * 0.40
+        + fusion_vs_centroid * 0.35
+        + shared_hub * 0.15
+        + shared_emb * 0.10)
+        .clamp(0.0, 1.0);
+    let universal_core_formed = universal_core_score >= 0.55
+        && fusion_vs_centroid >= shared_patch * 0.92
+        && core_tightening > -0.08;
+    UniversalCoreMetrics {
+        shared_patch_pairwise_avg: shared_patch,
+        patch_text_audio: patch_ta,
+        patch_text_image: patch_ti,
+        patch_audio_image: patch_ai,
+        shared_hub_pairwise_avg: shared_hub,
+        shared_embedding_pairwise_avg: shared_emb,
+        shares_common_core,
+        modality_centroid: centroid,
+        fusion_vs_centroid_cosine: fusion_vs_centroid,
+        fusion_vs_text,
+        fusion_vs_audio,
+        fusion_vs_image,
+        core_tightening,
+        universal_core_score,
+        universal_core_formed,
+    }
+}
+
 /// Same task → text-only / TTS-only / image-only isolation → fusion → universal core metrics.
 pub fn run_same_task_universal_core(
     task_id: &str,
@@ -852,24 +936,16 @@ pub fn run_same_task_universal_core(
         audio_iso.patch_vector.clone(),
         image_iso.patch_vector.clone(),
     ];
-    let (patch_ta, patch_ti, patch_ai) = tri_cos(&patches[0], &patches[1], &patches[2]);
-    let shared_patch = (patch_ta + patch_ti + patch_ai) / 3.0;
-
     let hub_vecs = vec![
         text_iso.hub_prefs.clone(),
         audio_iso.hub_prefs.clone(),
         image_iso.hub_prefs.clone(),
     ];
-    let shared_hub = pairwise_avg(&hub_vecs);
-
     let emb_vecs = vec![
         llm_ports.embedding.clone(),
         tts_ports.embedding.clone(),
         img_ports.embedding.clone(),
     ];
-    let shared_emb = pairwise_avg(&emb_vecs);
-
-    let centroid = patch_centroid(&patches);
 
     let budget = IngressBudget::incubation();
     let mut fusion_session = TriadSession::with_body(budget, BodyTarget::Triad);
@@ -881,48 +957,117 @@ pub fn run_same_task_universal_core(
         "universal_core_fusion",
     );
     let fused = fusion.report.model_patch.patch_vector.clone();
-
-    let fusion_vs_centroid = cosine(&fused, &centroid);
-    let fusion_vs_text = cosine(&fused, &patches[0]);
-    let fusion_vs_audio = cosine(&fused, &patches[1]);
-    let fusion_vs_image = cosine(&fused, &patches[2]);
-    let core_tightening = fusion_vs_centroid - shared_patch;
-
-    let shares_common_core =
-        shared_patch >= 0.40 || (shared_patch >= 0.20 && shared_hub >= 0.94);
-    let universal_core_score = (shared_patch * 0.40
-        + fusion_vs_centroid * 0.35
-        + shared_hub * 0.15
-        + shared_emb * 0.10)
-        .clamp(0.0, 1.0);
-    let universal_core_formed = universal_core_score >= 0.55
-        && fusion_vs_centroid >= shared_patch * 0.92
-        && core_tightening > -0.08;
+    let metrics = compute_universal_core_metrics(&patches, &hub_vecs, &emb_vecs, &fused);
 
     SameTaskUniversalCoreOutcome {
         task_id: task_id.to_string(),
         text_isolation: text_iso,
         audio_isolation: audio_iso,
         image_isolation: image_iso,
-        metrics: UniversalCoreMetrics {
-            shared_patch_pairwise_avg: shared_patch,
-            patch_text_audio: patch_ta,
-            patch_text_image: patch_ti,
-            patch_audio_image: patch_ai,
-            shared_hub_pairwise_avg: shared_hub,
-            shared_embedding_pairwise_avg: shared_emb,
-            shares_common_core,
-            modality_centroid: centroid,
-            fusion_vs_centroid_cosine: fusion_vs_centroid,
-            fusion_vs_text,
-            fusion_vs_audio,
-            fusion_vs_image,
-            core_tightening,
-            universal_core_score,
-            universal_core_formed,
-        },
+        metrics,
         fusion_adaptation_rounds: fusion.adaptation_rounds,
         fusion_aggregate_score: fusion.aggregate_score,
+    }
+}
+
+/// Same task — text/TTS/image **in one session** (no isolation), interleaved pulses.
+pub fn run_same_task_universal_core_non_isolated(
+    task_id: &str,
+    llm_ports: &BodyFrontPorts,
+    tts_ports: &BodyFrontPorts,
+    img_ports: &BodyFrontPorts,
+) -> SameTaskUniversalCoreNonIsolatedOutcome {
+    let budget = IngressBudget::incubation();
+    let mut session = TriadSession::with_body(budget, BodyTarget::Triad);
+    install_free_rules(&mut session);
+
+    let rounds = universal_core_isolation_rounds();
+    let weights = free_multimodal_tri_mix_weights();
+    let mixed = mix_ports_weighted(
+        &[llm_ports, tts_ports, img_ports],
+        &weights,
+    );
+
+    let mut text_track = snapshot_patch(&mut session, "non_iso_init");
+    let mut audio_track = text_track.clone();
+    let mut image_track = text_track.clone();
+
+    let adapt_rounds = free_multimodal_min_cycles().max(rounds);
+    for r in 0..adapt_rounds {
+        free_pulse(&mut session, llm_ports);
+        text_track = snapshot_patch(&mut session, "non_iso_after_text");
+        free_pulse(&mut session, tts_ports);
+        audio_track = snapshot_patch(&mut session, "non_iso_after_tts");
+        free_pulse(&mut session, img_ports);
+        image_track = snapshot_patch(&mut session, "non_iso_after_image");
+        free_pulse(&mut session, &mixed);
+        session.emit_body_ports(&mixed);
+        let _ = session
+            .hub
+            .triple_fate
+            .store_string(&format!("non_isolated_round={r}"));
+    }
+
+    let final_report = session.build_feed_report("non_isolated_final", adapt_rounds);
+    let fused = final_report.model_patch.patch_vector.clone();
+    let aggregate = compute_aggregate(&session);
+
+    text_track.mode = "non_iso_track_text".into();
+    audio_track.mode = "non_iso_track_tts".into();
+    image_track.mode = "non_iso_track_image".into();
+
+    let patches = vec![
+        text_track.patch_vector.clone(),
+        audio_track.patch_vector.clone(),
+        image_track.patch_vector.clone(),
+    ];
+    let hub_vecs = vec![
+        text_track.hub_prefs.clone(),
+        audio_track.hub_prefs.clone(),
+        image_track.hub_prefs.clone(),
+    ];
+    let emb_vecs = vec![
+        llm_ports.embedding.clone(),
+        tts_ports.embedding.clone(),
+        img_ports.embedding.clone(),
+    ];
+    let metrics = compute_universal_core_metrics(&patches, &hub_vecs, &emb_vecs, &fused);
+
+    SameTaskUniversalCoreNonIsolatedOutcome {
+        task_id: task_id.to_string(),
+        layout: UNIVERSAL_CORE_NON_ISOLATED.to_string(),
+        text_track,
+        audio_track,
+        image_track,
+        metrics,
+        fusion_adaptation_rounds: adapt_rounds,
+        fusion_aggregate_score: aggregate,
+    }
+}
+
+pub fn run_same_task_universal_core_compare(
+    task_id: &str,
+    llm_ports: &BodyFrontPorts,
+    tts_ports: &BodyFrontPorts,
+    img_ports: &BodyFrontPorts,
+) -> UniversalCoreCompareOutcome {
+    let isolated = run_same_task_universal_core(task_id, llm_ports, tts_ports, img_ports);
+    let non_isolated =
+        run_same_task_universal_core_non_isolated(task_id, llm_ports, tts_ports, img_ports);
+    let shared_patch_delta =
+        non_isolated.metrics.shared_patch_pairwise_avg - isolated.metrics.shared_patch_pairwise_avg;
+    let fusion_centroid_delta = non_isolated.metrics.fusion_vs_centroid_cosine
+        - isolated.metrics.fusion_vs_centroid_cosine;
+    let universal_score_delta =
+        non_isolated.metrics.universal_core_score - isolated.metrics.universal_core_score;
+    UniversalCoreCompareOutcome {
+        task_id: task_id.to_string(),
+        isolated,
+        non_isolated,
+        shared_patch_delta,
+        fusion_centroid_delta,
+        universal_score_delta,
+        non_isolated_better: universal_score_delta > 0.0,
     }
 }
 

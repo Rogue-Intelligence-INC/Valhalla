@@ -101,6 +101,8 @@ def main() -> None:
     ap.add_argument("--phase", default="smoke")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--image-model-dir", type=Path, default=REPO / "models/image_gen/sd-turbo")
+    ap.add_argument("--samples-json", type=Path, default=None, help="Reuse encoded samples (skip TTS/image)")
+    ap.add_argument("--layout", choices=("isolated", "non_isolated", "compare"), default="compare")
     ap.add_argument("--isolation-rounds", type=int, default=6)
     args = ap.parse_args()
 
@@ -113,7 +115,14 @@ def main() -> None:
         sys.exit(f"No prompts for phase={args.phase}")
 
     img_dir = OUT_DIR / "universal_core_images" / args.phase
-    samples = build_samples(prompts, img_dir, args.image_model_dir)
+    if args.samples_json and args.samples_json.is_file():
+        doc = json.loads(args.samples_json.read_text(encoding="utf-8"))
+        samples = doc.get("samples") or doc
+        if isinstance(samples, dict):
+            samples = samples.get("samples", [])
+        print(f"Loaded {len(samples)} samples from {args.samples_json}", file=sys.stderr)
+    else:
+        samples = build_samples(prompts, img_dir, args.image_model_dir)
 
     env = {
         **os.environ,
@@ -123,10 +132,10 @@ def main() -> None:
         "VALHALLA_FREE_MULTIMODAL_MIN_CYCLES": "8",
     }
 
-    print(f"\n=== Universal core test ({len(samples)} tasks) ===", file=sys.stderr)
+    print(f"\n=== Universal core [{args.layout}] ({len(samples)} tasks) ===", file=sys.stderr)
     proc = subprocess.run(
         [str(CORE_BIN)],
-        input=json.dumps({"samples": samples}),
+        input=json.dumps({"samples": samples, "layout": args.layout}),
         capture_output=True,
         text=True,
         env=env,
@@ -135,47 +144,61 @@ def main() -> None:
         print(proc.stderr, file=sys.stderr, end="")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    summary_path = OUT_DIR / f"universal_core_{args.phase}_summary.json"
-    full_path = OUT_DIR / f"universal_core_{args.phase}.json"
-
+    summary_path = OUT_DIR / f"universal_core_{args.layout}_{args.phase}_summary.json"
+    full_path = OUT_DIR / f"universal_core_{args.layout}_{args.phase}.json"
     if not proc.stdout.strip():
         sys.exit(f"binary failed rc={proc.returncode}\n{proc.stderr}")
 
     data = json.loads(proc.stdout)
-    s = data["summary"]
+    if args.layout == "compare":
+        s = data["summary"]
+        slim = {
+            "layout": "compare",
+            "phase": args.phase,
+            **s,
+            "per_task": [
+                {
+                    "id": o["task_id"],
+                    "isolated_shared": o["isolated"]["metrics"]["shared_patch_pairwise_avg"],
+                    "non_isolated_shared": o["non_isolated"]["metrics"]["shared_patch_pairwise_avg"],
+                    "isolated_universal": o["isolated"]["metrics"]["universal_core_formed"],
+                    "non_isolated_universal": o["non_isolated"]["metrics"]["universal_core_formed"],
+                    "score_delta": o["universal_score_delta"],
+                    "non_isolated_better": o["non_isolated_better"],
+                }
+                for o in data["samples"]
+            ],
+        }
+        print(f"\n=== Universal Core 对比 ({args.phase}) ===")
+        print(f"隔离 shared patch:     {s['avg_shared_patch_isolated']:.3f}")
+        print(f"不隔离 shared patch:   {s['avg_shared_patch_non_isolated']:.3f}")
+        print(f"隔离 universal score:  {s['avg_universal_score_isolated']:.3f}")
+        print(f"不隔离 universal score:{s['avg_universal_score_non_isolated']:.3f}")
+        print(f"胜场: 不隔离 {s['non_isolated_wins']} / 隔离 {s['isolated_wins']}")
+        print(f"Verdict: {s['verdict']}")
+    else:
+        s = data["summary"]
+        slim = {
+            "protocol": s["protocol"],
+            "layout": s["layout"],
+            "phase": args.phase,
+            "sample_count": s["sample_count"],
+            "common_core_rate": s["common_core_rate"],
+            "universal_core_formation_rate": s["universal_core_formation_rate"],
+            "avg_shared_patch": s["avg_shared_patch"],
+            "avg_fusion_vs_centroid": s["avg_fusion_vs_centroid"],
+            "avg_core_tightening": s["avg_core_tightening"],
+            "avg_universal_core_score": s["avg_universal_core_score"],
+            "verdict": s["verdict"],
+        }
+        print(f"\n=== Universal Core [{s['layout']}] ({args.phase}) ===")
+        print(f"Tasks: {s['sample_count']}")
+        print(f"共用核心 rate: {s['common_core_rate']:.1%}  (avg patch {s['avg_shared_patch']:.3f})")
+        print(f"通用核心形成 rate: {s['universal_core_formation_rate']:.1%}")
+        print(f"Verdict: {s['verdict']}")
 
-    # Slim summary for git
-    slim = {
-        "protocol": s["protocol"],
-        "phase": args.phase,
-        "sample_count": s["sample_count"],
-        "common_core_rate": s["common_core_rate"],
-        "universal_core_formation_rate": s["universal_core_formation_rate"],
-        "avg_shared_patch": s["avg_shared_patch"],
-        "avg_fusion_vs_centroid": s["avg_fusion_vs_centroid"],
-        "avg_core_tightening": s["avg_core_tightening"],
-        "avg_universal_core_score": s["avg_universal_core_score"],
-        "verdict": s["verdict"],
-        "per_task": [
-            {
-                "id": o["task_id"],
-                "shared_patch": o["metrics"]["shared_patch_pairwise_avg"],
-                "fusion_vs_centroid": o["metrics"]["fusion_vs_centroid_cosine"],
-                "shares_common_core": o["metrics"]["shares_common_core"],
-                "universal_core_formed": o["metrics"]["universal_core_formed"],
-            }
-            for o in data["samples"]
-        ],
-    }
     summary_path.write_text(json.dumps(slim, indent=2, ensure_ascii=False), encoding="utf-8")
     full_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-
-    print(f"\n=== Universal Core ({args.phase}) ===")
-    print(f"Tasks: {s['sample_count']}")
-    print(f"共用核心 rate: {s['common_core_rate']:.1%}  (avg patch align {s['avg_shared_patch']:.3f})")
-    print(f"通用核心形成 rate: {s['universal_core_formation_rate']:.1%}  (fusion↔centroid {s['avg_fusion_vs_centroid']:.3f})")
-    print(f"Core tightening: {s['avg_core_tightening']:+.3f}")
-    print(f"Verdict: {s['verdict']}")
     print(f"→ {summary_path}")
 
     if proc.returncode != 0:
