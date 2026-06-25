@@ -90,24 +90,36 @@ bake strength=0.10
 
 | 产物 | 路径 |
 |------|------|
-| v2 新模型（本地） | `checkpoints/valhalla_free_multimodal/test_fused_v2_s0.10` |
-| v1 新模型 | `checkpoints/valhalla_free_multimodal/test_fused_s0.08` |
+| **v2 HF 模型（完整格式）** | `models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10/` |
+| v2 旧路径（checkpoints） | `checkpoints/valhalla_free_multimodal/test_fused_v2_s0.10` |
 | v2 QA 报告 | `reports/natural_multimodal_potential/fused_v2_full_test.json` |
 | v2 bake 元数据 | `reports/natural_multimodal_potential/fusion_v2_bake_test.json` |
 | 潜力 summary | `reports/natural_multimodal_potential/potential_test_summary.json` |
 
-权重 ~988MB 不入 git。
+HF 目录含 `config.json` · `model.safetensors` · `tokenizer.*` · `chat_template.jinja` · `README.md` · `.gitattributes`，可直接 `AutoModelForCausalLM.from_pretrained(...)` 或 `--push-hub` 上传。
+
+权重 ~988MB 不入 git（见 `models/hf/.gitignore`）。
 
 ---
 
 ## 8. 复现
 
 ```bash
-# v2 strong bake（107 题，~27 min incubate + bake）
+# v2 strong bake → models/hf/...（完整 Hugging Face 格式）
 python3 tools/fair_benchmark/bake_free_multimodal_fusion.py --phase test --strong
 
+# 已有 bake 目录 → 补全 README / .gitattributes / 上传 Hub
+python3 tools/valhalla_model_bridge/finalize_hf_repo.py \\
+  models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10 \\
+  --repo-id Rogue-Intelligence/Qwen2.5-0.5B-Valhalla-FreeMultimodal-v2 \\
+  --push --public   # 需 HF token
+
+# 标准 transformers 加载
+python3 -c "from transformers import AutoModelForCausalLM; \\
+  AutoModelForCausalLM.from_pretrained('models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10', trust_remote_code=True)"
+
 # 全量 QA
-valhalla_fused_lm --model checkpoints/valhalla_free_multimodal/test_fused_v2_s0.10 --phase test
+valhalla_fused_lm --model models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10 --phase test
 
 # 潜力实验
 python3 tools/fair_benchmark/run_natural_multimodal_potential.py --phase test --strong --bake-fusion

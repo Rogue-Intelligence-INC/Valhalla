@@ -87,15 +87,24 @@ def main() -> None:
         "--out",
         type=Path,
         default=None,
-        help="Output checkpoint dir (default checkpoints/valhalla_free_multimodal/{phase}_fused_v2_s{strength})",
+        help="Output HF model dir (default models/hf/Qwen2.5-0.5B-Instruct-Valhalla-...)",
     )
+    ap.add_argument(
+        "--repo-id",
+        default=None,
+        help="Hugging Face repo id for README + optional push (e.g. Rogue-Intelligence/Qwen2.5-0.5B-Valhalla-FreeMultimodal-v2)",
+    )
+    ap.add_argument("--push-hub", action="store_true", help="Upload finalized model to Hugging Face Hub")
+    ap.add_argument("--public-hub", action="store_true", help="Public HF repo when --push-hub")
+    ap.add_argument("--skip-hf-verify", action="store_true", help="Skip transformers load smoke test")
     ap.add_argument("--strong", action="store_true", help="Deep fusion env (default on)")
     args = ap.parse_args()
 
     tag = args.base_model.split("/")[-1]
-    out_dir = args.out or (
-        REPO / f"checkpoints/valhalla_free_multimodal/{args.phase}_fused_v2_s{args.strength:.2f}"
+    default_name = (
+        f"{tag}-Valhalla-FreeMultimodal-Fusion-v2-{args.phase}-s{args.strength:.2f}"
     )
+    out_dir = args.out or (REPO / "models" / "hf" / default_name)
 
     ensure_bin()
     suite = load_suite()
@@ -218,9 +227,28 @@ def main() -> None:
     if staging.is_dir():
         shutil.rmtree(staging, ignore_errors=True)
 
-    print(f"\nNew v2 fused model → {out_dir}", file=sys.stderr)
+    from finalize_hf_repo import finalize_hf_repo  # noqa: E402
+
+    qa_report = REPO / "reports/natural_multimodal_potential" / f"fused_v2_full_{args.phase}.json"
+    if not qa_report.is_file():
+        qa_report = None
+    hf_result = finalize_hf_repo(
+        out_dir,
+        repo_id=args.repo_id,
+        qa_report=qa_report,
+        verify=not args.skip_hf_verify,
+        push=args.push_hub,
+        private=not args.public_hub,
+    )
+
+    print(f"\nHF-ready model → {out_dir}", file=sys.stderr)
     print(f"  weight_delta_norm={metrics.get('weight_delta_norm', 0):.4f}", file=sys.stderr)
     print(f"  report → {report_path}", file=sys.stderr)
+    if hf_result.get("hub_url"):
+        print(f"  hub → {hf_result['hub_url']}", file=sys.stderr)
+    print(f"\nLoad with transformers:", file=sys.stderr)
+    rid = args.repo_id or out_dir
+    print(f"  AutoModelForCausalLM.from_pretrained('{rid}', trust_remote_code=True)", file=sys.stderr)
     print(f"\nBenchmark:", file=sys.stderr)
     print(f"  valhalla_fused_lm --model {out_dir} --phase test", file=sys.stderr)
 

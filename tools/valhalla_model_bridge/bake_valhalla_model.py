@@ -280,7 +280,11 @@ def main() -> None:
         action="store_true",
         help="Apply Valhalla compose adapter (Stem+Tile+Hub) to lm_head after bake",
     )
-    ap.add_argument("--out", type=Path, required=True, help="Output checkpoint directory (new model)")
+    ap.add_argument("--out", type=Path, required=True, help="Output HF model directory (new model)")
+    ap.add_argument("--repo-id", default=None, help="HF repo id for README model card")
+    ap.add_argument("--push-hub", action="store_true", help="Upload to Hugging Face Hub after bake")
+    ap.add_argument("--public-hub", action="store_true", help="Public HF repo when --push-hub")
+    ap.add_argument("--skip-hf-verify", action="store_true")
     args = ap.parse_args()
 
     if args.bake_mode == "total" and args.body not in ("tile", "stemcell"):
@@ -334,9 +338,24 @@ def main() -> None:
         corpus_lines=len(corpus),
     )
 
-    print(f"\nSaved Valhalla baked model → {out_dir}", file=sys.stderr)
+    from finalize_hf_repo import finalize_hf_repo  # noqa: E402
+
+    hf_result = finalize_hf_repo(
+        out_dir,
+        repo_id=args.repo_id,
+        verify=not args.skip_hf_verify,
+        push=args.push_hub,
+        private=not args.public_hub,
+    )
+
+    print(f"\nHF-ready model → {out_dir}", file=sys.stderr)
     print(f"  valhalla_manifest.json  (runtime_patch=false)", file=sys.stderr)
     print(f"  weight_delta_norm={bake_metrics['weight_delta_norm']:.6f}", file=sys.stderr)
+    if hf_result.get("hub_url"):
+        print(f"  hub → {hf_result['hub_url']}", file=sys.stderr)
+    print("\nLoad with transformers:", file=sys.stderr)
+    rid = args.repo_id or out_dir
+    print(f"  AutoModelForCausalLM.from_pretrained('{rid}', trust_remote_code=True)", file=sys.stderr)
     print("\nUse with hybrid / fused (no runtime patch):", file=sys.stderr)
     print(f"  valhalla_fused_lm --model {out_dir} --phase test", file=sys.stderr)
     print(f"  valhalla_hybrid --model {out_dir} --phase test --run-patch", file=sys.stderr)

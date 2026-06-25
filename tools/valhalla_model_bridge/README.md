@@ -7,21 +7,27 @@ Valhalla 从 **Hub / Tile / StemCell / Triad** 孵化结构，**导出并烘焙�
 
 > **TF 前置 + 累积 patch 实验**见 [`../tier_a_tf_front/`](../tier_a_tf_front/README.md)
 
-## 推荐流程（bake → hybrid / fused）
+## 推荐流程（bake → HF → hybrid / fused）
 
 ```
-fair 语料
+fair 语料 / TTS+LLM 融合
     ↓
-valhalla_model_export --body triad --grinder   (Rust：Tile/Stem/Fate 结构)
+valhalla_model_export / valhalla_free_multimodal_incubate
     ↓
-bake_valhalla_model.py                         (Python：写入新 safetensors)
+bake_valhalla_model.py / bake_free_multimodal_fusion.py
     ↓
-checkpoints/valhalla_baked/.../
+models/hf/{ModelName}/              ← 完整 Hugging Face 格式
+    ├── config.json
     ├── model.safetensors
-    ├── valhalla_manifest.json   ← runtime_patch=false
-    └── valhalla_export.json
+    ├── tokenizer.json
+    ├── chat_template.jinja
+    ├── README.md                   ← model card
+    ├── .gitattributes              ← LFS（上传 Hub 用）
+    └── valhalla_manifest.json      ← 可选元数据，transformers 忽略
     ↓
-valhalla_fused_lm / valhalla_hybrid --model {baked_dir}   (推理不再改权重)
+AutoModelForCausalLM.from_pretrained(...)   或  finalize_hf_repo.py --push-hub
+    ↓
+valhalla_fused_lm / valhalla_hybrid
 ```
 
 ### Body 与 Hybrid 对应

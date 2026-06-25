@@ -1,0 +1,5 @@
+# HF weights stay local; push via finalize_hf_repo.py --push-hub
+*.safetensors
+*.bin
+*.pt
+*.pth
