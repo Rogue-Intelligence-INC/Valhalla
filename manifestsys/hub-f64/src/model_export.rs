@@ -6,10 +6,14 @@ use std::path::Path;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
+use crate::model_fate::ModelFateOutcome;
 use crate::patch_export::{self, ExportDoc};
 use crate::signal_ingress::TriadFeedReport;
+use crate::valhalla_adapter::{self, ComposeAdapterSpec};
 
 pub const MANIFEST_VERSION: &str = "valhalla-bake-1.0";
+/// Default hidden size for Qwen2.5-0.5B compose adapter projection at export time.
+pub const DEFAULT_COMPOSE_HIDDEN: usize = 896;
 
 /// Supported incubation bodies (matches `BodyTarget` / hybrid memory bodies).
 pub const BODIES: &[&str] = &["hub", "tile", "stemcell", "triad"];
@@ -21,6 +25,8 @@ pub enum IncubationIngress {
     Grinder,
     /// Legacy normalized_f64 text feed (`valhalla_model_export` default).
     NormalizedF64,
+    /// LM weight shards → Fate adapt (`shred_qwen_weights.py` + `valhalla_model_fate`).
+    ModelDecompose,
 }
 
 impl Default for IncubationIngress {
@@ -52,6 +58,19 @@ pub struct BakeProvenance {
     pub baked_at: String,
 }
 
+/// Model decompose → Fate adapt provenance (output is a **new** baked checkpoint).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelFateProvenance {
+    pub protocol: String,
+    pub base_model: String,
+    pub layer_count: usize,
+    pub adaptation_rounds: usize,
+    pub stopped_reason: String,
+    pub model_closure_score: f64,
+    pub decompose_score: f64,
+    pub aggregate_score: f64,
+}
+
 /// Written to `{checkpoint_dir}/valhalla_manifest.json` after bake.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValhallaBakedManifest {
@@ -62,6 +81,15 @@ pub struct ValhallaBakedManifest {
     pub export_doc: ExportDoc,
     /// Hybrid / fused / native QA can read this to skip runtime weight surgery.
     pub runtime_patch: bool,
+    /// Stem+Tile+Hub compose directions baked into lm_head (path B).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compose_adapter: Option<ComposeAdapterSpec>,
+    /// Present when checkpoint came from model weight decompose + Fate adapt.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_fate: Option<ModelFateProvenance>,
+    /// Persistent TTS+LLM free fusion metadata (v2 bake).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub free_multimodal: Option<serde_json::Value>,
 }
 
 impl ValhallaBakedManifest {
@@ -125,6 +153,11 @@ pub fn build_prebake_manifest(
 ) -> ValhallaBakedManifest {
     let body = export_doc.body.clone();
     let report = &export_doc.report;
+    let mp = &report.model_patch;
+    let compose_adapter = Some(valhalla_adapter::build_compose_adapter(
+        mp,
+        DEFAULT_COMPOSE_HIDDEN,
+    ));
     ValhallaBakedManifest {
         manifest_version: MANIFEST_VERSION.to_string(),
         product: "valhalla-baked-lm".into(),
@@ -138,6 +171,65 @@ pub fn build_prebake_manifest(
         },
         export_doc,
         runtime_patch: false,
+        compose_adapter,
+        model_fate: None,
+        free_multimodal: None,
+    }
+}
+
+/// Pre-bake manifest for model decompose → Fate adapt → weight recompose.
+pub fn build_model_fate_manifest(
+    export_doc: ExportDoc,
+    base_model_id: &str,
+    layer_count: usize,
+    bake_mode: &str,
+    strength: f64,
+    fate: &ModelFateOutcome,
+    protocol: &str,
+) -> ValhallaBakedManifest {
+    let body = export_doc.body.clone();
+    let report = &export_doc.report;
+    let mp = &report.model_patch;
+    let compose_adapter = Some(valhalla_adapter::build_compose_adapter(
+        mp,
+        DEFAULT_COMPOSE_HIDDEN,
+    ));
+    ValhallaBakedManifest {
+        manifest_version: MANIFEST_VERSION.to_string(),
+        product: "valhalla-model-fate-bake".into(),
+        incubation: IncubationProvenance {
+            body: body.to_ascii_lowercase(),
+            ingress: "modeldecompose".into(),
+            cycles: report.optimize_cycles,
+            corpus_lines: 0,
+            hub_routed: report.hub_routed,
+            hub_prefs: report.hub_prefs.clone(),
+            tile_count: report.tile_completed,
+            stem_cell_count: report.stem_cells,
+            signals_emitted: report.stats.signals_emitted,
+            patch_fingerprint: patch_fingerprint(report),
+        },
+        bake: BakeProvenance {
+            base_model_id: base_model_id.to_string(),
+            bake_mode: bake_mode.to_string(),
+            strength,
+            weight_delta_norm: None,
+            baked_at: Utc::now().to_rfc3339(),
+        },
+        export_doc,
+        runtime_patch: false,
+        compose_adapter,
+        model_fate: Some(ModelFateProvenance {
+            protocol: protocol.to_string(),
+            base_model: base_model_id.to_string(),
+            layer_count,
+            adaptation_rounds: fate.adaptation_rounds,
+            stopped_reason: fate.stopped_reason.clone(),
+            model_closure_score: fate.model_closure_score,
+            decompose_score: fate.decompose_score,
+            aggregate_score: fate.aggregate_score,
+        }),
+        free_multimodal: None,
     }
 }
 

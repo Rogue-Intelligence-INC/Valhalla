@@ -920,6 +920,135 @@ impl TriadSession {
         }
     }
 
+    /// Emit DL ports to one body (compose: Stem text / Tile audio / Hub fate).
+    pub fn emit_ports_target(&mut self, ports: &BodyFrontPorts, target: BodyTarget) {
+        if !ports.encoder.is_empty() {
+            self.ingress_encoder = ports.encoder.clone();
+        }
+        match target {
+            BodyTarget::Hub => {
+                if !ports.hub.is_empty() {
+                    let hub_cap = ports.hub.len().min(32);
+                    self.emit_signals_on_port(&ports.hub[..hub_cap], true, false, false);
+                }
+            }
+            BodyTarget::Tile => {
+                if !ports.tile.is_empty() {
+                    let _ = self.tile.receive_batch(&ports.tile);
+                    let n = ports.tile.len() as u64;
+                    self.stats.tile_ops += n;
+                    self.stats.signals_emitted += n;
+                    if self.stats.signals_emitted >= self.budget.max_signals_total {
+                        self.stats.budget_exhausted = true;
+                    }
+                }
+            }
+            BodyTarget::StemCell => {
+                if !ports.stem.is_empty() {
+                    let _ = self.stem.receive_batch(&ports.stem);
+                    let n = ports.stem.len() as u64;
+                    self.stats.stem_ops += n;
+                    self.stats.signals_emitted += n;
+                    if self.stats.signals_emitted >= self.budget.max_signals_total {
+                        self.stats.budget_exhausted = true;
+                    }
+                }
+            }
+            BodyTarget::Triad => self.emit_body_ports(ports),
+        }
+    }
+
+    /// Feed modality embedding to a single body target (non-traditional compose path).
+    pub fn feed_modality_target(
+        &mut self,
+        input: ModalityInput,
+        front_cfg: &DlFrontConfig,
+        target: BodyTarget,
+    ) -> bool {
+        if self.stats.budget_exhausted || self.stats.items_processed >= self.budget.max_items {
+            self.stats.budget_exhausted = true;
+            return false;
+        }
+        let ports = encode_modality(&input, front_cfg);
+        self.emit_ports_target(&ports, target);
+        self.stats.items_processed += 1;
+        !self.stats.budget_exhausted
+    }
+
+    /// Optimize cycles for one body only (per-shard closure in compose mode).
+    pub fn run_optimize_cycles_target(&mut self, optimize_cycles: usize, target: BodyTarget) {
+        let cycles = optimize_cycles.max(1);
+        match target {
+            BodyTarget::Hub => {
+                self.hub.mark_epoch_complete();
+            }
+            BodyTarget::Tile => {
+                for _ in 0..cycles {
+                    self.tile.process_tiles_cycle();
+                    if self.tile.has_fate_converged() {
+                        break;
+                    }
+                }
+            }
+            BodyTarget::StemCell => {
+                for _ in 0..cycles {
+                    self.stem.process_cells_cycle();
+                    let _ = self.stem.evolve(0.5);
+                    if self.stem.cells.len() >= 4 {
+                        let _ = self.stem.evolve(0.35);
+                    }
+                    if self.stem.has_fate_converged() {
+                        break;
+                    }
+                }
+            }
+            BodyTarget::Triad => self.run_optimize_cycles(cycles),
+        }
+    }
+
+    /// Structural closure metric for a body before/after shard feed (compose scoring).
+    pub fn body_closure_metric(&self, target: BodyTarget) -> f64 {
+        match target {
+            BodyTarget::Tile => {
+                let tiles = &self.tile.completed_tiles;
+                if tiles.is_empty() {
+                    self.stats.tile_ops as f64 * 1e-4
+                } else {
+                    tiles
+                        .iter()
+                        .map(|t| {
+                            t.energy.abs()
+                                + t.activation.abs() * 0.25
+                                + t.connections.len() as f64 * 0.02
+                        })
+                        .sum::<f64>()
+                        / tiles.len() as f64
+                }
+            }
+            BodyTarget::StemCell => {
+                let cells = &self.stem.cells;
+                if cells.is_empty() {
+                    self.stats.stem_ops as f64 * 1e-4
+                } else {
+                    cells
+                        .iter()
+                        .map(|c| c.energy.abs() + c.connections.len() as f64 * 0.01)
+                        .sum::<f64>()
+                        / cells.len() as f64
+                }
+            }
+            BodyTarget::Hub => {
+                let conv = if self.hub.has_fate_converged() { 0.35 } else { 0.0 };
+                self.stats.hub_requests as f64 * 0.008 + conv
+            }
+            BodyTarget::Triad => {
+                (self.body_closure_metric(BodyTarget::Tile)
+                    + self.body_closure_metric(BodyTarget::StemCell))
+                    * 0.5
+            }
+        }
+    }
+
     /// Export patch report after optional optimize cycles (session remains usable).
     pub fn build_feed_report(&mut self, mode_label: &str, optimize_cycles: usize) -> TriadFeedReport {
         if optimize_cycles > 0 {

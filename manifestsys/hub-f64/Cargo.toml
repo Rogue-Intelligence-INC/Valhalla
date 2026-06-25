@@ -67,6 +67,18 @@ name = "valhalla_model_export"
 path = "src/bin/valhalla_model_export.rs"
 
 [[bin]]
+name = "valhalla_model_fate"
+path = "src/bin/valhalla_model_fate.rs"
+
+[[bin]]
+name = "valhalla_free_multimodal"
+path = "src/bin/valhalla_free_multimodal.rs"
+
+[[bin]]
+name = "valhalla_free_multimodal_incubate"
+path = "src/bin/valhalla_free_multimodal_incubate.rs"
+
+[[bin]]
 name = "valhalla_native_qa"
 path = "src/bin/valhalla_native_qa.rs"
 

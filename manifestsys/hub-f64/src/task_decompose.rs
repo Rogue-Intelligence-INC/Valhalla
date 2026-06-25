@@ -47,6 +47,8 @@ pub enum DecomposeMode {
     OpenRetrieval,
     /// Text (LM/grinder) + TTS mel bands decomposed in parallel → Hub Fate → Triad recompose.
     MultimodalCompose,
+    /// MCQ stem/options (text) + TTS mel bands → Hub Fate → logprob recompose.
+    McqMultimodalCompose,
 }
 
 impl DecomposeMode {
@@ -170,6 +172,9 @@ pub fn plan_decomposition(
         DecomposeMode::OpenRetrieval => plan_open_retrieval(question),
         DecomposeMode::MultimodalCompose => {
             plan_multimodal_compose(question, audio_mel.unwrap_or(&[]))
+        }
+        DecomposeMode::McqMultimodalCompose => {
+            plan_mcq_multimodal_compose(question, audio_mel.unwrap_or(&[]))
         }
     };
     DecomposePlan {
@@ -319,16 +324,44 @@ fn split_mel_bands(mel: &[f64], bands: usize) -> Vec<Vec<f64>> {
         .collect()
 }
 
+/// Split LM question text into spans — each span is a separate Stem/Tile shard.
+fn split_lm_text_spans(question: &str, max_spans: usize) -> Vec<String> {
+    let max_spans = max_spans.max(1);
+    let mut parts: Vec<String> = question
+        .split(['.', '?', '!', '\n'])
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+        .collect();
+    if parts.is_empty() {
+        parts.push(question.trim().to_string());
+    }
+    if parts.len() > max_spans {
+        let tail = parts[max_spans - 1..].join(". ");
+        parts.truncate(max_spans - 1);
+        parts.push(tail);
+    }
+    parts
+}
+
 /// Parallel text (Stem) + TTS mel bands (Tile) → Hub Fate aggregate → Triad LM recompose slot.
 fn plan_multimodal_compose(question: &str, audio_mel: &[f64]) -> Vec<DecomposeShard> {
-    let mut out = vec![DecomposeShard {
-        label: "TEXT_LM_QUERY".into(),
-        text: format!("TEXT_LM_QUERY {question}"),
-        body: ShardBody::Stem,
-        phase: ShardPhase::Decompose,
-        modality: ShardModality::Text,
-        audio_mel: None,
-    }];
+    let mut out = Vec::new();
+    for (i, span) in split_lm_text_spans(question, 4).into_iter().enumerate() {
+        let body = if i == 0 {
+            ShardBody::Stem
+        } else {
+            ShardBody::Tile
+        };
+        out.push(DecomposeShard {
+            label: format!("TEXT_LM_SPAN_{i}"),
+            text: format!("TEXT_LM_SPAN_{i} {span}"),
+            body,
+            phase: ShardPhase::Decompose,
+            modality: ShardModality::Text,
+            audio_mel: None,
+        });
+    }
     for (i, band) in split_mel_bands(audio_mel, 4).into_iter().enumerate() {
         out.push(DecomposeShard {
             label: format!("AUDIO_TTS_BAND_{i}"),
@@ -358,6 +391,66 @@ fn plan_multimodal_compose(question: &str, audio_mel: &[f64]) -> Vec<DecomposeSh
     out
 }
 
+/// MCQ: stem (Stem) + options (Tile) + TTS bands (Tile) → Hub cross-modal → Triad recompose.
+fn plan_mcq_multimodal_compose(question: &str, audio_mel: &[f64]) -> Vec<DecomposeShard> {
+    let parts = mcq_fate::parse_mcq_parts(question);
+    let mut out = vec![DecomposeShard {
+        label: "MCQ_STEM".into(),
+        text: format!("MCQ_STEM {}", parts.stem),
+        body: ShardBody::Stem,
+        phase: ShardPhase::Decompose,
+        modality: ShardModality::Text,
+        audio_mel: None,
+    }];
+    for (letter, line) in &parts.options {
+        out.push(DecomposeShard {
+            label: format!("MCQ_OPTION_{letter}"),
+            text: format!("MCQ_OPTION {line}"),
+            body: ShardBody::Tile,
+            phase: ShardPhase::Decompose,
+            modality: ShardModality::Text,
+            audio_mel: None,
+        });
+    }
+    if parts.options.is_empty() {
+        out.push(DecomposeShard {
+            label: "MCQ_WHOLE".into(),
+            text: format!("MCQ_WHOLE {question}"),
+            body: ShardBody::Stem,
+            phase: ShardPhase::Decompose,
+            modality: ShardModality::Text,
+            audio_mel: None,
+        });
+    }
+    for (i, band) in split_mel_bands(audio_mel, 4).into_iter().enumerate() {
+        out.push(DecomposeShard {
+            label: format!("AUDIO_TTS_BAND_{i}"),
+            text: format!("AUDIO_TTS_BAND_{i} mel prosody shard"),
+            body: ShardBody::Tile,
+            phase: ShardPhase::Decompose,
+            modality: ShardModality::AudioMel,
+            audio_mel: Some(band),
+        });
+    }
+    out.push(DecomposeShard {
+        label: "CROSS_MODAL_FATE".into(),
+        text: "CROSS_MODAL MCQ text+tts Fate".into(),
+        body: ShardBody::Hub,
+        phase: ShardPhase::Aggregate,
+        modality: ShardModality::Text,
+        audio_mel: None,
+    });
+    out.push(DecomposeShard {
+        label: "LM_RECOMPOSE".into(),
+        text: "LM_RECOMPOSE MCQ affinity from Valhalla shards".into(),
+        body: ShardBody::Triad,
+        phase: ShardPhase::Recompose,
+        modality: ShardModality::Text,
+        audio_mel: None,
+    });
+    out
+}
+
 const HASH_SEED_TEXT: u64 = 0x5445_5854_5F46_4E54;
 
 pub fn shard_to_ports(shard: &DecomposeShard, front: &DlFrontConfig) -> BodyFrontPorts {
@@ -372,13 +465,21 @@ pub fn feed_decompose_plan(
     front: &DlFrontConfig,
     cycles_per_shard: usize,
 ) -> Vec<f64> {
+    let compose = matches!(
+        plan.mode,
+        DecomposeMode::MultimodalCompose | DecomposeMode::McqMultimodalCompose
+    );
     let mut scores = Vec::with_capacity(plan.shards.len());
     for shard in &plan.shards {
-        if shard.phase == ShardPhase::Recompose {
+        let structural = if compose && shard.phase == ShardPhase::Recompose {
+            feed_compose_shard(session, shard, front, cycles_per_shard);
+            session.body_closure_metric(shard.body.to_body_target())
+        } else if shard.phase == ShardPhase::Recompose {
             scores.push(1.0);
             continue;
-        }
-        let structural = feed_one_shard(session, shard, front, cycles_per_shard);
+        } else {
+            feed_one_shard(session, shard, front, cycles_per_shard, compose)
+        };
         scores.push(structural);
     }
     scores
@@ -389,7 +490,11 @@ fn feed_one_shard(
     shard: &DecomposeShard,
     front: &DlFrontConfig,
     cycles_per_shard: usize,
+    compose: bool,
 ) -> f64 {
+    if compose {
+        return feed_compose_shard(session, shard, front, cycles_per_shard);
+    }
     match shard.modality {
         ShardModality::AudioMel => {
             if let Some(ref mel) = shard.audio_mel {
@@ -418,35 +523,94 @@ fn feed_one_shard(
     }
 }
 
+fn feed_compose_shard(
+    session: &mut TriadSession,
+    shard: &DecomposeShard,
+    front: &DlFrontConfig,
+    cycles_per_shard: usize,
+) -> f64 {
+    let target = shard.body.to_body_target();
+    let before = session.body_closure_metric(target);
+    match shard.modality {
+        ShardModality::AudioMel => {
+            if let Some(ref mel) = shard.audio_mel {
+                session.feed_modality_target(
+                    ModalityInput::AudioFeatures {
+                        values: mel.clone(),
+                    },
+                    front,
+                    target,
+                );
+            }
+        }
+        ShardModality::Text => {
+            let ports = shard_to_ports(shard, front);
+            session.emit_ports_target(&ports, target);
+        }
+    }
+    session.run_optimize_cycles_target(cycles_per_shard, target);
+    if matches!(target, BodyTarget::Hub | BodyTarget::Triad) && session.hub.is_data_flowing() {
+        session.hub.mark_epoch_complete();
+    }
+    let after = session.body_closure_metric(target);
+    compose_shard_closure_score(before, after, shard)
+}
+
+fn compose_shard_closure_score(before: f64, after: f64, shard: &DecomposeShard) -> f64 {
+    let delta = (after - before).max(0.0);
+    let mut base = if delta > 1e-9 {
+        delta / (delta + 0.35)
+    } else {
+        after / (after + 0.5)
+    };
+    if let Some(rest) = shard.label.strip_prefix("AUDIO_TTS_BAND_") {
+        if let Ok(idx) = rest.parse::<f64>() {
+            base += idx * 0.035 + 0.015;
+        }
+    }
+    base.clamp(0.02, 0.98)
+}
+
 fn cross_modal_score_from_shards(plan: &DecomposePlan, shard_scores: &[f64]) -> f64 {
-    let mut text_sum = 0.0;
-    let mut text_n = 0usize;
-    let mut audio_sum = 0.0;
-    let mut audio_n = 0usize;
+    let mut text_scores = Vec::new();
+    let mut audio_scores = Vec::new();
     for (shard, sc) in plan.shards.iter().zip(shard_scores.iter()) {
         if shard.phase != ShardPhase::Decompose {
             continue;
         }
         match shard.modality {
-            ShardModality::Text => {
-                text_sum += sc;
-                text_n += 1;
-            }
-            ShardModality::AudioMel => {
-                audio_sum += sc;
-                audio_n += 1;
-            }
+            ShardModality::Text => text_scores.push(*sc),
+            ShardModality::AudioMel => audio_scores.push(*sc),
         }
     }
-    if text_n == 0 && audio_n == 0 {
+    if text_scores.is_empty() && audio_scores.is_empty() {
         return 0.5;
     }
-    let text_mean = if text_n > 0 { text_sum / text_n as f64 } else { 0.0 };
-    let audio_mean = if audio_n > 0 { audio_sum / audio_n as f64 } else { 0.0 };
+    let text_mean = if text_scores.is_empty() {
+        0.0
+    } else {
+        text_scores.iter().sum::<f64>() / text_scores.len() as f64
+    };
+    let audio_mean = if audio_scores.is_empty() {
+        0.0
+    } else {
+        audio_scores.iter().sum::<f64>() / audio_scores.len() as f64
+    };
     if text_mean + audio_mean <= 1e-9 {
         return 0.5;
     }
-    audio_mean / (text_mean + audio_mean)
+    let balance = audio_mean / (text_mean + audio_mean);
+    let audio_spread = if audio_scores.len() > 1 {
+        let var = audio_scores
+            .iter()
+            .map(|s| (s - audio_mean).powi(2))
+            .sum::<f64>()
+            / audio_scores.len() as f64;
+        var.sqrt().min(0.35)
+    } else {
+        0.0
+    };
+    (balance * 0.72 + audio_spread * 0.28).clamp(0.05, 0.95)
 }
 
 /// Build LM-facing patch from Valhalla report + decomposition plan.
@@ -478,7 +642,10 @@ pub fn recompose_to_patch(
     } else {
         0.0
     };
-    let cross_modal_score = if plan.mode == DecomposeMode::MultimodalCompose {
+    let cross_modal_score = if matches!(
+        plan.mode,
+        DecomposeMode::MultimodalCompose | DecomposeMode::McqMultimodalCompose
+    ) {
         cross_modal_score_from_shards(plan, shard_scores)
     } else {
         0.5
@@ -489,10 +656,14 @@ pub fn recompose_to_patch(
         .zip(shard_scores.iter())
         .map(|(s, sc)| (s.label.clone(), *sc))
         .collect();
-    let compose_protocol = if plan.mode == DecomposeMode::MultimodalCompose {
-        "valhalla-compose-v1-text-tts-shards".into()
-    } else {
-        String::new()
+    let compose_protocol = match plan.mode {
+        DecomposeMode::MultimodalCompose => {
+            crate::multimodal_compose::COMPOSE_PROTOCOL.to_string()
+        }
+        DecomposeMode::McqMultimodalCompose => {
+            crate::multimodal_compose::COMPOSE_MCQ_PROTOCOL.to_string()
+        }
+        _ => String::new(),
     };
     RecomposePatch {
         model_patch: report.model_patch.clone(),
@@ -557,9 +728,12 @@ fn mcq_option_affinity_from_report(
     aff
 }
 
-/// Build LM user text from Valhalla recompose shards (non-traditional: structure-first prompt).
+/// LM user text: v2 structure-recompose uses **clean question** only (patch carries shards).
 pub fn build_compose_lm_user_text(plan: &DecomposePlan, recompose: &RecomposePatch) -> String {
     if recompose.compose_protocol.is_empty() {
+        return plan.whole_question.clone();
+    }
+    if crate::multimodal_compose::is_structure_recompose_protocol(&recompose.compose_protocol) {
         return plan.whole_question.clone();
     }
     let mut lines = vec![plan.whole_question.clone()];
@@ -568,11 +742,51 @@ pub fn build_compose_lm_user_text(plan: &DecomposePlan, recompose: &RecomposePat
         recompose.cross_modal_score, recompose.open_structure_score
     ));
     for (label, score) in &recompose.modality_shard_scores {
-        if label.starts_with("TEXT_") || label.starts_with("AUDIO_") {
+        if label.starts_with("TEXT_")
+            || label.starts_with("AUDIO_")
+            || label.starts_with("MCQ_")
+        {
             lines.push(format!("[shard {label} closure={score:.3}]"));
         }
     }
     lines.join("\n")
+}
+
+/// Patch strength from Triad recompose closure (Stem/Tile/Hub shards → model_patch).
+pub fn compose_patch_strength(base: f64, recompose: &RecomposePatch, score_type: &str) -> f64 {
+    if recompose.compose_protocol.is_empty() {
+        return base;
+    }
+    let structure = recompose.open_structure_score;
+    let cm = recompose.cross_modal_score;
+    match score_type {
+        "open" => {
+            base * (1.0 + structure * crate::multimodal::open_patch_bias_scale() + (cm - 0.5).abs() * 0.12)
+        }
+        "mcq" => base * (1.0 + structure * 0.28 + cm * 0.18),
+        _ => base,
+    }
+}
+
+pub fn feed_compose_shard_pub(
+    session: &mut TriadSession,
+    shard: &DecomposeShard,
+    front: &DlFrontConfig,
+    cycles_per_shard: usize,
+) -> f64 {
+    feed_compose_shard(session, shard, front, cycles_per_shard)
+}
+
+pub fn cross_modal_score_for_plan(plan: &DecomposePlan, shard_scores: &[f64]) -> f64 {
+    cross_modal_score_from_shards(plan, shard_scores)
+}
+
+pub fn compose_decode_tag(score_type: &str, cross_modal: f64) -> String {
+    format!("structure_recompose_{score_type}/x{cross_modal:.3}")
+}
+
+pub fn compose_fate_decode_tag(score_type: &str, cross_modal: f64, adapt_rounds: usize) -> String {
+    format!("compose_fate_{score_type}/x{cross_modal:.3}/a{adapt_rounds}")
 }
 
 /// Parse MCQ parts re-export for pipeline consumers.
@@ -663,12 +877,120 @@ mod tests {
             Some(&mel),
         );
         assert_eq!(plan.mode, DecomposeMode::MultimodalCompose);
-        assert!(plan.shards.iter().any(|s| s.label == "TEXT_LM_QUERY"));
+        assert!(plan.shards.iter().any(|s| s.label.starts_with("TEXT_LM_SPAN_")));
         assert!(plan
             .shards
             .iter()
             .any(|s| s.label.starts_with("AUDIO_TTS_BAND_")));
         assert!(plan.shards.iter().any(|s| s.label == "CROSS_MODAL_FATE"));
         assert!(plan.shards.iter().any(|s| s.label == "LM_RECOMPOSE"));
+    }
+
+    #[test]
+    fn structure_recompose_uses_clean_lm_prompt() {
+        let plan = plan_decomposition("Q?", "open", None, None);
+        let recompose = RecomposePatch {
+            model_patch: ValhallaModelPatch {
+                body_source: "triad".into(),
+                fate_affinities: vec![],
+                hub_routed: [0; 4],
+                quad_layer_scales: [1.0; 4],
+                tile_signatures: vec![],
+                stem_signatures: vec![],
+                patch_vector: vec![],
+                signals_emitted: 0,
+                tile_count: 0,
+                stem_cell_count: 0,
+                tile_activations: vec![],
+                tile_connection_count: 0,
+                tile_avg_activation: 0.0,
+                stem_organ_clusters: vec![],
+                stem_cluster_signatures: vec![],
+                stem_cluster_energies: vec![],
+                ingress_encoder: String::new(),
+            },
+            patch_token_ids: vec![],
+            lm_user_text: "Q?".into(),
+            shard_scores: vec![],
+            mcq_option_affinity: vec![],
+            open_structure_score: 0.5,
+            cross_modal_score: 0.5,
+            modality_shard_scores: vec![],
+            compose_protocol: crate::multimodal_compose::COMPOSE_PROTOCOL.to_string(),
+        };
+        assert_eq!(build_compose_lm_user_text(&plan, &recompose), "Q?");
+    }
+
+    #[test]
+    fn open_compose_splits_lm_text_spans() {
+        let mel: Vec<f64> = vec![0.1; 40];
+        let plan = plan_decomposition(
+            "First sentence. Second sentence.",
+            "open",
+            Some(DecomposeMode::MultimodalCompose),
+            Some(&mel),
+        );
+        assert!(plan
+            .shards
+            .iter()
+            .any(|s| s.label == "TEXT_LM_SPAN_0"));
+        assert!(plan
+            .shards
+            .iter()
+            .any(|s| s.label == "TEXT_LM_SPAN_1"));
+    }
+
+    #[test]
+    fn mcq_compose_has_stem_options_and_audio_bands() {
+        let q = "Pick\nA) one\nB) two\nC) three\nD) four";
+        let mel: Vec<f64> = (0..40).map(|i| i as f64 * 0.02).collect();
+        let plan = plan_decomposition(
+            q,
+            "mcq",
+            Some(DecomposeMode::McqMultimodalCompose),
+            Some(&mel),
+        );
+        assert_eq!(plan.mode, DecomposeMode::McqMultimodalCompose);
+        assert!(plan.shards.iter().any(|s| s.label == "MCQ_STEM"));
+        assert!(plan.shards.iter().any(|s| s.label == "MCQ_OPTION_B"));
+        assert!(plan
+            .shards
+            .iter()
+            .any(|s| s.label.starts_with("AUDIO_TTS_BAND_")));
+        assert!(plan.shards.iter().any(|s| s.label == "CROSS_MODAL_FATE"));
+    }
+
+    #[test]
+    fn compose_cross_modal_scores_differ_by_mel_energy() {
+        use crate::dl_front::DlFrontConfig;
+        use crate::signal_ingress::{IngressBudget, TriadSession};
+
+        let mel_rich: Vec<f64> = (0..80)
+            .map(|i| (i as f64 * 0.11).sin().abs() + 0.4)
+            .collect();
+        let mel_flat: Vec<f64> = vec![0.01; 80];
+        let front = DlFrontConfig::default();
+        let budget = IngressBudget::experiment();
+
+        let score_for = |mel: &[f64]| {
+            let plan = plan_decomposition(
+                "Explain photosynthesis briefly.",
+                "open",
+                Some(DecomposeMode::MultimodalCompose),
+                Some(mel),
+            );
+            let mut session = TriadSession::with_body(budget.clone(), BodyTarget::Tile);
+            let shard_scores = feed_decompose_plan(&mut session, &plan, &front, 2);
+            cross_modal_score_from_shards(&plan, &shard_scores)
+        };
+
+        let rich = score_for(&mel_rich);
+        let flat = score_for(&mel_flat);
+        assert!(
+            (rich - flat).abs() > 0.02,
+            "cross_modal should differ: rich={rich:.3} flat={flat:.3}"
+        );
+        assert!((0.05..=0.95).contains(&rich));
+        assert!((0.05..=0.95).contains(&flat));
     }
 }

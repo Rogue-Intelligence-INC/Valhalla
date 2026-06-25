@@ -506,6 +506,93 @@ pub fn decode_mcq_logprob_batch(
     Ok((best_l, scores))
 }
 
+/// MCQ compose: LM logprob + Valhalla shard affinity prior (no external memory).
+pub fn decode_mcq_logprob_compose(
+    model: &mut ModelForCausalLM,
+    device: &Device,
+    tokenizer: &Tokenizer,
+    raw_prompt: &str,
+    affinity: &[(char, f64)],
+    cross_modal: f64,
+) -> Result<(char, HashMap<char, f64>), String> {
+    let (_, mut scores) = decode_mcq_logprob_batch(model, device, tokenizer, raw_prompt)?;
+    if affinity.is_empty() {
+        return Ok((
+            scores
+                .iter()
+                .max_by(|a, b| a.1.partial_cmp(b.1).unwrap_or(std::cmp::Ordering::Equal))
+                .map(|(c, _)| *c)
+                .unwrap_or('A'),
+            scores,
+        ));
+    }
+    let bias_scale = std::env::var("VALHALLA_COMPOSE_MCQ_BIAS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0.55);
+    let gate = 0.5 + (cross_modal - 0.5) * 0.85;
+    let mean = affinity.iter().map(|(_, s)| *s).sum::<f64>() / affinity.len() as f64;
+    let mut best_l = 'A';
+    let mut best_lp = f64::NEG_INFINITY;
+    for letter in MCQ_LETTERS {
+        let lp = scores.get(&letter).copied().unwrap_or(f64::NEG_INFINITY);
+        let aff = affinity
+            .iter()
+            .find(|(c, _)| *c == letter)
+            .map(|(_, s)| *s - mean)
+            .unwrap_or(0.0);
+        let biased = lp + aff * bias_scale * gate;
+        scores.insert(letter, biased);
+        if biased > best_lp {
+            best_lp = biased;
+            best_l = letter;
+        }
+    }
+    Ok((best_l, scores))
+}
+
+/// Build LM from baked base + Triad `model_patch` after Stem/Tile/Hub shard recompose.
+fn build_compose_recompose_model(
+    base: &BaseWeights,
+    tokenizer: &Tokenizer,
+    user_text: &str,
+    recompose: &crate::task_decompose::RecomposePatch,
+    cfg: &PatchLmConfig,
+    score_type: &str,
+) -> Result<ModelForCausalLM, String> {
+    let hidden = base.cfg.hidden_size;
+    let n_layers = base.cfg.num_hidden_layers;
+    let mut token_ids = tokenizer
+        .encode(PATCH_ANCHOR, false)
+        .map_err(|e| e.to_string())?
+        .get_ids()
+        .to_vec();
+    if let Ok(enc) = tokenizer.encode(user_text, false) {
+        token_ids.extend(enc.get_ids().iter().copied());
+    }
+    let mut tensors = base.clone_tensors()?;
+    let strength = crate::task_decompose::compose_patch_strength(cfg.strength, recompose, score_type);
+    apply_legacy_patch_tensors(
+        &mut tensors,
+        &recompose.model_patch,
+        strength,
+        &token_ids,
+        hidden,
+        n_layers,
+    )?;
+    if score_type == "mcq" && !recompose.mcq_option_affinity.is_empty() {
+        apply_mcq_patch_bias(
+            &mut tensors,
+            tokenizer,
+            &recompose.mcq_option_affinity,
+            &[],
+            strength,
+            hidden,
+        )?;
+    }
+    base.build_model(tensors)
+}
+
 fn generate(
     model: &mut ModelForCausalLM,
     device: &Device,
@@ -700,11 +787,7 @@ pub fn run_patch_track_v4(
             "patch_pipeline_v4",
             audio,
         );
-        let user_text = if outcome.recompose.compose_protocol.is_empty() {
-            base_user_text
-        } else {
-            crate::task_decompose::build_compose_lm_user_text(&outcome.plan, &outcome.recompose)
-        };
+        let user_text = base_user_text.clone();
 
         let mut token_ids = tokenizer
             .encode(PATCH_ANCHOR, false)
@@ -717,7 +800,13 @@ pub fn run_patch_track_v4(
 
         let mut tensors = base.clone_tensors()?;
         let mp = &outcome.recompose.model_patch;
-        let effective_strength = if p.score_type == "open" {
+        let effective_strength = if !outcome.recompose.compose_protocol.is_empty() {
+            crate::task_decompose::compose_patch_strength(
+                cfg.strength,
+                &outcome.recompose,
+                &p.score_type,
+            )
+        } else if p.score_type == "open" {
             let boost = 1.0
                 + outcome.recompose.open_structure_score * crate::multimodal::open_patch_bias_scale();
             cfg.strength * boost
@@ -739,24 +828,28 @@ pub fn run_patch_track_v4(
                 .as_ref()
                 .map(|o| o.option_scores.as_slice())
                 .unwrap_or(&[]);
-            if !outcome.recompose.mcq_option_affinity.is_empty() || fate_scores.len() >= 2 {
+            let affinity = &outcome.recompose.mcq_option_affinity;
+            if !affinity.is_empty() || fate_scores.len() >= 2 {
                 apply_mcq_patch_bias(
                     &mut tensors,
                     &tokenizer,
-                    &outcome.recompose.mcq_option_affinity,
+                    affinity,
                     fate_scores,
-                    cfg.strength,
+                    effective_strength,
                     hidden,
                 )?;
             }
         }
 
         let mut model = base.build_model(tensors)?;
-        let decode_tag = if !outcome.recompose.compose_protocol.is_empty() {
-            format!(
-                "patch_pipeline_v4_compose_{}/x{:.3}",
-                p.score_type, outcome.recompose.cross_modal_score
+        let decode_tag = if let Some(ref cf) = outcome.compose_fate {
+            crate::task_decompose::compose_fate_decode_tag(
+                &p.score_type,
+                cf.cross_modal_score,
+                cf.adaptation_rounds,
             )
+        } else if !outcome.recompose.compose_protocol.is_empty() {
+            crate::task_decompose::compose_decode_tag(&p.score_type, outcome.recompose.cross_modal_score)
         } else if p.score_type == "open" && audio.is_some() {
             format!("patch_pipeline_v4_{}_multimodal", p.score_type)
         } else {
@@ -766,12 +859,34 @@ pub fn run_patch_track_v4(
         let (assistant, patch_subtag, patch_conf) = if p.score_type == "mcq" {
             let raw_prompt = format_chat_prompt(&user_text);
             if cfg.mcq_decode == McqDecodeMode::LogprobBatch {
-                let (letter, lps) = decode_mcq_logprob_batch(
-                    &mut model,
-                    &base.device,
-                    &tokenizer,
-                    &raw_prompt,
-                )?;
+                let (letter, lps) = if !outcome.recompose.compose_protocol.is_empty()
+                    && crate::multimodal_compose::is_structure_recompose_protocol(
+                        &outcome.recompose.compose_protocol,
+                    )
+                {
+                    decode_mcq_logprob_batch(
+                        &mut model,
+                        &base.device,
+                        &tokenizer,
+                        &raw_prompt,
+                    )?
+                } else if !outcome.recompose.compose_protocol.is_empty() {
+                    decode_mcq_logprob_compose(
+                        &mut model,
+                        &base.device,
+                        &tokenizer,
+                        &raw_prompt,
+                        &outcome.recompose.mcq_option_affinity,
+                        outcome.recompose.cross_modal_score,
+                    )?
+                } else {
+                    decode_mcq_logprob_batch(
+                        &mut model,
+                        &base.device,
+                        &tokenizer,
+                        &raw_prompt,
+                    )?
+                };
                 let margin = {
                     let mut vals: Vec<f64> = lps.values().copied().collect();
                     vals.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
@@ -781,9 +896,20 @@ pub fn run_patch_track_v4(
                         0.0
                     }
                 };
+                let subtag = if !outcome.recompose.compose_protocol.is_empty()
+                    && crate::multimodal_compose::is_structure_recompose_protocol(
+                        &outcome.recompose.compose_protocol,
+                    )
+                {
+                    "structure_recompose_logprob".into()
+                } else if outcome.recompose.compose_protocol.is_empty() {
+                    "fused_mcq_logprob".into()
+                } else {
+                    "fused_mcq_compose_logprob".into()
+                };
                 (
                     format!("ANSWER: {letter}"),
-                    "fused_mcq_logprob".into(),
+                    subtag,
                     margin,
                 )
             } else {
@@ -889,7 +1015,7 @@ fn run_baked_track_v4(
         .unwrap_or(151645);
     let im_end = tokenizer.token_to_id("<|im_end|>").unwrap_or(151645);
 
-    let mut model = base.build_model(base.clone_tensors()?)?;
+    let mut default_model = base.build_model(base.clone_tensors()?)?;
     let mut rows = Vec::with_capacity(prompts.len());
     let cap = default_port_cap();
     let front = crate::dl_front::DlFrontConfig::default();
@@ -906,9 +1032,10 @@ fn run_baked_track_v4(
         let base_user_text = format_prompt_text(p);
         let audio = audio_by_id.and_then(|m| m.get(&p.id).map(|v| v.as_slice()));
 
-        let (user_text, decode_tag, max_new) = if multimodal && audio.is_some() && p.score_type == "open" {
+        let compose_types = multimodal && audio.is_some() && (p.score_type == "open" || p.score_type == "mcq");
+        let compose_outcome = if compose_types {
             let q_ports = grind_text_hash(&base_user_text, cap);
-            let outcome = pipeline::run_question_pipeline(
+            Some(pipeline::run_question_pipeline(
                 &snap,
                 &base_user_text,
                 &p.score_type,
@@ -917,32 +1044,73 @@ fn run_baked_track_v4(
                 &front,
                 "baked_lm_compose",
                 audio,
-            );
-            let composed =
-                crate::task_decompose::build_compose_lm_user_text(&outcome.plan, &outcome.recompose);
-            let mn = cfg.max_new
-                + (outcome.recompose.open_structure_score * 48.0).round() as usize;
-            (
-                composed,
-                format!(
-                    "baked_lm_compose_open/x{:.3}",
-                    outcome.recompose.cross_modal_score
-                ),
-                mn,
-            )
+            ))
         } else {
-            (
-                base_user_text.clone(),
-                format!("baked_lm_{}", p.score_type),
-                cfg.max_new,
+            None
+        };
+
+        let structure_compose = compose_outcome.as_ref().map(|o| {
+            o.compose_fate.is_some()
+                || crate::multimodal_compose::is_structure_recompose_protocol(&o.recompose.compose_protocol)
+        }).unwrap_or(false);
+
+        let user_text = base_user_text.clone();
+        let decode_tag = if compose_outcome.as_ref().and_then(|o| o.compose_fate.as_ref()).is_some() {
+            let o = compose_outcome.as_ref().unwrap();
+            let cf = o.compose_fate.as_ref().unwrap();
+            crate::task_decompose::compose_fate_decode_tag(
+                &p.score_type,
+                cf.cross_modal_score,
+                cf.adaptation_rounds,
             )
+        } else if structure_compose {
+            crate::task_decompose::compose_decode_tag(
+                &p.score_type,
+                compose_outcome.as_ref().unwrap().recompose.cross_modal_score,
+            )
+        } else if compose_outcome.as_ref().map(|o| !o.recompose.compose_protocol.is_empty()).unwrap_or(false) {
+            format!("baked_lm_{}", p.score_type)
+        } else {
+            format!("baked_lm_{}", p.score_type)
+        };
+        let max_new = if structure_compose && p.score_type == "open" {
+            let o = compose_outcome.as_ref().unwrap();
+            cfg.max_new + (o.recompose.open_structure_score * 48.0).round() as usize
+        } else {
+            cfg.max_new
         };
 
         let (assistant, patch_subtag, patch_conf) = if p.score_type == "mcq" {
             let raw_prompt = format_chat_prompt(&user_text);
             if cfg.mcq_decode == McqDecodeMode::LogprobBatch {
-                let (letter, lps) =
-                    decode_mcq_logprob_batch(&mut model, &base.device, &tokenizer, &raw_prompt)?;
+                let (letter, lps) = if structure_compose {
+                    let o = compose_outcome.as_ref().unwrap();
+                    let mut model = build_compose_recompose_model(
+                        &base,
+                        &tokenizer,
+                        &user_text,
+                        &o.recompose,
+                        cfg,
+                        &p.score_type,
+                    )?;
+                    let r = decode_mcq_logprob_batch(&mut model, &base.device, &tokenizer, &raw_prompt)?;
+                    r
+                } else if let Some(ref outcome) = compose_outcome {
+                    if outcome.recompose.compose_protocol.is_empty() {
+                        decode_mcq_logprob_batch(&mut default_model, &base.device, &tokenizer, &raw_prompt)?
+                    } else {
+                        decode_mcq_logprob_compose(
+                            &mut default_model,
+                            &base.device,
+                            &tokenizer,
+                            &raw_prompt,
+                            &outcome.recompose.mcq_option_affinity,
+                            outcome.recompose.cross_modal_score,
+                        )?
+                    }
+                } else {
+                    decode_mcq_logprob_batch(&mut default_model, &base.device, &tokenizer, &raw_prompt)?
+                };
                 let margin = {
                     let mut vals: Vec<f64> = lps.values().copied().collect();
                     vals.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
@@ -952,35 +1120,96 @@ fn run_baked_track_v4(
                         0.0
                     }
                 };
+                let subtag = if structure_compose {
+                    "structure_recompose_logprob".into()
+                } else if compose_outcome
+                    .as_ref()
+                    .map(|o| !o.recompose.compose_protocol.is_empty())
+                    .unwrap_or(false)
+                {
+                    "baked_mcq_compose_logprob".into()
+                } else {
+                    "baked_mcq_logprob".into()
+                };
                 (
                     format!("ANSWER: {letter}"),
-                    "baked_mcq_logprob".into(),
+                    subtag,
                     margin,
                 )
             } else {
-                let generated = generate(
-                    &mut model,
-                    &base.device,
-                    &tokenizer,
-                    &raw_prompt,
-                    cfg.max_new.min(96),
-                    eos,
-                    im_end,
-                )?;
+                let generated = if structure_compose {
+                    let o = compose_outcome.as_ref().unwrap();
+                    let mut model = build_compose_recompose_model(
+                        &base,
+                        &tokenizer,
+                        &user_text,
+                        &o.recompose,
+                        cfg,
+                        &p.score_type,
+                    )?;
+                    generate(
+                        &mut model,
+                        &base.device,
+                        &tokenizer,
+                        &raw_prompt,
+                        cfg.max_new.min(96),
+                        eos,
+                        im_end,
+                    )?
+                } else {
+                    generate(
+                        &mut default_model,
+                        &base.device,
+                        &tokenizer,
+                        &raw_prompt,
+                        cfg.max_new.min(96),
+                        eos,
+                        im_end,
+                    )?
+                };
                 (generated, "baked_mcq_gen".into(), 0.0)
             }
         } else {
             let raw_prompt = format_chat_prompt(&user_text);
-            let generated = generate(
-                &mut model,
-                &base.device,
-                &tokenizer,
-                &raw_prompt,
-                max_new,
-                eos,
-                im_end,
-            )?;
-            (generated, "gen".into(), 0.0)
+            let generated = if structure_compose {
+                let o = compose_outcome.as_ref().unwrap();
+                let mut model = build_compose_recompose_model(
+                    &base,
+                    &tokenizer,
+                    &user_text,
+                    &o.recompose,
+                    cfg,
+                    &p.score_type,
+                )?;
+                generate(
+                    &mut model,
+                    &base.device,
+                    &tokenizer,
+                    &raw_prompt,
+                    max_new,
+                    eos,
+                    im_end,
+                )?
+            } else {
+                generate(
+                    &mut default_model,
+                    &base.device,
+                    &tokenizer,
+                    &raw_prompt,
+                    max_new,
+                    eos,
+                    im_end,
+                )?
+            };
+            (
+                generated,
+                if structure_compose {
+                    "structure_recompose_gen".into()
+                } else {
+                    "gen".into()
+                },
+                0.0,
+            )
         };
 
         let _sc = score_answer(&assistant, p);

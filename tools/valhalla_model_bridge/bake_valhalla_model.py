@@ -127,6 +127,7 @@ def bake_weights(
     strength: float,
     corpus: list[str],
     out_dir: Path,
+    compose_adapter: bool = False,
 ) -> dict:
     sys.path.insert(0, str(BRIDGE))
     sys.path.insert(0, str(REPO / "tools/tier_a_tf_front"))
@@ -192,6 +193,17 @@ def bake_weights(
             for tid in tokenizer.encode(line, add_special_tokens=False):
                 emb.data[tid] += strength * vec.to(emb.device)
 
+    if compose_adapter:
+        manifest_path = out_dir / "valhalla_manifest.json"
+        if manifest_path.is_file():
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            spec = manifest.get("compose_adapter")
+            if spec:
+                from patch_compose_adapter import apply_compose_adapter  # noqa: E402
+
+                apply_compose_adapter(model, spec, strength, tokenizer, metrics)
+                print("  compose_adapter: lm_head + late LN patched", file=sys.stderr)
+
     out_dir.mkdir(parents=True, exist_ok=True)
     model.save_pretrained(out_dir)
     tokenizer.save_pretrained(out_dir)
@@ -203,12 +215,50 @@ def bake_weights(
     }
 
 
-def finalize_manifest(out_dir: Path, bake_metrics: dict) -> None:
+def finalize_manifest(
+    out_dir: Path,
+    bake_metrics: dict,
+    *,
+    base_model_id: str = "Qwen/Qwen2.5-0.5B-Instruct",
+    bake_mode: str = "legacy",
+    strength: float = 0.08,
+    corpus_lines: int = 0,
+) -> None:
     manifest_path = out_dir / "valhalla_manifest.json"
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     else:
-        raise FileNotFoundError(f"missing {manifest_path}")
+        export_path = out_dir / "valhalla_export.json"
+        if not export_path.is_file():
+            raise FileNotFoundError(f"missing {manifest_path} and {export_path}")
+        export_doc = json.loads(export_path.read_text(encoding="utf-8"))
+        report = export_doc["report"]
+        mp = report["model_patch"]
+        manifest = {
+            "manifest_version": "valhalla-bake-1.0",
+            "product": "valhalla-baked-lm",
+            "incubation": {
+                "body": export_doc.get("body", "triad"),
+                "ingress": export_doc.get("encoding", "grinder").lower(),
+                "cycles": report.get("optimize_cycles", 1),
+                "corpus_lines": corpus_lines,
+                "hub_routed": report.get("hub_routed", [0, 0, 0, 0]),
+                "hub_prefs": report.get("hub_prefs", []),
+                "tile_count": mp.get("tile_count", 0),
+                "stem_cell_count": mp.get("stem_cell_count", 0),
+                "signals_emitted": report.get("stats", {}).get("signals_emitted", 0),
+                "patch_fingerprint": "recovered_from_export",
+            },
+            "bake": {
+                "base_model_id": base_model_id,
+                "bake_mode": bake_mode,
+                "strength": strength,
+                "weight_delta_norm": None,
+                "baked_at": datetime.now(timezone.utc).isoformat(),
+            },
+            "export_doc": export_doc,
+            "runtime_patch": False,
+        }
 
     manifest["bake"]["weight_delta_norm"] = bake_metrics["weight_delta_norm"]
     manifest["bake"]["baked_at"] = datetime.now(timezone.utc).isoformat()
@@ -225,6 +275,11 @@ def main() -> None:
     ap.add_argument("--cycles", type=int, default=1)
     ap.add_argument("--strength", type=float, default=0.08)
     ap.add_argument("--bake-mode", choices=BAKE_MODES, default="legacy")
+    ap.add_argument(
+        "--compose-adapter",
+        action="store_true",
+        help="Apply Valhalla compose adapter (Stem+Tile+Hub) to lm_head after bake",
+    )
     ap.add_argument("--out", type=Path, required=True, help="Output checkpoint directory (new model)")
     args = ap.parse_args()
 
@@ -268,8 +323,16 @@ def main() -> None:
         strength=args.strength,
         corpus=corpus,
         out_dir=out_dir,
+        compose_adapter=args.compose_adapter or args.bake_mode in ("full", "total"),
     )
-    finalize_manifest(out_dir, bake_metrics)
+    finalize_manifest(
+        out_dir,
+        bake_metrics,
+        base_model_id=args.base_model,
+        bake_mode=args.bake_mode,
+        strength=args.strength,
+        corpus_lines=len(corpus),
+    )
 
     print(f"\nSaved Valhalla baked model → {out_dir}", file=sys.stderr)
     print(f"  valhalla_manifest.json  (runtime_patch=false)", file=sys.stderr)

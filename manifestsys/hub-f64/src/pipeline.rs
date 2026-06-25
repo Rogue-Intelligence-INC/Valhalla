@@ -61,6 +61,8 @@ pub struct PipelineOutcome {
     pub report: TriadFeedReport,
     pub recompose: RecomposePatch,
     pub mcq_fate: Option<McqFateOutcome>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compose_fate: Option<crate::compose_fate::ComposeFateOutcome>,
     pub decode_hint: String,
 }
 
@@ -105,16 +107,50 @@ pub fn run_question_pipeline(
 ) -> PipelineOutcome {
     let use_mm = crate::multimodal::fusion_enabled()
         && audio_features.map(|a| !a.is_empty()).unwrap_or(false);
-    let mode_override = if use_mm && score_type == "open" {
-        Some(DecomposeMode::MultimodalCompose)
+    let mode_override = if use_mm {
+        match score_type {
+            "open" => Some(DecomposeMode::MultimodalCompose),
+            "mcq" => Some(DecomposeMode::McqMultimodalCompose),
+            _ => cfg.decompose_mode_override,
+        }
     } else {
         cfg.decompose_mode_override
+    };
+    let compose = matches!(
+        mode_override,
+        Some(DecomposeMode::MultimodalCompose | DecomposeMode::McqMultimodalCompose)
+    );
+    let cycles_per_shard = if compose {
+        cfg.cycles_per_shard.max(2)
+    } else {
+        cfg.cycles_per_shard
     };
     let plan = plan_decomposition(question, score_type, mode_override, audio_features);
     let budget = IngressBudget::experiment();
     let mut session = TriadSession::from_incubation_snapshot(budget, cfg.qa_body, snap.clone());
 
-    let (report, mcq_fate, shard_scores) = if plan.task == TaskKind::Mcq && cfg.use_mcq_fate_aggregate {
+    let compose_fate_mode = compose
+        && crate::compose_fate::compose_fate_cycles_enabled()
+        && matches!(
+            plan.mode,
+            DecomposeMode::MultimodalCompose | DecomposeMode::McqMultimodalCompose
+        );
+
+    let (report, mcq_fate, compose_fate, shard_scores) = if compose_fate_mode {
+        let outcome = crate::compose_fate::run_compose_fate_pipeline(
+            &mut session,
+            &plan,
+            whole_ports,
+            mode_label,
+            front,
+            cycles_per_shard,
+        );
+        let scores = outcome.shard_scores.clone();
+        (outcome.report.clone(), None, Some(outcome), scores)
+    } else if plan.task == TaskKind::Mcq
+        && cfg.use_mcq_fate_aggregate
+        && plan.mode != DecomposeMode::McqMultimodalCompose
+    {
         let outcome = mcq_fate::run_mcq_fate_pipeline(
             &mut session,
             question,
@@ -123,32 +159,45 @@ pub fn run_question_pipeline(
             front,
         );
         let scores = shard_scores_from_mcq_fate(&plan, &outcome);
-        (outcome.report.clone(), Some(outcome), scores)
+        (outcome.report.clone(), Some(outcome), None, scores)
     } else {
         session.emit_body_ports(whole_ports);
         let scores = crate::task_decompose::feed_decompose_plan(
             &mut session,
             &plan,
             front,
-            cfg.cycles_per_shard,
+            cycles_per_shard,
         );
         let report = session.build_feed_report(mode_label, 1);
-        (report, None, scores)
+        (report, None, None, scores)
     };
 
     let anchor_ids: Vec<u32> = Vec::new();
     let fate_option_scores = mcq_fate.as_ref().map(|o| o.option_scores.as_slice());
-    let recompose = recompose_to_patch(
+    let mut recompose = recompose_to_patch(
         &plan,
         &report,
         &shard_scores,
         &anchor_ids,
         fate_option_scores,
     );
+    if let Some(ref cf) = compose_fate {
+        recompose.cross_modal_score = cf.cross_modal_score;
+    }
 
     let decode_hint = match plan.task {
         TaskKind::Mcq => {
-            if let Some(letter) = pick_mcq_affinity_letter(&recompose.mcq_option_affinity) {
+            if let Some(ref cf) = compose_fate {
+                format!(
+                    "compose_fate_mcq_x{:.2}/a{}",
+                    cf.cross_modal_score, cf.adaptation_rounds
+                )
+            } else if plan.mode == DecomposeMode::McqMultimodalCompose {
+                format!(
+                    "structure_recompose_mcq_x{:.2}",
+                    recompose.cross_modal_score
+                )
+            } else if let Some(letter) = pick_mcq_affinity_letter(&recompose.mcq_option_affinity) {
                 format!("pipeline_mcq_affinity_{letter}")
             } else {
                 "pipeline_mcq".into()
@@ -156,9 +205,17 @@ pub fn run_question_pipeline(
         }
         TaskKind::Numeric => "pipeline_numeric".into(),
         TaskKind::Open | TaskKind::Auto => {
-            if plan.mode == DecomposeMode::MultimodalCompose {
+            if let Some(ref cf) = compose_fate {
                 format!(
-                    "pipeline_compose_open_x{:.2}",
+                    "compose_fate_open_x{:.2}/a{}",
+                    cf.cross_modal_score, cf.adaptation_rounds
+                )
+            } else if matches!(
+                plan.mode,
+                DecomposeMode::MultimodalCompose | DecomposeMode::McqMultimodalCompose
+            ) {
+                format!(
+                    "structure_recompose_open_x{:.2}",
                     recompose.cross_modal_score
                 )
             } else {
@@ -173,6 +230,7 @@ pub fn run_question_pipeline(
         report,
         recompose,
         mcq_fate,
+        compose_fate,
         decode_hint,
     }
 }
