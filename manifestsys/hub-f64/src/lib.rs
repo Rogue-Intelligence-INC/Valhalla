@@ -31,6 +31,8 @@ pub mod patch_lm;
 pub mod hybrid;
 #[cfg(feature = "patch-lm")]
 pub mod fused_lm;
+#[cfg(feature = "patch-lm")]
+pub mod valhalla_base;
 pub mod mcq_fate;
 pub mod mcq_pairwise;
 pub mod multimodal;
@@ -147,6 +149,32 @@ pub struct HubSlice {
 }
 
 /// Valhalla Hub (f64 GPU-Accelerated)
+/// How Fate feedback assigns quality to ingress signals.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum FateWeightMode {
+    /// quality_score = 1.0 always (high constraint — no differentiation).
+    #[default]
+    Fixed,
+    /// quality/intensity from Fate evaluate_system (relaxed — learned weights).
+    Evaluated,
+}
+
+/// Hub ingress routing when `fate_routing_free` is false.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum IngressRoutingMode {
+    /// Round-robin across quad systems (symmetric — no Fate differentiation).
+    #[default]
+    RoundRobin,
+    /// Route by corpus-line semantic keywords → asymmetric quad load.
+    Semantic,
+    /// Within each corpus-line ingest loop, cycle signals across all 4 quads.
+    QuadCycle,
+    /// 50% quad-cycle (even signals) + 50% semantic primary quad (odd signals) per line.
+    HybridQuadSemantic,
+}
+
 pub struct ValhallaHub {
     pub hub_id: String,
     pub config: HubConfig,
@@ -173,6 +201,16 @@ pub struct ValhallaHub {
     pub all_storages: Option<AllStorages>,
     /// Space GPU 高维计算
     pub space_gpu: SpaceGPU,
+    /// Fate weight assignment mode for ingress feedback.
+    pub fate_weight_mode: FateWeightMode,
+    /// When false, Hub round-robins quad routing (Fate prefs locked).
+    pub fate_routing_free: bool,
+    /// Ingress routing while `fate_routing_free` is false.
+    pub ingress_routing: IngressRoutingMode,
+    /// Current corpus line for semantic ingress routing.
+    ingress_line: Option<String>,
+    /// Signal index within current corpus line (reset per line).
+    ingress_line_signal_idx: usize,
 }
 
 impl ValhallaHub {
@@ -228,6 +266,11 @@ impl ValhallaHub {
             storage: None,
             all_storages: None,
             space_gpu: SpaceGPU::new(),
+            fate_weight_mode: FateWeightMode::Fixed,
+            fate_routing_free: false,
+            ingress_routing: IngressRoutingMode::RoundRobin,
+            ingress_line: None,
+            ingress_line_signal_idx: 0,
         }
     }
     
@@ -458,19 +501,153 @@ impl ValhallaHub {
         }
     }
     
+    /// Restore Fate state from incubation snapshot (multi-round sessions).
+    pub fn seed_fate_from_snapshot(&mut self, prefs: &[f64], routed: [u64; 4]) {
+        self.fate_system.seed_from_hub_snapshot(prefs, routed);
+    }
+
+    pub fn set_fate_policy(
+        &mut self,
+        mode: FateWeightMode,
+        routing_free: bool,
+        ingress_routing: IngressRoutingMode,
+    ) {
+        self.fate_weight_mode = mode;
+        self.fate_routing_free = routing_free;
+        self.ingress_routing = ingress_routing;
+    }
+
+    pub fn set_ingress_line(&mut self, line: Option<String>) {
+        let next = line.filter(|s| !s.trim().is_empty());
+        if next.as_deref() != self.ingress_line.as_deref() {
+            self.ingress_line_signal_idx = 0;
+        }
+        self.ingress_line = next;
+    }
+
+    fn quad_from_index(idx: usize) -> QuadSystemType {
+        match idx % 4 {
+            0 => QuadSystemType::BlackHole,
+            1 => QuadSystemType::MeshBrain,
+            2 => QuadSystemType::MultiNova,
+            _ => QuadSystemType::BaseForce,
+        }
+    }
+
+    /// Even signals → quad cycle; odd signals → semantic primary quad for this line.
+    fn route_hybrid_quad_semantic(&mut self) -> QuadSystemType {
+        let idx = self.ingress_line_signal_idx;
+        self.ingress_line_signal_idx = idx.saturating_add(1);
+        if idx % 2 == 0 {
+            return Self::quad_from_index(idx / 2);
+        }
+        if let Some(ref line) = self.ingress_line {
+            return Self::route_corpus_line_semantic(line);
+        }
+        Self::quad_from_index(idx)
+    }
+
+    /// Semantic quad routing from corpus line text (physics→BH, language→MB, process→MN, geo→BF).
+    pub fn route_corpus_line_semantic(line: &str) -> QuadSystemType {
+        let low = line.to_lowercase();
+        let score = |keys: &[&str]| -> usize {
+            keys.iter().filter(|k| low.contains(**k)).count()
+        };
+        let bh = score(&[
+            "gravity", "force", "mass", "energy", "newton", "momentum", "physics", "weight",
+            "friction", "work", "power", "velocity", "acceleration", "kinetic",
+        ]);
+        let mb = score(&[
+            "english", "language", "word", "speak", "text", "formula", "symbol", "name",
+            "chemical", "marsupial", "language",
+        ]);
+        let mn = score(&[
+            "process", "boil", "freez", "temperature", "evapor", "condens", "reaction", "ph",
+            "distill", "expand", "melt", "steam", "cloud", "vapor", "neutral",
+        ]);
+        let bf = score(&[
+            "capital", "city", "country", "continent", "located", "australia", "france", "paris",
+            "sydney", "region", "border", "coast", "flag", "currency", "oceania", "europe",
+            "melbourne", "canberra", "outback", " reef",
+        ]);
+        let scores = [bh, mb, mn, bf];
+        let max = *scores.iter().max().unwrap_or(&0);
+        let idx = if max == 0 {
+            line.bytes()
+                .fold(0usize, |a, b| a.wrapping_mul(31).wrapping_add(b as usize))
+                % 4
+        } else {
+            scores
+                .iter()
+                .enumerate()
+                .max_by_key(|(_, s)| *s)
+                .map(|(i, _)| i)
+                .unwrap_or(0)
+        };
+        match idx {
+            0 => QuadSystemType::BlackHole,
+            1 => QuadSystemType::MeshBrain,
+            2 => QuadSystemType::MultiNova,
+            _ => QuadSystemType::BaseForce,
+        }
+    }
+
     /// Feedback to Fate (f64)
     fn feedback_to_fate(&mut self, system: &QuadSystemType, intensity: f64, _success: bool) {
+        let idx = match system {
+            QuadSystemType::BlackHole => 0,
+            QuadSystemType::MeshBrain => 1,
+            QuadSystemType::MultiNova => 2,
+            QuadSystemType::BaseForce => 3,
+        };
+        let (quality, eff_intensity) = match self.fate_weight_mode {
+            FateWeightMode::Fixed => (1.0, intensity),
+            FateWeightMode::Evaluated => {
+                let ev = self.fate_system.evaluate_system(idx);
+                let q = if ev.is_bootstrap {
+                    1.0
+                } else {
+                    ev.quality.max(0.05)
+                };
+                let i = if ev.intensity > 0.0 {
+                    intensity * (0.5 + ev.intensity * 0.5)
+                } else {
+                    intensity
+                };
+                (q, i)
+            }
+        };
         let mut signal = DeformationSignal::new(
             (*system).into(),
-            intensity,
+            eff_intensity,
             vec![0.0; 4],
         );
-        signal.quality_score = 1.0;  // 有效信号
+        signal.quality_score = quality;
         self.fate_system.receive_signal(signal);
     }
     
     /// Route request using Fate preferences (f64)
     fn route_request(&mut self, _request: &HubRequest) -> QuadSystemType {
+        if !self.fate_routing_free {
+            match self.ingress_routing {
+                IngressRoutingMode::Semantic => {
+                    if let Some(ref line) = self.ingress_line {
+                        return Self::route_corpus_line_semantic(line);
+                    }
+                }
+                IngressRoutingMode::QuadCycle => {
+                    let idx = self.ingress_line_signal_idx;
+                    self.ingress_line_signal_idx = idx.saturating_add(1);
+                    return Self::quad_from_index(idx);
+                }
+                IngressRoutingMode::HybridQuadSemantic => {
+                    return self.route_hybrid_quad_semantic();
+                }
+                IngressRoutingMode::RoundRobin => {}
+            }
+            let idx = (self.statistics.total_requests as usize) % 4;
+            return Self::quad_from_index(idx);
+        }
         // 定期记录快照以支持收敛检测
         if self.statistics.total_requests % 1000 == 0 {
             self.fate_system.record_preference_snapshot();

@@ -105,6 +105,11 @@ path = "src/bin/valhalla_fused_lm.rs"
 required-features = ["patch-lm"]
 
 [[bin]]
+name = "valhalla_base"
+path = "src/bin/valhalla_base.rs"
+required-features = ["patch-lm"]
+
+[[bin]]
 name = "valhalla_ingress_experiment"
 path = "src/bin/valhalla_ingress_experiment.rs"
 

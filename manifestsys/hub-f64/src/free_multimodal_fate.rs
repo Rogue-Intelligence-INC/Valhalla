@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::dl_front::{build_body_ports, encode_modality, BodyFrontPorts, DlFrontConfig, ModalityInput};
 use crate::mcq_fate::McqFateCycleSnapshot;
-use crate::signal_ingress::{BodyTarget, IngressBudget, TriadFeedReport, TriadSession};
+use crate::signal_ingress::{BodyTarget, IngressBudget, TriadFeedReport, TriadIncubationSnapshot, TriadSession};
 
 pub const FREE_MULTIMODAL_PROTOCOL: &str = "valhalla-free-multimodal-fusion-v1";
 pub const FREE_MULTIMODAL_FUSION_V2: &str = "valhalla-free-multimodal-fusion-v2";
@@ -968,6 +968,63 @@ pub fn run_same_task_universal_core(
         fusion_adaptation_rounds: fusion.adaptation_rounds,
         fusion_aggregate_score: fusion.aggregate_score,
     }
+}
+
+/// Fuse task modalities into an existing incubation snapshot (context + core in one session).
+pub fn fuse_universal_core_on_snapshot(
+    snap: TriadIncubationSnapshot,
+    body: BodyTarget,
+    llm_ports: &BodyFrontPorts,
+    tts_ports: &BodyFrontPorts,
+    img_ports: &BodyFrontPorts,
+) -> (TriadIncubationSnapshot, UniversalCoreMetrics) {
+    let budget = IngressBudget::incubation();
+    let mut session = TriadSession::from_incubation_snapshot(budget, body, snap);
+    install_free_rules(&mut session);
+
+    let rounds = universal_core_isolation_rounds();
+    let weights = free_multimodal_tri_mix_weights();
+    let mixed = mix_ports_weighted(&[llm_ports, tts_ports, img_ports], &weights);
+
+    let mut text_track = snapshot_patch(&mut session, "ctx_core_init");
+    let mut audio_track = text_track.clone();
+    let mut image_track = text_track.clone();
+
+    let adapt_rounds = free_multimodal_min_cycles().max(rounds);
+    for r in 0..adapt_rounds {
+        free_pulse(&mut session, llm_ports);
+        text_track = snapshot_patch(&mut session, "ctx_core_after_text");
+        free_pulse(&mut session, tts_ports);
+        audio_track = snapshot_patch(&mut session, "ctx_core_after_tts");
+        free_pulse(&mut session, img_ports);
+        image_track = snapshot_patch(&mut session, "ctx_core_after_image");
+        free_pulse(&mut session, &mixed);
+        session.emit_body_ports(&mixed);
+        let _ = session
+            .hub
+            .triple_fate
+            .store_string(&format!("ctx_core_round={r}"));
+    }
+
+    let final_report = session.build_feed_report("ctx_core_final", adapt_rounds);
+    let fused = final_report.model_patch.patch_vector.clone();
+    let patches = vec![
+        text_track.patch_vector.clone(),
+        audio_track.patch_vector.clone(),
+        image_track.patch_vector.clone(),
+    ];
+    let hub_vecs = vec![
+        text_track.hub_prefs.clone(),
+        audio_track.hub_prefs.clone(),
+        image_track.hub_prefs.clone(),
+    ];
+    let emb_vecs = vec![
+        llm_ports.embedding.clone(),
+        tts_ports.embedding.clone(),
+        img_ports.embedding.clone(),
+    ];
+    let metrics = compute_universal_core_metrics(&patches, &hub_vecs, &emb_vecs, &fused);
+    (session.incubation_snapshot(), metrics)
 }
 
 /// Same task — text/TTS/image **in one session** (no isolation), interleaved pulses.

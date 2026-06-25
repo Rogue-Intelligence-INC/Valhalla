@@ -9,6 +9,7 @@ use crate::{
     pipeline, BodyFrontPorts, BodyTarget, DlFrontConfig, EncodingMode, IngressBudget,
     IngressPayload, ModalityInput, TriadFeedReport, TriadSession, DL_EMBED_DIM,
 };
+use crate::signal_ingress::TriadIncubationSnapshot;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NativeQaRequest {
@@ -56,6 +57,9 @@ pub struct NativeQaBatchRequest {
     /// v4: LM decompose → Valhalla → recompose decode path.
     #[serde(default)]
     pub pipeline_v4: bool,
+    /// Pre-built incubation snapshot (skip corpus incubation; use for context+core fusion).
+    #[serde(default)]
+    pub incubation_snapshot: Option<TriadIncubationSnapshot>,
 }
 
 fn default_incubation_cycles() -> usize {
@@ -77,6 +81,9 @@ pub struct NativeQaQuestionSpec {
     /// TTS / audio mel features — fused after question_ports when `VALHALLA_MULTIMODAL_FUSION=1`.
     #[serde(default)]
     pub audio_features: Option<Vec<f64>>,
+    /// Prior user questions in session — boosts follow-up-aware corpus ranking.
+    #[serde(default)]
+    pub prior_questions: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -196,6 +203,45 @@ fn keyword_overlap_count(question: &str, text: &str) -> usize {
         .iter()
         .filter(|k| low.contains(k.as_str()))
         .count()
+}
+
+/// Boost/penalize corpus line when current question follows prior turns in session.
+fn follow_up_retrieval_boost(
+    question: &str,
+    prior_questions: &[String],
+    memory_text: &str,
+    corpus_idx: Option<usize>,
+) -> f64 {
+    if prior_questions.is_empty() {
+        return 0.0;
+    }
+    let cur_overlap = keyword_overlap_count(question, memory_text) as f64;
+    let prior_overlap = prior_questions
+        .iter()
+        .map(|pq| keyword_overlap_count(pq, memory_text) as f64)
+        .sum::<f64>()
+        / prior_questions.len().max(1) as f64;
+
+    let mut boost = cur_overlap * 0.18;
+    if prior_overlap > cur_overlap + 0.5 {
+        boost -= (prior_overlap - cur_overlap) * 0.22;
+    }
+
+    let prior_kw: Vec<String> = prior_questions
+        .iter()
+        .flat_map(|pq| question_keywords(pq))
+        .collect();
+    let unique_hits = question_keywords(question)
+        .iter()
+        .filter(|k| !prior_kw.contains(k))
+        .filter(|k| memory_text.to_lowercase().contains(k.as_str()))
+        .count();
+    boost += unique_hits as f64 * 0.15;
+
+    if let Some(idx) = corpus_idx {
+        boost += (idx as f64) * 0.008;
+    }
+    boost
 }
 
 fn option_body(opt_line: &str) -> String {
@@ -979,6 +1025,7 @@ fn decode_open(
     stem_cluster_energies: &[f64],
     hub_prefs: &[f64],
     question: &str,
+    prior_questions: &[String],
 ) -> (String, Vec<NativeMatch>, String) {
     let min_score = min_retrieval_score();
     let min_kw = min_open_keyword_overlap();
@@ -1011,6 +1058,7 @@ fn decode_open(
         let mut score = *s;
         score += keyword_domain_boost(question, &m.text);
         score += kw as f64 * 0.12;
+        score += follow_up_retrieval_boost(question, prior_questions, &m.text, m.corpus_idx);
         candidates.push((*i, score, kw));
     }
 
@@ -1046,17 +1094,22 @@ fn decode_open(
             .corpus_idx
             .map(|i| format!("corpus:{}", i))
             .unwrap_or_else(|| m.source.clone());
+        let decode_path = if prior_questions.is_empty() {
+            "open_retrieval"
+        } else {
+            "open_retrieval_follow_up_aware"
+        };
         if let Some(span) = best_span(question, &m.text) {
             return (
                 format!("[{}] {}", cite, span),
                 top,
-                "open_span".into(),
+                format!("{decode_path}_span"),
             );
         }
         return (
             format!("[{}] {}", cite, m.text),
             top,
-            "open_retrieval".into(),
+            decode_path.into(),
         );
     }
 
@@ -1334,6 +1387,7 @@ pub fn run_native_qa(req: &NativeQaRequest) -> NativeQaResponse {
             &stem_cluster_energies,
             hub_prefs,
             &req.question,
+            &[],
         ),
     };
 
@@ -1364,6 +1418,25 @@ fn corpus_ingest_skip(len: usize, ingest_all: bool) -> usize {
     }
     let max_ingest = env_usize("VALHALLA_NATIVE_MAX_CORPUS_LINES", 32);
     len.saturating_sub(max_ingest)
+}
+
+fn corpus_memories_from_ports(corpus: &[String], shards: &[BodyFrontPorts]) -> Vec<MemoryEntry> {
+    let mut memories = Vec::new();
+    for (i, ports) in shards.iter().enumerate() {
+        let t = corpus
+            .get(i)
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| format!("grinder_corpus_{}", i));
+        memories.push(MemoryEntry {
+            text: t,
+            signals: ports.embedding.clone(),
+            source: "corpus".into(),
+            corpus_idx: Some(i),
+        });
+    }
+    memories
 }
 
 fn feed_grinder_corpus(
@@ -1405,6 +1478,7 @@ fn decode_from_report(
     mode: &str,
     dl: bool,
     front: &DlFrontConfig,
+    prior_questions: &[String],
 ) -> (String, Vec<NativeMatch>, String) {
     let q_sig = memories
         .iter()
@@ -1488,6 +1562,7 @@ fn decode_from_report(
             &stem_cluster_energies,
             hub_prefs,
             question,
+            prior_questions,
         ),
     }
 }
@@ -1541,13 +1616,21 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
         .and_then(|v| v.parse().ok())
         .unwrap_or(128);
 
-    let mut session = TriadSession::with_body(budget.clone(), body);
-    let (corpus_memories, dl_encoder) =
-        feed_grinder_corpus(&mut session, &req.corpus, &req.corpus_ports, true);
-
-    session.run_optimize_cycles(req.incubation_cycles);
-    let incubation_report = session.build_feed_report("native_batch_incubation", 0);
-    let snap = session.incubation_snapshot();
+    let (corpus_memories, dl_encoder, snap, incubation_report) =
+        if let Some(pre) = req.incubation_snapshot.clone() {
+            let memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
+            let mut session = TriadSession::from_incubation_snapshot(budget.clone(), body, pre.clone());
+            let report = session.build_feed_report("native_batch_prebuilt_snap", 0);
+            (memories, "grinder".into(), pre, report)
+        } else {
+            let mut session = TriadSession::with_body(budget.clone(), body);
+            let (corpus_memories, dl_encoder) =
+                feed_grinder_corpus(&mut session, &req.corpus, &req.corpus_ports, true);
+            session.run_optimize_cycles(req.incubation_cycles);
+            let incubation_report = session.build_feed_report("native_batch_incubation", 0);
+            let snap = session.incubation_snapshot();
+            (corpus_memories, dl_encoder, snap, incubation_report)
+        };
 
     let mode_label = if mode == "grinder" {
         "native_qa_batch_grinder"
@@ -1562,6 +1645,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
     let pipe_cfg = pipeline::PipelineConfig::default();
 
     for q in &req.questions {
+        let prior = q.prior_questions.as_deref().unwrap_or(&[]);
         let mut qa_session =
             TriadSession::from_incubation_snapshot(budget.clone(), body, snap.clone());
         let mut memories = corpus_memories.clone();
@@ -1642,6 +1726,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                     &mode,
                     dl,
                     &front,
+                    prior,
                 );
                 let (ans, path) = pipeline::merge_mcq_pipeline_decode(
                     &dec_ans,
@@ -1659,6 +1744,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                     &mode,
                     dl,
                     &front,
+                    prior,
                 );
                 (a, t, format!("pipeline_v4_{}", q.score_type))
             }
@@ -1672,6 +1758,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                 &mode,
                 dl,
                 &front,
+                prior,
             )
         };
 

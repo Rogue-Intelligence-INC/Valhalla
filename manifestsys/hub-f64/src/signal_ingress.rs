@@ -687,7 +687,7 @@ pub fn build_model_patch(
 }
 
 /// Frozen Tile/Stem structure after full-corpus incubation (fork per QA question).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TriadIncubationSnapshot {
     pub completed_tiles: Vec<CompletedTile>,
     pub stem_cells: Vec<CompleteCell>,
@@ -695,6 +695,20 @@ pub struct TriadIncubationSnapshot {
     pub hub_routed: [u64; 4],
     pub ingress_encoder: String,
     pub hub_prefs: Vec<f64>,
+    #[serde(default = "default_fate_weight_mode_str")]
+    pub fate_weight_mode: String,
+    #[serde(default)]
+    pub fate_routing_free: bool,
+    #[serde(default = "default_fate_ingress_routing_str")]
+    pub fate_ingress_routing: String,
+}
+
+fn default_fate_weight_mode_str() -> String {
+    "fixed".into()
+}
+
+fn default_fate_ingress_routing_str() -> String {
+    "quad_cycle".into()
 }
 
 pub struct TriadSession {
@@ -781,6 +795,18 @@ impl TriadSession {
 
     /// Emit body-specific port signals (DL front output).
     pub fn emit_body_ports(&mut self, ports: &BodyFrontPorts) {
+        self.emit_body_ports_with_line(ports, None);
+    }
+
+    /// Emit body ports with optional corpus line for semantic Hub routing.
+    pub fn emit_body_ports_with_line(&mut self, ports: &BodyFrontPorts, line: Option<&str>) {
+        self.hub
+            .set_ingress_line(line.map(|s| s.trim().to_string()));
+        self.emit_body_ports_inner(ports);
+        self.hub.set_ingress_line(None);
+    }
+
+    fn emit_body_ports_inner(&mut self, ports: &BodyFrontPorts) {
         if !ports.encoder.is_empty() {
             self.ingress_encoder = ports.encoder.clone();
         }
@@ -1059,6 +1085,10 @@ impl TriadSession {
 
     pub fn incubation_snapshot(&self) -> TriadIncubationSnapshot {
         let prefs = self.hub.get_fate_preferences();
+        let mode_str = match self.hub.fate_weight_mode {
+            crate::FateWeightMode::Fixed => "fixed",
+            crate::FateWeightMode::Evaluated => "evaluated",
+        };
         TriadIncubationSnapshot {
             completed_tiles: self.tile.completed_tiles.clone(),
             stem_cells: self.stem.cells.clone(),
@@ -1066,7 +1096,43 @@ impl TriadSession {
             hub_routed: self.hub_routed,
             ingress_encoder: self.ingress_encoder.clone(),
             hub_prefs: prefs.affinities.clone(),
+            fate_weight_mode: mode_str.into(),
+            fate_routing_free: self.hub.fate_routing_free,
+            fate_ingress_routing: match self.hub.ingress_routing {
+                crate::IngressRoutingMode::RoundRobin => "round_robin".into(),
+                crate::IngressRoutingMode::Semantic => "semantic".into(),
+                crate::IngressRoutingMode::QuadCycle => "quad_cycle".into(),
+                crate::IngressRoutingMode::HybridQuadSemantic => "hybrid_quad_semantic".into(),
+            },
         }
+    }
+
+    fn ingress_routing_from_str(s: &str) -> crate::IngressRoutingMode {
+        if s.eq_ignore_ascii_case("semantic") {
+            crate::IngressRoutingMode::Semantic
+        } else if s.eq_ignore_ascii_case("quad_cycle") {
+            crate::IngressRoutingMode::QuadCycle
+        } else if s.eq_ignore_ascii_case("hybrid_quad_semantic") {
+            crate::IngressRoutingMode::HybridQuadSemantic
+        } else {
+            crate::IngressRoutingMode::RoundRobin
+        }
+    }
+
+    fn apply_snapshot_fate_policy(session: &mut TriadSession, snap: &TriadIncubationSnapshot) {
+        let mode = if snap.fate_weight_mode.eq_ignore_ascii_case("evaluated") {
+            crate::FateWeightMode::Evaluated
+        } else {
+            crate::FateWeightMode::Fixed
+        };
+        session.hub.set_fate_policy(
+            mode,
+            snap.fate_routing_free,
+            Self::ingress_routing_from_str(&snap.fate_ingress_routing),
+        );
+        session
+            .hub
+            .seed_fate_from_snapshot(&snap.hub_prefs, snap.hub_routed);
     }
 
     pub fn from_incubation_snapshot(
@@ -1075,6 +1141,7 @@ impl TriadSession {
         snap: TriadIncubationSnapshot,
     ) -> Self {
         let mut session = Self::with_body(budget, body);
+        Self::apply_snapshot_fate_policy(&mut session, &snap);
         session.tile.completed_tiles = snap.completed_tiles;
         session.tile.total_operations = snap.tile_total_operations;
         session.stem.cells = snap.stem_cells;

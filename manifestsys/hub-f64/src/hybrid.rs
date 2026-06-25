@@ -275,6 +275,7 @@ pub fn run_memory_track(
                 question_ports: Some(grind_text_hash(&text, port_cap)),
                 id: Some(p.id.clone()),
                 audio_features: cfg.audio_by_id.get(&p.id).cloned(),
+                prior_questions: None,
             }
         })
         .collect();
@@ -289,6 +290,7 @@ pub fn run_memory_track(
         ingress_mode: Some("grinder".into()),
         mcq_fate,
         pipeline_v4: cfg.pipeline_v4,
+        incubation_snapshot: None,
     };
 
     let resp = run_native_qa_batch(&req);

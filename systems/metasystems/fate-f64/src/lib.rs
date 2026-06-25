@@ -11,6 +11,10 @@
 
 use serde::{Deserialize, Serialize};
 use rayon::prelude::*;
+#[cfg(feature = "native_cuda")]
+use log::{info, warn};
+use std::time::{SystemTime, UNIX_EPOCH};
+use std::cell::Cell;
 
 // Native CUDA acceleration (direct FFI, supports CUDA 13.1)
 #[cfg(feature = "native_cuda")]
@@ -282,7 +286,6 @@ impl Default for InternalSpace {
 // Fate System (f64 GPU-Accelerated)
 // ============================================================================
 
-#[derive(Debug, Clone)]
 pub struct FateSystem {
     pub entity_id: String,
     pub deformation_buffer: Vec<DeformationSignal>,
@@ -290,6 +293,19 @@ pub struct FateSystem {
     pub is_active: bool,
     pub internal_space: InternalSpace,
     pub signal_tick: u64,
+
+    // Native CUDA accelerator (optional). When enabled, we can offload
+    // expensive vector ops (e.g. cosine similarity) inside Fate evaluation.
+    #[cfg(feature = "native_cuda")]
+    pub gpu_accelerator: Option<native_cuda::NativeCudaAccelerator>,
+
+    // ====== GPU execution observability & resource control ======
+    // These fields ensure the GPU path is "real": it is called only when allowed
+    // by resource control, and we can see counters in Debug/log output.
+    pub gpu_coherence_calls: Cell<u64>,
+    pub gpu_coherence_skipped_cooldown: Cell<u64>,
+    pub gpu_coherence_failures: Cell<u64>,
+    pub last_gpu_coherence_wall_ms: Cell<u128>,
     
     // System-specific accumulators (for fast preference calculation)
     system_weights: [f64; 4],
@@ -304,8 +320,81 @@ pub struct FateSystem {
     data_flowing: bool,
 }
 
+impl std::fmt::Debug for FateSystem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut s = f.debug_struct("FateSystem");
+        s.field("entity_id", &self.entity_id);
+        s.field("deformation_buffer_len", &self.deformation_buffer.len());
+        s.field("resource_limits", &self.resource_limits);
+        s.field("is_active", &self.is_active);
+        s.field("internal_space", &self.internal_space);
+        s.field("signal_tick", &self.signal_tick);
+        s.field("preference_history_len", &self.preference_history.len());
+        s.field("data_flowing", &self.data_flowing);
+        s.field("gpu_coherence_calls", &self.gpu_coherence_calls.get());
+        s.field(
+            "gpu_coherence_skipped_cooldown",
+            &self.gpu_coherence_skipped_cooldown.get(),
+        );
+        s.field("gpu_coherence_failures", &self.gpu_coherence_failures.get());
+        s.field("last_gpu_coherence_wall_ms", &self.last_gpu_coherence_wall_ms.get());
+        #[cfg(feature = "native_cuda")]
+        {
+            let has_gpu = self.gpu_accelerator.is_some();
+            s.field("gpu_accelerator", &has_gpu);
+        }
+        s.finish()
+    }
+}
+
+impl Clone for FateSystem {
+    fn clone(&self) -> Self {
+        Self {
+            entity_id: self.entity_id.clone(),
+            deformation_buffer: self.deformation_buffer.clone(),
+            resource_limits: self.resource_limits.clone(),
+            is_active: self.is_active,
+            internal_space: self.internal_space.clone(),
+            signal_tick: self.signal_tick,
+            gpu_coherence_calls: Cell::new(self.gpu_coherence_calls.get()),
+            gpu_coherence_skipped_cooldown: Cell::new(self.gpu_coherence_skipped_cooldown.get()),
+            gpu_coherence_failures: Cell::new(self.gpu_coherence_failures.get()),
+            last_gpu_coherence_wall_ms: Cell::new(self.last_gpu_coherence_wall_ms.get()),
+            #[cfg(feature = "native_cuda")]
+            gpu_accelerator: None, // GPU handles are not trivially clonable; clone without CUDA state.
+            system_weights: self.system_weights,
+            system_counts: self.system_counts,
+            preference_history: self.preference_history.clone(),
+            data_flowing: self.data_flowing,
+        }
+    }
+}
+
 impl FateSystem {
+    fn now_wall_ms() -> u128 {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_millis()
+    }
+
     pub fn new(entity_id: String, resource_limits: ResourceLimits) -> Self {
+        #[cfg(feature = "native_cuda")]
+        let gpu_accelerator = if resource_limits.gpu_enabled {
+            match native_cuda::NativeCudaAccelerator::new() {
+                Ok(acc) => {
+                    info!("fate-f64: Native CUDA accelerator enabled");
+                    Some(acc)
+                }
+                Err(e) => {
+                    warn!("fate-f64: Native CUDA accelerator init failed: {e}. Falling back to CPU.");
+                    None
+                }
+            }
+        } else {
+            None
+        };
+
         Self {
             entity_id,
             deformation_buffer: Vec::with_capacity(resource_limits.max_buffer_size),
@@ -318,6 +407,14 @@ impl FateSystem {
             system_counts: [0; 4],
             preference_history: Vec::new(),
             data_flowing: true, // 初始假设有数据要处理
+
+            #[cfg(feature = "native_cuda")]
+            gpu_accelerator,
+
+            gpu_coherence_calls: Cell::new(0),
+            gpu_coherence_skipped_cooldown: Cell::new(0),
+            gpu_coherence_failures: Cell::new(0),
+            last_gpu_coherence_wall_ms: Cell::new(0),
         }
     }
     
@@ -357,17 +454,191 @@ impl FateSystem {
         
         self.deformation_buffer.push(signal);
     }
+
+    /// Restore Fate accumulators from a persisted hub snapshot (cross-round session).
+    pub fn seed_from_hub_snapshot(&mut self, prefs: &[f64], routed: [u64; 4]) {
+        let total_routed: u64 = routed.iter().sum();
+        for i in 0..4 {
+            let p = prefs.get(i).copied().unwrap_or(0.25).max(0.01);
+            let cnt = routed[i].max(1) as f64;
+            self.system_weights[i] = p * cnt;
+            self.system_counts[i] = routed[i].max(1);
+        }
+        self.signal_tick = total_routed.max(1);
+        self.data_flowing = true;
+    }
     
     /// Calculate system preferences (O(1) with accumulators)
     pub fn calculate_system_preferences(&self) -> SystemPreferences {
+        // Fallback: current O(1) policy based on system accumulators only.
         let total: f64 = self.system_weights.iter().sum();
-        
         if total.abs() < 1e-10 {
             return SystemPreferences::default();
         }
+
+        // GPU path is optional and must be "real": only attempt when
+        // (1) native CUDA accelerator exists, (2) GPU is enabled, and (3) we have enough samples.
+        #[cfg(feature = "native_cuda")]
+        {
+            let fallback_affinities: Vec<f64> = self
+                .system_weights
+                .iter()
+                .map(|w| w / total)
+                .collect();
+
+            if self.resource_limits.gpu_enabled
+                && self.gpu_accelerator.is_some()
+                && self.deformation_buffer.len() >= self.resource_limits.batch_size
+            {
+                let now_ms = Self::now_wall_ms();
+                let cooldown_ms = self.resource_limits.processing_interval_ms as u128;
+                if self.last_gpu_coherence_wall_ms.get() > 0
+                    && cooldown_ms > 0
+                    && (now_ms.saturating_sub(self.last_gpu_coherence_wall_ms.get()) < cooldown_ms)
+                {
+                    // Too frequent -> respect resource control and stay on fallback.
+                    self.gpu_coherence_skipped_cooldown.set(
+                        self.gpu_coherence_skipped_cooldown.get() + 1,
+                    );
+                    return SystemPreferences {
+                        affinities: fallback_affinities,
+                    };
+                }
+
+                // GPU path is allowed now: mark last-call time and increment call counter.
+                self.last_gpu_coherence_wall_ms.set(now_ms);
+                self.gpu_coherence_calls.set(self.gpu_coherence_calls.get() + 1);
+
+            // Safety: Native CUDA cosine similarity assumes fixed-length vectors equal to query.len().
+            let dim = self.internal_space.dimensions.max(1);
+            let alpha = 0.8; // keep fallback dominance when coherence is weak/degenerate
+
+            // Limit work to a recent window to respect resource control.
+            let max_samples = (self.resource_limits.batch_size * 4).max(1);
+            let start = self.deformation_buffer.len().saturating_sub(max_samples);
+            let slice = &self.deformation_buffer[start..];
+
+            let mut vectors_by_sys: [Vec<Vec<f64>>; 4] = std::array::from_fn(|_| Vec::new());
+            let mut weights_by_sys: [Vec<f64>; 4] = std::array::from_fn(|_| Vec::new());
+
+            for sig in slice {
+                let idx = match sig.source_system {
+                    SystemType::BlackHole => 0,
+                    SystemType::MeshBrain => 1,
+                    SystemType::MultiNova => 2,
+                    SystemType::BaseForce => 3,
+                };
+
+                // Fixed-length vector (pad with zeros / truncate).
+                let mut v = Vec::with_capacity(dim);
+                for &x in sig.direction.iter().take(dim) {
+                    v.push(x);
+                }
+                while v.len() < dim {
+                    v.push(0.0);
+                }
+
+                vectors_by_sys[idx].push(v);
+                weights_by_sys[idx].push(sig.weight());
+            }
+
+            let mut scores = [0.0f64; 4];
+            for sys_idx in 0..4 {
+                let vectors = &vectors_by_sys[sys_idx];
+                let weights = &weights_by_sys[sys_idx];
+                if vectors.is_empty() {
+                    // Keep a small baseline so normalization doesn't collapse.
+                    scores[sys_idx] = self.system_weights[sys_idx] * alpha;
+                    continue;
+                }
+
+                let basis = self
+                    .internal_space
+                    .basis_vectors
+                    .get(sys_idx)
+                    .cloned()
+                    .unwrap_or_else(|| vec![0.0; dim]);
+                let mut basis_fixed = Vec::with_capacity(dim);
+                for &x in basis.iter().take(dim) {
+                    basis_fixed.push(x);
+                }
+                while basis_fixed.len() < dim {
+                    basis_fixed.push(0.0);
+                }
+
+                // Compute weighted coherence via cosine similarity.
+                let mut weighted_sim_sum = 0.0f64;
+                let mut total_weight = 0.0f64;
+
+                let b = self.resource_limits.batch_size.max(1);
+                for (v_chunk, w_chunk) in vectors
+                    .chunks(b)
+                    .zip(weights.chunks(b))
+                {
+                    let sims_res = self
+                        .gpu_accelerator
+                        .as_ref()
+                        .unwrap()
+                        .batch_cosine_similarity(v_chunk, &basis_fixed);
+
+                    let sims = match sims_res {
+                        Ok(s) => s,
+                        Err(e) => {
+                            self.gpu_coherence_failures.set(self.gpu_coherence_failures.get() + 1);
+                            warn!("fate-f64: GPU coherence compute failed: {e}. Falling back to accumulators.");
+                            return SystemPreferences {
+                                affinities: fallback_affinities,
+                            };
+                        }
+                    };
+
+                    for (j, &w) in w_chunk.iter().enumerate() {
+                        if j >= sims.len() {
+                            break;
+                        }
+                        weighted_sim_sum += sims[j] * w;
+                        total_weight += w;
+                    }
+                }
+
+                let coherence = if total_weight.abs() > 1e-12 {
+                    weighted_sim_sum / total_weight
+                } else {
+                    0.0
+                };
+
+                // Map coherence [-1, 1] -> [0, 1], then blend with accumulator score.
+                let coherence01 = ((coherence + 1.0) / 2.0).clamp(0.0, 1.0);
+                let score = self.system_weights[sys_idx] * (alpha + (1.0 - alpha) * coherence01);
+                scores[sys_idx] = score;
+            }
+
+            let total_score: f64 = scores.iter().sum();
+            if total_score.abs() < 1e-10 {
+                    // GPU computed but coherence degenerated -> fallback.
+                return SystemPreferences {
+                    affinities: fallback_affinities,
+                };
+            }
+
+            info!(
+                "fate-f64: GPU coherence used (samples={}, dim={}, cooldown_ms={})",
+                slice.len(),
+                dim
+                ,
+                self.resource_limits.processing_interval_ms
+            );
+
+            return SystemPreferences {
+                affinities: scores.iter().map(|s| s / total_score).collect(),
+            };
+            }
+        }
         
         SystemPreferences {
-            affinities: self.system_weights.iter()
+            affinities: self
+                .system_weights
+                .iter()
                 .map(|w| w / total)
                 .collect(),
         }
@@ -516,7 +787,131 @@ impl FateSystem {
         // Intensity derived from signal density
         let density = count as f64 / self.signal_tick as f64;
         let intensity = density.min(1.0);
-        
+
+        // GPU path: compute direction coherence for this system and blend into quality.
+        // This makes rules input (quality/intensity) observable and GPU-backed when enabled.
+        #[cfg(feature = "native_cuda")]
+        {
+            if self.resource_limits.gpu_enabled
+                && self.gpu_accelerator.is_some()
+                && self.deformation_buffer.len() >= self.resource_limits.batch_size
+            {
+                let now_ms = Self::now_wall_ms();
+                let cooldown_ms = self.resource_limits.processing_interval_ms as u128;
+                if self.last_gpu_coherence_wall_ms.get() > 0
+                    && cooldown_ms > 0
+                    && (now_ms.saturating_sub(self.last_gpu_coherence_wall_ms.get()) < cooldown_ms)
+                {
+                    self.gpu_coherence_skipped_cooldown
+                        .set(self.gpu_coherence_skipped_cooldown.get() + 1);
+                    return FateEvaluation {
+                        quality,
+                        intensity,
+                        is_bootstrap: false,
+                    };
+                }
+
+                self.last_gpu_coherence_wall_ms.set(now_ms);
+                self.gpu_coherence_calls.set(self.gpu_coherence_calls.get() + 1);
+
+                let max_samples = (self.resource_limits.batch_size * 4).max(1);
+                let start = self.deformation_buffer.len().saturating_sub(max_samples);
+                let slice = &self.deformation_buffer[start..];
+
+                let dim = self.internal_space.dimensions.max(1);
+                let basis_vec = self
+                    .internal_space
+                    .basis_vectors
+                    .get(system_index)
+                    .cloned()
+                    .unwrap_or_else(|| vec![0.0; dim]);
+                let mut basis_fixed = Vec::with_capacity(dim);
+                for &x in basis_vec.iter().take(dim) {
+                    basis_fixed.push(x);
+                }
+                while basis_fixed.len() < dim {
+                    basis_fixed.push(0.0);
+                }
+
+                let mut vectors: Vec<Vec<f64>> = Vec::new();
+                let mut weights: Vec<f64> = Vec::new();
+                for sig in slice {
+                    let idx = match sig.source_system {
+                        SystemType::BlackHole => 0,
+                        SystemType::MeshBrain => 1,
+                        SystemType::MultiNova => 2,
+                        SystemType::BaseForce => 3,
+                    };
+                    if idx != system_index {
+                        continue;
+                    }
+
+                    let mut v = Vec::with_capacity(dim);
+                    for &x in sig.direction.iter().take(dim) {
+                        v.push(x);
+                    }
+                    while v.len() < dim {
+                        v.push(0.0);
+                    }
+                    vectors.push(v);
+                    weights.push(sig.weight());
+                }
+
+                if !vectors.is_empty() {
+                    let b = self.resource_limits.batch_size.max(1);
+                    let mut weighted_sim_sum = 0.0f64;
+                    let mut total_weight = 0.0f64;
+
+                    for (v_chunk, w_chunk) in vectors.chunks(b).zip(weights.chunks(b)) {
+                        let sims_res = self
+                            .gpu_accelerator
+                            .as_ref()
+                            .unwrap()
+                            .batch_cosine_similarity(v_chunk, &basis_fixed);
+                        let sims = match sims_res {
+                            Ok(s) => s,
+                            Err(e) => {
+                                self.gpu_coherence_failures
+                                    .set(self.gpu_coherence_failures.get() + 1);
+                                warn!(
+                                    "fate-f64: GPU coherence compute failed in evaluate_system: {e}. Falling back."
+                                );
+                                break;
+                            }
+                        };
+
+                        for (j, &w) in w_chunk.iter().enumerate() {
+                            if j >= sims.len() {
+                                break;
+                            }
+                            weighted_sim_sum += sims[j] * w;
+                            total_weight += w;
+                        }
+                    }
+
+                    if total_weight.abs() > 1e-12 {
+                        let coherence = weighted_sim_sum / total_weight;
+                        let coherence01 = ((coherence + 1.0) / 2.0).clamp(0.0, 1.0);
+                        let alpha = 0.5;
+                        let blended_quality = alpha * quality + (1.0 - alpha) * coherence01;
+
+                        info!(
+                            "fate-f64: GPU evaluate_system used (sys={}, samples={}, dim={})",
+                            system_index,
+                            vectors.len(),
+                            dim
+                        );
+
+                        return FateEvaluation {
+                            quality: blended_quality,
+                            intensity,
+                            is_bootstrap: false,
+                        };
+                    }
+                }
+            }
+        }
+
         FateEvaluation {
             quality,
             intensity,
@@ -526,11 +921,25 @@ impl FateSystem {
     
     /// Get resource usage
     pub fn get_resource_usage(&self) -> ResourceUsage {
+        #[cfg(feature = "native_cuda")]
+        let gpu_memory_mb = if self.gpu_accelerator.is_some() {
+            // NativeCuda cosine similarity allocates query + a single vector buffers on GPU.
+            // Estimate: 2 * dim * sizeof(f64).
+            let dim = self.internal_space.dimensions.max(1) as u64;
+            let bytes = 2 * dim * 8;
+            bytes / 1_000_000
+        } else {
+            0
+        };
+
+        #[cfg(not(feature = "native_cuda"))]
+        let gpu_memory_mb = 0;
+
         ResourceUsage {
             memory_bytes: self.deformation_buffer.len() * std::mem::size_of::<DeformationSignal>(),
             buffer_usage: self.deformation_buffer.len(),
             buffer_capacity: self.resource_limits.max_buffer_size,
-            gpu_memory_mb: 0, // Updated when GPU is used
+            gpu_memory_mb,
         }
     }
     

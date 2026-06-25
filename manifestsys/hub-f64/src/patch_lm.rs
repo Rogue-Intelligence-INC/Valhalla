@@ -16,7 +16,7 @@ use crate::patch_export::{self, PATCH_ANCHOR};
 use crate::pipeline::{self, pick_mcq_fate_letter, pick_mcq_affinity_letter};
 use crate::pipeline::PipelineConfig;
 use crate::mcq_fate::McqFateOutcome;
-use crate::signal_ingress::ValhallaModelPatch;
+use crate::signal_ingress::{TriadIncubationSnapshot, ValhallaModelPatch};
 
 pub const DEFAULT_STRENGTH: f64 = 0.08;
 pub const DEFAULT_MAX_NEW: usize = 192;
@@ -757,6 +757,16 @@ pub fn run_patch_track_v4(
         corpus,
         cfg.export_cycles,
     );
+    run_patch_track_v4_with_snap(&snap, prompts, cfg, audio_by_id)
+}
+
+/// v4 with pre-built incubation snapshot (context + core fusion path).
+pub fn run_patch_track_v4_with_snap(
+    snap: &TriadIncubationSnapshot,
+    prompts: &[FairPrompt],
+    cfg: &PatchLmConfig,
+    audio_by_id: Option<&HashMap<String, Vec<f64>>>,
+) -> Result<Vec<PatchTrackRow>, String> {
     let base = BaseWeights::load(&cfg.model_dir, cfg.use_cpu)?;
     let tokenizer = Tokenizer::from_file(cfg.model_dir.join("tokenizer.json"))
         .map_err(|e| e.to_string())?;
