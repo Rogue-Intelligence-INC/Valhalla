@@ -147,6 +147,9 @@ python3 tools/valhalla_inference/run_local_corpus_demo.py \
 | `test_proactive_fate_v2.py` | proactive-fate-v2 | PPI-v2 / UP / MAR |
 
 ```bash
+# 统一置信区间报告（Wilson + bootstrap，汇总全部实验 JSON）
+python3 tools/valhalla_inference/run_confidence_report.py
+
 # 主动 Fate（多轮 warmup 后 idle 自探针 + FOG nudge）
 python3 tools/valhalla_inference/test_proactive_fate_v2.py
 

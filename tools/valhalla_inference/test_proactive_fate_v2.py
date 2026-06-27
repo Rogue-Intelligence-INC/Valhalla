@@ -438,6 +438,9 @@ def main() -> None:
         "summary": {"passed": passed, "total": len(all_rows), "pass_rate": passed / len(all_rows)},
         "verdict": verdict,
     }
+    from run_confidence_report import analyze_proactive_v2  # noqa: WPS433
+
+    report["confidence_intervals"] = analyze_proactive_v2(report).get("metrics", [])
 
     REPORTS.mkdir(parents=True, exist_ok=True)
     json_path = REPORTS / "proactive_fate_v2_test.json"
