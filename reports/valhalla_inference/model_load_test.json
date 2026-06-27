@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-06-25T18:57:10.415434+00:00",
+  "model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10",
+  "vllm_installed": false,
+  "engines": {
+    "primary": {
+      "info": {
+        "path": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10",
+        "base_model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+        "product": "valhalla-free-multimodal-fusion-v2",
+        "body": "triad",
+        "load_mode": "baked_hf",
+        "runtime_patch": false,
+        "tile_count": 132,
+        "stem_cell_count": 216,
+        "strength": 0.1,
+        "module_stack": [
+          {
+            "id": "hub",
+            "rust": "manifestsys/hub-f64/src/lib.rs (ValhallaHub)",
+            "role": "Fate quad routing BH/MB/MN/BF",
+            "transformer_touch": "hub_prefs → quad_layer_scales → LayerNorm group scaling (4×6 layers)"
+          },
+          {
+            "id": "tile",
+            "rust": "manifestsys/tile-quattro/",
+            "role": "Block merge/split signatures",
+            "transformer_touch": "tile_signatures → patch_vector[256] → hidden_size embed delta"
+          },
+          {
+            "id": "stemcell",
+            "rust": "manifestsys/stem-cell/",
+            "role": "Cell graph energy layers",
+            "transformer_touch": "stem_signatures → fused into patch_vector"
+          },
+          {
+            "id": "triad",
+            "rust": "manifestsys/hub-f64/src/signal_ingress.rs (TriadSession)",
+            "role": "Hub+Tile+Stem parallel incubation",
+            "transformer_touch": "build_model_patch() → export_doc → bake or runtime patch_lm"
+          },
+          {
+            "id": "dl_front",
+            "rust": "manifestsys/hub-f64/src/dl_front.rs",
+            "python": "tools/valhalla_dl_front/encode.py",
+            "role": "384-d modality → hub/tile/stem ports",
+            "transformer_touch": "Pre-LM ingress (text/audio/image features); not generate path"
+          },
+          {
+            "id": "patch_lm",
+            "rust": "manifestsys/hub-f64/src/patch_lm.rs",
+            "role": "Candle Qwen2 load + weight surgery",
+            "transformer_touch": "safetensors load; baked=offline surgery, runtime=per-question patch"
+          },
+          {
+            "id": "fused_lm",
+            "rust": "manifestsys/hub-f64/src/fused_lm.rs",
+            "role": "Single-track LM product (no hybrid router)",
+            "transformer_touch": "MCQ logprob batch + numeric/open generate on baked weights"
+          }
+        ],
+        "extra": {
+          "manifest_version": "valhalla-bake-1.0",
+          "bake_mode": "full",
+          "weight_delta_norm": 298.6595374084187,
+          "ingress": "modeldecompose"
+        }
+      },
+      "engine_requested": "transformers",
+      "vllm_available": false,
+      "weights_ok": true,
+      "param_count_M": 494.0,
+      "device": "cuda:0",
+      "load_ok": true
+    },
+    "fused": {
+      "backend": "valhalla_fused_lm (Candle baked_lm)",
+      "summary": {
+        "n": 12,
+        "correct": 5,
+        "acc": 0.4166666666666667
+      },
+      "path": "/home/jouly/AI/Valhalla/reports/valhalla_inference/fused_smoke.json"
+    }
+  },
+  "generations": [
+    {
+      "prompt": "What is the SI unit of force? Answer in one sentence.",
+      "backend": "transformers",
+      "output": "The SI (International System of Units) unit of force is the newton (N)."
+    },
+    {
+      "prompt": "Which organelle is the site of photosynthesis?\nA) Mitochondria\nB) Ribosome\nC) Chloroplast\nD) Nucleus\n\nThink briefly, the",
+      "backend": "transformers",
+      "output": "The correct answer is C) Chloroplast. Chloroplasts are specialized organelles found in plant cells that contain chlorophyll and play a crucial role in photosynthesis. They capture light energy from sunlight and convert it into chemical energy stored in glucose molecules within the cell.",
+      "guided_mcq": "C"
+    }
+  ]
+}

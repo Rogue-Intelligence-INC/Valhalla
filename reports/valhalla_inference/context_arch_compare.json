@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-06-25T22:15:38.684499+00:00",
+  "protocol": "context-arch-compare-v1",
+  "open_retrieval_n": 31,
+  "new_architecture": {
+    "name": "ValhallaBase native (structure context)",
+    "correct": 30,
+    "accuracy": 0.967741935483871
+  },
+  "traditional": {
+    "name": "LM prompt injection (explicit corpus block)",
+    "correct": 30,
+    "accuracy": 0.967741935483871
+  },
+  "accuracy_delta_new_minus_trad": 0.0,
+  "context_swap": [
+    {
+      "question": "What is the capital of Australia?",
+      "new_a": "[corpus:0] The capital of Australia is Canberra",
+      "new_b": "[corpus:0] The capital of France is Paris",
+      "trad_a": "The capital of Australia is Canberra.",
+      "trad_b": "The capital of Australia is Canberra.",
+      "new_swap_ok": true,
+      "trad_swap_ok": false,
+      "same_swap_behavior": false
+    },
+    {
+      "question": "At what temperature does water boil at standard pressure?",
+      "new_a": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+      "new_b": "[corpus:0] Water freezes at 0 degrees Celsius at standard pressure",
+      "trad_a": "Water boils at 100 degrees Celsius at standard pressure. This is the boiling point of pure water under normal conditions",
+      "trad_b": "Water boils at standard pressure at 100 degrees Celsius. This is the boiling point of pure water at sea level under norm",
+      "new_swap_ok": true,
+      "trad_swap_ok": true,
+      "same_swap_behavior": true
+    }
+  ],
+  "new_swap_ok": 2,
+  "trad_swap_ok": 1,
+  "swap_behavior_agree": 1,
+  "answer_prefix_match_rate": 0.0,
+  "verdict": "MIXED_SMALL_GAP"
+}

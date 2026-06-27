@@ -1,0 +1,255 @@
+{
+  "timestamp": "2026-06-25T19:03:15.267628+00:00",
+  "model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10",
+  "phase": "test",
+  "existing_full_test": {
+    "source": "/home/jouly/AI/Valhalla/reports/natural_multimodal_potential/fused_v2_full_test.json",
+    "slices": {
+      "corpus_supported": {
+        "n": 96,
+        "correct": 68,
+        "acc": 0.7083333333333334
+      },
+      "open_retrieval": {
+        "n": 31,
+        "correct": 29,
+        "acc": 0.9354838709677419
+      },
+      "open_generation": {
+        "n": 30,
+        "correct": 26,
+        "acc": 0.8666666666666667
+      },
+      "mcq_routing": {
+        "n": 46,
+        "correct": 26,
+        "acc": 0.5652173913043478
+      },
+      "numeric_compute": {
+        "n": 38,
+        "correct": 29,
+        "acc": 0.7631578947368421
+      }
+    },
+    "open_retrieval_failures": [
+      {
+        "id": "ZH_02",
+        "reference": "秦朝",
+        "output": "中国历史上第一个统一的中央集权封建王朝是明朝。明朝是中国历史上最后一个封建王朝，也是中国历史上最后一个统一的封建王朝。1368年，明成祖朱棣即位，建立明朝。1644年，明亡于清兵南下，明朝灭亡。明朝的建立标志着中国封建社会的终结，开启了中国近代史的开端。"
+      },
+      {
+        "id": "ZH_03",
+        "reference": "24",
+        "output": "一年有5个节气，分别是立春、雨水、惊蛰、清明、谷雨。"
+      }
+    ]
+  },
+  "live_ablation": {
+    "model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10",
+    "open_retrieval_subset": {
+      "n": 15,
+      "correct": 15,
+      "acc": 1.0
+    },
+    "with_explicit_corpus_in_prompt": {
+      "n": 15,
+      "correct": 15,
+      "acc": 1.0
+    },
+    "delta_pp": 0.0,
+    "samples": [
+      {
+        "id": "OPEN_CHEM_01",
+        "reference": "100",
+        "corpus_hits": [
+          "Water boils at 100 degrees Celsius at standard atmospheric pressure."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "Water boils at 100 degrees Celsius (212 Fahrenheit) under standard atmospheric pressure. This is the boiling point of water at sea level on Earth's surface. The exact temperature c",
+        "ctx_out": "Water boils at 100 degrees Celsius at standard atmospheric pressure."
+      },
+      {
+        "id": "OPEN_BIO_01",
+        "reference": "ATP",
+        "corpus_hits": [
+          "Mitochondria produce ATP through cellular respiration in eukaryotes.",
+          "Chloroplasts contain chlorophyll for capturing light energy."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "The main function of mitochondria is to provide energy for cellular activities. They contain enzymes that catalyze biochemical reactions and store ATP (adenosine triphosphate) mole",
+        "ctx_out": "The primary function of mitochondria is to produce adenosine triphosphate (ATP) through cellular respiration, which provides the energy required for various cellular processes."
+      },
+      {
+        "id": "OPEN_ECON_01",
+        "reference": "Gross Domestic Product",
+        "corpus_hits": [
+          "Gross Domestic Product sums consumption investment government and net exports.",
+          "GDP measures the total value of goods and services produced in a country."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "GDP stands for Gross Domestic Product. It is the total value of all goods and services produced within a country's borders in a specific time period, usually a year. This measure i",
+        "ctx_out": "Gross Domestic Product."
+      },
+      {
+        "id": "OPEN_ECON_02",
+        "reference": "price level",
+        "corpus_hits": [
+          "Inflation means a sustained increase in the general price level of goods.",
+          "Supply increases when price rises according to basic microeconomic theory.",
+          "Supply and demand curves intersect at market equilibrium price."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "Inflation refers to the sustained increase in prices of goods and services over time, which can erode the purchasing power of consumers and affect the overall economic stability.",
+        "ctx_out": "Inflation is defined as a sustained increase in the general price level of goods, which occurs due to a combination of factors including increased supply from producers and decreas"
+      },
+      {
+        "id": "OPEN_CS_02",
+        "reference": "Central Processing Unit",
+        "corpus_hits": [
+          "Central Processing Unit executes instructions in a computer system.",
+          "George Washington was the first President of the United States.",
+          "The SI unit of force is the Newton defined as kg times m per s squared."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "CPU stands for \"Central Processing Unit\". It is the core component of a computer system responsible for executing instructions and performing arithmetic and logical operations on d",
+        "ctx_out": "CPU stands for \"Central Processing Unit.\" It is the core component of any computer system responsible for executing instructions and performing arithmetic and logical operations on"
+      },
+      {
+        "id": "LIT_01",
+        "reference": "Shakespeare",
+        "corpus_hits": [
+          "William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "Romeo and Juliet was written by William Shakespeare. This play is one of the most famous tragedies in Western literature and has been performed countless times across many centurie",
+        "ctx_out": "William Shakespeare."
+      },
+      {
+        "id": "LIT_02",
+        "reference": "Orwell",
+        "corpus_hits": [
+          "George Orwell wrote the dystopian novel Nineteen Eighty-Four published in 1949.",
+          "George Washington was the first President of the United States."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "\"1984,\" written by George Orwell, is one of the most famous works from the dystopian literature genre. It was first published in 1952 and has since become an iconic piece of modern",
+        "ctx_out": "George Orwell. The book \"1984\" was written by George Orwell. It was published in 1949."
+      },
+      {
+        "id": "MED_01",
+        "reference": "Type 2",
+        "corpus_hits": [
+          "Type 2 diabetes involves insulin resistance and relative insulin deficiency."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "Type 2 Diabetes. Type 2 diabetes is primarily characterized by insulin resistance. This means that the body's cells do not respond effectively to insulin, which is the hormone that",
+        "ctx_out": "Type 2 diabetes is primarily characterized by insulin resistance. This means that the body's cells become less responsive to insulin, leading to higher blood sugar levels. Insulin "
+      },
+      {
+        "id": "ASTRO_01",
+        "reference": "Mercury",
+        "corpus_hits": [
+          "Mercury is the smallest planet and closest to the Sun in our solar system.",
+          "Mercury orbits closest to the Sun with year of about eighty eight Earth days."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "The planet that is closest to the Sun is Mercury. It orbits around the Sun at an average distance of about 57.9 million kilometers (36.02 million miles) from the Sun.",
+        "ctx_out": "Mercury."
+      },
+      {
+        "id": "LOGIC_02",
+        "reference": "not wet",
+        "corpus_hits": [
+          "The capital city of Australia is Canberra not Sydney or Melbourne.",
+          "Contrapositive of P implies Q is not Q implies not P."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "The contrapositive of \"If it rains, the ground is wet\" would be \"If the ground is not wet, then it does not rain.\"",
+        "ctx_out": "The contrapositive of \"If it rains, the ground is wet\" is \"If the ground is not wet, it does not rain.\""
+      },
+      {
+        "id": "OPEN_F03",
+        "reference": "Fe",
+        "corpus_hits": [
+          "Thomas Jefferson was primary author of the US Declaration of Independence."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "The chemical symbol for iron is Fe.",
+        "ctx_out": "The chemical symbol for iron is Fe."
+      },
+      {
+        "id": "OPEN_F04",
+        "reference": "carbon dioxide",
+        "corpus_hits": [
+          "Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "Plants absorb carbon dioxide (CO2) through their leaves to produce glucose and oxygen as a byproduct of photosynthesis. The process can be broken down into the following steps:\n\n1.",
+        "ctx_out": "Plants absorb carbon dioxide (CO2) for photosynthesis. This process uses sunlight to convert carbon dioxide and water into glucose through the process of photosynthesis. The absorb"
+      },
+      {
+        "id": "OPEN_F05",
+        "reference": "cell",
+        "corpus_hits": [
+          "Mitochondria produce ATP through cellular respiration in eukaryotes."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "The basic unit of life in biology refers to the smallest unit that can be considered as an independent entity and capable of performing all necessary functions for its survival. Th",
+        "ctx_out": "The basic unit of life is the cell. Cells are the fundamental units that make up all living organisms and carry out most of their functions. They consist of a nucleus containing ge"
+      },
+      {
+        "id": "OPEN_F06",
+        "reference": "photosynthesis",
+        "corpus_hits": [
+          "Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "The process by which plants make food using sunlight is called photosynthesis. This occurs in the chloroplasts of plant cells and involves several key steps:\n\n1. **Light Absorption",
+        "ctx_out": "Photosynthesis is the process by which plants convert carbon dioxide and water into glucose and oxygen using sunlight. This process occurs primarily in the chloroplasts of plant ce"
+      },
+      {
+        "id": "OPEN_F14",
+        "reference": "step-by-step procedure",
+        "corpus_hits": [
+          "Binary search requires a sorted array and halves the search interval each step."
+        ],
+        "bare_correct": true,
+        "ctx_correct": true,
+        "bare_out": "An algorithm is a step-by-step procedure or set of instructions that can be executed to perform a specific task or solve a particular problem. It's a fundamental concept in compute",
+        "ctx_out": "An algorithm is a well-defined set of instructions or steps that can be followed to solve a problem or perform a task. It consists of a sequence of operations that take input data "
+      }
+    ]
+  },
+  "guided_base_analysis": {
+    "verdict": "SKIP_FULL_GUIDED_BASE",
+    "summary": "Pre-baked fused LM + valhalla_fused_lm MCQ logprob is enough for MVP serving; full custom vLLM guided substrate NOT required unless you need runtime hybrid routing or live corpus ingress.",
+    "needs": [
+      "MCQ <65% — keep valhalla_fused_lm logprob path; optional grammar-guided decode for vLLM"
+    ],
+    "skip": [
+      "open_retrieval already ≥85% on baked fused — no RAG wrapper required for deploy",
+      "explicit corpus-in-prompt Δ=+0.0pp — model not context-starved at inference",
+      "open_generation nearly matches retrieval — parametric+bake sufficient for many opens"
+    ],
+    "recommended_stack": {
+      "serving": "transformers or vLLM on baked HF weights",
+      "mcq": "valhalla_fused_lm logprob_batch (not vLLM sample)",
+      "open_with_corpus": "optional prompt-RAG wrapper if delta_pp > 5",
+      "full_hybrid": "Valhalla orchestrator (Tier B memory + patch router) — separate from vLLM plugin"
+    }
+  }
+}

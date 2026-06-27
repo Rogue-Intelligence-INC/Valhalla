@@ -1,0 +1,1046 @@
+{
+  "timestamp": "2026-06-26T16:56:54.000348+00:00",
+  "protocol": "scale-benchmark-v1",
+  "phase": "test",
+  "prompt_counts": {
+    "total_open_mcq": 107,
+    "open": 61,
+    "mcq": 46,
+    "corpus_supported": 77,
+    "open_retrieval": 31
+  },
+  "context_mcq_lm": {
+    "mcq_decode": "lm_patch",
+    "core_fusion": false,
+    "n": 46,
+    "correct": 29,
+    "accuracy": 0.6304347826086957,
+    "rows": [
+      {
+        "id": "MCQ_BIO_01",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_GEO_01",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_ECON_01",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_PHIL_01",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_MED_01",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_HIST_02",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_GEO_02",
+        "correct": true,
+        "answer": "ANSWER: D",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F02",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F03",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F06",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F07",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F08",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F09",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F10",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F11",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F12",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F13",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F14",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F18",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F19",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F20",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F21",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F22",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F23",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F24",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F25",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F26",
+        "correct": false,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F27",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F28",
+        "correct": true,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F29",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F30",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F31",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F32",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F34",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F35",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F38",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F41",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F42",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F43",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F44",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F45",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F46",
+        "correct": false,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F47",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F48",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F49",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      },
+      {
+        "id": "MCQ_F50",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": null
+      }
+    ]
+  },
+  "context_mcq_lm_fusion": {
+    "mcq_decode": "lm_patch",
+    "core_fusion": true,
+    "n": 46,
+    "correct": 26,
+    "accuracy": 0.5652173913043478,
+    "rows": [
+      {
+        "id": "MCQ_BIO_01",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.8769828147467414,
+          "universal_formed": true,
+          "shared_patch": 0.9919461247577882,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_GEO_01",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.8751590166172324,
+          "universal_formed": true,
+          "shared_patch": 0.999999527145604,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_ECON_01",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.8762506442850143,
+          "universal_formed": true,
+          "shared_patch": 0.9999790747770452,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_PHIL_01",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.8773622688384065,
+          "universal_formed": true,
+          "shared_patch": 0.9999998961341513,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_MED_01",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.877651883234144,
+          "universal_formed": true,
+          "shared_patch": 0.9998842962695282,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_HIST_02",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9761127246449428,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_GEO_02",
+        "correct": true,
+        "answer": "ANSWER: D",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9758341177768545,
+          "universal_formed": true,
+          "shared_patch": 0.9999352488681962,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F02",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9751521325207019,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F03",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9755364977707857,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F06",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9766418241375792,
+          "universal_formed": true,
+          "shared_patch": 0.9996486958600853,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F07",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9750303479681047,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F08",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9757893200392218,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F09",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9753544183937284,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F10",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9753246562806885,
+          "universal_formed": true,
+          "shared_patch": 0.9995433360193106,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F11",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.976848438176154,
+          "universal_formed": true,
+          "shared_patch": 0.9998340437284473,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F12",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9748117551438472,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F13",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9755574070184745,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F14",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9750219603598518,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F18",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9742063170707281,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F19",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9740986106416375,
+          "universal_formed": true,
+          "shared_patch": 0.9995688463106922,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F20",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9764888421957082,
+          "universal_formed": true,
+          "shared_patch": 0.9998552665244557,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F21",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.97320403562682,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F22",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9744521513135603,
+          "universal_formed": true,
+          "shared_patch": 0.9994784216284045,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F23",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9760231241912641,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F24",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9747713932384109,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F25",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9749655747306976,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F26",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9755829167138903,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F27",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9754379850339844,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F28",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9752057342934367,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F29",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.973542693343579,
+          "universal_formed": true,
+          "shared_patch": 0.9998427262866368,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F30",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9762908802038894,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F31",
+        "correct": false,
+        "answer": "ANSWER: D",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9769499354139664,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F32",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9730657693427072,
+          "universal_formed": true,
+          "shared_patch": 0.9998781309716023,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F34",
+        "correct": true,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.975308676875854,
+          "universal_formed": true,
+          "shared_patch": 0.9996233853586839,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F35",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9754060971335251,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F38",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9757768427082095,
+          "universal_formed": true,
+          "shared_patch": 0.9991186278150613,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F41",
+        "correct": false,
+        "answer": "ANSWER: A",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9743965997001841,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F42",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9751076804714666,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F43",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9733479272839826,
+          "universal_formed": true,
+          "shared_patch": 0.9994865376409857,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F44",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9756668922179195,
+          "universal_formed": true,
+          "shared_patch": 0.9999417259826885,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F45",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9751375452769717,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F46",
+        "correct": false,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.974723759596415,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F47",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9763183292180071,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F48",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9745227437951691,
+          "universal_formed": true,
+          "shared_patch": 1.0000000000000002,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F49",
+        "correct": false,
+        "answer": "ANSWER: C",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9749376641350551,
+          "universal_formed": true,
+          "shared_patch": 1.0,
+          "decode_snap": "context+task_non_isolated"
+        }
+      },
+      {
+        "id": "MCQ_F50",
+        "correct": true,
+        "answer": "ANSWER: B",
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "context_lines": 8,
+        "core_fusion": {
+          "universal_score": 0.9768154288966912,
+          "universal_formed": true,
+          "shared_patch": 0.9997386062752177,
+          "decode_snap": "context+task_non_isolated"
+        }
+      }
+    ]
+  },
+  "mcq_fusion_diff": {
+    "baseline_accuracy": 0.6304347826086957,
+    "fused_accuracy": 0.5652173913043478,
+    "delta_pp": -6.521739130434789,
+    "improved_count": 2,
+    "regressed_count": 5,
+    "unchanged_count": 39,
+    "improved": [
+      {
+        "id": "MCQ_F11",
+        "baseline_answer": "ANSWER: A",
+        "fused_answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F50",
+        "baseline_answer": "ANSWER: A",
+        "fused_answer": "ANSWER: B"
+      }
+    ],
+    "regressed": [
+      {
+        "id": "MCQ_F07",
+        "baseline_answer": "ANSWER: B",
+        "fused_answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F22",
+        "baseline_answer": "ANSWER: B",
+        "fused_answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F28",
+        "baseline_answer": "ANSWER: A",
+        "fused_answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F32",
+        "baseline_answer": "ANSWER: B",
+        "fused_answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F41",
+        "baseline_answer": "ANSWER: B",
+        "fused_answer": "ANSWER: A"
+      }
+    ]
+  },
+  "verdict": [
+    "PARTIAL"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-06-25T19:17:21.851335+00:00",
+  "tests": {
+    "hybrid": {
+      "features": [
+        "context_flex",
+        "hybrid_routing"
+      ],
+      "rows": [
+        {
+          "id": "hybrid_open",
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "answer": "[corpus:0] The SI unit of force is the Newton"
+        },
+        {
+          "id": "hybrid_mcq",
+          "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+          "answer": "ANSWER: B"
+        }
+      ]
+    },
+    "session": {
+      "fp_before": "1181ed642cb756b0",
+      "fp_after": "21da18820a3b49da",
+      "fingerprint_changed": true,
+      "lines_ingested": 2,
+      "features": [
+        "context_flex",
+        "hybrid_routing",
+        "session_append"
+      ]
+    },
+    "multimodal": {
+      "features": [
+        "context_flex",
+        "hybrid_routing",
+        "multimodal_context"
+      ],
+      "context_lines": 3,
+      "answer": "[corpus:2] [image_context]"
+    }
+  }
+}

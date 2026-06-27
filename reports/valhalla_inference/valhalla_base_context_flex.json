@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-06-25T19:09:30.618828+00:00",
+  "protocol": "valhalla-base-v1",
+  "decode": "native",
+  "boiling_context_a": {
+    "fingerprint": "e33e54c0fffaa8a0",
+    "answer": "[corpus:0] On Planet Alpha, water boils at 100 degrees Celsius at standard pressure"
+  },
+  "boiling_context_b": {
+    "fingerprint": "e9fa8faecc74002c",
+    "answer": "[corpus:0] On Planet Beta, water boils at 70 degrees Celsius due to lower atmospheric pressure"
+  },
+  "capital_context_c": {
+    "fingerprint": "fab54a40c18215a4",
+    "answer": "[corpus:0] The capital of Freedonia is Zephyria"
+  },
+  "context_flexibility_proven": true,
+  "architecture": {
+    "substrate": "Valhalla Triad (Hub+Tile+Stem) per context bundle",
+    "lm_role": "decode head only (runtime patch) when decode=lm_patch",
+    "vs_standard_llm": "context ingested into structure, not only prepended to prompt"
+  }
+}

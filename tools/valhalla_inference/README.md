@@ -150,8 +150,12 @@ python3 tools/valhalla_inference/run_local_corpus_demo.py \
 # 统一置信区间报告（Wilson + bootstrap，汇总全部实验 JSON）
 python3 tools/valhalla_inference/run_confidence_report.py
 
-# 主动 Fate（多轮 warmup 后 idle 自探针 + FOG nudge）
-python3 tools/valhalla_inference/test_proactive_fate_v2.py
+# 补 traditional_lm 对照 + 刷新 TPI/NPPI（需 .venv-llm + HF Qwen cache）
+.venv-llm/bin/python3 tools/valhalla_inference/test_valhalla_base_training_potential.py --only-rag
+.venv-llm/bin/python3 tools/valhalla_inference/test_new_paradigm_potential.py --only-n5
+
+# 主动 Fate — 全量 fair holdout（--fair-limit 0 = 全部 open_retrieval）
+python3 tools/valhalla_inference/test_proactive_fate_v2.py --fair-limit 0
 
 # Fate 输出门控（emit / abstain / defer）
 python3 tools/valhalla_inference/test_fate_output_gate.py

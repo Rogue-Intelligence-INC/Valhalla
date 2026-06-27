@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-26T21:36:57.283138+00:00",
+  "timestamp": "2026-06-27T18:14:13.310834+00:00",
   "protocol": "valhalla-base-training-potential-v2",
   "fair_benchmark_version": "fair-1.2",
   "phase": "test",
@@ -2490,12 +2490,171 @@
     },
     "traditional_lm_rag": {
       "arm": "traditional_lm_rag",
-      "skipped": true,
-      "error": "Invalid or empty weights: /home/jouly/AI/Valhalla/Qwen/Qwen2.5-0.5B-Instruct/model.safetensors"
+      "n": 31,
+      "correct": 30,
+      "accuracy": 0.967741935483871,
+      "rows": [
+        {
+          "id": "OPEN_PHYS_01",
+          "correct": true,
+          "answer": "Newton's Second Law states that the force acting on an object is equal to its mass multiplied by its acceleration: \\( F = ma \\)."
+        },
+        {
+          "id": "OPEN_CHEM_01",
+          "correct": true,
+          "answer": "Water boils at 100 degrees Celsius at standard atmospheric pressure."
+        },
+        {
+          "id": "OPEN_BIO_01",
+          "correct": true,
+          "answer": "The primary function of mitochondria is to produce adenosine triphosphate (ATP) through cellular respiration, which provides the energy required for various cel"
+        },
+        {
+          "id": "OPEN_HIST_01",
+          "correct": true,
+          "answer": "World War II ended in 1945."
+        },
+        {
+          "id": "OPEN_GEO_01",
+          "correct": true,
+          "answer": "The capital of Australia is Canberra. It was chosen as the Australian capital due to its location in the middle of the country, which provided a balance between"
+        },
+        {
+          "id": "OPEN_ECON_01",
+          "correct": true,
+          "answer": "Gross Domestic Product stands for \"Gross Domestic Product.\" It is a measure of the total market value of all final goods and services produced within a country'"
+        },
+        {
+          "id": "OPEN_ECON_02",
+          "correct": true,
+          "answer": "Inflation is defined as a sustained increase in the general price level of goods, which occurs due to a rise in supply that is not offset by an equal increase i"
+        },
+        {
+          "id": "OPEN_CS_02",
+          "correct": true,
+          "answer": "CPU stands for \"Central Processing Unit.\" It is the core component of a computer that performs arithmetic and logical operations on data to execute instructions"
+        },
+        {
+          "id": "ZH_02",
+          "correct": true,
+          "answer": "秦朝是中国历史上第一个统一的中央集权封建王朝。"
+        },
+        {
+          "id": "ZH_03",
+          "correct": true,
+          "answer": "一年有24个节气。"
+        },
+        {
+          "id": "ZH_04",
+          "correct": true,
+          "answer": "《红楼梦》是中国古典小说的巅峰之作，由清代作家曹雪芹创作。曹雪芹，字梦阮，号雪芹，别署芹圃、芹溪，原籍阳曲（今属山西），后迁居于山阴（今浙江绍兴）。他生于清朝乾隆年间，卒于道光二年（1752年），享年67岁。曹雪芹一生致力于文学创作，其作品以描写贵族家庭的生活为主要内容，反映了封建社会末期的社会现实和人民的疾苦。《红楼"
+        },
+        {
+          "id": "LIT_01",
+          "correct": true,
+          "answer": "William Shakespeare wrote Romeo and Juliet in Elizabethan England. This was the first play written by Shakespeare and is considered one of his most famous works"
+        },
+        {
+          "id": "LIT_02",
+          "correct": true,
+          "answer": "George Orwell wrote \"1984,\" which is considered one of his most famous works and has been influential in shaping modern political thought. The book was publishe"
+        },
+        {
+          "id": "MED_01",
+          "correct": true,
+          "answer": "Type 2 diabetes is primarily characterized by insulin resistance. This condition occurs when the body's cells become less responsive to insulin, leading to elev"
+        },
+        {
+          "id": "ASTRO_01",
+          "correct": true,
+          "answer": "Mercury is the planet that is closest to the Sun. It takes approximately 88 Earth days to orbit around the Sun, making it one of the fastest-moving planets in o"
+        },
+        {
+          "id": "LOGIC_02",
+          "correct": true,
+          "answer": "The contrapositive of \"If it rains, the ground is wet\" is \"If the ground is not wet, then it does not rain.\""
+        },
+        {
+          "id": "OPEN_F03",
+          "correct": true,
+          "answer": "Iron's chemical symbol is Fe."
+        },
+        {
+          "id": "OPEN_F04",
+          "correct": true,
+          "answer": "Plants absorb carbon dioxide (CO2) for photosynthesis. This process is crucial because it allows plants to convert the carbon dioxide from the atmosphere into o"
+        },
+        {
+          "id": "OPEN_F05",
+          "correct": true,
+          "answer": "The basic unit of life is the cell. Cells are the fundamental units that make up all living organisms and carry out most of their functions. They are composed o"
+        },
+        {
+          "id": "OPEN_F06",
+          "correct": true,
+          "answer": "Plants use photosynthesis to convert carbon dioxide and water into glucose and oxygen through the following steps:\n\n1. **Light Absorption**: Chlorophyll in plan"
+        },
+        {
+          "id": "OPEN_F14",
+          "correct": true,
+          "answer": "An algorithm is a set of well-defined instructions or steps used to solve a problem or accomplish a task. It provides a structured way to perform tasks systemat"
+        },
+        {
+          "id": "OPEN_F16",
+          "correct": true,
+          "answer": "William Shakespeare wrote \"Hamlet,\" which was published in 1603 during the Elizabethan era in England. This period saw significant cultural developments, includ"
+        },
+        {
+          "id": "OPEN_F17",
+          "correct": true,
+          "answer": "Vitamin C is the primary vitamin that prevents scurvy. It plays a crucial role in maintaining healthy skin, mucous membranes, and blood vessels, which are essen"
+        },
+        {
+          "id": "OPEN_F25",
+          "correct": false,
+          "answer": "The first shell of an atom holds up to 8 electrons. This is because each electron in an atom has a unique energy level that corresponds to its position on the p"
+        },
+        {
+          "id": "OPEN_F26",
+          "correct": true,
+          "answer": "The pH of pure water at 25°C is 7.0. This value is commonly used as a reference point for measuring acidity or alkalinity in solutions. At this temperature, pur"
+        },
+        {
+          "id": "OPEN_F29",
+          "correct": true,
+          "answer": "Penicillin was discovered by Alexander Fleming in 1928 while he was working as a medical student at the University of Edinburgh. He accidentally found the mold "
+        },
+        {
+          "id": "OPEN_F33",
+          "correct": true,
+          "answer": "A recession refers to a period of economic decline characterized by a decrease in overall economic activity and growth. It typically involves a prolonged period"
+        },
+        {
+          "id": "OPEN_F39",
+          "correct": true,
+          "answer": "Hypertension, also known as high blood pressure or hypertension, refers to the condition where the blood pressure in the arteries of the body is consistently hi"
+        },
+        {
+          "id": "OPEN_F42",
+          "correct": true,
+          "answer": "造纸术是由中国东汉时期的蔡伦改进和推广的。蔡伦（约公元150年—219年）是中国古代著名的造纸专家，他改进了先秦时期使用的麻纸制作方法，并将这种新的纸张用于书写和印刷。他的这项技术极大地提高了纸张的质量和效率，使得纸张在当时成为了广泛使用的一种书写材料。因此，造纸术的发明与中国的造纸术有关。"
+        },
+        {
+          "id": "OPEN_F43",
+          "correct": true,
+          "answer": "The unit of power is watt (W)."
+        },
+        {
+          "id": "OPEN_F50",
+          "correct": true,
+          "answer": "Deductive reasoning is a type of logical thinking where conclusions are drawn from specific premises or hypotheses. It involves drawing a conclusion that logica"
+        }
+      ],
+      "skipped": false
     },
     "lifts_pp": {
       "structure_over_lm_patch_pp": -3.2258064516129004,
-      "valhalla_over_traditional_lm_pp": null
+      "valhalla_over_traditional_lm_pp": 0.0
     }
   },
   "incubation_cycles": {

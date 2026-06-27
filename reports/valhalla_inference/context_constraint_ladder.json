@@ -1,0 +1,3109 @@
+{
+  "timestamp": "2026-06-25T22:49:50.953997+00:00",
+  "protocol": "context-constraint-ladder-v1",
+  "rounds_per_tier": 6,
+  "total_rounds_per_thread": 24,
+  "tiers": [
+    {
+      "id": "strict",
+      "append_mode": "aligned",
+      "decode": "native",
+      "follow_up_decode": "inherit",
+      "score_mode": "strict"
+    },
+    {
+      "id": "medium",
+      "append_mode": "topic_only",
+      "decode": "hybrid",
+      "follow_up_decode": "native_follow_up_aware",
+      "score_mode": "strict"
+    },
+    {
+      "id": "loose",
+      "append_mode": "aligned_plus_distractor",
+      "decode": "hybrid",
+      "follow_up_decode": "native_follow_up_aware",
+      "score_mode": "strict"
+    },
+    {
+      "id": "none",
+      "append_mode": "distractor_only",
+      "decode": "hybrid",
+      "follow_up_decode": "native_follow_up_aware",
+      "score_mode": "relaxed"
+    }
+  ],
+  "architectures": {
+    "follow_up_aware": {
+      "overall": {
+        "hits": 53,
+        "n": 72,
+        "rate": 0.7361111111111112
+      },
+      "by_tier": {
+        "strict": {
+          "hits": 18,
+          "n": 18,
+          "rate": 1.0
+        },
+        "medium": {
+          "hits": 2,
+          "n": 18,
+          "rate": 0.1111111111111111
+        },
+        "loose": {
+          "hits": 15,
+          "n": 18,
+          "rate": 0.8333333333333334
+        },
+        "none": {
+          "hits": 18,
+          "n": 18,
+          "rate": 1.0
+        }
+      },
+      "threads": [
+        {
+          "thread_id": "australia",
+          "architecture": "follow_up_aware",
+          "total_rounds": 24,
+          "on_topic_hits": 17,
+          "on_topic_rate": 0.7083333333333334,
+          "by_tier": {
+            "strict": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "medium": {
+              "hits": 0,
+              "n": 6,
+              "rate": 0.0
+            },
+            "loose": {
+              "hits": 5,
+              "n": 6,
+              "rate": 0.8333333333333334
+            },
+            "none": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            }
+          },
+          "turns": [
+            {
+              "round": 0,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What is the capital of Australia?",
+              "appends": [
+                "Sydney is the largest city in Australia but not the capital."
+              ],
+              "answer": "[corpus:0] The capital of Australia is Canberra",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 3
+            },
+            {
+              "round": 1,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "Which continent is Australia located in?",
+              "appends": [
+                "English is the de facto national language of Australia."
+              ],
+              "answer": "[corpus:1] Australia is a country in Oceania",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 5
+            },
+            {
+              "round": 2,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What is the largest city in Australia?",
+              "appends": [
+                "The Great Barrier Reef lies off the coast of Queensland, Australia."
+              ],
+              "answer": "[corpus:3] Sydney is the largest city in Australia but not the capital",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 6
+            },
+            {
+              "round": 3,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What language is most widely spoken in Australia?",
+              "appends": [
+                "Australia uses the Australian dollar as currency."
+              ],
+              "answer": "[corpus:4] English is the de facto national language of Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 7
+            },
+            {
+              "round": 4,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What is the second largest city in Australia?",
+              "appends": [
+                "Melbourne is the second largest city in Australia."
+              ],
+              "answer": "[corpus:7] Melbourne is the second largest city in Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 8
+            },
+            {
+              "round": 5,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What stars appear on the Australian flag?",
+              "appends": [
+                "The Australian flag features the Union Jack and Southern Cross."
+              ],
+              "answer": "[corpus:8] The Australian flag features the Union Jack and Southern Cross",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 9
+            },
+            {
+              "round": 6,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What famous rock formation is in central Australia?",
+              "appends": [
+                "Australia participates in international sporting events."
+              ],
+              "answer": "[corpus:9] Australia participates in international sporting events",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 10
+            },
+            {
+              "round": 7,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What native marsupial is mentioned for Australia?",
+              "appends": [
+                "Regional climates vary across Australia."
+              ],
+              "answer": "[corpus:9] Australia participates in international sporting events",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 11
+            },
+            {
+              "round": 8,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What term describes remote arid interior of Australia?",
+              "appends": [
+                "Transport between Australian cities often uses domestic flights."
+              ],
+              "answer": "[corpus:11] Transport between Australian cities often uses domestic flights",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 12
+            },
+            {
+              "round": 9,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "Why was Canberra chosen as capital?",
+              "appends": [
+                "Australia maintains diplomatic relations worldwide."
+              ],
+              "answer": "[corpus:0] The capital of Australia is Canberra",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 13
+            },
+            {
+              "round": 10,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What is the capital of Australia?",
+              "appends": [
+                "Australia is a large island nation in the southern hemisphere."
+              ],
+              "answer": "[corpus:3] Sydney is the largest city in Australia but not the capital",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 14
+            },
+            {
+              "round": 11,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "Which continent is Australia located in?",
+              "appends": [
+                "Many unique species live on the Australian continent."
+              ],
+              "answer": "[corpus:14] Many unique species live on the Australian continent",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 15
+            },
+            {
+              "round": 12,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What is the largest city in Australia?",
+              "appends": [
+                "The Great Barrier Reef lies off the coast of Queensland, Australia.",
+                "The capital of France is Paris.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:7] Melbourne is the second largest city in Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 18
+            },
+            {
+              "round": 13,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What language is most widely spoken in Australia?",
+              "appends": [
+                "Australia uses the Australian dollar as currency.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:4] English is the de facto national language of Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 21
+            },
+            {
+              "round": 14,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What is the second largest city in Australia?",
+              "appends": [
+                "Melbourne is the second largest city in Australia.",
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:21] Melbourne is the second largest city in Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 24
+            },
+            {
+              "round": 15,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What stars appear on the Australian flag?",
+              "appends": [
+                "The Australian flag features the Union Jack and Southern Cross.",
+                "DNA stores genetic information in living cells.",
+                "The capital of France is Paris."
+              ],
+              "answer": "[corpus:24] The Australian flag features the Union Jack and Southern Cross",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 27
+            },
+            {
+              "round": 16,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What famous rock formation is in central Australia?",
+              "appends": [
+                "Uluru is a large sandstone monolith in central Australia.",
+                "The Eiffel Tower is located in Paris, France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:27] Uluru is a large sandstone monolith in central Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 30
+            },
+            {
+              "round": 17,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What native marsupial is mentioned for Australia?",
+              "appends": [
+                "Kangaroos are native marsupials found across Australia.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:30] Kangaroos are native marsupials found across Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 33
+            },
+            {
+              "round": 18,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What term describes remote arid interior of Australia?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:30] Kangaroos are native marsupials found across Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 35
+            },
+            {
+              "round": 19,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "Why was Canberra chosen as capital?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "The Eiffel Tower is located in Paris, France."
+              ],
+              "answer": "[corpus:0] The capital of Australia is Canberra",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 37
+            },
+            {
+              "round": 20,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What is the capital of Australia?",
+              "appends": [
+                "French is the official language of France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:3] Sydney is the largest city in Australia but not the capital",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 39
+            },
+            {
+              "round": 21,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "Which continent is Australia located in?",
+              "appends": [
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:14] Many unique species live on the Australian continent",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 41
+            },
+            {
+              "round": 22,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What is the largest city in Australia?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:21] Melbourne is the second largest city in Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 43
+            },
+            {
+              "round": 23,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What language is most widely spoken in Australia?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "French is the official language of France."
+              ],
+              "answer": "[corpus:4] English is the de facto national language of Australia",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 45
+            }
+          ]
+        },
+        {
+          "thread_id": "chemistry",
+          "architecture": "follow_up_aware",
+          "total_rounds": 24,
+          "on_topic_hits": 19,
+          "on_topic_rate": 0.7916666666666666,
+          "by_tier": {
+            "strict": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "medium": {
+              "hits": 1,
+              "n": 6,
+              "rate": 0.16666666666666666
+            },
+            "loose": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "none": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            }
+          },
+          "turns": [
+            {
+              "round": 0,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "At what temperature does water boil at standard pressure?",
+              "appends": [
+                "Steam forms when liquid water reaches its boiling point."
+              ],
+              "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 3
+            },
+            {
+              "round": 1,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "At what temperature does water freeze?",
+              "appends": [
+                "Ice melts at 0 degrees Celsius when heated."
+              ],
+              "answer": "[corpus:1] Water freezes at 0 degrees Celsius at standard pressure",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 5
+            },
+            {
+              "round": 2,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What is the chemical formula for water?",
+              "appends": [
+                "The chemical formula for water is H2O."
+              ],
+              "answer": "[corpus:5] The chemical formula for water is H2O",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 6
+            },
+            {
+              "round": 3,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "Does salt water boil at same temperature as pure water?",
+              "appends": [
+                "Salt water boils at a slightly higher temperature than pure water."
+              ],
+              "answer": "[corpus:6] Salt water boils at a slightly higher temperature than pure water",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 7
+            },
+            {
+              "round": 4,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What process turns liquid water into vapor?",
+              "appends": [
+                "Evaporation turns liquid water into water vapor."
+              ],
+              "answer": "[corpus:7] Evaporation turns liquid water into water vapor",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 8
+            },
+            {
+              "round": 5,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What process forms clouds from vapor?",
+              "appends": [
+                "Condensation forms clouds when water vapor cools."
+              ],
+              "answer": "[corpus:8] Condensation forms clouds when water vapor cools",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 9
+            },
+            {
+              "round": 6,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "Which elements combine to form water?",
+              "appends": [
+                "Chemical reactions may absorb or release heat."
+              ],
+              "answer": "[corpus:8] Condensation forms clouds when water vapor cools",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 10
+            },
+            {
+              "round": 7,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "Does water expand or contract when it freezes?",
+              "appends": [
+                "Solvents dissolve solutes at varying rates."
+              ],
+              "answer": "[corpus:8] Condensation forms clouds when water vapor cools",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 11
+            },
+            {
+              "round": 8,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What process separates water from dissolved salts?",
+              "appends": [
+                "Pressure affects phase equilibrium."
+              ],
+              "answer": "[corpus:1] Water freezes at 0 degrees Celsius at standard pressure",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 12
+            },
+            {
+              "round": 9,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What pH is neutral for pure water?",
+              "appends": [
+                "Water participates in many industrial processes."
+              ],
+              "answer": "[corpus:8] Condensation forms clouds when water vapor cools",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 13
+            },
+            {
+              "round": 10,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "At what temperature does water boil at standard pressure?",
+              "appends": [
+                "Liquid water is essential for most biochemical reactions."
+              ],
+              "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 14
+            },
+            {
+              "round": 11,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "At what temperature does water freeze?",
+              "appends": [
+                "Phase changes involve energy transfer."
+              ],
+              "answer": "[corpus:6] Salt water boils at a slightly higher temperature than pure water",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 15
+            },
+            {
+              "round": 12,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What is the chemical formula for water?",
+              "appends": [
+                "The chemical formula for water is H2O.",
+                "The capital of France is Paris.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:15] The chemical formula for water is H2O",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 18
+            },
+            {
+              "round": 13,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "Does salt water boil at same temperature as pure water?",
+              "appends": [
+                "Salt water boils at a slightly higher temperature than pure water.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:18] Salt water boils at a slightly higher temperature than pure water",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 21
+            },
+            {
+              "round": 14,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What process turns liquid water into vapor?",
+              "appends": [
+                "Evaporation turns liquid water into water vapor.",
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:21] Evaporation turns liquid water into water vapor",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 24
+            },
+            {
+              "round": 15,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What process forms clouds from vapor?",
+              "appends": [
+                "Condensation forms clouds when water vapor cools.",
+                "DNA stores genetic information in living cells.",
+                "The capital of France is Paris."
+              ],
+              "answer": "[corpus:24] Condensation forms clouds when water vapor cools",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 27
+            },
+            {
+              "round": 16,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "Which elements combine to form water?",
+              "appends": [
+                "Hydrogen and oxygen combine to form water.",
+                "The Eiffel Tower is located in Paris, France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:27] Hydrogen and oxygen combine to form water",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 30
+            },
+            {
+              "round": 17,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "Does water expand or contract when it freezes?",
+              "appends": [
+                "Water expands when it freezes, unlike most liquids.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:30] Water expands when it freezes, unlike most liquids",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 33
+            },
+            {
+              "round": 18,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What process separates water from dissolved salts?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:12] Water participates in many industrial processes",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 35
+            },
+            {
+              "round": 19,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What pH is neutral for pure water?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "The Eiffel Tower is located in Paris, France."
+              ],
+              "answer": "[corpus:27] Hydrogen and oxygen combine to form water",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 37
+            },
+            {
+              "round": 20,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "At what temperature does water boil at standard pressure?",
+              "appends": [
+                "French is the official language of France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 39
+            },
+            {
+              "round": 21,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "At what temperature does water freeze?",
+              "appends": [
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:30] Water expands when it freezes, unlike most liquids",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 41
+            },
+            {
+              "round": 22,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What is the chemical formula for water?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:15] The chemical formula for water is H2O",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 43
+            },
+            {
+              "round": 23,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "Does salt water boil at same temperature as pure water?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "French is the official language of France."
+              ],
+              "answer": "[corpus:18] Salt water boils at a slightly higher temperature than pure water",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 45
+            }
+          ]
+        },
+        {
+          "thread_id": "physics",
+          "architecture": "follow_up_aware",
+          "total_rounds": 24,
+          "on_topic_hits": 17,
+          "on_topic_rate": 0.7083333333333334,
+          "by_tier": {
+            "strict": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "medium": {
+              "hits": 1,
+              "n": 6,
+              "rate": 0.16666666666666666
+            },
+            "loose": {
+              "hits": 4,
+              "n": 6,
+              "rate": 0.6666666666666666
+            },
+            "none": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            }
+          },
+          "turns": [
+            {
+              "round": 0,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What is the SI unit of force?",
+              "appends": [
+                "One Newton equals one kilogram meter per second squared."
+              ],
+              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 3
+            },
+            {
+              "round": 1,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "In F=ma, what does m represent?",
+              "appends": [
+                "Mass is measured in kilograms in the SI system."
+              ],
+              "answer": "[corpus:4] Mass is measured in kilograms in the SI system",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 5
+            },
+            {
+              "round": 2,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "In F=ma, what does a represent?",
+              "appends": [
+                "Acceleration is the rate of change of velocity."
+              ],
+              "answer": "[corpus:5] Acceleration is the rate of change of velocity",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 6
+            },
+            {
+              "round": 3,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What is weight in terms of force and gravity?",
+              "appends": [
+                "Weight is force due to gravity on a mass."
+              ],
+              "answer": "[corpus:6] Weight is force due to gravity on a mass",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 7
+            },
+            {
+              "round": 4,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What quantity combines speed with direction?",
+              "appends": [
+                "Velocity is speed with direction."
+              ],
+              "answer": "[corpus:7] Velocity is speed with direction",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 8
+            },
+            {
+              "round": 5,
+              "tier": "strict",
+              "append_mode": "aligned",
+              "question": "What energy depends on mass and velocity squared?",
+              "appends": [
+                "Kinetic energy is one half m v squared."
+              ],
+              "answer": "[corpus:8] Kinetic energy is one half m v squared",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 9
+            },
+            {
+              "round": 6,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What force opposes relative motion between surfaces?",
+              "appends": [
+                "Experiments verify relationships between physical variables."
+              ],
+              "answer": "[corpus:9] Experiments verify relationships between physical variables",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 10
+            },
+            {
+              "round": 7,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What is approximate gravity on Earth in m/s²?",
+              "appends": [
+                "Motion can be described relative to a reference frame."
+              ],
+              "answer": "[corpus:6] Weight is force due to gravity on a mass",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 11
+            },
+            {
+              "round": 8,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What equals mass times velocity?",
+              "appends": [
+                "Work and energy share related units in mechanics."
+              ],
+              "answer": "[corpus:1] Newton's second law states F equals m times a",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 12
+            },
+            {
+              "round": 9,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What is force times distance in direction of force?",
+              "appends": [
+                "Collisions transfer momentum between objects."
+              ],
+              "answer": "[corpus:6] Weight is force due to gravity on a mass",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 13
+            },
+            {
+              "round": 10,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "What is the SI unit of force?",
+              "appends": [
+                "Physical quantities are measured with standard SI units."
+              ],
+              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 14
+            },
+            {
+              "round": 11,
+              "tier": "medium",
+              "append_mode": "topic_only",
+              "question": "In F=ma, what does m represent?",
+              "appends": [
+                "Forces can change the motion of objects."
+              ],
+              "answer": "[corpus:14] Forces can change the motion of objects",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 15
+            },
+            {
+              "round": 12,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "In F=ma, what does a represent?",
+              "appends": [
+                "Acceleration is the rate of change of velocity.",
+                "The capital of France is Paris.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:14] Forces can change the motion of objects",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 18
+            },
+            {
+              "round": 13,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What is weight in terms of force and gravity?",
+              "appends": [
+                "Weight is force due to gravity on a mass.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:18] Weight is force due to gravity on a mass",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 21
+            },
+            {
+              "round": 14,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What quantity combines speed with direction?",
+              "appends": [
+                "Velocity is speed with direction.",
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:21] Velocity is speed with direction",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 24
+            },
+            {
+              "round": 15,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What energy depends on mass and velocity squared?",
+              "appends": [
+                "Kinetic energy is one half m v squared.",
+                "DNA stores genetic information in living cells.",
+                "The capital of France is Paris."
+              ],
+              "answer": "[corpus:24] Kinetic energy is one half m v squared",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 27
+            },
+            {
+              "round": 16,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What force opposes relative motion between surfaces?",
+              "appends": [
+                "Friction opposes relative motion between surfaces.",
+                "The Eiffel Tower is located in Paris, France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:27] Friction opposes relative motion between surfaces",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 30
+            },
+            {
+              "round": 17,
+              "tier": "loose",
+              "append_mode": "aligned_plus_distractor",
+              "question": "What is approximate gravity on Earth in m/s²?",
+              "appends": [
+                "Gravity on Earth is approximately 9.8 meters per second squared.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:30] Gravity on Earth is approximately 9",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": false,
+              "context_lines": 33
+            },
+            {
+              "round": 18,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What equals mass times velocity?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:1] Newton's second law states F equals m times a",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 35
+            },
+            {
+              "round": 19,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What is force times distance in direction of force?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "The Eiffel Tower is located in Paris, France."
+              ],
+              "answer": "[corpus:14] Forces can change the motion of objects",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 37
+            },
+            {
+              "round": 20,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What is the SI unit of force?",
+              "appends": [
+                "French is the official language of France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 39
+            },
+            {
+              "round": 21,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "In F=ma, what does m represent?",
+              "appends": [
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:39] The chemical formula for table salt is NaCl",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 41
+            },
+            {
+              "round": 22,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "In F=ma, what does a represent?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:42] Photosynthesis occurs in chloroplasts using light energy",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 43
+            },
+            {
+              "round": 23,
+              "tier": "none",
+              "append_mode": "distractor_only",
+              "question": "What is weight in terms of force and gravity?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "French is the official language of France."
+              ],
+              "answer": "[corpus:18] Weight is force due to gravity on a mass",
+              "decode_path": "valhalla_base/native/pipeline_open",
+              "on_topic": true,
+              "context_lines": 45
+            }
+          ]
+        }
+      ]
+    },
+    "native_strict": {
+      "overall": {
+        "hits": 53,
+        "n": 72,
+        "rate": 0.7361111111111112
+      },
+      "by_tier": {
+        "strict": {
+          "hits": 18,
+          "n": 18,
+          "rate": 1.0
+        },
+        "medium": {
+          "hits": 2,
+          "n": 18,
+          "rate": 0.1111111111111111
+        },
+        "loose": {
+          "hits": 15,
+          "n": 18,
+          "rate": 0.8333333333333334
+        },
+        "none": {
+          "hits": 18,
+          "n": 18,
+          "rate": 1.0
+        }
+      },
+      "threads": [
+        {
+          "thread_id": "australia",
+          "architecture": "native_strict",
+          "total_rounds": 24,
+          "on_topic_hits": 17,
+          "on_topic_rate": 0.7083333333333334,
+          "by_tier": {
+            "strict": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "medium": {
+              "hits": 0,
+              "n": 6,
+              "rate": 0.0
+            },
+            "loose": {
+              "hits": 5,
+              "n": 6,
+              "rate": 0.8333333333333334
+            },
+            "none": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            }
+          },
+          "turns": [
+            {
+              "round": 0,
+              "tier": "strict",
+              "question": "What is the capital of Australia?",
+              "appends": [
+                "Sydney is the largest city in Australia but not the capital."
+              ],
+              "answer": "[corpus:0] The capital of Australia is Canberra",
+              "on_topic": true,
+              "context_lines": 3
+            },
+            {
+              "round": 1,
+              "tier": "strict",
+              "question": "Which continent is Australia located in?",
+              "appends": [
+                "English is the de facto national language of Australia."
+              ],
+              "answer": "[corpus:1] Australia is a country in Oceania",
+              "on_topic": true,
+              "context_lines": 5
+            },
+            {
+              "round": 2,
+              "tier": "strict",
+              "question": "What is the largest city in Australia?",
+              "appends": [
+                "The Great Barrier Reef lies off the coast of Queensland, Australia."
+              ],
+              "answer": "[corpus:3] Sydney is the largest city in Australia but not the capital",
+              "on_topic": true,
+              "context_lines": 6
+            },
+            {
+              "round": 3,
+              "tier": "strict",
+              "question": "What language is most widely spoken in Australia?",
+              "appends": [
+                "Australia uses the Australian dollar as currency."
+              ],
+              "answer": "[corpus:4] English is the de facto national language of Australia",
+              "on_topic": true,
+              "context_lines": 7
+            },
+            {
+              "round": 4,
+              "tier": "strict",
+              "question": "What is the second largest city in Australia?",
+              "appends": [
+                "Melbourne is the second largest city in Australia."
+              ],
+              "answer": "[corpus:7] Melbourne is the second largest city in Australia",
+              "on_topic": true,
+              "context_lines": 8
+            },
+            {
+              "round": 5,
+              "tier": "strict",
+              "question": "What stars appear on the Australian flag?",
+              "appends": [
+                "The Australian flag features the Union Jack and Southern Cross."
+              ],
+              "answer": "[corpus:8] The Australian flag features the Union Jack and Southern Cross",
+              "on_topic": true,
+              "context_lines": 9
+            },
+            {
+              "round": 6,
+              "tier": "medium",
+              "question": "What famous rock formation is in central Australia?",
+              "appends": [
+                "Australia participates in international sporting events."
+              ],
+              "answer": "[corpus:9] Australia participates in international sporting events",
+              "on_topic": false,
+              "context_lines": 10
+            },
+            {
+              "round": 7,
+              "tier": "medium",
+              "question": "What native marsupial is mentioned for Australia?",
+              "appends": [
+                "Regional climates vary across Australia."
+              ],
+              "answer": "[corpus:9] Australia participates in international sporting events",
+              "on_topic": false,
+              "context_lines": 11
+            },
+            {
+              "round": 8,
+              "tier": "medium",
+              "question": "What term describes remote arid interior of Australia?",
+              "appends": [
+                "Transport between Australian cities often uses domestic flights."
+              ],
+              "answer": "[corpus:11] Transport between Australian cities often uses domestic flights",
+              "on_topic": false,
+              "context_lines": 12
+            },
+            {
+              "round": 9,
+              "tier": "medium",
+              "question": "Why was Canberra chosen as capital?",
+              "appends": [
+                "Australia maintains diplomatic relations worldwide."
+              ],
+              "answer": "[corpus:0] The capital of Australia is Canberra",
+              "on_topic": false,
+              "context_lines": 13
+            },
+            {
+              "round": 10,
+              "tier": "medium",
+              "question": "What is the capital of Australia?",
+              "appends": [
+                "Australia is a large island nation in the southern hemisphere."
+              ],
+              "answer": "[corpus:3] Sydney is the largest city in Australia but not the capital",
+              "on_topic": false,
+              "context_lines": 14
+            },
+            {
+              "round": 11,
+              "tier": "medium",
+              "question": "Which continent is Australia located in?",
+              "appends": [
+                "Many unique species live on the Australian continent."
+              ],
+              "answer": "[corpus:14] Many unique species live on the Australian continent",
+              "on_topic": false,
+              "context_lines": 15
+            },
+            {
+              "round": 12,
+              "tier": "loose",
+              "question": "What is the largest city in Australia?",
+              "appends": [
+                "The Great Barrier Reef lies off the coast of Queensland, Australia.",
+                "The capital of France is Paris.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:7] Melbourne is the second largest city in Australia",
+              "on_topic": false,
+              "context_lines": 18
+            },
+            {
+              "round": 13,
+              "tier": "loose",
+              "question": "What language is most widely spoken in Australia?",
+              "appends": [
+                "Australia uses the Australian dollar as currency.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:4] English is the de facto national language of Australia",
+              "on_topic": true,
+              "context_lines": 21
+            },
+            {
+              "round": 14,
+              "tier": "loose",
+              "question": "What is the second largest city in Australia?",
+              "appends": [
+                "Melbourne is the second largest city in Australia.",
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:21] Melbourne is the second largest city in Australia",
+              "on_topic": true,
+              "context_lines": 24
+            },
+            {
+              "round": 15,
+              "tier": "loose",
+              "question": "What stars appear on the Australian flag?",
+              "appends": [
+                "The Australian flag features the Union Jack and Southern Cross.",
+                "DNA stores genetic information in living cells.",
+                "The capital of France is Paris."
+              ],
+              "answer": "[corpus:24] The Australian flag features the Union Jack and Southern Cross",
+              "on_topic": true,
+              "context_lines": 27
+            },
+            {
+              "round": 16,
+              "tier": "loose",
+              "question": "What famous rock formation is in central Australia?",
+              "appends": [
+                "Uluru is a large sandstone monolith in central Australia.",
+                "The Eiffel Tower is located in Paris, France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:27] Uluru is a large sandstone monolith in central Australia",
+              "on_topic": true,
+              "context_lines": 30
+            },
+            {
+              "round": 17,
+              "tier": "loose",
+              "question": "What native marsupial is mentioned for Australia?",
+              "appends": [
+                "Kangaroos are native marsupials found across Australia.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:30] Kangaroos are native marsupials found across Australia",
+              "on_topic": true,
+              "context_lines": 33
+            },
+            {
+              "round": 18,
+              "tier": "none",
+              "question": "What term describes remote arid interior of Australia?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:30] Kangaroos are native marsupials found across Australia",
+              "on_topic": true,
+              "context_lines": 35
+            },
+            {
+              "round": 19,
+              "tier": "none",
+              "question": "Why was Canberra chosen as capital?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "The Eiffel Tower is located in Paris, France."
+              ],
+              "answer": "[corpus:0] The capital of Australia is Canberra",
+              "on_topic": true,
+              "context_lines": 37
+            },
+            {
+              "round": 20,
+              "tier": "none",
+              "question": "What is the capital of Australia?",
+              "appends": [
+                "French is the official language of France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:3] Sydney is the largest city in Australia but not the capital",
+              "on_topic": true,
+              "context_lines": 39
+            },
+            {
+              "round": 21,
+              "tier": "none",
+              "question": "Which continent is Australia located in?",
+              "appends": [
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:14] Many unique species live on the Australian continent",
+              "on_topic": true,
+              "context_lines": 41
+            },
+            {
+              "round": 22,
+              "tier": "none",
+              "question": "What is the largest city in Australia?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:21] Melbourne is the second largest city in Australia",
+              "on_topic": true,
+              "context_lines": 43
+            },
+            {
+              "round": 23,
+              "tier": "none",
+              "question": "What language is most widely spoken in Australia?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "French is the official language of France."
+              ],
+              "answer": "[corpus:4] English is the de facto national language of Australia",
+              "on_topic": true,
+              "context_lines": 45
+            }
+          ]
+        },
+        {
+          "thread_id": "chemistry",
+          "architecture": "native_strict",
+          "total_rounds": 24,
+          "on_topic_hits": 19,
+          "on_topic_rate": 0.7916666666666666,
+          "by_tier": {
+            "strict": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "medium": {
+              "hits": 1,
+              "n": 6,
+              "rate": 0.16666666666666666
+            },
+            "loose": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "none": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            }
+          },
+          "turns": [
+            {
+              "round": 0,
+              "tier": "strict",
+              "question": "At what temperature does water boil at standard pressure?",
+              "appends": [
+                "Steam forms when liquid water reaches its boiling point."
+              ],
+              "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "on_topic": true,
+              "context_lines": 3
+            },
+            {
+              "round": 1,
+              "tier": "strict",
+              "question": "At what temperature does water freeze?",
+              "appends": [
+                "Ice melts at 0 degrees Celsius when heated."
+              ],
+              "answer": "[corpus:1] Water freezes at 0 degrees Celsius at standard pressure",
+              "on_topic": true,
+              "context_lines": 5
+            },
+            {
+              "round": 2,
+              "tier": "strict",
+              "question": "What is the chemical formula for water?",
+              "appends": [
+                "The chemical formula for water is H2O."
+              ],
+              "answer": "[corpus:5] The chemical formula for water is H2O",
+              "on_topic": true,
+              "context_lines": 6
+            },
+            {
+              "round": 3,
+              "tier": "strict",
+              "question": "Does salt water boil at same temperature as pure water?",
+              "appends": [
+                "Salt water boils at a slightly higher temperature than pure water."
+              ],
+              "answer": "[corpus:6] Salt water boils at a slightly higher temperature than pure water",
+              "on_topic": true,
+              "context_lines": 7
+            },
+            {
+              "round": 4,
+              "tier": "strict",
+              "question": "What process turns liquid water into vapor?",
+              "appends": [
+                "Evaporation turns liquid water into water vapor."
+              ],
+              "answer": "[corpus:7] Evaporation turns liquid water into water vapor",
+              "on_topic": true,
+              "context_lines": 8
+            },
+            {
+              "round": 5,
+              "tier": "strict",
+              "question": "What process forms clouds from vapor?",
+              "appends": [
+                "Condensation forms clouds when water vapor cools."
+              ],
+              "answer": "[corpus:8] Condensation forms clouds when water vapor cools",
+              "on_topic": true,
+              "context_lines": 9
+            },
+            {
+              "round": 6,
+              "tier": "medium",
+              "question": "Which elements combine to form water?",
+              "appends": [
+                "Chemical reactions may absorb or release heat."
+              ],
+              "answer": "[corpus:8] Condensation forms clouds when water vapor cools",
+              "on_topic": false,
+              "context_lines": 10
+            },
+            {
+              "round": 7,
+              "tier": "medium",
+              "question": "Does water expand or contract when it freezes?",
+              "appends": [
+                "Solvents dissolve solutes at varying rates."
+              ],
+              "answer": "[corpus:8] Condensation forms clouds when water vapor cools",
+              "on_topic": false,
+              "context_lines": 11
+            },
+            {
+              "round": 8,
+              "tier": "medium",
+              "question": "What process separates water from dissolved salts?",
+              "appends": [
+                "Pressure affects phase equilibrium."
+              ],
+              "answer": "[corpus:1] Water freezes at 0 degrees Celsius at standard pressure",
+              "on_topic": false,
+              "context_lines": 12
+            },
+            {
+              "round": 9,
+              "tier": "medium",
+              "question": "What pH is neutral for pure water?",
+              "appends": [
+                "Water participates in many industrial processes."
+              ],
+              "answer": "[corpus:8] Condensation forms clouds when water vapor cools",
+              "on_topic": false,
+              "context_lines": 13
+            },
+            {
+              "round": 10,
+              "tier": "medium",
+              "question": "At what temperature does water boil at standard pressure?",
+              "appends": [
+                "Liquid water is essential for most biochemical reactions."
+              ],
+              "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "on_topic": true,
+              "context_lines": 14
+            },
+            {
+              "round": 11,
+              "tier": "medium",
+              "question": "At what temperature does water freeze?",
+              "appends": [
+                "Phase changes involve energy transfer."
+              ],
+              "answer": "[corpus:6] Salt water boils at a slightly higher temperature than pure water",
+              "on_topic": false,
+              "context_lines": 15
+            },
+            {
+              "round": 12,
+              "tier": "loose",
+              "question": "What is the chemical formula for water?",
+              "appends": [
+                "The chemical formula for water is H2O.",
+                "The capital of France is Paris.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:15] The chemical formula for water is H2O",
+              "on_topic": true,
+              "context_lines": 18
+            },
+            {
+              "round": 13,
+              "tier": "loose",
+              "question": "Does salt water boil at same temperature as pure water?",
+              "appends": [
+                "Salt water boils at a slightly higher temperature than pure water.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:18] Salt water boils at a slightly higher temperature than pure water",
+              "on_topic": true,
+              "context_lines": 21
+            },
+            {
+              "round": 14,
+              "tier": "loose",
+              "question": "What process turns liquid water into vapor?",
+              "appends": [
+                "Evaporation turns liquid water into water vapor.",
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:21] Evaporation turns liquid water into water vapor",
+              "on_topic": true,
+              "context_lines": 24
+            },
+            {
+              "round": 15,
+              "tier": "loose",
+              "question": "What process forms clouds from vapor?",
+              "appends": [
+                "Condensation forms clouds when water vapor cools.",
+                "DNA stores genetic information in living cells.",
+                "The capital of France is Paris."
+              ],
+              "answer": "[corpus:24] Condensation forms clouds when water vapor cools",
+              "on_topic": true,
+              "context_lines": 27
+            },
+            {
+              "round": 16,
+              "tier": "loose",
+              "question": "Which elements combine to form water?",
+              "appends": [
+                "Hydrogen and oxygen combine to form water.",
+                "The Eiffel Tower is located in Paris, France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:27] Hydrogen and oxygen combine to form water",
+              "on_topic": true,
+              "context_lines": 30
+            },
+            {
+              "round": 17,
+              "tier": "loose",
+              "question": "Does water expand or contract when it freezes?",
+              "appends": [
+                "Water expands when it freezes, unlike most liquids.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:30] Water expands when it freezes, unlike most liquids",
+              "on_topic": true,
+              "context_lines": 33
+            },
+            {
+              "round": 18,
+              "tier": "none",
+              "question": "What process separates water from dissolved salts?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:12] Water participates in many industrial processes",
+              "on_topic": true,
+              "context_lines": 35
+            },
+            {
+              "round": 19,
+              "tier": "none",
+              "question": "What pH is neutral for pure water?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "The Eiffel Tower is located in Paris, France."
+              ],
+              "answer": "[corpus:27] Hydrogen and oxygen combine to form water",
+              "on_topic": true,
+              "context_lines": 37
+            },
+            {
+              "round": 20,
+              "tier": "none",
+              "question": "At what temperature does water boil at standard pressure?",
+              "appends": [
+                "French is the official language of France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "on_topic": true,
+              "context_lines": 39
+            },
+            {
+              "round": 21,
+              "tier": "none",
+              "question": "At what temperature does water freeze?",
+              "appends": [
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:30] Water expands when it freezes, unlike most liquids",
+              "on_topic": true,
+              "context_lines": 41
+            },
+            {
+              "round": 22,
+              "tier": "none",
+              "question": "What is the chemical formula for water?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:15] The chemical formula for water is H2O",
+              "on_topic": true,
+              "context_lines": 43
+            },
+            {
+              "round": 23,
+              "tier": "none",
+              "question": "Does salt water boil at same temperature as pure water?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "French is the official language of France."
+              ],
+              "answer": "[corpus:18] Salt water boils at a slightly higher temperature than pure water",
+              "on_topic": true,
+              "context_lines": 45
+            }
+          ]
+        },
+        {
+          "thread_id": "physics",
+          "architecture": "native_strict",
+          "total_rounds": 24,
+          "on_topic_hits": 17,
+          "on_topic_rate": 0.7083333333333334,
+          "by_tier": {
+            "strict": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "medium": {
+              "hits": 1,
+              "n": 6,
+              "rate": 0.16666666666666666
+            },
+            "loose": {
+              "hits": 4,
+              "n": 6,
+              "rate": 0.6666666666666666
+            },
+            "none": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            }
+          },
+          "turns": [
+            {
+              "round": 0,
+              "tier": "strict",
+              "question": "What is the SI unit of force?",
+              "appends": [
+                "One Newton equals one kilogram meter per second squared."
+              ],
+              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "on_topic": true,
+              "context_lines": 3
+            },
+            {
+              "round": 1,
+              "tier": "strict",
+              "question": "In F=ma, what does m represent?",
+              "appends": [
+                "Mass is measured in kilograms in the SI system."
+              ],
+              "answer": "[corpus:4] Mass is measured in kilograms in the SI system",
+              "on_topic": true,
+              "context_lines": 5
+            },
+            {
+              "round": 2,
+              "tier": "strict",
+              "question": "In F=ma, what does a represent?",
+              "appends": [
+                "Acceleration is the rate of change of velocity."
+              ],
+              "answer": "[corpus:5] Acceleration is the rate of change of velocity",
+              "on_topic": true,
+              "context_lines": 6
+            },
+            {
+              "round": 3,
+              "tier": "strict",
+              "question": "What is weight in terms of force and gravity?",
+              "appends": [
+                "Weight is force due to gravity on a mass."
+              ],
+              "answer": "[corpus:6] Weight is force due to gravity on a mass",
+              "on_topic": true,
+              "context_lines": 7
+            },
+            {
+              "round": 4,
+              "tier": "strict",
+              "question": "What quantity combines speed with direction?",
+              "appends": [
+                "Velocity is speed with direction."
+              ],
+              "answer": "[corpus:7] Velocity is speed with direction",
+              "on_topic": true,
+              "context_lines": 8
+            },
+            {
+              "round": 5,
+              "tier": "strict",
+              "question": "What energy depends on mass and velocity squared?",
+              "appends": [
+                "Kinetic energy is one half m v squared."
+              ],
+              "answer": "[corpus:8] Kinetic energy is one half m v squared",
+              "on_topic": true,
+              "context_lines": 9
+            },
+            {
+              "round": 6,
+              "tier": "medium",
+              "question": "What force opposes relative motion between surfaces?",
+              "appends": [
+                "Experiments verify relationships between physical variables."
+              ],
+              "answer": "[corpus:9] Experiments verify relationships between physical variables",
+              "on_topic": false,
+              "context_lines": 10
+            },
+            {
+              "round": 7,
+              "tier": "medium",
+              "question": "What is approximate gravity on Earth in m/s²?",
+              "appends": [
+                "Motion can be described relative to a reference frame."
+              ],
+              "answer": "[corpus:6] Weight is force due to gravity on a mass",
+              "on_topic": false,
+              "context_lines": 11
+            },
+            {
+              "round": 8,
+              "tier": "medium",
+              "question": "What equals mass times velocity?",
+              "appends": [
+                "Work and energy share related units in mechanics."
+              ],
+              "answer": "[corpus:1] Newton's second law states F equals m times a",
+              "on_topic": false,
+              "context_lines": 12
+            },
+            {
+              "round": 9,
+              "tier": "medium",
+              "question": "What is force times distance in direction of force?",
+              "appends": [
+                "Collisions transfer momentum between objects."
+              ],
+              "answer": "[corpus:6] Weight is force due to gravity on a mass",
+              "on_topic": false,
+              "context_lines": 13
+            },
+            {
+              "round": 10,
+              "tier": "medium",
+              "question": "What is the SI unit of force?",
+              "appends": [
+                "Physical quantities are measured with standard SI units."
+              ],
+              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "on_topic": true,
+              "context_lines": 14
+            },
+            {
+              "round": 11,
+              "tier": "medium",
+              "question": "In F=ma, what does m represent?",
+              "appends": [
+                "Forces can change the motion of objects."
+              ],
+              "answer": "[corpus:14] Forces can change the motion of objects",
+              "on_topic": false,
+              "context_lines": 15
+            },
+            {
+              "round": 12,
+              "tier": "loose",
+              "question": "In F=ma, what does a represent?",
+              "appends": [
+                "Acceleration is the rate of change of velocity.",
+                "The capital of France is Paris.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:14] Forces can change the motion of objects",
+              "on_topic": false,
+              "context_lines": 18
+            },
+            {
+              "round": 13,
+              "tier": "loose",
+              "question": "What is weight in terms of force and gravity?",
+              "appends": [
+                "Weight is force due to gravity on a mass.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:18] Weight is force due to gravity on a mass",
+              "on_topic": true,
+              "context_lines": 21
+            },
+            {
+              "round": 14,
+              "tier": "loose",
+              "question": "What quantity combines speed with direction?",
+              "appends": [
+                "Velocity is speed with direction.",
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:21] Velocity is speed with direction",
+              "on_topic": true,
+              "context_lines": 24
+            },
+            {
+              "round": 15,
+              "tier": "loose",
+              "question": "What energy depends on mass and velocity squared?",
+              "appends": [
+                "Kinetic energy is one half m v squared.",
+                "DNA stores genetic information in living cells.",
+                "The capital of France is Paris."
+              ],
+              "answer": "[corpus:24] Kinetic energy is one half m v squared",
+              "on_topic": true,
+              "context_lines": 27
+            },
+            {
+              "round": 16,
+              "tier": "loose",
+              "question": "What force opposes relative motion between surfaces?",
+              "appends": [
+                "Friction opposes relative motion between surfaces.",
+                "The Eiffel Tower is located in Paris, France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:27] Friction opposes relative motion between surfaces",
+              "on_topic": true,
+              "context_lines": 30
+            },
+            {
+              "round": 17,
+              "tier": "loose",
+              "question": "What is approximate gravity on Earth in m/s²?",
+              "appends": [
+                "Gravity on Earth is approximately 9.8 meters per second squared.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:30] Gravity on Earth is approximately 9",
+              "on_topic": false,
+              "context_lines": 33
+            },
+            {
+              "round": 18,
+              "tier": "none",
+              "question": "What equals mass times velocity?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:1] Newton's second law states F equals m times a",
+              "on_topic": true,
+              "context_lines": 35
+            },
+            {
+              "round": 19,
+              "tier": "none",
+              "question": "What is force times distance in direction of force?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "The Eiffel Tower is located in Paris, France."
+              ],
+              "answer": "[corpus:14] Forces can change the motion of objects",
+              "on_topic": true,
+              "context_lines": 37
+            },
+            {
+              "round": 20,
+              "tier": "none",
+              "question": "What is the SI unit of force?",
+              "appends": [
+                "French is the official language of France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "on_topic": true,
+              "context_lines": 39
+            },
+            {
+              "round": 21,
+              "tier": "none",
+              "question": "In F=ma, what does m represent?",
+              "appends": [
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "[corpus:39] The chemical formula for table salt is NaCl",
+              "on_topic": true,
+              "context_lines": 41
+            },
+            {
+              "round": 22,
+              "tier": "none",
+              "question": "In F=ma, what does a represent?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "[corpus:42] Photosynthesis occurs in chloroplasts using light energy",
+              "on_topic": true,
+              "context_lines": 43
+            },
+            {
+              "round": 23,
+              "tier": "none",
+              "question": "What is weight in terms of force and gravity?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "French is the official language of France."
+              ],
+              "answer": "[corpus:18] Weight is force due to gravity on a mass",
+              "on_topic": true,
+              "context_lines": 45
+            }
+          ]
+        }
+      ]
+    },
+    "traditional_lm": {
+      "overall": {
+        "hits": 53,
+        "n": 72,
+        "rate": 0.7361111111111112
+      },
+      "by_tier": {
+        "strict": {
+          "hits": 14,
+          "n": 18,
+          "rate": 0.7777777777777778
+        },
+        "medium": {
+          "hits": 9,
+          "n": 18,
+          "rate": 0.5
+        },
+        "loose": {
+          "hits": 13,
+          "n": 18,
+          "rate": 0.7222222222222222
+        },
+        "none": {
+          "hits": 17,
+          "n": 18,
+          "rate": 0.9444444444444444
+        }
+      },
+      "threads": [
+        {
+          "thread_id": "australia",
+          "architecture": "traditional_lm",
+          "total_rounds": 24,
+          "on_topic_hits": 17,
+          "on_topic_rate": 0.7083333333333334,
+          "by_tier": {
+            "strict": {
+              "hits": 4,
+              "n": 6,
+              "rate": 0.6666666666666666
+            },
+            "medium": {
+              "hits": 3,
+              "n": 6,
+              "rate": 0.5
+            },
+            "loose": {
+              "hits": 4,
+              "n": 6,
+              "rate": 0.6666666666666666
+            },
+            "none": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            }
+          },
+          "turns": [
+            {
+              "round": 0,
+              "tier": "strict",
+              "question": "What is the capital of Australia?",
+              "appends": [
+                "Sydney is the largest city in Australia but not the capital."
+              ],
+              "answer": "The capital of Australia is Canberra.",
+              "on_topic": true,
+              "context_lines": 3
+            },
+            {
+              "round": 1,
+              "tier": "strict",
+              "question": "Which continent is Australia located in?",
+              "appends": [
+                "English is the de facto national language of Australia."
+              ],
+              "answer": "Australia is located in the southern hemisphere and is part of Oceania.",
+              "on_topic": true,
+              "context_lines": 4
+            },
+            {
+              "round": 2,
+              "tier": "strict",
+              "question": "What is the largest city in Australia?",
+              "appends": [
+                "The Great Barrier Reef lies off the coast of Queensland, Australia."
+              ],
+              "answer": "The largest city in Australia is Sydney.",
+              "on_topic": true,
+              "context_lines": 5
+            },
+            {
+              "round": 3,
+              "tier": "strict",
+              "question": "What language is most widely spoken in Australia?",
+              "appends": [
+                "Australia uses the Australian dollar as currency."
+              ],
+              "answer": "The most widely spoken language in Australia is English. This can be inferred from the fact that English is the de facto national language of Australia and is used for official purposes such as govern",
+              "on_topic": true,
+              "context_lines": 6
+            },
+            {
+              "round": 4,
+              "tier": "strict",
+              "question": "What is the second largest city in Australia?",
+              "appends": [
+                "Melbourne is the second largest city in Australia."
+              ],
+              "answer": "The second largest city in Australia is Brisbane.",
+              "on_topic": false,
+              "context_lines": 7
+            },
+            {
+              "round": 5,
+              "tier": "strict",
+              "question": "What stars appear on the Australian flag?",
+              "appends": [
+                "The Australian flag features the Union Jack and Southern Cross."
+              ],
+              "answer": "The Australian flag features two horizontal bands of red, white, and blue, with a yellow star in the upper left corner.",
+              "on_topic": false,
+              "context_lines": 8
+            },
+            {
+              "round": 6,
+              "tier": "medium",
+              "question": "What famous rock formation is in central Australia?",
+              "appends": [
+                "Australia participates in international sporting events."
+              ],
+              "answer": "The famous rock formation that is located in central Australia is the Uluru (also known as Ayers Rock). This iconic natural landmark is situated on the Uluru-Kata Tjuta National Park in the Arnhem Ter",
+              "on_topic": true,
+              "context_lines": 9
+            },
+            {
+              "round": 7,
+              "tier": "medium",
+              "question": "What native marsupial is mentioned for Australia?",
+              "appends": [
+                "Regional climates vary across Australia."
+              ],
+              "answer": "Australia is home to several unique native marsupials that play important roles in its ecosystem and culture. One such species is the kangaroo. Kangaroos are well-known for their distinctive appearanc",
+              "on_topic": true,
+              "context_lines": 10
+            },
+            {
+              "round": 8,
+              "tier": "medium",
+              "question": "What term describes remote arid interior of Australia?",
+              "appends": [
+                "Transport between Australian cities often uses domestic flights."
+              ],
+              "answer": "The term that describes the remote arid interior of Australia is \"Desert.\" Deserts are characterized by their extreme heat, lack of rainfall, and harsh environmental conditions, which make them distin",
+              "on_topic": false,
+              "context_lines": 11
+            },
+            {
+              "round": 9,
+              "tier": "medium",
+              "question": "Why was Canberra chosen as capital?",
+              "appends": [
+                "Australia maintains diplomatic relations worldwide."
+              ],
+              "answer": "Canberra was chosen as the capital of Australia due to several key factors:\n\n1. Historical Significance: Canberra has a rich history dating back to 1825 when it was established as the first permanent ",
+              "on_topic": false,
+              "context_lines": 12
+            },
+            {
+              "round": 10,
+              "tier": "medium",
+              "question": "What is the capital of Australia?",
+              "appends": [
+                "Australia is a large island nation in the southern hemisphere."
+              ],
+              "answer": "The capital of Australia is Canberra.",
+              "on_topic": true,
+              "context_lines": 13
+            },
+            {
+              "round": 11,
+              "tier": "medium",
+              "question": "Which continent is Australia located in?",
+              "appends": [
+                "Many unique species live on the Australian continent."
+              ],
+              "answer": "Australia is located in the southern hemisphere.",
+              "on_topic": false,
+              "context_lines": 14
+            },
+            {
+              "round": 12,
+              "tier": "loose",
+              "question": "What is the largest city in Australia?",
+              "appends": [
+                "The Great Barrier Reef lies off the coast of Queensland, Australia.",
+                "The capital of France is Paris.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "The largest city in Australia is Sydney.",
+              "on_topic": true,
+              "context_lines": 17
+            },
+            {
+              "round": 13,
+              "tier": "loose",
+              "question": "What language is most widely spoken in Australia?",
+              "appends": [
+                "Australia uses the Australian dollar as currency.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "The majority of people in Australia speak English as their primary language. This can be seen from various sources such as census data, official government documents, and cultural practices. While oth",
+              "on_topic": false,
+              "context_lines": 20
+            },
+            {
+              "round": 14,
+              "tier": "loose",
+              "question": "What is the second largest city in Australia?",
+              "appends": [
+                "Melbourne is the second largest city in Australia.",
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "The second largest city in Australia is Brisbane.",
+              "on_topic": false,
+              "context_lines": 23
+            },
+            {
+              "round": 15,
+              "tier": "loose",
+              "question": "What stars appear on the Australian flag?",
+              "appends": [
+                "The Australian flag features the Union Jack and Southern Cross.",
+                "DNA stores genetic information in living cells.",
+                "The capital of France is Paris."
+              ],
+              "answer": "The Australian flag features the Union Jack and Southern Cross.",
+              "on_topic": true,
+              "context_lines": 26
+            },
+            {
+              "round": 16,
+              "tier": "loose",
+              "question": "What famous rock formation is in central Australia?",
+              "appends": [
+                "Uluru is a large sandstone monolith in central Australia.",
+                "The Eiffel Tower is located in Paris, France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "The famous rock formation in central Australia that is known for its striking beauty and historical significance is Uluru (also spelled Ayers Rock). This iconic natural landmark is located in the Arnh",
+              "on_topic": true,
+              "context_lines": 29
+            },
+            {
+              "round": 17,
+              "tier": "loose",
+              "question": "What native marsupial is mentioned for Australia?",
+              "appends": [
+                "Kangaroos are native marsupials found across Australia.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "The native marsupial that is mentioned for Australia is the kangaroo.",
+              "on_topic": true,
+              "context_lines": 32
+            },
+            {
+              "round": 18,
+              "tier": "none",
+              "question": "What term describes remote arid interior of Australia?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "The term that describes the remote arid interior of Australia is \"Desert.\"",
+              "on_topic": true,
+              "context_lines": 34
+            },
+            {
+              "round": 19,
+              "tier": "none",
+              "question": "Why was Canberra chosen as capital?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "The Eiffel Tower is located in Paris, France."
+              ],
+              "answer": "Canberra was chosen as the capital of Australia due to several key reasons:\n\n1. Historical Significance: Canberra has a rich history dating back to its founding in 1790 when it became the capital of N",
+              "on_topic": true,
+              "context_lines": 36
+            },
+            {
+              "round": 20,
+              "tier": "none",
+              "question": "What is the capital of Australia?",
+              "appends": [
+                "French is the official language of France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "The capital of Australia is Canberra.",
+              "on_topic": true,
+              "context_lines": 38
+            },
+            {
+              "round": 21,
+              "tier": "none",
+              "question": "Which continent is Australia located in?",
+              "appends": [
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "Australia is located in Oceania.",
+              "on_topic": true,
+              "context_lines": 40
+            },
+            {
+              "round": 22,
+              "tier": "none",
+              "question": "What is the largest city in Australia?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "The largest city in Australia is Sydney.",
+              "on_topic": true,
+              "context_lines": 42
+            },
+            {
+              "round": 23,
+              "tier": "none",
+              "question": "What language is most widely spoken in Australia?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "French is the official language of France."
+              ],
+              "answer": "The most widely spoken language in Australia is English. This can be inferred from the fact that the Australian flag prominently features the Union Jack and Southern Cross, which are both English flag",
+              "on_topic": true,
+              "context_lines": 44
+            }
+          ]
+        },
+        {
+          "thread_id": "chemistry",
+          "architecture": "traditional_lm",
+          "total_rounds": 24,
+          "on_topic_hits": 14,
+          "on_topic_rate": 0.5833333333333334,
+          "by_tier": {
+            "strict": {
+              "hits": 4,
+              "n": 6,
+              "rate": 0.6666666666666666
+            },
+            "medium": {
+              "hits": 2,
+              "n": 6,
+              "rate": 0.3333333333333333
+            },
+            "loose": {
+              "hits": 3,
+              "n": 6,
+              "rate": 0.5
+            },
+            "none": {
+              "hits": 5,
+              "n": 6,
+              "rate": 0.8333333333333334
+            }
+          },
+          "turns": [
+            {
+              "round": 0,
+              "tier": "strict",
+              "question": "At what temperature does water boil at standard pressure?",
+              "appends": [
+                "Steam forms when liquid water reaches its boiling point."
+              ],
+              "answer": "Water boils at 100 degrees Celsius at standard pressure. This is the specific temperature at which water changes from a liquid to a gas under normal conditions of temperature and pressure.",
+              "on_topic": true,
+              "context_lines": 3
+            },
+            {
+              "round": 1,
+              "tier": "strict",
+              "question": "At what temperature does water freeze?",
+              "appends": [
+                "Ice melts at 0 degrees Celsius when heated."
+              ],
+              "answer": "Water freezes at 0 degrees Celsius at standard pressure. This is the freezing point of water, which is the temperature below which water turns into ice and above which it remains in liquid form. At th",
+              "on_topic": true,
+              "context_lines": 4
+            },
+            {
+              "round": 2,
+              "tier": "strict",
+              "question": "What is the chemical formula for water?",
+              "appends": [
+                "The chemical formula for water is H2O."
+              ],
+              "answer": "The chemical formula for water is H2O.",
+              "on_topic": true,
+              "context_lines": 5
+            },
+            {
+              "round": 3,
+              "tier": "strict",
+              "question": "Does salt water boil at same temperature as pure water?",
+              "appends": [
+                "Salt water boils at a slightly higher temperature than pure water."
+              ],
+              "answer": "No, salt water does not boil at the same temperature as pure water. While both substances contain equal amounts of dissolved salts and have similar molecular structures, their boiling points differ si",
+              "on_topic": false,
+              "context_lines": 6
+            },
+            {
+              "round": 4,
+              "tier": "strict",
+              "question": "What process turns liquid water into vapor?",
+              "appends": [
+                "Evaporation turns liquid water into water vapor."
+              ],
+              "answer": "The process that turns liquid water into vapor is evaporation. This occurs when the temperature of the liquid water rises above its boiling point and begins to turn into steam or vapor. The specific h",
+              "on_topic": true,
+              "context_lines": 7
+            },
+            {
+              "round": 5,
+              "tier": "strict",
+              "question": "What process forms clouds from vapor?",
+              "appends": [
+                "Condensation forms clouds when water vapor cools."
+              ],
+              "answer": "Clouds form from the condensation of water vapor in the atmosphere. When water vapor rises and cools, it turns into tiny droplets or ice crystals that fall to the ground as precipitation. This process",
+              "on_topic": false,
+              "context_lines": 8
+            },
+            {
+              "round": 6,
+              "tier": "medium",
+              "question": "Which elements combine to form water?",
+              "appends": [
+                "Chemical reactions may absorb or release heat."
+              ],
+              "answer": "Water is formed from the combination of hydrogen and oxygen atoms in their gaseous state. This process involves the following steps:\n\n1. **Hydrogen (H)**: Hydrogen gas can be produced through various ",
+              "on_topic": false,
+              "context_lines": 9
+            },
+            {
+              "round": 7,
+              "tier": "medium",
+              "question": "Does water expand or contract when it freezes?",
+              "appends": [
+                "Solvents dissolve solutes at varying rates."
+              ],
+              "answer": "When water freezes, it contracts. This phenomenon occurs because the molecules of water gain energy and move closer together, which causes the volume of the water to decrease. As a result, the freezin",
+              "on_topic": false,
+              "context_lines": 10
+            },
+            {
+              "round": 8,
+              "tier": "medium",
+              "question": "What process separates water from dissolved salts?",
+              "appends": [
+                "Pressure affects phase equilibrium."
+              ],
+              "answer": "The process that separates water from dissolved salts is evaporation. When water evaporates from the surface of seawater or other bodies of saltwater, it turns into water vapor and leaves behind the d",
+              "on_topic": false,
+              "context_lines": 11
+            },
+            {
+              "round": 9,
+              "tier": "medium",
+              "question": "What pH is neutral for pure water?",
+              "appends": [
+                "Water participates in many industrial processes."
+              ],
+              "answer": "Pure water has a pH of 7.0. This is the most neutral and stable pH value that can be achieved with pure water under normal conditions. The pH scale ranges from 0 to 14, where 7 represents neutrality, ",
+              "on_topic": false,
+              "context_lines": 12
+            },
+            {
+              "round": 10,
+              "tier": "medium",
+              "question": "At what temperature does water boil at standard pressure?",
+              "appends": [
+                "Liquid water is essential for most biochemical reactions."
+              ],
+              "answer": "Water boils at 100 degrees Celsius at standard pressure. This means that the temperature of water reaches 100 degrees Celsius when it is placed in contact with a source of heat and allowed to come to ",
+              "on_topic": true,
+              "context_lines": 13
+            },
+            {
+              "round": 11,
+              "tier": "medium",
+              "question": "At what temperature does water freeze?",
+              "appends": [
+                "Phase changes involve energy transfer."
+              ],
+              "answer": "Water freezes at 0 degrees Celsius at standard pressure. This means that the freezing point of water is -40 degrees Celsius, which is equivalent to 0 degrees Fahrenheit.",
+              "on_topic": true,
+              "context_lines": 14
+            },
+            {
+              "round": 12,
+              "tier": "loose",
+              "question": "What is the chemical formula for water?",
+              "appends": [
+                "The chemical formula for water is H2O.",
+                "The capital of France is Paris.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "The chemical formula for water is H2O.",
+              "on_topic": true,
+              "context_lines": 17
+            },
+            {
+              "round": 13,
+              "tier": "loose",
+              "question": "Does salt water boil at same temperature as pure water?",
+              "appends": [
+                "Salt water boils at a slightly higher temperature than pure water.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "No, salt water does not boil at the same temperature as pure water. While both substances contain equal amounts of dissolved salts and have similar molecular structures, their boiling points differ si",
+              "on_topic": false,
+              "context_lines": 20
+            },
+            {
+              "round": 14,
+              "tier": "loose",
+              "question": "What process turns liquid water into vapor?",
+              "appends": [
+                "Evaporation turns liquid water into water vapor.",
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "The process that turns liquid water into vapor is evaporation. This occurs when water molecules gain enough kinetic energy and overcome the intermolecular forces holding them together, causing them to",
+              "on_topic": true,
+              "context_lines": 23
+            },
+            {
+              "round": 15,
+              "tier": "loose",
+              "question": "What process forms clouds from vapor?",
+              "appends": [
+                "Condensation forms clouds when water vapor cools.",
+                "DNA stores genetic information in living cells.",
+                "The capital of France is Paris."
+              ],
+              "answer": "Cloud formation involves several key processes that occur simultaneously and interact with each other:\n\n1. **Evaporation**: This is the initial stage where water vapor condenses into tiny droplets or ",
+              "on_topic": false,
+              "context_lines": 26
+            },
+            {
+              "round": 16,
+              "tier": "loose",
+              "question": "Which elements combine to form water?",
+              "appends": [
+                "Hydrogen and oxygen combine to form water.",
+                "The Eiffel Tower is located in Paris, France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "Water is formed through a process called condensation, which involves the evaporation of water from liquids like water, oil, or other substances. This process releases heat, causing the liquid to turn",
+              "on_topic": false,
+              "context_lines": 29
+            },
+            {
+              "round": 17,
+              "tier": "loose",
+              "question": "Does water expand or contract when it freezes?",
+              "appends": [
+                "Water expands when it freezes, unlike most liquids.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "When water freezes, it contracts rather than expands. This phenomenon is due to the unique properties of ice compared to liquid water. When water freezes, it transforms from a liquid state to a solid ",
+              "on_topic": true,
+              "context_lines": 32
+            },
+            {
+              "round": 18,
+              "tier": "none",
+              "question": "What process separates water from dissolved salts?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "Water evaporates from seawater, which contains dissolved salts like sodium chloride (NaCl). This process involves several key steps:\n\n1. **Evaporation**: When seawater is heated, it begins to evaporat",
+              "on_topic": true,
+              "context_lines": 34
+            },
+            {
+              "round": 19,
+              "tier": "none",
+              "question": "What pH is neutral for pure water?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "The Eiffel Tower is located in Paris, France."
+              ],
+              "answer": "Pure water has a pH of 7.0. This is because pure water consists entirely of hydrogen ions (H+) from dissolved salts like sodium chloride (NaCl) and hydroxide ions (OH-) from dissolved carbon dioxide (",
+              "on_topic": true,
+              "context_lines": 36
+            },
+            {
+              "round": 20,
+              "tier": "none",
+              "question": "At what temperature does water boil at standard pressure?",
+              "appends": [
+                "French is the official language of France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "Water boils at 100 degrees Celsius at standard pressure. This means that when water reaches this temperature, it will start to boil, turning from a liquid state to a gas state (steam). At this tempera",
+              "on_topic": true,
+              "context_lines": 38
+            },
+            {
+              "round": 21,
+              "tier": "none",
+              "question": "At what temperature does water freeze?",
+              "appends": [
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "Water freezes at 0 degrees Celsius at standard pressure. This means that when water comes into contact with ice, it will immediately start to freeze and turn into ice crystals. At this temperature, th",
+              "on_topic": true,
+              "context_lines": 40
+            },
+            {
+              "round": 22,
+              "tier": "none",
+              "question": "What is the chemical formula for water?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "The chemical formula for water is H₂O.",
+              "on_topic": true,
+              "context_lines": 42
+            },
+            {
+              "round": 23,
+              "tier": "none",
+              "question": "Does salt water boil at same temperature as pure water?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "French is the official language of France."
+              ],
+              "answer": "No, salt water does not boil at the same temperature as pure water. Salt water boils at a slightly lower temperature than pure water due to the presence of dissolved salts that increase the boiling po",
+              "on_topic": false,
+              "context_lines": 44
+            }
+          ]
+        },
+        {
+          "thread_id": "physics",
+          "architecture": "traditional_lm",
+          "total_rounds": 24,
+          "on_topic_hits": 22,
+          "on_topic_rate": 0.9166666666666666,
+          "by_tier": {
+            "strict": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "medium": {
+              "hits": 4,
+              "n": 6,
+              "rate": 0.6666666666666666
+            },
+            "loose": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            },
+            "none": {
+              "hits": 6,
+              "n": 6,
+              "rate": 1.0
+            }
+          },
+          "turns": [
+            {
+              "round": 0,
+              "tier": "strict",
+              "question": "What is the SI unit of force?",
+              "appends": [
+                "One Newton equals one kilogram meter per second squared."
+              ],
+              "answer": "The SI unit of force is the newton (N).",
+              "on_topic": true,
+              "context_lines": 3
+            },
+            {
+              "round": 1,
+              "tier": "strict",
+              "question": "In F=ma, what does m represent?",
+              "appends": [
+                "Mass is measured in kilograms in the SI system."
+              ],
+              "answer": "In the equation \\( F = ma \\), \\( m \\) represents mass. This means that the product of mass and acceleration (\\( m \\times a \\)) gives the force acting on an object. In other words, it tells us how much",
+              "on_topic": true,
+              "context_lines": 4
+            },
+            {
+              "round": 2,
+              "tier": "strict",
+              "question": "In F=ma, what does a represent?",
+              "appends": [
+                "Acceleration is the rate of change of velocity."
+              ],
+              "answer": "In the equation \\( F = ma \\), \\( a \\) represents acceleration. This means that the product of mass and its acceleration gives the force acting on an object. In other words, it tells us how much force ",
+              "on_topic": true,
+              "context_lines": 5
+            },
+            {
+              "round": 3,
+              "tier": "strict",
+              "question": "What is weight in terms of force and gravity?",
+              "appends": [
+                "Weight is force due to gravity on a mass."
+              ],
+              "answer": "Weight is defined as the force exerted on an object due to gravity. In other words, it is the force that acts downward on an object when placed on Earth's surface. The relationship between weight and ",
+              "on_topic": true,
+              "context_lines": 6
+            },
+            {
+              "round": 4,
+              "tier": "strict",
+              "question": "What quantity combines speed with direction?",
+              "appends": [
+                "Velocity is speed with direction."
+              ],
+              "answer": "The quantity that combines speed and direction is **velocity**. Velocity is defined as the rate of change of position with respect to time, which includes both speed and direction. It is typically rep",
+              "on_topic": true,
+              "context_lines": 7
+            },
+            {
+              "round": 5,
+              "tier": "strict",
+              "question": "What energy depends on mass and velocity squared?",
+              "appends": [
+                "Kinetic energy is one half m v squared."
+              ],
+              "answer": "The energy that depends on both mass and the square of the velocity is kinetic energy. This can be mathematically expressed as:\n\n\\[ \\text{Kinetic Energy} = \\frac{1}{2} m v^2 \\]\n\nwhere:\n- \\( m \\) is th",
+              "on_topic": true,
+              "context_lines": 8
+            },
+            {
+              "round": 6,
+              "tier": "medium",
+              "question": "What force opposes relative motion between surfaces?",
+              "appends": [
+                "Experiments verify relationships between physical variables."
+              ],
+              "answer": "The force that opposes relative motion between surfaces is called friction. Friction is a fundamental force that resists the relative motion or tendency of objects to move past each other. It arises f",
+              "on_topic": true,
+              "context_lines": 9
+            },
+            {
+              "round": 7,
+              "tier": "medium",
+              "question": "What is approximate gravity on Earth in m/s²?",
+              "appends": [
+                "Motion can be described relative to a reference frame."
+              ],
+              "answer": "The gravitational acceleration on Earth is approximately 9.8 meters per second squared (m/s²). This value has been confirmed through numerous experiments and observations over many years.",
+              "on_topic": true,
+              "context_lines": 10
+            },
+            {
+              "round": 8,
+              "tier": "medium",
+              "question": "What equals mass times velocity?",
+              "appends": [
+                "Work and energy share related units in mechanics."
+              ],
+              "answer": "The equation that represents the relationship between mass, velocity, and acceleration is:\n\n\\[ \\text{Force} = m \\times a \\]\n\nwhere:\n- \\( m \\) is the mass,\n- \\( a \\) is the acceleration.\n\nThis equation",
+              "on_topic": false,
+              "context_lines": 11
+            },
+            {
+              "round": 9,
+              "tier": "medium",
+              "question": "What is force times distance in direction of force?",
+              "appends": [
+                "Collisions transfer momentum between objects."
+              ],
+              "answer": "The expression \"force times distance\" in the direction of the force itself is not a standard or commonly used concept in physics. In classical mechanics, forces are typically represented as vectors, w",
+              "on_topic": false,
+              "context_lines": 12
+            },
+            {
+              "round": 10,
+              "tier": "medium",
+              "question": "What is the SI unit of force?",
+              "appends": [
+                "Physical quantities are measured with standard SI units."
+              ],
+              "answer": "The SI unit of force is the **Newton** (N).",
+              "on_topic": true,
+              "context_lines": 13
+            },
+            {
+              "round": 11,
+              "tier": "medium",
+              "question": "In F=ma, what does m represent?",
+              "appends": [
+                "Forces can change the motion of objects."
+              ],
+              "answer": "In the equation \\( F = ma \\), \\( m \\) represents mass. This means that mass is the fundamental property of an object that determines its ability to exert a force upon other objects. When you apply a f",
+              "on_topic": true,
+              "context_lines": 14
+            },
+            {
+              "round": 12,
+              "tier": "loose",
+              "question": "In F=ma, what does a represent?",
+              "appends": [
+                "Acceleration is the rate of change of velocity.",
+                "The capital of France is Paris.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "In the equation \\( F = ma \\), the letter \"a\" represents acceleration. This means that the product of force (F) and mass (m) is equal to the acceleration (a) of an object. In other words, acceleration ",
+              "on_topic": true,
+              "context_lines": 17
+            },
+            {
+              "round": 13,
+              "tier": "loose",
+              "question": "What is weight in terms of force and gravity?",
+              "appends": [
+                "Weight is force due to gravity on a mass.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "Weight is defined as the force exerted on an object due to gravity. In other words, it is equal to the product of an object's mass and its acceleration due to gravity. Mathematically, this relationshi",
+              "on_topic": true,
+              "context_lines": 20
+            },
+            {
+              "round": 14,
+              "tier": "loose",
+              "question": "What quantity combines speed with direction?",
+              "appends": [
+                "Velocity is speed with direction.",
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "The quantity that combines speed with direction is **velocity**.",
+              "on_topic": true,
+              "context_lines": 23
+            },
+            {
+              "round": 15,
+              "tier": "loose",
+              "question": "What energy depends on mass and velocity squared?",
+              "appends": [
+                "Kinetic energy is one half m v squared.",
+                "DNA stores genetic information in living cells.",
+                "The capital of France is Paris."
+              ],
+              "answer": "The energy that depends on both mass and the square of its velocity is kinetic energy. This relationship is fundamental in physics and has numerous applications across various fields such as engineeri",
+              "on_topic": true,
+              "context_lines": 26
+            },
+            {
+              "round": 16,
+              "tier": "loose",
+              "question": "What force opposes relative motion between surfaces?",
+              "appends": [
+                "Friction opposes relative motion between surfaces.",
+                "The Eiffel Tower is located in Paris, France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "The force that opposes relative motion between surfaces is friction. Friction is a fundamental force that resists the relative motion or sliding of two surfaces in contact. It acts in the opposite dir",
+              "on_topic": true,
+              "context_lines": 29
+            },
+            {
+              "round": 17,
+              "tier": "loose",
+              "question": "What is approximate gravity on Earth in m/s²?",
+              "appends": [
+                "Gravity on Earth is approximately 9.8 meters per second squared.",
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "The approximate value of gravitational acceleration on Earth is about 9.8 meters per second squared (m/s²). This value is derived from various scientific measurements and observations, including exper",
+              "on_topic": true,
+              "context_lines": 32
+            },
+            {
+              "round": 18,
+              "tier": "none",
+              "question": "What equals mass times velocity?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "The equation that equals mass times velocity is:\n\n\\[ \\text{Force} = m \\times a \\]\n\nwhere:\n- \\( m \\) represents mass,\n- \\( a \\) represents acceleration.\n\nThis relationship is fundamental in physics and",
+              "on_topic": true,
+              "context_lines": 34
+            },
+            {
+              "round": 19,
+              "tier": "none",
+              "question": "What is force times distance in direction of force?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "The Eiffel Tower is located in Paris, France."
+              ],
+              "answer": "The force times distance in direction of the force is simply the magnitude of the force multiplied by the distance from which it acts. This is known as the work done or the force applied over a given ",
+              "on_topic": true,
+              "context_lines": 36
+            },
+            {
+              "round": 20,
+              "tier": "none",
+              "question": "What is the SI unit of force?",
+              "appends": [
+                "French is the official language of France.",
+                "Coffee is typically served hot near 85 degrees Celsius."
+              ],
+              "answer": "The SI unit of force is the Newton.",
+              "on_topic": true,
+              "context_lines": 38
+            },
+            {
+              "round": 21,
+              "tier": "none",
+              "question": "In F=ma, what does m represent?",
+              "appends": [
+                "The chemical formula for table salt is NaCl.",
+                "The Pacific Ocean is the largest ocean on Earth."
+              ],
+              "answer": "In the equation \\( F = ma \\), \\( m \\) represents mass. This means that mass is the quantity of matter in an object, which determines how much force is required to accelerate it. In other words, the ma",
+              "on_topic": true,
+              "context_lines": 40
+            },
+            {
+              "round": 22,
+              "tier": "none",
+              "question": "In F=ma, what does a represent?",
+              "appends": [
+                "Mercury is the closest planet to the Sun.",
+                "Photosynthesis occurs in chloroplasts using light energy."
+              ],
+              "answer": "In the equation \\( F = ma \\), the letter \"a\" represents acceleration. This means that the product of force (\\( F \\)) and mass (\\( m \\)) is equal to the acceleration (\\( a \\)). In other words, accelera",
+              "on_topic": true,
+              "context_lines": 42
+            },
+            {
+              "round": 23,
+              "tier": "none",
+              "question": "What is weight in terms of force and gravity?",
+              "appends": [
+                "DNA stores genetic information in living cells.",
+                "French is the official language of France."
+              ],
+              "answer": "Weight is defined as the force exerted on an object due to gravity. In other words, it is equal to the product of an object's mass and the acceleration due to gravity. The value of gravitational accel",
+              "on_topic": true,
+              "context_lines": 44
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "degradation_strict_to_none": {
+    "follow_up_aware": {
+      "strict_to_none_delta": 0.0,
+      "strict": 1.0,
+      "none": 1.0
+    },
+    "native_strict": {
+      "strict_to_none_delta": 0.0,
+      "strict": 1.0,
+      "none": 1.0
+    },
+    "traditional_lm": {
+      "strict_to_none_delta": -0.16666666666666663,
+      "strict": 0.7777777777777778,
+      "none": 0.9444444444444444
+    }
+  }
+}

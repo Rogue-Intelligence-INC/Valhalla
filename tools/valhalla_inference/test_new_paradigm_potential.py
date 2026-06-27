@@ -432,21 +432,42 @@ def run_n2_fair_holdout(eval_prompts: list[dict], corpus: list[str]) -> dict:
     session = trained.session.session_state
     assert session is not None
 
-    cold_correct = 0
-    transfer_correct = 0
-    polluted_correct = 0
+    cold_rows: list[dict] = []
+    transfer_rows: list[dict] = []
+    polluted_rows: list[dict] = []
     for p in eval_prompts:
         b = make_base()
-        cold_correct += int(eval_isolated(b, p, corpus)["correct"])
-        transfer_correct += int(eval_transfer(session, p, corpus)["correct"])
+        cold_r = eval_isolated(b, p, corpus)
+        cold_rows.append({"id": p["id"], "correct": cold_r["correct"], "answer": cold_r.get("answer", "")[:160]})
+        t_r = eval_transfer(session, p, corpus)
+        transfer_rows.append({"id": p["id"], "correct": t_r["correct"], "answer": t_r.get("answer", "")[:160]})
         doc = trained.run([q_payload(p)], append_only=True)
-        sc = score_answer((doc.get("rows") or [{}])[0].get("answer", ""), p)
-        polluted_correct += int(sc["correct"])
+        ans = (doc.get("rows") or [{}])[0].get("answer", "")
+        sc = score_answer(ans, p)
+        polluted_rows.append({"id": p["id"], "correct": sc["correct"], "answer": ans[:160]})
 
     n = len(eval_prompts)
-    cold = {"accuracy": cold_correct / max(n, 1), "correct": cold_correct, "n": n}
-    transfer = {"accuracy": transfer_correct / max(n, 1), "correct": transfer_correct, "n": n}
-    polluted = {"accuracy": polluted_correct / max(n, 1), "correct": polluted_correct, "n": n}
+    cold_correct = sum(int(r["correct"]) for r in cold_rows)
+    transfer_correct = sum(int(r["correct"]) for r in transfer_rows)
+    polluted_correct = sum(int(r["correct"]) for r in polluted_rows)
+    cold = {
+        "accuracy": cold_correct / max(n, 1),
+        "correct": cold_correct,
+        "n": n,
+        "rows": cold_rows,
+    }
+    transfer = {
+        "accuracy": transfer_correct / max(n, 1),
+        "correct": transfer_correct,
+        "n": n,
+        "rows": transfer_rows,
+    }
+    polluted = {
+        "accuracy": polluted_correct / max(n, 1),
+        "correct": polluted_correct,
+        "n": n,
+        "rows": polluted_rows,
+    }
     return {
         "cold_rag_isolated": cold,
         "transfer_fresh": transfer,
@@ -535,15 +556,18 @@ def run_n4_negative_controls(eval_prompts: list[dict], corpus: list[str]) -> dic
 def run_n5_paradigm_separation(eval_prompts: list[dict], corpus: list[str]) -> dict:
     from test_context_performance import context_block  # noqa: E402
 
-    hybrid_c = patch_c = 0
-    for p in eval_prompts[: min(15, len(eval_prompts))]:
-        hybrid_c += int(eval_isolated(make_base(decode="hybrid"), p, corpus)["correct"])
-        patch_c += int(
-            eval_isolated(make_base(decode="lm_patch", feedback=False), p, corpus)["correct"]
-        )
-    n = min(15, len(eval_prompts))
-    hybrid = {"accuracy": hybrid_c / max(n, 1), "n": n}
-    patch = {"accuracy": patch_c / max(n, 1), "n": n}
+    n = len(eval_prompts)
+    hybrid_rows: list[dict] = []
+    patch_rows: list[dict] = []
+    for p in eval_prompts:
+        h = eval_isolated(make_base(decode="hybrid"), p, corpus)
+        hybrid_rows.append({"id": p["id"], "correct": h["correct"]})
+        p_r = eval_isolated(make_base(decode="lm_patch", feedback=False), p, corpus)
+        patch_rows.append({"id": p["id"], "correct": p_r["correct"]})
+    hybrid_c = sum(int(r["correct"]) for r in hybrid_rows)
+    patch_c = sum(int(r["correct"]) for r in patch_rows)
+    hybrid = {"accuracy": hybrid_c / max(n, 1), "n": n, "correct": hybrid_c, "rows": hybrid_rows}
+    patch = {"accuracy": patch_c / max(n, 1), "n": n, "correct": patch_c, "rows": patch_rows}
 
     trad: dict[str, Any] = {"skipped": True, "error": None}
     try:
@@ -551,12 +575,20 @@ def run_n5_paradigm_separation(eval_prompts: list[dict], corpus: list[str]) -> d
         from loader import ValhallaLLM  # noqa: E402
 
         lm = ValhallaLLM(resolve_lm_path("Qwen/Qwen2.5-0.5B-Instruct"))
-        tc = 0
-        for p in eval_prompts[:n]:
+        trad_rows: list[dict] = []
+        for p in eval_prompts:
             ctx = corpus_for_prompt(p, corpus)
             ans = lm.generate([context_block(ctx) + strict_user_text(p)], max_tokens=128)[0].text
-            tc += int(score_answer(ans.strip(), p)["correct"])
-        trad = {"accuracy": tc / max(n, 1), "n": n, "skipped": False}
+            sc = score_answer(ans.strip(), p)
+            trad_rows.append({"id": p["id"], "correct": sc["correct"], "answer": ans[:160]})
+        tc = sum(int(r["correct"]) for r in trad_rows)
+        trad = {
+            "accuracy": tc / max(n, 1),
+            "n": n,
+            "correct": tc,
+            "rows": trad_rows,
+            "skipped": False,
+        }
     except Exception as exc:  # noqa: BLE001
         trad["error"] = str(exc)
 
@@ -565,6 +597,9 @@ def run_n5_paradigm_separation(eval_prompts: list[dict], corpus: list[str]) -> d
         "lm_patch_rag": patch,
         "traditional_lm_rag": trad,
         "delta_hybrid_vs_patch_pp": (hybrid["accuracy"] - patch["accuracy"]) * 100.0,
+        "delta_hybrid_vs_trad_pp": (
+            (hybrid["accuracy"] - trad["accuracy"]) * 100.0 if not trad.get("skipped") else None
+        ),
     }
 
 
@@ -658,6 +693,12 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Valhalla new-paradigm potential (no traditional training)")
     ap.add_argument("--phase", default="test")
     ap.add_argument("--eval-limit", type=int, default=0)
+    ap.add_argument("--only-n5", action="store_true", help="Run N5 paradigm separation only; patch report-in")
+    ap.add_argument(
+        "--report-in",
+        type=Path,
+        default=REPO / "reports/valhalla_inference/new_paradigm_potential_test.json",
+    )
     args = ap.parse_args()
 
     suite = load_suite()
@@ -667,6 +708,32 @@ def main() -> None:
     eval_prompts = [p for p in prompts if p["id"] in slices["open_retrieval"]]
     if args.eval_limit > 0:
         eval_prompts = eval_prompts[: args.eval_limit]
+
+    if args.only_n5:
+        src = args.report_in
+        if not src.is_file():
+            print(f"Missing report: {src}", file=sys.stderr)
+            sys.exit(1)
+        report = json.loads(src.read_text(encoding="utf-8"))
+        print(f"=== {PROTOCOL} N5-only patch → {src.name} ===")
+        print(f"  fair holdout n={len(eval_prompts)}\n")
+        n5 = run_n5_paradigm_separation(eval_prompts, corpus)
+        report["n5_paradigm_separation"] = n5
+        report["timestamp"] = datetime.now(timezone.utc).isoformat()
+        print(f"  hybrid={n5['structure_hybrid']['accuracy']:.1%}  "
+              f"lm_patch={n5['lm_patch_rag']['accuracy']:.1%}")
+        trad = n5["traditional_lm_rag"]
+        if trad.get("skipped"):
+            print(f"  traditional_lm skipped ({trad.get('error', 'n/a')})")
+        else:
+            print(f"  traditional_lm={trad['accuracy']:.1%}")
+        nppi_doc = compute_nppi(report)
+        report["nppi"] = nppi_doc
+        report["verdict"] = verdict(nppi_doc["nppi"], nppi_doc, report)
+        print(f"\nNPPI = {nppi_doc['nppi']:.3f}  gates={nppi_doc['gates']}")
+        src.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"→ {src}")
+        return
 
     print(f"=== {PROTOCOL} phase={args.phase} ===")
     print("  paradigm: structure incubation + session, zero LM weight updates")

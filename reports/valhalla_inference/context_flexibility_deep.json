@@ -1,0 +1,618 @@
+{
+  "timestamp": "2026-06-25T22:31:27.796255+00:00",
+  "protocol": "context-flexibility-deep-v1",
+  "growth_curve": {
+    "seed_lines": 4,
+    "append_steps": 12,
+    "final_context_lines": 16,
+    "final_context_chars": 638,
+    "fingerprint_changes": 13,
+    "new_arch_avg_incremental_payload_chars": 64.3,
+    "new_arch_final_incremental_payload_chars": 66,
+    "trad_final_full_prompt_chars": 752,
+    "trad_growth_ratio": 3.62,
+    "steps": [
+      {
+        "step": 0,
+        "mode": "full_ingest",
+        "context_lines": 4,
+        "context_chars": 130,
+        "fingerprint": "ae2a1ada905ec523",
+        "payload_chars": 159,
+        "incremental": false
+      },
+      {
+        "step": 1,
+        "mode": "append",
+        "context_lines": 5,
+        "context_chars": 168,
+        "fingerprint": "d103cf81a7375d83",
+        "payload_chars": 60,
+        "incremental": true
+      },
+      {
+        "step": 2,
+        "mode": "append",
+        "context_lines": 6,
+        "context_chars": 204,
+        "fingerprint": "66192c153f09b8d9",
+        "payload_chars": 58,
+        "incremental": true
+      },
+      {
+        "step": 3,
+        "mode": "append",
+        "context_lines": 7,
+        "context_chars": 247,
+        "fingerprint": "6e9f6cb33b8f7530",
+        "payload_chars": 65,
+        "incremental": true
+      },
+      {
+        "step": 4,
+        "mode": "append",
+        "context_lines": 8,
+        "context_chars": 282,
+        "fingerprint": "a09e6ca78d40fba8",
+        "payload_chars": 57,
+        "incremental": true
+      },
+      {
+        "step": 5,
+        "mode": "append",
+        "context_lines": 9,
+        "context_chars": 314,
+        "fingerprint": "548aa6045e86ad44",
+        "payload_chars": 54,
+        "incremental": true
+      },
+      {
+        "step": 6,
+        "mode": "append",
+        "context_lines": 10,
+        "context_chars": 365,
+        "fingerprint": "e209e8b9ca290920",
+        "payload_chars": 73,
+        "incremental": true
+      },
+      {
+        "step": 7,
+        "mode": "append",
+        "context_lines": 11,
+        "context_chars": 415,
+        "fingerprint": "0507d03848b56999",
+        "payload_chars": 72,
+        "incremental": true
+      },
+      {
+        "step": 8,
+        "mode": "append",
+        "context_lines": 12,
+        "context_chars": 461,
+        "fingerprint": "9d85e2f6a78acb68",
+        "payload_chars": 68,
+        "incremental": true
+      },
+      {
+        "step": 9,
+        "mode": "append",
+        "context_lines": 13,
+        "context_chars": 501,
+        "fingerprint": "b907925cdf2e80b3",
+        "payload_chars": 62,
+        "incremental": true
+      },
+      {
+        "step": 10,
+        "mode": "append",
+        "context_lines": 14,
+        "context_chars": 553,
+        "fingerprint": "2a6fb5e31b1f7701",
+        "payload_chars": 74,
+        "incremental": true
+      },
+      {
+        "step": 11,
+        "mode": "append",
+        "context_lines": 15,
+        "context_chars": 594,
+        "fingerprint": "1391ef938b2e6ed0",
+        "payload_chars": 63,
+        "incremental": true
+      },
+      {
+        "step": 12,
+        "mode": "append",
+        "context_lines": 16,
+        "context_chars": 638,
+        "fingerprint": "4c0e970c69d96ae7",
+        "payload_chars": 66,
+        "incremental": true
+      }
+    ],
+    "trad_prompt_sizes": [
+      208,
+      249,
+      288,
+      334,
+      372,
+      407,
+      461,
+      514,
+      563,
+      606,
+      661,
+      705,
+      752
+    ]
+  },
+  "topic_continuity": {
+    "new_architecture": {
+      "name": "ValhallaBase session",
+      "total_on_topic": 7,
+      "total_turns": 12,
+      "rate": 0.5833333333333334,
+      "threads": [
+        {
+          "thread_id": "australia",
+          "turns": 4,
+          "on_topic_hits": 3,
+          "on_topic_rate": 0.75,
+          "turn_details": [
+            {
+              "turn": 0,
+              "question": "What is the capital of Australia?",
+              "answer": "[corpus:0] The capital of Australia is Canberra",
+              "hint": "canberra",
+              "on_topic": true,
+              "context_lines": 3,
+              "context_chars": 131
+            },
+            {
+              "turn": 1,
+              "question": "Which continent is Australia located in?",
+              "answer": "[corpus:4] English is the de facto national language of Australia",
+              "hint": "oceania",
+              "on_topic": false,
+              "context_lines": 5,
+              "context_chars": 246
+            },
+            {
+              "turn": 2,
+              "question": "What is the largest city in Australia?",
+              "answer": "[corpus:2] Sydney is the largest city in Australia but not the capital",
+              "hint": "sydney",
+              "on_topic": true,
+              "context_lines": 6,
+              "context_chars": 313
+            },
+            {
+              "turn": 3,
+              "question": "What language is most widely spoken in Australia?",
+              "answer": "[corpus:4] English is the de facto national language of Australia",
+              "hint": "english",
+              "on_topic": true,
+              "context_lines": 7,
+              "context_chars": 362
+            }
+          ]
+        },
+        {
+          "thread_id": "chemistry",
+          "turns": 4,
+          "on_topic_hits": 3,
+          "on_topic_rate": 0.75,
+          "turn_details": [
+            {
+              "turn": 0,
+              "question": "At what temperature does water boil at standard pressure?",
+              "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "hint": "100",
+              "on_topic": false,
+              "context_lines": 3,
+              "context_chars": 180
+            },
+            {
+              "turn": 1,
+              "question": "At what temperature does water freeze?",
+              "answer": "[corpus:1] Water freezes at 0 degrees Celsius at standard pressure",
+              "hint": "0",
+              "on_topic": true,
+              "context_lines": 5,
+              "context_chars": 279
+            },
+            {
+              "turn": 2,
+              "question": "What is the chemical formula for water?",
+              "answer": "[corpus:5] The chemical formula for water is H2O",
+              "hint": "h2o",
+              "on_topic": true,
+              "context_lines": 6,
+              "context_chars": 317
+            },
+            {
+              "turn": 3,
+              "question": "What happens when water reaches 100C at standard pressure?",
+              "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "hint": "boil",
+              "on_topic": true,
+              "context_lines": 7,
+              "context_chars": 383
+            }
+          ]
+        },
+        {
+          "thread_id": "physics",
+          "turns": 4,
+          "on_topic_hits": 1,
+          "on_topic_rate": 0.25,
+          "turn_details": [
+            {
+              "turn": 0,
+              "question": "What is the SI unit of force?",
+              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "hint": "newton",
+              "on_topic": true,
+              "context_lines": 3,
+              "context_chars": 137
+            },
+            {
+              "turn": 1,
+              "question": "In F=ma, what does m represent?",
+              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "hint": "mass",
+              "on_topic": false,
+              "context_lines": 5,
+              "context_chars": 240
+            },
+            {
+              "turn": 2,
+              "question": "In F=ma, what does a represent?",
+              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "hint": "acceleration",
+              "on_topic": false,
+              "context_lines": 6,
+              "context_chars": 287
+            },
+            {
+              "turn": 3,
+              "question": "What law relates force, mass, and acceleration?",
+              "answer": "[corpus:6] Weight is force due to gravity on a mass",
+              "hint": "second",
+              "on_topic": false,
+              "context_lines": 7,
+              "context_chars": 328
+            }
+          ]
+        }
+      ]
+    },
+    "traditional": {
+      "name": "LM prompt injection",
+      "total_on_topic": 11,
+      "total_turns": 12,
+      "rate": 0.9166666666666666,
+      "threads": [
+        {
+          "thread_id": "australia",
+          "turns": 4,
+          "on_topic_hits": 4,
+          "on_topic_rate": 1.0,
+          "turn_details": [
+            {
+              "turn": 0,
+              "question": "What is the capital of Australia?",
+              "answer": "The capital of Australia is Canberra.",
+              "hint": "canberra",
+              "on_topic": true,
+              "context_lines": 3,
+              "context_chars": 131,
+              "prompt_chars": 209
+            },
+            {
+              "turn": 1,
+              "question": "Which continent is Australia located in?",
+              "answer": "Australia is located in the southern hemisphere and is part of Oceania.",
+              "hint": "oceania",
+              "on_topic": true,
+              "context_lines": 4,
+              "context_chars": 186,
+              "prompt_chars": 274
+            },
+            {
+              "turn": 2,
+              "question": "What is the largest city in Australia?",
+              "answer": "The largest city in Australia is Sydney.",
+              "hint": "sydney",
+              "on_topic": true,
+              "context_lines": 5,
+              "context_chars": 253,
+              "prompt_chars": 342
+            },
+            {
+              "turn": 3,
+              "question": "What language is most widely spoken in Australia?",
+              "answer": "The most widely spoken language in Australia is English. This can be inferred from the fact that English is the de facto national language of Australia and is u",
+              "hint": "english",
+              "on_topic": true,
+              "context_lines": 6,
+              "context_chars": 302,
+              "prompt_chars": 405
+            }
+          ]
+        },
+        {
+          "thread_id": "chemistry",
+          "turns": 4,
+          "on_topic_hits": 3,
+          "on_topic_rate": 0.75,
+          "turn_details": [
+            {
+              "turn": 0,
+              "question": "At what temperature does water boil at standard pressure?",
+              "answer": "Water boils at 100 degrees Celsius at standard pressure. This is the specific temperature at which water changes from a liquid to a gas under normal conditions ",
+              "hint": "100",
+              "on_topic": false,
+              "context_lines": 3,
+              "context_chars": 180,
+              "prompt_chars": 282
+            },
+            {
+              "turn": 1,
+              "question": "At what temperature does water freeze?",
+              "answer": "Water freezes at 0 degrees Celsius at standard pressure. This is the freezing point of water, which is the temperature below which water turns into ice and abov",
+              "hint": "0",
+              "on_topic": true,
+              "context_lines": 4,
+              "context_chars": 223,
+              "prompt_chars": 309
+            },
+            {
+              "turn": 2,
+              "question": "What is the chemical formula for water?",
+              "answer": "The chemical formula for water is H2O.",
+              "hint": "h2o",
+              "on_topic": true,
+              "context_lines": 5,
+              "context_chars": 261,
+              "prompt_chars": 351
+            },
+            {
+              "turn": 3,
+              "question": "What happens when water reaches 100C at standard pressure?",
+              "answer": "When water reaches 100°C at standard pressure, it undergoes the following process:\n\n1. **Boiling**: At 100°C, water begins to boil. This means that the water mo",
+              "hint": "boil",
+              "on_topic": true,
+              "context_lines": 6,
+              "context_chars": 327,
+              "prompt_chars": 439
+            }
+          ]
+        },
+        {
+          "thread_id": "physics",
+          "turns": 4,
+          "on_topic_hits": 4,
+          "on_topic_rate": 1.0,
+          "turn_details": [
+            {
+              "turn": 0,
+              "question": "What is the SI unit of force?",
+              "answer": "The SI unit of force is the newton (N).",
+              "hint": "newton",
+              "on_topic": true,
+              "context_lines": 3,
+              "context_chars": 137,
+              "prompt_chars": 211
+            },
+            {
+              "turn": 1,
+              "question": "In F=ma, what does m represent?",
+              "answer": "In the equation \\( F = ma \\), \\( m \\) represents mass. This means that the product of mass and acceleration (\\( m \\times a \\)) gives the force acting on an obje",
+              "hint": "mass",
+              "on_topic": true,
+              "context_lines": 4,
+              "context_chars": 184,
+              "prompt_chars": 263
+            },
+            {
+              "turn": 2,
+              "question": "In F=ma, what does a represent?",
+              "answer": "In the equation \\( F = ma \\), \\( a \\) represents acceleration. This means that the product of mass and its acceleration gives the force acting on an object. In ",
+              "hint": "acceleration",
+              "on_topic": true,
+              "context_lines": 5,
+              "context_chars": 231,
+              "prompt_chars": 313
+            },
+            {
+              "turn": 3,
+              "question": "What law relates force, mass, and acceleration?",
+              "answer": "Newton's Second Law of Motion relates force, mass, and acceleration. This fundamental principle states that the force acting on an object is equal to the mass o",
+              "hint": "second",
+              "on_topic": true,
+              "context_lines": 6,
+              "context_chars": 272,
+              "prompt_chars": 373
+            }
+          ]
+        }
+      ]
+    },
+    "delta_rate_new_minus_trad": -0.3333333333333333
+  },
+  "multi_question_disambiguation": {
+    "new_architecture": {
+      "total_hits": 9,
+      "total_questions": 9,
+      "rate": 1.0,
+      "batches": [
+        {
+          "batch_id": "france_water",
+          "n_questions": 2,
+          "disambiguation_hits": 2,
+          "disambiguation_rate": 1.0,
+          "details": [
+            {
+              "id": "q_fr",
+              "question": "What is the capital of France?",
+              "answer": "[corpus:0] The capital of France is Paris",
+              "correct_topic": true
+            },
+            {
+              "id": "q_boil",
+              "question": "At what temperature does water boil?",
+              "answer": "[corpus:2] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "correct_topic": true
+            }
+          ]
+        },
+        {
+          "batch_id": "triple_mix",
+          "n_questions": 3,
+          "disambiguation_hits": 3,
+          "disambiguation_rate": 1.0,
+          "details": [
+            {
+              "id": "q_au_cap",
+              "question": "What is the capital of Australia?",
+              "answer": "[corpus:0] The capital of Australia is Canberra",
+              "correct_topic": true
+            },
+            {
+              "id": "q_force",
+              "question": "What is the SI unit of force?",
+              "answer": "[corpus:1] The SI unit of force is the Newton",
+              "correct_topic": true
+            },
+            {
+              "id": "q_photo",
+              "question": "Where does photosynthesis occur?",
+              "answer": "[corpus:2] Photosynthesis occurs in chloroplasts using light energy",
+              "correct_topic": true
+            }
+          ]
+        },
+        {
+          "batch_id": "four_way",
+          "n_questions": 4,
+          "disambiguation_hits": 4,
+          "disambiguation_rate": 1.0,
+          "details": [
+            {
+              "id": "q_merc",
+              "question": "Which planet is closest to the Sun?",
+              "answer": "[corpus:0] Mercury is the closest planet to the Sun",
+              "correct_topic": true
+            },
+            {
+              "id": "q_heart",
+              "question": "How many chambers does the human heart have?",
+              "answer": "[corpus:1] The human heart has four chambers",
+              "correct_topic": true
+            },
+            {
+              "id": "q_py",
+              "question": "Name one programming language mentioned in the context.",
+              "answer": "[corpus:2] Python is a programming language",
+              "correct_topic": true
+            },
+            {
+              "id": "q_pac",
+              "question": "What is the largest ocean?",
+              "answer": "[corpus:3] The Pacific Ocean is the largest ocean on Earth",
+              "correct_topic": true
+            }
+          ]
+        }
+      ]
+    },
+    "traditional": {
+      "total_hits": 9,
+      "total_questions": 9,
+      "rate": 1.0,
+      "batches": [
+        {
+          "batch_id": "france_water",
+          "n_questions": 2,
+          "disambiguation_hits": 2,
+          "disambiguation_rate": 1.0,
+          "details": [
+            {
+              "id": "q_fr",
+              "question": "What is the capital of France?",
+              "answer": "The capital of France is Paris.",
+              "correct_topic": true
+            },
+            {
+              "id": "q_boil",
+              "question": "At what temperature does water boil?",
+              "answer": "Water boils at 100 degrees Celsius at standard atmospheric pressure. This means that when the temperature reaches this point, all molecules in the liquid state ",
+              "correct_topic": true
+            }
+          ]
+        },
+        {
+          "batch_id": "triple_mix",
+          "n_questions": 3,
+          "disambiguation_hits": 3,
+          "disambiguation_rate": 1.0,
+          "details": [
+            {
+              "id": "q_au_cap",
+              "question": "What is the capital of Australia?",
+              "answer": "The capital of Australia is Canberra.",
+              "correct_topic": true
+            },
+            {
+              "id": "q_force",
+              "question": "What is the SI unit of force?",
+              "answer": "The SI unit of force is the newton (N).",
+              "correct_topic": true
+            },
+            {
+              "id": "q_photo",
+              "question": "Where does photosynthesis occur?",
+              "answer": "Photosynthesis occurs primarily in the leaves of plants, which contain chloroplasts. Chloroplasts are specialized organelles found in plant cells that contain t",
+              "correct_topic": true
+            }
+          ]
+        },
+        {
+          "batch_id": "four_way",
+          "n_questions": 4,
+          "disambiguation_hits": 4,
+          "disambiguation_rate": 1.0,
+          "details": [
+            {
+              "id": "q_merc",
+              "question": "Which planet is closest to the Sun?",
+              "answer": "Mercury is the planet that is closest to the Sun.",
+              "correct_topic": true
+            },
+            {
+              "id": "q_heart",
+              "question": "How many chambers does the human heart have?",
+              "answer": "The human heart has four chambers.",
+              "correct_topic": true
+            },
+            {
+              "id": "q_py",
+              "question": "Name one programming language mentioned in the context.",
+              "answer": "Python is mentioned in the context of the given information.",
+              "correct_topic": true
+            },
+            {
+              "id": "q_pac",
+              "question": "What is the largest ocean?",
+              "answer": "The largest ocean is the Pacific Ocean.",
+              "correct_topic": true
+            }
+          ]
+        }
+      ]
+    },
+    "delta_rate_new_minus_trad": 0.0
+  },
+  "verdict": "MIXED_FLEXIBILITY_GAP"
+}

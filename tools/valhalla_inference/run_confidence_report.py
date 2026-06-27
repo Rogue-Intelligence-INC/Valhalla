@@ -97,9 +97,34 @@ def analyze_tpi_v2(doc: dict[str, Any]) -> dict[str, Any]:
     rag = doc.get("rag_baseline_gap") or {}
     hybrid = rag.get("valhalla_isolated_hybrid") or {}
     lm = rag.get("valhalla_lm_patch_rag") or {}
+    rl = rag.get("lifts_pp") or {}
     if hybrid.get("rows") and lm.get("rows"):
         hb, lb = paired_rows_by_id(hybrid["rows"], lm["rows"])
         out["metrics"].append(lift_metric("hybrid_vs_lm_patch_lift", bootstrap_ci_paired(lb, hb)))
+
+    trad = rag.get("traditional_lm_rag") or {}
+    if not trad.get("skipped") and trad.get("n"):
+        if trad.get("rows"):
+            out["metrics"].append(
+                metric("traditional_lm_rag", proportion_ci_from_bools(rows_correct(trad["rows"])))
+            )
+        else:
+            out["metrics"].append(
+                metric("traditional_lm_rag", wilson_ci(int(trad.get("correct", 0)), int(trad["n"])))
+            )
+        if hybrid.get("rows") and trad.get("rows"):
+            tb, hb = paired_rows_by_id(trad["rows"], hybrid["rows"])
+            out["metrics"].append(lift_metric("valhalla_over_traditional_lm", bootstrap_ci_paired(tb, hb)))
+        elif rl.get("valhalla_over_traditional_lm_pp") is not None:
+            pp = float(rl["valhalla_over_traditional_lm_pp"])
+            out["metrics"].append(
+                lift_metric(
+                    "valhalla_over_traditional_lm",
+                    {"mean_pp": pp, "ci95_lo": pp, "ci95_hi": pp, "n": int(trad["n"]), "method": "point_from_report"},
+                )
+            )
+    elif trad.get("skipped"):
+        out["missing"].append("traditional_lm_rag (torch/model not available at run time)")
 
     tpi_doc = doc.get("tpi") or {}
     if tpi_doc.get("tpi") is not None:
@@ -125,9 +150,6 @@ def analyze_tpi_v2(doc: dict[str, Any]) -> dict[str, Any]:
         idx_ci["point"] = float(tpi_doc["tpi"])
         out["metrics"].append(index_metric("TPI_v2", idx_ci))
 
-    trad = (rag.get("traditional_lm_rag") or doc.get("traditional_lm_rag") or {})
-    if trad.get("skipped"):
-        out["missing"].append("traditional_lm_rag (torch/model not available at run time)")
     return out
 
 
@@ -215,7 +237,20 @@ def analyze_nppi(doc: dict[str, Any], *, tpi_doc: dict[str, Any] | None = None) 
 
     n5 = doc.get("n5_paradigm_separation") or {}
     trad = n5.get("traditional_lm_rag") or {}
-    if trad.get("skipped"):
+    if not trad.get("skipped") and trad.get("n"):
+        if trad.get("rows"):
+            out["metrics"].append(
+                metric("n5_traditional_lm_rag", proportion_ci_from_bools(rows_correct(trad["rows"])))
+            )
+        else:
+            out["metrics"].append(
+                metric("n5_traditional_lm_rag", wilson_ci(int(trad.get("correct", 0)), int(trad["n"])))
+            )
+        hybrid = n5.get("structure_hybrid") or {}
+        if hybrid.get("rows") and trad.get("rows"):
+            tb, hb = paired_rows_by_id(trad["rows"], hybrid["rows"])
+            out["metrics"].append(lift_metric("n5_hybrid_over_traditional_lm", bootstrap_ci_paired(tb, hb)))
+    elif trad.get("skipped"):
         out["missing"].append("traditional_lm_rag")
 
     nppi_doc = doc.get("nppi") or {}
@@ -415,8 +450,8 @@ def build_report(reports_dir: Path) -> dict[str, Any]:
         "sections": sections,
         "missing_report_files": missing_files,
         "global_gaps": [
-            "traditional_lm RAG arm skipped in NPPI/TPI when torch/model unavailable",
-            "Composite indices (TPI/NPPI/PPI) bootstrap uses row resampling — component point estimates may differ slightly from stored index",
+            "local demo n=8 → ingest lift CI degenerates at +100pp",
+            "Composite indices bootstrap uses row resampling — point may differ slightly from stored index",
         ],
     }
 
@@ -435,6 +470,7 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
     highlights = [
         ("Grounding", "fair_holdout_cold_rag", "NPPI"),
         ("Session routing", "transfer_vs_polluted_lift", "TPI-v2"),
+        ("vs Transformer", "traditional_lm_rag", "TPI-v2"),
         ("FOG quality", "fog_emitted_precision", "FOG-v2"),
         ("Proactive", "UP_on_topic_given_emit", "Proactive-v2"),
         ("Dialogue", "extended_30turn_on_topic", "Context-drift-extended"),

@@ -267,7 +267,9 @@ def battery_fair(fair_limit: int) -> list[dict[str, Any]]:
     corpus_full = suite["corpus"][suite["phases"]["test"]["corpus"]]
     slices = classify_slices(prompts, corpus_full)
     open_ids = slices.get("open_retrieval") or []
-    selected = [p for p in prompts if p["id"] in open_ids][:fair_limit]
+    selected = [p for p in prompts if p["id"] in open_ids]
+    if fair_limit > 0:
+        selected = selected[:fair_limit]
 
     rows: list[dict[str, Any]] = []
     for p in selected:
@@ -393,7 +395,7 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--fair-limit", type=int, default=15)
+    ap.add_argument("--fair-limit", type=int, default=0, help="0 = all open_retrieval holdout")
     args = ap.parse_args()
 
     gates = battery_gates()

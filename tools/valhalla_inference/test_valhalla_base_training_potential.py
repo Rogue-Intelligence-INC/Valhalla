@@ -388,9 +388,10 @@ def run_rag_baseline_gap(eval_prompts: list[dict], corpus: list[str]) -> dict:
 
     trad: dict[str, Any] = {"arm": "traditional_lm_rag", "skipped": True, "error": None}
     try:
+        from test_context_arch_compare import resolve_lm_path  # noqa: E402
         from loader import ValhallaLLM  # noqa: E402
 
-        lm = ValhallaLLM("Qwen/Qwen2.5-0.5B-Instruct")
+        lm = ValhallaLLM(resolve_lm_path("Qwen/Qwen2.5-0.5B-Instruct"))
         trad_correct = 0
         trad_rows: list[dict] = []
         for p in eval_prompts:
@@ -576,7 +577,17 @@ def main() -> None:
     ap.add_argument("--skip-curriculum", action="store_true")
     ap.add_argument("--skip-transfer", action="store_true")
     ap.add_argument("--skip-rag", action="store_true")
+    ap.add_argument("--only-rag", action="store_true", help="Run B5 only; merge into --report-in JSON")
+    ap.add_argument(
+        "--report-in",
+        type=Path,
+        default=None,
+        help="Existing report JSON to patch (with --only-rag)",
+    )
     args = ap.parse_args()
+
+    if args.only_rag and args.report_in is None:
+        args.report_in = REPORTS / "valhalla_base_training_potential_test_v2.json"
 
     protocol = PROTOCOL_V2 if args.protocol == "v2" else PROTOCOL_V1
 
@@ -587,6 +598,53 @@ def main() -> None:
     eval_prompts = [p for p in prompts if p["id"] in slices["open_retrieval"]]
     if args.eval_limit > 0:
         eval_prompts = eval_prompts[: args.eval_limit]
+
+    if args.only_rag:
+        args.skip_scale = True
+        args.skip_curriculum = True
+        args.skip_transfer = True
+        args.skip_cycles = True
+        src = args.report_in
+        if src is None or not src.is_file():
+            print(f"Missing --report-in: {src}", file=sys.stderr)
+            sys.exit(1)
+        report = json.loads(src.read_text(encoding="utf-8"))
+        print(f"=== {protocol} B5-only patch → {src.name} ===")
+        print(f"  eval: open_retrieval n={len(eval_prompts)}\n")
+        print("[B5] RAG baseline gap (Valhalla vs lm_patch vs traditional_lm) …")
+        rag = run_rag_baseline_gap(eval_prompts, corpus)
+        report["rag_baseline_gap"] = rag
+        report["timestamp"] = datetime.now(timezone.utc).isoformat()
+        vh = rag["valhalla_isolated_hybrid"]
+        lp = rag["valhalla_lm_patch_rag"]
+        print(f"  valhalla_hybrid         {vh['correct']}/{vh['n']} ({vh['accuracy']:.1%})")
+        print(f"  valhalla_lm_patch       {lp['correct']}/{lp['n']} ({lp['accuracy']:.1%})")
+        trad = rag["traditional_lm_rag"]
+        if trad.get("skipped"):
+            print(f"  traditional_lm          skipped ({trad.get('error', 'unavailable')})")
+        else:
+            print(f"  traditional_lm          {trad['correct']}/{trad['n']} ({trad['accuracy']:.1%})")
+        rl = rag["lifts_pp"]
+        print(f"  structure over lm_patch: {rl['structure_over_lm_patch_pp']:+.1f}pp")
+        if rl["valhalla_over_traditional_lm_pp"] is not None:
+            print(f"  valhalla over trad_lm:   {rl['valhalla_over_traditional_lm_pp']:+.1f}pp")
+        transfer = report.get("transfer_eval")
+        if report.get("learning_paradigms") and not report["learning_paradigms"].get("skipped"):
+            tpi_doc = compute_tpi_v2(
+                report.get("corpus_scale") or {},
+                report["learning_paradigms"],
+                transfer,
+                rag,
+            )
+            report["tpi"] = tpi_doc
+            report["verdict"] = verdict_v2(
+                tpi_doc["tpi"], report["learning_paradigms"], transfer, rag
+            )
+            print(f"\nTPI-v2 = {tpi_doc['tpi']:.3f}  components={tpi_doc['components']}")
+            print(f"Verdict: {report['verdict']}")
+        src.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"\n→ {src}")
+        return
 
     print(f"=== {protocol} phase={args.phase} ===")
     print(f"  eval: open_retrieval n={len(eval_prompts)}  corpus_lines={len(corpus)}\n")

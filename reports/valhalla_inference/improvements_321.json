@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-06-25T22:11:07.931138+00:00",
+  "protocol": "improvements-321-v1",
+  "item_3_real_modality_core": {
+    "timestamp": "2026-06-25T21:29:12.973961+00:00",
+    "protocol": "real-modality-core-compare-v1",
+    "phase": "test",
+    "task_count": 12,
+    "hash_encoded": {
+      "task_count": 12,
+      "common_core_rate_isolated": 0.9957076925569573,
+      "common_core_rate_non_isolated": 0.9999390659970772,
+      "avg_universal_score_isolated": 0.9659513669845973,
+      "avg_universal_score_non_isolated": 0.9755361856537822,
+      "non_isolated_wins": 12,
+      "isolated_wins": 0,
+      "verdict": "EQUIVALENT: isolated and non-isolated reach similar universal core quality",
+      "by_score_type": {
+        "open": {
+          "n": 7,
+          "avg_delta": 0.00964849126162713,
+          "non_iso_wins": 7
+        },
+        "mcq": {
+          "n": 5,
+          "avg_delta": 0.00949567703976557,
+          "non_iso_wins": 5
+        }
+      }
+    },
+    "real_tts_sd": {
+      "task_count": 12,
+      "common_core_rate_isolated": 0.8552148415525128,
+      "common_core_rate_non_isolated": 0.9981348461635785,
+      "avg_universal_score_isolated": 0.7686012694624332,
+      "avg_universal_score_non_isolated": 0.876680539833722,
+      "non_isolated_wins": 12,
+      "isolated_wins": 0,
+      "verdict": "NON_ISOLATED_BETTER: single-session concurrent fusion tightens universal core more",
+      "by_score_type": {
+        "open": {
+          "n": 7,
+          "avg_delta": 0.10935596512293311,
+          "non_iso_wins": 7
+        },
+        "mcq": {
+          "n": 5,
+          "avg_delta": 0.10629189771898653,
+          "non_iso_wins": 5
+        }
+      }
+    },
+    "delta_non_iso_uni": -0.09885564582006023,
+    "verdict": "REAL_MODALITY_CORE_OK"
+  },
+  "item_2_mcq_decode": {
+    "lm_patch": {
+      "n": 46,
+      "correct": 29,
+      "accuracy": 0.6304347826086957
+    },
+    "structure_fate": {
+      "n": 46,
+      "correct": 16,
+      "accuracy": 0.34782608695652173
+    },
+    "note": "structure_fate uses native mcq_fate pipeline, no LM"
+  },
+  "item_1_open_slices": {
+    "open_retrieval": {
+      "n": 31,
+      "correct": 30,
+      "accuracy": 0.967741935483871
+    },
+    "open_generation": {
+      "n": 30,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "corpus_supported": {
+      "n": 31,
+      "correct": 30,
+      "accuracy": 0.967741935483871
+    }
+  },
+  "item_1_open_modes": {
+    "targeted": {
+      "n": 61,
+      "correct": 30,
+      "accuracy": 0.4918032786885246
+    },
+    "distractor": {
+      "n": 61,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "minimal": {
+      "n": 61,
+      "correct": 31,
+      "accuracy": 0.5081967213114754
+    }
+  },
+  "verdict": [
+    "OPEN_RETRIEVAL_97PCT",
+    "REAL_CORE_FORMS",
+    "LM_PATCH_STILL_BETTER_FOR_MCQ"
+  ]
+}
