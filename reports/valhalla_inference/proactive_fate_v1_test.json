@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-06-27T17:35:14.775309+00:00",
+  "protocol": "proactive-fate-v1",
+  "algebra": {
+    "tau_0": "12/138",
+    "proactive_min_spread": 0.003105590062111801,
+    "proactive_min_turns": 2
+  },
+  "batteries": [
+    {
+      "id": "cold_idle",
+      "pass": true,
+      "detail": "proactive_idle requires an active session (warmup dialogue first)"
+    },
+    {
+      "id": "spread_gate_one_turn",
+      "pass": true,
+      "triggered": false,
+      "trigger_reason": "turns=1<min_turns=2",
+      "proactive": {
+        "triggered": false,
+        "trigger_reason": "turns=1<min_turns=2",
+        "probe_id": "",
+        "probe_question": "",
+        "fog_decision": "defer",
+        "emitted": false
+      }
+    },
+    {
+      "id": "warmup_targeted",
+      "pass": true,
+      "triggered": true,
+      "emitted": true,
+      "fog_decision": "emit",
+      "trigger_reason": "idle_ready",
+      "probe_question": "Based on the context, what is stated about: Australia is a country in Oceania.?",
+      "nudge": "Related to our conversation: [corpus:1] Australia is a country in Oceania",
+      "grounded": true,
+      "hub_prefs_spread": 0.023867713587436973,
+      "proactive": {
+        "triggered": true,
+        "trigger_reason": "idle_ready",
+        "probe_id": "proactive_2",
+        "probe_question": "Based on the context, what is stated about: Australia is a country in Oceania.?",
+        "nudge": "Related to our conversation: [corpus:1] Australia is a country in Oceania",
+        "fog_decision": "emit",
+        "emitted": true,
+        "fog_evidence": {
+          "top_score": 3.2737394836664633,
+          "second_score": 2.8564489405800786,
+          "margin": 0.4172905430863847,
+          "keyword_count": 13
+        }
+      }
+    },
+    {
+      "id": "warmup_distractor",
+      "pass": true,
+      "triggered": true,
+      "emitted": true,
+      "fog_decision": "emit",
+      "trigger_reason": "idle_ready",
+      "probe_question": "Based on the context, what is stated about: France is in Western Europe.?",
+      "nudge": "Related to our conversation: [corpus:1] France is in Western Europe",
+      "grounded": false,
+      "hub_prefs_spread": 0.023867713587436973,
+      "proactive": {
+        "triggered": true,
+        "trigger_reason": "idle_ready",
+        "probe_id": "proactive_2",
+        "probe_question": "Based on the context, what is stated about: France is in Western Europe.?",
+        "nudge": "Related to our conversation: [corpus:1] France is in Western Europe",
+        "fog_decision": "emit",
+        "emitted": true,
+        "fog_evidence": {
+          "top_score": 3.5508017506260594,
+          "second_score": 2.9308540565550283,
+          "margin": 0.6199476940710311,
+          "keyword_count": 13
+        }
+      }
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "total": 4,
+    "unsolicited_precision": 0.5
+  },
+  "verdict": [
+    "PROACTIVE_FATE_V1_OK",
+    "UNSolicited_EMIT_AFTER_WARMUP",
+    "DISTRACTOR_NO_HALLUCINATION"
+  ]
+}

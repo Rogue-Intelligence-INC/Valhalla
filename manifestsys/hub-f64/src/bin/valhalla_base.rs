@@ -19,10 +19,11 @@ fn main() {
         std::process::exit(1);
     });
     eprintln!(
-        "valhalla_base {} context={} questions={} decode={:?}",
+        "valhalla_base {} context={} questions={} proactive_idle={} decode={:?}",
         VALHALLA_BASE_PROTOCOL,
         req.context.len(),
         req.questions.len(),
+        req.proactive_idle,
         req.config.decode
     );
     match run_valhalla_base(&req) {

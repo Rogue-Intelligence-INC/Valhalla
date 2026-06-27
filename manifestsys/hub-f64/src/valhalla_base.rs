@@ -9,7 +9,8 @@ use crate::fair_score::{format_prompt_text, score_answer, FairPrompt, ScoreResul
 use crate::free_multimodal_fate::{fuse_universal_core_on_snapshot, UniversalCoreMetrics};
 use crate::grinder::{default_port_cap, grind_text_hash};
 use crate::native_qa::{
-    run_native_qa, run_native_qa_batch, NativeQaBatchRequest, NativeQaQuestionSpec, NativeQaRequest,
+    fog_tau_algebraic, run_native_qa, run_native_qa_batch, FogDecision, FogEvidence,
+    NativeQaBatchRequest, NativeQaQuestionSpec, NativeQaRequest,
 };
 use crate::patch_lm::{PatchLmConfig, DEFAULT_MAX_NEW, DEFAULT_STRENGTH};
 use crate::signal_ingress::{BodyTarget, IngressBudget, TriadIncubationSnapshot, TriadSession};
@@ -159,6 +160,31 @@ pub struct ValhallaBaseConfig {
     /// Ingress routing while `fate_routing_free` is false.
     #[serde(default)]
     pub fate_ingress_routing: ValhallaFateIngressRouting,
+    /// When true, push QA correct/incorrect back into Fate after each answer.
+    #[serde(default = "default_true")]
+    pub fate_qa_feedback: bool,
+    /// Enable proactive idle path (self-probe + FOG-gated nudge after dialogue warmup).
+    #[serde(default = "default_true")]
+    pub proactive_enabled: bool,
+    /// Minimum prior user turns before proactive idle may fire.
+    #[serde(default = "default_proactive_min_turns")]
+    pub proactive_min_turns: usize,
+    /// Minimum hub_prefs spread — default τ(0)=12/138 from E7 algebra.
+    #[serde(default = "default_proactive_min_spread")]
+    pub proactive_min_spread: f64,
+}
+
+fn default_proactive_min_turns() -> usize {
+    2
+}
+
+fn default_proactive_min_spread() -> f64 {
+    // τ(0) × δ/(dim+r) — E7 coupling scale (≈0.003), not raw τ(0)
+    fog_tau_algebraic(0) * crate::native_qa::fog_delta_required_algebraic(1.0)
+}
+
+fn default_true() -> bool {
+    true
 }
 
 fn default_triad() -> String {
@@ -190,6 +216,10 @@ impl Default for ValhallaBaseConfig {
             fate_weight_mode: ValhallaFateWeightMode::Fixed,
             fate_routing_free: false,
             fate_ingress_routing: ValhallaFateIngressRouting::QuadCycle,
+            fate_qa_feedback: true,
+            proactive_enabled: true,
+            proactive_min_turns: default_proactive_min_turns(),
+            proactive_min_spread: default_proactive_min_spread(),
         }
     }
 }
@@ -210,8 +240,25 @@ pub struct ValhallaBaseRequest {
     #[serde(default)]
     pub session: Option<ValhallaBaseSessionState>,
     pub questions: Vec<ValhallaBaseQuestion>,
+    /// When true with empty `questions`, run proactive idle (self-probe + FOG nudge).
+    #[serde(default)]
+    pub proactive_idle: bool,
     #[serde(default)]
     pub config: ValhallaBaseConfig,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProactiveOutcome {
+    pub triggered: bool,
+    pub trigger_reason: String,
+    pub probe_id: String,
+    pub probe_question: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub nudge: Option<String>,
+    pub fog_decision: String,
+    pub emitted: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fog_evidence: Option<FogEvidence>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -224,6 +271,10 @@ pub struct ValhallaBaseRow {
     pub score: ScoreResult,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub core_fusion: Option<CoreFusionRow>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fog_evidence: Option<FogEvidence>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fog_decision: Option<FogDecision>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -257,6 +308,8 @@ pub struct ValhallaBaseResponse {
     pub rows: Vec<ValhallaBaseRow>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fate_telemetry: Option<FateTelemetry>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub proactive: Option<ProactiveOutcome>,
 }
 
 pub fn context_fingerprint(context: &[String]) -> String {
@@ -598,6 +651,20 @@ fn core_fusion_row(metrics: &UniversalCoreMetrics, snap_label: &str) -> CoreFusi
     }
 }
 
+fn apply_qa_feedback_to_snapshot(
+    snap: TriadIncubationSnapshot,
+    cfg: &ValhallaBaseConfig,
+    question: &str,
+    on_topic: bool,
+) -> TriadIncubationSnapshot {
+    let budget = IngressBudget::experiment();
+    let target = BodyTarget::parse(&cfg.patch_body);
+    let mut session = TriadSession::from_incubation_snapshot(budget, target, snap);
+    apply_fate_config(&mut session, cfg);
+    session.apply_qa_feedback(question, on_topic);
+    session.incubation_snapshot()
+}
+
 fn grind_ports_for_line(line: &str) -> BodyFrontPorts {
     let cap = default_port_cap();
     grind_text_hash(line, cap)
@@ -649,6 +716,8 @@ fn run_native_one(
         correct: sc.correct,
         score: sc,
         core_fusion: core_row,
+        fog_evidence: row.fog_evidence,
+        fog_decision: row.fog_decision,
     })
 }
 
@@ -706,6 +775,8 @@ fn run_lm_one(
         correct: sc.correct,
         score: sc,
         core_fusion: core_row,
+        fog_evidence: None,
+        fog_decision: None,
     })
 }
 
@@ -740,9 +811,159 @@ fn run_legacy_native_track(
             correct: sc.correct,
             score: sc,
             core_fusion: None,
+            fog_evidence: None,
+            fog_decision: None,
         });
     }
     Ok(rows)
+}
+
+fn proactive_overlap_count(line: &str, prior: &[String]) -> usize {
+    let words: Vec<String> = line
+        .split_whitespace()
+        .map(|w| w.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase())
+        .filter(|w| w.len() > 3)
+        .collect();
+    prior
+        .iter()
+        .flat_map(|q| q.split_whitespace())
+        .map(|w| w.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase())
+        .filter(|w| w.len() > 3)
+        .filter(|w| words.iter().any(|lw| lw.contains(w.as_str()) || w.contains(lw.as_str())))
+        .count()
+}
+
+fn build_proactive_probe(corpus: &[String], prior: &[String]) -> Option<(String, String, String)> {
+    if corpus.is_empty() || prior.is_empty() {
+        return None;
+    }
+    // Topic-continuous: pick corpus line with highest overlap with prior user turns.
+    let (idx, overlap) = corpus
+        .iter()
+        .enumerate()
+        .map(|(i, line)| (i, proactive_overlap_count(line, prior)))
+        .max_by_key(|(_, count)| *count)?;
+    if overlap == 0 {
+        return None;
+    }
+    let line = &corpus[idx];
+    let topic: String = line.split_whitespace().take(8).collect::<Vec<_>>().join(" ");
+    let id = format!("proactive_{}", prior.len());
+    let text = format!("Based on the context, what is stated about: {topic}?");
+    Some((id, text, line.clone()))
+}
+
+fn proactive_trigger_gate(
+    snap: &TriadIncubationSnapshot,
+    prior: &[String],
+    cfg: &ValhallaBaseConfig,
+) -> (bool, String) {
+    if !cfg.proactive_enabled {
+        return (false, "proactive_disabled".into());
+    }
+    if prior.len() < cfg.proactive_min_turns {
+        return (
+            false,
+            format!(
+                "turns={}<min_turns={}",
+                prior.len(),
+                cfg.proactive_min_turns
+            ),
+        );
+    }
+    let spread = hub_prefs_spread(&snap.hub_prefs);
+    if spread < cfg.proactive_min_spread {
+        return (
+            false,
+            format!(
+                "spread={spread:.4}<{min:.4}",
+                spread = spread,
+                min = cfg.proactive_min_spread
+            ),
+        );
+    }
+    (true, "idle_ready".into())
+}
+
+fn run_proactive_idle(
+    _req: &ValhallaBaseRequest,
+    lines: &[String],
+    context_snap: TriadIncubationSnapshot,
+    prior: &[String],
+    cfg: &ValhallaBaseConfig,
+) -> Result<(ProactiveOutcome, Vec<ValhallaBaseRow>), String> {
+    let (ready, reason) = proactive_trigger_gate(&context_snap, prior, cfg);
+    if !ready {
+        return Ok((
+            ProactiveOutcome {
+                triggered: false,
+                trigger_reason: reason,
+                probe_id: String::new(),
+                probe_question: String::new(),
+                nudge: None,
+                fog_decision: "defer".into(),
+                emitted: false,
+                fog_evidence: None,
+            },
+            vec![],
+        ));
+    }
+
+    let Some((probe_id, probe_text, source_line)) = build_proactive_probe(lines, prior) else {
+        return Ok((
+            ProactiveOutcome {
+                triggered: false,
+                trigger_reason: "no_topic_overlap".into(),
+                probe_id: String::new(),
+                probe_question: String::new(),
+                nudge: None,
+                fog_decision: "defer".into(),
+                emitted: false,
+                fog_evidence: None,
+            },
+            vec![],
+        ));
+    };
+
+    let q = ValhallaBaseQuestion {
+        id: probe_id.clone(),
+        text: probe_text.clone(),
+        score_type: "open".into(),
+        reference_answer: source_line,
+        keywords: vec![],
+        audio_features: None,
+        image_features: None,
+    };
+    let p: FairPrompt = q.clone().into();
+    let row = run_native_one(lines, &p, &q, cfg, context_snap, prior)?;
+    let fog_decision = row
+        .fog_decision
+        .as_ref()
+        .map(|d| d.decision.clone())
+        .unwrap_or_else(|| "emit".into());
+    let emitted = fog_decision == "emit";
+    let nudge = if emitted {
+        Some(format!(
+            "Related to our conversation: {}",
+            row.answer.trim()
+        ))
+    } else {
+        None
+    };
+
+    Ok((
+        ProactiveOutcome {
+            triggered: true,
+            trigger_reason: reason,
+            probe_id,
+            probe_question: probe_text,
+            nudge,
+            fog_decision,
+            emitted,
+            fog_evidence: row.fog_evidence.clone(),
+        },
+        vec![row],
+    ))
 }
 
 /// Run Valhalla-as-base with hybrid / session / multimodal context.
@@ -751,13 +972,12 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
     if lines.is_empty() && items.is_empty() {
         return Err("valhalla_base: context must contain at least one item or line".into());
     }
-    if req.questions.is_empty() {
-        return Err("valhalla_base: questions must be non-empty".into());
+    if req.questions.is_empty() && !req.proactive_idle {
+        return Err("valhalla_base: questions must be non-empty (or set proactive_idle)".into());
     }
 
-    let _snap = resolve_snapshot(req, &lines, &items, incremental);
+    let mut context_snap = resolve_snapshot(req, &lines, &items, incremental);
     let cfg = &req.config;
-    let context_snap = resolve_snapshot(req, &lines, &items, incremental);
     let mut features = vec!["context_flex".into()];
     if cfg.decode == ValhallaBaseDecode::Hybrid {
         features.push("hybrid_routing".into());
@@ -794,6 +1014,15 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
     if cfg.fate_ingress_routing == ValhallaFateIngressRouting::HybridQuadSemantic {
         features.push("fate_ingress_hybrid_quad_semantic".into());
     }
+    if cfg.fate_qa_feedback {
+        features.push("fate_qa_feedback".into());
+    }
+    if cfg.proactive_enabled {
+        features.push("proactive_idle".into());
+    }
+    if req.proactive_idle {
+        features.push("proactive_idle_request".into());
+    }
     if items.iter().any(|i| {
         i.audio_features.as_ref().is_some_and(|v| !v.is_empty())
             || i.image_features.as_ref().is_some_and(|v| !v.is_empty())
@@ -807,25 +1036,43 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         .map(|s| s.question_history.clone())
         .unwrap_or_default();
 
-    let mut rows = Vec::with_capacity(req.questions.len());
-    for q in &req.questions {
-        let p: FairPrompt = q.clone().into();
-        let is_follow_up = !prior.is_empty();
-        let mode = effective_decode_for_question(cfg, &p.score_type, is_follow_up);
-        let row = match mode {
-            ValhallaBaseDecode::Native => {
-                run_native_one(&lines, &p, q, cfg, context_snap.clone(), &prior)?
+    let mut proactive_outcome: Option<ProactiveOutcome> = None;
+    let mut rows = Vec::new();
+
+    if req.proactive_idle && req.questions.is_empty() {
+        let (outcome, probe_rows) =
+            run_proactive_idle(req, &lines, context_snap.clone(), &prior, cfg)?;
+        proactive_outcome = Some(outcome);
+        rows = probe_rows;
+    } else {
+        rows = Vec::with_capacity(req.questions.len());
+        for q in &req.questions {
+            let p: FairPrompt = q.clone().into();
+            let is_follow_up = !prior.is_empty();
+            let mode = effective_decode_for_question(cfg, &p.score_type, is_follow_up);
+            let row = match mode {
+                ValhallaBaseDecode::Native => {
+                    run_native_one(&lines, &p, q, cfg, context_snap.clone(), &prior)?
+                }
+                ValhallaBaseDecode::LmPatch => {
+                    run_lm_one(&lines, &p, q, cfg, context_snap.clone())?
+                }
+                ValhallaBaseDecode::Hybrid => unreachable!(),
+            };
+            prior.push(q.text.clone());
+            rows.push(row.clone());
+            if cfg.fate_qa_feedback {
+                context_snap = apply_qa_feedback_to_snapshot(
+                    context_snap,
+                    cfg,
+                    &q.text,
+                    row.correct,
+                );
             }
-            ValhallaBaseDecode::LmPatch => {
-                run_lm_one(&lines, &p, q, cfg, context_snap.clone())?
-            }
-            ValhallaBaseDecode::Hybrid => unreachable!(),
-        };
-        prior.push(q.text.clone());
-        rows.push(row);
+        }
     }
 
-    let snap = resolve_snapshot(req, &lines, &items, incremental);
+    let snap = context_snap;
     let fate_tel = fate_telemetry_from_snap(&snap, cfg);
     let session = ValhallaBaseSessionState {
         corpus: lines.clone(),
@@ -844,6 +1091,7 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         features,
         rows,
         fate_telemetry: Some(fate_tel),
+        proactive: proactive_outcome,
     })
 }
 

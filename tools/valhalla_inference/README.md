@@ -143,6 +143,13 @@ python3 tools/valhalla_inference/test_new_paradigm_potential.py
 python3 tools/valhalla_inference/run_local_corpus_demo.py \
   --corpus-dir valhalla-unified-core/docs
 
+| `test_fate_output_gate.py` | fate-output-gate-v2 | FOG precision/coverage |
+| `test_proactive_fate_v2.py` | proactive-fate-v2 | PPI-v2 / UP / MAR |
+
+```bash
+# 主动 Fate（多轮 warmup 后 idle 自探针 + FOG nudge）
+python3 tools/valhalla_inference/test_proactive_fate_v2.py
+
 # Fate 输出门控（emit / abstain / defer）
 python3 tools/valhalla_inference/test_fate_output_gate.py
 ```

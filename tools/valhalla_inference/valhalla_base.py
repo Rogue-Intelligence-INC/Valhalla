@@ -48,7 +48,11 @@ class ValhallaBase:
     fate_weight_mode: str = "fixed"
     fate_routing_free: bool = False
     fate_ingress_routing: str = "quad_cycle"
+    fate_qa_feedback: bool = True
     core_fusion: bool = False
+    proactive_enabled: bool = True
+    proactive_min_turns: int = 2
+    proactive_min_spread: float = 12 / 138 * 5 / 140  # τ(0)·δ/(dim+r)
     session: ValhallaBaseSession = field(default_factory=ValhallaBaseSession)
     context_items: list[dict[str, Any]] = field(default_factory=list)
     _pending_append: list[dict[str, Any]] = field(default_factory=list, repr=False)
@@ -120,7 +124,11 @@ class ValhallaBase:
                 "fate_weight_mode": self.fate_weight_mode,
                 "fate_routing_free": self.fate_routing_free,
                 "fate_ingress_routing": self.fate_ingress_routing,
+                "fate_qa_feedback": self.fate_qa_feedback,
                 "core_fusion": self.core_fusion,
+                "proactive_enabled": self.proactive_enabled,
+                "proactive_min_turns": self.proactive_min_turns,
+                "proactive_min_spread": self.proactive_min_spread,
             },
         }
 
@@ -163,3 +171,44 @@ class ValhallaBase:
         doc = self.run([{"id": qid, "text": text, "score_type": score_type}])
         rows = doc.get("rows") or []
         return rows[0]["answer"] if rows else ""
+
+    def proactive_idle(self) -> dict[str, Any]:
+        """No user question — self-probe + FOG-gated nudge after dialogue warmup."""
+        self._ensure_bin()
+        if not self.session.session_state:
+            raise RuntimeError("proactive_idle requires an active session (warmup dialogue first)")
+        payload: dict[str, Any] = {
+            "questions": [],
+            "proactive_idle": True,
+            "session": self.session.session_state,
+            "config": {
+                "lm_model": self.lm_model,
+                "patch_body": self.patch_body,
+                "strength": self.strength,
+                "max_new": self.max_new,
+                "incubation_cycles": self.incubation_cycles,
+                "decode": self.decode,
+                "mcq_decode": self.mcq_decode,
+                "follow_up_decode": self.follow_up_decode,
+                "fate_weight_mode": self.fate_weight_mode,
+                "fate_routing_free": self.fate_routing_free,
+                "fate_ingress_routing": self.fate_ingress_routing,
+                "fate_qa_feedback": self.fate_qa_feedback,
+                "proactive_enabled": self.proactive_enabled,
+                "proactive_min_turns": self.proactive_min_turns,
+                "proactive_min_spread": self.proactive_min_spread,
+            },
+        }
+        proc = subprocess.run(
+            [str(BIN)],
+            input=json.dumps(payload),
+            capture_output=True,
+            text=True,
+            check=True,
+            env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64"},
+        )
+        if proc.stderr:
+            print(proc.stderr, end="", flush=True)
+        doc = json.loads(proc.stdout)
+        self.session.apply_response(doc)
+        return doc
