@@ -123,3 +123,23 @@ Hybrid 路由 / 每题 runtime patch **不在** vLLM 图内；需外部 orchestr
 ## 报告
 
 `reports/valhalla_inference/model_load_test.json`
+
+## 推理范式实验（零权重 / 非 fine-tune）
+
+完整记录见 `valhalla-unified-core/docs/EXPERIMENT_RECORD_INFERENCE_PARADIGM.md`。
+
+| 脚本 | 协议 | 指标 |
+|------|------|------|
+| `test_valhalla_base_training_potential.py --protocol v2` | training-potential-v2 | TPI-v2 |
+| `test_new_paradigm_potential.py` | new-paradigm-v1 | NPPI |
+| `test_context_topic_drift.py` | context-topic-drift | swap / drift |
+| `run_local_corpus_demo.py` | local-corpus-demo-v1 | 本机语料 ingest |
+
+```bash
+# 新范式潜力（fair holdout + 合成 novel + 负对照）
+python3 tools/valhalla_inference/test_new_paradigm_potential.py
+
+# 本机 markdown 语料 → teach → 生成对比
+python3 tools/valhalla_inference/run_local_corpus_demo.py \
+  --corpus-dir valhalla-unified-core/docs
+```

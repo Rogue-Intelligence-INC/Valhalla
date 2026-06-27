@@ -255,6 +255,46 @@ def run_context_open(
     return out
 
 
+def mcq_fusion_diff(baseline: dict, fused: dict) -> dict:
+    base_by_id = {r["id"]: r for r in baseline["rows"]}
+    fused_by_id = {r["id"]: r for r in fused["rows"]}
+    improved: list[dict] = []
+    regressed: list[dict] = []
+    unchanged = 0
+    for pid, br in base_by_id.items():
+        fr = fused_by_id.get(pid)
+        if not fr:
+            continue
+        if not br["correct"] and fr["correct"]:
+            improved.append(
+                {
+                    "id": pid,
+                    "baseline_answer": br["answer"],
+                    "fused_answer": fr["answer"],
+                }
+            )
+        elif br["correct"] and not fr["correct"]:
+            regressed.append(
+                {
+                    "id": pid,
+                    "baseline_answer": br["answer"],
+                    "fused_answer": fr["answer"],
+                }
+            )
+        else:
+            unchanged += 1
+    return {
+        "baseline_accuracy": baseline["accuracy"],
+        "fused_accuracy": fused["accuracy"],
+        "delta_pp": (fused["accuracy"] - baseline["accuracy"]) * 100.0,
+        "improved_count": len(improved),
+        "regressed_count": len(regressed),
+        "unchanged_count": unchanged,
+        "improved": improved,
+        "regressed": regressed,
+    }
+
+
 def run_context_mcq(
     prompts: list[dict],
     corpus: list[str],
@@ -372,9 +412,17 @@ def main() -> None:
     ap.add_argument("--skip-core", action="store_true")
     ap.add_argument("--skip-mcq", action="store_true")
     ap.add_argument("--skip-open", action="store_true")
+    ap.add_argument(
+        "--mcq-ablation",
+        action="store_true",
+        help="Only run MCQ baseline vs core_fusion (skip core/open/session/structure_fate)",
+    )
     ap.add_argument("--isolation-rounds", type=int, default=6)
     ap.add_argument("--samples-cache", type=Path, default=REPORTS / "scale_samples_test.json")
     args = ap.parse_args()
+    if args.mcq_ablation:
+        args.skip_core = True
+        args.skip_open = True
 
     ensure_bins()
     suite = load_suite()
@@ -460,21 +508,47 @@ def main() -> None:
         report["context_mcq_lm"] = run_context_mcq(
             mcq_prompts, corpus, samples_by_id, core_fusion=False, mcq_decode="lm_patch"
         )
-        report["context_mcq_structure_fate"] = run_context_mcq(
-            mcq_prompts, corpus, samples_by_id, core_fusion=False, mcq_decode="structure_fate"
+        report["context_mcq_lm_fusion"] = run_context_mcq(
+            mcq_prompts, corpus, samples_by_id, core_fusion=True, mcq_decode="lm_patch"
         )
-        lm, sf = report["context_mcq_lm"], report["context_mcq_structure_fate"]
-        print(f"  MCQ LM patch:       {lm['correct']}/{lm['n']} ({lm['accuracy']:.0%})")
-        print(f"  MCQ structure fate: {sf['correct']}/{sf['n']} ({sf['accuracy']:.0%})")
+        report["mcq_fusion_diff"] = mcq_fusion_diff(
+            report["context_mcq_lm"], report["context_mcq_lm_fusion"]
+        )
+        lm, fused = report["context_mcq_lm"], report["context_mcq_lm_fusion"]
+        diff = report["mcq_fusion_diff"]
+        print(
+            f"  MCQ LM baseline:     {lm['correct']}/{lm['n']} ({lm['accuracy']:.1%}) "
+            f"[text-only context]"
+        )
+        print(
+            f"  MCQ LM core_fusion:  {fused['correct']}/{fused['n']} ({fused['accuracy']:.1%}) "
+            f"[multimodal + fusion]"
+        )
+        print(
+            f"  Δ fusion: {diff['delta_pp']:+.1f}pp "
+            f"improved={diff['improved_count']} regressed={diff['regressed_count']} "
+            f"unchanged={diff['unchanged_count']}"
+        )
+        for row in diff["improved"]:
+            print(f"    ↑ {row['id']}: {row['baseline_answer'][:40]} → {row['fused_answer'][:40]}")
+        for row in diff["regressed"]:
+            print(f"    ↓ {row['id']}: {row['baseline_answer'][:40]} → {row['fused_answer'][:40]}")
+        if not args.mcq_ablation:
+            report["context_mcq_structure_fate"] = run_context_mcq(
+                mcq_prompts, corpus, samples_by_id, core_fusion=False, mcq_decode="structure_fate"
+            )
+            sf = report["context_mcq_structure_fate"]
+            print(f"  MCQ structure fate: {sf['correct']}/{sf['n']} ({sf['accuracy']:.0%})")
 
     # --- D. Session + swap ---
-    print("\n[D] Session stress + context swap …")
-    report["session_stress"] = run_session_stress(corpus)
-    report["context_swap"] = run_swap_battery(corpus)
-    print(
-        f"  session fp changes: {report['session_stress']['fingerprint_changes']} "
-        f"swap ok: {report['context_swap']['swap_ok']}/{report['context_swap']['pairs']}"
-    )
+    if not args.mcq_ablation:
+        print("\n[D] Session stress + context swap …")
+        report["session_stress"] = run_session_stress(corpus)
+        report["context_swap"] = run_swap_battery(corpus)
+        print(
+            f"  session fp changes: {report['session_stress']['fingerprint_changes']} "
+            f"swap ok: {report['context_swap']['swap_ok']}/{report['context_swap']['pairs']}"
+        )
 
     # Verdict
     verdicts = []
