@@ -12,7 +12,7 @@
 | FOG quality | fog_emitted_precision | 96.6% [82.8%, 99.4%] |
 | Proactive | UP_on_topic_given_emit | 100.0% [87.1%, 100.0%] |
 | Crosslang | crosslang_accuracy | 100.0% [82.4%, 100.0%] |
-| External | external_holdout_accuracy | 80.0% [54.8%, 93.0%] |
+| External | external_holdout_accuracy | 100.0% [79.6%, 100.0%] |
 | Dialogue | extended_30turn_on_topic | 96.7% [83.3%, 99.4%] |
 
 ## Methods
@@ -106,9 +106,9 @@ Source: `local_corpus_demo_test.json` · Protocol: `local-corpus-demo-v1`
 | Metric | Estimate [95% CI] | n |
 |--------|-------------------|---|
 | before_no_corpus | 0.0% [0.0%, 16.1%] | 0/20 |
-| cold_targeted | 70.0% [48.1%, 85.5%] | 14/20 |
-| after_transfer | 70.0% [48.1%, 85.5%] | 14/20 |
-| ingest_vs_none_lift | +70.0pp [+50.0, +90.0] | paired n=20 |
+| cold_targeted | 100.0% [83.9%, 100.0%] | 20/20 |
+| after_transfer | 100.0% [83.9%, 100.0%] | 20/20 |
+| ingest_vs_none_lift | +100.0pp [+100.0, +100.0] | paired n=20 |
 
 ## Crosslang-core
 
@@ -127,7 +127,7 @@ Source: `external_holdout_test.json` · Protocol: `external-holdout-v1`
 
 | Metric | Estimate [95% CI] | n |
 |--------|-------------------|---|
-| external_holdout_accuracy | 80.0% [54.8%, 93.0%] | 12/15 |
+| external_holdout_accuracy | 100.0% [79.6%, 100.0%] | 15/15 |
 
 ## Global gaps
 

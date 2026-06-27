@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-27T22:30:34.585359+00:00",
+  "timestamp": "2026-06-27T22:41:16.572232+00:00",
   "protocol": "confidence-report-v1",
   "methods": {
     "proportion": "Wilson score 95% CI",
@@ -429,37 +429,37 @@
         {
           "name": "cold_targeted",
           "proportion": {
-            "k": 14,
+            "k": 20,
             "n": 20,
-            "point": 0.7,
-            "ci95_lo": 0.481027,
-            "ci95_hi": 0.854523,
+            "point": 1.0,
+            "ci95_lo": 0.838875,
+            "ci95_hi": 1.0,
             "method": "wilson"
           },
-          "display": "70.0% [48.1%, 85.5%]"
+          "display": "100.0% [83.9%, 100.0%]"
         },
         {
           "name": "after_transfer",
           "proportion": {
-            "k": 14,
+            "k": 20,
             "n": 20,
-            "point": 0.7,
-            "ci95_lo": 0.481027,
-            "ci95_hi": 0.854523,
+            "point": 1.0,
+            "ci95_lo": 0.838875,
+            "ci95_hi": 1.0,
             "method": "wilson"
           },
-          "display": "70.0% [48.1%, 85.5%]"
+          "display": "100.0% [83.9%, 100.0%]"
         },
         {
           "name": "ingest_vs_none_lift",
           "lift_pp": {
-            "mean_pp": 70.0,
-            "ci95_lo": 50.0,
-            "ci95_hi": 90.0,
+            "mean_pp": 100.0,
+            "ci95_lo": 100.0,
+            "ci95_hi": 100.0,
             "n": 20,
             "method": "bootstrap_paired"
           },
-          "display": "+70.0pp [+50.0, +90.0]"
+          "display": "+100.0pp [+100.0, +100.0]"
         }
       ],
       "title": "Local-corpus",
@@ -525,14 +525,14 @@
         {
           "name": "external_holdout_accuracy",
           "proportion": {
-            "k": 12,
+            "k": 15,
             "n": 15,
-            "point": 0.8,
-            "ci95_lo": 0.548146,
-            "ci95_hi": 0.929525,
+            "point": 1.0,
+            "ci95_lo": 0.796117,
+            "ci95_hi": 1.0,
             "method": "wilson"
           },
-          "display": "80.0% [54.8%, 93.0%]"
+          "display": "100.0% [79.6%, 100.0%]"
         }
       ],
       "title": "External-holdout",

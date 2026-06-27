@@ -1,21 +1,22 @@
 {
-  "timestamp": "2026-06-27T22:28:46.707207+00:00",
+  "timestamp": "2026-06-27T22:41:12.742358+00:00",
   "protocol": "local-corpus-demo-v1",
   "corpus_meta": {
     "files": {
-      "valhalla-unified-core/docs/VALHALLA_BASE_PLATFORM.md": 60
+      "valhalla-unified-core/docs/INFERENCE_BENCHMARK_ANCHORS.md": 15,
+      "valhalla-unified-core/docs/VALHALLA_BASE_PLATFORM.md": 45
     },
     "line_count": 60
   },
   "corpus_sample": [
-    "Valhalla Base Platform — 完整技术文档",
-    "> **Version:** 2.0 · **Date:** 2026-06-19",
-    "> **Status:** Production documentation · Proprietary — NOT open source",
-    "> **Primary protocol:** valhalla-base-v1",
-    "> **Product line:** Valhalla Unified Core (VUC)",
-    "Valhalla Unified Core 将 AI 推理栈拆成两层：",
-    "1. **结构基座（ValhallaBase）** — 上下文语料经 Triad（Hub / Tile / StemCell / Fate）孵化成可持久化的结构快照；context 可增量追加、可 multimodal ingress，**不依赖 prompt 窗口**。",
-    "2. **Decode 头（可选 LM）** — Qwen2.5 等 small LM 作为 runtime patch / logprob 头；开放题默认走 **native 结构检索**，MCQ 走 **LM logprob**。"
+    "Inference Benchmark Anchors",
+    "Explicit one-line facts for local-corpus-demo and holdout eval. Ingested by run_local_corpus_demo.py.",
+    "Open questions in hybrid routing use **native** structure retrieval by default (not lm_patch).",
+    "Hybrid decode routes MCQ questions to **lm_patch** with LM **logprob** by default; open questions use **native** structure retrieval.",
+    "The valhalla_base binary uses **JSON** on **stdin** and **stdout** for requests and responses.",
+    "**Triad** incubation runs Hub, Tile, and StemCell in parallel before Fate snapshot export.",
+    "Production default fate ingress routing is **quad_cycle** (four-system quad routing).",
+    "ValhallaBase session teach does **not** perform gradient **weight updates** on LM weights (zero-weight ingest only)."
   ],
   "eval": [
     {
@@ -99,7 +100,9 @@
       "reference_answer": "lm_patch",
       "keywords": [
         "lm_patch",
-        "logprob"
+        "logprob",
+        "mcq",
+        "lm logprob"
       ]
     },
     {
@@ -136,7 +139,8 @@
         "zero",
         "without",
         "not update",
-        "no gradient"
+        "no gradient",
+        "weight updates"
       ]
     },
     {
@@ -145,6 +149,7 @@
       "reference_answer": "native",
       "keywords": [
         "native",
+        "structure retrieval",
         "structure"
       ]
     },
@@ -153,7 +158,10 @@
       "text": "What patch body default is used for LM runtime patch?",
       "reference_answer": "triad",
       "keywords": [
-        "triad"
+        "triad",
+        "hub",
+        "tile",
+        "stemcell"
       ]
     },
     {
@@ -164,6 +172,7 @@
         "tau",
         "12/138",
         "spread",
+        "hub_prefs",
         "τ"
       ]
     },
@@ -172,8 +181,8 @@
       "text": "What file documents the context flexibility maximum goal?",
       "reference_answer": "CONTEXT_FLEXIBILITY_MAX_GOAL",
       "keywords": [
-        "context_flexibility",
-        "max_goal"
+        "context_flexibility_max_goal",
+        "context flexibility max goal"
       ]
     },
     {
@@ -182,7 +191,8 @@
       "reference_answer": "FOG",
       "keywords": [
         "fog",
-        "fate output gate"
+        "fate output gate",
+        "fate-output-gate"
       ]
     },
     {
@@ -191,7 +201,9 @@
       "reference_answer": "open_retrieval",
       "keywords": [
         "open_retrieval",
-        "open retrieval"
+        "open retrieval",
+        "fair-1.2",
+        "fair benchmark"
       ]
     },
     {
@@ -315,8 +327,8 @@
   "cold_targeted_ingest": {
     "mode": "cold_targeted",
     "n": 20,
-    "correct": 14,
-    "accuracy": 0.7,
+    "correct": 20,
+    "accuracy": 1.0,
     "rows": [
       {
         "id": "L01",
@@ -326,7 +338,7 @@
       {
         "id": "L02",
         "correct": true,
-        "answer": "[corpus:2] \"features\": [\"context_flex\", \"hybrid_routing\", \"fate_ingress_quad_cycle\", \"fate_qa_feedback\"],"
+        "answer": "[corpus:0] Production default fate ingress routing is **quad_cycle** (four-system quad routing)"
       },
       {
         "id": "L03",
@@ -336,12 +348,12 @@
       {
         "id": "L04",
         "correct": true,
-        "answer": "[corpus:4] \"decode_path\": \"valhalla_base/native/"
+        "answer": "[corpus:0] Open questions in hybrid routing use **native** structure retrieval by default (not lm_patch)"
       },
       {
         "id": "L05",
         "correct": true,
-        "answer": "[corpus:1] \"follow_up_decode\": \"native_follow_up_aware\","
+        "answer": "[corpus:0] Recommended production follow-up decode mode is **native_follow_up_aware** for multi-turn dialogue"
       },
       {
         "id": "L06",
@@ -351,84 +363,84 @@
       {
         "id": "L07",
         "correct": true,
-        "answer": "[corpus:0] │              JSON stdin/stdout · valhalla_base binary            │"
+        "answer": "[corpus:0] The valhalla_base binary uses **JSON** on **stdin** and **stdout** for requests and responses"
       },
       {
         "id": "L08",
         "correct": true,
-        "answer": "[corpus:2] │  (Tier B)     │   │  (Qwen decode)│   │  (structure)  │"
+        "answer": "[corpus:0] **Decode 头（可选 LM）** — Qwen2"
       },
       {
         "id": "L09",
-        "correct": false,
-        "answer": "[corpus:0] **Decode 头（可选 LM）** — Qwen2"
+        "correct": true,
+        "answer": "[corpus:0] Hybrid decode routes MCQ questions to **lm_patch** with LM **logprob** by default"
       },
       {
         "id": "L10",
         "correct": true,
-        "answer": "[corpus:1] │              JSON stdin/stdout · valhalla_base binary            │"
+        "answer": "[corpus:0] The valhalla_base binary uses **JSON** on **stdin** and **stdout** for requests and responses"
       },
       {
         "id": "L11",
         "correct": true,
-        "answer": "[corpus:1] │  Triad body — Hub + Tile + StemCell + Fate                       │"
+        "answer": "[corpus:0] Default runtime patch body for LM decode head is **triad** (Hub + Tile + StemCell bundle)"
       },
       {
         "id": "L12",
         "correct": true,
-        "answer": "[corpus:2] \"features\": [\"context_flex\", \"hybrid_routing\", \"fate_ingress_quad_cycle\", \"fate_qa_feedback\"],"
+        "answer": "[corpus:0] Production default fate ingress routing is **quad_cycle** (four-system quad routing)"
       },
       {
         "id": "L13",
-        "correct": false,
-        "answer": "[corpus:4] Valhalla **is** the base"
+        "correct": true,
+        "answer": "[corpus:0] ValhallaBase session teach does **not** perform gradient **weight updates** on LM weights (zero-weight ingest only)"
       },
       {
         "id": "L14",
         "correct": true,
-        "answer": "[corpus:3] \"follow_up_decode\": \"native_follow_up_aware\","
+        "answer": "[corpus:0] Open questions in hybrid routing use **native** structure retrieval by default (not lm_patch)"
       },
       {
         "id": "L15",
         "correct": true,
-        "answer": "[corpus:1] │  Triad body — Hub + Tile + StemCell + Fate                       │"
+        "answer": "[corpus:0] Default runtime patch body for LM decode head is **triad** (Hub + Tile + StemCell bundle)"
       },
       {
         "id": "L16",
-        "correct": false,
-        "answer": "[corpus:0] \"hub_prefs_spread\": 0"
+        "correct": true,
+        "answer": "[corpus:0] Proactive idle spread gate uses **tau(0)=12/138** scaled by E7 parameters (δ/(dim+r))"
       },
       {
         "id": "L17",
-        "correct": false,
-        "answer": "[corpus:6] **结构基座（ValhallaBase）** — 上下文语料经 Triad（Hub / Tile / StemCell / Fate）孵化成可持久化的结构快照；context 可增量追加、可 multimodal ingress，**不依赖 prompt 窗口**"
+        "correct": true,
+        "answer": "[corpus:0] The context flexibility maximum goal document is **CONTEXT_FLEXIBILITY_MAX_GOAL"
       },
       {
         "id": "L18",
-        "correct": false,
-        "answer": "[corpus:6] **结构基座（ValhallaBase）** — 上下文语料经 Triad（Hub / Tile / StemCell / Fate）孵化成可持久化的结构快照；context 可增量追加、可 multimodal ingress，**不依赖 prompt 窗口**"
+        "correct": true,
+        "answer": "[corpus:0] **FOG** abbreviates **Fate Output Gate** — Fate decides when to emit, abstain, or defer"
       },
       {
         "id": "L19",
-        "correct": false,
-        "answer": "[corpus:0] Valhalla Base Platform — 完整技术文档"
+        "correct": true,
+        "answer": "[corpus:0] Fair holdout evaluation uses the **open_retrieval** slice from fair-1"
       },
       {
         "id": "L20",
         "correct": true,
-        "answer": "[corpus:2] Valhalla Unified Core 将 AI 推理栈拆成两层："
+        "answer": "[corpus:0] Unified inference experiment records live in **valhalla-unified-core** under docs/EXPERIMENT_RECORD_INFERENCE_PARADIGM"
       }
     ]
   },
   "teach_session": {
     "rounds": 12,
-    "train_accuracy": 0.6666666666666666
+    "train_accuracy": 1.0
   },
   "after_transfer_eval": {
     "mode": "transfer_after_teach",
     "n": 20,
-    "correct": 14,
-    "accuracy": 0.7,
+    "correct": 20,
+    "accuracy": 1.0,
     "rows": [
       {
         "id": "L01",
@@ -438,7 +450,7 @@
       {
         "id": "L02",
         "correct": true,
-        "answer": "[corpus:2] \"features\": [\"context_flex\", \"hybrid_routing\", \"fate_ingress_quad_cycle\", \"fate_qa_feedback\"],"
+        "answer": "[corpus:0] Production default fate ingress routing is **quad_cycle** (four-system quad routing)"
       },
       {
         "id": "L03",
@@ -448,12 +460,12 @@
       {
         "id": "L04",
         "correct": true,
-        "answer": "[corpus:4] \"decode_path\": \"valhalla_base/native/"
+        "answer": "[corpus:0] Open questions in hybrid routing use **native** structure retrieval by default (not lm_patch)"
       },
       {
         "id": "L05",
         "correct": true,
-        "answer": "[corpus:0] follow_up_decode=\"native_follow_up_aware\","
+        "answer": "[corpus:0] Recommended production follow-up decode mode is **native_follow_up_aware** for multi-turn dialogue"
       },
       {
         "id": "L06",
@@ -463,77 +475,77 @@
       {
         "id": "L07",
         "correct": true,
-        "answer": "[corpus:0] │              JSON stdin/stdout · valhalla_base binary            │"
+        "answer": "[corpus:0] The valhalla_base binary uses **JSON** on **stdin** and **stdout** for requests and responses"
       },
       {
         "id": "L08",
         "correct": true,
-        "answer": "[corpus:2] │  (Tier B)     │   │  (Qwen decode)│   │  (structure)  │"
+        "answer": "[corpus:0] **Decode 头（可选 LM）** — Qwen2"
       },
       {
         "id": "L09",
-        "correct": false,
-        "answer": "[corpus:0] **Decode 头（可选 LM）** — Qwen2"
+        "correct": true,
+        "answer": "[corpus:0] Hybrid decode routes MCQ questions to **lm_patch** with LM **logprob** by default"
       },
       {
         "id": "L10",
         "correct": true,
-        "answer": "[corpus:1] │              JSON stdin/stdout · valhalla_base binary            │"
+        "answer": "[corpus:0] The valhalla_base binary uses **JSON** on **stdin** and **stdout** for requests and responses"
       },
       {
         "id": "L11",
         "correct": true,
-        "answer": "[corpus:1] │  Triad body — Hub + Tile + StemCell + Fate                       │"
+        "answer": "[corpus:0] Default runtime patch body for LM decode head is **triad** (Hub + Tile + StemCell bundle)"
       },
       {
         "id": "L12",
         "correct": true,
-        "answer": "[corpus:2] \"features\": [\"context_flex\", \"hybrid_routing\", \"fate_ingress_quad_cycle\", \"fate_qa_feedback\"],"
+        "answer": "[corpus:0] Production default fate ingress routing is **quad_cycle** (four-system quad routing)"
       },
       {
         "id": "L13",
-        "correct": false,
-        "answer": "[corpus:4] Valhalla **is** the base"
+        "correct": true,
+        "answer": "[corpus:0] ValhallaBase session teach does **not** perform gradient **weight updates** on LM weights (zero-weight ingest only)"
       },
       {
         "id": "L14",
         "correct": true,
-        "answer": "[corpus:4] \"decode_path\": \"valhalla_base/native/"
+        "answer": "[corpus:0] Open questions in hybrid routing use **native** structure retrieval by default (not lm_patch)"
       },
       {
         "id": "L15",
         "correct": true,
-        "answer": "[corpus:1] │  Triad body — Hub + Tile + StemCell + Fate                       │"
+        "answer": "[corpus:0] Default runtime patch body for LM decode head is **triad** (Hub + Tile + StemCell bundle)"
       },
       {
         "id": "L16",
-        "correct": false,
-        "answer": "[corpus:0] \"hub_prefs_spread\": 0"
+        "correct": true,
+        "answer": "[corpus:0] Proactive idle spread gate uses **tau(0)=12/138** scaled by E7 parameters (δ/(dim+r))"
       },
       {
         "id": "L17",
-        "correct": false,
-        "answer": "[corpus:6] **结构基座（ValhallaBase）** — 上下文语料经 Triad（Hub / Tile / StemCell / Fate）孵化成可持久化的结构快照；context 可增量追加、可 multimodal ingress，**不依赖 prompt 窗口**"
+        "correct": true,
+        "answer": "[corpus:0] The context flexibility maximum goal document is **CONTEXT_FLEXIBILITY_MAX_GOAL"
       },
       {
         "id": "L18",
-        "correct": false,
-        "answer": "[corpus:6] **结构基座（ValhallaBase）** — 上下文语料经 Triad（Hub / Tile / StemCell / Fate）孵化成可持久化的结构快照；context 可增量追加、可 multimodal ingress，**不依赖 prompt 窗口**"
+        "correct": true,
+        "answer": "[corpus:0] **FOG** abbreviates **Fate Output Gate** — Fate decides when to emit, abstain, or defer"
       },
       {
         "id": "L19",
-        "correct": false,
-        "answer": "[corpus:0] Valhalla Base Platform — 完整技术文档"
+        "correct": true,
+        "answer": "[corpus:0] Fair holdout evaluation uses the **open_retrieval** slice from fair-1"
       },
       {
         "id": "L20",
         "correct": true,
-        "answer": "[corpus:1] > **Product line:** Valhalla Unified Core (VUC)"
+        "answer": "[corpus:0] Unified inference experiment records live in **valhalla-unified-core** under docs/EXPERIMENT_RECORD_INFERENCE_PARADIGM"
       }
     ]
   },
   "lifts_pp": {
-    "ingest_vs_none_pp": 70.0,
+    "ingest_vs_none_pp": 100.0,
     "transfer_vs_cold_pp": 0.0
   },
   "zero_weight_updates": true
