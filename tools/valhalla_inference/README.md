@@ -142,4 +142,7 @@ python3 tools/valhalla_inference/test_new_paradigm_potential.py
 # 本机 markdown 语料 → teach → 生成对比
 python3 tools/valhalla_inference/run_local_corpus_demo.py \
   --corpus-dir valhalla-unified-core/docs
+
+# Fate 输出门控（emit / abstain / defer）
+python3 tools/valhalla_inference/test_fate_output_gate.py
 ```
