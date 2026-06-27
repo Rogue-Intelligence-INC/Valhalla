@@ -157,6 +157,10 @@ python3 tools/valhalla_inference/run_confidence_report.py
 # 主动 Fate — 全量 fair holdout（--fair-limit 0 = 全部 open_retrieval）
 python3 tools/valhalla_inference/test_proactive_fate_v2.py --fair-limit 0
 
+# 跨语言同核心（不切换栈）+ 外部 holdout
+python3 tools/valhalla_inference/test_crosslang_core_unified.py
+python3 tools/valhalla_inference/test_external_holdout.py
+
 # Fate 输出门控（emit / abstain / defer）
 python3 tools/valhalla_inference/test_fate_output_gate.py
 ```

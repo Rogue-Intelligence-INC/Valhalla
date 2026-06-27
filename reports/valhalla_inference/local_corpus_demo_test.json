@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-26T23:02:03.507521+00:00",
+  "timestamp": "2026-06-27T22:28:46.707207+00:00",
   "protocol": "local-corpus-demo-v1",
   "corpus_meta": {
     "files": {
@@ -92,11 +92,121 @@
         "qwen",
         "qwen2.5"
       ]
+    },
+    {
+      "id": "L09",
+      "text": "What does hybrid decode use for MCQ questions by default?",
+      "reference_answer": "lm_patch",
+      "keywords": [
+        "lm_patch",
+        "logprob"
+      ]
+    },
+    {
+      "id": "L10",
+      "text": "What is the valhalla_base binary stdin/stdout format?",
+      "reference_answer": "JSON",
+      "keywords": [
+        "json"
+      ]
+    },
+    {
+      "id": "L11",
+      "text": "What incubation component runs Hub Tile and StemCell in parallel?",
+      "reference_answer": "Triad",
+      "keywords": [
+        "triad"
+      ]
+    },
+    {
+      "id": "L12",
+      "text": "What is the default fate ingress routing mode in production?",
+      "reference_answer": "quad_cycle",
+      "keywords": [
+        "quad_cycle",
+        "quad cycle"
+      ]
+    },
+    {
+      "id": "L13",
+      "text": "Does ValhallaBase update LM weights during session teach?",
+      "reference_answer": "no",
+      "keywords": [
+        "no",
+        "zero",
+        "without",
+        "not update",
+        "no gradient"
+      ]
+    },
+    {
+      "id": "L14",
+      "text": "What decode mode is used for open questions in hybrid routing?",
+      "reference_answer": "native",
+      "keywords": [
+        "native",
+        "structure"
+      ]
+    },
+    {
+      "id": "L15",
+      "text": "What patch body default is used for LM runtime patch?",
+      "reference_answer": "triad",
+      "keywords": [
+        "triad"
+      ]
+    },
+    {
+      "id": "L16",
+      "text": "What is the proactive spread gate derived from E7 parameters?",
+      "reference_answer": "tau",
+      "keywords": [
+        "tau",
+        "12/138",
+        "spread",
+        "τ"
+      ]
+    },
+    {
+      "id": "L17",
+      "text": "What file documents the context flexibility maximum goal?",
+      "reference_answer": "CONTEXT_FLEXIBILITY_MAX_GOAL",
+      "keywords": [
+        "context_flexibility",
+        "max_goal"
+      ]
+    },
+    {
+      "id": "L18",
+      "text": "What is the Fate Output Gate abbreviated as?",
+      "reference_answer": "FOG",
+      "keywords": [
+        "fog",
+        "fate output gate"
+      ]
+    },
+    {
+      "id": "L19",
+      "text": "What benchmark slice is used for fair holdout eval?",
+      "reference_answer": "open_retrieval",
+      "keywords": [
+        "open_retrieval",
+        "open retrieval"
+      ]
+    },
+    {
+      "id": "L20",
+      "text": "What repository hosts the unified inference experiment record?",
+      "reference_answer": "valhalla-unified-core",
+      "keywords": [
+        "valhalla-unified-core",
+        "unified core"
+      ]
     }
   ],
   "before_no_local_corpus": {
     "mode": "no_local_corpus",
-    "n": 8,
+    "n": 20,
     "correct": 0,
     "accuracy": 0.0,
     "rows": [
@@ -139,14 +249,74 @@
         "id": "L08",
         "correct": false,
         "answer": "[corpus:0] The capital of France is Paris"
+      },
+      {
+        "id": "L09",
+        "correct": false,
+        "answer": "[corpus:1] Water boils at 100 degrees Celsius"
+      },
+      {
+        "id": "L10",
+        "correct": false,
+        "answer": "[corpus:0] The capital of France is Paris"
+      },
+      {
+        "id": "L11",
+        "correct": false,
+        "answer": "[corpus:1] Water boils at 100 degrees Celsius"
+      },
+      {
+        "id": "L12",
+        "correct": false,
+        "answer": "[corpus:0] The capital of France is Paris"
+      },
+      {
+        "id": "L13",
+        "correct": false,
+        "answer": "[corpus:1] Water boils at 100 degrees Celsius"
+      },
+      {
+        "id": "L14",
+        "correct": false,
+        "answer": "[corpus:1] Water boils at 100 degrees Celsius"
+      },
+      {
+        "id": "L15",
+        "correct": false,
+        "answer": "[corpus:1] Water boils at 100 degrees Celsius"
+      },
+      {
+        "id": "L16",
+        "correct": false,
+        "answer": "[corpus:0] The capital of France is Paris"
+      },
+      {
+        "id": "L17",
+        "correct": false,
+        "answer": "[corpus:0] The capital of France is Paris"
+      },
+      {
+        "id": "L18",
+        "correct": false,
+        "answer": "[corpus:0] The capital of France is Paris"
+      },
+      {
+        "id": "L19",
+        "correct": false,
+        "answer": "[corpus:1] Water boils at 100 degrees Celsius"
+      },
+      {
+        "id": "L20",
+        "correct": false,
+        "answer": "[corpus:0] The capital of France is Paris"
       }
     ]
   },
   "cold_targeted_ingest": {
     "mode": "cold_targeted",
-    "n": 8,
-    "correct": 8,
-    "accuracy": 1.0,
+    "n": 20,
+    "correct": 14,
+    "accuracy": 0.7,
     "rows": [
       {
         "id": "L01",
@@ -166,7 +336,7 @@
       {
         "id": "L04",
         "correct": true,
-        "answer": "[corpus:5] \"decode_path\": \"valhalla_base/native/"
+        "answer": "[corpus:4] \"decode_path\": \"valhalla_base/native/"
       },
       {
         "id": "L05",
@@ -187,6 +357,66 @@
         "id": "L08",
         "correct": true,
         "answer": "[corpus:2] │  (Tier B)     │   │  (Qwen decode)│   │  (structure)  │"
+      },
+      {
+        "id": "L09",
+        "correct": false,
+        "answer": "[corpus:0] **Decode 头（可选 LM）** — Qwen2"
+      },
+      {
+        "id": "L10",
+        "correct": true,
+        "answer": "[corpus:1] │              JSON stdin/stdout · valhalla_base binary            │"
+      },
+      {
+        "id": "L11",
+        "correct": true,
+        "answer": "[corpus:1] │  Triad body — Hub + Tile + StemCell + Fate                       │"
+      },
+      {
+        "id": "L12",
+        "correct": true,
+        "answer": "[corpus:2] \"features\": [\"context_flex\", \"hybrid_routing\", \"fate_ingress_quad_cycle\", \"fate_qa_feedback\"],"
+      },
+      {
+        "id": "L13",
+        "correct": false,
+        "answer": "[corpus:4] Valhalla **is** the base"
+      },
+      {
+        "id": "L14",
+        "correct": true,
+        "answer": "[corpus:3] \"follow_up_decode\": \"native_follow_up_aware\","
+      },
+      {
+        "id": "L15",
+        "correct": true,
+        "answer": "[corpus:1] │  Triad body — Hub + Tile + StemCell + Fate                       │"
+      },
+      {
+        "id": "L16",
+        "correct": false,
+        "answer": "[corpus:0] \"hub_prefs_spread\": 0"
+      },
+      {
+        "id": "L17",
+        "correct": false,
+        "answer": "[corpus:6] **结构基座（ValhallaBase）** — 上下文语料经 Triad（Hub / Tile / StemCell / Fate）孵化成可持久化的结构快照；context 可增量追加、可 multimodal ingress，**不依赖 prompt 窗口**"
+      },
+      {
+        "id": "L18",
+        "correct": false,
+        "answer": "[corpus:6] **结构基座（ValhallaBase）** — 上下文语料经 Triad（Hub / Tile / StemCell / Fate）孵化成可持久化的结构快照；context 可增量追加、可 multimodal ingress，**不依赖 prompt 窗口**"
+      },
+      {
+        "id": "L19",
+        "correct": false,
+        "answer": "[corpus:0] Valhalla Base Platform — 完整技术文档"
+      },
+      {
+        "id": "L20",
+        "correct": true,
+        "answer": "[corpus:2] Valhalla Unified Core 将 AI 推理栈拆成两层："
       }
     ]
   },
@@ -196,9 +426,9 @@
   },
   "after_transfer_eval": {
     "mode": "transfer_after_teach",
-    "n": 8,
-    "correct": 8,
-    "accuracy": 1.0,
+    "n": 20,
+    "correct": 14,
+    "accuracy": 0.7,
     "rows": [
       {
         "id": "L01",
@@ -218,7 +448,7 @@
       {
         "id": "L04",
         "correct": true,
-        "answer": "[corpus:5] \"decode_path\": \"valhalla_base/native/"
+        "answer": "[corpus:4] \"decode_path\": \"valhalla_base/native/"
       },
       {
         "id": "L05",
@@ -239,11 +469,71 @@
         "id": "L08",
         "correct": true,
         "answer": "[corpus:2] │  (Tier B)     │   │  (Qwen decode)│   │  (structure)  │"
+      },
+      {
+        "id": "L09",
+        "correct": false,
+        "answer": "[corpus:0] **Decode 头（可选 LM）** — Qwen2"
+      },
+      {
+        "id": "L10",
+        "correct": true,
+        "answer": "[corpus:1] │              JSON stdin/stdout · valhalla_base binary            │"
+      },
+      {
+        "id": "L11",
+        "correct": true,
+        "answer": "[corpus:1] │  Triad body — Hub + Tile + StemCell + Fate                       │"
+      },
+      {
+        "id": "L12",
+        "correct": true,
+        "answer": "[corpus:2] \"features\": [\"context_flex\", \"hybrid_routing\", \"fate_ingress_quad_cycle\", \"fate_qa_feedback\"],"
+      },
+      {
+        "id": "L13",
+        "correct": false,
+        "answer": "[corpus:4] Valhalla **is** the base"
+      },
+      {
+        "id": "L14",
+        "correct": true,
+        "answer": "[corpus:4] \"decode_path\": \"valhalla_base/native/"
+      },
+      {
+        "id": "L15",
+        "correct": true,
+        "answer": "[corpus:1] │  Triad body — Hub + Tile + StemCell + Fate                       │"
+      },
+      {
+        "id": "L16",
+        "correct": false,
+        "answer": "[corpus:0] \"hub_prefs_spread\": 0"
+      },
+      {
+        "id": "L17",
+        "correct": false,
+        "answer": "[corpus:6] **结构基座（ValhallaBase）** — 上下文语料经 Triad（Hub / Tile / StemCell / Fate）孵化成可持久化的结构快照；context 可增量追加、可 multimodal ingress，**不依赖 prompt 窗口**"
+      },
+      {
+        "id": "L18",
+        "correct": false,
+        "answer": "[corpus:6] **结构基座（ValhallaBase）** — 上下文语料经 Triad（Hub / Tile / StemCell / Fate）孵化成可持久化的结构快照；context 可增量追加、可 multimodal ingress，**不依赖 prompt 窗口**"
+      },
+      {
+        "id": "L19",
+        "correct": false,
+        "answer": "[corpus:0] Valhalla Base Platform — 完整技术文档"
+      },
+      {
+        "id": "L20",
+        "correct": true,
+        "answer": "[corpus:1] > **Product line:** Valhalla Unified Core (VUC)"
       }
     ]
   },
   "lifts_pp": {
-    "ingest_vs_none_pp": 100.0,
+    "ingest_vs_none_pp": 70.0,
     "transfer_vs_cold_pp": 0.0
   },
   "zero_weight_updates": true

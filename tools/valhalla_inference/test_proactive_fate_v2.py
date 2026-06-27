@@ -123,13 +123,25 @@ def kw_hit(text: str | None, keywords: list[str]) -> bool:
 
 def warmup_pair(p: dict, qtext: str, kws: list[str]) -> list[str]:
     ref = str(p.get("reference_answer") or "").strip()
+    cjk = any(ord(c) > 127 for c in qtext)
     if kws:
-        follow = f"Does the context say anything about {kws[0]}?"
+        follow = (
+            f"上下文中是否提到{kws[0]}？"
+            if cjk
+            else f"Does the context say anything about {kws[0]}?"
+        )
     elif ref:
-        token = next((w for w in re.split(r"\W+", ref) if len(w) > 3), ref.split()[0])
-        follow = f"Does the context mention {token}?"
+        if cjk:
+            follow = f"上下文中是否提到{ref}？"
+        else:
+            token = next((w for w in re.split(r"\W+", ref) if len(w) > 3), ref.split()[0])
+            follow = f"Does the context mention {token}?"
     else:
-        follow = "What else does the provided context state about this?"
+        follow = (
+            "提供的上下文还说了什么？"
+            if cjk
+            else "What else does the provided context state about this?"
+        )
     return [qtext, follow]
 
 

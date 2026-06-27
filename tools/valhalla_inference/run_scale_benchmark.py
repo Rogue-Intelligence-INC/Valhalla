@@ -66,15 +66,23 @@ def encode_text(content: str) -> list[float]:
 
 
 def corpus_for_prompt(prompt: dict, corpus: list[str], k: int = 8) -> list[str]:
-    ref = str(prompt.get("reference_answer", "")).lower()
-    kws = [str(x).lower() for x in (prompt.get("keywords") or []) if x]
+    ref = str(prompt.get("reference_answer", "")).strip()
+    kws = [str(x).strip() for x in (prompt.get("keywords") or []) if x]
     scored: list[tuple[int, str]] = []
     for line in corpus:
         low = line.lower()
         score = 0
-        if ref and len(ref) >= 2 and ref in low:
+        if ref and len(ref) >= 1 and ref in line:
             score += 10
-        score += sum(1 for kw in kws if kw and kw in low)
+        elif ref and len(ref) >= 2 and ref.lower() in low:
+            score += 10
+        for kw in kws:
+            if not kw:
+                continue
+            if kw in line:
+                score += 3
+            elif kw.lower() in low:
+                score += 1
         if score > 0:
             scored.append((score, line))
     scored.sort(key=lambda x: -x[0])

@@ -366,6 +366,45 @@ def analyze_proactive_v2(doc: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def analyze_crosslang(doc: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {"protocol": doc.get("protocol"), "metrics": []}
+    facts = doc.get("facts") or []
+    all_rows = [row for f in facts for row in (f.get("rows") or [])]
+    if all_rows:
+        out["metrics"].append(
+            metric("crosslang_accuracy", proportion_ci_from_bools([bool(r.get("correct")) for r in all_rows]))
+        )
+    if facts:
+        unified = [bool(f.get("core_unified")) for f in facts]
+        out["metrics"].append(metric("core_unified_fact_rate", proportion_ci_from_bools(unified)))
+        line_ok = [bool(f.get("line_agreement")) for f in facts]
+        out["metrics"].append(metric("line_agreement_rate", proportion_ci_from_bools(line_ok)))
+    m = doc.get("metrics") or {}
+    if m.get("CCU") is not None:
+        ccu = float(m["CCU"])
+        out["metrics"].append(
+            index_metric(
+                "CCU",
+                {"point": ccu, "ci95_lo": ccu, "ci95_hi": ccu, "method": "point_from_report", "note": "6-fact suite"},
+            )
+        )
+    return out
+
+
+def analyze_external_holdout(doc: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {"protocol": doc.get("protocol"), "metrics": []}
+    rows = doc.get("rows") or []
+    if rows:
+        out["metrics"].append(
+            metric("external_holdout_accuracy", proportion_ci_from_bools([bool(r.get("correct")) for r in rows]))
+        )
+    elif doc.get("n"):
+        out["metrics"].append(
+            metric("external_holdout_accuracy", wilson_ci(int(doc.get("correct", 0)), int(doc["n"])))
+        )
+    return out
+
+
 def analyze_context_drift(doc: dict[str, Any], *, extended: bool = False) -> dict[str, Any]:
     out: dict[str, Any] = {"protocol": doc.get("protocol"), "metrics": [], "extended": extended}
     arm = (doc.get("arms") or {}).get("production") or {}
@@ -426,6 +465,8 @@ def build_report(reports_dir: Path) -> dict[str, Any]:
         ("Context-drift", reports_dir / "context_topic_drift_test.json", analyze_context_drift),
         ("Context-drift-extended", reports_dir / "context_topic_drift_extended_test.json", lambda d: analyze_context_drift(d, extended=True)),
         ("Local-corpus", reports_dir / "local_corpus_demo_test.json", analyze_local_corpus),
+        ("Crosslang-core", reports_dir / "crosslang_core_unified_test.json", analyze_crosslang),
+        ("External-holdout", reports_dir / "external_holdout_test.json", analyze_external_holdout),
     ]
 
     missing_files: list[str] = []
@@ -473,6 +514,8 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         ("vs Transformer", "traditional_lm_rag", "TPI-v2"),
         ("FOG quality", "fog_emitted_precision", "FOG-v2"),
         ("Proactive", "UP_on_topic_given_emit", "Proactive-v2"),
+        ("Crosslang", "crosslang_accuracy", "Crosslang-core"),
+        ("External", "external_holdout_accuracy", "External-holdout"),
         ("Dialogue", "extended_30turn_on_topic", "Context-drift-extended"),
     ]
     sec_by_title = {s["title"]: s for s in report.get("sections") or []}

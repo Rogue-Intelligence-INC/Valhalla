@@ -1,0 +1,116 @@
+{
+  "timestamp": "2026-06-27T22:30:34.307245+00:00",
+  "protocol": "external-holdout-v1",
+  "source": "tools/valhalla_model_bridge/external_domain_prompts.json",
+  "n": 15,
+  "correct": 12,
+  "accuracy": 0.8,
+  "rows": [
+    {
+      "id": "GSM8K_01",
+      "domain": "math_word_problem",
+      "correct": false,
+      "answer": "[corpus:6] Binary search requires a sorted array and halves the search interval each step",
+      "context_lines": 8
+    },
+    {
+      "id": "GSM8K_02",
+      "domain": "math_word_problem",
+      "correct": false,
+      "answer": "[corpus:3] The French Revolution began in 1789 with the storming of the Bastille",
+      "context_lines": 4
+    },
+    {
+      "id": "MMLU_PHYSICS",
+      "domain": "physics",
+      "correct": true,
+      "answer": "[corpus:0] Newton's second law states force equals mass times acceleration F equals m a",
+      "context_lines": 8
+    },
+    {
+      "id": "MMLU_BIO",
+      "domain": "biology",
+      "correct": true,
+      "answer": "[corpus:0] Mitochondria are organelles that produce ATP through cellular respiration",
+      "context_lines": 1
+    },
+    {
+      "id": "MMLU_CHEM",
+      "domain": "chemistry",
+      "correct": true,
+      "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+      "context_lines": 1
+    },
+    {
+      "id": "TRIVIA_GEO",
+      "domain": "geography",
+      "correct": true,
+      "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
+      "context_lines": 1
+    },
+    {
+      "id": "TRIVIA_HIST",
+      "domain": "history",
+      "correct": true,
+      "answer": "[corpus:0] World War Two ended in Europe on May 8 1945 with Germany's unconditional surrender",
+      "context_lines": 2
+    },
+    {
+      "id": "MMLU_CS",
+      "domain": "computer_science",
+      "correct": true,
+      "answer": "[corpus:0] Binary search requires a sorted array and halves the search interval each step",
+      "context_lines": 1
+    },
+    {
+      "id": "MMLU_ECON",
+      "domain": "economics",
+      "correct": true,
+      "answer": "[corpus:0] Supply increases when price rises according to basic microeconomic theory",
+      "context_lines": 3
+    },
+    {
+      "id": "TRIVIA_LIT",
+      "domain": "literature",
+      "correct": true,
+      "answer": "[corpus:0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England",
+      "context_lines": 1
+    },
+    {
+      "id": "MMLU_MED",
+      "domain": "medicine",
+      "correct": true,
+      "answer": "[corpus:0] Scurvy is caused by deficiency of vitamin C also called ascorbic acid",
+      "context_lines": 1
+    },
+    {
+      "id": "ZH_GEO",
+      "domain": "chinese_geography",
+      "correct": false,
+      "answer": "[corpus:4] DNA uses four nucleotide bases adenine thymine guanine and cytosine",
+      "context_lines": 8
+    },
+    {
+      "id": "ZH_HIST",
+      "domain": "chinese_history",
+      "correct": true,
+      "answer": "[corpus:0] 秦朝是中国历史上第一个统一的中央集权封建王朝",
+      "context_lines": 1
+    },
+    {
+      "id": "MMLU_ASTRONOMY",
+      "domain": "astronomy",
+      "correct": true,
+      "answer": "[corpus:0] Mercury is the smallest planet and closest to the Sun in our solar system",
+      "context_lines": 1
+    },
+    {
+      "id": "MMLU_MATH",
+      "domain": "math",
+      "correct": true,
+      "answer": "[corpus:0] 17 multiplied by 23 equals 391",
+      "context_lines": 1
+    }
+  ],
+  "verdict": "EXTERNAL_HOLDOUT_VIABLE"
+}

@@ -1,0 +1,154 @@
+{
+  "meta": {
+    "description": "External-domain test prompts (no Valhalla). Sources: GSM8K, MMLU-style, TriviaQA-style, C-Eval-style public benchmarks.",
+    "version": "2026-06-16"
+  },
+  "corpus": [
+    "Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts.",
+    "World War Two ended in Europe on May 8 1945 with Germany's unconditional surrender.",
+    "The capital city of Australia is Canberra not Sydney or Melbourne.",
+    "Newton's second law states force equals mass times acceleration F equals m a.",
+    "DNA uses four nucleotide bases adenine thymine guanine and cytosine.",
+    "Supply increases when price rises according to basic microeconomic theory.",
+    "Binary search requires a sorted array and halves the search interval each step.",
+    "Scurvy is caused by deficiency of vitamin C also called ascorbic acid.",
+    "The Yangtze River originates from glaciers on the Tibetan Plateau in China.",
+    "William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England.",
+    "Water boils at 100 degrees Celsius at standard atmospheric pressure.",
+    "The Pacific Ocean is the largest ocean covering more area than all land combined.",
+    "Python list comprehension syntax builds lists from iterables with optional filters.",
+    "The French Revolution began in 1789 with the storming of the Bastille.",
+    "Mitochondria are organelles that produce ATP through cellular respiration.",
+    "Euler's formula e to the i pi plus one equals zero links five constants.",
+    "Inflation means a sustained increase in the general price level of goods.",
+    "Mercury is the smallest planet and closest to the Sun in our solar system.",
+    "光合作用在叶绿体中将二氧化碳和水转化为葡萄糖。",
+    "1945年8月15日日本宣布无条件投降标志二战结束。",
+    "长城是中国古代为防御北方游牧民族而修建的军事工程。",
+    "勾股定理：直角三角形斜边平方等于两直角边平方之和。",
+    "秦朝是中国历史上第一个统一的中央集权封建王朝。",
+    "17 multiplied by 23 equals 391."
+  ],
+  "prompts": [
+    {
+      "id": "GSM8K_01",
+      "domain": "math_word_problem",
+      "source": "openai/gsm8k (test split, public example)",
+      "text": "Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May? Show your reasoning and give the final number.",
+      "reference_answer": "72",
+      "keywords": ["48", "24", "72", "half"]
+    },
+    {
+      "id": "GSM8K_02",
+      "domain": "math_word_problem",
+      "source": "openai/gsm8k (classic Janet ducks example)",
+      "text": "Janet's ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers' market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers' market?",
+      "reference_answer": "18",
+      "keywords": ["9", "18", "16", "3", "4", "2"]
+    },
+    {
+      "id": "MMLU_PHYSICS",
+      "domain": "physics",
+      "source": "MMLU high_school_physics style",
+      "text": "State Newton's second law of motion in one sentence and write the formula.",
+      "reference_answer": "F = ma",
+      "keywords": ["force", "mass", "acceleration", "f", "ma", "newton"]
+    },
+    {
+      "id": "MMLU_BIO",
+      "domain": "biology",
+      "source": "MMLU high_school_biology style",
+      "text": "What is the main function of mitochondria in eukaryotic cells? Answer in one or two sentences.",
+      "reference_answer": "ATP / energy production",
+      "keywords": ["atp", "energy", "respiration", "powerhouse"]
+    },
+    {
+      "id": "MMLU_CHEM",
+      "domain": "chemistry",
+      "source": "MMLU high_school_chemistry style",
+      "text": "At standard atmospheric pressure, at what temperature in Celsius does pure water boil?",
+      "reference_answer": "100",
+      "keywords": ["100", "celsius", "boil", "degree"]
+    },
+    {
+      "id": "TRIVIA_GEO",
+      "domain": "geography",
+      "source": "TriviaQA / general knowledge",
+      "text": "What is the capital city of Australia?",
+      "reference_answer": "Canberra",
+      "keywords": ["canberra"]
+    },
+    {
+      "id": "TRIVIA_HIST",
+      "domain": "history",
+      "source": "MMLU high_school_us_history style",
+      "text": "In which year did World War II end?",
+      "reference_answer": "1945",
+      "keywords": ["1945", "nineteen"]
+    },
+    {
+      "id": "MMLU_CS",
+      "domain": "computer_science",
+      "source": "MMLU college_computer_science style",
+      "text": "Explain binary search in two sentences. What precondition must the data satisfy?",
+      "reference_answer": "sorted array",
+      "keywords": ["sorted", "binary", "search", "half", "log"]
+    },
+    {
+      "id": "MMLU_ECON",
+      "domain": "economics",
+      "source": "MMLU high_school_microeconomics style",
+      "text": "According to the law of supply, what happens to quantity supplied when price increases, ceteris paribus?",
+      "reference_answer": "increases",
+      "keywords": ["increase", "rise", "higher", "more"]
+    },
+    {
+      "id": "TRIVIA_LIT",
+      "domain": "literature",
+      "source": "TriviaQA / general knowledge",
+      "text": "Who wrote the play Romeo and Juliet?",
+      "reference_answer": "William Shakespeare",
+      "keywords": ["shakespeare", "william"]
+    },
+    {
+      "id": "MMLU_MED",
+      "domain": "medicine",
+      "source": "MMLU clinical_knowledge style",
+      "text": "Scurvy is caused by a deficiency of which vitamin?",
+      "reference_answer": "Vitamin C",
+      "keywords": ["vitamin c", "ascorbic"]
+    },
+    {
+      "id": "ZH_GEO",
+      "domain": "chinese_geography",
+      "source": "C-Eval / 中国地理常识",
+      "text": "长江发源于哪个高原？请简要回答。",
+      "reference_answer": "青藏高原",
+      "keywords": ["青藏", "高原", "唐古拉"]
+    },
+    {
+      "id": "ZH_HIST",
+      "domain": "chinese_history",
+      "source": "C-Eval / 中国历史常识",
+      "text": "中国历史上第一个统一的中央集权封建王朝是哪个？",
+      "reference_answer": "秦朝",
+      "keywords": ["秦", "秦朝", "秦始皇"]
+    },
+    {
+      "id": "MMLU_ASTRONOMY",
+      "domain": "astronomy",
+      "source": "MMLU astronomy style",
+      "text": "Which planet is closest to the Sun in our solar system?",
+      "reference_answer": "Mercury",
+      "keywords": ["mercury"]
+    },
+    {
+      "id": "MMLU_MATH",
+      "domain": "math",
+      "source": "MMLU elementary_mathematics style",
+      "text": "What is 17 multiplied by 23? Show only the final integer.",
+      "reference_answer": "391",
+      "keywords": ["391"]
+    }
+  ]
+}

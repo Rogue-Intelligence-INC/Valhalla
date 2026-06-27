@@ -95,6 +95,78 @@ LOCAL_EVAL: list[dict] = [
         "reference_answer": "Qwen2.5",
         "keywords": ["qwen", "qwen2.5"],
     },
+    {
+        "id": "L09",
+        "text": "What does hybrid decode use for MCQ questions by default?",
+        "reference_answer": "lm_patch",
+        "keywords": ["lm_patch", "logprob"],
+    },
+    {
+        "id": "L10",
+        "text": "What is the valhalla_base binary stdin/stdout format?",
+        "reference_answer": "JSON",
+        "keywords": ["json"],
+    },
+    {
+        "id": "L11",
+        "text": "What incubation component runs Hub Tile and StemCell in parallel?",
+        "reference_answer": "Triad",
+        "keywords": ["triad"],
+    },
+    {
+        "id": "L12",
+        "text": "What is the default fate ingress routing mode in production?",
+        "reference_answer": "quad_cycle",
+        "keywords": ["quad_cycle", "quad cycle"],
+    },
+    {
+        "id": "L13",
+        "text": "Does ValhallaBase update LM weights during session teach?",
+        "reference_answer": "no",
+        "keywords": ["no", "zero", "without", "not update", "no gradient"],
+    },
+    {
+        "id": "L14",
+        "text": "What decode mode is used for open questions in hybrid routing?",
+        "reference_answer": "native",
+        "keywords": ["native", "structure"],
+    },
+    {
+        "id": "L15",
+        "text": "What patch body default is used for LM runtime patch?",
+        "reference_answer": "triad",
+        "keywords": ["triad"],
+    },
+    {
+        "id": "L16",
+        "text": "What is the proactive spread gate derived from E7 parameters?",
+        "reference_answer": "tau",
+        "keywords": ["tau", "12/138", "spread", "τ"],
+    },
+    {
+        "id": "L17",
+        "text": "What file documents the context flexibility maximum goal?",
+        "reference_answer": "CONTEXT_FLEXIBILITY_MAX_GOAL",
+        "keywords": ["context_flexibility", "max_goal"],
+    },
+    {
+        "id": "L18",
+        "text": "What is the Fate Output Gate abbreviated as?",
+        "reference_answer": "FOG",
+        "keywords": ["fog", "fate output gate"],
+    },
+    {
+        "id": "L19",
+        "text": "What benchmark slice is used for fair holdout eval?",
+        "reference_answer": "open_retrieval",
+        "keywords": ["open_retrieval", "open retrieval"],
+    },
+    {
+        "id": "L20",
+        "text": "What repository hosts the unified inference experiment record?",
+        "reference_answer": "valhalla-unified-core",
+        "keywords": ["valhalla-unified-core", "unified core"],
+    },
 ]
 
 

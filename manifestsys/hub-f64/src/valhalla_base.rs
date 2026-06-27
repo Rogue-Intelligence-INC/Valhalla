@@ -818,19 +818,98 @@ fn run_legacy_native_track(
     Ok(rows)
 }
 
+fn is_cjk(c: char) -> bool {
+    ('\u{4e00}'..='\u{9fff}').contains(&c)
+        || ('\u{3040}'..='\u{309f}').contains(&c)
+        || ('\u{30a0}'..='\u{30ff}').contains(&c)
+        || ('\u{ac00}'..='\u{d7a3}').contains(&c)
+}
+
+const PROACTIVE_STOP: &[&str] = &[
+    "the", "what", "does", "context", "about", "which", "that", "this", "from", "with",
+    "have", "been", "were", "when", "where", "would", "could", "should", "does", "say",
+    "anything", "mention", "stated", "based", "conversation", "related", "our",
+];
+
+fn text_tokens(text: &str) -> std::collections::HashSet<String> {
+    use std::collections::HashSet;
+    let mut out = HashSet::new();
+    for w in text.split_whitespace() {
+        let w = w.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase();
+        if w.len() > 2 && !PROACTIVE_STOP.contains(&w.as_str()) {
+            out.insert(w);
+        }
+    }
+    let mut digits = String::new();
+    for c in text.chars() {
+        if c.is_ascii_digit() {
+            digits.push(c);
+        } else if !digits.is_empty() {
+            if digits.len() >= 2 {
+                out.insert(digits.clone());
+            }
+            digits.clear();
+        }
+    }
+    if digits.len() >= 2 {
+        out.insert(digits);
+    }
+    let cjk: Vec<char> = text.chars().filter(|c| is_cjk(*c)).collect();
+    // CJK bigrams only (avoid single-char false positives on mismatch corpora)
+    for w in cjk.windows(2) {
+        out.insert(w.iter().collect());
+    }
+    // Single CJK only when rare/specific (e.g. 秦)
+    if cjk.len() == 1 {
+        out.insert(cjk[0].to_string());
+    }
+    out
+}
+
 fn proactive_overlap_count(line: &str, prior: &[String]) -> usize {
-    let words: Vec<String> = line
-        .split_whitespace()
-        .map(|w| w.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase())
-        .filter(|w| w.len() > 3)
-        .collect();
-    prior
-        .iter()
-        .flat_map(|q| q.split_whitespace())
-        .map(|w| w.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase())
-        .filter(|w| w.len() > 3)
-        .filter(|w| words.iter().any(|lw| lw.contains(w.as_str()) || w.contains(lw.as_str())))
-        .count()
+    let line_set = text_tokens(line);
+    let mut best = 0usize;
+    for p in prior {
+        let prior_set = text_tokens(p);
+        let mut overlap = prior_set.intersection(&line_set).count();
+        overlap += prior_set
+            .iter()
+            .filter(|t| t.chars().any(is_cjk) && line.contains(t.as_str()))
+            .count();
+        best = best.max(overlap);
+    }
+    best
+}
+
+fn dominant_script(prior: &[String]) -> &'static str {
+    let mut cjk = 0usize;
+    let mut latin = 0usize;
+    for p in prior {
+        for c in p.chars() {
+            if is_cjk(c) {
+                cjk += 1;
+            } else if c.is_ascii_alphabetic() {
+                latin += 1;
+            }
+        }
+    }
+    if cjk > latin { "cjk" } else { "latin" }
+}
+
+fn topic_snippet(line: &str) -> String {
+    let cjk: String = line.chars().filter(|c| is_cjk(*c)).take(12).collect();
+    if cjk.chars().count() >= 2 {
+        return cjk;
+    }
+    line.split_whitespace().take(8).collect::<Vec<_>>().join(" ")
+}
+
+fn format_probe_question(topic: &str, prior: &[String]) -> String {
+    if dominant_script(prior) == "cjk" {
+        format!("根据上下文，关于「{topic}」说了什么？")
+    } else {
+        format!("Based on the context, what is stated about: {topic}?")
+    }
 }
 
 fn build_proactive_probe(corpus: &[String], prior: &[String]) -> Option<(String, String, String)> {
@@ -846,10 +925,23 @@ fn build_proactive_probe(corpus: &[String], prior: &[String]) -> Option<(String,
     if overlap == 0 {
         return None;
     }
+    // Require meaningful overlap — single weak token insufficient on distractor corpora.
+    if overlap < 2 {
+        let picked = &corpus[idx];
+        let line_set = text_tokens(picked);
+        let strong = prior.iter().any(|p| {
+            text_tokens(p)
+                .intersection(&line_set)
+                .any(|t| t.len() >= 4 || t.chars().any(is_cjk))
+        });
+        if !strong {
+            return None;
+        }
+    }
     let line = &corpus[idx];
-    let topic: String = line.split_whitespace().take(8).collect::<Vec<_>>().join(" ");
+    let topic = topic_snippet(line);
     let id = format!("proactive_{}", prior.len());
-    let text = format!("Based on the context, what is stated about: {topic}?");
+    let text = format_probe_question(&topic, prior);
     Some((id, text, line.clone()))
 }
 

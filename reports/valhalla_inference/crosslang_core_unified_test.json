@@ -1,0 +1,284 @@
+{
+  "timestamp": "2026-06-27T22:28:22.442943+00:00",
+  "protocol": "crosslang-core-unified-v1",
+  "stack": {
+    "decode": "hybrid",
+    "follow_up_decode": "native_follow_up_aware",
+    "fate_ingress_routing": "quad_cycle",
+    "language_switch": false
+  },
+  "facts": [
+    {
+      "fact_id": "yangtze",
+      "rows": [
+        {
+          "fact_id": "yangtze",
+          "lang": "en",
+          "question": "Where does the Yangtze River originate? Answer briefly.",
+          "answer": "[corpus:0] The Yangtze River originates from glaciers on the Tibetan Plateau in China",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "yangtze",
+          "lang": "zh",
+          "question": "长江发源于哪里？请简要回答。",
+          "answer": "[corpus:0] The Yangtze River originates from glaciers on the Tibetan Plateau in China",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "yangtze",
+          "lang": "fr",
+          "question": "D'où prend sa source le fleuve Yangtsé ? Réponse brève.",
+          "answer": "[corpus:0] The Yangtze River originates from glaciers on the Tibetan Plateau in China",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        }
+      ],
+      "line_agreement": true,
+      "text_agreement": true,
+      "decode_native_all": true,
+      "fate_agreement": true,
+      "all_correct": true,
+      "core_unified": true
+    },
+    {
+      "fact_id": "qin_dynasty",
+      "rows": [
+        {
+          "fact_id": "qin_dynasty",
+          "lang": "en",
+          "question": "Which was the first unified centralised dynasty in Chinese history?",
+          "answer": "[corpus:0] The Qin dynasty was the first unified centralised feudal dynasty in Chinese history",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "qin_dynasty",
+          "lang": "zh",
+          "question": "中国历史上第一个统一的中央集权封建王朝是哪个？",
+          "answer": "[corpus:0] The Qin dynasty was the first unified centralised feudal dynasty in Chinese history",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "qin_dynasty",
+          "lang": "fr",
+          "question": "Quelle dynastie a unifié la Chine en premier ?",
+          "answer": "[corpus:0] The Qin dynasty was the first unified centralised feudal dynasty in Chinese history",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        }
+      ],
+      "line_agreement": true,
+      "text_agreement": true,
+      "decode_native_all": true,
+      "fate_agreement": true,
+      "all_correct": true,
+      "core_unified": true
+    },
+    {
+      "fact_id": "ww2_end",
+      "rows": [
+        {
+          "fact_id": "ww2_end",
+          "lang": "en",
+          "question": "In which year did World War II end?",
+          "answer": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "ww2_end",
+          "lang": "zh",
+          "question": "第二次世界大战在哪一年结束？",
+          "answer": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "ww2_end",
+          "lang": "fr",
+          "question": "En quelle année la Seconde Guerre mondiale s'est-elle terminée ?",
+          "answer": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        }
+      ],
+      "line_agreement": true,
+      "text_agreement": true,
+      "decode_native_all": true,
+      "fate_agreement": true,
+      "all_correct": true,
+      "core_unified": true
+    },
+    {
+      "fact_id": "canberra",
+      "rows": [
+        {
+          "fact_id": "canberra",
+          "lang": "en",
+          "question": "What is the capital of Australia?",
+          "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "canberra",
+          "lang": "zh",
+          "question": "澳大利亚的首都是哪里？",
+          "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "canberra",
+          "lang": "fr",
+          "question": "Quelle est la capitale de l'Australie ?",
+          "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        }
+      ],
+      "line_agreement": true,
+      "text_agreement": true,
+      "decode_native_all": true,
+      "fate_agreement": true,
+      "all_correct": true,
+      "core_unified": true
+    },
+    {
+      "fact_id": "water_boil",
+      "rows": [
+        {
+          "fact_id": "water_boil",
+          "lang": "en",
+          "question": "At standard pressure, at what temperature does water boil in Celsius?",
+          "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "water_boil",
+          "lang": "zh",
+          "question": "标准大气压下水的沸点是多少摄氏度？",
+          "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "water_boil",
+          "lang": "fr",
+          "question": "À quelle température l'eau bout-elle à pression standard (°C) ?",
+          "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        }
+      ],
+      "line_agreement": true,
+      "text_agreement": true,
+      "decode_native_all": true,
+      "fate_agreement": true,
+      "all_correct": true,
+      "core_unified": true
+    },
+    {
+      "fact_id": "solar_terms",
+      "rows": [
+        {
+          "fact_id": "solar_terms",
+          "lang": "en",
+          "question": "How many solar terms are in the traditional Chinese calendar?",
+          "answer": "[corpus:0] There are 24 solar terms in the traditional Chinese calendar",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "solar_terms",
+          "lang": "zh",
+          "question": "一年有多少个节气？",
+          "answer": "[corpus:0] There are 24 solar terms in the traditional Chinese calendar",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        },
+        {
+          "fact_id": "solar_terms",
+          "lang": "fr",
+          "question": "Combien de termes solaires compte le calendrier chinois traditionnel ?",
+          "answer": "[corpus:0] There are 24 solar terms in the traditional Chinese calendar",
+          "correct": true,
+          "decode_path": "valhalla_base/native/pipeline_open",
+          "line_idx": 0,
+          "dominant_fate": 0,
+          "hub_prefs_spread": 0.0
+        }
+      ],
+      "line_agreement": true,
+      "text_agreement": true,
+      "decode_native_all": true,
+      "fate_agreement": true,
+      "all_correct": true,
+      "core_unified": true
+    }
+  ],
+  "metrics": {
+    "CCU": 0.95,
+    "core_unified_facts": "6/6",
+    "accuracy_all_langs": 1.0
+  },
+  "verdict": [
+    "CROSSLANG_CORE_UNIFIED_STRONG"
+  ]
+}
