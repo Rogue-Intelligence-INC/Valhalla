@@ -78,6 +78,7 @@ Env: `VALHALLA_MULTIMODAL_FUSION=1` · `VALHALLA_OPEN_PATCH_BIAS_SCALE=0.15`
 | **Multimodal fusion bench** | `reports/tts_tile_stem_fusion/multimodal_fusion_bench.json` (**PASS** v1.0) |
 | Fair test suite | `reports/fair_benchmark/fair_benchmark_test_20260620_0859.json` |
 | Public mirror | [valhalla-transformer](https://github.com/Rogue-Intelligence-INC/valhalla-transformer) `experiments/hybrid_unified_latest.json` |
+| Stem/Tile structure analysis (2026-06-28) | `reports/valhalla_inference/STEM_TILE_ORGAN_AGGREGATION_ANALYSIS_20260628.md` |
 | Archived pre-2.0 docs | `docs/archive/pre-hybrid-2.0/` |
 
 **Rule**: All percentages in this pack must match a cited JSON row (`correct/total`); do not round headline metrics for marketing.

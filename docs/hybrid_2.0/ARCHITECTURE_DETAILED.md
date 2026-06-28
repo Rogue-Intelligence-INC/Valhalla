@@ -152,6 +152,8 @@ flowchart LR
 | **产物** | `completed_tiles` → `tile_signatures`, `tile_activations`, `tile_count` |
 | **Hybrid 角色** | **MCQ 最佳 body**（22–24/46）；Tile+Fate persistent 轨道 |
 
+**实测聚合（2026-06-28，fair-1.2 语料）：** completed tiles **~10–11** @ 49-line incubation；persistent MCQ tile-only **47.8%** (+19.6pp vs isolated)；`tile_fate_persistent` MCQ **52.17%**。
+
 ### 3.3 StemCell — 细胞结构
 
 **源码**: `manifestsys/stem-cell` · `StemCellComplete`
@@ -163,6 +165,19 @@ flowchart LR
 | **循环** | `process_cells_cycle()` · `evolve(0.5/0.35)` |
 | **产物** | `stem_organ_clusters`, `stem_cluster_signatures`, `stem_cell_count` |
 | **Hybrid 角色** | Triad 记忆轨道；MCQ 上弱于 Tile alone |
+
+**实测有效性（2026-06-28，fair-1.2 语料）：**
+
+| 指标 | 值 | 备注 |
+|------|-----|------|
+| persistent MCQ（stem-only body） | **41.3%** (19/46) | vs isolated **28.3%** (+13pp) |
+| organ clusters @ persistent | **1**（~159 cells） | 多为 mega-cluster，非 4 功能器官 |
+| 生产 MCQ structure_fate | **30.4%** | 低于 lm_patch **65.2%** |
+| parallel tile×0.5+stem×0.5 | **28.3%** | 无增益 |
+
+详见：`reports/valhalla_inference/STEM_TILE_ORGAN_AGGREGATION_ANALYSIS_20260628.md`
+
+**结构打分权重**（`native_qa.rs` → `score_structure_alignment`）：tile **0.15** · stem cell **0.08** · organ cluster **0.12** — 相对 query cosine 为 secondary boost。
 
 ### 3.4 Fate — 动态停止与规则
 
