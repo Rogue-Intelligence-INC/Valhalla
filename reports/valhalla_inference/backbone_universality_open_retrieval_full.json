@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-06-28T19:43:46.749849+00:00",
+  "protocol": "backbone-universality-v1",
+  "suite": "fair_open/open_retrieval",
+  "slice": "open_retrieval",
+  "n": 31,
+  "backbones": [
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    "google/gemma-2-2b-it",
+    "microsoft/Phi-3-mini-4k-instruct"
+  ],
+  "arms": {
+    "valhalla_hybrid": {
+      "accuracy": 0.9032258064516129,
+      "correct": 28,
+      "n": 31
+    },
+    "trad_lm/Qwen/Qwen2.5-0.5B-Instruct": {
+      "model_path": "/home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/7ae557604adf67be50417f59c2c2f167def9a775",
+      "accuracy": 1.0,
+      "correct": 31,
+      "n": 31,
+      "delta_pp_vs_valhalla": -9.7
+    },
+    "trad_lm/google/gemma-2-2b-it": {
+      "model_path": "/home/jouly/.cache/modelscope/hub/models/google/gemma-2-2b-it",
+      "accuracy": 1.0,
+      "correct": 31,
+      "n": 31,
+      "delta_pp_vs_valhalla": -9.7
+    },
+    "trad_lm/microsoft/Phi-3-mini-4k-instruct": {
+      "model_path": "/home/jouly/AI/Valhalla/models/hf/Phi-3-mini-4k-instruct",
+      "accuracy": 1.0,
+      "correct": 31,
+      "n": 31,
+      "delta_pp_vs_valhalla": -9.7
+    }
+  },
+  "notes": [
+    "Valhalla hybrid open path is backbone-independent (Tier B native).",
+    "trad_lm uses transformers AutoModel per backbone.",
+    "lm_patch (Candle Qwen2) not in this protocol."
+  ]
+}

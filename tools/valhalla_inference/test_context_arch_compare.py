@@ -28,20 +28,68 @@ from test_context_performance import context_block, corpus_hits  # noqa: E402
 from valhalla_base import ValhallaBase  # noqa: E402
 
 REPORTS = REPO / "reports/valhalla_inference"
+MODELS_HF = REPO / "models/hf"
 DEFAULT_LM = Path(
     "/home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots"
 )
 
+
+def _weights_ok(d: Path) -> bool:
+    st = d / "model.safetensors"
+    if st.is_file() and st.stat().st_size > 1024:
+        return True
+    idx = d / "model.safetensors.index.json"
+    return idx.is_file()
+
+
+def _hub_cache_snap(repo_id: str) -> Path | None:
+    slug = "models--" + repo_id.replace("/", "--")
+    root = Path.home() / ".cache/huggingface/hub" / slug / "snapshots"
+    if not root.is_dir():
+        return None
+    for snap in sorted(root.iterdir(), reverse=True):
+        if _weights_ok(snap):
+            return snap
+    return None
+
+
+def _modelscope_cache_snap(repo_id: str) -> Path | None:
+    """ModelScope hub layout: ~/.cache/modelscope/hub/models/<org>/<name>/"""
+    ms_id = repo_id  # same id for mapped models in our download script
+    parts = ms_id.split("/")
+    if len(parts) != 2:
+        return None
+    root = Path.home() / ".cache/modelscope/hub" / "models" / parts[0] / parts[1]
+    if root.is_dir() and _weights_ok(root):
+        return root
+    # LLM-Research alias for Phi-3
+    alt = Path.home() / ".cache/modelscope/hub" / "models" / "LLM-Research" / parts[1]
+    if alt.is_dir() and _weights_ok(alt):
+        return alt
+    return None
+
+
 def resolve_lm_path(hint: str) -> Path:
+    """Resolve HF model dir: local path, models/hf/, or hub cache."""
     p = Path(hint)
-    if p.is_dir() and (p / "model.safetensors").stat().st_size > 1024:
+    if p.is_dir() and _weights_ok(p):
         return p
+    if "/" in hint or hint.startswith("models/"):
+        repo = hint.split("/")[-1] if hint.startswith("models/") else hint
+        local = MODELS_HF / repo.split("/")[-1]
+        if local.is_dir() and _weights_ok(local):
+            return local
+        cached = _hub_cache_snap(hint if "/" in hint else repo)
+        if cached is not None:
+            return cached
+        ms = _modelscope_cache_snap(hint if "/" in hint else repo)
+        if ms is not None:
+            return ms
     if DEFAULT_LM.is_dir():
-        for snap in sorted(DEFAULT_LM.iterdir()):
-            st = snap / "model.safetensors"
-            if st.is_file() and st.stat().st_size > 1024:
+        for snap in sorted(DEFAULT_LM.iterdir(), reverse=True):
+            if _weights_ok(snap):
                 return snap
-    raise FileNotFoundError(f"No HF weights for {hint}")
+    raise FileNotFoundError(f"No HF weights for {hint} (try models/hf/ or huggingface-cli download)")
 
 
 SWAP_CASES = [

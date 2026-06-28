@@ -36,8 +36,12 @@ def _has_vllm() -> bool:
 
 def _validate_hf_dir(model_dir: Path) -> None:
     st = model_dir / "model.safetensors"
-    if not st.is_file() or st.stat().st_size < 1024:
-        raise ValueError(f"Invalid or empty weights: {st}")
+    idx = model_dir / "model.safetensors.index.json"
+    if idx.is_file():
+        return
+    if st.is_file() and st.stat().st_size >= 1024:
+        return
+    raise ValueError(f"Invalid or empty weights under {model_dir}")
     cfg = model_dir / "config.json"
     if not cfg.is_file() or cfg.stat().st_size == 0:
         raise ValueError(f"Missing config.json in {model_dir}")
@@ -93,7 +97,7 @@ class ValhallaLLM:
 
     def _load_transformers(self) -> None:
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
         self._tokenizer = AutoTokenizer.from_pretrained(
             str(self.model_dir), trust_remote_code=self.trust_remote_code
@@ -101,11 +105,20 @@ class ValhallaLLM:
         torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         if self.dtype == "float32":
             torch_dtype = torch.float32
+        cfg = AutoConfig.from_pretrained(str(self.model_dir))
+        # Prefer built-in architecture (avoids stale remote modeling_phi3.py on Phi-3).
+        use_remote = self.trust_remote_code and cfg.model_type not in (
+            "phi3",
+            "gemma2",
+            "llama",
+            "qwen2",
+        )
         self._backend = AutoModelForCausalLM.from_pretrained(
             str(self.model_dir),
             torch_dtype=torch_dtype,
             device_map="auto" if torch.cuda.is_available() else None,
-            trust_remote_code=self.trust_remote_code,
+            trust_remote_code=use_remote,
+            attn_implementation="eager",
         )
         self._backend.eval()
         self.engine = "transformers"
