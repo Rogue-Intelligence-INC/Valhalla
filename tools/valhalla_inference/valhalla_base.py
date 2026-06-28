@@ -14,7 +14,7 @@ REPO = Path(__file__).resolve().parents[2]
 BIN = REPO / "target/release/valhalla_base"
 
 DecodeMode = Literal["native", "lm_patch", "hybrid"]
-McqDecodeMode = Literal["lm_patch", "structure_fate"]
+McqDecodeMode = Literal["lm_patch", "structure_fate", "max_pick"]
 FollowUpDecodeMode = Literal["inherit", "lm_patch_on_follow_up", "native_follow_up_aware"]
 
 

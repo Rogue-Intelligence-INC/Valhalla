@@ -161,6 +161,13 @@ python3 tools/valhalla_inference/test_proactive_fate_v2.py --fair-limit 0
 python3 tools/valhalla_inference/test_crosslang_core_unified.py
 python3 tools/valhalla_inference/test_external_holdout.py
 
+# MCQ 专项（fair-1.2 n=46）+ max_pick 路由
+python3 tools/valhalla_inference/test_mcq_coverage_v1.py --fast
+.venv-llm/bin/python3 tools/valhalla_inference/test_mcq_coverage_v1.py --only-trad-lm
+
+# Token / wire 效率（30 轮对照）
+python3 tools/valhalla_inference/test_token_efficiency.py
+
 # Fate 输出门控（emit / abstain / defer）
 python3 tools/valhalla_inference/test_fate_output_gate.py
 ```

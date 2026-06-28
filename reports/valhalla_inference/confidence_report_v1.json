@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-27T22:41:16.572232+00:00",
+  "timestamp": "2026-06-28T00:16:31.444615+00:00",
   "protocol": "confidence-report-v1",
   "methods": {
     "proportion": "Wilson score 95% CI",
@@ -537,6 +537,145 @@
       ],
       "title": "External-holdout",
       "source": "external_holdout_test.json"
+    },
+    {
+      "protocol": "token-efficiency-v1",
+      "metrics": [
+        {
+          "name": "wire_chars_ratio_valhalla_vs_rag",
+          "ratio": 0.163,
+          "display": "0.163×",
+          "valhalla": 2319,
+          "rag_full": 14268
+        },
+        {
+          "name": "prefill_tokens_ratio_valhalla_vs_rag",
+          "ratio": 0.291,
+          "display": "0.291×",
+          "valhalla": 1126,
+          "rag_full": 3868
+        },
+        {
+          "name": "prefill_tokens_rag_with_history",
+          "display": "11845",
+          "note": "30-turn cumulative prefill"
+        },
+        {
+          "name": "thread_on_topic_rate",
+          "proportion": {
+            "k": 29,
+            "n": 30,
+            "point": 0.966667,
+            "ci95_lo": 0.833296,
+            "ci95_hi": 0.994091,
+            "method": "wilson"
+          },
+          "display": "96.7% [83.3%, 99.4%]"
+        },
+        {
+          "name": "holdout_valhalla_accuracy",
+          "proportion": {
+            "k": 30,
+            "n": 31,
+            "point": 0.967742,
+            "ci95_lo": 0.838059,
+            "ci95_hi": 0.994283,
+            "method": "wilson"
+          },
+          "display": "96.8% [83.8%, 99.4%]"
+        }
+      ],
+      "title": "Token-efficiency",
+      "source": "token_efficiency_test.json"
+    },
+    {
+      "protocol": "mcq-coverage-v1",
+      "metrics": [
+        {
+          "name": "mcq_production_hybrid",
+          "proportion": {
+            "k": 30,
+            "n": 46,
+            "point": 0.652174,
+            "ci95_lo": 0.507701,
+            "ci95_hi": 0.77319,
+            "method": "wilson"
+          },
+          "display": "65.2% [50.8%, 77.3%]"
+        },
+        {
+          "name": "mcq_structure_fate",
+          "proportion": {
+            "k": 14,
+            "n": 46,
+            "point": 0.304348,
+            "ci95_lo": 0.190798,
+            "ci95_hi": 0.448056,
+            "method": "wilson"
+          },
+          "display": "30.4% [19.1%, 44.8%]"
+        },
+        {
+          "name": "mcq_native_structure",
+          "proportion": {
+            "k": 14,
+            "n": 46,
+            "point": 0.304348,
+            "ci95_lo": 0.190798,
+            "ci95_hi": 0.448056,
+            "method": "wilson"
+          },
+          "display": "30.4% [19.1%, 44.8%]"
+        },
+        {
+          "name": "mcq_lm_patch_all",
+          "proportion": {
+            "k": 30,
+            "n": 46,
+            "point": 0.652174,
+            "ci95_lo": 0.507701,
+            "ci95_hi": 0.77319,
+            "method": "wilson"
+          },
+          "display": "65.2% [50.8%, 77.3%]"
+        },
+        {
+          "name": "mcq_oracle_max_pick",
+          "proportion": {
+            "k": 32,
+            "n": 46,
+            "point": 0.695652,
+            "ci95_lo": 0.551944,
+            "ci95_hi": 0.809202,
+            "method": "wilson"
+          },
+          "display": "69.6% [55.2%, 80.9%]"
+        },
+        {
+          "name": "mcq_oracle_vs_production_gap",
+          "lift_pp": {
+            "mean_pp": -4.348,
+            "ci95_lo": -10.87,
+            "ci95_hi": 0.0,
+            "n": 46,
+            "method": "bootstrap_paired"
+          },
+          "display": "-4.3pp [-10.9, +0.0]"
+        },
+        {
+          "name": "mcq_production_vs_trad_lm",
+          "lift_pp": {
+            "mean_pp": 36.957,
+            "ci95_lo": 21.739,
+            "ci95_hi": 52.174,
+            "n": 46,
+            "method": "bootstrap_paired"
+          },
+          "display": "+37.0pp [+21.7, +52.2]"
+        }
+      ],
+      "title": "MCQ-coverage",
+      "source": "mcq_coverage_test.json"
     }
   ],
   "missing_report_files": [],

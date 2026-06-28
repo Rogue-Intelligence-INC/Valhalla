@@ -5,7 +5,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::dl_front::{encode_modality, BodyFrontPorts, DlFrontConfig, ModalityInput};
-use crate::fair_score::{format_prompt_text, score_answer, FairPrompt, ScoreResult};
+use crate::fair_score::{extract_mcq_letter, format_prompt_text, score_answer, FairPrompt, ScoreResult};
 use crate::free_multimodal_fate::{fuse_universal_core_on_snapshot, UniversalCoreMetrics};
 use crate::grinder::{default_port_cap, grind_text_hash};
 use crate::native_qa::{
@@ -35,6 +35,8 @@ pub enum ValhallaMcqDecode {
     LmPatch,
     /// MCQ via native pipeline + mcq_fate (no LM logprob).
     StructureFate,
+    /// Run native mcq_option + lm_patch logprob; deploy pick by letter agreement + margin.
+    MaxPick,
 }
 
 /// How to decode open questions when session has prior turns.
@@ -275,6 +277,10 @@ pub struct ValhallaBaseRow {
     pub fog_evidence: Option<FogEvidence>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fog_decision: Option<FogDecision>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mcq_native_aggregate: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mcq_patch_confidence: Option<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -718,6 +724,12 @@ fn run_native_one(
         core_fusion: core_row,
         fog_evidence: row.fog_evidence,
         fog_decision: row.fog_decision,
+        mcq_native_aggregate: if p.score_type == "mcq" {
+            Some(row.mcq_aggregate_score)
+        } else {
+            None
+        },
+        mcq_patch_confidence: None,
     })
 }
 
@@ -777,7 +789,74 @@ fn run_lm_one(
         core_fusion: core_row,
         fog_evidence: None,
         fog_decision: None,
+        mcq_native_aggregate: None,
+        mcq_patch_confidence: if p.score_type == "mcq" {
+            pr.mcq_patch_confidence
+        } else {
+            None
+        },
     })
+}
+
+/// Deploy MCQ pick: native structure vs lm_patch logprob (no oracle labels).
+fn pick_mcq_max_deploy(native: ValhallaBaseRow, patch: ValhallaBaseRow) -> ValhallaBaseRow {
+    let n_l = extract_mcq_letter(&native.answer);
+    let p_l = extract_mcq_letter(&patch.answer);
+    let native_agg = native.mcq_native_aggregate.unwrap_or(0.0);
+    let patch_conf = patch.mcq_patch_confidence.unwrap_or(0.0);
+    let native_margin = native
+        .fog_evidence
+        .as_ref()
+        .map(|e| e.margin)
+        .unwrap_or(0.0);
+
+    let use_native = match (n_l, p_l) {
+        (Some(_), None) => true,
+        (None, Some(_)) | (None, None) => false,
+        (Some(a), Some(b)) if a == b => false,
+        (Some(_), Some(_)) => native_agg >= 0.48 && patch_conf <= 0.45 && native_margin >= 0.08,
+    };
+
+    if use_native {
+        ValhallaBaseRow {
+            decode_path: format!(
+                "valhalla_base/mcq_max_pick/native/{}",
+                native
+                    .decode_path
+                    .strip_prefix("valhalla_base/native/")
+                    .unwrap_or(&native.decode_path)
+            ),
+            mcq_native_aggregate: native.mcq_native_aggregate,
+            mcq_patch_confidence: patch.mcq_patch_confidence,
+            ..native
+        }
+    } else {
+        ValhallaBaseRow {
+            decode_path: format!(
+                "valhalla_base/mcq_max_pick/lm_patch/{}",
+                patch
+                    .decode_path
+                    .strip_prefix("valhalla_base/lm_patch/")
+                    .unwrap_or(&patch.decode_path)
+            ),
+            mcq_native_aggregate: native.mcq_native_aggregate,
+            mcq_patch_confidence: patch.mcq_patch_confidence,
+            ..patch
+        }
+    }
+}
+
+fn run_mcq_max_pick(
+    corpus: &[String],
+    p: &FairPrompt,
+    q: &ValhallaBaseQuestion,
+    cfg: &ValhallaBaseConfig,
+    context_snap: TriadIncubationSnapshot,
+    prior: &[String],
+) -> Result<ValhallaBaseRow, String> {
+    let native = run_native_one(corpus, p, q, cfg, context_snap.clone(), prior)?;
+    let patch = run_lm_one(corpus, p, q, cfg, context_snap)?;
+    Ok(pick_mcq_max_deploy(native, patch))
 }
 
 fn run_legacy_native_track(
@@ -813,6 +892,8 @@ fn run_legacy_native_track(
             core_fusion: None,
             fog_evidence: None,
             fog_decision: None,
+            mcq_native_aggregate: None,
+            mcq_patch_confidence: None,
         });
     }
     Ok(rows)
@@ -1077,6 +1158,9 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
     if cfg.mcq_decode == ValhallaMcqDecode::StructureFate {
         features.push("mcq_structure_fate".into());
     }
+    if cfg.mcq_decode == ValhallaMcqDecode::MaxPick {
+        features.push("mcq_max_pick".into());
+    }
     if cfg.core_fusion {
         features.push("core_fusion".into());
     }
@@ -1141,15 +1225,19 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         for q in &req.questions {
             let p: FairPrompt = q.clone().into();
             let is_follow_up = !prior.is_empty();
-            let mode = effective_decode_for_question(cfg, &p.score_type, is_follow_up);
-            let row = match mode {
-                ValhallaBaseDecode::Native => {
-                    run_native_one(&lines, &p, q, cfg, context_snap.clone(), &prior)?
+            let row = if p.score_type == "mcq" && cfg.mcq_decode == ValhallaMcqDecode::MaxPick {
+                run_mcq_max_pick(&lines, &p, q, cfg, context_snap.clone(), &prior)?
+            } else {
+                let mode = effective_decode_for_question(cfg, &p.score_type, is_follow_up);
+                match mode {
+                    ValhallaBaseDecode::Native => {
+                        run_native_one(&lines, &p, q, cfg, context_snap.clone(), &prior)?
+                    }
+                    ValhallaBaseDecode::LmPatch => {
+                        run_lm_one(&lines, &p, q, cfg, context_snap.clone())?
+                    }
+                    ValhallaBaseDecode::Hybrid => unreachable!(),
                 }
-                ValhallaBaseDecode::LmPatch => {
-                    run_lm_one(&lines, &p, q, cfg, context_snap.clone())?
-                }
-                ValhallaBaseDecode::Hybrid => unreachable!(),
             };
             prior.push(q.text.clone());
             rows.push(row.clone());

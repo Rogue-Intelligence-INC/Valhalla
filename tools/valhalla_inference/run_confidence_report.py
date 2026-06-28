@@ -434,6 +434,102 @@ def analyze_context_drift(doc: dict[str, Any], *, extended: bool = False) -> dic
     return out
 
 
+def analyze_mcq_coverage(doc: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {"protocol": doc.get("protocol"), "metrics": []}
+    arms = doc.get("arms") or {}
+    for key, label in (
+        ("production_hybrid_lm_patch", "mcq_production_hybrid"),
+        ("production_hybrid_max_pick", "mcq_production_max_pick"),
+        ("hybrid_structure_fate", "mcq_structure_fate"),
+        ("native_mcq_option", "mcq_native_structure"),
+        ("lm_patch_all", "mcq_lm_patch_all"),
+        ("max_native_lm_patch", "mcq_oracle_max_pick"),
+    ):
+        arm = arms.get(key) or {}
+        if arm.get("n"):
+            out["metrics"].append(
+                metric(label, wilson_ci(int(arm.get("correct", 0)), int(arm["n"])))
+            )
+    prod = arms.get("production_hybrid_lm_patch") or {}
+    mx = arms.get("max_native_lm_patch") or {}
+    if prod.get("rows") and mx.get("rows"):
+        p_b = [bool(r["correct"]) for r in prod["rows"]]
+        m_b = [bool(r["correct"]) for r in mx["rows"]]
+        if len(p_b) == len(m_b):
+            out["metrics"].append(
+                lift_metric("mcq_oracle_vs_production_gap", bootstrap_ci_paired(m_b, p_b))
+            )
+    trad = arms.get("traditional_lm_mcq") or {}
+    if trad.get("n") and prod.get("rows") and trad.get("rows"):
+        t_by_id = {r["id"]: bool(r["correct"]) for r in trad["rows"]}
+        p_by_id = {r["id"]: bool(r["correct"]) for r in prod["rows"]}
+        ids = [i for i in p_by_id if i in t_by_id]
+        if ids:
+            out["metrics"].append(
+                lift_metric(
+                    "mcq_production_vs_trad_lm",
+                    bootstrap_ci_paired([t_by_id[i] for i in ids], [p_by_id[i] for i in ids]),
+                )
+            )
+    return out
+
+
+def analyze_token_efficiency(doc: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {"protocol": doc.get("protocol"), "metrics": []}
+    arch = doc.get("architectures") or {}
+    ratios = doc.get("ratios_vs_rag_full") or {}
+    va = arch.get("valhalla_append") or {}
+    rf = arch.get("rag_full_resend") or {}
+    rh = arch.get("rag_with_history") or {}
+
+    if va.get("wire_chars_cumulative") is not None and rf.get("wire_chars_cumulative"):
+        out["metrics"].append(
+            {
+                "name": "wire_chars_ratio_valhalla_vs_rag",
+                "ratio": ratios.get("wire_chars"),
+                "display": f"{ratios.get('wire_chars', 0):.3f}×",
+                "valhalla": va.get("wire_chars_cumulative"),
+                "rag_full": rf.get("wire_chars_cumulative"),
+            }
+        )
+    if va.get("prefill_tokens_cumulative") is not None and rf.get("prefill_tokens_cumulative"):
+        out["metrics"].append(
+            {
+                "name": "prefill_tokens_ratio_valhalla_vs_rag",
+                "ratio": ratios.get("prefill_tokens"),
+                "display": f"{ratios.get('prefill_tokens', 0):.3f}×",
+                "valhalla": va.get("prefill_tokens_cumulative"),
+                "rag_full": rf.get("prefill_tokens_cumulative"),
+            }
+        )
+    if rh.get("prefill_tokens_cumulative"):
+        out["metrics"].append(
+            {
+                "name": "prefill_tokens_rag_with_history",
+                "display": str(rh.get("prefill_tokens_cumulative")),
+                "note": "30-turn cumulative prefill",
+            }
+        )
+    thread = doc.get("thread_accuracy") or {}
+    if thread.get("on_topic_hits") is not None and thread.get("n"):
+        out["metrics"].append(
+            metric(
+                "thread_on_topic_rate",
+                wilson_ci(int(thread["on_topic_hits"]), int(thread["n"])),
+            )
+        )
+    holdout = doc.get("holdout_accuracy") or {}
+    vh = holdout.get("valhalla_hybrid_cold_rag") or {}
+    if vh.get("correct") is not None and vh.get("n"):
+        out["metrics"].append(
+            metric(
+                "holdout_valhalla_accuracy",
+                wilson_ci(int(vh["correct"]), int(vh["n"])),
+            )
+        )
+    return out
+
+
 def analyze_local_corpus(doc: dict[str, Any]) -> dict[str, Any]:
     out: dict[str, Any] = {"protocol": doc.get("protocol"), "metrics": []}
     for key, label in (
@@ -467,6 +563,8 @@ def build_report(reports_dir: Path) -> dict[str, Any]:
         ("Local-corpus", reports_dir / "local_corpus_demo_test.json", analyze_local_corpus),
         ("Crosslang-core", reports_dir / "crosslang_core_unified_test.json", analyze_crosslang),
         ("External-holdout", reports_dir / "external_holdout_test.json", analyze_external_holdout),
+        ("Token-efficiency", reports_dir / "token_efficiency_test.json", analyze_token_efficiency),
+        ("MCQ-coverage", reports_dir / "mcq_coverage_test.json", analyze_mcq_coverage),
     ]
 
     missing_files: list[str] = []
@@ -517,6 +615,8 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         ("Crosslang", "crosslang_accuracy", "Crosslang-core"),
         ("External", "external_holdout_accuracy", "External-holdout"),
         ("Dialogue", "extended_30turn_on_topic", "Context-drift-extended"),
+        ("Efficiency", "prefill_tokens_ratio_valhalla_vs_rag", "Token-efficiency"),
+        ("MCQ", "mcq_production_max_pick", "MCQ-coverage"),
     ]
     sec_by_title = {s["title"]: s for s in report.get("sections") or []}
     for label, metric_name, title in highlights:
@@ -565,6 +665,10 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
             elif idx:
                 disp = m.get("display", fmt_index(idx))
                 lines.append(f"| {m['name']} | {disp} | bootstrap |")
+            elif m.get("ratio") is not None or m.get("note"):
+                disp = m.get("display", str(m.get("ratio", "—")))
+                note = m.get("note") or ""
+                lines.append(f"| {m['name']} | {disp} | {note} |")
         lines.append("")
 
     if report.get("global_gaps"):
