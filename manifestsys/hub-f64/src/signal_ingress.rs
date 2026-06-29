@@ -701,6 +701,9 @@ pub struct TriadIncubationSnapshot {
     pub fate_routing_free: bool,
     #[serde(default = "default_fate_ingress_routing_str")]
     pub fate_ingress_routing: String,
+    /// Grinder-signal affinity per corpus line index (Fate QA feedback; structure-derived).
+    #[serde(default)]
+    pub corpus_line_affinity: Vec<f64>,
 }
 
 fn default_fate_weight_mode_str() -> String {
@@ -709,6 +712,34 @@ fn default_fate_weight_mode_str() -> String {
 
 fn default_fate_ingress_routing_str() -> String {
     "quad_cycle".into()
+}
+
+/// Env override: if set, scale by align; else use E7 algebraic fn(align).
+fn env_f64_override(env_key: &str, align: f64, algebraic: fn(f64) -> f64) -> f64 {
+    std::env::var(env_key)
+        .ok()
+        .and_then(|v| v.parse::<f64>().ok())
+        .map(|scale| scale * align)
+        .unwrap_or_else(|| algebraic(align))
+}
+
+fn signal_cosine_local(a: &[f64], b: &[f64]) -> f64 {
+    if a.is_empty() || b.is_empty() {
+        return 0.0;
+    }
+    let n = a.len().min(b.len());
+    let mut dot = 0.0;
+    let mut na = 0.0;
+    let mut nb = 0.0;
+    for i in 0..n {
+        dot += a[i] * b[i];
+        na += a[i] * a[i];
+        nb += b[i] * b[i];
+    }
+    if na <= 0.0 || nb <= 0.0 {
+        return 0.0;
+    }
+    dot / (na.sqrt() * nb.sqrt())
 }
 
 pub struct TriadSession {
@@ -720,6 +751,8 @@ pub struct TriadSession {
     pub stats: IngressStats,
     hub_routed: [u64; 4],
     ingress_encoder: String,
+    /// Parallel to corpus line indices; persisted in incubation snapshot.
+    corpus_line_affinity: Vec<f64>,
 }
 
 impl TriadSession {
@@ -741,6 +774,7 @@ impl TriadSession {
             stats: IngressStats::default(),
             hub_routed: [0; 4],
             ingress_encoder: String::new(),
+            corpus_line_affinity: Vec::new(),
         }
     }
 
@@ -1104,6 +1138,7 @@ impl TriadSession {
                 crate::IngressRoutingMode::QuadCycle => "quad_cycle".into(),
                 crate::IngressRoutingMode::HybridQuadSemantic => "hybrid_quad_semantic".into(),
             },
+            corpus_line_affinity: self.corpus_line_affinity.clone(),
         }
     }
 
@@ -1119,7 +1154,7 @@ impl TriadSession {
         }
     }
 
-    fn apply_snapshot_fate_policy(session: &mut TriadSession, snap: &TriadIncubationSnapshot) {
+    pub fn apply_snapshot_fate_policy(session: &mut TriadSession, snap: &TriadIncubationSnapshot) {
         let mode = if snap.fate_weight_mode.eq_ignore_ascii_case("evaluated") {
             crate::FateWeightMode::Evaluated
         } else {
@@ -1135,6 +1170,19 @@ impl TriadSession {
             .seed_fate_from_snapshot(&snap.hub_prefs, snap.hub_routed);
     }
 
+    /// Apply QA answer feedback into Fate + Tile/Stem passive loop.
+    pub fn apply_qa_feedback(&mut self, question: &str, on_topic: bool) {
+        let routed = self.hub_routed;
+        self.hub.feedback_qa_outcome(question, on_topic, routed);
+        let intensity = if on_topic {
+            crate::e7_algebra::qa_pass_intensity()
+        } else {
+            crate::e7_algebra::qa_fail_intensity()
+        };
+        self.tile.triple_fate.receive_passive(intensity * 0.5);
+        self.stem.triple_fate.receive_passive(intensity * 0.5);
+    }
+
     pub fn from_incubation_snapshot(
         budget: IngressBudget,
         body: BodyTarget,
@@ -1147,7 +1195,35 @@ impl TriadSession {
         session.stem.cells = snap.stem_cells;
         session.hub_routed = snap.hub_routed;
         session.ingress_encoder = snap.ingress_encoder;
+        session.corpus_line_affinity = snap.corpus_line_affinity.clone();
         session
+    }
+
+    /// Structural corpus-line affinity from QA outcome (grinder cosine Q↔line, E7 algebra).
+    pub fn apply_corpus_retrieval_feedback(
+        &mut self,
+        corpus_idx: usize,
+        question_sig: &[f64],
+        line_sig: &[f64],
+        line_text: &str,
+        on_topic: bool,
+    ) {
+        while self.corpus_line_affinity.len() <= corpus_idx {
+            self.corpus_line_affinity.push(0.0);
+        }
+        let align = signal_cosine_local(question_sig, line_sig).max(0.0);
+        let delta = if on_topic {
+            env_f64_override("VALHALLA_CORPUS_AFFINITY_POS", align, crate::e7_algebra::affinity_pos_delta)
+        } else {
+            -env_f64_override("VALHALLA_CORPUS_AFFINITY_NEG", align, crate::e7_algebra::affinity_neg_delta)
+        };
+        self.corpus_line_affinity[corpus_idx] =
+            (self.corpus_line_affinity[corpus_idx] + delta).clamp(0.0, 1.0);
+        self.hub
+            .feedback_corpus_line_structural(line_text, align, on_topic);
+        let passive = delta.abs();
+        self.tile.triple_fate.receive_passive(passive * 0.5);
+        self.stem.triple_fate.receive_passive(passive * 0.5);
     }
 
     fn make_feed_report(&self, mode_label: &str, optimize_cycles: usize) -> TriadFeedReport {

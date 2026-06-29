@@ -122,6 +122,12 @@ pub struct NativeQaBatchItem {
     pub mcq_decompose_score: f64,
     #[serde(default)]
     pub mcq_aggregate_score: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fog_evidence: Option<FogEvidence>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fog_decision: Option<FogDecision>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub retrieval_corpus_idx: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -155,6 +161,123 @@ pub struct NativeMatch {
     pub text: String,
     pub score: f64,
     pub source: String,
+}
+
+/// Native retrieval scores for Fate Output Gate (FOG).
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct FogEvidence {
+    pub top_score: f64,
+    pub second_score: f64,
+    pub margin: f64,
+    pub keyword_count: usize,
+}
+
+/// Algebraic FOG decision (E7-derived rationals, no fitted floats).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FogDecision {
+    pub decision: String,
+    pub structure_ready: bool,
+    pub evidence_ready: bool,
+    pub tau: f64,
+    pub delta_required: f64,
+    pub reason: String,
+}
+
+/// E7 parameters (algebraic integers): r=7, δ=5, dim=133 → base (dim+δ)=138.
+const FOG_R: usize = crate::e7_algebra::R;
+const FOG_DELTA: usize = crate::e7_algebra::DELTA;
+const FOG_DIM: usize = crate::e7_algebra::DIM;
+
+/// τ(k) = (r + δ) / (dim + δ + k)
+pub fn fog_tau_algebraic(keyword_count: usize) -> f64 {
+    crate::e7_algebra::tau(keyword_count)
+}
+
+/// Δ ≥ s₁ · δ / (dim + r)  — adjoint over rank+adjoint scale
+pub fn fog_delta_required_algebraic(top_score: f64) -> f64 {
+    crate::e7_algebra::delta_required(top_score)
+}
+
+pub fn fog_evidence_from_matches(top: &[NativeMatch], question: &str) -> FogEvidence {
+    let keyword_count = question_keywords(question).len();
+    let top_score = top.first().map(|m| m.score).unwrap_or(0.0);
+    let second_score = top.get(1).map(|m| m.score).unwrap_or(0.0);
+    FogEvidence {
+        top_score,
+        second_score,
+        margin: top_score - second_score,
+        keyword_count,
+    }
+}
+
+pub fn fog_decide_algebraic(
+    evidence: &FogEvidence,
+    incubation_cycles: usize,
+    min_structure_cycles: usize,
+    native_reject: bool,
+) -> FogDecision {
+    let tau = fog_tau_algebraic(evidence.keyword_count);
+    let delta_req = fog_delta_required_algebraic(evidence.top_score);
+    let structure_ready = incubation_cycles >= min_structure_cycles;
+
+    if !structure_ready {
+        return FogDecision {
+            decision: "defer".into(),
+            structure_ready: false,
+            evidence_ready: false,
+            tau,
+            delta_required: delta_req,
+            reason: format!(
+                "incubation_cycles={incubation_cycles}<{min_structure_cycles}"
+            ),
+        };
+    }
+    if native_reject {
+        return FogDecision {
+            decision: "abstain".into(),
+            structure_ready: true,
+            evidence_ready: false,
+            tau,
+            delta_required: delta_req,
+            reason: "native_reject".into(),
+        };
+    }
+    if evidence.top_score < tau {
+        return FogDecision {
+            decision: "abstain".into(),
+            structure_ready: true,
+            evidence_ready: false,
+            tau,
+            delta_required: delta_req,
+            reason: format!(
+                "s1={:.4}<tau(k)={:.4} [12/(138+{}))",
+                evidence.top_score,
+                tau,
+                evidence.keyword_count
+            ),
+        };
+    }
+    if evidence.margin < delta_req {
+        return FogDecision {
+            decision: "abstain".into(),
+            structure_ready: true,
+            evidence_ready: false,
+            tau,
+            delta_required: delta_req,
+            reason: format!(
+                "margin={:.4}<s1*delta/(dim+r)={:.4}",
+                evidence.margin, delta_req
+            ),
+        };
+    }
+    FogDecision {
+        decision: "emit".into(),
+        structure_ready: true,
+        evidence_ready: true,
+        tau,
+        delta_required: delta_req,
+        reason: "algebraic_ready".into(),
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -197,12 +320,148 @@ fn question_keywords(q: &str) -> Vec<String> {
         .collect()
 }
 
-fn keyword_overlap_count(question: &str, text: &str) -> usize {
+/// True when `keyword` appears in `text` but only inside a negated phrase ("not the capital").
+fn keyword_negated_in_text(keyword: &str, text: &str) -> bool {
     let low = text.to_lowercase();
+    let kw = keyword.to_lowercase();
+    if !low.contains(&kw) {
+        return false;
+    }
+    for pat in ["not the ", "not a ", "isn't the ", "is not the ", "isn't a ", "is not a "] {
+        if low.contains(&format!("{pat}{kw}")) {
+            return true;
+        }
+    }
+    false
+}
+
+fn keyword_overlap_count(question: &str, text: &str) -> usize {
     question_keywords(question)
         .iter()
-        .filter(|k| low.contains(k.as_str()))
+        .filter(|k| {
+            let low = text.to_lowercase();
+            low.contains(k.as_str()) && !keyword_negated_in_text(k, text)
+        })
         .count()
+}
+
+fn question_history_cap() -> usize {
+    env_usize("VALHALLA_QUESTION_HISTORY_MAX", 12)
+}
+
+fn trim_question_history(history: &[String]) -> Vec<String> {
+    let cap = question_history_cap();
+    if history.len() <= cap {
+        return history.to_vec();
+    }
+    history[history.len() - cap..].to_vec()
+}
+
+fn memory_recency_weight() -> f64 {
+    env_f64("VALHALLA_MEMORY_RECENCY_WEIGHT", 0.008)
+}
+
+/// Session-local IDF tie-break (corpus-only statistics; no domain lists or penalties).
+fn session_idf_term_weight() -> f64 {
+    env_f64("VALHALLA_SESSION_IDF_TERM_WEIGHT", 0.08)
+}
+
+/// Session-local document frequency → IDF (corpus lines only; no external index).
+fn corpus_keyword_idf(keyword: &str, memories: &[MemoryEntry]) -> f64 {
+    let corpus: Vec<&MemoryEntry> = memories
+        .iter()
+        .filter(|m| m.corpus_idx.is_some())
+        .collect();
+    if corpus.is_empty() {
+        return 1.0;
+    }
+    let kw = keyword.to_lowercase();
+    let df = corpus
+        .iter()
+        .filter(|m| m.text.to_lowercase().contains(kw.as_str()))
+        .count();
+    ((corpus.len() as f64 + 1.0) / (df as f64 + 1.0)).ln().max(0.05)
+}
+
+/// Gentle positive tie-break: rare session terms that appear in a memory line.
+/// Does not penalize partial overlap — low confidence is handled by FOG abstain, not forced rerank.
+fn session_idf_term_boost(question: &str, memory_text: &str, memories: &[MemoryEntry]) -> f64 {
+    let w = session_idf_term_weight();
+    if w <= 0.0 {
+        return 0.0;
+    }
+    let ml = memory_text.to_lowercase();
+    question_keywords(question)
+        .iter()
+        .filter(|k| ml.contains(k.as_str()) && !keyword_negated_in_text(k, memory_text))
+        .map(|k| corpus_keyword_idf(k, memories) * w)
+        .sum()
+}
+
+/// Scale grinder + patch + Tile/Stem terms in open retrieval (env tunable).
+pub fn open_structure_weight() -> f64 {
+    env_f64("VALHALLA_OPEN_STRUCTURE_WEIGHT", 1.2)
+}
+
+fn corpus_line_affinity_boost(
+    corpus_idx: Option<usize>,
+    affinities: &[f64],
+    question_sig: &[f64],
+    line_sig: &[f64],
+    keyword_count: usize,
+) -> f64 {
+    let w = match std::env::var("VALHALLA_CORPUS_LINE_AFFINITY_WEIGHT") {
+        Ok(v) if v.eq_ignore_ascii_case("algebra") || v.eq_ignore_ascii_case("tau") => {
+            crate::e7_algebra::corpus_rerank_weight(keyword_count)
+        }
+        Ok(v) => v.parse().unwrap_or(0.0),
+        Err(_) => 0.0,
+    };
+    let aff = corpus_idx
+        .and_then(|i| affinities.get(i))
+        .copied()
+        .unwrap_or(0.0);
+    if aff <= 0.0 {
+        return 0.0;
+    }
+    let align = dot_cosine(question_sig, line_sig).max(0.0);
+    aff * align * w
+}
+
+/// When true, open answers are withheld if FOG decides abstain (no forced hallucination).
+pub fn open_fog_enforce() -> bool {
+    std::env::var("VALHALLA_OPEN_FOG_ENFORCE")
+        .map(|v| {
+            let v = v.trim().to_ascii_lowercase();
+            !(v == "0" || v == "false" || v == "off")
+        })
+        .unwrap_or(true)
+}
+
+pub fn apply_open_fog_gate(
+    answer: String,
+    decode_path: String,
+    fog: Option<&FogDecision>,
+) -> (String, String) {
+    if !open_fog_enforce() {
+        return (answer, decode_path);
+    }
+    if answer.starts_with("No confident match") {
+        return (answer, decode_path);
+    }
+    // Corpus/session citation from native retrieval — structural match, not hallucination.
+    if answer.starts_with('[') && answer.contains("] ") {
+        return (answer, decode_path);
+    }
+    if let Some(f) = fog {
+        if f.decision == "abstain" {
+            return (
+                "No confident match in incubated memory.".to_string(),
+                "open_fog_abstain".into(),
+            );
+        }
+    }
+    (answer, decode_path)
 }
 
 /// Boost/penalize corpus line when current question follows prior turns in session.
@@ -239,7 +498,7 @@ fn follow_up_retrieval_boost(
     boost += unique_hits as f64 * 0.15;
 
     if let Some(idx) = corpus_idx {
-        boost += (idx as f64) * 0.008;
+        boost += (idx as f64) * memory_recency_weight();
     }
     boost
 }
@@ -256,22 +515,50 @@ fn option_body(opt_line: &str) -> String {
 }
 
 fn best_span(question: &str, memory_text: &str) -> Option<String> {
-    let parts: Vec<&str> = memory_text
-        .split(|c| c == '.' || c == '。' || c == ';' || c == '\n')
-        .map(str::trim)
-        .filter(|s| s.len() > 4)
-        .collect();
+    let parts = memory_sentence_parts(memory_text);
     let mut best: Option<(usize, String)> = None;
     for part in parts {
-        let overlap = keyword_overlap_count(question, part);
+        let overlap = keyword_overlap_count(question, &part);
         if overlap == 0 {
             continue;
         }
         if best.as_ref().map(|(o, _)| overlap > *o).unwrap_or(true) {
-            best = Some((overlap, part.to_string()));
+            best = Some((overlap, part));
         }
     }
     best.map(|(_, s)| s)
+}
+
+/// Split on sentence boundaries; do not break decimal numbers (e.g. 9.8).
+fn memory_sentence_parts(text: &str) -> Vec<String> {
+    let mut parts = Vec::new();
+    let mut start = 0usize;
+    let bytes = text.as_bytes();
+    let mut i = 0usize;
+    while i < bytes.len() {
+        let c = bytes[i] as char;
+        if c == '.' || c == '。' || c == ';' || c == '\n' {
+            if c == '.' && i > 0 && i + 1 < bytes.len() {
+                let prev = bytes[i - 1];
+                let next = bytes[i + 1];
+                if prev.is_ascii_digit() && next.is_ascii_digit() {
+                    i += 1;
+                    continue;
+                }
+            }
+            let chunk = text[start..i].trim();
+            if chunk.len() > 4 {
+                parts.push(chunk.to_string());
+            }
+            start = i + 1;
+        }
+        i += 1;
+    }
+    let tail = text[start..].trim();
+    if tail.len() > 4 {
+        parts.push(tail.to_string());
+    }
+    parts
 }
 
 fn decode_signal(
@@ -437,6 +724,7 @@ fn rank_mcq_evidence_lines(
         stem_cluster_energies,
         hub_prefs,
         &["question"],
+        1.0,
     );
     scored
         .into_iter()
@@ -606,14 +894,16 @@ fn score_memories(
     stem_cluster_energies: &[f64],
     hub_prefs: &[f64],
     exclude_sources: &[&str],
+    structure_weight: f64,
 ) -> Vec<(usize, f64)> {
+    let sw = structure_weight.max(0.0);
     let mut scored: Vec<(usize, f64)> = memories
         .iter()
         .enumerate()
         .filter(|(_, m)| !exclude_sources.contains(&m.source.as_str()))
         .map(|(i, m)| {
-            let mut s = dot_cosine(&m.signals, query_sig);
-            s += 0.35 * dot_cosine(&m.signals, patch);
+            let mut s = dot_cosine(&m.signals, query_sig) * sw;
+            s += 0.35 * dot_cosine(&m.signals, patch) * sw;
             s += score_structure_alignment(
                 &m.signals,
                 tile_sigs,
@@ -623,7 +913,7 @@ fn score_memories(
                 stem_sigs,
                 stem_cluster_sigs,
                 stem_cluster_energies,
-            );
+            ) * sw;
             (i, s)
         })
         .collect();
@@ -783,6 +1073,7 @@ fn decode_numeric(
         stem_cluster_energies,
         hub_prefs,
         &["question"],
+        1.0,
     );
 
     for (i, s) in scored_mem.iter().take(8) {
@@ -856,6 +1147,7 @@ fn decode_mcq(
             stem_cluster_energies,
             hub_prefs,
             &["question"],
+            1.0,
         );
         let best = scored.first().map(|(i, s)| NativeMatch {
             text: memories[*i].text.clone(),
@@ -1026,9 +1318,11 @@ fn decode_open(
     hub_prefs: &[f64],
     question: &str,
     prior_questions: &[String],
-) -> (String, Vec<NativeMatch>, String) {
+    corpus_line_affinity: &[f64],
+) -> (String, Vec<NativeMatch>, String, Option<usize>) {
     let min_score = min_retrieval_score();
     let min_kw = min_open_keyword_overlap();
+    let sw = open_structure_weight();
 
     let scored = score_memories(
         memories,
@@ -1042,9 +1336,11 @@ fn decode_open(
         stem_cluster_energies,
         hub_prefs,
         &["question"],
+        sw,
     );
 
     let q_low = question.to_lowercase();
+    let kw_count = question_keywords(question).len();
     let mut candidates: Vec<(usize, f64, usize)> = Vec::new();
     for (i, s) in &scored {
         let m = &memories[*i];
@@ -1056,8 +1352,14 @@ fn decode_open(
             continue;
         }
         let mut score = *s;
-        score += keyword_domain_boost(question, &m.text);
-        score += kw as f64 * 0.12;
+        score += corpus_line_affinity_boost(
+            m.corpus_idx,
+            corpus_line_affinity,
+            query_sig,
+            &m.signals,
+            kw_count,
+        );
+        score += session_idf_term_boost(question, &m.text, memories);
         score += follow_up_retrieval_boost(question, prior_questions, &m.text, m.corpus_idx);
         candidates.push((*i, score, kw));
     }
@@ -1067,7 +1369,7 @@ fn decode_open(
     let top: Vec<NativeMatch> = candidates
         .iter()
         .take(5)
-        .map(|(i, s, kw)| {
+        .map(|(i, s, _kw)| {
             let m = &memories[*i];
             let cite = m
                 .corpus_idx
@@ -1087,9 +1389,11 @@ fn decode_open(
                 "No confident match in incubated memory.".to_string(),
                 top,
                 "open_reject_low_score".into(),
+                None,
             );
         }
         let m = &memories[*idx];
+        let picked_idx = m.corpus_idx;
         let cite = m
             .corpus_idx
             .map(|i| format!("corpus:{}", i))
@@ -1104,12 +1408,14 @@ fn decode_open(
                 format!("[{}] {}", cite, span),
                 top,
                 format!("{decode_path}_span"),
+                picked_idx,
             );
         }
         return (
             format!("[{}] {}", cite, m.text),
             top,
             decode_path.into(),
+            picked_idx,
         );
     }
 
@@ -1117,6 +1423,7 @@ fn decode_open(
         "No confident match in incubated memory.".to_string(),
         top,
         "open_reject_no_keywords".into(),
+        None,
     )
 }
 
@@ -1344,37 +1651,43 @@ pub fn run_native_qa(req: &NativeQaRequest) -> NativeQaResponse {
         .copied()
         .collect();
 
-    let (answer, top_matches, decode_path) = match req.score_type.as_str() {
-        "mcq" => decode_mcq(
-            &req.question,
-            &q_sig,
-            patch,
-            &memories,
-            hub_prefs,
-            &tile_sigs,
-            &tile_energies,
-            &tile_activations,
-            &stem_sigs,
-            &stem_cluster_sigs,
-            &stem_cluster_energies,
-            &budget,
-            &mode,
-            dl,
-            &front,
-        ),
-        "numeric" => decode_numeric(
-            &req.question,
-            &q_sig,
-            patch,
-            &memories,
-            &tile_sigs,
-            &tile_energies,
-            &tile_activations,
-            &stem_sigs,
-            &stem_cluster_sigs,
-            &stem_cluster_energies,
-            hub_prefs,
-        ),
+    let (answer, top_matches, decode_path, _retrieval_idx) = match req.score_type.as_str() {
+        "mcq" => {
+            let (a, t, p) = decode_mcq(
+                &req.question,
+                &q_sig,
+                patch,
+                &memories,
+                hub_prefs,
+                &tile_sigs,
+                &tile_energies,
+                &tile_activations,
+                &stem_sigs,
+                &stem_cluster_sigs,
+                &stem_cluster_energies,
+                &budget,
+                &mode,
+                dl,
+                &front,
+            );
+            (a, t, p, None)
+        }
+        "numeric" => {
+            let (a, t, p) = decode_numeric(
+                &req.question,
+                &q_sig,
+                patch,
+                &memories,
+                &tile_sigs,
+                &tile_energies,
+                &tile_activations,
+                &stem_sigs,
+                &stem_cluster_sigs,
+                &stem_cluster_energies,
+                hub_prefs,
+            );
+            (a, t, p, None)
+        }
         _ => decode_open(
             &memories,
             &q_sig,
@@ -1387,6 +1700,7 @@ pub fn run_native_qa(req: &NativeQaRequest) -> NativeQaResponse {
             &stem_cluster_energies,
             hub_prefs,
             &req.question,
+            &[],
             &[],
         ),
     };
@@ -1479,7 +1793,8 @@ fn decode_from_report(
     dl: bool,
     front: &DlFrontConfig,
     prior_questions: &[String],
-) -> (String, Vec<NativeMatch>, String) {
+    corpus_line_affinity: &[f64],
+) -> (String, Vec<NativeMatch>, String, Option<usize>) {
     let q_sig = memories
         .iter()
         .find(|m| m.source == "question")
@@ -1520,36 +1835,42 @@ fn decode_from_report(
         .collect();
 
     match score_type {
-        "mcq" => decode_mcq(
-            question,
-            &q_sig,
-            patch,
-            memories,
-            hub_prefs,
-            &tile_sigs,
-            &tile_energies,
-            &tile_activations,
-            &stem_sigs,
-            &stem_cluster_sigs,
-            &stem_cluster_energies,
-            budget,
-            mode,
-            dl,
-            front,
-        ),
-        "numeric" => decode_numeric(
-            question,
-            &q_sig,
-            patch,
-            memories,
-            &tile_sigs,
-            &tile_energies,
-            &tile_activations,
-            &stem_sigs,
-            &stem_cluster_sigs,
-            &stem_cluster_energies,
-            hub_prefs,
-        ),
+        "mcq" => {
+            let (a, t, p) = decode_mcq(
+                question,
+                &q_sig,
+                patch,
+                memories,
+                hub_prefs,
+                &tile_sigs,
+                &tile_energies,
+                &tile_activations,
+                &stem_sigs,
+                &stem_cluster_sigs,
+                &stem_cluster_energies,
+                budget,
+                mode,
+                dl,
+                front,
+            );
+            (a, t, p, None)
+        }
+        "numeric" => {
+            let (a, t, p) = decode_numeric(
+                question,
+                &q_sig,
+                patch,
+                memories,
+                &tile_sigs,
+                &tile_energies,
+                &tile_activations,
+                &stem_sigs,
+                &stem_cluster_sigs,
+                &stem_cluster_energies,
+                hub_prefs,
+            );
+            (a, t, p, None)
+        }
         _ => decode_open(
             memories,
             &q_sig,
@@ -1563,6 +1884,7 @@ fn decode_from_report(
             hub_prefs,
             question,
             prior_questions,
+            corpus_line_affinity,
         ),
     }
 }
@@ -1715,27 +2037,45 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             )
         };
 
-        let (mut answer, _top, mut decode_path) = if let Some(ref po) = pipeline_outcome {
-            if q.score_type == "mcq" {
-                let (dec_ans, _, dec_path) = decode_from_report(
-                    &q.question,
-                    &q.score_type,
-                    &memories,
-                    &report,
-                    &budget,
-                    &mode,
-                    dl,
-                    &front,
-                    prior,
-                );
-                let (ans, path) = pipeline::merge_mcq_pipeline_decode(
-                    &dec_ans,
-                    &dec_path,
-                    &po.recompose.mcq_option_affinity,
-                );
-                (ans, Vec::new(), path)
+        let line_aff = &snap.corpus_line_affinity;
+        let (mut answer, top, mut decode_path, retrieval_corpus_idx) =
+            if let Some(ref po) = pipeline_outcome {
+                if q.score_type == "mcq" {
+                    let (dec_ans, _, dec_path, _) = decode_from_report(
+                        &q.question,
+                        &q.score_type,
+                        &memories,
+                        &report,
+                        &budget,
+                        &mode,
+                        dl,
+                        &front,
+                        prior,
+                        line_aff,
+                    );
+                    let (ans, path) = pipeline::merge_mcq_pipeline_decode(
+                        &dec_ans,
+                        &dec_path,
+                        &po.recompose.mcq_option_affinity,
+                    );
+                    (ans, Vec::new(), path, None)
+                } else {
+                    let (a, t, _dp, ridx) = decode_from_report(
+                        &q.question,
+                        &q.score_type,
+                        &memories,
+                        &report,
+                        &budget,
+                        &mode,
+                        dl,
+                        &front,
+                        prior,
+                        line_aff,
+                    );
+                    (a, t, format!("pipeline_v4_{}", q.score_type), ridx)
+                }
             } else {
-                let (a, t, _dp) = decode_from_report(
+                decode_from_report(
                     &q.question,
                     &q.score_type,
                     &memories,
@@ -1745,22 +2085,9 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                     dl,
                     &front,
                     prior,
-                );
-                (a, t, format!("pipeline_v4_{}", q.score_type))
-            }
-        } else {
-            decode_from_report(
-                &q.question,
-                &q.score_type,
-                &memories,
-                &report,
-                &budget,
-                &mode,
-                dl,
-                &front,
-                prior,
-            )
-        };
+                    line_aff,
+                )
+            };
 
         if mcq_fate_meta.is_some() && pipeline_outcome.is_none() {
             decode_path = "mcq_fate_cycle".to_string();
@@ -1771,6 +2098,20 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                 decode_path = po.decode_hint.clone();
             }
         }
+        let fog_evidence = fog_evidence_from_matches(&top, &q.question);
+        let native_reject = decode_path.contains("reject")
+            || answer.starts_with("No confident match");
+        let fog_decision = fog_decide_algebraic(
+            &fog_evidence,
+            req.incubation_cycles.max(1),
+            2,
+            native_reject,
+        );
+
+        if q.score_type == "open" {
+            (answer, decode_path) = apply_open_fog_gate(answer, decode_path, Some(&fog_decision));
+        }
+
         results.push(NativeQaBatchItem {
             id: q.id.clone().unwrap_or_default(),
             answer,
@@ -1789,6 +2130,9 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                 .unwrap_or_default(),
             mcq_decompose_score: mcq_fate_meta.as_ref().map(|m| m.2).unwrap_or(0.0),
             mcq_aggregate_score: mcq_fate_meta.as_ref().map(|m| m.3).unwrap_or(0.0),
+            fog_evidence: Some(fog_evidence),
+            fog_decision: Some(fog_decision),
+            retrieval_corpus_idx,
         });
     }
 

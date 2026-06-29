@@ -38,6 +38,7 @@ pub mod mcq_pairwise;
 pub mod multimodal;
 pub mod compose_fate;
 pub mod model_fate;
+pub mod e7_algebra;
 pub mod free_multimodal_fate;
 pub mod multimodal_compose;
 pub mod valhalla_adapter;
@@ -594,6 +595,15 @@ impl ValhallaHub {
 
     /// Feedback to Fate (f64)
     fn feedback_to_fate(&mut self, system: &QuadSystemType, intensity: f64, _success: bool) {
+        self.feedback_to_fate_with_quality(system, intensity, None);
+    }
+
+    fn feedback_to_fate_with_quality(
+        &mut self,
+        system: &QuadSystemType,
+        intensity: f64,
+        qa_quality: Option<f64>,
+    ) {
         let idx = match system {
             QuadSystemType::BlackHole => 0,
             QuadSystemType::MeshBrain => 1,
@@ -601,14 +611,18 @@ impl ValhallaHub {
             QuadSystemType::BaseForce => 3,
         };
         let (quality, eff_intensity) = match self.fate_weight_mode {
-            FateWeightMode::Fixed => (1.0, intensity),
+            FateWeightMode::Fixed => {
+                let q = qa_quality.unwrap_or(1.0);
+                (q, intensity)
+            }
             FateWeightMode::Evaluated => {
                 let ev = self.fate_system.evaluate_system(idx);
-                let q = if ev.is_bootstrap {
+                let base_q = if ev.is_bootstrap {
                     1.0
                 } else {
                     ev.quality.max(0.05)
                 };
+                let q = qa_quality.map(|qq| (base_q + qq) / 2.0).unwrap_or(base_q);
                 let i = if ev.intensity > 0.0 {
                     intensity * (0.5 + ev.intensity * 0.5)
                 } else {
@@ -622,8 +636,67 @@ impl ValhallaHub {
             eff_intensity,
             vec![0.0; 4],
         );
-        signal.quality_score = quality;
+        signal.quality_score = quality.clamp(0.05, 1.0);
         self.fate_system.receive_signal(signal);
+    }
+
+    fn quad_index(system: &QuadSystemType) -> usize {
+        match system {
+            QuadSystemType::BlackHole => 0,
+            QuadSystemType::MeshBrain => 1,
+            QuadSystemType::MultiNova => 2,
+            QuadSystemType::BaseForce => 3,
+        }
+    }
+
+    /// QA outcome feedback — boosts semantic-primary quad on success, penalizes on failure.
+    pub fn feedback_qa_outcome(&mut self, question: &str, on_topic: bool, routed: [u64; 4]) {
+        let primary = Self::route_corpus_line_semantic(question);
+        let primary_idx = Self::quad_index(&primary);
+        let total: f64 = routed.iter().sum::<u64>().max(1) as f64;
+        let route_share: [f64; 4] =
+            std::array::from_fn(|i| routed[i] as f64 / total);
+
+        let pass_i = crate::e7_algebra::qa_pass_intensity();
+        let fail_i = crate::e7_algebra::qa_fail_intensity();
+
+        for i in 0..4 {
+            let system = Self::quad_from_index(i);
+            let (quality, intensity) = if on_topic {
+                if i == primary_idx {
+                    (0.95, pass_i)
+                } else {
+                    (0.55 + 0.15 * route_share[i], fail_i * route_share[i].max(0.1))
+                }
+            } else if i == primary_idx {
+                (fail_i, fail_i)
+            } else {
+                (0.35, fail_i * route_share[i].max(0.08))
+            };
+            self.feedback_to_fate_with_quality(&system, intensity, Some(quality));
+        }
+        self.mark_epoch_complete();
+    }
+
+    /// Line-level structural feedback into Fate (grinder Q↔line align, E7 deltas).
+    pub fn feedback_corpus_line_structural(
+        &mut self,
+        line: &str,
+        align: f64,
+        on_topic: bool,
+    ) {
+        let primary = Self::route_corpus_line_semantic(line);
+        let intensity = if on_topic {
+            crate::e7_algebra::affinity_pos_delta(align)
+        } else {
+            crate::e7_algebra::affinity_neg_delta(align)
+        };
+        let quality = if on_topic {
+            0.5 + 0.45 * align.clamp(0.0, 1.0)
+        } else {
+            crate::e7_algebra::neg_coupling()
+        };
+        self.feedback_to_fate_with_quality(&primary, intensity, Some(quality));
     }
     
     /// Route request using Fate preferences (f64)

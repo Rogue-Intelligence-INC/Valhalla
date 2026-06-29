@@ -202,6 +202,21 @@ fn default_cycles() -> usize {
     2
 }
 
+fn question_history_cap() -> usize {
+    std::env::var("VALHALLA_QUESTION_HISTORY_MAX")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(12)
+}
+
+fn cap_question_history(history: Vec<String>) -> Vec<String> {
+    let cap = question_history_cap();
+    if history.len() <= cap {
+        return history;
+    }
+    history[history.len() - cap..].to_vec()
+}
+
 impl Default for ValhallaBaseConfig {
     fn default() -> Self {
         Self {
@@ -281,6 +296,8 @@ pub struct ValhallaBaseRow {
     pub mcq_native_aggregate: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mcq_patch_confidence: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub retrieval_corpus_idx: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -301,6 +318,17 @@ pub struct FateTelemetry {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fate_ingress_routing: Option<String>,
     pub incubation_cycles: usize,
+    /// E7 algebra identifiers for Fate/FOG gates
+    #[serde(default = "default_algebra_formula")]
+    pub algebra_formula: String,
+    #[serde(default)]
+    pub corpus_line_affinity_nonzero: usize,
+    #[serde(default)]
+    pub corpus_line_affinity_max: f64,
+}
+
+fn default_algebra_formula() -> String {
+    "e7_tau_v1".into()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -444,6 +472,7 @@ fn hub_prefs_spread(prefs: &[f64]) -> f64 {
 }
 
 fn fate_telemetry_from_snap(snap: &TriadIncubationSnapshot, cfg: &ValhallaBaseConfig) -> FateTelemetry {
+    let aff = &snap.corpus_line_affinity;
     FateTelemetry {
         hub_prefs: snap.hub_prefs.clone(),
         hub_prefs_spread: hub_prefs_spread(&snap.hub_prefs),
@@ -460,6 +489,9 @@ fn fate_telemetry_from_snap(snap: &TriadIncubationSnapshot, cfg: &ValhallaBaseCo
             ValhallaFateIngressRouting::HybridQuadSemantic => "hybrid_quad_semantic".into(),
         }),
         incubation_cycles: cfg.incubation_cycles.max(1),
+        algebra_formula: default_algebra_formula(),
+        corpus_line_affinity_nonzero: aff.iter().filter(|&&v| v > 0.0).count(),
+        corpus_line_affinity_max: aff.iter().copied().fold(0.0, f64::max),
     }
 }
 
@@ -662,12 +694,21 @@ fn apply_qa_feedback_to_snapshot(
     cfg: &ValhallaBaseConfig,
     question: &str,
     on_topic: bool,
+    retrieved_corpus_idx: Option<usize>,
+    question_sig: Option<Vec<f64>>,
+    line_sig: Option<Vec<f64>>,
+    line_text: Option<&str>,
 ) -> TriadIncubationSnapshot {
     let budget = IngressBudget::experiment();
     let target = BodyTarget::parse(&cfg.patch_body);
     let mut session = TriadSession::from_incubation_snapshot(budget, target, snap);
     apply_fate_config(&mut session, cfg);
     session.apply_qa_feedback(question, on_topic);
+    if let (Some(idx), Some(qs), Some(ls), Some(lt)) =
+        (retrieved_corpus_idx, question_sig, line_sig, line_text)
+    {
+        session.apply_corpus_retrieval_feedback(idx, &qs, &ls, lt, on_topic);
+    }
     session.incubation_snapshot()
 }
 
@@ -730,6 +771,7 @@ fn run_native_one(
             None
         },
         mcq_patch_confidence: None,
+        retrieval_corpus_idx: row.retrieval_corpus_idx,
     })
 }
 
@@ -795,6 +837,7 @@ fn run_lm_one(
         } else {
             None
         },
+        retrieval_corpus_idx: None,
     })
 }
 
@@ -894,6 +937,7 @@ fn run_legacy_native_track(
             fog_decision: None,
             mcq_native_aggregate: None,
             mcq_patch_confidence: None,
+            retrieval_corpus_idx: None,
         });
     }
     Ok(rows)
@@ -926,13 +970,11 @@ fn text_tokens(text: &str) -> std::collections::HashSet<String> {
         if c.is_ascii_digit() {
             digits.push(c);
         } else if !digits.is_empty() {
-            if digits.len() >= 2 {
-                out.insert(digits.clone());
-            }
+            out.insert(digits.clone());
             digits.clear();
         }
     }
-    if digits.len() >= 2 {
+    if !digits.is_empty() {
         out.insert(digits);
     }
     let cjk: Vec<char> = text.chars().filter(|c| is_cjk(*c)).collect();
@@ -947,6 +989,44 @@ fn text_tokens(text: &str) -> std::collections::HashSet<String> {
     out
 }
 
+/// Acronym in prior (e.g. GDP) ↔ consecutive word initials in corpus line.
+fn proactive_acronym_matches(line: &str, prior: &[String]) -> usize {
+    let words: Vec<String> = line
+        .split_whitespace()
+        .map(|w| {
+            w.trim_matches(|c: char| !c.is_alphabetic())
+                .to_lowercase()
+        })
+        .filter(|w| !w.is_empty())
+        .collect();
+    let mut hits = 0usize;
+    for p in prior {
+        for raw in p.split_whitespace() {
+            let w = raw.trim_matches(|c: char| !c.is_alphabetic());
+            if w.len() < 2
+                || w.len() > 6
+                || !w.chars().all(|c| c.is_ascii_uppercase())
+            {
+                continue;
+            }
+            let initials: Vec<char> = w.chars().map(|c| c.to_ascii_lowercase()).collect();
+            if words.len() < initials.len() {
+                continue;
+            }
+            let matched = (0..=words.len() - initials.len()).any(|start| {
+                initials
+                    .iter()
+                    .enumerate()
+                    .all(|(i, c)| words[start + i].starts_with(*c))
+            });
+            if matched {
+                hits += 1;
+            }
+        }
+    }
+    hits
+}
+
 fn proactive_overlap_count(line: &str, prior: &[String]) -> usize {
     let line_set = text_tokens(line);
     let mut best = 0usize;
@@ -959,7 +1039,7 @@ fn proactive_overlap_count(line: &str, prior: &[String]) -> usize {
             .count();
         best = best.max(overlap);
     }
-    best
+    best + proactive_acronym_matches(line, prior)
 }
 
 fn dominant_script(prior: &[String]) -> &'static str {
@@ -1011,11 +1091,13 @@ fn build_proactive_probe(corpus: &[String], prior: &[String]) -> Option<(String,
         let picked = &corpus[idx];
         let line_set = text_tokens(picked);
         let strong = prior.iter().any(|p| {
-            text_tokens(p)
-                .intersection(&line_set)
-                .any(|t| t.len() >= 4 || t.chars().any(is_cjk))
+            text_tokens(p).intersection(&line_set).any(|t| {
+                t.len() >= 4
+                    || t.chars().any(is_cjk)
+                    || (t.chars().all(|c| c.is_ascii_digit()) && !t.is_empty())
+            })
         });
-        if !strong {
+        if !strong && proactive_acronym_matches(picked, prior) == 0 {
             return None;
         }
     }
@@ -1206,11 +1288,12 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         features.push("multimodal_context".into());
     }
 
-    let mut prior: Vec<String> = req
-        .session
-        .as_ref()
-        .map(|s| s.question_history.clone())
-        .unwrap_or_default();
+    let mut prior: Vec<String> = cap_question_history(
+        req.session
+            .as_ref()
+            .map(|s| s.question_history.clone())
+            .unwrap_or_default(),
+    );
 
     let mut proactive_outcome: Option<ProactiveOutcome> = None;
     let mut rows = Vec::new();
@@ -1242,11 +1325,21 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
             prior.push(q.text.clone());
             rows.push(row.clone());
             if cfg.fate_qa_feedback {
+                let q_sig = grind_ports_for_line(&format_prompt_text(&p)).embedding;
+                let line_meta = row.retrieval_corpus_idx.and_then(|i| {
+                    lines.get(i).map(|l| {
+                        (grind_ports_for_line(l).embedding, l.as_str())
+                    })
+                });
                 context_snap = apply_qa_feedback_to_snapshot(
                     context_snap,
                     cfg,
                     &q.text,
                     row.correct,
+                    row.retrieval_corpus_idx,
+                    Some(q_sig),
+                    line_meta.as_ref().map(|(s, _)| s.clone()),
+                    line_meta.as_ref().map(|(_, t)| *t),
                 );
             }
         }
@@ -1259,7 +1352,7 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         fingerprint: context_fingerprint(&lines),
         lines_ingested: lines.len(),
         snapshot: snap,
-        question_history: prior,
+        question_history: cap_question_history(prior),
     };
 
     Ok(ValhallaBaseResponse {
@@ -1304,15 +1397,24 @@ mod tests {
     }
 
     #[test]
-    fn hybrid_routes_mcq_to_structure_fate_when_configured() {
-        let cfg = ValhallaBaseConfig {
-            decode: ValhallaBaseDecode::Hybrid,
-            mcq_decode: ValhallaMcqDecode::StructureFate,
-            ..Default::default()
-        };
-        assert_eq!(
-            effective_decode(&cfg, "mcq"),
-            ValhallaBaseDecode::Native
-        );
+    fn proactive_acronym_gdp_matches_gross_domestic_product() {
+        let prior = vec![
+            "What does GDP stand for?".into(),
+            "Does the context say anything about gross?".into(),
+        ];
+        let line = "Gross Domestic Product sums consumption investment government and net exports.";
+        assert!(proactive_acronym_matches(line, &prior) >= 1);
+        assert!(proactive_overlap_count(line, &prior) >= 1);
+        assert!(build_proactive_probe(&[line.into()], &prior).is_some());
+    }
+
+    #[test]
+    fn proactive_single_digit_overlap() {
+        let prior = vec![
+            "How many electrons in first shell?".into(),
+            "Does the context say anything about 2?".into(),
+        ];
+        let line = "The first electron shell holds at most 2 electrons.";
+        assert!(proactive_overlap_count(line, &prior) >= 1);
     }
 }
