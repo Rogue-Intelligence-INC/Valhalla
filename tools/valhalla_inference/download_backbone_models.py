@@ -31,8 +31,16 @@ SIZE_GB = {
     "google/gemma-2-2b-it": 5.2,
     "microsoft/Phi-3-mini-4k-instruct": 7.6,
     "meta-llama/Llama-3.2-1B-Instruct": 2.4,
-    "HuggingFaceTB/SmolLM2-360M-Instruct": 0.7,
+    "Qwen/Qwen2.5-0.5B-Instruct": 1.2,
+    "Qwen/Qwen2.5-3B-Instruct": 6.0,
+    "Qwen/Qwen2.5-7B-Instruct": 15.0,
 }
+
+QWEN_LM_PATCH_MODELS = [
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    "Qwen/Qwen2.5-3B-Instruct",
+    "Qwen/Qwen2.5-7B-Instruct",
+]
 
 DEFAULT_MODELS = [
     "google/gemma-2-2b-it",
@@ -154,7 +162,8 @@ def download_modelscope(repo: str, *, cache_dir: Path | None) -> Path:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--models", nargs="*", default=DEFAULT_MODELS)
-    ap.add_argument("--only", choices=["gemma", "phi", "llama", "smollm"])
+    ap.add_argument("--only", choices=["gemma", "phi", "llama", "smollm", "qwen"])
+    ap.add_argument("--with-7b", action="store_true", help="Include Qwen2.5-7B when --only qwen")
     ap.add_argument(
         "--endpoint",
         default="auto",
@@ -178,6 +187,11 @@ def main() -> None:
         "phi": ["microsoft/Phi-3-mini-4k-instruct"],
         "llama": ["meta-llama/Llama-3.2-1B-Instruct"],
         "smollm": ["HuggingFaceTB/SmolLM2-360M-Instruct"],
+        "qwen": (
+            QWEN_LM_PATCH_MODELS
+            if args.with_7b
+            else [m for m in QWEN_LM_PATCH_MODELS if "7B" not in m]
+        ),
     }
     models = presets.get(args.only, args.models)
 

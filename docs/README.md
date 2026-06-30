@@ -26,7 +26,21 @@
 | **Proactive Fate v2** | **72/72 · PPI 0.921** | `proactive_fate_v2_test.json` |
 | Fate quad_cycle ingress P1 | **93.3%** | `fate_weight_ladder_compare_30.json` |
 
-**Today (2026-06-30):** [日结 `docs/valhalla/DAILY_SUMMARY_20260630.md`](valhalla/DAILY_SUMMARY_20260630.md) · E7 algebra + line affinity + proactive v2 全绿
+### Third-party & scaling benchmarks (2026-06-30) — **all run complete**
+
+| Benchmark | Result | Report |
+|-----------|--------|--------|
+| **RAGTruth** (ACL 2024) | **40/40** context-grounded | `ragtruth_v1_test.json` |
+| **Needle session** | **4/4** @ depth 30 | `needle_session_v1_test.json` |
+| **LongBench-v2** short MCQ | **7/20 (35%)** | `longbench_v2_v1_test.json` |
+| **Scaling open** @ 0.5B | **100%** · **+6.5pp** vs trad | `model_scaling_v1_test.json` |
+| **Scaling MCQ** @ 0.5B | **65% vs 15%** (+50pp) | `MODEL_SCALING_20260630.md` |
+| **MCQ ladder** (Qwen lm_patch) | **0.5B 70% → 3B 100%** | `MCQ_LADDER_20260630.md` |
+| **Backbone universality** | Valhalla 87% · trad 100% | `backbone_universality_test.json` |
+| **External holdout** | **15/15** | `external_holdout_test.json` |
+
+**Master summary:** [`EXPERIMENT_SUMMARY_20260630.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md)  
+**Runner:** `python3 tools/valhalla_inference/run_recognized_benchmarks.py`
 
 Legacy Hybrid 2.0 fair-145 totals (**80%**) remain valid for **Tier A+B combined** history but are **not** the ValhallaBase product line.
 

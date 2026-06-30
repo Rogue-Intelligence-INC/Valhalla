@@ -82,7 +82,7 @@ pub fn default_model_dir() -> PathBuf {
 
 pub fn resolve_model_dir(model: &str) -> PathBuf {
     let p = PathBuf::from(model);
-    if p.exists() {
+    if p.exists() && snapshot_has_weights(&p) {
         return p;
     }
     if model.contains('/') {
@@ -91,16 +91,80 @@ pub fn resolve_model_dir(model: &str) -> PathBuf {
             PathBuf::from("/home/jouly/.cache/huggingface/hub").join(format!("models--{slug}"));
         if base.exists() {
             if let Ok(entries) = std::fs::read_dir(base.join("snapshots")) {
-                for ent in entries.flatten() {
-                    let snap = ent.path();
-                    if snap.join("model.safetensors").exists() {
-                        return snap;
-                    }
+                let mut snaps: Vec<PathBuf> = entries
+                    .flatten()
+                    .map(|e| e.path())
+                    .filter(|snap| snapshot_has_weights(snap))
+                    .collect();
+                snaps.sort();
+                if let Some(snap) = snaps.pop() {
+                    return snap;
                 }
             }
         }
     }
     default_model_dir()
+}
+
+fn snapshot_has_weights(snap: &Path) -> bool {
+    snap.join("model.safetensors").is_file()
+        || snap.join("model.safetensors.index.json").is_file()
+}
+
+fn load_safetensors_from_dir(
+    model_dir: &Path,
+    device: &Device,
+    dtype: DType,
+) -> Result<HashMap<String, Tensor>, String> {
+    let single = model_dir.join("model.safetensors");
+    if single.is_file() {
+        let len = std::fs::metadata(&single).map(|m| m.len()).unwrap_or(0);
+        if len > 1024 {
+            let loaded = load_safetensors(&single, device).map_err(|e| e.to_string())?;
+            return tensors_to_dtype(loaded, dtype);
+        }
+    }
+    let index_path = model_dir.join("model.safetensors.index.json");
+    if !index_path.is_file() {
+        return Err(format!(
+            "no model.safetensors or model.safetensors.index.json under {}",
+            model_dir.display()
+        ));
+    }
+    let raw = std::fs::read_to_string(&index_path).map_err(|e| e.to_string())?;
+    let v: serde_json::Value = serde_json::from_str(&raw).map_err(|e| e.to_string())?;
+    let weight_map = v
+        .get("weight_map")
+        .and_then(|w| w.as_object())
+        .ok_or("missing weight_map in model.safetensors.index.json")?;
+    let mut shard_names = HashSet::new();
+    for name in weight_map.values() {
+        if let Some(s) = name.as_str() {
+            shard_names.insert(s.to_string());
+        }
+    }
+    let mut tensors = HashMap::new();
+    for shard in shard_names {
+        let path = model_dir.join(&shard);
+        if !path.is_file() {
+            return Err(format!("missing weight shard: {}", path.display()));
+        }
+        let loaded = load_safetensors(&path, device).map_err(|e| e.to_string())?;
+        for (k, t) in loaded {
+            tensors.insert(k, t.to_dtype(dtype).map_err(|e| e.to_string())?);
+        }
+    }
+    Ok(tensors)
+}
+
+fn tensors_to_dtype(
+    loaded: HashMap<String, Tensor>,
+    dtype: DType,
+) -> Result<HashMap<String, Tensor>, String> {
+    loaded
+        .into_iter()
+        .map(|(k, t)| t.to_dtype(dtype).map(|c| (k, c)).map_err(|e| e.to_string()))
+        .collect()
 }
 
 pub fn project_patch(patch_vec: &[f64], hidden: usize) -> Vec<f32> {
@@ -175,15 +239,7 @@ impl BaseWeights {
             Device::Cpu
         };
         let dtype = DType::F32;
-        let weights = model_dir.join("model.safetensors");
-        if !weights.exists() {
-            return Err(format!("missing weights: {}", weights.display()));
-        }
-        let loaded = load_safetensors(&weights, &device).map_err(|e| e.to_string())?;
-        let mut tensors = HashMap::new();
-        for (k, t) in loaded {
-            tensors.insert(k, t.to_dtype(dtype).map_err(|e| e.to_string())?);
-        }
+        let tensors = load_safetensors_from_dir(model_dir, &device, dtype)?;
         let cfg = load_hf_config(model_dir)?;
         Ok(Self {
             cfg,
