@@ -1,0 +1,137 @@
+{
+  "timestamp": "2026-06-30T20:07:25.703963+00:00",
+  "protocol": "multihop-rag-v1",
+  "benchmark": "MultiHop-RAG",
+  "bundle": "multihop_rag_slice25.json",
+  "n": 25,
+  "correct": 9,
+  "accuracy": 0.36,
+  "verdict": "OPEN_QA_DEVELOPING",
+  "rows": [
+    {
+      "id": "MH_1454",
+      "correct": false,
+      "answer": "[corpus:0] Apple defends Google Search deal in court: ‘There wasn’t a valid alternative’: The Justice Department is focused on the deals Google makes — with Apple but also with Samsung and Mozilla and"
+    },
+    {
+      "id": "MH_921",
+      "correct": false,
+      "answer": "[corpus:1] 54 Best Apple Black Friday Deals (2023): iPad, Apple Watch, AirPods: With a 10,000-mAh capacity, WIRED contributor Simon Hill says it charged his iPhone 14 Pro once and then delivered an ad"
+    },
+    {
+      "id": "MH_774",
+      "correct": true,
+      "answer": "[corpus:1] What to know about Fortnite maker Epic Games’ antitrust battle with Google, starting today: It will attempt to argue that Google restrains competition within two separate markets, including"
+    },
+    {
+      "id": "MH_1514",
+      "correct": false,
+      "answer": "[corpus:1] Know the price-matching policies for Best Buy, Target, Walmart, and others: That means eBay will give you an eBay coupon for the difference in price between what you bought the item for and"
+    },
+    {
+      "id": "MH_1762",
+      "correct": false,
+      "answer": "[corpus:0] ” And the business practices between the two were reasonable, he argued, claiming that Alameda acted legally as an FTX customer, payment processor, and market maker, or financial entity tha"
+    },
+    {
+      "id": "MH_537",
+      "correct": false,
+      "answer": "[corpus:1] Every movie and show coming to Netflix in November: From Netflix: The world of a seemingly perfect family shatters when a shocking murder proves that they’re willing to make desperate moves"
+    },
+    {
+      "id": "MH_2223",
+      "correct": false,
+      "answer": "[corpus:1] $A drops: With inflation down from its peak two summers ago, Wall Street is hopeful that the Federal Reserve may finally be done with its market-shaking hikes to interest rates and could so"
+    },
+    {
+      "id": "MH_2275",
+      "correct": false,
+      "answer": "[corpus:0] SBF Trial: The latest updates from the FTX collapse’s courtroom drama: The second week of the trial’s standout testimony came from Alameda Research’s former CEO Caroline Ellison, who claime"
+    },
+    {
+      "id": "MH_575",
+      "correct": true,
+      "answer": "[corpus:0] NFL roundup: Pats hit new low as Lions reach 9-3 for first time since 1962: Tyreek Hill had two touchdowns among his 157 receiving yards to help the Miami Dolphins rout the Washington Comma"
+    },
+    {
+      "id": "MH_1089",
+      "correct": false,
+      "answer": "[corpus:2] News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Goog"
+    },
+    {
+      "id": "MH_1526",
+      "correct": false,
+      "answer": "[corpus:1] Christmas Day preview: 49ers, Ravens square off in potential Super Bowl sneak peek: The Ravens defense has allowed the fewest points per game this season (16.1) and second-fewest total yard"
+    },
+    {
+      "id": "MH_331",
+      "correct": true,
+      "answer": "[corpus:3] News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Goog"
+    },
+    {
+      "id": "MH_9",
+      "correct": true,
+      "answer": "[corpus:2] News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Goog"
+    },
+    {
+      "id": "MH_1591",
+      "correct": false,
+      "answer": "[corpus:1] Why Mozilla is betting on a decentralized social networking future: Consumers are hungry for a new way of social networking, where trust and safety are paramount and power isn’t centralized"
+    },
+    {
+      "id": "MH_886",
+      "correct": false,
+      "answer": "[corpus:0] Is Sam Bankman-Fried a bad ‘man’ or a good ‘boy’? Lawyers swap opening statements before first witnesses take the stand: But “all of that, all of it, was built on lies,” Rehn declared to th"
+    },
+    {
+      "id": "MH_1395",
+      "correct": true,
+      "answer": "[corpus:1] Point Spread Betting - What is a Point Spread Bet?: If a piece of news or a prevailing sentiment starts to gain traction about a particular team's increased chances of winning, this can inf"
+    },
+    {
+      "id": "MH_1710",
+      "correct": false,
+      "answer": "[corpus:1] Wonder review: The joy of pure imagination: But what really pushes things over the top is the introduction of a new mechanic that turns everything you think you know about Mario games on it"
+    },
+    {
+      "id": "MH_2328",
+      "correct": true,
+      "answer": "[corpus:0] SBF’s trial starts soon, but how did he — and FTX — get here?: Bankman-Fried was even compared to Warren Buffet and many called him the white horse of crypto (TechCrunch never did, for what"
+    },
+    {
+      "id": "MH_1121",
+      "correct": true,
+      "answer": "[corpus:3] News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Goog"
+    },
+    {
+      "id": "MH_1065",
+      "correct": false,
+      "answer": "[corpus:0] NBA Prop Bets - Best Team and Player Props 2023/24 Season: You can find value in player and team props by gathering information from multiple sources and tracking how players and their team"
+    },
+    {
+      "id": "MH_1088",
+      "correct": false,
+      "answer": "[corpus:1] The Steam Deck OLED improves much more than its screen: Since the original Steam Deck launched, Valve has been improving the hardware through updates — its team estimates around 300 to date"
+    },
+    {
+      "id": "MH_3",
+      "correct": false,
+      "answer": "[corpus:1] How the conspiracy-fueled Epoch Times went mainstream and made millions: The group reported $76 million in subscription revenue in 2021, compared to nearly $7 million in 2019"
+    },
+    {
+      "id": "MH_2064",
+      "correct": true,
+      "answer": "[corpus:0] 5 things we learned so far about the Google antitrust case: Monday’s trial hearing revealed plenty of juicy tidbits, including the $26.3 billion Google spent making itself the default searc"
+    },
+    {
+      "id": "MH_168",
+      "correct": false,
+      "answer": "[corpus:1] SBF Trial: The latest updates from the FTX collapse’s courtroom drama: There, you can find stories like this in-depth breakdown of what to expect from both sides of the SBF case, where the "
+    },
+    {
+      "id": "MH_2106",
+      "correct": true,
+      "answer": "[corpus:2] ” If the court decides the relevant market is phones and app stores, not specifically Android ones, then Google’s on the road to victory"
+    }
+  ]
+}

@@ -9,6 +9,7 @@
 | **Valhalla Unified Core (VUC)** | [`../valhalla-unified-core/`](../valhalla-unified-core/) | **Canonical** ValhallaBase platform doc, production config, JSON reports |
 | **Fair benchmark** | [`../tools/fair_benchmark/`](../tools/fair_benchmark/) | Reproduce hybrid / memory runs |
 | **Inference benchmarks** | [`../reports/valhalla_inference/`](../reports/valhalla_inference/) | Full JSON (monorepo mirror; subset synced to VUC `reports/`) |
+| **Valid benchmark interpretation** | [`../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) | **Runs · meaning · because** — what to cite externally |
 | **Memory-model paper** | [`../papers/memory_hybrid/`](../papers/memory_hybrid/) | External-facing draft |
 
 **Start here:** [`valhalla-unified-core/docs/VALHALLA_BASE_PLATFORM.md`](../valhalla-unified-core/docs/VALHALLA_BASE_PLATFORM.md)
@@ -26,21 +27,26 @@
 | **Proactive Fate v2** | **72/72 · PPI 0.921** | `proactive_fate_v2_test.json` |
 | Fate quad_cycle ingress P1 | **93.3%** | `fate_weight_ladder_compare_30.json` |
 
-### Third-party & scaling benchmarks (2026-06-30) — **all run complete**
+### Third-party & industry benchmarks (2026-06-30) — **full run + valid interpretation**
 
-| Benchmark | Result | Report |
-|-----------|--------|--------|
-| **RAGTruth** (ACL 2024) | **40/40** context-grounded | `ragtruth_v1_test.json` |
-| **Needle session** | **4/4** @ depth 30 | `needle_session_v1_test.json` |
-| **LongBench-v2** short MCQ | **7/20 (35%)** | `longbench_v2_v1_test.json` |
-| **Scaling open** @ 0.5B | **100%** · **+6.5pp** vs trad | `model_scaling_v1_test.json` |
-| **Scaling MCQ** @ 0.5B | **65% vs 15%** (+50pp) | `MODEL_SCALING_20260630.md` |
-| **MCQ ladder** (Qwen lm_patch) | **0.5B 70% → 3B 100%** | `MCQ_LADDER_20260630.md` |
-| **Backbone universality** | Valhalla 87% · trad 100% | `backbone_universality_test.json` |
-| **External holdout** | **15/15** | `external_holdout_test.json` |
+| Benchmark | Tier | Runs | Result | Report |
+|-----------|------|------|--------|--------|
+| **RAGTruth** 40Q | A | ×2 | **40/40** grounded | `ragtruth_v1_test.json` |
+| **RAGTruth-100** | A | ×1 | **100/100** grounded | `ragtruth_full_v1_test.json` |
+| **Needle session** | A | ×2 | **4/4** @ depth 30 | `needle_session_v1_test.json` |
+| **RULER-style** | A | ×1 | **20/20** recall | `ruler_v1_test.json` |
+| **MCQ ladder** | A | ×1 (46Q) | **65% → 98%** | `MCQ_LADDER_20260630.md` |
+| **External holdout** | A | ×1 | **15/15** | `external_holdout_test.json` |
+| **MultiHop-RAG** | B | ×1 | **9/25 (36%)** | `multihop_rag_v1_test.json` |
+| **LongBench-v2** | B | ×1 | **7/20 (35%)** | `longbench_v2_v1_test.json` |
+| **LaRA RAG vs LC** | B | ×1 | RAG 25% · LC 70% | `lara_v1_test.json` |
+| **LoCoMo** | B† | ×1 | **1/30 (3%)** | `locomo_v1_test.json` |
+| **FRAMES** | C | — | invalid (no wiki) | do not cite |
 
+**Valid interpretation (主文档):** [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)  
 **Master summary:** [`EXPERIMENT_SUMMARY_20260630.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md)  
-**Runner:** `python3 tools/valhalla_inference/run_recognized_benchmarks.py`
+**Industry detail:** [`INDUSTRY_BENCHMARKS_20260630.md`](../reports/valhalla_inference/INDUSTRY_BENCHMARKS_20260630.md)  
+**Runner:** `python3 tools/valhalla_inference/run_industry_benchmarks.py`
 
 Legacy Hybrid 2.0 fair-145 totals (**80%**) remain valid for **Tier A+B combined** history but are **not** the ValhallaBase product line.
 

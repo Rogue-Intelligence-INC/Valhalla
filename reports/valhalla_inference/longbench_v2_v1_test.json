@@ -1,0 +1,215 @@
+{
+  "timestamp": "2026-06-30T20:07:14.434847+00:00",
+  "protocol": "longbench-v2-v1",
+  "benchmark": "LongBench-v2 (THUDM)",
+  "citation": "LongBench v2 — 503 long-context MCQ, human baseline ~53.7%",
+  "bundle": "longbench_v2_mcq_short20.json",
+  "context_note": "short length slice, context truncated to <=12k chars, max 32 corpus lines",
+  "human_baseline_short": 0.501,
+  "n": 20,
+  "correct": 7,
+  "accuracy": 0.35,
+  "rows": [
+    {
+      "id": "66ebc7445a08c7b9b35df155",
+      "domain": "Single-Document QA",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": true,
+      "extracted": "D",
+      "reference": "D",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "66fb6d71bb02136c067c7c34",
+      "domain": "Multi-Document QA",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "A",
+      "reference": "B",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "66f3c1ab821e116aacb2ead1",
+      "domain": "Multi-Document QA",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": true,
+      "extracted": "D",
+      "reference": "D",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "6719bce5bb02136c067d4447",
+      "domain": "Long-dialogue History Understanding",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "A",
+      "reference": "C",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "6713066fbb02136c067d3214",
+      "domain": "Long-dialogue History Understanding",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": true,
+      "extracted": "D",
+      "reference": "D",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "66f91f2cbb02136c067c4b1e",
+      "domain": "Single-Document QA",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "D",
+      "reference": "B",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "66ed1556821e116aacb1ea14",
+      "domain": "Single-Document QA",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "D",
+      "reference": "A",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "66fe8eb3bb02136c067ca35f",
+      "domain": "Single-Document QA",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "A",
+      "reference": "D",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "66f58d6c821e116aacb33e76",
+      "domain": "Single-Document QA",
+      "difficulty": "easy",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "D",
+      "reference": "C",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "66fc0152bb02136c067c8826",
+      "domain": "Multi-Document QA",
+      "difficulty": "easy",
+      "context_truncated": true,
+      "correct": true,
+      "extracted": "A",
+      "reference": "A",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "66fa7f1dbb02136c067c6e6b",
+      "domain": "Multi-Document QA",
+      "difficulty": "easy",
+      "context_truncated": true,
+      "correct": true,
+      "extracted": "D",
+      "reference": "D",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "671b080abb02136c067d4dde",
+      "domain": "Long-dialogue History Understanding",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "A",
+      "reference": "B",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "671b2c05bb02136c067d50c8",
+      "domain": "Long-dialogue History Understanding",
+      "difficulty": "easy",
+      "context_truncated": true,
+      "correct": true,
+      "extracted": "A",
+      "reference": "A",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "66fcf2f2bb02136c067c9169",
+      "domain": "Multi-Document QA",
+      "difficulty": "easy",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "D",
+      "reference": "B",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "66f618f1bb02136c067c16f9",
+      "domain": "Single-Document QA",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "A",
+      "reference": "D",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "66ec3d1d821e116aacb1c622",
+      "domain": "Single-Document QA",
+      "difficulty": "easy",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "D",
+      "reference": "B",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "66ebc0c95a08c7b9b35de7f3",
+      "domain": "Single-Document QA",
+      "difficulty": "easy",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "A",
+      "reference": "C",
+      "answer": "ANSWER: A"
+    },
+    {
+      "id": "66fab090bb02136c067c74e7",
+      "domain": "Multi-Document QA",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "D",
+      "reference": "B",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "66f3de02821e116aacb2f73b",
+      "domain": "Multi-Document QA",
+      "difficulty": "hard",
+      "context_truncated": true,
+      "correct": true,
+      "extracted": "D",
+      "reference": "D",
+      "answer": "ANSWER: D"
+    },
+    {
+      "id": "671b170cbb02136c067d4f4a",
+      "domain": "Long-dialogue History Understanding",
+      "difficulty": "easy",
+      "context_truncated": true,
+      "correct": false,
+      "extracted": "A",
+      "reference": "C",
+      "answer": "ANSWER: A"
+    }
+  ],
+  "verdict": "LONGBENCH_V2_VIABLE"
+}

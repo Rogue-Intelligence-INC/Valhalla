@@ -70,23 +70,29 @@ python3 tools/valhalla_inference/test_external_holdout.py
 
 ---
 
-## 8. 公认 Benchmark 全量跑完 (2026-06-30)
+## 8. Industry & 公认 Benchmark 全量 (2026-06-30)
 
-| Benchmark | 结果 |
-|-----------|------|
-| RAGTruth | **40/40** grounded |
-| Needle @ depth 30 | **4/4** |
-| LongBench-v2 | **7/20 (35%)** |
-| Scaling open targeted | **31/31** · +6.5pp @0.5B |
-| Scaling MCQ | **65% vs 15%** @0.5B |
-| **MCQ ladder (Qwen lm_patch)** | **0.5B 70% → 3B 100%** (n=10) |
-| Backbone universality | 87% (corpus) / **100%** (targeted) |
-| External holdout | **15/15** |
+**有效解读（测了几次 · 意味着什么 · 因为什么）：** [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
 
-**实验总结：** [`EXPERIMENT_SUMMARY_20260630.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md)
+| Benchmark | Tier | 次数 | 结果 | 备注 |
+|-----------|------|------|------|------|
+| RAGTruth 40Q | A | ×2 | **40/40** | ACL 2024 忠实度 |
+| RAGTruth 100Q | A | ×1 | **100/100** | 含 hallucination-labeled |
+| Needle @ depth 30 | A | ×2 | **4/4** | session 召回 |
+| RULER 20Q | A | ×1 | **20/20** | multi-needle |
+| External holdout | A | ×1 | **15/15** | 套件外 |
+| MCQ ladder 46Q | A | ×1 | **65%→98%** | 0.5B→3B full fair MCQ |
+| MultiHop-RAG 25Q | B | ×1 | **9/25 (36%)** | COLM 2024 |
+| LongBench-v2 | B | ×1 | **7/20 (35%)** | 诚实边界 |
+| LaRA RAG vs LC | B | ×1 | **25% vs 70%** | LC 占优（负结果） |
+| LoCoMo 30Q | B† | ×1 | **1/30 (3%)** | 64-line cap，非 full |
+| FRAMES 25Q | C | — | **无效** | 缺 Wikipedia corpus |
+
+**总结：** [`EXPERIMENT_SUMMARY_20260630.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md) · [`INDUSTRY_BENCHMARKS_20260630.md`](../reports/valhalla_inference/INDUSTRY_BENCHMARKS_20260630.md)
 
 ```bash
-python3 tools/valhalla_inference/run_recognized_benchmarks.py
+HF_ENDPOINT=https://hf-mirror.com .venv-llm/bin/python3 tools/standard_benchmarks/download_standard_benchmarks.py --all --no-wiki-fetch
+RUSTFLAGS="-L /opt/cuda/lib64" python3 tools/valhalla_inference/run_industry_benchmarks.py --all
 ```
 
 ---

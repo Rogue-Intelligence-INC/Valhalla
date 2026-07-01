@@ -1,0 +1,276 @@
+{
+  "source": "yixuantt/MultiHopRAG",
+  "citation": "COLM 2024 MultiHop-RAG",
+  "n": 25,
+  "items": [
+    {
+      "id": "MH_1454",
+      "question": "Does 'The Verge' article suggest that Google's deals with companies like Apple are unnecessary due to a plethora of alternatives, while 'The Age' and 'TechCrunch' articles imply Google's actions are primarily driven by profit maximization and anticompetitive behavior, respectively?",
+      "answer": "no",
+      "question_type": "comparison_query",
+      "corpus": [
+        "Apple defends Google Search deal in court: ‘There wasn’t a valid alternative’: The Justice Department is focused on the deals Google makes — with Apple but also with Samsung and Mozilla and many others — to ensure it is the default search engine on practically every platform.",
+        "Is Google Search better than the rest? And is that fair?: She admits that she may have misinterpreted the evidence, but maintains that Google manipulates Search to maximise ad revenue.",
+        "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+      ]
+    },
+    {
+      "id": "MH_921",
+      "question": "Between the report from 'The Verge' on 2023-11-24 and the report from 'Wired' on 2023-11-25, is there consistency in the focus on the utility of charging devices such as 'Universal travel adapters' and '10,000-mAh capacity power bank' during Black Friday sales?",
+      "answer": "Yes",
+      "question_type": "temporal_query",
+      "corpus": [
+        "Some of our favorite devices are on sale for Black Friday.: Depending on which one you get, it might come with USB ports so you can charge multiple devices in one outlet.",
+        "54 Best Apple Black Friday Deals (2023): iPad, Apple Watch, AirPods: With a 10,000-mAh capacity, WIRED contributor Simon Hill says it charged his iPhone 14 Pro once and then delivered an additional 64 percent the second time before tapping out."
+      ]
+    },
+    {
+      "id": "MH_774",
+      "question": "Which company, reported by TechCrunch, has been involved in antitrust cases for its practices in becoming the default search engine, influencing app distribution and payment processing markets, showcasing new hardware developments, and impacting news publishers' content and revenue?",
+      "answer": "Google",
+      "question_type": "inference_query",
+      "corpus": [
+        "5 things we learned so far about the Google antitrust case: Monday’s trial hearing revealed plenty of juicy tidbits, including the $26.3 billion Google spent making itself the default search engine across platforms in 2021, how Google tried to take it further and have Chrome preinstalled on iPhones and more.",
+        "What to know about Fortnite maker Epic Games’ antitrust battle with Google, starting today: It will attempt to argue that Google restrains competition within two separate markets, including the distribution of apps to Android users and the market for payment processing solutions for content inside Android apps.",
+        "Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier: Google unveils new hardware: This week was Google’s annual hardware event, where the search and consumer tech giant showed off what it’s been working on.",
+        "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+      ]
+    },
+    {
+      "id": "MH_1514",
+      "question": "Does the article from Cnbc | World Business News Leader suggest that businesses selling on Amazon are setting non-competitive prices, while the article from The Verge indicates that eBay offers a price-matching policy that includes a coupon for the difference plus an additional incentive?",
+      "answer": "Yes",
+      "question_type": "comparison_query",
+      "corpus": [
+        "Amazon sellers sound off on the FTC's 'long-overdue' antitrust case: “Even with those tools, some of the businesses selling on Amazon might still choose to set prices that aren’t competitive,” Zapolsky said.",
+        "Know the price-matching policies for Best Buy, Target, Walmart, and others: That means eBay will give you an eBay coupon for the difference in price between what you bought the item for and what the competitor is selling it for, plus an additional 10 percent of that price difference."
+      ]
+    },
+    {
+      "id": "MH_1762",
+      "question": "Does the article from Fortune claim that Alameda Research's business practices with FTX were legal, while the article from The Verge suggests that Alameda Research had a negative balance that exceeded FTX's revenue, indicating potential financial issues?",
+      "answer": "Yes",
+      "question_type": "comparison_query",
+      "corpus": [
+        "Is Sam Bankman-Fried a bad ‘man’ or a good ‘boy’? Lawyers swap opening statements before first witnesses take the stand: It was a “very innovative, successful company.” And the business practices between the two were reasonable, he argued, claiming that Alameda acted legally as an FTX customer, payment processor, and market maker, or financial entity that acts as a trading partner for customers looking to buy and sell cryptocurrencies.",
+        "Today the FTX jury suffered through a code review: Around 2019 or 2020, Wang checked the database and discovered that Alameda was negative by about $200 million, which was more than the $150 million FTX made in revenue."
+      ]
+    },
+    {
+      "id": "MH_537",
+      "question": "Between the article from 'The Sydney Morning Herald' published on October 1st featuring \"Chris Hammer's latest book\" and the 'Polygon' article detailing every movie and show coming to Netflix in November, which narrative involves a family entangled in a murder scenario?",
+      "answer": "Polygon",
+      "question_type": "temporal_query",
+      "corpus": [
+        "Looking for a book to read? Here are 14 tips for October: His latest brings back Nell Buchanan and Ivan Lucie, whom we met in Treasure & Dirt and Tilt, for a case of murder involving one of the seven families who rule the Yuwonderie district like a fiefdom.",
+        "Every movie and show coming to Netflix in November: From Netflix: The world of a seemingly perfect family shatters when a shocking murder proves that they’re willing to make desperate moves to protect each other."
+      ]
+    },
+    {
+      "id": "MH_2223",
+      "question": "Does 'The Sydney Morning Herald' suggest that the Federal Reserve's future interest rate decisions will be based on the whims of a magic 8-ball, while another article from 'The Sydney Morning Herald' indicates that there is hope the Federal Reserve may soon stop raising interest rates and possibly start reducing them?",
+      "answer": "no",
+      "question_type": "comparison_query",
+      "corpus": [
+        "ASX set to open lower as Wall Street closes September with more losses: Postponements of such reports could complicate things for the Fed, which has insisted it will make upcoming decisions on interest rates based on what incoming data say about the economy.",
+        "ASX set for bright start despite Wall Street slip; $A drops: With inflation down from its peak two summers ago, Wall Street is hopeful that the Federal Reserve may finally be done with its market-shaking hikes to interest rates and could soon turn to cutting them."
+      ]
+    },
+    {
+      "id": "MH_2275",
+      "question": "Who is the individual that, before the FTX collapse, was portrayed as a reliable figure in the cryptocurrency sector, and is now facing allegations of directing a multi-billion dollar misappropriation of customer funds and committing fraud for personal gain, with these accusations being discussed in courtroom updates and analyses by both TechCrunch and The Verge?",
+      "answer": "Sam Bankman-Fried",
+      "question_type": "inference_query",
+      "corpus": [
+        "SBF Trial: The latest updates from the FTX collapse’s courtroom drama: The second week of the trial’s standout testimony came from Alameda Research’s former CEO Caroline Ellison, who claimed she took $14 billion from customers to repay debts to lenders, using them as a line of credit under the instruction of SBF.",
+        "The FTX trial is bigger than Sam Bankman-Fried: Before his fall, Bankman-Fried made himself out to be the Good Boy of crypto — the trustworthy face of a sometimes-shady industry.",
+        "Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier: The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+      ]
+    },
+    {
+      "id": "MH_575",
+      "question": "Who is the player mentioned in articles from 'The Guardian' and 'Sporting News' who scored two touchdowns in a game where his team defeated the Washington Commanders and might struggle to reach 2,000-plus receiving yards in a single season because of the strong pass defenses faced by the Miami Dolphins?",
+      "answer": "Tyreek Hill",
+      "question_type": "inference_query",
+      "corpus": [
+        "NFL roundup: Pats hit new low as Lions reach 9-3 for first time since 1962: Tyreek Hill had two touchdowns among his 157 receiving yards to help the Miami Dolphins rout the Washington Commanders (4-9).",
+        "NFL awards odds: Six longshots bettors should consider for MVP, OPOY, DPOY and more: Of Miami's five remaining opponents, four have pass defenses ranked in the league's top eight."
+      ]
+    },
+    {
+      "id": "MH_1089",
+      "question": "After the report by The Age on October 22, 2023, discussing the fairness of Google Search's dominance, did TechCrunch maintain consistency in reporting on Google's competitive practices in their November 6, 2023, article about Epic Games' antitrust battle with Google and the December 15, 2023, article about a news publisher's antitrust suit against Google?",
+      "answer": "Yes",
+      "question_type": "temporal_query",
+      "corpus": [
+        "What to know about Fortnite maker Epic Games’ antitrust battle with Google, starting today: It will attempt to argue that Google restrains competition within two separate markets, including the distribution of apps to Android users and the market for payment processing solutions for content inside Android apps.",
+        "Is Google Search better than the rest? And is that fair?: Wired removed the article for not meeting its standards, but the degree to which it was shared on social media and boosted in write-ups at other outlets shows just how willing people are to accept foul play on Google’s part.",
+        "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+      ]
+    },
+    {
+      "id": "MH_1526",
+      "question": "Does the 'Sporting News' article claim that the Bears' defense sacked Joshua Dobbs, while the 'Yardbarker' article discusses the Baltimore Ravens defense's ranking in points allowed per game and total yards in the current NFL season?",
+      "answer": "Yes",
+      "question_type": "comparison_query",
+      "corpus": [
+        "Bears vs. Vikings live score, updates, highlights from NFL 'Monday Night Football' game: 9:47 p.m. — The Bears answer right back and sack Dobbs, with Sweat and Brisker in there to take him down.",
+        "Christmas Day preview: 49ers, Ravens square off in potential Super Bowl sneak peek: The Ravens defense has allowed the fewest points per game this season (16.1) and second-fewest total yards (4,030), while San Francisco's unit ranks second in points (16.7) and 10th in yardage (310 per game)."
+      ]
+    },
+    {
+      "id": "MH_331",
+      "question": "What company is at the center of claims involving manipulation of search results to maximize ad revenue according to Megan Grey in 'The Age', ranking local search results based on relevance, distance, and prominence as reported by 'The Verge', and is accused by a news publisher in a class action antitrust suit covered by 'TechCrunch' for harming their bottom line through anticompetitive practices?",
+      "answer": "Google",
+      "question_type": "inference_query",
+      "corpus": [
+        "Is Google Search better than the rest? And is that fair?: She admits that she may have misinterpreted the evidence, but maintains that Google manipulates Search to maximise ad revenue.",
+        "The restaurant nearest Google: Google’s public documentation says it uses three categories to rank results that are local to a searcher: relevance, distance, and prominence.",
+        "Is Google Search better than the rest? And is that fair?: Wired removed the article for not meeting its standards, but the degree to which it was shared on social media and boosted in write-ups at other outlets shows just how willing people are to accept foul play on Google’s part.",
+        "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+      ]
+    },
+    {
+      "id": "MH_9",
+      "question": "Which company, as reported by both TechCrunch and The Verge, has spent billions to maintain its default search engine status on various platforms and is also accused of harming news publishers’ revenue through its business practices?",
+      "answer": "Google",
+      "question_type": "inference_query",
+      "corpus": [
+        "5 things we learned so far about the Google antitrust case: When Google’s search head Prabhakar Raghavan testified in court on October 28, he revealed that the tech giant had paid $26.3 billion in 2021 to multiple browsers, phones and platforms, from companies including Apple, Samsung and Mozilla, The Verge reports.",
+        "Apple defends Google Search deal in court: ‘There wasn’t a valid alternative’: The Justice Department is focused on the deals Google makes — with Apple but also with Samsung and Mozilla and many others — to ensure it is the default search engine on practically every platform.",
+        "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+      ]
+    },
+    {
+      "id": "MH_1591",
+      "question": "Does the TechCrunch article on Spill's new social media platform suggest a different approach to social networking from what TechCrunch reports consumers desire according to Mozilla's perspective, with Spill focusing on a unique platform and Mozilla emphasizing trust and decentralization?",
+      "answer": "No",
+      "question_type": "comparison_query",
+      "corpus": [
+        "Spill toasts one year with a 2.7M seed extension, Kerry Washington and champagne: But while Pebble sought to essentially clone Twitter, Spill’s team is building something that looks very little like it.",
+        "Why Mozilla is betting on a decentralized social networking future: Consumers are hungry for a new way of social networking, where trust and safety are paramount and power isn’t centralized with a Big Tech CEO in charge… or at least that’s what Mozilla believes."
+      ]
+    },
+    {
+      "id": "MH_886",
+      "question": "Does the 'Fortune' article suggest that the foundation of FTX's success was based on dishonest practices in a similar way to how 'TechCrunch' alleges Sam Bankman-Fried sought personal gain through fraudulent means, or do these articles present different reasons for the controversy surrounding Sam Bankman-Fried?",
+      "answer": "Similar",
+      "question_type": "comparison_query",
+      "corpus": [
+        "Is Sam Bankman-Fried a bad ‘man’ or a good ‘boy’? Lawyers swap opening statements before first witnesses take the stand: But “all of that, all of it, was built on lies,” Rehn declared to the jury.",
+        "In the end, the FTX trial was about the friends screwed along the way: Wang testified that he heard Bankman-Fried tell another trader that it was okay to continue withdrawing money from the account as long as the amount was less than FTX’s total trading revenue.",
+        "Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier: The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+      ]
+    },
+    {
+      "id": "MH_1395",
+      "question": "What are the entities that not only provide introductory incentives to attract users but also modify their betting options for events and player awards based on news and public sentiment, as reported by the Sporting News?",
+      "answer": "Sportsbooks",
+      "question_type": "inference_query",
+      "corpus": [
+        "The Best NBA Betting Sites and Apps for the 2023-24 Season: From there, you can claim your welcome bonus, which can come in many forms (be sure to read the requirements of any welcome bonus before using it).",
+        "Point Spread Betting - What is a Point Spread Bet?: If a piece of news or a prevailing sentiment starts to gain traction about a particular team's increased chances of winning, this can influence how people bet, leading sportsbooks to adjust their lines accordingly.",
+        "NBA Rookie of the Year Odds - Wembanyama the early favorite: But sportsbooks are also gathering this information, and they begin to tighten the NBA Rookie of the Year lines in response."
+      ]
+    },
+    {
+      "id": "MH_1710",
+      "question": "After Polygon reported on October 18th that 'Wonder Seeds cause the levels in Super Mario Bros. Wonder to collapse and contort, breaking the traditional rules of Mario games,' did Engadget's review on October 20th agree or disagree on the significant change in gameplay experience introduced by the new mechanic in Super Mario Bros. Wonder?",
+      "answer": "Agree",
+      "question_type": "temporal_query",
+      "corpus": [
+        "Super Mario Bros. Wonder is a perfect end for the Switch: With Wonder Seeds, the levels themselves collapse and contort, disobeying the laws established by decades of Mario games.",
+        "Super Mario Bros. Wonder review: The joy of pure imagination: But what really pushes things over the top is the introduction of a new mechanic that turns everything you think you know about Mario games on its head."
+      ]
+    },
+    {
+      "id": "MH_2328",
+      "question": "Who is the individual whose trial is approaching, as reported by TechCrunch, who faced difficulties managing the rapid expansion of FTX and Alameda Research as mentioned by The Verge, and who is also accused of committing fraud for personal gain according to another article from TechCrunch?",
+      "answer": "Sam Bankman-Fried",
+      "question_type": "inference_query",
+      "corpus": [
+        "SBF’s trial starts soon, but how did he — and FTX — get here?: Bankman-Fried was even compared to Warren Buffet and many called him the white horse of crypto (TechCrunch never did, for what it’s worth).",
+        "The jury finally hears from Sam Bankman-Fried: Because FTX had grown so much, he could no longer run both companies, he said.",
+        "Sam Bankman-Fried didn’t ask where the $8 billion went: It was not until Judge Lewis Kaplan intervened to ask if Bankman-Fried had ever been told by Yedidia about that money, in words or in substance, that Bankman-Fried admitted he’d been told.",
+        "Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier: The prosecution painted Bankman-Fried as someone who knowingly committed fraud to achieve great wealth, power and influence, while the defense countered that the FTX founder acted in good faith, never meant to commit fraud or steal and basically got in over his head."
+      ]
+    },
+    {
+      "id": "MH_1121",
+      "question": "Which company is at the center of allegations involving manipulation of search results to maximize ad revenue according to 'The Age', is likely to win a legal case about phones and app stores if the market is defined broadly as per 'The Verge', was deemed the only valid search engine service option by 'Apple' as reported by 'The Verge', and is accused of using anticompetitive practices to harm news publishers' financial interests as per 'TechCrunch'?",
+      "answer": "Google",
+      "question_type": "inference_query",
+      "corpus": [
+        "Is Google Search better than the rest? And is that fair?: She admits that she may have misinterpreted the evidence, but maintains that Google manipulates Search to maximise ad revenue.",
+        "Epic v. Google, explained: This whole line of argument is called “market definition.” If the court decides the relevant market is phones and app stores, not specifically Android ones, then Google’s on the road to victory.",
+        "Apple defends Google Search deal in court: ‘There wasn’t a valid alternative’: “Certainly there wasn’t a valid alternative to Google at the time,” Cue said.",
+        "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+      ]
+    },
+    {
+      "id": "MH_1065",
+      "question": "Do both articles from Sporting News suggest that bettors can find value in NBA prop bets by considering team performance, with one discussing the value in player and team props and the other detailing options like a team leading at the end of a quarter or total points scored?",
+      "answer": "Yes",
+      "question_type": "comparison_query",
+      "corpus": [
+        "NBA Prop Bets - Best Team and Player Props 2023/24 Season: You can find value in player and team props by gathering information from multiple sources and tracking how players and their teammates perform.",
+        "Prop Betting - What is a Prop Bet?: You can also bet on team props, such as whether a team will lead at the end of a certain quarter or an over/under bet on the total number of points the team will score in the game."
+      ]
+    },
+    {
+      "id": "MH_1088",
+      "question": "Does 'The Verge' article suggest that Valve is narrowing its focus to games in its store, while 'Polygon' and 'Engadget' articles indicate that Valve is continuing to develop and launch new hardware, as seen with the updates to the Steam Deck and the release of the Steam Deck OLED?",
+      "answer": "Yes",
+      "question_type": "comparison_query",
+      "corpus": [
+        "Tim Sweeney on Epic’s victory royale over Google: We look at Valve and we see a store that could be both, but they’ve decided to focus exclusively on games.",
+        "The Steam Deck OLED improves much more than its screen: Since the original Steam Deck launched, Valve has been improving the hardware through updates — its team estimates around 300 to date.",
+        "Steam Deck OLED review: It's just better: The Steam Deck OLED will go on sale on November 16th at 1pm ET, and Valve has units ready to ship that same day."
+      ]
+    },
+    {
+      "id": "MH_3",
+      "question": "Do the TechCrunch article on software companies and the Hacker News article on The Epoch Times both report an increase in revenue related to payment and subscription models, respectively?",
+      "answer": "Yes",
+      "question_type": "comparison_query",
+      "corpus": [
+        "Here’s how Rainforest, a budding Stripe rival, aims to win over software companies: They really just want to be able to accept payments and generate more revenue from being able to do so.",
+        "How the conspiracy-fueled Epoch Times went mainstream and made millions: The group reported $76 million in subscription revenue in 2021, compared to nearly $7 million in 2019."
+      ]
+    },
+    {
+      "id": "MH_2064",
+      "question": "Which company, recently scrutinized in articles from TechCrunch and The Age, is facing allegations of anticompetitive behavior and accusations of harming news publishers' revenue, while also spending billions to maintain its default search engine status across various platforms?",
+      "answer": "Google",
+      "question_type": "inference_query",
+      "corpus": [
+        "5 things we learned so far about the Google antitrust case: Monday’s trial hearing revealed plenty of juicy tidbits, including the $26.3 billion Google spent making itself the default search engine across platforms in 2021, how Google tried to take it further and have Chrome preinstalled on iPhones and more.",
+        "What to know about Fortnite maker Epic Games’ antitrust battle with Google, starting today: It will attempt to argue that Google restrains competition within two separate markets, including the distribution of apps to Android users and the market for payment processing solutions for content inside Android apps.",
+        "Is Google Search better than the rest? And is that fair?: Wired removed the article for not meeting its standards, but the degree to which it was shared on social media and boosted in write-ups at other outlets shows just how willing people are to accept foul play on Google’s part.",
+        "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+      ]
+    },
+    {
+      "id": "MH_168",
+      "question": "Does the article from Business Today | Latest Stock Market And Economy News India discuss the cuisine of Italy in the context of a military conflict, while the TechCrunch article focuses on legal strategies within the SBF case?",
+      "answer": "no",
+      "question_type": "comparison_query",
+      "corpus": [
+        "&#039;Massive intel failure by Mossad&#039;: Hamas&#039; surprise attack on Israel shocks internet: Israeli Prime Minister Benjamin Netanyahu said that since this morning, Israel had been at war and its first objective was to clear out the hostile forces that infiltrated its territory.",
+        "SBF Trial: The latest updates from the FTX collapse’s courtroom drama: There, you can find stories like this in-depth breakdown of what to expect from both sides of the SBF case, where the prosecution and defense could gain ground or fall short in their arguments and what the takeaways were from the opening arguments."
+      ]
+    },
+    {
+      "id": "MH_2106",
+      "question": "Which company is at the center of concerns from 'The Age' for manipulating search results to maximize ad revenue, is mentioned by 'TechCrunch' for not planning additional measures on a major video platform, is likely to win a court case according to 'The Verge' if all phones and app stores are considered the relevant market, and is accused by another 'TechCrunch' article of harming news publishers' bottom lines through anticompetitive practices?",
+      "answer": "Google",
+      "question_type": "inference_query",
+      "corpus": [
+        "Is Google Search better than the rest? And is that fair?: She admits that she may have misinterpreted the evidence, but maintains that Google manipulates Search to maximise ad revenue.",
+        "Deepfake election risks trigger EU call for more generative AI safeguards: Over the next six months Google’s report states it has no additional measures planned for YouTube.",
+        "Epic v. Google, explained: This whole line of argument is called “market definition.” If the court decides the relevant market is phones and app stores, not specifically Android ones, then Google’s on the road to victory.",
+        "News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Google “siphons off” news publishers’ content, their readers and ad revenue through anticompetitive means."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "timestamp": "2026-06-30T20:07:42.019128+00:00",
+  "protocol": "ruler-v1",
+  "benchmark": "RULER-style synthetic",
+  "bundle": "ruler_v1_slice20.json",
+  "n": 20,
+  "correct": 20,
+  "recall": 1.0,
+  "verdict": "NEEDLE_STRONG",
+  "rows": [
+    {
+      "id": "RULER_0",
+      "task": "single_needle",
+      "depth": 30,
+      "correct": true,
+      "answer": "[corpus:15] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_1",
+      "task": "single_needle",
+      "depth": 30,
+      "correct": true,
+      "answer": "[corpus:15] Project Nebula launch key: ZETA-4402"
+    },
+    {
+      "id": "RULER_2",
+      "task": "multi_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:3] Registration token for Site 7: KAPPA-18"
+    },
+    {
+      "id": "RULER_3",
+      "task": "single_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:20] Emergency override PIN: 7734-OMEGA"
+    },
+    {
+      "id": "RULER_4",
+      "task": "single_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:5] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_5",
+      "task": "multi_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:3] Project Nebula launch key: ZETA-4402"
+    },
+    {
+      "id": "RULER_6",
+      "task": "single_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:5] Registration token for Site 7: KAPPA-18"
+    },
+    {
+      "id": "RULER_7",
+      "task": "single_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:5] Emergency override PIN: 7734-OMEGA"
+    },
+    {
+      "id": "RULER_8",
+      "task": "single_needle",
+      "depth": 5,
+      "correct": true,
+      "answer": "[corpus:2] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_9",
+      "task": "single_needle",
+      "depth": 20,
+      "correct": true,
+      "answer": "[corpus:10] Project Nebula launch key: ZETA-4402"
+    },
+    {
+      "id": "RULER_10",
+      "task": "single_needle",
+      "depth": 30,
+      "correct": true,
+      "answer": "[corpus:15] Registration token for Site 7: KAPPA-18"
+    },
+    {
+      "id": "RULER_11",
+      "task": "multi_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:13] Emergency override PIN: 7734-OMEGA"
+    },
+    {
+      "id": "RULER_12",
+      "task": "single_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:20] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_13",
+      "task": "single_needle",
+      "depth": 5,
+      "correct": true,
+      "answer": "[corpus:2] Project Nebula launch key: ZETA-4402"
+    },
+    {
+      "id": "RULER_14",
+      "task": "multi_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:13] Registration token for Site 7: KAPPA-18"
+    },
+    {
+      "id": "RULER_15",
+      "task": "single_needle",
+      "depth": 30,
+      "correct": true,
+      "answer": "[corpus:15] Emergency override PIN: 7734-OMEGA"
+    },
+    {
+      "id": "RULER_16",
+      "task": "single_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:5] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_17",
+      "task": "multi_needle",
+      "depth": 30,
+      "correct": true,
+      "answer": "[corpus:10] Project Nebula launch key: ZETA-4402"
+    },
+    {
+      "id": "RULER_18",
+      "task": "single_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:20] Registration token for Site 7: KAPPA-18"
+    },
+    {
+      "id": "RULER_19",
+      "task": "single_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:20] Emergency override PIN: 7734-OMEGA"
+    }
+  ]
+}

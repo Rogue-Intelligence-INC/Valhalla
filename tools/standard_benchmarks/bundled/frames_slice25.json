@@ -1,0 +1,685 @@
+{
+  "source": "google/frames-benchmark",
+  "citation": "NAACL 2025 FRAMES — multi-hop RAG",
+  "baseline_no_rag": 0.408,
+  "baseline_oracle": 0.729,
+  "wiki_items_with_extract": 0,
+  "n": 25,
+  "items": [
+    {
+      "id": "FRAMES_654",
+      "question": "Please consider the following clues and answer the question that follows:  1. This mosque is located in the city dubbed the \"Jerusalem of the Balkans.\" 2, The mosque was commissioned by an authoritarian dictator born in a small village 10 km west of Yogyakarta.  Question: What is the height difference between the twin towers of the mosque and its dome? ",
+      "answer": "21 meters",
+      "reasoning_types": "Numerical reasoning | Multiple constraints",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_114",
+      "question": "What painting was stolen from The Louvre exactly 56 years before the birth of activist and songwriter Serj Tankian?",
+      "answer": "The Mona Lisa",
+      "reasoning_types": "Numerical reasoning | Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_25",
+      "question": "What was the age difference between Mike Tyson and Tyson Fury on the respective days on which they lost their first ever fights? Represent the figure in years only.",
+      "answer": "12 years.",
+      "reasoning_types": "Numerical reasoning | Post processing",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_759",
+      "question": "I can't recall who I'm trying to think of. This person was the partner of someone in the 1984 Olympic keelboat competition. Their partner's sister was the only American who placed in the 2003 Pan American Games for sailing in the men's or women's competition (not including the open events).",
+      "answer": "Richard Coxon.",
+      "reasoning_types": "Multiple constraints",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_281",
+      "question": "I am the narrator character in the final novel written by the recipient of the 1963 Hugo Award for Best Novel. Who am I?",
+      "answer": "Angel Archer.",
+      "reasoning_types": "Tabular reasoning | Multiple constraints",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_250",
+      "question": "The Sikh empire's capital at the time of the Battle of Sobraon came under the rule of the British Crown in what year?",
+      "answer": "1858",
+      "reasoning_types": "Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_228",
+      "question": "The US Naval ship that sunk in Havana Harbor on February 15, 1898, is named for a state that was admitted to the Union while what woman was serving as First Lady?",
+      "answer": "Elizabeth Monroe",
+      "reasoning_types": "Multiple constraints | Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_142",
+      "question": "As of August 5, 2024, what is the name of the federal law that was found to be violated by the company that Brian Bergstein is employed by?",
+      "answer": "The Sherman Antitrust Act",
+      "reasoning_types": "Multiple constraints",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_754",
+      "question": "How many times larger was the population of the city of Paris, 19 years after the year designated as The International Year for the Culture of Peace by the United Nations, than the population of Brown County, Kansas according to its 2020 census? Round the answer to the nearest whole number.",
+      "answer": "228 times larger",
+      "reasoning_types": "Numerical reasoning | Post processing | Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_104",
+      "question": " \"The Terminator\" was released on October 26th exactly how many years after the famous gunfight at the O.K. Corral occurred?",
+      "answer": "103",
+      "reasoning_types": "Numerical reasoning | Multiple constraints",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_692",
+      "question": "Little River Canyon National Preserve has three waterfalls, one of which is the tallest in Alabama. How much shorter is Alabama's tallest waterfall than the tallest waterfall in the continental US?",
+      "answer": "2,452 ft",
+      "reasoning_types": "Numerical reasoning | Tabular reasoning | Post processing",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_758",
+      "question": "Who was the Mayor of Quincy, Massachusetts when the Quincy Medical Center opened and who was the Mayor when it closed?",
+      "answer": "Henry O. Fairbanks and Thomas P. Koch",
+      "reasoning_types": "Numerical reasoning | Tabular reasoning | Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_558",
+      "question": "Use this information: -The Dragonfly Sea is a novel by Yvonne Adhiambo Owuor. -It has a publisher. -The publisher has two co-founders.  What was the original name of the university where the male co-founder of this publisher studied?",
+      "answer": "King's College",
+      "reasoning_types": "Multiple constraints | Post processing",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_89",
+      "question": "What was the birthday of the man who was mayor of New York City the year Snoopy debuted in the Macy's Thanksgiving Day Parade?",
+      "answer": "November 24, 1921",
+      "reasoning_types": "Tabular reasoning | Multiple constraints | Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_604",
+      "question": "During which year did the actor who played George Falconer in the film A Single Man receive his first Academy Award? Include the name of the film for which he won.",
+      "answer": "Colin Firth won his first Academy Award in 2011 for The King's Speech.",
+      "reasoning_types": "Multiple constraints",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_432",
+      "question": "In 2024's version of the world, which country was the birthplace of the Emperor who reigned from the year 363 to 364 over the Empire that the Goths played a major part in collapsing?",
+      "answer": "Serbia",
+      "reasoning_types": "Multiple constraints",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_32",
+      "question": "As of 2010, if you added the number of times Brazil had won the World Cup to the amount of times the Chicago Bulls had won the NBA Championship and multiplied this number by the amount of times the Dallas Cowboys had won the Super Bowl, what number are you left with?",
+      "answer": "55",
+      "reasoning_types": "Numerical reasoning | Tabular reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_30",
+      "question": "As of August 1, 2024, what is the population of the writer of the \"Culdcept Saga\"'s birthplace? Write the answer to the nearest million, in characters.",
+      "answer": "Two million.",
+      "reasoning_types": "Numerical reasoning | Multiple constraints | Post processing",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_95",
+      "question": "As of August 2024, the Atlanta Braves beat the Houston Astros the last time they won the World Series. How many years before this did Jackie Robinson join the Brooklyn Dodgers?",
+      "answer": "74 years",
+      "reasoning_types": "Numerical reasoning | Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_223",
+      "question": "After Meat Loaf legally changed his name due to a commercial, what was the first new brand launched by the company to whom the commercial belonged?",
+      "answer": "Dockers",
+      "reasoning_types": "Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_238",
+      "question": "Part of the dynamic duo who broke a record set by Mickey Lolich and Bill Freehan in 1975 for most starts together, this MLB pitcher's battery mate ranked first all-time among catchers in putouts as of 2022. In what year did he (the pitcher)  make his Grand Ole Opry debut?",
+      "answer": "2024",
+      "reasoning_types": "Multiple constraints | Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_517",
+      "question": "What age was the Director of Inception (2010) when the film was released in the UK?",
+      "answer": "39",
+      "reasoning_types": "Numerical reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_616",
+      "question": "As of 2024, how many times could the country where shogi was invented fit inside the country where xiangqi was invented? Round to the nearest whole number.",
+      "answer": "25",
+      "reasoning_types": "Numerical reasoning | Post processing",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_27",
+      "question": "What number would Tommy Lawton have worn playing for Chelsea FC?",
+      "answer": "9",
+      "reasoning_types": "Temporal reasoning",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    },
+    {
+      "id": "FRAMES_574",
+      "question": "If the man that the SS Edmund Fitzgerald was named after was living at the time of the ship's sinking, how old was he? If he was already deceased, how long had he been dead? You may just use the year without regard for the date of birth.",
+      "answer": "Edmund Fitzgerald, the man for whom the ill-fated ship SS Edmund Fitzgerald was named was born in 1895, he was 80 years old in 1975 when she sank.",
+      "reasoning_types": "Numerical reasoning | Post processing",
+      "wiki_links": [
+        "[",
+        "'",
+        "h",
+        "t",
+        "t",
+        "p",
+        "s",
+        ":"
+      ],
+      "corpus": [
+        "Reference: [",
+        "Reference: '",
+        "Reference: h",
+        "Reference: t",
+        "Reference: t",
+        "Reference: p",
+        "Reference: s",
+        "Reference: :"
+      ],
+      "wiki_fetched": false
+    }
+  ]
+}

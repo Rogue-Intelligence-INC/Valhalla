@@ -1,0 +1,224 @@
+{
+  "timestamp": "2026-06-30T20:07:36.803185+00:00",
+  "protocol": "locomo-v1",
+  "benchmark": "LoCoMo",
+  "citation": "ACL 2024 LoCoMo long conversational memory",
+  "bundle": "locomo_qa_slice30.json",
+  "n": 30,
+  "correct": 1,
+  "accuracy": 0.0333,
+  "max_lines": 64,
+  "verdict": "OPEN_QA_DEVELOPING",
+  "rows": [
+    {
+      "id": "LOCO_0_0",
+      "correct": false,
+      "answer": "[corpus:22] [D10:5] Caroline: Thanks, Melanie! It's awesome to have our own platform to be ourselves and support others' rights",
+      "gold": "7 May 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_1",
+      "correct": false,
+      "answer": "[corpus:13] [D1:14] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
+      "gold": 2022,
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_2",
+      "correct": false,
+      "answer": "[corpus:36] [D10:19] Caroline: That's great, Mel! What other good memories do you have that make you feel thankful for life?",
+      "gold": "Psychology, counseling certification",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_3",
+      "correct": false,
+      "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! What happened that was so awesome? Did you hear any inspiring stories?",
+      "gold": "Adoption agencies",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_4",
+      "correct": false,
+      "answer": "[corpus:53] [D11:12] Caroline: Thanks, Melanie",
+      "gold": "Transgender woman",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_5",
+      "correct": false,
+      "answer": "[corpus:6] [D1:7] Caroline: The support group has made me feel accepted and given me courage to embrace myself",
+      "gold": "The sunday before 25 May 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_6",
+      "correct": false,
+      "answer": "[corpus:31] [D10:14] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
+      "gold": "June 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_7",
+      "correct": false,
+      "answer": "[corpus:36] [D10:19] Caroline: That's great, Mel! What other good memories do you have that make you feel thankful for life?",
+      "gold": "Single",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_8",
+      "correct": false,
+      "answer": "[corpus:6] [D1:7] Caroline: The support group has made me feel accepted and given me courage to embrace myself",
+      "gold": "The week before 9 June 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_9",
+      "correct": false,
+      "answer": "[corpus:31] It was so amazing lying there and watching the sky light up with streaks of light",
+      "gold": "The week before 9 June 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_10",
+      "correct": false,
+      "answer": "[corpus:59] [D12:1] Caroline: Hey Mel! How're ya doin'? Recently, I had a not-so-great experience on a hike",
+      "gold": "4 years",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_11",
+      "correct": false,
+      "answer": "[corpus:45] [D11:4] Caroline: Wow, Mel, glad you had a blast at the concert",
+      "gold": "Sweden",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_12",
+      "correct": false,
+      "answer": "[corpus:42] [D11:1] Melanie: Hey Caroline! Last night was amazing! We celebrated my daughter's birthday with a concert surrounded by music, joy and the warm summer breeze",
+      "gold": "10 years ago",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_13",
+      "correct": false,
+      "answer": "[corpus:8] [D1:9] Caroline: Gonna continue my edu and check out career options, which is pretty exciting!",
+      "gold": "counseling or mental health for Transgender people",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_14",
+      "correct": true,
+      "answer": "[corpus:60] FYI, I finished another pottery project - want to see a pic?",
+      "gold": "Likely no",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_15",
+      "correct": false,
+      "answer": "[corpus:54] [D11:13] Melanie: Wow, Caroline, that's gorgeous! I love the self-acceptance and love theme",
+      "gold": "pottery, camping, painting, swimming",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_16",
+      "correct": false,
+      "answer": "[corpus:60] [D12:2] Melanie: Hey Caroline, sorry about the hike",
+      "gold": "2 July 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_17",
+      "correct": false,
+      "answer": "[corpus:4] [D1:5] Caroline: The transgender stories were so inspiring! I was so happy and thankful for all the support",
+      "gold": "July 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_18",
+      "correct": false,
+      "answer": "[corpus:35] [D10:18] Melanie: It was one of those moments where I felt tiny and in awe of the universe",
+      "gold": "beach, mountains, forest",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_19",
+      "correct": false,
+      "answer": "[corpus:48] This pic's from last night - looks like everyone was having a blast! Reminds me it's important to cultivate a loving and accepting environment for our kids",
+      "gold": "dinosaurs, nature",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_20",
+      "correct": false,
+      "answer": "[corpus:31] [D10:14] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
+      "gold": "5 July 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_21",
+      "correct": false,
+      "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! What happened that was so awesome? Did you hear any inspiring stories?",
+      "gold": "The week before 6 July 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_22",
+      "correct": false,
+      "answer": "[corpus:36] [D10:19] Caroline: That's great, Mel! What other good memories do you have that make you feel thankful for life?",
+      "gold": "Yes, since she collects classic children's books",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_23",
+      "correct": false,
+      "answer": "[corpus:6] [D1:7] Caroline: The support group has made me feel accepted and given me courage to embrace myself",
+      "gold": "\"Nothing is Impossible\", \"Charlotte's Web\"",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_24",
+      "correct": false,
+      "answer": "[corpus:54] [D11:13] Melanie: Wow, Caroline, that's gorgeous! I love the self-acceptance and love theme",
+      "gold": "Running, pottery",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_25",
+      "correct": false,
+      "answer": "[corpus:60] [D12:2] Melanie: Hey Caroline, sorry about the hike",
+      "gold": "10 July 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_26",
+      "correct": false,
+      "answer": "[corpus:31] [D10:14] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
+      "gold": 2022,
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_27",
+      "correct": false,
+      "answer": "[corpus:8] [D1:9] Caroline: Gonna continue my edu and check out career options, which is pretty exciting!",
+      "gold": "LIkely no; though she likes reading, she wants to be a counselor",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_28",
+      "correct": false,
+      "answer": "[corpus:22] [D10:5] Caroline: Thanks, Melanie! It's awesome to have our own platform to be ourselves and support others' rights",
+      "gold": "The friday before 15 July 2023",
+      "session_lines_used": 64
+    },
+    {
+      "id": "LOCO_0_29",
+      "correct": false,
+      "answer": "[corpus:60] [D12:2] Melanie: Hey Caroline, sorry about the hike",
+      "gold": "The Friday before 15 July 2023",
+      "session_lines_used": 64
+    }
+  ]
+}

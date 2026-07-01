@@ -1,0 +1,165 @@
+{
+  "timestamp": "2026-06-30T20:07:20.105802+00:00",
+  "protocol": "frames-v1",
+  "benchmark": "FRAMES",
+  "citation": "NAACL 2025 FRAMES — multi-hop RAG",
+  "bundle": "frames_slice25.json",
+  "n": 25,
+  "correct": 0,
+  "accuracy": 0.0,
+  "baseline_no_rag": 0.408,
+  "baseline_oracle": 0.729,
+  "verdict": "OPEN_QA_DEVELOPING",
+  "rows": [
+    {
+      "id": "FRAMES_654",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "21 meters"
+    },
+    {
+      "id": "FRAMES_114",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "The Mona Lisa"
+    },
+    {
+      "id": "FRAMES_25",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "12 years."
+    },
+    {
+      "id": "FRAMES_759",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "Richard Coxon."
+    },
+    {
+      "id": "FRAMES_281",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "Angel Archer."
+    },
+    {
+      "id": "FRAMES_250",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "1858"
+    },
+    {
+      "id": "FRAMES_228",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "Elizabeth Monroe"
+    },
+    {
+      "id": "FRAMES_142",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "The Sherman Antitrust Act"
+    },
+    {
+      "id": "FRAMES_754",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "228 times larger"
+    },
+    {
+      "id": "FRAMES_104",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "103"
+    },
+    {
+      "id": "FRAMES_692",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "2,452 ft"
+    },
+    {
+      "id": "FRAMES_758",
+      "correct": false,
+      "answer": "[corpus:6] Reference: s",
+      "gold": "Henry O. Fairbanks and Thomas P. Koch"
+    },
+    {
+      "id": "FRAMES_558",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "King's College"
+    },
+    {
+      "id": "FRAMES_89",
+      "correct": false,
+      "answer": "[corpus:6] Reference: s",
+      "gold": "November 24, 1921"
+    },
+    {
+      "id": "FRAMES_604",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "Colin Firth won his first Academy Award in 2011 for The King's Speech."
+    },
+    {
+      "id": "FRAMES_432",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "Serbia"
+    },
+    {
+      "id": "FRAMES_32",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "55"
+    },
+    {
+      "id": "FRAMES_30",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "Two million."
+    },
+    {
+      "id": "FRAMES_95",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "74 years"
+    },
+    {
+      "id": "FRAMES_223",
+      "correct": false,
+      "answer": "[corpus:6] Reference: s",
+      "gold": "Dockers"
+    },
+    {
+      "id": "FRAMES_238",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "2024"
+    },
+    {
+      "id": "FRAMES_517",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "39"
+    },
+    {
+      "id": "FRAMES_616",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "25"
+    },
+    {
+      "id": "FRAMES_27",
+      "correct": false,
+      "answer": "[corpus:6] Reference: s",
+      "gold": "9"
+    },
+    {
+      "id": "FRAMES_574",
+      "correct": false,
+      "answer": "[corpus:2] Reference: h",
+      "gold": "Edmund Fitzgerald, the man for whom the ill-fated ship SS Edmund Fitzgerald was named was born in 1895, he was 80 years old in 1975 when she sank."
+    }
+  ]
+}

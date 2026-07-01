@@ -1,0 +1,1202 @@
+{
+  "timestamp": "2026-06-30T02:02:45.862645+00:00",
+  "protocol": "model-scaling-v1",
+  "context_mode": "targeted",
+  "open_eval_n": 31,
+  "mcq_eval_n": 0,
+  "models": [
+    {
+      "id": "qwen_0.5b",
+      "hf_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "params_b": 0.5
+    },
+    {
+      "id": "gemma_2b",
+      "hf_id": "google/gemma-2-2b-it",
+      "params_b": 2.0
+    },
+    {
+      "id": "phi_3.8b",
+      "hf_id": "microsoft/Phi-3-mini-4k-instruct",
+      "params_b": 3.8
+    }
+  ],
+  "fairness": {
+    "valhalla_open_backbone_independent": true,
+    "trad_lm_per_backbone": true,
+    "no_lm_weight_updates_in_training_arm": true
+  },
+  "valhalla_hybrid_open": {
+    "n": 31,
+    "correct": 31,
+    "accuracy": 1.0,
+    "rows": [
+      {
+        "id": "OPEN_PHYS_01",
+        "correct": true,
+        "answer": "[corpus:0] Newton's second law states force equals mass times acceleration F equals m a"
+      },
+      {
+        "id": "OPEN_CHEM_01",
+        "correct": true,
+        "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure"
+      },
+      {
+        "id": "OPEN_BIO_01",
+        "correct": true,
+        "answer": "[corpus:0] Mitochondria produce ATP through cellular respiration in eukaryotes"
+      },
+      {
+        "id": "OPEN_HIST_01",
+        "correct": true,
+        "answer": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender"
+      },
+      {
+        "id": "OPEN_GEO_01",
+        "correct": true,
+        "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+      },
+      {
+        "id": "OPEN_ECON_01",
+        "correct": true,
+        "answer": "[corpus:0] Gross Domestic Product sums consumption investment government and net exports"
+      },
+      {
+        "id": "OPEN_ECON_02",
+        "correct": true,
+        "answer": "[corpus:0] Inflation means a sustained increase in the general price level of goods"
+      },
+      {
+        "id": "OPEN_CS_02",
+        "correct": true,
+        "answer": "[corpus:0] Central Processing Unit executes instructions in a computer system"
+      },
+      {
+        "id": "ZH_02",
+        "correct": true,
+        "answer": "[corpus:0] 秦朝是中国第一个统一的中央集权封建王朝。"
+      },
+      {
+        "id": "ZH_03",
+        "correct": true,
+        "answer": "[corpus:0] 二十四节气反映中国古代农历对太阳周年的划分。"
+      },
+      {
+        "id": "ZH_04",
+        "correct": true,
+        "answer": "[corpus:0] 红楼梦是中国古典小说巅峰之作作者一般认为是曹雪芹。"
+      },
+      {
+        "id": "LIT_01",
+        "correct": true,
+        "answer": "[corpus:0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England"
+      },
+      {
+        "id": "LIT_02",
+        "correct": true,
+        "answer": "[corpus:0] George Orwell wrote the dystopian novel Nineteen Eighty-Four published in 1949"
+      },
+      {
+        "id": "MED_01",
+        "correct": true,
+        "answer": "[corpus:0] Type 2 diabetes involves insulin resistance and relative insulin deficiency"
+      },
+      {
+        "id": "ASTRO_01",
+        "correct": true,
+        "answer": "[corpus:0] Mercury is the smallest planet and closest to the Sun in our solar system"
+      },
+      {
+        "id": "LOGIC_02",
+        "correct": true,
+        "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+      },
+      {
+        "id": "OPEN_F03",
+        "correct": true,
+        "answer": "[corpus:0] Thomas Jefferson was primary author of the US Declaration of Independence"
+      },
+      {
+        "id": "OPEN_F04",
+        "correct": true,
+        "answer": "[corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts"
+      },
+      {
+        "id": "OPEN_F05",
+        "correct": true,
+        "answer": "[corpus:0] Mitochondria produce ATP through cellular respiration in eukaryotes"
+      },
+      {
+        "id": "OPEN_F06",
+        "correct": true,
+        "answer": "[corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts"
+      },
+      {
+        "id": "OPEN_F14",
+        "correct": true,
+        "answer": "[corpus:0] Binary search requires a sorted array and halves the search interval each step"
+      },
+      {
+        "id": "OPEN_F16",
+        "correct": true,
+        "answer": "[corpus:0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England"
+      },
+      {
+        "id": "OPEN_F17",
+        "correct": true,
+        "answer": "[corpus:0] Scurvy is caused by deficiency of vitamin C also called ascorbic acid"
+      },
+      {
+        "id": "OPEN_F25",
+        "correct": true,
+        "answer": "[corpus:0] Type 2 diabetes involves insulin resistance and relative insulin deficiency"
+      },
+      {
+        "id": "OPEN_F26",
+        "correct": true,
+        "answer": "[corpus:0] The French Revolution began in 1789 with the storming of the Bastille"
+      },
+      {
+        "id": "OPEN_F29",
+        "correct": true,
+        "answer": "[corpus:0] Aristotle was student of Plato and tutor of Alexander the Great"
+      },
+      {
+        "id": "OPEN_F33",
+        "correct": true,
+        "answer": "[corpus:0] GDP measures the total value of goods and services produced in a country"
+      },
+      {
+        "id": "OPEN_F39",
+        "correct": true,
+        "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure"
+      },
+      {
+        "id": "OPEN_F42",
+        "correct": true,
+        "answer": "[corpus:0] 秦朝是中国第一个统一的中央集权封建王朝。"
+      },
+      {
+        "id": "OPEN_F43",
+        "correct": true,
+        "answer": "[corpus:7] George Washington was the first President of the United States"
+      },
+      {
+        "id": "OPEN_F50",
+        "correct": true,
+        "answer": "[corpus:0] Inflation means a sustained increase in the general price level of goods"
+      }
+    ]
+  },
+  "trad_lm_open_by_model": {
+    "qwen_0.5b": {
+      "model_id": "qwen_0.5b",
+      "hf_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "params_b": 0.5,
+      "n": 31,
+      "correct": 29,
+      "accuracy": 0.9354838709677419,
+      "rows": [
+        {
+          "id": "OPEN_PHYS_01",
+          "correct": true,
+          "answer": "Newton's Second Law states that the force acting on an object is equal to its mass multiplied by its acceleration: F = ma."
+        },
+        {
+          "id": "OPEN_CHEM_01",
+          "correct": true,
+          "answer": "Water boils at 100 degrees Celsius at standard atmospheric pressure."
+        },
+        {
+          "id": "OPEN_BIO_01",
+          "correct": true,
+          "answer": "Mitochondria play a crucial role in energy production within eukaryotic cells. They convert nutrients into adenosine triphosphate (ATP), which serves as the pri"
+        },
+        {
+          "id": "OPEN_HIST_01",
+          "correct": true,
+          "answer": "World War II ended in 1945 with Germany's unconditional surrender."
+        },
+        {
+          "id": "OPEN_GEO_01",
+          "correct": true,
+          "answer": "The capital city of Australia is Canberra."
+        },
+        {
+          "id": "OPEN_ECON_01",
+          "correct": true,
+          "answer": "Gross Domestic Product stands for \"Gross Domestic Product.\" It is the total value of all final goods and services produced within a country's borders in a speci"
+        },
+        {
+          "id": "OPEN_ECON_02",
+          "correct": true,
+          "answer": "Inflation refers to a sustained increase in the general price level of goods and services, which can erode the purchasing power of money over time and affect th"
+        },
+        {
+          "id": "OPEN_CS_02",
+          "correct": true,
+          "answer": "CPU stands for \"Central Processing Unit.\" It is the core component of any computer system responsible for executing instructions and performing arithmetic, logi"
+        },
+        {
+          "id": "ZH_02",
+          "correct": true,
+          "answer": "秦朝是中国历史上第一个统一的中央集权封建王朝。"
+        },
+        {
+          "id": "ZH_03",
+          "correct": true,
+          "answer": "一年有24个节气。"
+        },
+        {
+          "id": "ZH_04",
+          "correct": true,
+          "answer": "《红楼梦》是中国古典小说的巅峰之作，由清代作家曹雪芹创作。曹雪芹，字梦阮，号雪芹，别署芹圃、芹溪，原籍阳曲（今属山西），后迁居于山阴（今浙江绍兴）。他生于清朝乾隆年间，卒于道光二年（1752年），享年67岁。曹雪芹一生致力于文学创作，其作品以描写贵族家庭的生活为主要内容，反映了封建社会末期的社会现实和人民的疾苦。《红楼"
+        },
+        {
+          "id": "LIT_01",
+          "correct": true,
+          "answer": "William Shakespeare wrote Romeo and Juliet in Elizabethan England. This was the period of English history known as the Elizabethan era, which lasted from 1567 t"
+        },
+        {
+          "id": "LIT_02",
+          "correct": true,
+          "answer": "George Orwell wrote \"1984,\" which is considered one of his most famous works and has been influential in shaping modern political thought. The novel was first p"
+        },
+        {
+          "id": "MED_01",
+          "correct": true,
+          "answer": "Type 2 diabetes is primarily characterized by insulin resistance. This condition occurs when the body's cells become less responsive to insulin, leading to elev"
+        },
+        {
+          "id": "ASTRO_01",
+          "correct": true,
+          "answer": "Mercury is the planet that is closest to the Sun. It orbits around the Sun at an average distance of about 57.9 million kilometers (36.0 million miles) from the"
+        },
+        {
+          "id": "LOGIC_02",
+          "correct": true,
+          "answer": "The contrapositive of \"If it rains, the ground is wet\" is \"If the ground is not wet, then it does not rain.\""
+        },
+        {
+          "id": "OPEN_F03",
+          "correct": true,
+          "answer": "Iron's chemical symbol is Fe."
+        },
+        {
+          "id": "OPEN_F04",
+          "correct": true,
+          "answer": "Plants absorb carbon dioxide (CO2) for photosynthesis. This process is crucial because it allows plants to convert the carbon dioxide from the atmosphere into o"
+        },
+        {
+          "id": "OPEN_F05",
+          "correct": true,
+          "answer": "The basic unit of life is the cell. Cells are the fundamental units that make up all living organisms and carry out most of their functions. They are composed o"
+        },
+        {
+          "id": "OPEN_F06",
+          "correct": true,
+          "answer": "Plants use photosynthesis to convert carbon dioxide and water into glucose and oxygen through the following steps:\n\n1. **Light Absorption**: Chlorophyll in plan"
+        },
+        {
+          "id": "OPEN_F14",
+          "correct": true,
+          "answer": "An algorithm is a set of well-defined instructions or steps used to solve a problem or accomplish a task. It provides a structured way to perform tasks systemat"
+        },
+        {
+          "id": "OPEN_F16",
+          "correct": true,
+          "answer": "William Shakespeare wrote \"Hamlet,\" which was published in 1603 during the Elizabethan era in England. This period saw significant cultural developments, includ"
+        },
+        {
+          "id": "OPEN_F17",
+          "correct": true,
+          "answer": "Vitamin C, also known as ascorbic acid, is the primary vitamin that prevents scurvy. Scurvy is a disease caused by a lack of vitamin C in the body, which leads "
+        },
+        {
+          "id": "OPEN_F25",
+          "correct": false,
+          "answer": "The first shell of an atom holds up to 8 electrons. This is because each electron in an atom has a unique energy level that corresponds to its position on the p"
+        },
+        {
+          "id": "OPEN_F26",
+          "correct": true,
+          "answer": "The pH of pure water at 25°C is 7.0. This value is commonly used as a reference point for measuring acidity or alkalinity in solutions. At this temperature, pur"
+        },
+        {
+          "id": "OPEN_F29",
+          "correct": true,
+          "answer": "Penicillin was discovered by Alexander Fleming in 1928 while he was working as a medical student at the University of Edinburgh. He accidentally found the mold "
+        },
+        {
+          "id": "OPEN_F33",
+          "correct": true,
+          "answer": "A recession refers to a period of economic decline characterized by a decrease in overall economic activity and growth. It typically involves a prolonged period"
+        },
+        {
+          "id": "OPEN_F39",
+          "correct": true,
+          "answer": "Hypertension, also known as high blood pressure or hypertension, refers to a condition where the blood pressure in the arteries of the body is consistently elev"
+        },
+        {
+          "id": "OPEN_F42",
+          "correct": false,
+          "answer": "造纸术是由东汉时期的蔡伦改进和推广的，因此它并不是由秦朝创造的。所以，答案是：蔡伦。"
+        },
+        {
+          "id": "OPEN_F43",
+          "correct": true,
+          "answer": "The unit of power is watt (W)."
+        },
+        {
+          "id": "OPEN_F50",
+          "correct": true,
+          "answer": "Deductive reasoning is a type of logical thinking where conclusions are drawn from specific premises or hypotheses. It involves drawing a conclusion that logica"
+        }
+      ]
+    },
+    "gemma_2b": {
+      "model_id": "gemma_2b",
+      "hf_id": "google/gemma-2-2b-it",
+      "params_b": 2.0,
+      "n": 31,
+      "correct": 31,
+      "accuracy": 1.0,
+      "rows": [
+        {
+          "id": "OPEN_PHYS_01",
+          "correct": true,
+          "answer": "Newton's second law states that the force acting on an object is equal to the object's mass multiplied by its acceleration, expressed as **F = ma**."
+        },
+        {
+          "id": "OPEN_CHEM_01",
+          "correct": true,
+          "answer": "At standard atmospheric pressure, water boils at **100 degrees Celsius**."
+        },
+        {
+          "id": "OPEN_BIO_01",
+          "correct": true,
+          "answer": "The main function of mitochondria is to produce ATP (adenosine triphosphate), the primary energy currency of cells, through cellular respiration. This process c"
+        },
+        {
+          "id": "OPEN_HIST_01",
+          "correct": true,
+          "answer": "World War II ended in **1945**."
+        },
+        {
+          "id": "OPEN_GEO_01",
+          "correct": true,
+          "answer": "The capital of Australia is **Canberra**."
+        },
+        {
+          "id": "OPEN_ECON_01",
+          "correct": true,
+          "answer": "GDP stands for **Gross Domestic Product**. \n\nIt's a measure of the total value of all goods and services produced within a country's borders in a specific time "
+        },
+        {
+          "id": "OPEN_ECON_02",
+          "correct": true,
+          "answer": "Inflation is a sustained increase in the general price level of goods and services in an economy over a period of time."
+        },
+        {
+          "id": "OPEN_CS_02",
+          "correct": true,
+          "answer": "CPU stands for **Central Processing Unit**."
+        },
+        {
+          "id": "ZH_02",
+          "correct": true,
+          "answer": "中国历史上第一个统一的中央集权封建王朝是 **秦朝**。"
+        },
+        {
+          "id": "ZH_03",
+          "correct": true,
+          "answer": "There are **24** solar terms in the Chinese lunisolar calendar."
+        },
+        {
+          "id": "ZH_04",
+          "correct": true,
+          "answer": "《红楼梦》的作者是 **曹雪芹**。"
+        },
+        {
+          "id": "LIT_01",
+          "correct": true,
+          "answer": "Romeo and Juliet was written by **William Shakespeare**."
+        },
+        {
+          "id": "LIT_02",
+          "correct": true,
+          "answer": "The dystopian novel \"1984\" was written by **George Orwell**."
+        },
+        {
+          "id": "MED_01",
+          "correct": true,
+          "answer": "Type 2 diabetes is primarily characterized by **insulin resistance**. \n\nHere's why:\n\n* **Insulin Resistance:**  In type 2 diabetes, the body's cells become less"
+        },
+        {
+          "id": "ASTRO_01",
+          "correct": true,
+          "answer": "The planet closest to the Sun is **Mercury**."
+        },
+        {
+          "id": "LOGIC_02",
+          "correct": true,
+          "answer": "If the ground is not wet, then it does not rain."
+        },
+        {
+          "id": "OPEN_F03",
+          "correct": true,
+          "answer": "The chemical symbol for iron is **Fe**."
+        },
+        {
+          "id": "OPEN_F04",
+          "correct": true,
+          "answer": "Plants absorb **carbon dioxide** (CO2) for photosynthesis."
+        },
+        {
+          "id": "OPEN_F05",
+          "correct": true,
+          "answer": "The basic unit of life is the **cell**. \n\nWhile mitochondria are essential organelles within cells, they are not the basic unit of life.  \n\nHere's why:\n\n* **Cel"
+        },
+        {
+          "id": "OPEN_F06",
+          "correct": true,
+          "answer": "The process by which plants make food using sunlight is called **photosynthesis**."
+        },
+        {
+          "id": "OPEN_F14",
+          "correct": true,
+          "answer": "An algorithm is a **step-by-step procedure or set of instructions** for solving a problem or completing a task. \n\nHere's a breakdown:\n\n* **Step-by-step:** Algor"
+        },
+        {
+          "id": "OPEN_F16",
+          "correct": true,
+          "answer": "William Shakespeare wrote *Hamlet*."
+        },
+        {
+          "id": "OPEN_F17",
+          "correct": true,
+          "answer": "The vitamin that prevents scurvy is **vitamin C**, also known as ascorbic acid."
+        },
+        {
+          "id": "OPEN_F25",
+          "correct": true,
+          "answer": "The first shell of an atom can hold a maximum of **2 electrons**. \n\nHere's why:\n\n* **Electron Shells:**  Atoms are made up of a nucleus with protons and neutron"
+        },
+        {
+          "id": "OPEN_F26",
+          "correct": true,
+          "answer": "The provided information about the French Revolution is irrelevant to the pH of pure water. \n\nHere's the answer:\n\nThe pH of pure water at 25°C (77°F) is **7**. "
+        },
+        {
+          "id": "OPEN_F29",
+          "correct": true,
+          "answer": "The discovery of penicillin was made by **Alexander Fleming**. \n\nWhile Aristotle was a renowned philosopher and scientist, he lived centuries before the discove"
+        },
+        {
+          "id": "OPEN_F33",
+          "correct": true,
+          "answer": "A recession is a significant decline in economic activity that lasts for more than a few months.  \n\nHere's a breakdown:\n\n* **GDP Decline:**  A key indicator of "
+        },
+        {
+          "id": "OPEN_F39",
+          "correct": true,
+          "answer": "Hypertension, also known as high blood pressure, is a condition where the force of blood against your artery walls is consistently too high. \n\nHere's a breakdow"
+        },
+        {
+          "id": "OPEN_F42",
+          "correct": true,
+          "answer": "造纸术发明于**中国**。 \n\nHere's why:\n\n* **秦朝是中国第一个统一的中央集权封建王朝** - This is a historical fact.\n* **造纸术** is the Chinese term for papermaking. \n\nThe invention of papermakin"
+        },
+        {
+          "id": "OPEN_F43",
+          "correct": true,
+          "answer": "The provided facts are about various historical events, scientific principles, and programming concepts.  None of them relate to the unit of power. \n\n**The unit"
+        },
+        {
+          "id": "OPEN_F50",
+          "correct": true,
+          "answer": "Deductive reasoning is a type of logical reasoning where you start with a general principle or premise and apply it to a specific case to reach a specific concl"
+        }
+      ]
+    },
+    "phi_3.8b": {
+      "model_id": "phi_3.8b",
+      "hf_id": "microsoft/Phi-3-mini-4k-instruct",
+      "params_b": 3.8,
+      "n": 31,
+      "correct": 31,
+      "accuracy": 1.0,
+      "rows": [
+        {
+          "id": "OPEN_PHYS_01",
+          "correct": true,
+          "answer": "Newton's second law states that the force acting on an object is equal to the mass of the object multiplied by its acceleration, and the formula is F = m * a."
+        },
+        {
+          "id": "OPEN_CHEM_01",
+          "correct": true,
+          "answer": "At standard pressure, water boils at 100 degrees Celsius."
+        },
+        {
+          "id": "OPEN_BIO_01",
+          "correct": true,
+          "answer": "The main function of mitochondria is to produce adenosine triphosphate (ATP), the cell's energy currency, through the process of cellular respiration."
+        },
+        {
+          "id": "OPEN_HIST_01",
+          "correct": true,
+          "answer": "World War II ended in 1945 with Germany's unconditional surrender."
+        },
+        {
+          "id": "OPEN_GEO_01",
+          "correct": true,
+          "answer": "The capital of Australia is Canberra."
+        },
+        {
+          "id": "OPEN_ECON_01",
+          "correct": true,
+          "answer": "GDP stands for Gross Domestic Product. It is the total monetary or market value of all the finished goods and services produced within a country's borders in a "
+        },
+        {
+          "id": "OPEN_ECON_02",
+          "correct": true,
+          "answer": "Inflation is the sustained rise in the general price level of goods and services in an economy over a period of time."
+        },
+        {
+          "id": "OPEN_CS_02",
+          "correct": true,
+          "answer": "CPU stands for Central Processing Unit. It is the primary component of a computer that performs most of the processing inside a computer. To put it simply, the "
+        },
+        {
+          "id": "ZH_02",
+          "correct": true,
+          "answer": "中国历史上第一个统一的中央集权封建王朝是秦朝。秦朝，又称为曹魏，是公元前221年至公元前206年之间的一个中国历史时期，由曹丕统一了多个部分的中国，成立了中央集权的封建王朝。"
+        },
+        {
+          "id": "ZH_03",
+          "correct": true,
+          "answer": "一年有24个节气。这些节气是中国古代农历中用来划分一年的，每个节气代表一个特定的太阳周期，并且它们对农业生产有着重要的影响。"
+        },
+        {
+          "id": "ZH_04",
+          "correct": true,
+          "answer": "《红楼梦》的作者是曹雪芹。这部古典小说被认为是中国文学史上的巅峰之作，曹雪芹是该小说的创作者，他的作品以其深刻的社会洞察力和精湛的文学技巧著称。"
+        },
+        {
+          "id": "LIT_01",
+          "correct": true,
+          "answer": "William Shakespeare wrote Romeo and Juliet."
+        },
+        {
+          "id": "LIT_02",
+          "correct": true,
+          "answer": "George Orwell wrote '1984'."
+        },
+        {
+          "id": "MED_01",
+          "correct": true,
+          "answer": "Type 2 diabetes is primarily characterized by insulin resistance. This means that the body's cells do not respond properly to insulin, a hormone that regulates "
+        },
+        {
+          "id": "ASTRO_01",
+          "correct": true,
+          "answer": "Mercury is the planet closest to the Sun in our solar system."
+        },
+        {
+          "id": "LOGIC_02",
+          "correct": true,
+          "answer": "The contrapositive of 'If it rains, the ground is wet' is 'If the ground is not wet, it did not rain.'"
+        },
+        {
+          "id": "OPEN_F03",
+          "correct": true,
+          "answer": "The chemical symbol for iron is Fe. This symbol comes from the Latin word for iron, \"ferrum.\""
+        },
+        {
+          "id": "OPEN_F04",
+          "correct": true,
+          "answer": "Plants absorb carbon dioxide (CO2) for photosynthesis. During this process, which occurs in the chloroplasts of plant cells, CO2 is combined with water (H2O) us"
+        },
+        {
+          "id": "OPEN_F05",
+          "correct": true,
+          "answer": "The basic unit of life is the cell. Cells are the smallest units that can carry out all the processes necessary for life. They can exist independently, like sin"
+        },
+        {
+          "id": "OPEN_F06",
+          "correct": true,
+          "answer": "The process by which plants make food using sunlight is called photosynthesis."
+        },
+        {
+          "id": "OPEN_F14",
+          "correct": true,
+          "answer": "An algorithm is a finite sequence of well-defined, computer-implementable instructions, typically to solve a class of problems or to perform a computation. Algo"
+        },
+        {
+          "id": "OPEN_F16",
+          "correct": true,
+          "answer": "William Shakespeare wrote 'Hamlet'."
+        },
+        {
+          "id": "OPEN_F17",
+          "correct": true,
+          "answer": "Vitamin C, also known as ascorbic acid, prevents scurvy. Scurvy is a disease resulting from a deficiency of vitamin C, which is essential for the synthesis of c"
+        },
+        {
+          "id": "OPEN_F25",
+          "correct": true,
+          "answer": "The first shell, also known as the K shell, can hold a maximum of 2 electrons. This is determined by the formula 2n^2, where n is the principal quantum number c"
+        },
+        {
+          "id": "OPEN_F26",
+          "correct": true,
+          "answer": "The pH of pure water at 25°C is 7. This is because pure water is neutral, meaning it has equal concentrations of hydrogen ions (H+) and hydroxide ions (OH-). Th"
+        },
+        {
+          "id": "OPEN_F29",
+          "correct": true,
+          "answer": "Penicillin was discovered by Alexander Fleming in 1928."
+        },
+        {
+          "id": "OPEN_F33",
+          "correct": true,
+          "answer": "A recession is a significant decline in economic activity spread across the economy, lasting more than a few months, typically visible in real GDP, real income,"
+        },
+        {
+          "id": "OPEN_F39",
+          "correct": true,
+          "answer": "Hypertension, commonly known as high blood pressure, is a chronic medical condition in which the blood pressure in the arteries is persistently elevated. This c"
+        },
+        {
+          "id": "OPEN_F42",
+          "correct": true,
+          "answer": "造纸术发明于中国。"
+        },
+        {
+          "id": "OPEN_F43",
+          "correct": true,
+          "answer": "The unit of power is the watt (symbol: W)."
+        },
+        {
+          "id": "OPEN_F50",
+          "correct": true,
+          "answer": "Deductive reasoning is a logical process in which a conclusion is based on the concordance of multiple premises that are generally assumed to be true. It is a m"
+        }
+      ]
+    }
+  },
+  "trad_lm_mcq_by_model": {
+    "qwen_0.5b": {
+      "model_id": "qwen_0.5b",
+      "hf_id": "Qwen/Qwen2.5-0.5B-Instruct",
+      "params_b": 0.5,
+      "n": 20,
+      "correct": 3,
+      "accuracy": 0.15,
+      "rows": [
+        {
+          "id": "MCQ_BIO_01",
+          "correct": false,
+          "answer": "The organelles involved in photosynthesis include chloroplasts and mitochondria. Chloroplasts contain chlorophyll for ca"
+        },
+        {
+          "id": "MCQ_GEO_01",
+          "correct": false,
+          "answer": "The capital of France is Paris."
+        },
+        {
+          "id": "MCQ_ECON_01",
+          "correct": false,
+          "answer": "The French Revolution began in 1789 with the storming of the Bastille, which is an event that would likely have influenc"
+        },
+        {
+          "id": "MCQ_PHIL_01",
+          "correct": false,
+          "answer": "Based on the information provided, I can conclude that the correct answer is:\n\nA) Aristotle\n\nThis conclusion is based on"
+        },
+        {
+          "id": "MCQ_MED_01",
+          "correct": false,
+          "answer": "SCURVY IS CAUSED BY DEFICIENCY OF VITAMIN C ALSO CALLED ASCORBIPLIC ACID."
+        },
+        {
+          "id": "MCQ_HIST_02",
+          "correct": false,
+          "answer": "Australia's capital city, Canberra, was established in 1907 and officially became the national capital on July 26, 1909."
+        },
+        {
+          "id": "MCQ_GEO_02",
+          "correct": false,
+          "answer": "The largest ocean on Earth is the Pacific Ocean."
+        },
+        {
+          "id": "MCQ_F02",
+          "correct": false,
+          "answer": "A"
+        },
+        {
+          "id": "MCQ_F03",
+          "correct": false,
+          "answer": "Kinetic energy is given by option B: \\( \\frac{1}{2}mv^2 \\)."
+        },
+        {
+          "id": "MCQ_F06",
+          "correct": false,
+          "answer": "The capital city of Australia is Canberra, not Sydney or Melbourne. Most abundant gas in Earth's atmosphere is C) Nitrog"
+        },
+        {
+          "id": "MCQ_F07",
+          "correct": true,
+          "answer": "Human somatic cells typically contain 46 chromosomes. Therefore, the correct answer is:\n\nB"
+        },
+        {
+          "id": "MCQ_F08",
+          "correct": false,
+          "answer": "B"
+        },
+        {
+          "id": "MCQ_F09",
+          "correct": false,
+          "answer": "Bronchi"
+        },
+        {
+          "id": "MCQ_F10",
+          "correct": false,
+          "answer": "A"
+        },
+        {
+          "id": "MCQ_F11",
+          "correct": false,
+          "answer": "A"
+        },
+        {
+          "id": "MCQ_F12",
+          "correct": true,
+          "answer": "B"
+        },
+        {
+          "id": "MCQ_F13",
+          "correct": false,
+          "answer": "A"
+        },
+        {
+          "id": "MCQ_F14",
+          "correct": false,
+          "answer": "The Sahara Desert is in **B** Africa."
+        },
+        {
+          "id": "MCQ_F18",
+          "correct": false,
+          "answer": "A"
+        },
+        {
+          "id": "MCQ_F19",
+          "correct": true,
+          "answer": "C"
+        }
+      ]
+    },
+    "gemma_2b": {
+      "model_id": "gemma_2b",
+      "hf_id": "google/gemma-2-2b-it",
+      "params_b": 2.0,
+      "n": 20,
+      "correct": 18,
+      "accuracy": 0.9,
+      "rows": [
+        {
+          "id": "MCQ_BIO_01",
+          "correct": true,
+          "answer": "Chloroplasts are the site of photosynthesis. \nANSWER: C"
+        },
+        {
+          "id": "MCQ_GEO_01",
+          "correct": true,
+          "answer": "ANSWER: C"
+        },
+        {
+          "id": "MCQ_ECON_01",
+          "correct": false,
+          "answer": "ANSWER: A"
+        },
+        {
+          "id": "MCQ_PHIL_01",
+          "correct": true,
+          "answer": "Plato is known for his work \"The Republic\". \n\nANSWER: B"
+        },
+        {
+          "id": "MCQ_MED_01",
+          "correct": true,
+          "answer": "ANSWER: C"
+        },
+        {
+          "id": "MCQ_HIST_02",
+          "correct": true,
+          "answer": "ANSWER: C"
+        },
+        {
+          "id": "MCQ_GEO_02",
+          "correct": true,
+          "answer": "The Pacific Ocean is the largest. \nANSWER: D"
+        },
+        {
+          "id": "MCQ_F02",
+          "correct": true,
+          "answer": "ANSWER: C"
+        },
+        {
+          "id": "MCQ_F03",
+          "correct": true,
+          "answer": "ANSWER: B \nKinetic energy is the energy of motion."
+        },
+        {
+          "id": "MCQ_F06",
+          "correct": true,
+          "answer": "ANSWER: C"
+        },
+        {
+          "id": "MCQ_F07",
+          "correct": true,
+          "answer": "ANSWER: B \nHumans have 46 chromosomes in somatic cells."
+        },
+        {
+          "id": "MCQ_F08",
+          "correct": true,
+          "answer": "ANSWER: D \n \nBlood type O is the universal donor because it lacks A and B antigens on its red blood cells."
+        },
+        {
+          "id": "MCQ_F09",
+          "correct": true,
+          "answer": "ANSWER: B"
+        },
+        {
+          "id": "MCQ_F10",
+          "correct": true,
+          "answer": "ANSWER: C"
+        },
+        {
+          "id": "MCQ_F11",
+          "correct": true,
+          "answer": "ANSWER: C"
+        },
+        {
+          "id": "MCQ_F12",
+          "correct": true,
+          "answer": "ANSWER: B"
+        },
+        {
+          "id": "MCQ_F13",
+          "correct": true,
+          "answer": "ANSWER: C"
+        },
+        {
+          "id": "MCQ_F14",
+          "correct": true,
+          "answer": "ANSWER: B"
+        },
+        {
+          "id": "MCQ_F18",
+          "correct": false,
+          "answer": "ANSWER: D"
+        },
+        {
+          "id": "MCQ_F19",
+          "correct": true,
+          "answer": "ANSWER: C"
+        }
+      ]
+    },
+    "phi_3.8b": {
+      "model_id": "phi_3.8b",
+      "hf_id": "microsoft/Phi-3-mini-4k-instruct",
+      "params_b": 3.8,
+      "n": 20,
+      "correct": 10,
+      "accuracy": 0.5,
+      "rows": [
+        {
+          "id": "MCQ_BIO_01",
+          "correct": false,
+          "answer": "C) Chloroplast"
+        },
+        {
+          "id": "MCQ_GEO_01",
+          "correct": false,
+          "answer": "C) Paris"
+        },
+        {
+          "id": "MCQ_ECON_01",
+          "correct": true,
+          "answer": "When price increases, quantity supplied typically (ceteris paribus): B) increases.\n\nANSWER: B"
+        },
+        {
+          "id": "MCQ_PHIL_01",
+          "correct": false,
+          "answer": "B) Plato"
+        },
+        {
+          "id": "MCQ_MED_01",
+          "correct": false,
+          "answer": "C) Vitamin C"
+        },
+        {
+          "id": "MCQ_HIST_02",
+          "correct": false,
+          "answer": "C) 1945"
+        },
+        {
+          "id": "MCQ_GEO_02",
+          "correct": false,
+          "answer": "D) Pacific"
+        },
+        {
+          "id": "MCQ_F02",
+          "correct": true,
+          "answer": "C"
+        },
+        {
+          "id": "MCQ_F03",
+          "correct": true,
+          "answer": "B"
+        },
+        {
+          "id": "MCQ_F06",
+          "correct": true,
+          "answer": "C"
+        },
+        {
+          "id": "MCQ_F07",
+          "correct": false,
+          "answer": "B) 46"
+        },
+        {
+          "id": "MCQ_F08",
+          "correct": false,
+          "answer": "D) O"
+        },
+        {
+          "id": "MCQ_F09",
+          "correct": true,
+          "answer": "B"
+        },
+        {
+          "id": "MCQ_F10",
+          "correct": true,
+          "answer": "C"
+        },
+        {
+          "id": "MCQ_F11",
+          "correct": true,
+          "answer": "C"
+        },
+        {
+          "id": "MCQ_F12",
+          "correct": false,
+          "answer": "B) Neil Armstrong\n\n\nNeil Armstrong was the first man to walk on the Moon on July 20, 1969, during the Apollo 11 mission."
+        },
+        {
+          "id": "MCQ_F13",
+          "correct": true,
+          "answer": "C"
+        },
+        {
+          "id": "MCQ_F14",
+          "correct": true,
+          "answer": "B"
+        },
+        {
+          "id": "MCQ_F18",
+          "correct": false,
+          "answer": "ANSWER: A"
+        },
+        {
+          "id": "MCQ_F19",
+          "correct": true,
+          "answer": "C"
+        }
+      ]
+    }
+  },
+  "training_substrate": {
+    "skipped": true
+  },
+  "analysis": {
+    "valhalla_open_accuracy": 1.0,
+    "structure_premium_by_model": [
+      {
+        "model_id": "qwen_0.5b",
+        "params_b": 0.5,
+        "valhalla_open": 1.0,
+        "trad_lm_open": 0.9354838709677419,
+        "structure_premium_pp": 6.45
+      },
+      {
+        "model_id": "gemma_2b",
+        "params_b": 2.0,
+        "valhalla_open": 1.0,
+        "trad_lm_open": 1.0,
+        "structure_premium_pp": 0.0
+      },
+      {
+        "model_id": "phi_3.8b",
+        "params_b": 3.8,
+        "valhalla_open": 1.0,
+        "trad_lm_open": 1.0,
+        "structure_premium_pp": 0.0
+      }
+    ],
+    "premium_shrink_small_to_large_pp": 6.45,
+    "trad_lm_open_scaling": {
+      "x": "log10(params_b)",
+      "intercept": 0.9633,
+      "slope": 0.0787,
+      "r2": 0.9041,
+      "interpretation": "+0.05 acc per 10× params (slope on log10 scale)"
+    },
+    "trad_lm_mcq_scaling": {
+      "x": "log10(params_b)",
+      "intercept": 0.4136,
+      "slope": 0.5332,
+      "r2": 0.4091
+    },
+    "training_substrate_lifts_pp": {},
+    "transfer_lift_vs_polluted_pp": 0.0,
+    "scale_projection": [
+      {
+        "params_b": 7.0,
+        "trad_lm_open_projected": 1.0,
+        "valhalla_open_assumed": 1.0,
+        "structure_premium_projected_pp": 0.0
+      },
+      {
+        "params_b": 14.0,
+        "trad_lm_open_projected": 1.0,
+        "valhalla_open_assumed": 1.0,
+        "structure_premium_projected_pp": 0.0
+      },
+      {
+        "params_b": 70.0,
+        "trad_lm_open_projected": 1.0,
+        "valhalla_open_assumed": 1.0,
+        "structure_premium_projected_pp": 0.0
+      }
+    ],
+    "patterns": [
+      "TRAD_RAG_SCALES_WITH_PARAMS",
+      "STRUCTURE_PREMIUM_NONNEGATIVE",
+      "STRUCTURE_PREMIUM_LARGEST_AT_SMALL_BACKBONE",
+      "HYBRID_MCQ_BEATS_TRAD_AT_SAME_BACKBONE",
+      "TRAD_MCQ_SCALES_WITH_PARAMS",
+      "TIER_B_OPEN_CEILING_STABLE"
+    ],
+    "verdict": "SCALING_EVIDENCE_STRONG"
+  },
+  "valhalla_hybrid_mcq_lm_patch": {
+    "n": 20,
+    "correct": 13,
+    "accuracy": 0.65,
+    "lm_model": "Qwen/Qwen2.5-0.5B-Instruct",
+    "rows": [
+      {
+        "id": "MCQ_BIO_01",
+        "correct": true,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_GEO_01",
+        "correct": true,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_ECON_01",
+        "correct": false,
+        "answer": "ANSWER: A"
+      },
+      {
+        "id": "MCQ_PHIL_01",
+        "correct": true,
+        "answer": "ANSWER: B"
+      },
+      {
+        "id": "MCQ_MED_01",
+        "correct": false,
+        "answer": "ANSWER: A"
+      },
+      {
+        "id": "MCQ_HIST_02",
+        "correct": true,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_GEO_02",
+        "correct": false,
+        "answer": "ANSWER: A"
+      },
+      {
+        "id": "MCQ_F02",
+        "correct": true,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F03",
+        "correct": false,
+        "answer": "ANSWER: A"
+      },
+      {
+        "id": "MCQ_F06",
+        "correct": true,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F07",
+        "correct": true,
+        "answer": "ANSWER: B"
+      },
+      {
+        "id": "MCQ_F08",
+        "correct": false,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F09",
+        "correct": true,
+        "answer": "ANSWER: B"
+      },
+      {
+        "id": "MCQ_F10",
+        "correct": true,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F11",
+        "correct": true,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F12",
+        "correct": false,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F13",
+        "correct": true,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F14",
+        "correct": true,
+        "answer": "ANSWER: B"
+      },
+      {
+        "id": "MCQ_F18",
+        "correct": false,
+        "answer": "ANSWER: C"
+      },
+      {
+        "id": "MCQ_F19",
+        "correct": true,
+        "answer": "ANSWER: C"
+      }
+    ]
+  }
+}
