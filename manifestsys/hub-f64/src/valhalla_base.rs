@@ -94,6 +94,9 @@ pub struct ValhallaBaseSessionState {
     /// Prior user questions in this session (for follow-up routing / retrieval).
     #[serde(default)]
     pub question_history: Vec<String>,
+    /// Fate tick after context ingest — proactive gate counts signals since this baseline.
+    #[serde(default)]
+    pub fate_baseline_tick: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -165,19 +168,29 @@ pub struct ValhallaBaseConfig {
     /// When true, push QA correct/incorrect back into Fate after each answer.
     #[serde(default = "default_true")]
     pub fate_qa_feedback: bool,
-    /// Enable proactive idle path (self-probe + FOG-gated nudge after dialogue warmup).
+    /// Enable proactive idle path (self-probe + FOG-gated nudge after Fate signal warmup).
     #[serde(default = "default_true")]
     pub proactive_enabled: bool,
-    /// Minimum prior user turns before proactive idle may fire.
-    #[serde(default = "default_proactive_min_turns")]
+    /// Minimum Fate signal triggers since context baseline before proactive idle may fire.
+    #[serde(default = "default_proactive_min_fate_signals")]
+    pub proactive_min_fate_signals: usize,
+    /// Deprecated alias — mapped to fate signals if set and min_fate_signals unset in env.
+    #[serde(default = "default_proactive_min_turns_legacy")]
     pub proactive_min_turns: usize,
     /// Minimum hub_prefs spread — default τ(0)=12/138 from E7 algebra.
     #[serde(default = "default_proactive_min_spread")]
     pub proactive_min_spread: f64,
 }
 
-fn default_proactive_min_turns() -> usize {
-    2
+fn default_proactive_min_fate_signals() -> usize {
+    std::env::var("VALHALLA_PROACTIVE_MIN_FATE_SIGNALS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(64)
+}
+
+fn default_proactive_min_turns_legacy() -> usize {
+    0
 }
 
 fn default_proactive_min_spread() -> f64 {
@@ -235,7 +248,8 @@ impl Default for ValhallaBaseConfig {
             fate_ingress_routing: ValhallaFateIngressRouting::QuadCycle,
             fate_qa_feedback: true,
             proactive_enabled: true,
-            proactive_min_turns: default_proactive_min_turns(),
+            proactive_min_fate_signals: default_proactive_min_fate_signals(),
+            proactive_min_turns: 0,
             proactive_min_spread: default_proactive_min_spread(),
         }
     }
@@ -276,6 +290,12 @@ pub struct ProactiveOutcome {
     pub emitted: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fog_evidence: Option<FogEvidence>,
+    #[serde(default)]
+    pub fate_signals_since_baseline: u64,
+    #[serde(default)]
+    pub fate_baseline_tick: u64,
+    #[serde(default)]
+    pub proactive_min_fate_signals: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -694,6 +714,7 @@ fn apply_qa_feedback_to_snapshot(
     cfg: &ValhallaBaseConfig,
     question: &str,
     on_topic: bool,
+    question_ports: &BodyFrontPorts,
     retrieved_corpus_idx: Option<usize>,
     question_sig: Option<Vec<f64>>,
     line_sig: Option<Vec<f64>>,
@@ -703,13 +724,28 @@ fn apply_qa_feedback_to_snapshot(
     let target = BodyTarget::parse(&cfg.patch_body);
     let mut session = TriadSession::from_incubation_snapshot(budget, target, snap);
     apply_fate_config(&mut session, cfg);
-    session.apply_qa_feedback(question, on_topic);
-    if let (Some(idx), Some(qs), Some(ls), Some(lt)) =
-        (retrieved_corpus_idx, question_sig, line_sig, line_text)
-    {
-        session.apply_corpus_retrieval_feedback(idx, &qs, &ls, lt, on_topic);
+    session.emit_body_ports(question_ports);
+    if cfg.fate_qa_feedback {
+        session.apply_qa_feedback(question, on_topic);
+        if let (Some(idx), Some(qs), Some(ls), Some(lt)) =
+            (retrieved_corpus_idx, question_sig, line_sig, line_text)
+        {
+            session.apply_corpus_retrieval_feedback(idx, &qs, &ls, lt, on_topic);
+        }
     }
     session.incubation_snapshot()
+}
+
+fn effective_proactive_min_fate_signals(cfg: &ValhallaBaseConfig) -> usize {
+    if cfg.proactive_min_turns > 0 {
+        cfg.proactive_min_turns.saturating_mul(32)
+    } else {
+        cfg.proactive_min_fate_signals
+    }
+}
+
+fn fate_signals_since_baseline(snap: &TriadIncubationSnapshot, baseline: u64) -> u64 {
+    snap.fate_signal_tick.saturating_sub(baseline)
 }
 
 fn grind_ports_for_line(line: &str) -> BodyFrontPorts {
@@ -1110,20 +1146,20 @@ fn build_proactive_probe(corpus: &[String], prior: &[String]) -> Option<(String,
 
 fn proactive_trigger_gate(
     snap: &TriadIncubationSnapshot,
-    prior: &[String],
+    fate_baseline: u64,
     cfg: &ValhallaBaseConfig,
-) -> (bool, String) {
+) -> (bool, String, u64, usize) {
+    let since = fate_signals_since_baseline(snap, fate_baseline);
+    let min = effective_proactive_min_fate_signals(cfg);
     if !cfg.proactive_enabled {
-        return (false, "proactive_disabled".into());
+        return (false, "proactive_disabled".into(), since, min);
     }
-    if prior.len() < cfg.proactive_min_turns {
+    if since < min as u64 {
         return (
             false,
-            format!(
-                "turns={}<min_turns={}",
-                prior.len(),
-                cfg.proactive_min_turns
-            ),
+            format!("fate_signals={since}<min_fate_signals={min}"),
+            since,
+            min,
         );
     }
     let spread = hub_prefs_spread(&snap.hub_prefs);
@@ -1135,9 +1171,32 @@ fn proactive_trigger_gate(
                 spread = spread,
                 min = cfg.proactive_min_spread
             ),
+            since,
+            min,
         );
     }
-    (true, "idle_ready".into())
+    (true, "idle_ready".into(), since, min)
+}
+
+fn proactive_outcome_blocked(
+    reason: String,
+    since: u64,
+    min: usize,
+    fate_baseline: u64,
+) -> ProactiveOutcome {
+    ProactiveOutcome {
+        triggered: false,
+        trigger_reason: reason,
+        probe_id: String::new(),
+        probe_question: String::new(),
+        nudge: None,
+        fog_decision: "defer".into(),
+        emitted: false,
+        fog_evidence: None,
+        fate_signals_since_baseline: since,
+        fate_baseline_tick: fate_baseline,
+        proactive_min_fate_signals: min,
+    }
 }
 
 fn run_proactive_idle(
@@ -1145,37 +1204,18 @@ fn run_proactive_idle(
     lines: &[String],
     context_snap: TriadIncubationSnapshot,
     prior: &[String],
+    fate_baseline: u64,
     cfg: &ValhallaBaseConfig,
 ) -> Result<(ProactiveOutcome, Vec<ValhallaBaseRow>), String> {
-    let (ready, reason) = proactive_trigger_gate(&context_snap, prior, cfg);
+    let (ready, reason, since, min) =
+        proactive_trigger_gate(&context_snap, fate_baseline, cfg);
     if !ready {
-        return Ok((
-            ProactiveOutcome {
-                triggered: false,
-                trigger_reason: reason,
-                probe_id: String::new(),
-                probe_question: String::new(),
-                nudge: None,
-                fog_decision: "defer".into(),
-                emitted: false,
-                fog_evidence: None,
-            },
-            vec![],
-        ));
+        return Ok((proactive_outcome_blocked(reason, since, min, fate_baseline), vec![]));
     }
 
     let Some((probe_id, probe_text, source_line)) = build_proactive_probe(lines, prior) else {
         return Ok((
-            ProactiveOutcome {
-                triggered: false,
-                trigger_reason: "no_topic_overlap".into(),
-                probe_id: String::new(),
-                probe_question: String::new(),
-                nudge: None,
-                fog_decision: "defer".into(),
-                emitted: false,
-                fog_evidence: None,
-            },
+            proactive_outcome_blocked("no_topic_overlap".into(), since, min, fate_baseline),
             vec![],
         ));
     };
@@ -1216,6 +1256,9 @@ fn run_proactive_idle(
             fog_decision,
             emitted,
             fog_evidence: row.fog_evidence.clone(),
+            fate_signals_since_baseline: since,
+            fate_baseline_tick: fate_baseline,
+            proactive_min_fate_signals: min,
         },
         vec![row],
     ))
@@ -1233,6 +1276,20 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
 
     let mut context_snap = resolve_snapshot(req, &lines, &items, incremental);
     let cfg = &req.config;
+
+    let continuing_session_only = req.session.is_some()
+        && req.context.is_empty()
+        && req.context_items.is_empty()
+        && req.append_lines.is_empty()
+        && req.append_items.is_empty();
+    let mut fate_baseline = req
+        .session
+        .as_ref()
+        .map(|s| s.fate_baseline_tick)
+        .unwrap_or(0);
+    if !continuing_session_only || fate_baseline == 0 {
+        fate_baseline = context_snap.fate_signal_tick;
+    }
     let mut features = vec!["context_flex".into()];
     if cfg.decode == ValhallaBaseDecode::Hybrid {
         features.push("hybrid_routing".into());
@@ -1299,8 +1356,14 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
     let mut rows = Vec::new();
 
     if req.proactive_idle && req.questions.is_empty() {
-        let (outcome, probe_rows) =
-            run_proactive_idle(req, &lines, context_snap.clone(), &prior, cfg)?;
+        let (outcome, probe_rows) = run_proactive_idle(
+            req,
+            &lines,
+            context_snap.clone(),
+            &prior,
+            fate_baseline,
+            cfg,
+        )?;
         proactive_outcome = Some(outcome);
         rows = probe_rows;
     } else {
@@ -1324,24 +1387,21 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
             };
             prior.push(q.text.clone());
             rows.push(row.clone());
-            if cfg.fate_qa_feedback {
-                let q_sig = grind_ports_for_line(&format_prompt_text(&p)).embedding;
-                let line_meta = row.retrieval_corpus_idx.and_then(|i| {
-                    lines.get(i).map(|l| {
-                        (grind_ports_for_line(l).embedding, l.as_str())
-                    })
-                });
-                context_snap = apply_qa_feedback_to_snapshot(
-                    context_snap,
-                    cfg,
-                    &q.text,
-                    row.correct,
-                    row.retrieval_corpus_idx,
-                    Some(q_sig),
-                    line_meta.as_ref().map(|(s, _)| s.clone()),
-                    line_meta.as_ref().map(|(_, t)| *t),
-                );
-            }
+            let q_ports = grind_ports_for_line(&format_prompt_text(&p));
+            context_snap = apply_qa_feedback_to_snapshot(
+                context_snap,
+                cfg,
+                &q.text,
+                row.correct,
+                &q_ports,
+                row.retrieval_corpus_idx,
+                Some(q_ports.embedding.clone()),
+                row.retrieval_corpus_idx.and_then(|i| {
+                    lines.get(i).map(|l| grind_ports_for_line(l).embedding)
+                }),
+                row.retrieval_corpus_idx
+                    .and_then(|i| lines.get(i).map(|l| l.as_str())),
+            );
         }
     }
 
@@ -1353,6 +1413,7 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         lines_ingested: lines.len(),
         snapshot: snap,
         question_history: cap_question_history(prior),
+        fate_baseline_tick: fate_baseline,
     };
 
     Ok(ValhallaBaseResponse {

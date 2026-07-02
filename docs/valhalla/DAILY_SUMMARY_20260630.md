@@ -2,6 +2,8 @@
 
 **主题：** E7 代数接入 Fate · 长久记忆结构学习 · Proactive Fate v2 全绿 · 全量测试
 
+> **Proactive 最新：** [DAILY_SUMMARY_20260701.md](./DAILY_SUMMARY_20260701.md) — Fate `signal_tick` 时间门 · **71/72 · PPI 0.890**
+
 ---
 
 ## 1. 代码（hub-f64）

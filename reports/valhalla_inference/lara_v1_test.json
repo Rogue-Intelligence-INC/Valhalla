@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-30T20:08:02.920762+00:00",
+  "timestamp": "2026-07-02T04:17:55.498313+00:00",
   "protocol": "lara-v1",
   "benchmark": "LaRA-style RAG vs LC",
   "bundle": "lara_rag_vs_lc_slice20.json",

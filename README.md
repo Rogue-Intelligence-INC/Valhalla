@@ -42,7 +42,7 @@ Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/val
 |------------|--------|
 | **Long memory** (append-then-ask) | **73/76 (96.0%)** |
 | **Follow-up native** (30-turn) | **96.7%** |
-| **Proactive Fate v2** | **72/72 · PPI 0.921** |
+| **Proactive Fate v2** | **71/72 · PPI 0.890** |
 | **Open retrieval** (targeted) | **31/31 (100%)** |
 | **Zero cross-topic drift** | **0/48** probes |
 
@@ -114,7 +114,7 @@ Valhalla 是 **AI 记忆与混合推理平台**：语料 ingest 为 **Triad 结�
 - **Needle 4/4 · RULER 20/20** — 会话 append 长程召回
 - **Holdout 15/15** — 套件外泛化
 - **MCQ 0.5B→3B 65%→98%** — Qwen lm_patch 缩放
-- **长久记忆 96% · Proactive 72/72 · 30 轮 follow-up 96.7%**
+- **长久记忆 96% · Proactive 71/72 · PPI 0.890 · 30 轮 follow-up 96.7%**
 
 解读文档：[`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
 

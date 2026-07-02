@@ -1,7 +1,7 @@
 # Valhalla AI — Documentation Index
 
 **Scope:** ValhallaBase inference, memory, benchmarks, and product docs only.  
-**Updated:** 2026-06-30
+**Updated:** 2026-07-01
 
 > Non-AI work in this monorepo (cryptography, physics simulation, legacy Wave tooling) is **out of scope** for this index — not maintained here.
 
@@ -22,9 +22,9 @@
 
 | Highlight | Result | Report |
 |-----------|--------|--------|
-| **Long memory** append-then-ask | **96.0%** | `long_memory_test_full.json` |
+| **Long memory** append-then-ask | **72/76 (94.7%)** | `long_memory_test_full.json` |
 | **Follow-up native** 30-turn | **96.7%** | `context_flexibility_max_goal.json` |
-| **Proactive Fate v2** | **72/72 · PPI 0.921** | `proactive_fate_v2_test.json` |
+| **Proactive Fate v2** | **71/72 · PPI 0.890** | `proactive_fate_v2_test.json` |
 | **Open retrieval** targeted | **31/31** | `model_scaling_v1_test.json` |
 | **Zero cross-topic drift** | **0/48** | `context_topic_drift_test.json` |
 
@@ -61,7 +61,7 @@
 | LoCoMo | B† | ×1 | 3% (64-line cap) |
 | FRAMES | C | — | **invalid** (no wiki) |
 
-**Master summary:** [`EXPERIMENT_SUMMARY_20260630.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md)  
+**Master summary:** [`FULL_BENCHMARK_SUMMARY_20260702.md`](../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md) · [`EXPERIMENT_SUMMARY_20260630.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md) · [`DAILY_SUMMARY_20260701.md`](valhalla/DAILY_SUMMARY_20260701.md)  
 **Runner:** `python3 tools/valhalla_inference/run_industry_benchmarks.py`
 
 Legacy Hybrid 2.0 fair-145 (**80%**) is historical — **ValhallaBase** line uses protocols above.

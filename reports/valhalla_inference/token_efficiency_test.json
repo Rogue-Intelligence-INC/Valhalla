@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-27T22:47:00.647239+00:00",
+  "timestamp": "2026-06-29T20:09:55.790758+00:00",
   "protocol": "token-efficiency-v1",
   "model_tokenizer": "Qwen/Qwen2.5-0.5B-Instruct",
   "turns": 30,
@@ -30,9 +30,9 @@
     "prefill_tokens_vs_history": 0.095
   },
   "thread_accuracy": {
-    "on_topic_hits": 29,
+    "on_topic_hits": 30,
     "n": 30,
-    "on_topic_rate": 0.9666666666666667,
+    "on_topic_rate": 1.0,
     "source": "context_flexibility_max_goal.json (follow_up_aware)"
   },
   "holdout_accuracy": {
@@ -54,7 +54,7 @@
       "wire_chars_cumulative": 2319,
       "prefill_tokens_cumulative": 1126,
       "decode_tokens_total": 0,
-      "thread_on_topic_rate": 0.9666666666666667,
+      "thread_on_topic_rate": 1.0,
       "holdout_accuracy": 0.967741935483871
     },
     {

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-30T23:58:49.854369+00:00",
+  "timestamp": "2026-07-02T08:04:31.719562+00:00",
   "benchmarks": [
     {
       "name": "RAGTruth",
@@ -32,8 +32,8 @@
     {
       "name": "FRAMES",
       "protocol": "frames-v1",
-      "result": "0/25 (invalid, no wiki)",
-      "verdict": "FRAMES_NEEDS_WIKI",
+      "result": "0/25 (0%)",
+      "verdict": "OPEN_QA_DEVELOPING",
       "file": "frames_v1_test.json"
     },
     {

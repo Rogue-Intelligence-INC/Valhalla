@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-28T19:43:46.749849+00:00",
+  "timestamp": "2026-06-30T02:03:57.560549+00:00",
   "protocol": "backbone-universality-v1",
   "suite": "fair_open/open_retrieval",
   "slice": "open_retrieval",
@@ -11,8 +11,8 @@
   ],
   "arms": {
     "valhalla_hybrid": {
-      "accuracy": 0.9032258064516129,
-      "correct": 28,
+      "accuracy": 0.8709677419354839,
+      "correct": 27,
       "n": 31
     },
     "trad_lm/Qwen/Qwen2.5-0.5B-Instruct": {
@@ -20,21 +20,21 @@
       "accuracy": 1.0,
       "correct": 31,
       "n": 31,
-      "delta_pp_vs_valhalla": -9.7
+      "delta_pp_vs_valhalla": -12.9
     },
     "trad_lm/google/gemma-2-2b-it": {
       "model_path": "/home/jouly/.cache/modelscope/hub/models/google/gemma-2-2b-it",
       "accuracy": 1.0,
       "correct": 31,
       "n": 31,
-      "delta_pp_vs_valhalla": -9.7
+      "delta_pp_vs_valhalla": -12.9
     },
     "trad_lm/microsoft/Phi-3-mini-4k-instruct": {
       "model_path": "/home/jouly/AI/Valhalla/models/hf/Phi-3-mini-4k-instruct",
       "accuracy": 1.0,
       "correct": 31,
       "n": 31,
-      "delta_pp_vs_valhalla": -9.7
+      "delta_pp_vs_valhalla": -12.9
     }
   },
   "notes": [

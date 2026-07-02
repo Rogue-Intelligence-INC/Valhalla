@@ -82,7 +82,7 @@
 | Benchmark | 次数 | 结果 | 对应什么 | 意味着 | 因为什么 |
 |-----------|------|------|----------|--------|----------|
 | Long memory | 多轮 | **73/76 (96.0%)** | append-then-ask 四 arm | 长久记忆生产协议 | E7 algebra corpus feedback |
-| Proactive Fate v2 | ×1 | **72/72 · PPI 0.921** | 主动探针 + 门控 | 低幻觉 proactive | Exit/FIR/warmup 修复 |
+| Proactive Fate v2 | ×1 | **71/72 · PPI 0.890** | 主动探针 + Fate 信号门控 | 低幻觉 proactive | `min_fate_signals=64` since baseline |
 | Open retrieval targeted | ×1 | **31/31 (100%)** | fair scaling open arm | 结构检索 backbone 无关 | Fate rerank 不依赖 LM 大小 |
 | Follow-up native 30-turn | 历史 | **96.7%** | 多轮对话 | 上下文连贯 | session persistent |
 

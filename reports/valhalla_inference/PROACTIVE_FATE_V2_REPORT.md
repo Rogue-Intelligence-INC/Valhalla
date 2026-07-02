@@ -1,17 +1,17 @@
 # Proactive Fate v2 — Experiment Report
 
-**Protocol:** `proactive-fate-v2` · **Date:** 2026-06-29
+**Protocol:** `proactive-fate-v2` · **Date:** 2026-07-02
 
 ## Headline
 
 | Metric | Value |
 |--------|-------|
-| **PPI-v2** (composite) | **0.921** |
+| **PPI-v2** (composite) | **0.890** |
 | On-topic unsolicited precision | 100.0% |
 | On-topic emit rate | 80.0% |
-| Mismatch abstain rate | 97.1% |
-| False interrupt rate | 0.0% |
-| Trigger rate (eligible) | 42.0% |
+| Mismatch abstain rate | 88.2% |
+| False interrupt rate | 3.1% |
+| Trigger rate (eligible) | 46.4% |
 
 ## Verdict
 
@@ -25,12 +25,13 @@
 
 - Gates: 3/3
 - Handcraft: 7/7
-- Fair holdout: 62/62
+- Fair holdout: 61/62
 
 ## Known gaps
 
-- Fair aligned uses `targeted_context` + 3-turn warmup; conservative defer (spread / no_topic_overlap) counts as pass.
-- Exit: PPI-v2 ≥ 0.75 + gates OK + FIR ≤ 5% (binary 85% is secondary).
+- Time gate: Fate `signal_tick` since `fate_baseline_tick` (default min=64), not turn count.
+- Fair aligned uses `targeted_context` + 3-turn warmup; conservative defer counts as pass.
+- 1 fair mismatch economics emit (FIR 3.1%); exit: PPI-v2 ≥ 0.75 + gates OK + FIR ≤ 5%.
 
 ## Reproduce
 

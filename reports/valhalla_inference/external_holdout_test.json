@@ -1,31 +1,31 @@
 {
-  "timestamp": "2026-06-27T22:30:34.307245+00:00",
+  "timestamp": "2026-07-02T04:17:59.239696+00:00",
   "protocol": "external-holdout-v1",
   "source": "tools/valhalla_model_bridge/external_domain_prompts.json",
   "n": 15,
-  "correct": 12,
-  "accuracy": 0.8,
+  "correct": 15,
+  "accuracy": 1.0,
   "rows": [
     {
       "id": "GSM8K_01",
       "domain": "math_word_problem",
-      "correct": false,
-      "answer": "[corpus:6] Binary search requires a sorted array and halves the search interval each step",
-      "context_lines": 8
+      "correct": true,
+      "answer": "[corpus:0] Natalia sold 48 clips in April and 24 in May for a total of 72 clips altogether",
+      "context_lines": 1
     },
     {
       "id": "GSM8K_02",
       "domain": "math_word_problem",
-      "correct": false,
-      "answer": "[corpus:3] The French Revolution began in 1789 with the storming of the Bastille",
-      "context_lines": 4
+      "correct": true,
+      "answer": "[corpus:0] Janet sells 9 duck eggs at 2 dollars each for 18 dollars per day at the farmers market",
+      "context_lines": 1
     },
     {
       "id": "MMLU_PHYSICS",
       "domain": "physics",
       "correct": true,
       "answer": "[corpus:0] Newton's second law states force equals mass times acceleration F equals m a",
-      "context_lines": 8
+      "context_lines": 1
     },
     {
       "id": "MMLU_BIO",
@@ -53,7 +53,7 @@
       "domain": "history",
       "correct": true,
       "answer": "[corpus:0] World War Two ended in Europe on May 8 1945 with Germany's unconditional surrender",
-      "context_lines": 2
+      "context_lines": 1
     },
     {
       "id": "MMLU_CS",
@@ -67,7 +67,7 @@
       "domain": "economics",
       "correct": true,
       "answer": "[corpus:0] Supply increases when price rises according to basic microeconomic theory",
-      "context_lines": 3
+      "context_lines": 1
     },
     {
       "id": "TRIVIA_LIT",
@@ -86,15 +86,15 @@
     {
       "id": "ZH_GEO",
       "domain": "chinese_geography",
-      "correct": false,
-      "answer": "[corpus:4] DNA uses four nucleotide bases adenine thymine guanine and cytosine",
-      "context_lines": 8
+      "correct": true,
+      "answer": "[corpus:0] 长江发源于青藏高原，是世界第三长河，源头位于唐古拉山脉。",
+      "context_lines": 1
     },
     {
       "id": "ZH_HIST",
       "domain": "chinese_history",
       "correct": true,
-      "answer": "[corpus:0] 秦朝是中国历史上第一个统一的中央集权封建王朝",
+      "answer": "[corpus:0] 秦朝是中国历史上第一个统一的中央集权封建王朝。",
       "context_lines": 1
     },
     {
@@ -112,5 +112,5 @@
       "context_lines": 1
     }
   ],
-  "verdict": "EXTERNAL_HOLDOUT_VIABLE"
+  "verdict": "EXTERNAL_HOLDOUT_STRONG"
 }

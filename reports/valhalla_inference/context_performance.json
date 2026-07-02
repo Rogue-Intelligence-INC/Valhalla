@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-25T19:03:15.267628+00:00",
+  "timestamp": "2026-06-29T17:18:52.253104+00:00",
   "model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10",
   "phase": "test",
   "existing_full_test": {
@@ -43,6 +43,41 @@
         "output": "一年有5个节气，分别是立春、雨水、惊蛰、清明、谷雨。"
       }
     ]
+  },
+  "fused_rerun": {
+    "path": "/home/jouly/AI/Valhalla/reports/valhalla_inference/context_fused_test.json",
+    "summary": {
+      "total": {
+        "n": 145,
+        "correct": 110,
+        "acc": 0.7586206896551724
+      },
+      "open": {
+        "n": 61,
+        "correct": 55,
+        "acc": 0.9016393442622951
+      },
+      "mcq": {
+        "n": 46,
+        "correct": 26,
+        "acc": 0.5652173913043478
+      },
+      "numeric": {
+        "n": 38,
+        "correct": 29,
+        "acc": 0.7631578947368421
+      },
+      "other": {
+        "n": 0,
+        "correct": 0,
+        "acc": 0.0
+      },
+      "decode_path_counts": {
+        "baked_lm_mcq/baked_mcq_logprob": 46,
+        "baked_lm_numeric/gen": 38,
+        "baked_lm_open/gen": 61
+      }
+    }
   },
   "live_ablation": {
     "model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10",
@@ -90,7 +125,7 @@
         ],
         "bare_correct": true,
         "ctx_correct": true,
-        "bare_out": "GDP stands for Gross Domestic Product. It is the total value of all goods and services produced within a country's borders in a specific time period, usually a year. This measure i",
+        "bare_out": "GDP stands for Gross Domestic Product. It is the total value of all goods and services produced within a country's borders in a specific time period, usually a year or quarter. Thi",
         "ctx_out": "Gross Domestic Product."
       },
       {
@@ -196,8 +231,8 @@
         ],
         "bare_correct": true,
         "ctx_correct": true,
-        "bare_out": "Plants absorb carbon dioxide (CO2) through their leaves to produce glucose and oxygen as a byproduct of photosynthesis. The process can be broken down into the following steps:\n\n1.",
-        "ctx_out": "Plants absorb carbon dioxide (CO2) for photosynthesis. This process uses sunlight to convert carbon dioxide and water into glucose through the process of photosynthesis. The absorb"
+        "bare_out": "Plants absorb carbon dioxide (CO2) through their leaves to produce glucose and oxygen as the end products of photosynthesis. The process can be broken down as follows:\n\n1. **Carbon",
+        "ctx_out": "Plants absorb carbon dioxide (CO2) for photosynthesis. This process uses sunlight to convert carbon dioxide and water into glucose through the action of chlorophyll molecules in th"
       },
       {
         "id": "OPEN_F05",

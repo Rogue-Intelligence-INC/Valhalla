@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-25T23:45:28.977856+00:00",
+  "timestamp": "2026-06-29T18:03:44.185396+00:00",
   "protocol": "fate-qa-feedback-v1",
   "phase1_gradual_rounds": 20,
   "phase2_free_rounds": 20,
@@ -9,28 +9,28 @@
     {
       "thread_id": "physics",
       "total_rounds": 40,
-      "on_topic_hits": 27,
-      "on_topic_rate": 0.675,
+      "on_topic_hits": 31,
+      "on_topic_rate": 0.775,
       "phase_stats": {
         "gradual": {
-          "hits": 15,
+          "hits": 17,
           "n": 20,
-          "rate": 0.75,
-          "avg_spread": 0.06643780223217949
+          "rate": 0.85,
+          "avg_spread": 0.01800231822935787
         },
         "free": {
-          "hits": 12,
+          "hits": 14,
           "n": 20,
-          "rate": 0.6,
-          "avg_spread": 0.09519440722554151
+          "rate": 0.7,
+          "avg_spread": 0.025831937358972747
         }
       },
-      "final_spread": 0.10168,
+      "final_spread": 0.02762,
       "final_prefs": [
-        0.31395,
-        0.21227,
-        0.22873,
-        0.24505
+        0.26894,
+        0.24132,
+        0.24307,
+        0.24666
       ],
       "turns": [
         {
@@ -38,12 +38,12 @@
           "phase": "gradual",
           "constraint": 1.0,
           "hub_prefs": [
-            0.27362,
-            0.24213,
-            0.24213,
-            0.24213
+            0.2547,
+            0.24843,
+            0.24843,
+            0.24843
           ],
-          "hub_prefs_spread": 0.03149,
+          "hub_prefs_spread": 0.00627,
           "hub_routed": [
             24,
             24,
@@ -76,12 +76,12 @@
           "phase": "gradual",
           "constraint": 0.95,
           "hub_prefs": [
-            0.26821,
-            0.23753,
-            0.23753,
-            0.25674
+            0.25558,
+            0.2475,
+            0.2475,
+            0.24942
           ],
-          "hub_prefs_spread": 0.03068,
+          "hub_prefs_spread": 0.00809,
           "hub_routed": [
             40,
             40,
@@ -114,12 +114,12 @@
           "phase": "gradual",
           "constraint": 0.9,
           "hub_prefs": [
-            0.2638,
-            0.23377,
-            0.23377,
-            0.26866
+            0.25631,
+            0.24672,
+            0.24672,
+            0.25025
           ],
-          "hub_prefs_spread": 0.03489,
+          "hub_prefs_spread": 0.00959,
           "hub_routed": [
             48,
             48,
@@ -152,12 +152,12 @@
           "phase": "gradual",
           "constraint": 0.85,
           "hub_prefs": [
-            0.27391,
-            0.23062,
-            0.23062,
-            0.26486
+            0.2583,
+            0.24606,
+            0.24606,
+            0.24957
           ],
-          "hub_prefs_spread": 0.0433,
+          "hub_prefs_spread": 0.01224,
           "hub_routed": [
             56,
             56,
@@ -190,12 +190,12 @@
           "phase": "gradual",
           "constraint": 0.8,
           "hub_prefs": [
-            0.27049,
-            0.2279,
-            0.24002,
-            0.26159
+            0.25769,
+            0.24548,
+            0.24669,
+            0.25014
           ],
-          "hub_prefs_spread": 0.04259,
+          "hub_prefs_spread": 0.01221,
           "hub_routed": [
             64,
             64,
@@ -228,12 +228,12 @@
           "phase": "gradual",
           "constraint": 0.75,
           "hub_prefs": [
-            0.2783,
-            0.22552,
-            0.23747,
-            0.25872
+            0.25924,
+            0.24497,
+            0.24617,
+            0.24962
           ],
-          "hub_prefs_spread": 0.05278,
+          "hub_prefs_spread": 0.01427,
           "hub_routed": [
             72,
             72,
@@ -266,12 +266,12 @@
           "phase": "gradual",
           "constraint": 0.7,
           "hub_prefs": [
-            0.28523,
-            0.2234,
-            0.2352,
-            0.25617
+            0.26063,
+            0.24451,
+            0.24571,
+            0.24915
           ],
-          "hub_prefs_spread": 0.06183,
+          "hub_prefs_spread": 0.01611,
           "hub_routed": [
             80,
             80,
@@ -304,12 +304,12 @@
           "phase": "gradual",
           "constraint": 0.65,
           "hub_prefs": [
-            0.28544,
-            0.22335,
-            0.23513,
-            0.25608
+            0.26189,
+            0.24409,
+            0.24529,
+            0.24872
           ],
-          "hub_prefs_spread": 0.06209,
+          "hub_prefs_spread": 0.0178,
           "hub_routed": [
             88,
             88,
@@ -333,8 +333,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
-          "row_correct": false,
+          "on_topic": true,
+          "row_correct": true,
           "fate_qa_feedback": true
         },
         {
@@ -342,12 +342,12 @@
           "phase": "gradual",
           "constraint": 0.6,
           "hub_prefs": [
-            0.29115,
-            0.22161,
-            0.23326,
-            0.25398
+            0.26305,
+            0.24371,
+            0.24491,
+            0.24833
           ],
-          "hub_prefs_spread": 0.06955,
+          "hub_prefs_spread": 0.01934,
           "hub_routed": [
             96,
             96,
@@ -380,12 +380,12 @@
           "phase": "gradual",
           "constraint": 0.55,
           "hub_prefs": [
-            0.296,
-            0.22013,
-            0.23167,
-            0.2522
+            0.26404,
+            0.24339,
+            0.24458,
+            0.248
           ],
-          "hub_prefs_spread": 0.07588,
+          "hub_prefs_spread": 0.02065,
           "hub_routed": [
             112,
             112,
@@ -418,12 +418,12 @@
           "phase": "gradual",
           "constraint": 0.5,
           "hub_prefs": [
-            0.29862,
-            0.21934,
-            0.23082,
-            0.25123
+            0.26459,
+            0.2432,
+            0.2444,
+            0.24781
           ],
-          "hub_prefs_spread": 0.07928,
+          "hub_prefs_spread": 0.02139,
           "hub_routed": [
             128,
             128,
@@ -456,12 +456,12 @@
           "phase": "gradual",
           "constraint": 0.45,
           "hub_prefs": [
-            0.29838,
-            0.21921,
-            0.23067,
-            0.25174
+            0.26463,
+            0.24317,
+            0.24436,
+            0.24783
           ],
-          "hub_prefs_spread": 0.07917,
+          "hub_prefs_spread": 0.02146,
           "hub_routed": [
             144,
             144,
@@ -494,12 +494,12 @@
           "phase": "gradual",
           "constraint": 0.4,
           "hub_prefs": [
-            0.29816,
-            0.21909,
-            0.23054,
-            0.25221
+            0.26467,
+            0.24314,
+            0.24434,
+            0.24785
           ],
-          "hub_prefs_spread": 0.07907,
+          "hub_prefs_spread": 0.02152,
           "hub_routed": [
             160,
             160,
@@ -532,12 +532,12 @@
           "phase": "gradual",
           "constraint": 0.35,
           "hub_prefs": [
-            0.30006,
-            0.21852,
-            0.22992,
-            0.2515
+            0.26507,
+            0.24301,
+            0.2442,
+            0.24772
           ],
-          "hub_prefs_spread": 0.08154,
+          "hub_prefs_spread": 0.02206,
           "hub_routed": [
             176,
             176,
@@ -570,12 +570,12 @@
           "phase": "gradual",
           "constraint": 0.3,
           "hub_prefs": [
-            0.29923,
-            0.218,
-            0.23191,
-            0.25086
+            0.26493,
+            0.24289,
+            0.24433,
+            0.24784
           ],
-          "hub_prefs_spread": 0.08123,
+          "hub_prefs_spread": 0.02204,
           "hub_routed": [
             192,
             192,
@@ -608,12 +608,12 @@
           "phase": "gradual",
           "constraint": 0.25,
           "hub_prefs": [
-            0.29955,
-            0.21791,
-            0.23181,
-            0.25073
+            0.265,
+            0.24287,
+            0.24431,
+            0.24782
           ],
-          "hub_prefs_spread": 0.08165,
+          "hub_prefs_spread": 0.02213,
           "hub_routed": [
             200,
             200,
@@ -646,12 +646,12 @@
           "phase": "gradual",
           "constraint": 0.2,
           "hub_prefs": [
-            0.30115,
-            0.21743,
-            0.23128,
-            0.25014
+            0.26534,
+            0.24276,
+            0.2442,
+            0.24771
           ],
-          "hub_prefs_spread": 0.08373,
+          "hub_prefs_spread": 0.02258,
           "hub_routed": [
             208,
             208,
@@ -684,12 +684,12 @@
           "phase": "gradual",
           "constraint": 0.15,
           "hub_prefs": [
-            0.30145,
-            0.21734,
-            0.23118,
-            0.25002
+            0.26567,
+            0.24265,
+            0.24409,
+            0.2476
           ],
-          "hub_prefs_spread": 0.08411,
+          "hub_prefs_spread": 0.02302,
           "hub_routed": [
             216,
             216,
@@ -713,8 +713,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
-          "row_correct": false,
+          "on_topic": true,
+          "row_correct": true,
           "fate_qa_feedback": true
         },
         {
@@ -722,12 +722,12 @@
           "phase": "gradual",
           "constraint": 0.1,
           "hub_prefs": [
-            0.30293,
-            0.2169,
-            0.2307,
-            0.24947
+            0.26598,
+            0.24254,
+            0.24398,
+            0.24749
           ],
-          "hub_prefs_spread": 0.08603,
+          "hub_prefs_spread": 0.02344,
           "hub_routed": [
             224,
             224,
@@ -760,12 +760,12 @@
           "phase": "gradual",
           "constraint": 0.05,
           "hub_prefs": [
-            0.30436,
-            0.21647,
-            0.23023,
-            0.24895
+            0.26629,
+            0.24244,
+            0.24388,
+            0.24739
           ],
-          "hub_prefs_spread": 0.08788,
+          "hub_prefs_spread": 0.02384,
           "hub_routed": [
             232,
             232,
@@ -798,12 +798,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30573,
-            0.21606,
-            0.22977,
-            0.24844
+            0.26658,
+            0.24235,
+            0.24379,
+            0.24729
           ],
-          "hub_prefs_spread": 0.08967,
+          "hub_prefs_spread": 0.02423,
           "hub_routed": [
             240,
             240,
@@ -836,12 +836,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30558,
-            0.21599,
-            0.22969,
-            0.24874
+            0.2666,
+            0.24233,
+            0.24377,
+            0.2473
           ],
-          "hub_prefs_spread": 0.0896,
+          "hub_prefs_spread": 0.02427,
           "hub_routed": [
             248,
             248,
@@ -874,12 +874,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30544,
-            0.21592,
-            0.22961,
-            0.24903
+            0.26662,
+            0.24231,
+            0.24375,
+            0.24731
           ],
-          "hub_prefs_spread": 0.08952,
+          "hub_prefs_spread": 0.02431,
           "hub_routed": [
             256,
             256,
@@ -912,12 +912,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30669,
-            0.21555,
-            0.2292,
-            0.24857
+            0.26689,
+            0.24222,
+            0.24366,
+            0.24722
           ],
-          "hub_prefs_spread": 0.09114,
+          "hub_prefs_spread": 0.02467,
           "hub_routed": [
             264,
             264,
@@ -950,12 +950,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30609,
-            0.21518,
-            0.23061,
-            0.24812
+            0.2668,
+            0.24214,
+            0.24375,
+            0.24731
           ],
-          "hub_prefs_spread": 0.0909,
+          "hub_prefs_spread": 0.02466,
           "hub_routed": [
             272,
             272,
@@ -988,12 +988,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30631,
-            0.21512,
-            0.23053,
-            0.24803
+            0.26684,
+            0.24212,
+            0.24374,
+            0.2473
           ],
-          "hub_prefs_spread": 0.09119,
+          "hub_prefs_spread": 0.02472,
           "hub_routed": [
             280,
             280,
@@ -1026,12 +1026,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30745,
-            0.21478,
-            0.23015,
-            0.24761
+            0.26709,
+            0.24204,
+            0.24366,
+            0.24721
           ],
-          "hub_prefs_spread": 0.09267,
+          "hub_prefs_spread": 0.02504,
           "hub_routed": [
             288,
             288,
@@ -1064,12 +1064,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30767,
-            0.21472,
-            0.23008,
-            0.24753
+            0.26733,
+            0.24196,
+            0.24358,
+            0.24713
           ],
-          "hub_prefs_spread": 0.09294,
+          "hub_prefs_spread": 0.02536,
           "hub_routed": [
             296,
             296,
@@ -1093,8 +1093,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
-          "row_correct": false,
+          "on_topic": true,
+          "row_correct": true,
           "fate_qa_feedback": true
         },
         {
@@ -1102,12 +1102,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30874,
-            0.2144,
-            0.22973,
-            0.24713
+            0.26756,
+            0.24189,
+            0.2435,
+            0.24705
           ],
-          "hub_prefs_spread": 0.09434,
+          "hub_prefs_spread": 0.02567,
           "hub_routed": [
             304,
             304,
@@ -1140,12 +1140,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.30979,
-            0.21409,
-            0.22938,
-            0.24674
+            0.26778,
+            0.24181,
+            0.24343,
+            0.24698
           ],
-          "hub_prefs_spread": 0.0957,
+          "hub_prefs_spread": 0.02597,
           "hub_routed": [
             312,
             312,
@@ -1178,12 +1178,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31081,
-            0.21378,
-            0.22904,
-            0.24637
+            0.268,
+            0.24174,
+            0.24335,
+            0.2469
           ],
-          "hub_prefs_spread": 0.09702,
+          "hub_prefs_spread": 0.02626,
           "hub_routed": [
             320,
             320,
@@ -1216,12 +1216,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31069,
-            0.21373,
-            0.22898,
-            0.2466
+            0.26802,
+            0.24173,
+            0.24334,
+            0.24691
           ],
-          "hub_prefs_spread": 0.09696,
+          "hub_prefs_spread": 0.02629,
           "hub_routed": [
             328,
             328,
@@ -1254,12 +1254,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31058,
-            0.21368,
-            0.22892,
-            0.24682
+            0.26804,
+            0.24171,
+            0.24333,
+            0.24692
           ],
-          "hub_prefs_spread": 0.0969,
+          "hub_prefs_spread": 0.02632,
           "hub_routed": [
             336,
             336,
@@ -1292,12 +1292,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31153,
-            0.2134,
-            0.2286,
-            0.24647
+            0.26824,
+            0.24165,
+            0.24326,
+            0.24685
           ],
-          "hub_prefs_spread": 0.09813,
+          "hub_prefs_spread": 0.02659,
           "hub_routed": [
             344,
             344,
@@ -1330,12 +1330,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31106,
-            0.21312,
-            0.22969,
-            0.24613
+            0.26817,
+            0.24158,
+            0.24333,
+            0.24692
           ],
-          "hub_prefs_spread": 0.09793,
+          "hub_prefs_spread": 0.02659,
           "hub_routed": [
             352,
             352,
@@ -1368,12 +1368,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31123,
-            0.21307,
-            0.22964,
-            0.24606
+            0.2682,
+            0.24157,
+            0.24332,
+            0.24691
           ],
-          "hub_prefs_spread": 0.09815,
+          "hub_prefs_spread": 0.02664,
           "hub_routed": [
             360,
             360,
@@ -1406,12 +1406,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31211,
-            0.21281,
-            0.22934,
-            0.24573
+            0.26839,
+            0.24151,
+            0.24325,
+            0.24685
           ],
-          "hub_prefs_spread": 0.0993,
+          "hub_prefs_spread": 0.02689,
           "hub_routed": [
             368,
             368,
@@ -1444,12 +1444,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31228,
-            0.21277,
-            0.22929,
-            0.24567
+            0.26858,
+            0.24144,
+            0.24319,
+            0.24678
           ],
-          "hub_prefs_spread": 0.09951,
+          "hub_prefs_spread": 0.02714,
           "hub_routed": [
             376,
             376,
@@ -1473,8 +1473,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
-          "row_correct": false,
+          "on_topic": true,
+          "row_correct": true,
           "fate_qa_feedback": true
         },
         {
@@ -1482,12 +1482,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31312,
-            0.21252,
-            0.22901,
-            0.24536
+            0.26876,
+            0.24138,
+            0.24313,
+            0.24672
           ],
-          "hub_prefs_spread": 0.1006,
+          "hub_prefs_spread": 0.02738,
           "hub_routed": [
             384,
             384,
@@ -1520,12 +1520,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.31395,
-            0.21227,
-            0.22873,
-            0.24505
+            0.26894,
+            0.24132,
+            0.24307,
+            0.24666
           ],
-          "hub_prefs_spread": 0.10168,
+          "hub_prefs_spread": 0.02762,
           "hub_routed": [
             392,
             392,
@@ -1558,28 +1558,28 @@
     {
       "thread_id": "chemistry",
       "total_rounds": 40,
-      "on_topic_hits": 38,
-      "on_topic_rate": 0.95,
+      "on_topic_hits": 37,
+      "on_topic_rate": 0.925,
       "phase_stats": {
         "gradual": {
-          "hits": 20,
+          "hits": 19,
           "n": 20,
-          "rate": 1.0,
-          "avg_spread": 0.09939777609312005
+          "rate": 0.95,
+          "avg_spread": 0.02046550756627542
         },
         "free": {
           "hits": 18,
           "n": 20,
           "rate": 0.9,
-          "avg_spread": 0.14180667458640225
+          "avg_spread": 0.02990195377366426
         }
       },
-      "final_spread": 0.15101,
+      "final_spread": 0.03216,
       "final_prefs": [
-        0.20734,
-        0.22698,
-        0.35834,
-        0.20734
+        0.24089,
+        0.24518,
+        0.27304,
+        0.24089
       ],
       "turns": [
         {
@@ -1587,12 +1587,12 @@
           "phase": "gradual",
           "constraint": 1.0,
           "hub_prefs": [
-            0.24213,
-            0.24213,
-            0.27362,
-            0.24213
+            0.24845,
+            0.24845,
+            0.25466,
+            0.24845
           ],
-          "hub_prefs_spread": 0.03149,
+          "hub_prefs_spread": 0.00621,
           "hub_routed": [
             24,
             24,
@@ -1625,12 +1625,12 @@
           "phase": "gradual",
           "constraint": 0.95,
           "hub_prefs": [
-            0.23753,
-            0.23753,
-            0.28742,
-            0.23753
+            0.24752,
+            0.24752,
+            0.25744,
+            0.24752
           ],
-          "hub_prefs_spread": 0.0499,
+          "hub_prefs_spread": 0.00992,
           "hub_routed": [
             40,
             40,
@@ -1663,12 +1663,12 @@
           "phase": "gradual",
           "constraint": 0.9,
           "hub_prefs": [
-            0.23377,
-            0.24986,
-            0.2826,
-            0.23377
+            0.24675,
+            0.24987,
+            0.25663,
+            0.24675
           ],
-          "hub_prefs_spread": 0.04883,
+          "hub_prefs_spread": 0.00988,
           "hub_routed": [
             48,
             48,
@@ -1701,12 +1701,12 @@
           "phase": "gradual",
           "constraint": 0.85,
           "hub_prefs": [
-            0.23062,
-            0.2464,
-            0.29237,
-            0.23062
+            0.24609,
+            0.2492,
+            0.25862,
+            0.24609
           ],
-          "hub_prefs_spread": 0.06175,
+          "hub_prefs_spread": 0.01253,
           "hub_routed": [
             56,
             56,
@@ -1739,12 +1739,12 @@
           "phase": "gradual",
           "constraint": 0.8,
           "hub_prefs": [
-            0.2279,
-            0.24343,
-            0.30078,
-            0.2279
+            0.24551,
+            0.24862,
+            0.26036,
+            0.24551
           ],
-          "hub_prefs_spread": 0.07288,
+          "hub_prefs_spread": 0.01485,
           "hub_routed": [
             64,
             64,
@@ -1777,12 +1777,12 @@
           "phase": "gradual",
           "constraint": 0.75,
           "hub_prefs": [
-            0.22552,
-            0.24082,
-            0.30814,
-            0.22552
+            0.245,
+            0.2481,
+            0.26191,
+            0.245
           ],
-          "hub_prefs_spread": 0.08263,
+          "hub_prefs_spread": 0.01691,
           "hub_routed": [
             72,
             72,
@@ -1815,12 +1815,12 @@
           "phase": "gradual",
           "constraint": 0.7,
           "hub_prefs": [
-            0.2234,
-            0.23851,
-            0.31469,
-            0.2234
+            0.24454,
+            0.24763,
+            0.2633,
+            0.24454
           ],
-          "hub_prefs_spread": 0.09129,
+          "hub_prefs_spread": 0.01876,
           "hub_routed": [
             80,
             80,
@@ -1853,12 +1853,12 @@
           "phase": "gradual",
           "constraint": 0.65,
           "hub_prefs": [
-            0.2215,
-            0.23643,
-            0.32057,
-            0.2215
+            0.24412,
+            0.24721,
+            0.26456,
+            0.24412
           ],
-          "hub_prefs_spread": 0.09907,
+          "hub_prefs_spread": 0.02044,
           "hub_routed": [
             88,
             88,
@@ -1891,12 +1891,12 @@
           "phase": "gradual",
           "constraint": 0.6,
           "hub_prefs": [
-            0.21978,
-            0.23454,
-            0.3259,
-            0.21978
+            0.24374,
+            0.24682,
+            0.26571,
+            0.24374
           ],
-          "hub_prefs_spread": 0.10612,
+          "hub_prefs_spread": 0.02197,
           "hub_routed": [
             96,
             96,
@@ -1929,12 +1929,12 @@
           "phase": "gradual",
           "constraint": 0.55,
           "hub_prefs": [
-            0.21832,
-            0.23294,
-            0.33042,
-            0.21832
+            0.24341,
+            0.24649,
+            0.2667,
+            0.24341
           ],
-          "hub_prefs_spread": 0.11211,
+          "hub_prefs_spread": 0.02329,
           "hub_routed": [
             112,
             112,
@@ -1967,12 +1967,12 @@
           "phase": "gradual",
           "constraint": 0.5,
           "hub_prefs": [
-            0.21754,
-            0.23208,
-            0.33285,
-            0.21754
+            0.24323,
+            0.2463,
+            0.26725,
+            0.24323
           ],
-          "hub_prefs_spread": 0.11531,
+          "hub_prefs_spread": 0.02402,
           "hub_routed": [
             128,
             128,
@@ -2005,12 +2005,12 @@
           "phase": "gradual",
           "constraint": 0.45,
           "hub_prefs": [
-            0.21685,
-            0.23132,
-            0.33499,
-            0.21684
+            0.2432,
+            0.24627,
+            0.26734,
+            0.2432
           ],
-          "hub_prefs_spread": 0.11814,
+          "hub_prefs_spread": 0.02414,
           "hub_routed": [
             144,
             144,
@@ -2034,8 +2034,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": true,
-          "row_correct": true,
+          "on_topic": false,
+          "row_correct": false,
           "fate_qa_feedback": true
         },
         {
@@ -2043,12 +2043,12 @@
           "phase": "gradual",
           "constraint": 0.4,
           "hub_prefs": [
-            0.21623,
-            0.2337,
-            0.33384,
-            0.21623
+            0.24305,
+            0.24672,
+            0.26718,
+            0.24305
           ],
-          "hub_prefs_spread": 0.11762,
+          "hub_prefs_spread": 0.02413,
           "hub_routed": [
             160,
             160,
@@ -2081,12 +2081,12 @@
           "phase": "gradual",
           "constraint": 0.35,
           "hub_prefs": [
-            0.21567,
-            0.23307,
-            0.33559,
-            0.21567
+            0.24292,
+            0.24659,
+            0.26758,
+            0.24292
           ],
-          "hub_prefs_spread": 0.11993,
+          "hub_prefs_spread": 0.02466,
           "hub_routed": [
             176,
             176,
@@ -2119,12 +2119,12 @@
           "phase": "gradual",
           "constraint": 0.3,
           "hub_prefs": [
-            0.21516,
-            0.2325,
-            0.33719,
-            0.21516
+            0.2428,
+            0.24647,
+            0.26794,
+            0.2428
           ],
-          "hub_prefs_spread": 0.12204,
+          "hub_prefs_spread": 0.02515,
           "hub_routed": [
             192,
             192,
@@ -2157,12 +2157,12 @@
           "phase": "gradual",
           "constraint": 0.25,
           "hub_prefs": [
-            0.21467,
-            0.23195,
-            0.33872,
-            0.21467
+            0.24268,
+            0.24635,
+            0.2683,
+            0.24268
           ],
-          "hub_prefs_spread": 0.12405,
+          "hub_prefs_spread": 0.02562,
           "hub_routed": [
             200,
             200,
@@ -2195,12 +2195,12 @@
           "phase": "gradual",
           "constraint": 0.2,
           "hub_prefs": [
-            0.2142,
-            0.23142,
-            0.34019,
-            0.2142
+            0.24257,
+            0.24623,
+            0.26863,
+            0.24257
           ],
-          "hub_prefs_spread": 0.12599,
+          "hub_prefs_spread": 0.02607,
           "hub_routed": [
             208,
             208,
@@ -2233,12 +2233,12 @@
           "phase": "gradual",
           "constraint": 0.15,
           "hub_prefs": [
-            0.21375,
-            0.23091,
-            0.34159,
-            0.21375
+            0.24246,
+            0.24612,
+            0.26896,
+            0.24246
           ],
-          "hub_prefs_spread": 0.12784,
+          "hub_prefs_spread": 0.0265,
           "hub_routed": [
             216,
             216,
@@ -2271,12 +2271,12 @@
           "phase": "gradual",
           "constraint": 0.1,
           "hub_prefs": [
-            0.21332,
-            0.23042,
-            0.34294,
-            0.21331
+            0.24235,
+            0.24602,
+            0.26927,
+            0.24235
           ],
-          "hub_prefs_spread": 0.12963,
+          "hub_prefs_spread": 0.02692,
           "hub_routed": [
             224,
             224,
@@ -2309,12 +2309,12 @@
           "phase": "gradual",
           "constraint": 0.05,
           "hub_prefs": [
-            0.2129,
-            0.22996,
-            0.34424,
-            0.2129
+            0.24225,
+            0.24591,
+            0.26958,
+            0.24225
           ],
-          "hub_prefs_spread": 0.13135,
+          "hub_prefs_spread": 0.02732,
           "hub_routed": [
             232,
             232,
@@ -2347,12 +2347,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.2125,
-            0.2295,
-            0.3455,
-            0.2125
+            0.24216,
+            0.24582,
+            0.26987,
+            0.24216
           ],
-          "hub_prefs_spread": 0.133,
+          "hub_prefs_spread": 0.02771,
           "hub_routed": [
             240,
             240,
@@ -2385,12 +2385,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21243,
-            0.22942,
-            0.34572,
-            0.21243
+            0.24214,
+            0.2458,
+            0.26992,
+            0.24214
           ],
-          "hub_prefs_spread": 0.13329,
+          "hub_prefs_spread": 0.02778,
           "hub_routed": [
             248,
             248,
@@ -2423,12 +2423,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21206,
-            0.23092,
-            0.34497,
-            0.21205
+            0.24205,
+            0.24608,
+            0.26982,
+            0.24205
           ],
-          "hub_prefs_spread": 0.13292,
+          "hub_prefs_spread": 0.02777,
           "hub_routed": [
             256,
             256,
@@ -2461,12 +2461,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21169,
-            0.2305,
-            0.34611,
-            0.21169
+            0.24196,
+            0.24599,
+            0.27008,
+            0.24196
           ],
-          "hub_prefs_spread": 0.13442,
+          "hub_prefs_spread": 0.02812,
           "hub_routed": [
             264,
             264,
@@ -2499,12 +2499,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21134,
-            0.2301,
-            0.34721,
-            0.21134
+            0.24188,
+            0.24591,
+            0.27034,
+            0.24188
           ],
-          "hub_prefs_spread": 0.13587,
+          "hub_prefs_spread": 0.02847,
           "hub_routed": [
             272,
             272,
@@ -2537,12 +2537,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.211,
-            0.22972,
-            0.34828,
-            0.211
+            0.24179,
+            0.24582,
+            0.27059,
+            0.24179
           ],
-          "hub_prefs_spread": 0.13728,
+          "hub_prefs_spread": 0.0288,
           "hub_routed": [
             280,
             280,
@@ -2575,12 +2575,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21067,
-            0.22934,
-            0.34932,
-            0.21067
+            0.24171,
+            0.24574,
+            0.27084,
+            0.24171
           ],
-          "hub_prefs_spread": 0.13865,
+          "hub_prefs_spread": 0.02913,
           "hub_routed": [
             288,
             288,
@@ -2613,12 +2613,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21035,
-            0.22897,
-            0.35032,
-            0.21035
+            0.24163,
+            0.24566,
+            0.27107,
+            0.24163
           ],
-          "hub_prefs_spread": 0.13997,
+          "hub_prefs_spread": 0.02944,
           "hub_routed": [
             296,
             296,
@@ -2651,12 +2651,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21004,
-            0.22862,
-            0.3513,
-            0.21004
+            0.24156,
+            0.24558,
+            0.2713,
+            0.24156
           ],
-          "hub_prefs_spread": 0.14126,
+          "hub_prefs_spread": 0.02975,
           "hub_routed": [
             304,
             304,
@@ -2689,12 +2689,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20974,
-            0.22827,
-            0.35225,
-            0.20974
+            0.24148,
+            0.2455,
+            0.27153,
+            0.24148
           ],
-          "hub_prefs_spread": 0.14251,
+          "hub_prefs_spread": 0.03005,
           "hub_routed": [
             312,
             312,
@@ -2727,12 +2727,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20945,
-            0.22794,
-            0.35317,
-            0.20944
+            0.24141,
+            0.24543,
+            0.27175,
+            0.24141
           ],
-          "hub_prefs_spread": 0.14373,
+          "hub_prefs_spread": 0.03034,
           "hub_routed": [
             320,
             320,
@@ -2765,12 +2765,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.2094,
-            0.22788,
-            0.35334,
-            0.20939
+            0.2414,
+            0.24542,
+            0.27179,
+            0.2414
           ],
-          "hub_prefs_spread": 0.14394,
+          "hub_prefs_spread": 0.03039,
           "hub_routed": [
             328,
             328,
@@ -2803,12 +2803,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20912,
-            0.22902,
-            0.35275,
-            0.20911
+            0.24133,
+            0.24563,
+            0.27171,
+            0.24133
           ],
-          "hub_prefs_spread": 0.14364,
+          "hub_prefs_spread": 0.03038,
           "hub_routed": [
             336,
             336,
@@ -2841,12 +2841,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20884,
-            0.22871,
-            0.35361,
-            0.20884
+            0.24126,
+            0.24557,
+            0.27191,
+            0.24126
           ],
-          "hub_prefs_spread": 0.14477,
+          "hub_prefs_spread": 0.03065,
           "hub_routed": [
             344,
             344,
@@ -2879,12 +2879,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20858,
-            0.2284,
-            0.35444,
-            0.20857
+            0.2412,
+            0.2455,
+            0.27211,
+            0.2412
           ],
-          "hub_prefs_spread": 0.14587,
+          "hub_prefs_spread": 0.03092,
           "hub_routed": [
             352,
             352,
@@ -2917,12 +2917,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20832,
-            0.2281,
-            0.35526,
-            0.20832
+            0.24113,
+            0.24543,
+            0.27231,
+            0.24113
           ],
-          "hub_prefs_spread": 0.14695,
+          "hub_prefs_spread": 0.03117,
           "hub_routed": [
             360,
             360,
@@ -2955,12 +2955,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20807,
-            0.22781,
-            0.35606,
-            0.20806
+            0.24107,
+            0.24537,
+            0.2725,
+            0.24107
           ],
-          "hub_prefs_spread": 0.148,
+          "hub_prefs_spread": 0.03143,
           "hub_routed": [
             368,
             368,
@@ -2993,12 +2993,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20782,
-            0.22753,
-            0.35684,
-            0.20782
+            0.24101,
+            0.24531,
+            0.27268,
+            0.24101
           ],
-          "hub_prefs_spread": 0.14902,
+          "hub_prefs_spread": 0.03168,
           "hub_routed": [
             376,
             376,
@@ -3031,12 +3031,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20758,
-            0.22725,
-            0.3576,
-            0.20757
+            0.24095,
+            0.24524,
+            0.27286,
+            0.24095
           ],
-          "hub_prefs_spread": 0.15003,
+          "hub_prefs_spread": 0.03192,
           "hub_routed": [
             384,
             384,
@@ -3069,12 +3069,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.20734,
-            0.22698,
-            0.35834,
-            0.20734
+            0.24089,
+            0.24518,
+            0.27304,
+            0.24089
           ],
-          "hub_prefs_spread": 0.15101,
+          "hub_prefs_spread": 0.03216,
           "hub_routed": [
             392,
             392,
@@ -3107,28 +3107,28 @@
     {
       "thread_id": "australia",
       "total_rounds": 40,
-      "on_topic_hits": 28,
-      "on_topic_rate": 0.7,
+      "on_topic_hits": 31,
+      "on_topic_rate": 0.775,
       "phase_stats": {
         "gradual": {
           "hits": 17,
           "n": 20,
           "rate": 0.85,
-          "avg_spread": 0.09980745955824963
+          "avg_spread": 0.020933051534144837
         },
         "free": {
-          "hits": 11,
+          "hits": 14,
           "n": 20,
-          "rate": 0.55,
-          "avg_spread": 0.13643325692914127
+          "rate": 0.7,
+          "avg_spread": 0.029775185042657838
         }
       },
-      "final_spread": 0.14387,
+      "final_spread": 0.03187,
       "final_prefs": [
-        0.21072,
-        0.22398,
-        0.21072,
-        0.35459
+        0.24135,
+        0.24408,
+        0.24135,
+        0.27322
       ],
       "turns": [
         {
@@ -3136,12 +3136,12 @@
           "phase": "gradual",
           "constraint": 1.0,
           "hub_prefs": [
-            0.24213,
-            0.24213,
-            0.24213,
-            0.27362
+            0.24843,
+            0.24843,
+            0.24843,
+            0.2547
           ],
-          "hub_prefs_spread": 0.03149,
+          "hub_prefs_spread": 0.00626,
           "hub_routed": [
             24,
             24,
@@ -3174,12 +3174,12 @@
           "phase": "gradual",
           "constraint": 0.95,
           "hub_prefs": [
-            0.23753,
-            0.23753,
-            0.23753,
-            0.28742
+            0.2475,
+            0.2475,
+            0.2475,
+            0.25749
           ],
-          "hub_prefs_spread": 0.0499,
+          "hub_prefs_spread": 0.00998,
           "hub_routed": [
             40,
             40,
@@ -3212,12 +3212,12 @@
           "phase": "gradual",
           "constraint": 0.9,
           "hub_prefs": [
-            0.23377,
-            0.23377,
-            0.23377,
-            0.29868
+            0.24673,
+            0.24673,
+            0.24673,
+            0.25982
           ],
-          "hub_prefs_spread": 0.06491,
+          "hub_prefs_spread": 0.01309,
           "hub_routed": [
             48,
             48,
@@ -3250,12 +3250,12 @@
           "phase": "gradual",
           "constraint": 0.85,
           "hub_prefs": [
-            0.23062,
-            0.24444,
-            0.23062,
-            0.29433
+            0.24606,
+            0.24876,
+            0.24606,
+            0.25911
           ],
-          "hub_prefs_spread": 0.06371,
+          "hub_prefs_spread": 0.01305,
           "hub_routed": [
             56,
             56,
@@ -3288,12 +3288,12 @@
           "phase": "gradual",
           "constraint": 0.8,
           "hub_prefs": [
-            0.2279,
-            0.2415,
-            0.2279,
-            0.3027
+            0.24549,
+            0.24818,
+            0.24549,
+            0.26085
           ],
-          "hub_prefs_spread": 0.07481,
+          "hub_prefs_spread": 0.01537,
           "hub_routed": [
             64,
             64,
@@ -3326,12 +3326,12 @@
           "phase": "gradual",
           "constraint": 0.75,
           "hub_prefs": [
-            0.22552,
-            0.23892,
-            0.22552,
-            0.31004
+            0.24497,
+            0.24766,
+            0.24497,
+            0.2624
           ],
-          "hub_prefs_spread": 0.08453,
+          "hub_prefs_spread": 0.01743,
           "hub_routed": [
             72,
             72,
@@ -3364,12 +3364,12 @@
           "phase": "gradual",
           "constraint": 0.7,
           "hub_prefs": [
-            0.2234,
-            0.23663,
-            0.2234,
-            0.31656
+            0.24451,
+            0.24719,
+            0.24451,
+            0.26378
           ],
-          "hub_prefs_spread": 0.09316,
+          "hub_prefs_spread": 0.01927,
           "hub_routed": [
             80,
             80,
@@ -3402,12 +3402,12 @@
           "phase": "gradual",
           "constraint": 0.65,
           "hub_prefs": [
-            0.2215,
-            0.23458,
-            0.2215,
-            0.32242
+            0.2441,
+            0.24677,
+            0.2441,
+            0.26503
           ],
-          "hub_prefs_spread": 0.10092,
+          "hub_prefs_spread": 0.02093,
           "hub_routed": [
             88,
             88,
@@ -3440,12 +3440,12 @@
           "phase": "gradual",
           "constraint": 0.6,
           "hub_prefs": [
-            0.21978,
-            0.23271,
-            0.21978,
-            0.32773
+            0.24372,
+            0.24639,
+            0.24372,
+            0.26618
           ],
-          "hub_prefs_spread": 0.10795,
+          "hub_prefs_spread": 0.02246,
           "hub_routed": [
             96,
             96,
@@ -3478,12 +3478,12 @@
           "phase": "gradual",
           "constraint": 0.55,
           "hub_prefs": [
-            0.21832,
-            0.23113,
-            0.21832,
-            0.33224
+            0.24339,
+            0.24606,
+            0.24339,
+            0.26716
           ],
-          "hub_prefs_spread": 0.11392,
+          "hub_prefs_spread": 0.02377,
           "hub_routed": [
             112,
             112,
@@ -3516,12 +3516,12 @@
           "phase": "gradual",
           "constraint": 0.5,
           "hub_prefs": [
-            0.21817,
-            0.23097,
-            0.21817,
-            0.33269
+            0.24321,
+            0.24587,
+            0.24321,
+            0.26771
           ],
-          "hub_prefs_spread": 0.11452,
+          "hub_prefs_spread": 0.02451,
           "hub_routed": [
             128,
             128,
@@ -3545,8 +3545,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
-          "row_correct": false,
+          "on_topic": true,
+          "row_correct": true,
           "fate_qa_feedback": true
         },
         {
@@ -3554,12 +3554,12 @@
           "phase": "gradual",
           "constraint": 0.45,
           "hub_prefs": [
-            0.21805,
-            0.23082,
-            0.21805,
-            0.33309
+            0.24318,
+            0.24584,
+            0.24318,
+            0.26781
           ],
-          "hub_prefs_spread": 0.11504,
+          "hub_prefs_spread": 0.02463,
           "hub_routed": [
             144,
             144,
@@ -3592,12 +3592,12 @@
           "phase": "gradual",
           "constraint": 0.4,
           "hub_prefs": [
-            0.21742,
-            0.23014,
-            0.21742,
-            0.33501
+            0.24315,
+            0.24581,
+            0.24315,
+            0.26789
           ],
-          "hub_prefs_spread": 0.11759,
+          "hub_prefs_spread": 0.02474,
           "hub_routed": [
             160,
             160,
@@ -3621,8 +3621,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": true,
-          "row_correct": true,
+          "on_topic": false,
+          "row_correct": false,
           "fate_qa_feedback": true
         },
         {
@@ -3630,12 +3630,12 @@
           "phase": "gradual",
           "constraint": 0.35,
           "hub_prefs": [
-            0.21732,
-            0.23059,
-            0.21732,
-            0.33478
+            0.24312,
+            0.24583,
+            0.24312,
+            0.26792
           ],
-          "hub_prefs_spread": 0.11746,
+          "hub_prefs_spread": 0.0248,
           "hub_routed": [
             176,
             176,
@@ -3668,12 +3668,12 @@
           "phase": "gradual",
           "constraint": 0.3,
           "hub_prefs": [
-            0.2168,
-            0.23002,
-            0.2168,
-            0.33638
+            0.243,
+            0.24571,
+            0.243,
+            0.26829
           ],
-          "hub_prefs_spread": 0.11957,
+          "hub_prefs_spread": 0.02528,
           "hub_routed": [
             192,
             192,
@@ -3706,12 +3706,12 @@
           "phase": "gradual",
           "constraint": 0.25,
           "hub_prefs": [
-            0.21631,
-            0.22948,
-            0.21631,
-            0.33791
+            0.24289,
+            0.24559,
+            0.24289,
+            0.26864
           ],
-          "hub_prefs_spread": 0.1216,
+          "hub_prefs_spread": 0.02575,
           "hub_routed": [
             200,
             200,
@@ -3744,12 +3744,12 @@
           "phase": "gradual",
           "constraint": 0.2,
           "hub_prefs": [
-            0.21583,
-            0.22896,
-            0.21583,
-            0.33937
+            0.24277,
+            0.24547,
+            0.24277,
+            0.26898
           ],
-          "hub_prefs_spread": 0.12354,
+          "hub_prefs_spread": 0.0262,
           "hub_routed": [
             208,
             208,
@@ -3782,12 +3782,12 @@
           "phase": "gradual",
           "constraint": 0.15,
           "hub_prefs": [
-            0.21538,
-            0.22846,
-            0.21538,
-            0.34078
+            0.24267,
+            0.24537,
+            0.24267,
+            0.2693
           ],
-          "hub_prefs_spread": 0.12541,
+          "hub_prefs_spread": 0.02663,
           "hub_routed": [
             216,
             216,
@@ -3820,12 +3820,12 @@
           "phase": "gradual",
           "constraint": 0.1,
           "hub_prefs": [
-            0.21494,
-            0.22798,
-            0.21494,
-            0.34214
+            0.24256,
+            0.24526,
+            0.24256,
+            0.26961
           ],
-          "hub_prefs_spread": 0.1272,
+          "hub_prefs_spread": 0.02705,
           "hub_routed": [
             224,
             224,
@@ -3858,12 +3858,12 @@
           "phase": "gradual",
           "constraint": 0.05,
           "hub_prefs": [
-            0.21452,
-            0.22752,
-            0.21452,
-            0.34344
+            0.24246,
+            0.24516,
+            0.24246,
+            0.26992
           ],
-          "hub_prefs_spread": 0.12892,
+          "hub_prefs_spread": 0.02745,
           "hub_routed": [
             232,
             232,
@@ -3896,12 +3896,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21445,
-            0.22744,
-            0.21445,
-            0.34367
+            0.24237,
+            0.24506,
+            0.24237,
+            0.27021
           ],
-          "hub_prefs_spread": 0.12923,
+          "hub_prefs_spread": 0.02784,
           "hub_routed": [
             240,
             240,
@@ -3925,8 +3925,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
-          "row_correct": false,
+          "on_topic": true,
+          "row_correct": true,
           "fate_qa_feedback": true
         },
         {
@@ -3934,12 +3934,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21438,
-            0.22736,
-            0.21437,
-            0.34389
+            0.24235,
+            0.24504,
+            0.24235,
+            0.27026
           ],
-          "hub_prefs_spread": 0.12952,
+          "hub_prefs_spread": 0.02791,
           "hub_routed": [
             248,
             248,
@@ -3972,12 +3972,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21431,
-            0.22728,
-            0.21431,
-            0.34411
+            0.24233,
+            0.24503,
+            0.24233,
+            0.27031
           ],
-          "hub_prefs_spread": 0.1298,
+          "hub_prefs_spread": 0.02798,
           "hub_routed": [
             256,
             256,
@@ -4010,12 +4010,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21424,
-            0.22758,
-            0.21424,
-            0.34394
+            0.24231,
+            0.24504,
+            0.24231,
+            0.27033
           ],
-          "hub_prefs_spread": 0.1297,
+          "hub_prefs_spread": 0.02802,
           "hub_routed": [
             264,
             264,
@@ -4048,12 +4048,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21388,
-            0.22718,
-            0.21388,
-            0.34505
+            0.24223,
+            0.24495,
+            0.24223,
+            0.27059
           ],
-          "hub_prefs_spread": 0.13117,
+          "hub_prefs_spread": 0.02836,
           "hub_routed": [
             272,
             272,
@@ -4086,12 +4086,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21354,
-            0.2268,
-            0.21354,
-            0.34612
+            0.24215,
+            0.24487,
+            0.24215,
+            0.27084
           ],
-          "hub_prefs_spread": 0.13259,
+          "hub_prefs_spread": 0.0287,
           "hub_routed": [
             280,
             280,
@@ -4124,12 +4124,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.2132,
-            0.22643,
-            0.2132,
-            0.34716
+            0.24207,
+            0.24479,
+            0.24206,
+            0.27108
           ],
-          "hub_prefs_spread": 0.13396,
+          "hub_prefs_spread": 0.02902,
           "hub_routed": [
             288,
             288,
@@ -4162,12 +4162,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21288,
-            0.22608,
-            0.21287,
-            0.34817
+            0.24199,
+            0.24471,
+            0.24199,
+            0.27132
           ],
-          "hub_prefs_spread": 0.1353,
+          "hub_prefs_spread": 0.02933,
           "hub_routed": [
             296,
             296,
@@ -4200,12 +4200,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21256,
-            0.22573,
-            0.21256,
-            0.34916
+            0.24191,
+            0.24463,
+            0.24191,
+            0.27155
           ],
-          "hub_prefs_spread": 0.1366,
+          "hub_prefs_spread": 0.02964,
           "hub_routed": [
             304,
             304,
@@ -4238,12 +4238,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21225,
-            0.22539,
-            0.21225,
-            0.35011
+            0.24184,
+            0.24455,
+            0.24184,
+            0.27177
           ],
-          "hub_prefs_spread": 0.13786,
+          "hub_prefs_spread": 0.02994,
           "hub_routed": [
             312,
             312,
@@ -4276,12 +4276,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.2122,
-            0.22533,
-            0.2122,
-            0.35028
+            0.24176,
+            0.24448,
+            0.24176,
+            0.27199
           ],
-          "hub_prefs_spread": 0.13808,
+          "hub_prefs_spread": 0.03023,
           "hub_routed": [
             320,
             320,
@@ -4305,8 +4305,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
-          "row_correct": false,
+          "on_topic": true,
+          "row_correct": true,
           "fate_qa_feedback": true
         },
         {
@@ -4314,12 +4314,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21215,
-            0.22527,
-            0.21214,
-            0.35044
+            0.24175,
+            0.24447,
+            0.24175,
+            0.27203
           ],
-          "hub_prefs_spread": 0.1383,
+          "hub_prefs_spread": 0.03028,
           "hub_routed": [
             328,
             328,
@@ -4352,12 +4352,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21209,
-            0.22521,
-            0.21209,
-            0.3506
+            0.24174,
+            0.24445,
+            0.24174,
+            0.27207
           ],
-          "hub_prefs_spread": 0.13851,
+          "hub_prefs_spread": 0.03034,
           "hub_routed": [
             336,
             336,
@@ -4390,12 +4390,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21204,
-            0.22544,
-            0.21204,
-            0.35047
+            0.24172,
+            0.24446,
+            0.24172,
+            0.27209
           ],
-          "hub_prefs_spread": 0.13843,
+          "hub_prefs_spread": 0.03036,
           "hub_routed": [
             344,
             344,
@@ -4428,12 +4428,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21177,
-            0.22514,
-            0.21177,
-            0.35131
+            0.24166,
+            0.2444,
+            0.24166,
+            0.27229
           ],
-          "hub_prefs_spread": 0.13954,
+          "hub_prefs_spread": 0.03063,
           "hub_routed": [
             352,
             352,
@@ -4466,12 +4466,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21151,
-            0.22485,
-            0.21151,
-            0.35214
+            0.24159,
+            0.24433,
+            0.24159,
+            0.27248
           ],
-          "hub_prefs_spread": 0.14063,
+          "hub_prefs_spread": 0.03089,
           "hub_routed": [
             360,
             360,
@@ -4504,12 +4504,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21146,
-            0.2248,
-            0.21146,
-            0.35228
+            0.24153,
+            0.24427,
+            0.24153,
+            0.27267
           ],
-          "hub_prefs_spread": 0.14082,
+          "hub_prefs_spread": 0.03114,
           "hub_routed": [
             368,
             368,
@@ -4533,8 +4533,8 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
-          "row_correct": false,
+          "on_topic": true,
+          "row_correct": true,
           "fate_qa_feedback": true
         },
         {
@@ -4542,12 +4542,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21121,
-            0.22452,
-            0.21121,
-            0.35307
+            0.24147,
+            0.2442,
+            0.24147,
+            0.27286
           ],
-          "hub_prefs_spread": 0.14186,
+          "hub_prefs_spread": 0.03139,
           "hub_routed": [
             376,
             376,
@@ -4580,12 +4580,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21096,
-            0.22424,
-            0.21096,
-            0.35384
+            0.24141,
+            0.24414,
+            0.24141,
+            0.27304
           ],
-          "hub_prefs_spread": 0.14288,
+          "hub_prefs_spread": 0.03163,
           "hub_routed": [
             384,
             384,
@@ -4618,12 +4618,12 @@
           "phase": "free",
           "constraint": 0.0,
           "hub_prefs": [
-            0.21072,
-            0.22398,
-            0.21072,
-            0.35459
+            0.24135,
+            0.24408,
+            0.24135,
+            0.27322
           ],
-          "hub_prefs_spread": 0.14387,
+          "hub_prefs_spread": 0.03187,
           "hub_routed": [
             392,
             392,
@@ -4656,16 +4656,16 @@
   ],
   "aggregate": {
     "gradual": {
-      "hits": 52,
+      "hits": 53,
       "n": 60,
-      "rate": 0.8666666666666667,
-      "avg_hub_prefs_spread": 0.08854767929451639
+      "rate": 0.8833333333333333,
+      "avg_hub_prefs_spread": 0.019800292443259374
     },
     "free": {
-      "hits": 41,
+      "hits": 46,
       "n": 60,
-      "rate": 0.6833333333333333,
-      "avg_hub_prefs_spread": 0.12447811291369501
+      "rate": 0.7666666666666667,
+      "avg_hub_prefs_spread": 0.028503025391764948
     }
   }
 }

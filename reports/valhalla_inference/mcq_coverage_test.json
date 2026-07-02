@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-28T01:49:36.873387+00:00",
+  "timestamp": "2026-06-29T20:03:50.701966+00:00",
   "protocol": "mcq-coverage-v1",
   "phase": "test",
   "n": 46,
@@ -1716,7 +1716,7 @@
       ]
     },
     "lm_patch_all": {
-      "decode": "hybrid",
+      "decode": "lm_patch",
       "mcq_decode": "lm_patch",
       "n": 46,
       "correct": 30,
@@ -2139,8 +2139,7 @@
           "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
           "context_lines": 8
         }
-      ],
-      "note": "alias of production_hybrid_lm_patch under --fast"
+      ]
     },
     "max_native_lm_patch": {
       "arm": "max_native_lm_patch",

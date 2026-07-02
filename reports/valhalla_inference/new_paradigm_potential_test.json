@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-27T18:18:56.827021+00:00",
+  "timestamp": "2026-07-02T08:23:47.706806+00:00",
   "protocol": "valhalla-new-paradigm-potential-v1",
   "fair_benchmark_version": "fair-1.0",
   "phase": "test",
@@ -27,56 +27,56 @@
   "n1_novel_knowledge": {
     "curriculum": {
       "rounds": 8,
-      "train_accuracy": 0.875,
-      "final_spread": 0.021398187155182907,
+      "train_accuracy": 1.0,
+      "final_spread": 0.00375993965912913,
       "round_details": [
         {
           "round": 0,
           "train_correct": true,
-          "spread": 0.010799052917284252
+          "spread": 0.0010719282877486302
         },
         {
           "round": 1,
           "train_correct": true,
-          "spread": 0.01067132668647186
+          "spread": 0.0018410079752865793
         },
         {
           "round": 2,
           "train_correct": true,
-          "spread": 0.01055551495742238
+          "spread": 0.0023554207957817985
         },
         {
           "round": 3,
-          "train_correct": false,
-          "spread": 0.010249402354987974
+          "train_correct": true,
+          "spread": 0.0023194689840486393
         },
         {
           "round": 4,
           "train_correct": true,
-          "spread": 0.015357966842802329
+          "spread": 0.002831157428548947
         },
         {
           "round": 5,
           "train_correct": true,
-          "spread": 0.021741354252933803
+          "spread": 0.0032890477391919193
         },
         {
           "round": 6,
           "train_correct": true,
-          "spread": 0.021563910017789872
+          "spread": 0.004142106154916114
         },
         {
           "round": 7,
           "train_correct": true,
-          "spread": 0.021398187155182907
+          "spread": 0.00375993965912913
         }
       ]
     },
     "novel_in_session_polluted": {
       "arm": "novel_in_session_polluted",
       "n": 6,
-      "correct": 5,
-      "accuracy": 0.8333333333333334,
+      "correct": 6,
+      "accuracy": 1.0,
       "rows": [
         {
           "id": "NOVEL_H01",
@@ -95,8 +95,8 @@
         },
         {
           "id": "NOVEL_H04",
-          "correct": false,
-          "answer": "[corpus:12] Dr Lena Okonkwo discovered the Okonkwo coefficient for tidal resonance at 0"
+          "correct": true,
+          "answer": "[corpus:12] Dr Lena Okonkwo discovered the Okonkwo coefficient for tidal resonance at 0.37"
         },
         {
           "id": "NOVEL_H05",
@@ -114,8 +114,8 @@
       "arm": "novel_transfer_fresh",
       "description": "Post-session snapshot + targeted novel ingest per question",
       "n": 6,
-      "correct": 5,
-      "accuracy": 0.8333333333333334,
+      "correct": 6,
+      "accuracy": 1.0,
       "rows": [
         {
           "id": "NOVEL_H01",
@@ -134,8 +134,8 @@
         },
         {
           "id": "NOVEL_H04",
-          "correct": false,
-          "answer": "[corpus:0] Dr Lena Okonkwo discovered the Okonkwo coefficient for tidal resonance at 0"
+          "correct": true,
+          "answer": "[corpus:0] Dr Lena Okonkwo discovered the Okonkwo coefficient for tidal resonance at 0.37"
         },
         {
           "id": "NOVEL_H05",
@@ -153,8 +153,8 @@
       "arm": "novel_cold_rag",
       "description": "Fresh session, targeted ingest only (RAG upper bound, no prior session)",
       "n": 6,
-      "correct": 5,
-      "accuracy": 0.8333333333333334,
+      "correct": 6,
+      "accuracy": 1.0,
       "rows": [
         {
           "id": "NOVEL_H01",
@@ -176,8 +176,8 @@
         },
         {
           "id": "NOVEL_H04",
-          "correct": false,
-          "answer": "[corpus:0] Dr Lena Okonkwo discovered the Okonkwo coefficient for tidal resonance at 0",
+          "correct": true,
+          "answer": "[corpus:0] Dr Lena Okonkwo discovered the Okonkwo coefficient for tidal resonance at 0.37",
           "ctx_lines": 1
         },
         {
@@ -197,7 +197,7 @@
     "novel_cross_session_cold": {
       "arm": "novel_cross_session_cold",
       "description": "Discard session after train; cold RAG only (proves no weight memory)",
-      "accuracy": 0.8333333333333334
+      "accuracy": 1.0
     },
     "lifts_pp": {
       "transfer_vs_polluted_pp": 0.0,
@@ -207,22 +207,493 @@
   },
   "n2_fair_holdout": {
     "cold_rag_isolated": {
-      "accuracy": 0.967741935483871,
-      "correct": 30,
-      "n": 31
+      "accuracy": 0.8709677419354839,
+      "correct": 27,
+      "n": 31,
+      "rows": [
+        {
+          "id": "OPEN_PHYS_01",
+          "correct": true,
+          "answer": "[corpus:0] Newton's second law states force equals mass times acceleration F equals m a"
+        },
+        {
+          "id": "OPEN_CHEM_01",
+          "correct": true,
+          "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure"
+        },
+        {
+          "id": "OPEN_BIO_01",
+          "correct": true,
+          "answer": "[corpus:1] Chloroplasts contain chlorophyll for capturing light energy"
+        },
+        {
+          "id": "OPEN_HIST_01",
+          "correct": true,
+          "answer": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender"
+        },
+        {
+          "id": "OPEN_GEO_01",
+          "correct": true,
+          "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+        },
+        {
+          "id": "OPEN_ECON_01",
+          "correct": false,
+          "answer": "[corpus:1] GDP measures the total value of goods and services produced in a country"
+        },
+        {
+          "id": "OPEN_ECON_02",
+          "correct": true,
+          "answer": "[corpus:0] Inflation means a sustained increase in the general price level of goods"
+        },
+        {
+          "id": "OPEN_CS_02",
+          "correct": true,
+          "answer": "[corpus:1] The SI unit of force is the Newton defined as kg times m per s squared"
+        },
+        {
+          "id": "ZH_02",
+          "correct": false,
+          "answer": "[corpus:1] 光合作用在叶绿体中将二氧化碳和水转化为葡萄糖。"
+        },
+        {
+          "id": "ZH_03",
+          "correct": false,
+          "answer": "[corpus:1] 光合作用在叶绿体中将二氧化碳和水转化为葡萄糖。"
+        },
+        {
+          "id": "ZH_04",
+          "correct": true,
+          "answer": "[corpus:0] 红楼梦是中国古典小说巅峰之作作者一般认为是曹雪芹。"
+        },
+        {
+          "id": "LIT_01",
+          "correct": true,
+          "answer": "[corpus:0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England"
+        },
+        {
+          "id": "LIT_02",
+          "correct": true,
+          "answer": "[corpus:0] George Orwell wrote the dystopian novel Nineteen Eighty-Four published in 1949"
+        },
+        {
+          "id": "MED_01",
+          "correct": true,
+          "answer": "[corpus:0] Type 2 diabetes involves insulin resistance and relative insulin deficiency"
+        },
+        {
+          "id": "ASTRO_01",
+          "correct": true,
+          "answer": "[corpus:0] Mercury is the smallest planet and closest to the Sun in our solar system"
+        },
+        {
+          "id": "LOGIC_02",
+          "correct": true,
+          "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+        },
+        {
+          "id": "OPEN_F03",
+          "correct": true,
+          "answer": "[corpus:0] Thomas Jefferson was primary author of the US Declaration of Independence"
+        },
+        {
+          "id": "OPEN_F04",
+          "correct": true,
+          "answer": "[corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts"
+        },
+        {
+          "id": "OPEN_F05",
+          "correct": true,
+          "answer": "[corpus:0] Mitochondria produce ATP through cellular respiration in eukaryotes"
+        },
+        {
+          "id": "OPEN_F06",
+          "correct": true,
+          "answer": "[corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts"
+        },
+        {
+          "id": "OPEN_F14",
+          "correct": true,
+          "answer": "[corpus:0] Binary search requires a sorted array and halves the search interval each step"
+        },
+        {
+          "id": "OPEN_F16",
+          "correct": true,
+          "answer": "[corpus:0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England"
+        },
+        {
+          "id": "OPEN_F17",
+          "correct": true,
+          "answer": "[corpus:0] Scurvy is caused by deficiency of vitamin C also called ascorbic acid"
+        },
+        {
+          "id": "OPEN_F25",
+          "correct": true,
+          "answer": "[corpus:1] World War Two ended in 1945 with Germany's unconditional surrender"
+        },
+        {
+          "id": "OPEN_F26",
+          "correct": true,
+          "answer": "[corpus:0] The French Revolution began in 1789 with the storming of the Bastille"
+        },
+        {
+          "id": "OPEN_F29",
+          "correct": true,
+          "answer": "[corpus:0] Aristotle was student of Plato and tutor of Alexander the Great"
+        },
+        {
+          "id": "OPEN_F33",
+          "correct": true,
+          "answer": "[corpus:0] GDP measures the total value of goods and services produced in a country"
+        },
+        {
+          "id": "OPEN_F39",
+          "correct": true,
+          "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure"
+        },
+        {
+          "id": "OPEN_F42",
+          "correct": false,
+          "answer": "[corpus:3] 光合作用在叶绿体中将二氧化碳和水转化为葡萄糖。"
+        },
+        {
+          "id": "OPEN_F43",
+          "correct": true,
+          "answer": "[corpus:7] George Washington was the first President of the United States"
+        },
+        {
+          "id": "OPEN_F50",
+          "correct": true,
+          "answer": "[corpus:0] Inflation means a sustained increase in the general price level of goods"
+        }
+      ]
     },
     "transfer_fresh": {
-      "accuracy": 0.967741935483871,
-      "correct": 30,
-      "n": 31
+      "accuracy": 0.8709677419354839,
+      "correct": 27,
+      "n": 31,
+      "rows": [
+        {
+          "id": "OPEN_PHYS_01",
+          "correct": true,
+          "answer": "[corpus:0] Newton's second law states force equals mass times acceleration F equals m a"
+        },
+        {
+          "id": "OPEN_CHEM_01",
+          "correct": true,
+          "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure"
+        },
+        {
+          "id": "OPEN_BIO_01",
+          "correct": true,
+          "answer": "[corpus:1] Chloroplasts contain chlorophyll for capturing light energy"
+        },
+        {
+          "id": "OPEN_HIST_01",
+          "correct": true,
+          "answer": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender"
+        },
+        {
+          "id": "OPEN_GEO_01",
+          "correct": true,
+          "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+        },
+        {
+          "id": "OPEN_ECON_01",
+          "correct": false,
+          "answer": "[corpus:1] GDP measures the total value of goods and services produced in a country"
+        },
+        {
+          "id": "OPEN_ECON_02",
+          "correct": true,
+          "answer": "[corpus:0] Inflation means a sustained increase in the general price level of goods"
+        },
+        {
+          "id": "OPEN_CS_02",
+          "correct": true,
+          "answer": "[corpus:1] The SI unit of force is the Newton defined as kg times m per s squared"
+        },
+        {
+          "id": "ZH_02",
+          "correct": false,
+          "answer": "[corpus:1] 光合作用在叶绿体中将二氧化碳和水转化为葡萄糖。"
+        },
+        {
+          "id": "ZH_03",
+          "correct": false,
+          "answer": "[corpus:4] 勾股定理：直角三角形斜边平方等于两直角边平方之和。"
+        },
+        {
+          "id": "ZH_04",
+          "correct": true,
+          "answer": "[corpus:0] 红楼梦是中国古典小说巅峰之作作者一般认为是曹雪芹。"
+        },
+        {
+          "id": "LIT_01",
+          "correct": true,
+          "answer": "[corpus:0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England"
+        },
+        {
+          "id": "LIT_02",
+          "correct": true,
+          "answer": "[corpus:0] George Orwell wrote the dystopian novel Nineteen Eighty-Four published in 1949"
+        },
+        {
+          "id": "MED_01",
+          "correct": true,
+          "answer": "[corpus:0] Type 2 diabetes involves insulin resistance and relative insulin deficiency"
+        },
+        {
+          "id": "ASTRO_01",
+          "correct": true,
+          "answer": "[corpus:0] Mercury is the smallest planet and closest to the Sun in our solar system"
+        },
+        {
+          "id": "LOGIC_02",
+          "correct": true,
+          "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+        },
+        {
+          "id": "OPEN_F03",
+          "correct": true,
+          "answer": "[corpus:0] Thomas Jefferson was primary author of the US Declaration of Independence"
+        },
+        {
+          "id": "OPEN_F04",
+          "correct": true,
+          "answer": "[corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts"
+        },
+        {
+          "id": "OPEN_F05",
+          "correct": true,
+          "answer": "[corpus:0] Mitochondria produce ATP through cellular respiration in eukaryotes"
+        },
+        {
+          "id": "OPEN_F06",
+          "correct": true,
+          "answer": "[corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts"
+        },
+        {
+          "id": "OPEN_F14",
+          "correct": true,
+          "answer": "[corpus:0] Binary search requires a sorted array and halves the search interval each step"
+        },
+        {
+          "id": "OPEN_F16",
+          "correct": true,
+          "answer": "[corpus:0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England"
+        },
+        {
+          "id": "OPEN_F17",
+          "correct": true,
+          "answer": "[corpus:0] Scurvy is caused by deficiency of vitamin C also called ascorbic acid"
+        },
+        {
+          "id": "OPEN_F25",
+          "correct": true,
+          "answer": "[corpus:0] Type 2 diabetes involves insulin resistance and relative insulin deficiency"
+        },
+        {
+          "id": "OPEN_F26",
+          "correct": true,
+          "answer": "[corpus:0] The French Revolution began in 1789 with the storming of the Bastille"
+        },
+        {
+          "id": "OPEN_F29",
+          "correct": true,
+          "answer": "[corpus:0] Aristotle was student of Plato and tutor of Alexander the Great"
+        },
+        {
+          "id": "OPEN_F33",
+          "correct": true,
+          "answer": "[corpus:0] GDP measures the total value of goods and services produced in a country"
+        },
+        {
+          "id": "OPEN_F39",
+          "correct": true,
+          "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure"
+        },
+        {
+          "id": "OPEN_F42",
+          "correct": false,
+          "answer": "[corpus:3] 光合作用在叶绿体中将二氧化碳和水转化为葡萄糖。"
+        },
+        {
+          "id": "OPEN_F43",
+          "correct": true,
+          "answer": "[corpus:7] George Washington was the first President of the United States"
+        },
+        {
+          "id": "OPEN_F50",
+          "correct": true,
+          "answer": "[corpus:0] Inflation means a sustained increase in the general price level of goods"
+        }
+      ]
     },
     "in_session_polluted": {
-      "accuracy": 0.3548387096774194,
-      "correct": 11,
-      "n": 31
+      "accuracy": 0.4838709677419355,
+      "correct": 15,
+      "n": 31,
+      "rows": [
+        {
+          "id": "OPEN_PHYS_01",
+          "correct": true,
+          "answer": "[corpus:3] Newton's second law states force equals mass times acceleration F equals m a"
+        },
+        {
+          "id": "OPEN_CHEM_01",
+          "correct": true,
+          "answer": "[corpus:10] Water boils at 100 degrees Celsius at standard atmospheric pressure"
+        },
+        {
+          "id": "OPEN_BIO_01",
+          "correct": true,
+          "answer": "[corpus:75] Kinetic energy is one half m v squared"
+        },
+        {
+          "id": "OPEN_HIST_01",
+          "correct": true,
+          "answer": "[corpus:1] World War Two ended in 1945 with Germany's unconditional surrender"
+        },
+        {
+          "id": "OPEN_GEO_01",
+          "correct": true,
+          "answer": "[corpus:45] Canberra was selected as Australian capital as compromise between Sydney and Melbourne"
+        },
+        {
+          "id": "OPEN_ECON_01",
+          "correct": false,
+          "answer": "[corpus:79] Work is force times distance in the direction of force"
+        },
+        {
+          "id": "OPEN_ECON_02",
+          "correct": false,
+          "answer": "[corpus:75] Kinetic energy is one half m v squared"
+        },
+        {
+          "id": "OPEN_CS_02",
+          "correct": false,
+          "answer": "[corpus:41] CPU memory and storage are core hardware components of computers"
+        },
+        {
+          "id": "ZH_02",
+          "correct": false,
+          "answer": "[corpus:74] Velocity is speed with direction"
+        },
+        {
+          "id": "ZH_03",
+          "correct": false,
+          "answer": "[corpus:74] Velocity is speed with direction"
+        },
+        {
+          "id": "ZH_04",
+          "correct": true,
+          "answer": "[corpus:47] 红楼梦是中国古典小说巅峰之作作者一般认为是曹雪芹。"
+        },
+        {
+          "id": "LIT_01",
+          "correct": true,
+          "answer": "[corpus:9] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England"
+        },
+        {
+          "id": "LIT_02",
+          "correct": true,
+          "answer": "[corpus:32] George Orwell wrote the dystopian novel Nineteen Eighty-Four published in 1949"
+        },
+        {
+          "id": "MED_01",
+          "correct": true,
+          "answer": "[corpus:29] Type 2 diabetes involves insulin resistance and relative insulin deficiency"
+        },
+        {
+          "id": "ASTRO_01",
+          "correct": true,
+          "answer": "[corpus:17] Mercury is the smallest planet and closest to the Sun in our solar system"
+        },
+        {
+          "id": "LOGIC_02",
+          "correct": false,
+          "answer": "[corpus:79] Work is force times distance in the direction of force"
+        },
+        {
+          "id": "OPEN_F03",
+          "correct": false,
+          "answer": "[corpus:62] The chemical formula for water is H2O"
+        },
+        {
+          "id": "OPEN_F04",
+          "correct": false,
+          "answer": "[corpus:79] Work is force times distance in the direction of force"
+        },
+        {
+          "id": "OPEN_F05",
+          "correct": false,
+          "answer": "[corpus:24] The SI unit of force is the Newton defined as kg times m per s squared"
+        },
+        {
+          "id": "OPEN_F06",
+          "correct": true,
+          "answer": "[corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts"
+        },
+        {
+          "id": "OPEN_F14",
+          "correct": false,
+          "answer": "[corpus:78] Momentum equals mass times velocity"
+        },
+        {
+          "id": "OPEN_F16",
+          "correct": true,
+          "answer": "[corpus:9] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England"
+        },
+        {
+          "id": "OPEN_F17",
+          "correct": true,
+          "answer": "[corpus:43] Vitamin C deficiency causes scurvy with bleeding gums and weakness"
+        },
+        {
+          "id": "OPEN_F25",
+          "correct": false,
+          "answer": "[corpus:67] Water expands when it freezes, unlike most liquids"
+        },
+        {
+          "id": "OPEN_F26",
+          "correct": true,
+          "answer": "[corpus:69] pH 7 is neutral for pure water at 25C"
+        },
+        {
+          "id": "OPEN_F29",
+          "correct": false,
+          "answer": "[corpus:78] Momentum equals mass times velocity"
+        },
+        {
+          "id": "OPEN_F33",
+          "correct": false,
+          "answer": "[corpus:78] Momentum equals mass times velocity"
+        },
+        {
+          "id": "OPEN_F39",
+          "correct": false,
+          "answer": "[corpus:78] Momentum equals mass times velocity"
+        },
+        {
+          "id": "OPEN_F42",
+          "correct": false,
+          "answer": "[corpus:78] Momentum equals mass times velocity"
+        },
+        {
+          "id": "OPEN_F43",
+          "correct": true,
+          "answer": "[corpus:44] World War II involved Allied and Axis powers from 1939 to 1945"
+        },
+        {
+          "id": "OPEN_F50",
+          "correct": false,
+          "answer": "[corpus:78] Momentum equals mass times velocity"
+        }
+      ]
     },
     "lifts_pp": {
-      "transfer_vs_polluted_pp": 61.29032258064516,
+      "transfer_vs_polluted_pp": 38.70967741935484,
       "transfer_vs_cold_pp": 0.0
     },
     "falsified_session_adds_no_lift": true
@@ -267,7 +738,7 @@
   },
   "n4_negative_controls": {
     "subset_n": 12,
-    "targeted_accuracy": 0.9166666666666666,
+    "targeted_accuracy": 0.75,
     "distractor_accuracy": 0.0,
     "swap_fidelity": 4,
     "swap_trials": 4,
@@ -281,9 +752,9 @@
   },
   "n5_paradigm_separation": {
     "structure_hybrid": {
-      "accuracy": 0.967741935483871,
+      "accuracy": 0.8709677419354839,
       "n": 31,
-      "correct": 30,
+      "correct": 27,
       "rows": [
         {
           "id": "OPEN_PHYS_01",
@@ -319,11 +790,11 @@
         },
         {
           "id": "ZH_02",
-          "correct": true
+          "correct": false
         },
         {
           "id": "ZH_03",
-          "correct": true
+          "correct": false
         },
         {
           "id": "ZH_04",
@@ -399,7 +870,7 @@
         },
         {
           "id": "OPEN_F42",
-          "correct": true
+          "correct": false
         },
         {
           "id": "OPEN_F43",
@@ -543,9 +1014,9 @@
       ]
     },
     "traditional_lm_rag": {
-      "accuracy": 0.967741935483871,
+      "accuracy": 1.0,
       "n": 31,
-      "correct": 30,
+      "correct": 31,
       "rows": [
         {
           "id": "OPEN_PHYS_01",
@@ -585,7 +1056,7 @@
         {
           "id": "OPEN_CS_02",
           "correct": true,
-          "answer": "CPU stands for \"Central Processing Unit.\" It is the core component of a computer that performs arithmetic and logical operations on data to execute instructions"
+          "answer": "CPU stands for \"Central Processing Unit.\" It is the core component of a computer that performs arithmetic and logical operations on data to generate human-reada"
         },
         {
           "id": "ZH_02",
@@ -600,12 +1071,12 @@
         {
           "id": "ZH_04",
           "correct": true,
-          "answer": "《红楼梦》是中国古典小说的巅峰之作，由清代作家曹雪芹创作。曹雪芹，字梦阮，号雪芹，别署芹圃、芹溪，原籍阳曲（今属山西），后迁居于山阴（今浙江绍兴）。他生于清朝乾隆年间，卒于道光二年（1752年），享年67岁。曹雪芹一生致力于文学创作，其作品以描写贵族家庭的生活为主要内容，反映了封建社会末期的社会现实和人民的疾苦。《红楼"
+          "answer": "《红楼梦》的作者是清代作家曹雪芹。"
         },
         {
           "id": "LIT_01",
           "correct": true,
-          "answer": "William Shakespeare wrote Romeo and Juliet in Elizabethan England. This was the first play written by Shakespeare and is considered one of his most famous works"
+          "answer": "William Shakespeare wrote Romeo and Juliet in Elizabethan England. This was the period of English history known as the Elizabethan era, which lasted from 1567 t"
         },
         {
           "id": "LIT_02",
@@ -664,8 +1135,8 @@
         },
         {
           "id": "OPEN_F25",
-          "correct": false,
-          "answer": "The first shell of an atom holds up to 8 electrons. This is because each electron in an atom has a unique energy level that corresponds to its position on the p"
+          "correct": true,
+          "answer": "The first shell of an atom holds up to 2 electrons. This is because each electron in an atom has a unique set of quantum numbers that determine its energy level"
         },
         {
           "id": "OPEN_F26",
@@ -685,12 +1156,12 @@
         {
           "id": "OPEN_F39",
           "correct": true,
-          "answer": "Hypertension, also known as high blood pressure or hypertension, refers to the condition where the blood pressure in the arteries of the body is consistently hi"
+          "answer": "Hypertension, also known as high blood pressure or hypertension, refers to a condition where the blood pressure in the arteries of the body is consistently elev"
         },
         {
           "id": "OPEN_F42",
           "correct": true,
-          "answer": "造纸术是由中国东汉时期的蔡伦改进和推广的。蔡伦（约公元150年—219年）是中国古代著名的造纸专家，他改进了先秦时期使用的麻纸制作方法，并将这种新的纸张用于书写和印刷。他的这项技术极大地提高了纸张的质量和效率，使得纸张在当时成为了广泛使用的一种书写材料。因此，造纸术的发明与中国的造纸术有关。"
+          "answer": "造纸术是由中国东汉时期的蔡伦改进并推广的。蔡伦（约公元23-70年）是东汉末年著名的医学家、炼丹家，也是东汉时期著名的科学家。他改进了造纸工艺，使得纸张的质量大大提高，并且成本也大大降低，这为后来的印刷业的发展奠定了基础。因此，造纸术的发明与蔡伦有关。"
         },
         {
           "id": "OPEN_F43",
@@ -705,11 +1176,11 @@
       ],
       "skipped": false
     },
-    "delta_hybrid_vs_patch_pp": -3.2258064516129004,
-    "delta_hybrid_vs_trad_pp": 0.0
+    "delta_hybrid_vs_patch_pp": -12.903225806451612,
+    "delta_hybrid_vs_trad_pp": -12.903225806451612
   },
   "nppi": {
-    "nppi": 0.8836,
+    "nppi": 0.8476,
     "gate_factor": 1.0,
     "gates": {
       "novel_contamination_clean": true,
@@ -718,10 +1189,10 @@
       "cold_rag_works": true
     },
     "components": {
-      "novel_holdout_transfer": 0.8333,
-      "fair_holdout_cold": 0.9677,
+      "novel_holdout_transfer": 1.0,
+      "fair_holdout_cold": 0.871,
       "compositional_transfer": 0.8333,
-      "session_routing_value": 1.0,
+      "session_routing_value": 0.7742,
       "structure_session_lift": 0.5,
       "control_integrity": 1.0
     },
@@ -740,7 +1211,6 @@
   },
   "verdict": [
     "NEW_PARADIGM_VIABLE",
-    "INFERENCE_TIME_GROUNDING_STRONG",
     "SESSION_ROUTING_ESSENTIAL",
     "HONEST_RAG_EQUIVALENT_ON_HOLDOUT",
     "NOT_WEIGHT_FINE_TUNE_REPLACEMENT",

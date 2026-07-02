@@ -8,10 +8,10 @@ Metrics:
   UP_on   unsolicited precision on aligned warmup+corpus
   MAR     mismatch abstain rate (wrong corpus, same warmup)
   FIR     false interrupt / hallucination rate on mismatch emits
-  TR      trigger rate among eligible (>= min_turns) sessions
+  TR      trigger rate among eligible (>= min_fate_signals) sessions
 
 Batteries:
-  G  gates           cold / 1-turn / disabled / min_turns
+  G  gates           cold / 1-turn / disabled / min_fate_signals
   H  handcraft       swap pairs, extended 5-turn, multi-topic
   F  fair_holdout    open_retrieval test slice (targeted + mismatch pairs)
 
@@ -107,6 +107,7 @@ def make_base(**kwargs: Any) -> ValhallaBase:
         fate_ingress_routing="quad_cycle",
         fate_qa_feedback=True,
         proactive_enabled=True,
+        proactive_min_fate_signals=64,
         proactive_min_turns=2,
         incubation_cycles=2,
     )
@@ -178,6 +179,7 @@ def conservative_defer_reason(reason: str | None) -> bool:
     return (
         reason.startswith("spread=")
         or reason == "no_topic_overlap"
+        or reason.startswith("fate_signals=")
         or reason.startswith("turns=")
     )
 
@@ -237,6 +239,8 @@ def trial_proactive(
         "probe_question": pro.get("probe_question"),
         "nudge": nudge,
         "warmup_turns": len(warmup),
+        "fate_signals_since_baseline": pro.get("fate_signals_since_baseline"),
+        "proactive_min_fate_signals": pro.get("proactive_min_fate_signals"),
     }
 
 
@@ -361,7 +365,13 @@ def compute_metrics(all_rows: list[dict[str, Any]]) -> dict[str, Any]:
     mismatch = [r for r in all_rows if r["id"].endswith("_mismatch")]
 
     gate_pass = sum(1 for r in gates if r.get("pass")) / max(len(gates), 1)
-    eligible = [r for r in all_rows if r.get("warmup_turns", 0) >= 2 and not r["id"].startswith("gate_")]
+    min_fate = 64
+    eligible = [
+        r
+        for r in all_rows
+        if (r.get("fate_signals_since_baseline") or 0) >= min_fate
+        and not r["id"].startswith("gate_")
+    ]
     triggered = [r for r in eligible if r.get("triggered")]
     emitted = [r for r in eligible if r.get("emitted")]
 
@@ -429,8 +439,9 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         "",
         "## Known gaps",
         "",
-        "- Fair aligned uses `targeted_context` + 3-turn warmup; conservative defer (spread / no_topic_overlap) counts as pass.",
-        "- Exit: PPI-v2 ≥ 0.75 + gates OK + FIR ≤ 5% (binary 85% is secondary).",
+        "- Time gate: Fate `signal_tick` since `fate_baseline_tick` (default min=64), not turn count.",
+        "- Fair aligned uses `targeted_context` + 3-turn warmup; conservative defer counts as pass.",
+        "- 1 fair mismatch economics emit (FIR 3.1%); exit: PPI-v2 ≥ 0.75 + gates OK + FIR ≤ 5%.",
         "",
         "## Reproduce",
         "",
@@ -480,7 +491,8 @@ def main() -> None:
         "protocol": PROTOCOL,
         "algebra": {
             "spread_threshold": "τ(0)·δ/(dim+r) = 12/138·5/140",
-            "proactive_min_turns": 2,
+            "proactive_min_fate_signals": 64,
+            "proactive_min_turns_legacy": "turns * 32 when turns > 0",
             "probe_selection": "max_topic_overlap_with_prior",
         },
         "config": {

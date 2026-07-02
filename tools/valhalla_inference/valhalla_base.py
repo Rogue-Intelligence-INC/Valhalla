@@ -51,7 +51,8 @@ class ValhallaBase:
     fate_qa_feedback: bool = True
     core_fusion: bool = False
     proactive_enabled: bool = True
-    proactive_min_turns: int = 2
+    proactive_min_fate_signals: int = 64
+    proactive_min_turns: int = 2  # legacy alias → min_fate_signals = turns * 32
     proactive_min_spread: float = 12 / 138 * 5 / 140  # τ(0)·δ/(dim+r)
     session: ValhallaBaseSession = field(default_factory=ValhallaBaseSession)
     context_items: list[dict[str, Any]] = field(default_factory=list)
@@ -127,6 +128,7 @@ class ValhallaBase:
                 "fate_qa_feedback": self.fate_qa_feedback,
                 "core_fusion": self.core_fusion,
                 "proactive_enabled": self.proactive_enabled,
+                "proactive_min_fate_signals": self.proactive_min_fate_signals,
                 "proactive_min_turns": self.proactive_min_turns,
                 "proactive_min_spread": self.proactive_min_spread,
             },
@@ -141,17 +143,22 @@ class ValhallaBase:
             ]
             self._pending_append.clear()
         else:
-            items = context_items if context_items is not None else self.context_items
-            if context is not None:
-                payload["context"] = context
-            elif items:
-                payload["context"] = [
-                    it["text"] for it in items if it.get("text")
-                ]
-            if items:
-                payload["context_items"] = items
-            if self.session.session_state and not context:
+            has_fresh_context = context is not None or context_items is not None
+            continuing = self.session.session_state is not None and not has_fresh_context
+            if continuing:
                 payload["session"] = self.session.session_state
+            else:
+                items = context_items if context_items is not None else self.context_items
+                if context is not None:
+                    payload["context"] = context
+                elif items:
+                    payload["context"] = [
+                        it["text"] for it in items if it.get("text")
+                    ]
+                if items:
+                    payload["context_items"] = items
+                if self.session.session_state and not has_fresh_context:
+                    payload["session"] = self.session.session_state
 
         proc = subprocess.run(
             [str(BIN)],
@@ -195,6 +202,7 @@ class ValhallaBase:
                 "fate_ingress_routing": self.fate_ingress_routing,
                 "fate_qa_feedback": self.fate_qa_feedback,
                 "proactive_enabled": self.proactive_enabled,
+                "proactive_min_fate_signals": self.proactive_min_fate_signals,
                 "proactive_min_turns": self.proactive_min_turns,
                 "proactive_min_spread": self.proactive_min_spread,
             },

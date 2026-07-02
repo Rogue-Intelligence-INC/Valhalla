@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-25T22:40:32.888895+00:00",
+  "timestamp": "2026-06-29T17:18:51.745018+00:00",
   "protocol": "context-flexibility-max-goal-v1",
   "max_goal": "flexible context + topic continuity + multi-Q disambiguation",
   "improvements": {
@@ -154,9 +154,9 @@
   },
   "extended_topic_continuity": {
     "native_baseline": {
-      "total_on_topic": 29,
+      "total_on_topic": 30,
       "total_turns": 30,
-      "rate": 0.9666666666666667,
+      "rate": 1.0,
       "threads": [
         {
           "thread_id": "australia",
@@ -361,8 +361,8 @@
         {
           "thread_id": "physics",
           "turns": 10,
-          "on_topic_hits": 9,
-          "on_topic_rate": 0.9,
+          "on_topic_hits": 10,
+          "on_topic_rate": 1.0,
           "final_context_lines": 13,
           "final_context_chars": 605,
           "turn_details": [
@@ -432,8 +432,8 @@
             {
               "turn": 7,
               "question": "What is approximate gravity on Earth in m/s²?",
-              "answer": "[corpus:10] Gravity on Earth is approximately 9",
-              "on_topic": false,
+              "answer": "[corpus:10] Gravity on Earth is approximately 9.8 meters per second squared",
+              "on_topic": true,
               "decode_path": "valhalla_base/native/pipeline_open",
               "context_lines": 11,
               "context_chars": 514
@@ -461,9 +461,9 @@
       ]
     },
     "follow_up_aware": {
-      "total_on_topic": 29,
+      "total_on_topic": 30,
       "total_turns": 30,
-      "rate": 0.9666666666666667,
+      "rate": 1.0,
       "threads": [
         {
           "thread_id": "australia",
@@ -668,8 +668,8 @@
         {
           "thread_id": "physics",
           "turns": 10,
-          "on_topic_hits": 9,
-          "on_topic_rate": 0.9,
+          "on_topic_hits": 10,
+          "on_topic_rate": 1.0,
           "final_context_lines": 13,
           "final_context_chars": 605,
           "turn_details": [
@@ -739,8 +739,8 @@
             {
               "turn": 7,
               "question": "What is approximate gravity on Earth in m/s²?",
-              "answer": "[corpus:10] Gravity on Earth is approximately 9",
-              "on_topic": false,
+              "answer": "[corpus:10] Gravity on Earth is approximately 9.8 meters per second squared",
+              "on_topic": true,
               "decode_path": "valhalla_base/native/pipeline_open",
               "context_lines": 11,
               "context_chars": 514
@@ -1726,9 +1726,9 @@
   },
   "improvement_deltas": {
     "follow_up_aware_vs_baseline": 0.0,
-    "hybrid_follow_up_vs_baseline": -0.33333333333333337,
+    "hybrid_follow_up_vs_baseline": -0.3666666666666667,
     "hybrid_follow_up_vs_traditional": -0.16666666666666674,
-    "follow_up_aware_vs_traditional": 0.16666666666666663
+    "follow_up_aware_vs_traditional": 0.19999999999999996
   },
   "verdict": "GOAL_IN_PROGRESS"
 }

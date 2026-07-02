@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-25T18:57:10.415434+00:00",
+  "timestamp": "2026-06-29T20:03:50.739278+00:00",
   "model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10",
   "vllm_installed": false,
   "engines": {
@@ -72,15 +72,6 @@
       "param_count_M": 494.0,
       "device": "cuda:0",
       "load_ok": true
-    },
-    "fused": {
-      "backend": "valhalla_fused_lm (Candle baked_lm)",
-      "summary": {
-        "n": 12,
-        "correct": 5,
-        "acc": 0.4166666666666667
-      },
-      "path": "/home/jouly/AI/Valhalla/reports/valhalla_inference/fused_smoke.json"
     }
   },
   "generations": [

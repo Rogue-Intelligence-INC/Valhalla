@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-28T01:49:59.513011+00:00",
+  "timestamp": "2026-07-02T08:26:36.445321+00:00",
   "protocol": "confidence-report-v1",
   "methods": {
     "proportion": "Wilson score 95% CI",
@@ -13,94 +13,94 @@
         {
           "name": "isolated_baseline_accuracy",
           "proportion": {
-            "k": 30,
+            "k": 27,
             "n": 31,
-            "point": 0.967742,
-            "ci95_lo": 0.838059,
-            "ci95_hi": 0.994283,
+            "point": 0.870968,
+            "ci95_lo": 0.711476,
+            "ci95_hi": 0.948657,
             "method": "wilson"
           },
-          "display": "96.8% [83.8%, 99.4%]"
+          "display": "87.1% [71.1%, 94.9%]"
         },
         {
           "name": "polluted_session_accuracy",
           "proportion": {
-            "k": 11,
+            "k": 15,
             "n": 31,
-            "point": 0.354839,
-            "ci95_lo": 0.211167,
-            "ci95_hi": 0.53052,
+            "point": 0.483871,
+            "ci95_lo": 0.319703,
+            "ci95_hi": 0.651596,
             "method": "wilson"
           },
-          "display": "35.5% [21.1%, 53.1%]"
+          "display": "48.4% [32.0%, 65.2%]"
         },
         {
           "name": "transfer_fresh_accuracy",
           "proportion": {
-            "k": 30,
+            "k": 27,
             "n": 31,
-            "point": 0.967742,
-            "ci95_lo": 0.838059,
-            "ci95_hi": 0.994283,
+            "point": 0.870968,
+            "ci95_lo": 0.711476,
+            "ci95_hi": 0.948657,
             "method": "wilson"
           },
-          "display": "96.8% [83.8%, 99.4%]"
+          "display": "87.1% [71.1%, 94.9%]"
         },
         {
           "name": "transfer_vs_polluted_lift",
           "lift_pp": {
-            "mean_pp": 61.29,
-            "ci95_lo": 45.161,
-            "ci95_hi": 77.419,
+            "mean_pp": 38.71,
+            "ci95_lo": 22.581,
+            "ci95_hi": 54.839,
             "n": 31,
             "method": "bootstrap_paired"
           },
-          "display": "+61.3pp [+45.2, +77.4]"
+          "display": "+38.7pp [+22.6, +54.8]"
         },
         {
           "name": "hybrid_vs_lm_patch_lift",
           "lift_pp": {
-            "mean_pp": -3.226,
-            "ci95_lo": -9.677,
-            "ci95_hi": 0.0,
+            "mean_pp": -12.903,
+            "ci95_lo": -25.806,
+            "ci95_hi": -3.226,
             "n": 31,
             "method": "bootstrap_paired"
           },
-          "display": "-3.2pp [-9.7, +0.0]"
+          "display": "-12.9pp [-25.8, -3.2]"
         },
         {
           "name": "traditional_lm_rag",
           "proportion": {
-            "k": 30,
+            "k": 31,
             "n": 31,
-            "point": 0.967742,
-            "ci95_lo": 0.838059,
-            "ci95_hi": 0.994283,
+            "point": 1.0,
+            "ci95_lo": 0.889745,
+            "ci95_hi": 1.0,
             "method": "wilson"
           },
-          "display": "96.8% [83.8%, 99.4%]"
+          "display": "100.0% [89.0%, 100.0%]"
         },
         {
           "name": "valhalla_over_traditional_lm",
           "lift_pp": {
-            "mean_pp": 0.0,
-            "ci95_lo": -9.677,
-            "ci95_hi": 9.677,
+            "mean_pp": -12.903,
+            "ci95_lo": -25.806,
+            "ci95_hi": -3.226,
             "n": 31,
             "method": "bootstrap_paired"
           },
-          "display": "+0.0pp [-9.7, +9.7]"
+          "display": "-12.9pp [-25.8, -3.2]"
         },
         {
           "name": "TPI_v2",
           "index": {
-            "point": 0.7903,
-            "ci95_lo": 0.7403,
-            "ci95_hi": 0.8226,
+            "point": 0.7548,
+            "ci95_lo": 0.6403,
+            "ci95_hi": 0.8113,
             "n_boot": 5000,
             "method": "bootstrap_percentile"
           },
-          "display": "0.790 [0.740, 0.823]"
+          "display": "0.755 [0.640, 0.811]"
         }
       ],
       "missing": [],
@@ -113,50 +113,60 @@
         {
           "name": "fair_holdout_cold_rag",
           "proportion": {
-            "k": 30,
+            "k": 27,
             "n": 31,
-            "point": 0.967742,
-            "ci95_lo": 0.838059,
-            "ci95_hi": 0.994283,
+            "point": 0.870968,
+            "ci95_lo": 0.711476,
+            "ci95_hi": 0.948657,
             "method": "wilson"
           },
-          "display": "96.8% [83.8%, 99.4%]"
+          "display": "87.1% [71.1%, 94.9%]"
         },
         {
           "name": "fair_holdout_transfer",
           "proportion": {
-            "k": 30,
+            "k": 27,
             "n": 31,
-            "point": 0.967742,
-            "ci95_lo": 0.838059,
-            "ci95_hi": 0.994283,
+            "point": 0.870968,
+            "ci95_lo": 0.711476,
+            "ci95_hi": 0.948657,
             "method": "wilson"
           },
-          "display": "96.8% [83.8%, 99.4%]"
+          "display": "87.1% [71.1%, 94.9%]"
         },
         {
           "name": "fair_transfer_vs_polluted",
           "lift_pp": {
-            "mean_pp": 61.29,
-            "ci95_lo": 45.161,
-            "ci95_hi": 77.419,
+            "mean_pp": 38.71,
+            "ci95_lo": 22.581,
+            "ci95_hi": 54.839,
             "n": 31,
-            "method": "bootstrap_paired",
-            "note": "paired rows from TPI-v2 transfer_eval (NPPI n2 lacks per-row)"
+            "method": "bootstrap_paired"
           },
-          "display": "+61.3pp [+45.2, +77.4]"
+          "display": "+38.7pp [+22.6, +54.8]"
+        },
+        {
+          "name": "fair_transfer_vs_cold",
+          "lift_pp": {
+            "mean_pp": 0.0,
+            "ci95_lo": 0.0,
+            "ci95_hi": 0.0,
+            "n": 31,
+            "method": "bootstrap_paired"
+          },
+          "display": "+0.0pp [+0.0, +0.0]"
         },
         {
           "name": "negative_control_targeted",
           "proportion": {
-            "k": 11,
+            "k": 9,
             "n": 12,
-            "point": 0.916667,
-            "ci95_lo": 0.64612,
-            "ci95_hi": 0.985135,
+            "point": 0.75,
+            "ci95_lo": 0.467695,
+            "ci95_hi": 0.911058,
             "method": "wilson"
           },
-          "display": "91.7% [64.6%, 98.5%]"
+          "display": "75.0% [46.8%, 91.1%]"
         },
         {
           "name": "negative_control_distractor",
@@ -185,36 +195,36 @@
         {
           "name": "n5_traditional_lm_rag",
           "proportion": {
-            "k": 30,
+            "k": 31,
             "n": 31,
-            "point": 0.967742,
-            "ci95_lo": 0.838059,
-            "ci95_hi": 0.994283,
+            "point": 1.0,
+            "ci95_lo": 0.889745,
+            "ci95_hi": 1.0,
             "method": "wilson"
           },
-          "display": "96.8% [83.8%, 99.4%]"
+          "display": "100.0% [89.0%, 100.0%]"
         },
         {
           "name": "n5_hybrid_over_traditional_lm",
           "lift_pp": {
-            "mean_pp": 0.0,
-            "ci95_lo": -9.677,
-            "ci95_hi": 9.677,
+            "mean_pp": -12.903,
+            "ci95_lo": -25.806,
+            "ci95_hi": -3.226,
             "n": 31,
             "method": "bootstrap_paired"
           },
-          "display": "+0.0pp [-9.7, +9.7]"
+          "display": "-12.9pp [-25.8, -3.2]"
         },
         {
           "name": "NPPI",
           "index": {
-            "point": 0.8836,
-            "ci95_lo": 0.8484,
-            "ci95_hi": 0.9839,
+            "point": 0.8476,
+            "ci95_lo": 0.7113,
+            "ci95_hi": 0.9242,
             "n_boot": 5000,
             "method": "bootstrap_percentile"
           },
-          "display": "0.884 [0.848, 0.984]"
+          "display": "0.848 [0.711, 0.924]"
         }
       ],
       "missing": [],
@@ -231,50 +241,50 @@
         {
           "name": "always_emit_accuracy",
           "proportion": {
-            "k": 30,
+            "k": 27,
             "n": 31,
-            "point": 0.967742,
-            "ci95_lo": 0.838059,
-            "ci95_hi": 0.994283,
+            "point": 0.870968,
+            "ci95_lo": 0.711476,
+            "ci95_hi": 0.948657,
             "method": "wilson"
           },
-          "display": "96.8% [83.8%, 99.4%]"
+          "display": "87.1% [71.1%, 94.9%]"
         },
         {
           "name": "fog_emitted_precision",
           "proportion": {
-            "k": 28,
-            "n": 29,
-            "point": 0.965517,
-            "ci95_lo": 0.828245,
-            "ci95_hi": 0.993887,
+            "k": 20,
+            "n": 20,
+            "point": 1.0,
+            "ci95_lo": 0.838875,
+            "ci95_hi": 1.0,
             "method": "wilson"
           },
-          "display": "96.6% [82.8%, 99.4%]"
+          "display": "100.0% [83.9%, 100.0%]"
         },
         {
           "name": "fog_coverage",
           "proportion": {
-            "k": 29,
+            "k": 20,
             "n": 31,
-            "point": 0.935484,
-            "ci95_lo": 0.792814,
-            "ci95_hi": 0.982125,
+            "point": 0.645161,
+            "ci95_lo": 0.46948,
+            "ci95_hi": 0.788833,
             "method": "wilson"
           },
-          "display": "93.5% [79.3%, 98.2%]"
+          "display": "64.5% [46.9%, 78.9%]"
         },
         {
           "name": "distractor_abstain_rate",
           "proportion": {
-            "k": 7,
+            "k": 8,
             "n": 12,
-            "point": 0.583333,
-            "ci95_lo": 0.319511,
-            "ci95_hi": 0.80674,
+            "point": 0.666667,
+            "ci95_lo": 0.390622,
+            "ci95_hi": 0.86188,
             "method": "wilson"
           },
-          "display": "58.3% [32.0%, 80.7%]"
+          "display": "66.7% [39.1%, 86.2%]"
         }
       ],
       "title": "FOG-v2",
@@ -286,26 +296,26 @@
         {
           "name": "UP_on_topic_given_emit",
           "proportion": {
-            "k": 26,
-            "n": 26,
+            "k": 28,
+            "n": 28,
             "point": 1.0,
-            "ci95_lo": 0.871271,
+            "ci95_lo": 0.879357,
             "ci95_hi": 1.0,
             "method": "wilson"
           },
-          "display": "100.0% [87.1%, 100.0%]"
+          "display": "100.0% [87.9%, 100.0%]"
         },
         {
           "name": "on_topic_emit_rate",
           "proportion": {
-            "k": 26,
+            "k": 28,
             "n": 35,
-            "point": 0.742857,
-            "ci95_lo": 0.579307,
-            "ci95_hi": 0.85837,
+            "point": 0.8,
+            "ci95_lo": 0.641084,
+            "ci95_hi": 0.899576,
             "method": "wilson"
           },
-          "display": "74.3% [57.9%, 85.8%]"
+          "display": "80.0% [64.1%, 90.0%]"
         },
         {
           "name": "MAR_mismatch_abstain",
@@ -322,32 +332,32 @@
         {
           "name": "FIR_on_mismatch_emits",
           "proportion": {
-            "k": 0,
+            "k": 1,
             "n": 4,
-            "point": 0.0,
-            "ci95_lo": 0.0,
-            "ci95_hi": 0.489891,
+            "point": 0.25,
+            "ci95_lo": 0.045587,
+            "ci95_hi": 0.699358,
             "method": "wilson"
           },
-          "display": "0.0% [0.0%, 49.0%]"
+          "display": "25.0% [4.6%, 69.9%]"
         },
         {
           "name": "PPI_v2",
           "index": {
-            "point": 0.8747,
-            "ci95_lo": 0.8114,
-            "ci95_hi": 0.9324,
+            "point": 0.89,
+            "ci95_lo": 0.8258,
+            "ci95_hi": 0.9478,
             "n_boot": 5000,
             "method": "bootstrap_percentile"
           },
-          "display": "0.875 [0.811, 0.932]"
+          "display": "0.890 [0.826, 0.948]"
         }
       ],
       "title": "Proactive-v2",
       "source": "proactive_fate_v2_test.json"
     },
     {
-      "protocol": "context-topic-drift-v1",
+      "protocol": "context-topic-drift-v2",
       "metrics": [
         {
           "name": "swap_fidelity",
@@ -563,14 +573,14 @@
         {
           "name": "thread_on_topic_rate",
           "proportion": {
-            "k": 29,
+            "k": 30,
             "n": 30,
-            "point": 0.966667,
-            "ci95_lo": 0.833296,
-            "ci95_hi": 0.994091,
+            "point": 1.0,
+            "ci95_lo": 0.886487,
+            "ci95_hi": 1.0,
             "method": "wilson"
           },
-          "display": "96.7% [83.3%, 99.4%]"
+          "display": "100.0% [88.6%, 100.0%]"
         },
         {
           "name": "holdout_valhalla_accuracy",

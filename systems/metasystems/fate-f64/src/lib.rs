@@ -456,7 +456,12 @@ impl FateSystem {
     }
 
     /// Restore Fate accumulators from a persisted hub snapshot (cross-round session).
-    pub fn seed_from_hub_snapshot(&mut self, prefs: &[f64], routed: [u64; 4]) {
+    pub fn seed_from_hub_snapshot(
+        &mut self,
+        prefs: &[f64],
+        routed: [u64; 4],
+        logical_time: Option<u64>,
+    ) {
         let total_routed: u64 = routed.iter().sum();
         for i in 0..4 {
             let p = prefs.get(i).copied().unwrap_or(0.25).max(0.01);
@@ -464,7 +469,9 @@ impl FateSystem {
             self.system_weights[i] = p * cnt;
             self.system_counts[i] = routed[i].max(1);
         }
-        self.signal_tick = total_routed.max(1);
+        self.signal_tick = logical_time
+            .filter(|&t| t > 0)
+            .unwrap_or_else(|| total_routed.max(1));
         self.data_flowing = true;
     }
     

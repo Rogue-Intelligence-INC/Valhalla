@@ -144,7 +144,7 @@ python3 tools/valhalla_inference/run_local_corpus_demo.py \
   --corpus-dir valhalla-unified-core/docs
 
 | `test_fate_output_gate.py` | fate-output-gate-v2 | FOG precision/coverage |
-| `test_proactive_fate_v2.py` | proactive-fate-v2 | PPI-v2 / UP / MAR |
+| `test_proactive_fate_v2.py` | proactive-fate-v2 | PPI-v2 / UP / MAR · **Fate signal_tick warmup** |
 
 ```bash
 # 统一置信区间报告（Wilson + bootstrap，汇总全部实验 JSON）

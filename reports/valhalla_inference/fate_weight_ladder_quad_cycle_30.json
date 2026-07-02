@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-25T23:25:55.982770+00:00",
+  "timestamp": "2026-06-29T18:04:05.239920+00:00",
   "protocol": "fate-weight-ladder-v1",
   "ingress_routing": "quad_cycle",
   "phase1_rounds": 15,
@@ -11,29 +11,29 @@
       "thread_id": "physics",
       "ingress_routing": "quad_cycle",
       "total_rounds": 30,
-      "on_topic_hits": 24,
-      "on_topic_rate": 0.8,
+      "on_topic_hits": 27,
+      "on_topic_rate": 0.9,
       "phase_stats": {
         "phase1": {
-          "hits": 14,
+          "hits": 15,
           "n": 15,
-          "rate": 0.9333333333333333,
-          "avg_spread": 0.0
+          "rate": 1.0,
+          "avg_spread": 0.01687509353478504
         },
         "phase2": {
-          "hits": 10,
+          "hits": 12,
           "n": 15,
-          "rate": 0.6666666666666666,
-          "avg_spread": 0.0
+          "rate": 0.8,
+          "avg_spread": 0.027530667774488225
         }
       },
       "final_hub_prefs": [
-        0.25,
-        0.25,
-        0.25,
-        0.25
+        0.26991,
+        0.24049,
+        0.24233,
+        0.24727
       ],
-      "final_spread": 0.0,
+      "final_spread": 0.02942,
       "final_quad_balance": {
         "hub_routed": {
           "BlackHole": 336,
@@ -61,13 +61,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 1,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2547,
+            0.24843,
+            0.24843,
+            0.24843
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.00627,
+          "hub_prefs_entropy": 1.38624,
           "hub_routed": [
             24,
             24,
@@ -104,13 +104,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 1,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.25558,
+            0.2475,
+            0.2475,
+            0.24942
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.00809,
+          "hub_prefs_entropy": 1.38621,
           "hub_routed": [
             40,
             40,
@@ -146,13 +146,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 1,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.25631,
+            0.24672,
+            0.24672,
+            0.25025
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.00959,
+          "hub_prefs_entropy": 1.38617,
           "hub_routed": [
             48,
             48,
@@ -188,13 +188,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 2,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2583,
+            0.24606,
+            0.24606,
+            0.24957
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01224,
+          "hub_prefs_entropy": 1.3861,
           "hub_routed": [
             56,
             56,
@@ -230,13 +230,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 2,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.25769,
+            0.24548,
+            0.24669,
+            0.25014
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01221,
+          "hub_prefs_entropy": 1.38611,
           "hub_routed": [
             64,
             64,
@@ -272,13 +272,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 3,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.25924,
+            0.24497,
+            0.24617,
+            0.24962
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01427,
+          "hub_prefs_entropy": 1.38604,
           "hub_routed": [
             72,
             72,
@@ -303,7 +303,8 @@
             "balance_score": 1.0
           },
           "on_topic": true,
-          "context_lines": 9
+          "context_lines": 9,
+          "answer_sample": "[corpus:8] Kinetic energy is one half m v squared"
         },
         {
           "round": 6,
@@ -314,13 +315,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 3,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26063,
+            0.24451,
+            0.24571,
+            0.24915
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01611,
+          "hub_prefs_entropy": 1.38597,
           "hub_routed": [
             80,
             80,
@@ -356,13 +357,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 4,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26189,
+            0.24409,
+            0.24529,
+            0.24872
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.0178,
+          "hub_prefs_entropy": 1.3859,
           "hub_routed": [
             88,
             88,
@@ -386,7 +387,7 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
+          "on_topic": true,
           "context_lines": 11
         },
         {
@@ -398,13 +399,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 4,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26305,
+            0.24371,
+            0.24491,
+            0.24833
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01934,
+          "hub_prefs_entropy": 1.38582,
           "hub_routed": [
             96,
             96,
@@ -440,13 +441,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 5,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26411,
+            0.24336,
+            0.24455,
+            0.24797
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02075,
+          "hub_prefs_entropy": 1.38575,
           "hub_routed": [
             104,
             104,
@@ -482,13 +483,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 5,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2651,
+            0.24303,
+            0.24423,
+            0.24764
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02207,
+          "hub_prefs_entropy": 1.38567,
           "hub_routed": [
             112,
             112,
@@ -525,13 +526,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 5,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26538,
+            0.24273,
+            0.24392,
+            0.24797
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02266,
+          "hub_prefs_entropy": 1.38564,
           "hub_routed": [
             120,
             120,
@@ -567,13 +568,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 6,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26564,
+            0.24244,
+            0.24363,
+            0.24828
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.0232,
+          "hub_prefs_entropy": 1.38561,
           "hub_routed": [
             128,
             128,
@@ -609,13 +610,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 6,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26645,
+            0.24218,
+            0.24336,
+            0.24801
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02428,
+          "hub_prefs_entropy": 1.38554,
           "hub_routed": [
             136,
             136,
@@ -651,13 +652,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 7,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26619,
+            0.24194,
+            0.24363,
+            0.24825
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02425,
+          "hub_prefs_entropy": 1.38556,
           "hub_routed": [
             152,
             152,
@@ -693,13 +694,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 7,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26684,
+            0.24172,
+            0.24341,
+            0.24802
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02512,
+          "hub_prefs_entropy": 1.38551,
           "hub_routed": [
             168,
             168,
@@ -724,7 +725,8 @@
             "balance_score": 1.0
           },
           "on_topic": true,
-          "context_lines": 21
+          "context_lines": 21,
+          "answer_sample": "[corpus:20] Kinetic energy is one half m v squared"
         },
         {
           "round": 16,
@@ -735,13 +737,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 7,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26722,
+            0.24159,
+            0.24329,
+            0.24789
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02563,
+          "hub_prefs_entropy": 1.38547,
           "hub_routed": [
             184,
             184,
@@ -777,13 +779,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 8,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26758,
+            0.24148,
+            0.24317,
+            0.24777
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.0261,
+          "hub_prefs_entropy": 1.38544,
           "hub_routed": [
             200,
             200,
@@ -807,7 +809,7 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
+          "on_topic": true,
           "context_lines": 25
         },
         {
@@ -819,13 +821,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 8,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26791,
+            0.24137,
+            0.24306,
+            0.24766
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02653,
+          "hub_prefs_entropy": 1.38541,
           "hub_routed": [
             216,
             216,
@@ -861,13 +863,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 9,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26821,
+            0.24127,
+            0.24296,
+            0.24756
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02694,
+          "hub_prefs_entropy": 1.38538,
           "hub_routed": [
             232,
             232,
@@ -903,13 +905,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 10,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26849,
+            0.24118,
+            0.24287,
+            0.24746
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02731,
+          "hub_prefs_entropy": 1.38535,
           "hub_routed": [
             248,
             248,
@@ -946,13 +948,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 10,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26858,
+            0.24109,
+            0.24278,
+            0.24756
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02749,
+          "hub_prefs_entropy": 1.38534,
           "hub_routed": [
             264,
             264,
@@ -988,13 +990,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 11,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26865,
+            0.24101,
+            0.24269,
+            0.24765
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02765,
+          "hub_prefs_entropy": 1.38533,
           "hub_routed": [
             280,
             280,
@@ -1030,13 +1032,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 11,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2689,
+            0.24093,
+            0.24261,
+            0.24756
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02797,
+          "hub_prefs_entropy": 1.38531,
           "hub_routed": [
             288,
             288,
@@ -1072,13 +1074,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 12,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26881,
+            0.24085,
+            0.2427,
+            0.24765
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02796,
+          "hub_prefs_entropy": 1.38532,
           "hub_routed": [
             296,
             296,
@@ -1114,13 +1116,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 12,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26904,
+            0.24077,
+            0.24262,
+            0.24757
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02827,
+          "hub_prefs_entropy": 1.38529,
           "hub_routed": [
             304,
             304,
@@ -1145,7 +1147,8 @@
             "balance_score": 1.0
           },
           "on_topic": false,
-          "context_lines": 38
+          "context_lines": 38,
+          "answer_sample": "[corpus:25] Work and energy share related units in mechanics"
         },
         {
           "round": 26,
@@ -1156,13 +1159,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 13,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26926,
+            0.2407,
+            0.24255,
+            0.24749
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02857,
+          "hub_prefs_entropy": 1.38527,
           "hub_routed": [
             312,
             312,
@@ -1198,13 +1201,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 13,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26949,
+            0.24063,
+            0.24247,
+            0.24742
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02886,
+          "hub_prefs_entropy": 1.38525,
           "hub_routed": [
             320,
             320,
@@ -1228,7 +1231,7 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
+          "on_topic": true,
           "context_lines": 40
         },
         {
@@ -1240,13 +1243,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 14,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2697,
+            0.24056,
+            0.2424,
+            0.24734
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02914,
+          "hub_prefs_entropy": 1.38523,
           "hub_routed": [
             328,
             328,
@@ -1282,13 +1285,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 15,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.26991,
+            0.24049,
+            0.24233,
+            0.24727
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02942,
+          "hub_prefs_entropy": 1.3852,
           "hub_routed": [
             336,
             336,
@@ -1322,29 +1325,29 @@
       "thread_id": "chemistry",
       "ingress_routing": "quad_cycle",
       "total_rounds": 30,
-      "on_topic_hits": 29,
-      "on_topic_rate": 0.9666666666666667,
+      "on_topic_hits": 28,
+      "on_topic_rate": 0.9333333333333333,
       "phase_stats": {
         "phase1": {
-          "hits": 15,
+          "hits": 14,
           "n": 15,
-          "rate": 1.0,
-          "avg_spread": 0.0
+          "rate": 0.9333333333333333,
+          "avg_spread": 0.01908435127452596
         },
         "phase2": {
           "hits": 14,
           "n": 15,
           "rate": 0.9333333333333333,
-          "avg_spread": 0.0
+          "avg_spread": 0.031336989671149486
         }
       },
       "final_hub_prefs": [
-        0.25,
-        0.25,
-        0.25,
-        0.25
+        0.24051,
+        0.24506,
+        0.27392,
+        0.24051
       ],
-      "final_spread": 0.0,
+      "final_spread": 0.03341,
       "final_quad_balance": {
         "hub_routed": {
           "BlackHole": 336,
@@ -1372,13 +1375,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 1,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24845,
+            0.24845,
+            0.25466,
+            0.24845
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.00621,
+          "hub_prefs_entropy": 1.38624,
           "hub_routed": [
             24,
             24,
@@ -1415,13 +1418,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 1,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24752,
+            0.24752,
+            0.25744,
+            0.24752
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.00992,
+          "hub_prefs_entropy": 1.38615,
           "hub_routed": [
             40,
             40,
@@ -1457,13 +1460,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 1,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24675,
+            0.24987,
+            0.25663,
+            0.24675
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.00988,
+          "hub_prefs_entropy": 1.38616,
           "hub_routed": [
             48,
             48,
@@ -1499,13 +1502,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 2,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24609,
+            0.2492,
+            0.25862,
+            0.24609
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01253,
+          "hub_prefs_entropy": 1.38608,
           "hub_routed": [
             56,
             56,
@@ -1541,13 +1544,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 2,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24551,
+            0.24862,
+            0.26036,
+            0.24551
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01485,
+          "hub_prefs_entropy": 1.386,
           "hub_routed": [
             64,
             64,
@@ -1583,13 +1586,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 3,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.245,
+            0.2481,
+            0.26191,
+            0.245
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01691,
+          "hub_prefs_entropy": 1.38591,
           "hub_routed": [
             72,
             72,
@@ -1614,7 +1617,8 @@
             "balance_score": 1.0
           },
           "on_topic": true,
-          "context_lines": 9
+          "context_lines": 9,
+          "answer_sample": "[corpus:8] Condensation forms clouds when water vapor cools"
         },
         {
           "round": 6,
@@ -1625,13 +1629,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 3,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24454,
+            0.24763,
+            0.2633,
+            0.24454
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01876,
+          "hub_prefs_entropy": 1.38582,
           "hub_routed": [
             80,
             80,
@@ -1667,13 +1671,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 4,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24412,
+            0.24721,
+            0.26456,
+            0.24412
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02044,
+          "hub_prefs_entropy": 1.38572,
           "hub_routed": [
             88,
             88,
@@ -1709,13 +1713,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 4,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24374,
+            0.24682,
+            0.26571,
+            0.24374
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02197,
+          "hub_prefs_entropy": 1.38563,
           "hub_routed": [
             96,
             96,
@@ -1751,13 +1755,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 5,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24338,
+            0.24646,
+            0.26677,
+            0.24338
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02339,
+          "hub_prefs_entropy": 1.38554,
           "hub_routed": [
             104,
             104,
@@ -1793,13 +1797,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 5,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24306,
+            0.24613,
+            0.26775,
+            0.24306
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02469,
+          "hub_prefs_entropy": 1.38545,
           "hub_routed": [
             112,
             112,
@@ -1836,13 +1840,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 5,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24275,
+            0.24582,
+            0.26867,
+            0.24275
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02592,
+          "hub_prefs_entropy": 1.38537,
           "hub_routed": [
             120,
             120,
@@ -1866,7 +1870,7 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": true,
+          "on_topic": false,
           "context_lines": 15
         },
         {
@@ -1878,13 +1882,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 6,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24247,
+            0.24671,
+            0.26835,
+            0.24247
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02589,
+          "hub_prefs_entropy": 1.38539,
           "hub_routed": [
             128,
             128,
@@ -1920,13 +1924,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 6,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2422,
+            0.24644,
+            0.26916,
+            0.2422
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02696,
+          "hub_prefs_entropy": 1.38531,
           "hub_routed": [
             136,
             136,
@@ -1962,13 +1966,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 7,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24196,
+            0.24619,
+            0.26988,
+            0.24196
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02792,
+          "hub_prefs_entropy": 1.38523,
           "hub_routed": [
             152,
             152,
@@ -2004,13 +2008,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 7,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24175,
+            0.24597,
+            0.27054,
+            0.24175
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02879,
+          "hub_prefs_entropy": 1.38516,
           "hub_routed": [
             168,
             168,
@@ -2035,7 +2039,8 @@
             "balance_score": 1.0
           },
           "on_topic": true,
-          "context_lines": 21
+          "context_lines": 21,
+          "answer_sample": "[corpus:20] Condensation forms clouds when water vapor cools"
         },
         {
           "round": 16,
@@ -2046,13 +2051,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 7,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24162,
+            0.24584,
+            0.27092,
+            0.24162
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.0293,
+          "hub_prefs_entropy": 1.38512,
           "hub_routed": [
             184,
             184,
@@ -2088,13 +2093,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 8,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2415,
+            0.24572,
+            0.27127,
+            0.2415
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02977,
+          "hub_prefs_entropy": 1.38509,
           "hub_routed": [
             200,
             200,
@@ -2130,13 +2135,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 8,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2414,
+            0.24561,
+            0.27159,
+            0.2414
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.0302,
+          "hub_prefs_entropy": 1.38505,
           "hub_routed": [
             216,
             216,
@@ -2172,13 +2177,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 9,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2413,
+            0.24551,
+            0.2719,
+            0.2413
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.0306,
+          "hub_prefs_entropy": 1.38502,
           "hub_routed": [
             232,
             232,
@@ -2214,13 +2219,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 10,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2412,
+            0.24542,
+            0.27218,
+            0.2412
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03098,
+          "hub_prefs_entropy": 1.38498,
           "hub_routed": [
             248,
             248,
@@ -2257,13 +2262,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 10,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24112,
+            0.24533,
+            0.27244,
+            0.24112
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03133,
+          "hub_prefs_entropy": 1.38495,
           "hub_routed": [
             264,
             264,
@@ -2299,13 +2304,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 11,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24103,
+            0.24559,
+            0.27235,
+            0.24103
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03131,
+          "hub_prefs_entropy": 1.38496,
           "hub_routed": [
             280,
             280,
@@ -2341,13 +2346,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 11,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24095,
+            0.24551,
+            0.27259,
+            0.24095
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03164,
+          "hub_prefs_entropy": 1.38493,
           "hub_routed": [
             288,
             288,
@@ -2383,13 +2388,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 12,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24087,
+            0.24543,
+            0.27282,
+            0.24087
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03195,
+          "hub_prefs_entropy": 1.3849,
           "hub_routed": [
             296,
             296,
@@ -2425,13 +2430,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 12,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2408,
+            0.24535,
+            0.27306,
+            0.2408
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03226,
+          "hub_prefs_entropy": 1.38488,
           "hub_routed": [
             304,
             304,
@@ -2456,7 +2461,8 @@
             "balance_score": 1.0
           },
           "on_topic": true,
-          "context_lines": 38
+          "context_lines": 38,
+          "answer_sample": "[corpus:20] Condensation forms clouds when water vapor cools"
         },
         {
           "round": 26,
@@ -2467,13 +2473,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 13,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24072,
+            0.24527,
+            0.27328,
+            0.24072
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03256,
+          "hub_prefs_entropy": 1.38485,
           "hub_routed": [
             312,
             312,
@@ -2509,13 +2515,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 13,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24065,
+            0.2452,
+            0.2735,
+            0.24065
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03285,
+          "hub_prefs_entropy": 1.38482,
           "hub_routed": [
             320,
             320,
@@ -2551,13 +2557,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 14,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24058,
+            0.24513,
+            0.27371,
+            0.24058
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03313,
+          "hub_prefs_entropy": 1.3848,
           "hub_routed": [
             328,
             328,
@@ -2593,13 +2599,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 15,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24051,
+            0.24506,
+            0.27392,
+            0.24051
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03341,
+          "hub_prefs_entropy": 1.38477,
           "hub_routed": [
             336,
             336,
@@ -2640,22 +2646,22 @@
           "hits": 13,
           "n": 15,
           "rate": 0.8666666666666667,
-          "avg_spread": 0.0
+          "avg_spread": 0.019627091748926087
         },
         "phase2": {
           "hits": 12,
           "n": 15,
           "rate": 0.8,
-          "avg_spread": 0.0
+          "avg_spread": 0.0313836429789203
         }
       },
       "final_hub_prefs": [
-        0.25,
-        0.25,
-        0.25,
-        0.25
+        0.24049,
+        0.245,
+        0.24049,
+        0.27401
       ],
-      "final_spread": 0.0,
+      "final_spread": 0.03352,
       "final_quad_balance": {
         "hub_routed": {
           "BlackHole": 336,
@@ -2683,13 +2689,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 1,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24843,
+            0.24843,
+            0.24843,
+            0.2547
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.00626,
+          "hub_prefs_entropy": 1.38624,
           "hub_routed": [
             24,
             24,
@@ -2726,13 +2732,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 1,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2475,
+            0.2475,
+            0.2475,
+            0.25749
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.00998,
+          "hub_prefs_entropy": 1.38615,
           "hub_routed": [
             40,
             40,
@@ -2768,13 +2774,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 1,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24673,
+            0.24673,
+            0.24673,
+            0.25982
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01309,
+          "hub_prefs_entropy": 1.38604,
           "hub_routed": [
             48,
             48,
@@ -2810,13 +2816,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 2,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24606,
+            0.24876,
+            0.24606,
+            0.25911
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01305,
+          "hub_prefs_entropy": 1.38606,
           "hub_routed": [
             56,
             56,
@@ -2852,13 +2858,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 2,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24549,
+            0.24818,
+            0.24549,
+            0.26085
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01537,
+          "hub_prefs_entropy": 1.38597,
           "hub_routed": [
             64,
             64,
@@ -2894,13 +2900,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 3,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24497,
+            0.24766,
+            0.24497,
+            0.2624
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01743,
+          "hub_prefs_entropy": 1.38588,
           "hub_routed": [
             72,
             72,
@@ -2925,7 +2931,8 @@
             "balance_score": 1.0
           },
           "on_topic": true,
-          "context_lines": 9
+          "context_lines": 9,
+          "answer_sample": "[corpus:8] The Australian flag features the Union Jack and Southern Cross"
         },
         {
           "round": 6,
@@ -2936,13 +2943,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 3,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24451,
+            0.24719,
+            0.24451,
+            0.26378
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.01927,
+          "hub_prefs_entropy": 1.38578,
           "hub_routed": [
             80,
             80,
@@ -2978,13 +2985,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 4,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2441,
+            0.24677,
+            0.2441,
+            0.26503
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02093,
+          "hub_prefs_entropy": 1.38569,
           "hub_routed": [
             88,
             88,
@@ -3020,13 +3027,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 4,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24372,
+            0.24639,
+            0.24372,
+            0.26618
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02246,
+          "hub_prefs_entropy": 1.3856,
           "hub_routed": [
             96,
             96,
@@ -3062,13 +3069,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 5,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24337,
+            0.24603,
+            0.24337,
+            0.26724
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02387,
+          "hub_prefs_entropy": 1.3855,
           "hub_routed": [
             104,
             104,
@@ -3104,13 +3111,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 5,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24304,
+            0.2457,
+            0.24304,
+            0.26822
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02519,
+          "hub_prefs_entropy": 1.38541,
           "hub_routed": [
             112,
             112,
@@ -3134,9 +3141,9 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
+          "on_topic": true,
           "context_lines": 14,
-          "answer_sample": "[corpus:13] Sydney is the largest city in Australia but not the capital"
+          "answer_sample": "[corpus:0] The capital of Australia is Canberra"
         },
         {
           "round": 11,
@@ -3147,13 +3154,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 5,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24273,
+            0.246,
+            0.24273,
+            0.26853
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02579,
+          "hub_prefs_entropy": 1.38538,
           "hub_routed": [
             120,
             120,
@@ -3189,13 +3196,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 6,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24245,
+            0.24571,
+            0.24245,
+            0.26939
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02694,
+          "hub_prefs_entropy": 1.38529,
           "hub_routed": [
             128,
             128,
@@ -3219,7 +3226,7 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": true,
+          "on_topic": false,
           "context_lines": 16
         },
         {
@@ -3231,13 +3238,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 6,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24218,
+            0.24655,
+            0.24218,
+            0.26909
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02691,
+          "hub_prefs_entropy": 1.38531,
           "hub_routed": [
             136,
             136,
@@ -3273,13 +3280,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 7,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24194,
+            0.24631,
+            0.24194,
+            0.26981
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02787,
+          "hub_prefs_entropy": 1.38524,
           "hub_routed": [
             152,
             152,
@@ -3315,13 +3322,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 7,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24172,
+            0.24609,
+            0.24172,
+            0.27046
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02874,
+          "hub_prefs_entropy": 1.38517,
           "hub_routed": [
             168,
             168,
@@ -3346,7 +3353,8 @@
             "balance_score": 1.0
           },
           "on_topic": true,
-          "context_lines": 21
+          "context_lines": 21,
+          "answer_sample": "[corpus:20] The Australian flag features the Union Jack and Southern Cross"
         },
         {
           "round": 16,
@@ -3357,13 +3365,13 @@
           "fate_ingress_routing": "quad_cycle",
           "incubation_cycles": 7,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2416,
+            0.24596,
+            0.2416,
+            0.27084
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02924,
+          "hub_prefs_entropy": 1.38513,
           "hub_routed": [
             184,
             184,
@@ -3399,13 +3407,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 8,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24148,
+            0.24584,
+            0.24148,
+            0.27119
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.02971,
+          "hub_prefs_entropy": 1.38509,
           "hub_routed": [
             200,
             200,
@@ -3441,13 +3449,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 8,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24138,
+            0.24573,
+            0.24138,
+            0.27151
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03014,
+          "hub_prefs_entropy": 1.38506,
           "hub_routed": [
             216,
             216,
@@ -3483,13 +3491,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 9,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24128,
+            0.24563,
+            0.24128,
+            0.27182
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03054,
+          "hub_prefs_entropy": 1.38502,
           "hub_routed": [
             232,
             232,
@@ -3525,13 +3533,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 10,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24118,
+            0.24554,
+            0.24118,
+            0.2721
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03092,
+          "hub_prefs_entropy": 1.38499,
           "hub_routed": [
             248,
             248,
@@ -3555,9 +3563,9 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": false,
+          "on_topic": true,
           "context_lines": 31,
-          "answer_sample": "[corpus:30] Sydney is the largest city in Australia but not the capital"
+          "answer_sample": "[corpus:0] The capital of Australia is Canberra"
         },
         {
           "round": 21,
@@ -3568,13 +3576,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 10,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2411,
+            0.24545,
+            0.2411,
+            0.27236
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03127,
+          "hub_prefs_entropy": 1.38496,
           "hub_routed": [
             264,
             264,
@@ -3610,13 +3618,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 11,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24101,
+            0.24536,
+            0.24101,
+            0.27261
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.0316,
+          "hub_prefs_entropy": 1.38493,
           "hub_routed": [
             280,
             280,
@@ -3640,7 +3648,7 @@
             "share_spread": 0.0,
             "balance_score": 1.0
           },
-          "on_topic": true,
+          "on_topic": false,
           "context_lines": 35
         },
         {
@@ -3652,13 +3660,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 11,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24093,
+            0.24545,
+            0.24093,
+            0.27269
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03176,
+          "hub_prefs_entropy": 1.38492,
           "hub_routed": [
             288,
             288,
@@ -3694,13 +3702,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 12,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24085,
+            0.24537,
+            0.24085,
+            0.27292
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03207,
+          "hub_prefs_entropy": 1.38489,
           "hub_routed": [
             296,
             296,
@@ -3736,13 +3744,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 12,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24078,
+            0.24529,
+            0.24078,
+            0.27315
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03238,
+          "hub_prefs_entropy": 1.38486,
           "hub_routed": [
             304,
             304,
@@ -3767,7 +3775,8 @@
             "balance_score": 1.0
           },
           "on_topic": true,
-          "context_lines": 38
+          "context_lines": 38,
+          "answer_sample": "[corpus:20] The Australian flag features the Union Jack and Southern Cross"
         },
         {
           "round": 26,
@@ -3778,13 +3787,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 13,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.2407,
+            0.24522,
+            0.2407,
+            0.27338
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03267,
+          "hub_prefs_entropy": 1.38484,
           "hub_routed": [
             312,
             312,
@@ -3820,13 +3829,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 13,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24063,
+            0.24514,
+            0.24063,
+            0.27359
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03296,
+          "hub_prefs_entropy": 1.38481,
           "hub_routed": [
             320,
             320,
@@ -3862,13 +3871,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 14,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24056,
+            0.24507,
+            0.24056,
+            0.27381
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03324,
+          "hub_prefs_entropy": 1.38479,
           "hub_routed": [
             328,
             328,
@@ -3904,13 +3913,13 @@
           "fate_ingress_routing": "round_robin",
           "incubation_cycles": 15,
           "hub_prefs": [
-            0.25,
-            0.25,
-            0.25,
-            0.25
+            0.24049,
+            0.245,
+            0.24049,
+            0.27401
           ],
-          "hub_prefs_spread": 0.0,
-          "hub_prefs_entropy": 1.38629,
+          "hub_prefs_spread": 0.03352,
+          "hub_prefs_entropy": 1.38476,
           "hub_routed": [
             336,
             336,
@@ -3946,15 +3955,15 @@
       "hits": 42,
       "n": 45,
       "rate": 0.9333333333333333,
-      "avg_hub_prefs_spread": 0.0
+      "avg_hub_prefs_spread": 0.018528845519412362
     },
     "phase2": {
-      "hits": 36,
+      "hits": 38,
       "n": 45,
-      "rate": 0.8,
-      "avg_hub_prefs_spread": 0.0
+      "rate": 0.8444444444444444,
+      "avg_hub_prefs_spread": 0.030083766808186002
     },
-    "spread_delta_phase2_minus_phase1": 0.0,
-    "accuracy_delta_phase2_minus_phase1": -0.1333333333333333
+    "spread_delta_phase2_minus_phase1": 0.01155492128877364,
+    "accuracy_delta_phase2_minus_phase1": -0.0888888888888889
   }
 }

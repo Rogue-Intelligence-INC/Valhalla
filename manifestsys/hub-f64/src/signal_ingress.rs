@@ -704,6 +704,9 @@ pub struct TriadIncubationSnapshot {
     /// Grinder-signal affinity per corpus line index (Fate QA feedback; structure-derived).
     #[serde(default)]
     pub corpus_line_affinity: Vec<f64>,
+    /// Fate logical time (signal_tick) after incubation / QA — proactive time unit.
+    #[serde(default)]
+    pub fate_signal_tick: u64,
 }
 
 fn default_fate_weight_mode_str() -> String {
@@ -1139,6 +1142,7 @@ impl TriadSession {
                 crate::IngressRoutingMode::HybridQuadSemantic => "hybrid_quad_semantic".into(),
             },
             corpus_line_affinity: self.corpus_line_affinity.clone(),
+            fate_signal_tick: self.hub.fate_system().get_logical_time(),
         }
     }
 
@@ -1165,9 +1169,15 @@ impl TriadSession {
             snap.fate_routing_free,
             Self::ingress_routing_from_str(&snap.fate_ingress_routing),
         );
-        session
-            .hub
-            .seed_fate_from_snapshot(&snap.hub_prefs, snap.hub_routed);
+        session.hub.seed_fate_from_snapshot(
+            &snap.hub_prefs,
+            snap.hub_routed,
+            if snap.fate_signal_tick > 0 {
+                Some(snap.fate_signal_tick)
+            } else {
+                None
+            },
+        );
     }
 
     /// Apply QA answer feedback into Fate + Tile/Stem passive loop.

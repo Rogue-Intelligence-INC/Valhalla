@@ -1,9 +1,10 @@
 {
-  "timestamp": "2026-06-29T23:37:57.517901+00:00",
+  "timestamp": "2026-07-02T08:24:41.235123+00:00",
   "protocol": "proactive-fate-v2",
   "algebra": {
     "spread_threshold": "τ(0)·δ/(dim+r) = 12/138·5/140",
-    "proactive_min_turns": 2,
+    "proactive_min_fate_signals": 64,
+    "proactive_min_turns_legacy": "turns * 32 when turns > 0",
     "probe_selection": "max_topic_overlap_with_prior"
   },
   "config": {
@@ -11,18 +12,18 @@
     "production_stack": "hybrid + native_follow_up_aware + quad_cycle + fate_qa_feedback"
   },
   "metrics": {
-    "PPI_v2": 0.9212,
+    "PPI_v2": 0.89,
     "gate_pass_rate": 1.0,
     "UP_on_topic": 1.0,
     "on_topic_emit_rate": 0.8,
-    "MAR_mismatch_abstain": 0.9706,
-    "FIR_false_interrupt": 0.0,
-    "TR_trigger_rate": 0.4203,
+    "MAR_mismatch_abstain": 0.8824,
+    "FIR_false_interrupt": 0.0312,
+    "TR_trigger_rate": 0.4638,
     "n_gates": 3,
     "n_aligned": 35,
     "n_mismatch": 34,
     "n_eligible": 69,
-    "n_emitted": 29
+    "n_emitted": 32
   },
   "batteries": {
     "gates": [
@@ -41,10 +42,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "turns=1<min_turns=2",
+        "trigger_reason": "fate_signals=37<min_fate_signals=64",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 1
+        "warmup_turns": 1,
+        "fate_signals_since_baseline": 37,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "gate_disabled",
@@ -58,7 +61,9 @@
         "trigger_reason": "proactive_disabled",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 2
+        "warmup_turns": 2,
+        "fate_signals_since_baseline": 74,
+        "proactive_min_fate_signals": 64
       }
     ],
     "handcraft": [
@@ -74,7 +79,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Sydney is the largest city in Australia but?",
         "nudge": "Related to our conversation: [corpus:3] Sydney is the largest city in Australia but not the capital",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "hand_swap_au_fr_mismatch",
@@ -88,7 +95,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: The capital of France is Paris.?",
         "nudge": "Related to our conversation: [corpus:0] The capital of France is Paris",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "hand_swap_boiling_aligned",
@@ -102,7 +111,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Water boils at 100 degrees Celsius at standard?",
         "nudge": "Related to our conversation: [corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
-        "warmup_turns": 2
+        "warmup_turns": 2,
+        "fate_signals_since_baseline": 74,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "hand_swap_boiling_mismatch",
@@ -113,10 +124,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0024<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 2
+        "warmup_turns": 2,
+        "fate_signals_since_baseline": 74,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "hand_swap_gold_aligned",
@@ -130,7 +143,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Gold has the chemical symbol Au.?",
         "nudge": "Related to our conversation: [corpus:0] Gold has the chemical symbol Au",
-        "warmup_turns": 2
+        "warmup_turns": 2,
+        "fate_signals_since_baseline": 74,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "hand_swap_gold_mismatch",
@@ -141,10 +156,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0024<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 2
+        "warmup_turns": 2,
+        "fate_signals_since_baseline": 74,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "hand_extended_5turn",
@@ -158,7 +175,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Sydney is the largest city in Australia but?",
         "nudge": "Related to our conversation: [corpus:3] Sydney is the largest city in Australia but not the capital",
-        "warmup_turns": 5
+        "warmup_turns": 5,
+        "fate_signals_since_baseline": 185,
+        "proactive_min_fate_signals": 64
       }
     ],
     "fair": [
@@ -174,7 +193,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Newton's second law states force equals mass times?",
         "nudge": "Related to our conversation: [corpus:0] Newton's second law states force equals mass times acceleration F equals m a",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_PHYS_01_mismatch",
@@ -185,10 +206,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_CHEM_01_aligned",
@@ -202,7 +225,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Water boils at 100 degrees Celsius at standard?",
         "nudge": "Related to our conversation: [corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_CHEM_01_mismatch",
@@ -213,10 +238,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "spread=0.0030<0.0031",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_BIO_01_aligned",
@@ -230,7 +257,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Mitochondria produce ATP through cellular respiration in eukaryotes.?",
         "nudge": "Related to our conversation: [corpus:0] Mitochondria produce ATP through cellular respiration in eukaryotes",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_BIO_01_mismatch",
@@ -241,10 +270,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_HIST_01_aligned",
@@ -258,7 +289,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: World War Two ended in 1945 with Germany's?",
         "nudge": "Related to our conversation: [corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_HIST_01_mismatch",
@@ -269,10 +302,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_GEO_01_aligned",
@@ -286,7 +321,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: The capital city of Australia is Canberra not?",
         "nudge": "Related to our conversation: [corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_GEO_01_mismatch",
@@ -297,10 +334,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0023<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_ECON_01_aligned",
@@ -314,7 +353,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Gross Domestic Product sums consumption investment government and?",
         "nudge": "Related to our conversation: [corpus:0] Gross Domestic Product sums consumption investment government and net exports",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_ECON_01_mismatch",
@@ -325,10 +366,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_ECON_02_aligned",
@@ -342,21 +385,25 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Inflation means a sustained increase in the general?",
         "nudge": "Related to our conversation: [corpus:0] Inflation means a sustained increase in the general price level of goods",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_ECON_02_mismatch",
         "expect": "abstain_or_safe",
-        "pass": true,
-        "triggered": false,
-        "emitted": false,
-        "grounded": null,
-        "hallucination": false,
-        "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
-        "probe_question": "",
-        "nudge": null,
-        "warmup_turns": 3
+        "pass": false,
+        "triggered": true,
+        "emitted": true,
+        "grounded": true,
+        "hallucination": true,
+        "fog_decision": "emit",
+        "trigger_reason": "idle_ready",
+        "probe_question": "Based on the context, what is stated about: Supply increases when price rises according to basic?",
+        "nudge": "Related to our conversation: [corpus:5] Supply increases when price rises according to basic microeconomic theory",
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_CS_02_aligned",
@@ -370,7 +417,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Central Processing Unit executes instructions in a computer?",
         "nudge": "Related to our conversation: [corpus:0] Central Processing Unit executes instructions in a computer system",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_CS_02_mismatch",
@@ -381,10 +430,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "spread=0.0030<0.0031",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_ZH_02_aligned",
@@ -398,7 +449,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "根据上下文，关于「秦朝是中国第一个统一的中」说了什么？",
         "nudge": "Related to our conversation: [corpus:0] 秦朝是中国第一个统一的中央集权封建王朝。",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_ZH_02_mismatch",
@@ -409,10 +462,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_ZH_03_aligned",
@@ -426,7 +481,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "根据上下文，关于「二十四节气反映中国古代农」说了什么？",
         "nudge": "Related to our conversation: [corpus:0] 二十四节气反映中国古代农历对太阳周年的划分。",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_ZH_03_mismatch",
@@ -437,10 +494,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0023<0.0031",
+        "trigger_reason": "spread=0.0029<0.0031",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_ZH_04_aligned",
@@ -454,7 +513,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "根据上下文，关于「红楼梦是中国古典小说巅峰」说了什么？",
         "nudge": "Related to our conversation: [corpus:0] 红楼梦是中国古典小说巅峰之作作者一般认为是曹雪芹。",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_ZH_04_mismatch",
@@ -465,10 +526,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_LIT_01_aligned",
@@ -482,7 +545,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: William Shakespeare wrote Romeo and Juliet and Hamlet?",
         "nudge": "Related to our conversation: [corpus:0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_LIT_01_mismatch",
@@ -493,10 +558,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0024<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_LIT_02_aligned",
@@ -510,7 +577,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: George Orwell wrote the dystopian novel Nineteen Eighty-Four?",
         "nudge": "Related to our conversation: [corpus:0] George Orwell wrote the dystopian novel Nineteen Eighty-Four published in 1949",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_LIT_02_mismatch",
@@ -521,10 +590,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0023<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_MED_01_aligned",
@@ -538,7 +609,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Type 2 diabetes involves insulin resistance and relative?",
         "nudge": "Related to our conversation: [corpus:0] Type 2 diabetes involves insulin resistance and relative insulin deficiency",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_MED_01_mismatch",
@@ -549,10 +622,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_ASTRO_01_aligned",
@@ -566,7 +641,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Mercury is the smallest planet and closest to?",
         "nudge": "Related to our conversation: [corpus:0] Mercury is the smallest planet and closest to the Sun in our solar system",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_ASTRO_01_mismatch",
@@ -577,10 +654,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "spread=0.0021<0.0031",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_LOGIC_02_aligned",
@@ -594,7 +673,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Contrapositive of P implies Q is not Q?",
         "nudge": "Related to our conversation: [corpus:1] Contrapositive of P implies Q is not Q implies not P",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_LOGIC_02_mismatch",
@@ -605,10 +686,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "spread=0.0023<0.0031",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F03_aligned",
@@ -622,7 +705,9 @@
         "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F03_mismatch",
@@ -633,10 +718,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F04_aligned",
@@ -650,7 +737,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Photosynthesis converts carbon dioxide and water into glucose?",
         "nudge": "Related to our conversation: [corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F04_mismatch",
@@ -661,10 +750,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "spread=0.0009<0.0031",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F05_aligned",
@@ -678,21 +769,25 @@
         "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F05_mismatch",
         "expect": "abstain_or_safe",
         "pass": true,
-        "triggered": false,
-        "emitted": false,
-        "grounded": null,
+        "triggered": true,
+        "emitted": true,
+        "grounded": false,
         "hallucination": false,
-        "fog_decision": "defer",
-        "trigger_reason": "spread=0.0024<0.0031",
-        "probe_question": "",
-        "nudge": null,
-        "warmup_turns": 3
+        "fog_decision": "emit",
+        "trigger_reason": "idle_ready",
+        "probe_question": "Based on the context, what is stated about: Supply increases when price rises according to basic?",
+        "nudge": "Related to our conversation: [corpus:5] Supply increases when price rises according to basic microeconomic theory",
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F06_aligned",
@@ -706,7 +801,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Photosynthesis converts carbon dioxide and water into glucose?",
         "nudge": "Related to our conversation: [corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F06_mismatch",
@@ -717,10 +814,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F14_aligned",
@@ -734,7 +833,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Binary search requires a sorted array and halves?",
         "nudge": "Related to our conversation: [corpus:0] Binary search requires a sorted array and halves the search interval each step",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F14_mismatch",
@@ -745,10 +846,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F16_aligned",
@@ -762,7 +865,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: William Shakespeare wrote Romeo and Juliet and Hamlet?",
         "nudge": "Related to our conversation: [corpus:0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F16_mismatch",
@@ -773,10 +878,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0024<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F17_aligned",
@@ -790,7 +897,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Scurvy is caused by deficiency of vitamin C?",
         "nudge": "Related to our conversation: [corpus:0] Scurvy is caused by deficiency of vitamin C also called ascorbic acid",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F17_mismatch",
@@ -801,10 +910,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "spread=0.0024<0.0031",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F25_aligned",
@@ -818,7 +929,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Type 2 diabetes involves insulin resistance and relative?",
         "nudge": "Related to our conversation: [corpus:0] Type 2 diabetes involves insulin resistance and relative insulin deficiency",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F25_mismatch",
@@ -829,10 +942,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F26_aligned",
@@ -846,21 +961,25 @@
         "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F26_mismatch",
         "expect": "abstain_or_safe",
         "pass": true,
-        "triggered": false,
-        "emitted": false,
-        "grounded": null,
+        "triggered": true,
+        "emitted": true,
+        "grounded": false,
         "hallucination": false,
-        "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
-        "probe_question": "",
-        "nudge": null,
-        "warmup_turns": 3
+        "fog_decision": "emit",
+        "trigger_reason": "idle_ready",
+        "probe_question": "Based on the context, what is stated about: Photosynthesis converts carbon dioxide and water into glucose?",
+        "nudge": "Related to our conversation: [corpus:0] Photosynthesis converts carbon dioxide and water into glucose using sunlight in chloroplasts",
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F29_aligned",
@@ -874,7 +993,9 @@
         "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F29_mismatch",
@@ -885,10 +1006,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0024<0.0031",
+        "trigger_reason": "spread=0.0030<0.0031",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F33_aligned",
@@ -902,7 +1025,9 @@
         "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F33_mismatch",
@@ -913,10 +1038,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0023<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F39_aligned",
@@ -930,7 +1057,9 @@
         "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F39_mismatch",
@@ -941,10 +1070,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0023<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F42_aligned",
@@ -958,7 +1089,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "根据上下文，关于「秦朝是中国第一个统一的中」说了什么？",
         "nudge": "Related to our conversation: [corpus:0] 秦朝是中国第一个统一的中央集权封建王朝。",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F42_mismatch",
@@ -969,10 +1102,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0023<0.0031",
+        "trigger_reason": "spread=0.0029<0.0031",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F43_aligned",
@@ -983,10 +1118,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0023<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F43_mismatch",
@@ -997,10 +1134,12 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F50_aligned",
@@ -1014,7 +1153,9 @@
         "trigger_reason": "idle_ready",
         "probe_question": "Based on the context, what is stated about: Inflation means a sustained increase in the general?",
         "nudge": "Related to our conversation: [corpus:0] Inflation means a sustained increase in the general price level of goods",
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       },
       {
         "id": "fair_OPEN_F50_mismatch",
@@ -1025,17 +1166,19 @@
         "grounded": null,
         "hallucination": false,
         "fog_decision": "defer",
-        "trigger_reason": "spread=0.0012<0.0031",
+        "trigger_reason": "no_topic_overlap",
         "probe_question": "",
         "nudge": null,
-        "warmup_turns": 3
+        "warmup_turns": 3,
+        "fate_signals_since_baseline": 111,
+        "proactive_min_fate_signals": 64
       }
     ]
   },
   "summary": {
-    "passed": 72,
+    "passed": 71,
     "total": 72,
-    "pass_rate": 1.0
+    "pass_rate": 0.9861111111111112
   },
   "verdict": [
     "PROACTIVE_FATE_V2_STRONG",
@@ -1072,37 +1215,37 @@
     {
       "name": "MAR_mismatch_abstain",
       "proportion": {
-        "k": 33,
+        "k": 30,
         "n": 34,
-        "point": 0.970588,
-        "ci95_lo": 0.850844,
-        "ci95_hi": 0.994789,
+        "point": 0.882353,
+        "ci95_lo": 0.733792,
+        "ci95_hi": 0.953286,
         "method": "wilson"
       },
-      "display": "97.1% [85.1%, 99.5%]"
+      "display": "88.2% [73.4%, 95.3%]"
     },
     {
       "name": "FIR_on_mismatch_emits",
       "proportion": {
-        "k": 0,
-        "n": 1,
-        "point": 0.0,
-        "ci95_lo": 0.0,
-        "ci95_hi": 0.793451,
+        "k": 1,
+        "n": 4,
+        "point": 0.25,
+        "ci95_lo": 0.045587,
+        "ci95_hi": 0.699358,
         "method": "wilson"
       },
-      "display": "0.0% [0.0%, 79.3%]"
+      "display": "25.0% [4.6%, 69.9%]"
     },
     {
       "name": "PPI_v2",
       "index": {
-        "point": 0.9212,
-        "ci95_lo": 0.8679,
-        "ci95_hi": 0.9684,
+        "point": 0.89,
+        "ci95_lo": 0.8258,
+        "ci95_hi": 0.9478,
         "n_boot": 5000,
         "method": "bootstrap_percentile"
       },
-      "display": "0.921 [0.868, 0.968]"
+      "display": "0.890 [0.826, 0.948]"
     }
   ]
 }

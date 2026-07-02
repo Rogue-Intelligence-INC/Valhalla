@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-25T22:31:27.796255+00:00",
+  "timestamp": "2026-06-29T17:12:40.672290+00:00",
   "protocol": "context-flexibility-deep-v1",
   "growth_curve": {
     "seed_lines": 4,
@@ -149,15 +149,15 @@
   "topic_continuity": {
     "new_architecture": {
       "name": "ValhallaBase session",
-      "total_on_topic": 7,
+      "total_on_topic": 10,
       "total_turns": 12,
-      "rate": 0.5833333333333334,
+      "rate": 0.8333333333333334,
       "threads": [
         {
           "thread_id": "australia",
           "turns": 4,
-          "on_topic_hits": 3,
-          "on_topic_rate": 0.75,
+          "on_topic_hits": 4,
+          "on_topic_rate": 1.0,
           "turn_details": [
             {
               "turn": 0,
@@ -171,16 +171,16 @@
             {
               "turn": 1,
               "question": "Which continent is Australia located in?",
-              "answer": "[corpus:4] English is the de facto national language of Australia",
+              "answer": "[corpus:1] Australia is a country in Oceania",
               "hint": "oceania",
-              "on_topic": false,
+              "on_topic": true,
               "context_lines": 5,
               "context_chars": 246
             },
             {
               "turn": 2,
               "question": "What is the largest city in Australia?",
-              "answer": "[corpus:2] Sydney is the largest city in Australia but not the capital",
+              "answer": "[corpus:3] Sydney is the largest city in Australia but not the capital",
               "hint": "sydney",
               "on_topic": true,
               "context_lines": 6,
@@ -233,7 +233,7 @@
             {
               "turn": 3,
               "question": "What happens when water reaches 100C at standard pressure?",
-              "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "answer": "[corpus:3] Steam forms when liquid water reaches its boiling point",
               "hint": "boil",
               "on_topic": true,
               "context_lines": 7,
@@ -244,8 +244,8 @@
         {
           "thread_id": "physics",
           "turns": 4,
-          "on_topic_hits": 1,
-          "on_topic_rate": 0.25,
+          "on_topic_hits": 3,
+          "on_topic_rate": 0.75,
           "turn_details": [
             {
               "turn": 0,
@@ -259,18 +259,18 @@
             {
               "turn": 1,
               "question": "In F=ma, what does m represent?",
-              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "answer": "[corpus:4] Mass is measured in kilograms in the SI system",
               "hint": "mass",
-              "on_topic": false,
+              "on_topic": true,
               "context_lines": 5,
               "context_chars": 240
             },
             {
               "turn": 2,
               "question": "In F=ma, what does a represent?",
-              "answer": "[corpus:0] The SI unit of force is the Newton",
+              "answer": "[corpus:5] Acceleration is the rate of change of velocity",
               "hint": "acceleration",
-              "on_topic": false,
+              "on_topic": true,
               "context_lines": 6,
               "context_chars": 287
             },
@@ -439,7 +439,7 @@
         }
       ]
     },
-    "delta_rate_new_minus_trad": -0.3333333333333333
+    "delta_rate_new_minus_trad": -0.08333333333333333
   },
   "multi_question_disambiguation": {
     "new_architecture": {

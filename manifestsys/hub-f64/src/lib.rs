@@ -503,8 +503,14 @@ impl ValhallaHub {
     }
     
     /// Restore Fate state from incubation snapshot (multi-round sessions).
-    pub fn seed_fate_from_snapshot(&mut self, prefs: &[f64], routed: [u64; 4]) {
-        self.fate_system.seed_from_hub_snapshot(prefs, routed);
+    pub fn seed_fate_from_snapshot(
+        &mut self,
+        prefs: &[f64],
+        routed: [u64; 4],
+        logical_time: Option<u64>,
+    ) {
+        self.fate_system
+            .seed_from_hub_snapshot(prefs, routed, logical_time);
     }
 
     pub fn set_fate_policy(

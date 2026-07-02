@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-25T19:34:48.644931+00:00",
+  "timestamp": "2026-06-29T17:12:25.919928+00:00",
   "protocol": "context-core-fusion-v2",
   "task_count": 12,
   "core_formation_rate": 1.0,
@@ -35,6 +35,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -43,9 +48,9 @@
         "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
         "answer": "ANSWER: C",
         "core_fusion": {
-          "universal_score": 0.8789620014935187,
+          "universal_score": 0.8769828147467414,
           "universal_formed": true,
-          "shared_patch": 0.9945918965846773,
+          "shared_patch": 0.9919461247577882,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "eac8425b03a147f8",
@@ -53,6 +58,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -80,6 +90,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -88,9 +103,9 @@
         "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
         "answer": "ANSWER: C",
         "core_fusion": {
-          "universal_score": 0.8760887637920246,
+          "universal_score": 0.8751590166172324,
           "universal_formed": true,
-          "shared_patch": 0.9996490350956062,
+          "shared_patch": 0.999999527145604,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "e96e0a83b7c1ae2f",
@@ -98,6 +113,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -125,6 +145,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -133,9 +158,9 @@
         "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
         "answer": "ANSWER: A",
         "core_fusion": {
-          "universal_score": 0.876437770853523,
+          "universal_score": 0.8762506442850143,
           "universal_formed": true,
-          "shared_patch": 0.9994770886825818,
+          "shared_patch": 0.9999790747770452,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "dd172a3f3700b66c",
@@ -143,6 +168,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -170,6 +200,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -178,9 +213,9 @@
         "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
         "answer": "ANSWER: B",
         "core_fusion": {
-          "universal_score": 0.8768937133160372,
+          "universal_score": 0.8773622688384065,
           "universal_formed": true,
-          "shared_patch": 0.9994848035541503,
+          "shared_patch": 0.9999998961341513,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "36de881a1c8293d3",
@@ -188,6 +223,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -215,6 +255,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -223,9 +268,9 @@
         "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
         "answer": "ANSWER: A",
         "core_fusion": {
-          "universal_score": 0.8771933130679435,
+          "universal_score": 0.877651883234144,
           "universal_formed": true,
-          "shared_patch": 0.9994036797424224,
+          "shared_patch": 0.9998842962695282,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "90937f0b3934d879",
@@ -233,6 +278,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -260,6 +310,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -268,9 +323,9 @@
         "decode_path": "valhalla_base/native/pipeline_open",
         "answer": "[corpus:0] Newton's second law states force equals mass times acceleration F equals m a",
         "core_fusion": {
-          "universal_score": 0.8761336867682883,
+          "universal_score": 0.8748089343990615,
           "universal_formed": true,
-          "shared_patch": 0.9962480194963165,
+          "shared_patch": 0.9940666419593039,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "0dbf7cb49aa95b6e",
@@ -278,6 +333,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -305,6 +365,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -313,9 +378,9 @@
         "decode_path": "valhalla_base/native/pipeline_open",
         "answer": "[corpus:0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
         "core_fusion": {
-          "universal_score": 0.8784801180753391,
+          "universal_score": 0.8788311703368132,
           "universal_formed": true,
-          "shared_patch": 0.9996008097229828,
+          "shared_patch": 0.9999599040265764,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "1cd21a2552498cef",
@@ -323,6 +388,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -350,6 +420,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -358,9 +433,9 @@
         "decode_path": "valhalla_base/native/pipeline_open",
         "answer": "[corpus:0] Mitochondria produce ATP through cellular respiration in eukaryotes",
         "core_fusion": {
-          "universal_score": 0.8780763960653913,
+          "universal_score": 0.8785529644098596,
           "universal_formed": true,
-          "shared_patch": 0.9994685481702693,
+          "shared_patch": 0.9999994420469714,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "7f011d68681671d5",
@@ -368,6 +443,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -395,6 +475,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -403,9 +488,9 @@
         "decode_path": "valhalla_base/native/pipeline_open",
         "answer": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
         "core_fusion": {
-          "universal_score": 0.8785789656245674,
+          "universal_score": 0.8774449998381976,
           "universal_formed": true,
-          "shared_patch": 0.9964703479668787,
+          "shared_patch": 0.9944898223812828,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "a6de940eda6aeb3e",
@@ -413,6 +498,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -440,6 +530,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -448,9 +543,9 @@
         "decode_path": "valhalla_base/native/pipeline_open",
         "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
         "core_fusion": {
-          "universal_score": 0.8717031442592826,
+          "universal_score": 0.8718665441285751,
           "universal_formed": true,
-          "shared_patch": 0.9996231139232855,
+          "shared_patch": 0.9999997241446549,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "c639b32e228f5014",
@@ -458,6 +553,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -485,6 +585,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -493,9 +598,9 @@
         "decode_path": "valhalla_base/native/pipeline_open",
         "answer": "[corpus:1] GDP measures the total value of goods and services produced in a country",
         "core_fusion": {
-          "universal_score": 0.8729051451943856,
+          "universal_score": 0.8714941423123228,
           "universal_formed": true,
-          "shared_patch": 0.9994687876815534,
+          "shared_patch": 0.9999832742032494,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "1d9d04d34a02be2b",
@@ -503,6 +608,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -530,6 +640,11 @@
         "features": [
           "context_flex",
           "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },
@@ -538,9 +653,9 @@
         "decode_path": "valhalla_base/native/pipeline_open",
         "answer": "[corpus:0] Inflation means a sustained increase in the general price level of goods",
         "core_fusion": {
-          "universal_score": 0.8756906591513329,
+          "universal_score": 0.876189774356147,
           "universal_formed": true,
-          "shared_patch": 0.9994352094077064,
+          "shared_patch": 0.9999994200961321,
           "decode_snap": "context+task_non_isolated"
         },
         "context_fingerprint": "dba9cb9989358ec2",
@@ -548,6 +663,11 @@
           "context_flex",
           "hybrid_routing",
           "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "proactive_idle",
           "multimodal_context"
         ]
       },

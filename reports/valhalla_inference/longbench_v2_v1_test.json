@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-30T20:07:14.434847+00:00",
+  "timestamp": "2026-07-02T04:17:06.861119+00:00",
   "protocol": "longbench-v2-v1",
   "benchmark": "LongBench-v2 (THUDM)",
   "citation": "LongBench v2 — 503 long-context MCQ, human baseline ~53.7%",

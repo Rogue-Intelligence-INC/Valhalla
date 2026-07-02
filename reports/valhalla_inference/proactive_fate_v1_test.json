@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-27T17:35:14.775309+00:00",
+  "timestamp": "2026-06-29T20:09:13.912537+00:00",
   "protocol": "proactive-fate-v1",
   "algebra": {
     "tau_0": "12/138",
@@ -33,23 +33,23 @@
       "emitted": true,
       "fog_decision": "emit",
       "trigger_reason": "idle_ready",
-      "probe_question": "Based on the context, what is stated about: Australia is a country in Oceania.?",
-      "nudge": "Related to our conversation: [corpus:1] Australia is a country in Oceania",
+      "probe_question": "Based on the context, what is stated about: Sydney is the largest city in Australia but?",
+      "nudge": "Related to our conversation: [corpus:3] Sydney is the largest city in Australia but not the capital",
       "grounded": true,
-      "hub_prefs_spread": 0.023867713587436973,
+      "hub_prefs_spread": 0.004677756593027049,
       "proactive": {
         "triggered": true,
         "trigger_reason": "idle_ready",
         "probe_id": "proactive_2",
-        "probe_question": "Based on the context, what is stated about: Australia is a country in Oceania.?",
-        "nudge": "Related to our conversation: [corpus:1] Australia is a country in Oceania",
+        "probe_question": "Based on the context, what is stated about: Sydney is the largest city in Australia but?",
+        "nudge": "Related to our conversation: [corpus:3] Sydney is the largest city in Australia but not the capital",
         "fog_decision": "emit",
         "emitted": true,
         "fog_evidence": {
-          "top_score": 3.2737394836664633,
-          "second_score": 2.8564489405800786,
-          "margin": 0.4172905430863847,
-          "keyword_count": 13
+          "top_score": 3.3020334189235934,
+          "second_score": 2.373474593246791,
+          "margin": 0.9285588256768023,
+          "keyword_count": 15
         }
       }
     },
@@ -60,23 +60,23 @@
       "emitted": true,
       "fog_decision": "emit",
       "trigger_reason": "idle_ready",
-      "probe_question": "Based on the context, what is stated about: France is in Western Europe.?",
-      "nudge": "Related to our conversation: [corpus:1] France is in Western Europe",
-      "grounded": false,
-      "hub_prefs_spread": 0.023867713587436973,
+      "probe_question": "Based on the context, what is stated about: The capital of France is Paris.?",
+      "nudge": "Related to our conversation: [corpus:0] The capital of France is Paris",
+      "grounded": true,
+      "hub_prefs_spread": 0.004674897761046792,
       "proactive": {
         "triggered": true,
         "trigger_reason": "idle_ready",
         "probe_id": "proactive_2",
-        "probe_question": "Based on the context, what is stated about: France is in Western Europe.?",
-        "nudge": "Related to our conversation: [corpus:1] France is in Western Europe",
+        "probe_question": "Based on the context, what is stated about: The capital of France is Paris.?",
+        "nudge": "Related to our conversation: [corpus:0] The capital of France is Paris",
         "fog_decision": "emit",
         "emitted": true,
         "fog_evidence": {
-          "top_score": 3.5508017506260594,
-          "second_score": 2.9308540565550283,
-          "margin": 0.6199476940710311,
-          "keyword_count": 13
+          "top_score": 3.280008143656273,
+          "second_score": 2.728440316151988,
+          "margin": 0.551567827504285,
+          "keyword_count": 14
         }
       }
     }
@@ -84,7 +84,7 @@
   "summary": {
     "passed": 4,
     "total": 4,
-    "unsolicited_precision": 0.5
+    "unsolicited_precision": 1.0
   },
   "verdict": [
     "PROACTIVE_FATE_V1_OK",

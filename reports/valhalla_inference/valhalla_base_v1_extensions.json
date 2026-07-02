@@ -1,10 +1,15 @@
 {
-  "timestamp": "2026-06-25T19:17:21.851335+00:00",
+  "timestamp": "2026-06-29T20:16:06.550500+00:00",
   "tests": {
     "hybrid": {
       "features": [
         "context_flex",
-        "hybrid_routing"
+        "hybrid_routing",
+        "follow_up_aware_retrieval",
+        "fate_weight_fixed",
+        "fate_ingress_quad_cycle",
+        "fate_qa_feedback",
+        "proactive_idle"
       ],
       "rows": [
         {
@@ -27,13 +32,23 @@
       "features": [
         "context_flex",
         "hybrid_routing",
-        "session_append"
+        "session_append",
+        "follow_up_aware_retrieval",
+        "fate_weight_fixed",
+        "fate_ingress_quad_cycle",
+        "fate_qa_feedback",
+        "proactive_idle"
       ]
     },
     "multimodal": {
       "features": [
         "context_flex",
         "hybrid_routing",
+        "follow_up_aware_retrieval",
+        "fate_weight_fixed",
+        "fate_ingress_quad_cycle",
+        "fate_qa_feedback",
+        "proactive_idle",
         "multimodal_context"
       ],
       "context_lines": 3,

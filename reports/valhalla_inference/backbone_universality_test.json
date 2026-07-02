@@ -1,8 +1,9 @@
 {
-  "timestamp": "2026-06-28T18:04:41.012811+00:00",
+  "timestamp": "2026-06-30T02:03:57.560549+00:00",
   "protocol": "backbone-universality-v1",
-  "suite": "external",
-  "n": 15,
+  "suite": "fair_open/open_retrieval",
+  "slice": "open_retrieval",
+  "n": 31,
   "backbones": [
     "Qwen/Qwen2.5-0.5B-Instruct",
     "google/gemma-2-2b-it",
@@ -10,30 +11,30 @@
   ],
   "arms": {
     "valhalla_hybrid": {
-      "accuracy": 1.0,
-      "correct": 15,
-      "n": 15
+      "accuracy": 0.8709677419354839,
+      "correct": 27,
+      "n": 31
     },
     "trad_lm/Qwen/Qwen2.5-0.5B-Instruct": {
       "model_path": "/home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/7ae557604adf67be50417f59c2c2f167def9a775",
-      "accuracy": 0.9333333333333333,
-      "correct": 14,
-      "n": 15,
-      "delta_pp_vs_valhalla": 6.7
+      "accuracy": 1.0,
+      "correct": 31,
+      "n": 31,
+      "delta_pp_vs_valhalla": -12.9
     },
     "trad_lm/google/gemma-2-2b-it": {
       "model_path": "/home/jouly/.cache/modelscope/hub/models/google/gemma-2-2b-it",
       "accuracy": 1.0,
-      "correct": 15,
-      "n": 15,
-      "delta_pp_vs_valhalla": 0.0
+      "correct": 31,
+      "n": 31,
+      "delta_pp_vs_valhalla": -12.9
     },
     "trad_lm/microsoft/Phi-3-mini-4k-instruct": {
       "model_path": "/home/jouly/AI/Valhalla/models/hf/Phi-3-mini-4k-instruct",
       "accuracy": 1.0,
-      "correct": 15,
-      "n": 15,
-      "delta_pp_vs_valhalla": 0.0
+      "correct": 31,
+      "n": 31,
+      "delta_pp_vs_valhalla": -12.9
     }
   },
   "notes": [

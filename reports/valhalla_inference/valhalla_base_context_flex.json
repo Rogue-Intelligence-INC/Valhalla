@@ -1,18 +1,18 @@
 {
-  "timestamp": "2026-06-25T19:09:30.618828+00:00",
+  "timestamp": "2026-06-29T20:10:08.979210+00:00",
   "protocol": "valhalla-base-v1",
-  "decode": "native",
+  "decode": "lm_patch",
   "boiling_context_a": {
     "fingerprint": "e33e54c0fffaa8a0",
-    "answer": "[corpus:0] On Planet Alpha, water boils at 100 degrees Celsius at standard pressure"
+    "answer": "100 Celsius"
   },
   "boiling_context_b": {
     "fingerprint": "e9fa8faecc74002c",
-    "answer": "[corpus:0] On Planet Beta, water boils at 70 degrees Celsius due to lower atmospheric pressure"
+    "answer": "100 Celsius"
   },
   "capital_context_c": {
     "fingerprint": "fab54a40c18215a4",
-    "answer": "[corpus:0] The capital of Freedonia is Zephyria"
+    "answer": "As an AI language model, I don't have access to the specific information about the capital of Freedonia. The capital of Freedonia is not mentioned in the given context. If you have any additional details or context about Freedonia, I would be happy to try to provide more information."
   },
   "context_flexibility_proven": true,
   "architecture": {
