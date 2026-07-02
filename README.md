@@ -10,14 +10,19 @@
   <a href="#english">English</a> ·
   <a href="#中文">中文</a> ·
   <a href="docs/README.md">Docs</a> ·
-  <a href="valhalla-unified-core/">Valhalla Unified Core</a>
+  <a href="docs/valhalla/DEMO.md">Demo</a> ·
+  <a href="https://github.com/Rogue-Intelligence-INC/valhalla-unified-core">Valhalla Unified Core</a>
 </p>
 
 **Organization:** [Rogue Intelligence Inc.](https://github.com/Rogue-Intelligence-INC)
 
-Valhalla is an **AI research & product platform**. Context is **incubated** into a **Triad structure snapshot** (Hub / Tile / StemCell / Fate) with **zero LM weight updates**; a companion LM acts as the **decode head**.
+Valhalla is an **AI memory & hybrid inference platform** built around **ValhallaBase**: context is **incubated** into a **Triad structure snapshot** (Hub / Tile / StemCell / Fate) with **zero LM weight updates**; a companion LM acts as the **decode head** — not a standalone foundation model.
 
 > **Valhalla is the base. The LM is the decode head.** · **Incubation replaces prompt-window RAG for structure memory.**
+
+**Investor one-liner:** ValhallaBase is a **structure-first AI memory substrate** for grounded retrieval, session learning, proactive routing, and hybrid LM decoding without weight updates.
+
+> **Repo note:** Product docs live in **[valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)** (git submodule). Links below use the VUC repo so they work on GitHub. Crypto, physics, legacy Wave, and patent trees in this monorepo are **out of scope** for ValhallaBase — see [`docs/README.md`](docs/README.md).
 
 ---
 
@@ -46,7 +51,7 @@ Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/val
 | Data efficiency @10% | **100%** | 少量 targeted context 即 ceiling |
 | Incubation cycles 1→8 | flat **87.1%** | depth 非当前瓶颈 |
 
-详见 [`INCUBATION_CAPABILITY.md`](valhalla-unified-core/docs/INCUBATION_CAPABILITY.md)
+详见 [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md)
 
 ### Native capabilities (ValhallaBase, 2026-07)
 
@@ -76,13 +81,12 @@ Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/val
 ### Quick start
 
 ```bash
-# Build inference binary
+git submodule update --init valhalla-unified-core
 RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_base
-
-# Run industry benchmark suite
-HF_ENDPOINT=https://hf-mirror.com .venv-llm/bin/python3 tools/standard_benchmarks/download_standard_benchmarks.py --all --no-wiki-fetch
-RUSTFLAGS='-L /opt/cuda/lib64' python3 tools/valhalla_inference/run_industry_benchmarks.py --all
+python3 tools/valhalla_inference/run_local_corpus_demo.py   # ~90s demo
 ```
+
+Full benchmark suite + industry harness: see [`docs/valhalla/DEMO.md`](docs/valhalla/DEMO.md) and [`tools/valhalla_inference/README.md`](tools/valhalla_inference/README.md).
 
 ### Repository layout (AI)
 
@@ -103,13 +107,17 @@ Valhalla/
 | Doc | Purpose |
 |-----|---------|
 | [`docs/README.md`](docs/README.md) | Documentation index |
-| [`valhalla-unified-core/docs/VALHALLA_BASE_PLATFORM.md`](valhalla-unified-core/docs/VALHALLA_BASE_PLATFORM.md) | Platform reference |
+| [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) | Platform reference (VUC) |
+| [`docs/valhalla/DEMO.md`](docs/valhalla/DEMO.md) | **3-minute demo** (corpus → ask → session → proactive) |
+| [`docs/valhalla/README.md`](docs/valhalla/README.md) | Product doc hub (fixes submodule 404s) |
 | [`reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) | **What to cite · runs · because** |
 | [`reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md) | Master experiment summary |
 
 ### Honest boundaries (Tier B)
 
 LongBench **35%** · MultiHop **36%** · LaRA RAG **25%** vs LC **70%** — documented with protocol caveats. Do **not** cite FRAMES (no Wikipedia corpus) or LoCoMo 3% (64-line cap) as official scores.
+
+**Positioning:** ValhallaBase is strong on **grounded retrieval, session memory, and MCQ patch scaling** — not a long-chain reasoning replacement today. Next phase: **multi-hop structure composition** (not prompt-window chain-of-thought).
 
 ---
 
@@ -125,7 +133,7 @@ Valhalla 是 **AI 记忆与混合推理平台**：语料经 **Triad 孵化** 为
 - **TPI-v2 0.755** · **NPPI 0.848** — 零权重推理期学习
 - **Novel 6/6** · 数据效率 @10% **100%**
 - **Polluted 48% → Transfer 87%**（+38.7pp）— Fate snapshot 救援
-- 文档：[`INCUBATION_CAPABILITY.md`](valhalla-unified-core/docs/INCUBATION_CAPABILITY.md)
+- 文档：[INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) · 演示：[`docs/valhalla/DEMO.md`](docs/valhalla/DEMO.md)
 
 ### 亮点（对外可引用）
 
@@ -144,7 +152,7 @@ RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_b
 python3 tools/valhalla_inference/run_industry_benchmarks.py --all
 ```
 
-产品文档：[`valhalla-unified-core/`](valhalla-unified-core/) · 索引：[`docs/README.md`](docs/README.md)
+产品文档：[valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) · 索引：[`docs/README.md`](docs/README.md) · 演示：[`docs/valhalla/DEMO.md`](docs/valhalla/DEMO.md)
 
 ---
 

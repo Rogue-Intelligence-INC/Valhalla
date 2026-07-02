@@ -10,10 +10,12 @@
 
 | Tier | Highlights |
 |------|------------|
+| **Incubation** | TPI **0.755** · NPPI **0.848** · novel **6/6** · transfer **+38.7pp** · @10% data **100%** |
 | **A — Industry** | RAGTruth **100/100** · Needle **4/4** · RULER **20/20** · Holdout **15/15** · MCQ ladder **65%→98%** |
-| **Training potential** | TPI-v2 **0.755** · NPPI **0.848** · transfer **+38.7pp** vs polluted session |
 | **Native** | Long memory **72/76 (94.7%)** · Proactive **71/72 · PPI 0.890** · Crosslang **18/18** |
 | **Honest limits** | LongBench **35%** · MultiHop **36%** · LaRA RAG **5/20** · LoCoMo **3%** · FRAMES **invalid** |
+
+**Incubation doc:** [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md)
 
 **vs Transformer RAG (Qwen2.5-0.5B):** hybrid **87.1%** · lm_patch / trad_lm **100%** on fair open holdout — structure wins on **session routing**, not raw RAG ceiling.
 

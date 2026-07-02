@@ -6,6 +6,8 @@ Valhalla 各模块 ↔ Transformer 的统一加载层（vLLM 风格 API + **Valh
 
 Valhalla **同时作为基座**：每请求动态 `context` → Triad 孵化 → 结构快照 → 可选 LM decode。
 
+**3-minute demo:** [`docs/valhalla/DEMO.md`](../../docs/valhalla/DEMO.md) · Product docs: [VUC](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)
+
 | 对比 | 标准 LLM | ValhallaBase |
 |------|----------|--------------|
 | Context | 拼进 prompt 窗口 | ingress → Hub/Tile/Stem 结构 |
@@ -126,7 +128,7 @@ Hybrid 路由 / 每题 runtime patch **不在** vLLM 图内；需外部 orchestr
 
 ## 推理范式实验（零权重 / 非 fine-tune）
 
-完整记录见 `valhalla-unified-core/docs/EXPERIMENT_RECORD_INFERENCE_PARADIGM.md`。
+完整记录见 [EXPERIMENT_RECORD_INFERENCE_PARADIGM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/EXPERIMENT_RECORD_INFERENCE_PARADIGM.md)。
 
 | 脚本 | 协议 | 指标 |
 |------|------|------|

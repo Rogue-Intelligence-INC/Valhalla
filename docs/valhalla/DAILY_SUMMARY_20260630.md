@@ -55,7 +55,7 @@
 
 - `reports/valhalla_inference/LONG_MEMORY_OPTIMIZATION_20260628.md`
 - `reports/valhalla_inference/PROACTIVE_FATE_V2_REPORT.md`
-- VUC：`valhalla-unified-core/docs/FATE_E7_ALGEBRA_AND_MEMORY.md`
+- VUC：[FATE_E7_ALGEBRA_AND_MEMORY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/FATE_E7_ALGEBRA_AND_MEMORY.md)
 - 索引：`docs/README.md` · VUC `README.md`
 
 ---
