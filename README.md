@@ -15,9 +15,9 @@
 
 **Organization:** [Rogue Intelligence Inc.](https://github.com/Rogue-Intelligence-INC)
 
-Valhalla is an **AI research & product platform**. Context is incubated into a **Triad structure snapshot** (Hub / Tile / StemCell / Fate); a companion LM acts as the **decode head** — not a standalone foundation model.
+Valhalla is an **AI research & product platform**. Context is **incubated** into a **Triad structure snapshot** (Hub / Tile / StemCell / Fate) with **zero LM weight updates**; a companion LM acts as the **decode head**.
 
-> **Valhalla is the base. The LM is the decode head.**
+> **Valhalla is the base. The LM is the decode head.** · **Incubation replaces prompt-window RAG for structure memory.**
 
 ---
 
@@ -36,11 +36,23 @@ Valhalla is an **AI research & product platform**. Context is incubated into a *
 
 Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
 
-### Native capabilities (ValhallaBase, 2026-06)
+### 孵化能力（Incubation — zero-weight learning）
+
+| 指标 | 结果 | 说明 |
+|------|------|------|
+| **TPI-v2** | **0.755** | 推理期结构学习（无 LM 梯度） |
+| **NPPI** | **0.848** | 新范式潜力 · novel **6/6** |
+| Transfer vs polluted | **+38.7pp** | Fate snapshot 救援 session 污染 |
+| Data efficiency @10% | **100%** | 少量 targeted context 即 ceiling |
+| Incubation cycles 1→8 | flat **87.1%** | depth 非当前瓶颈 |
+
+详见 [`INCUBATION_CAPABILITY.md`](valhalla-unified-core/docs/INCUBATION_CAPABILITY.md)
+
+### Native capabilities (ValhallaBase, 2026-07)
 
 | Capability | Result |
 |------------|--------|
-| **Long memory** (append-then-ask) | **73/76 (96.0%)** |
+| **Long memory** (append-then-ask) | **72/76 (94.7%)** |
 | **Follow-up native** (30-turn) | **96.7%** |
 | **Proactive Fate v2** | **71/72 · PPI 0.890** |
 | **Open retrieval** (targeted) | **31/31 (100%)** |
@@ -106,7 +118,14 @@ LongBench **35%** · MultiHop **36%** · LaRA RAG **25%** vs LC **70%** — docu
 
 ### 是什么
 
-Valhalla 是 **AI 记忆与混合推理平台**：语料 ingest 为 **Triad 结构快照**（Hub / Tile / StemCell / Fate），开放题走 **结构检索 + 引用**，选择题走 **Hybrid → LM logprob**。
+Valhalla 是 **AI 记忆与混合推理平台**：语料经 **Triad 孵化** 为结构快照（Hub / Tile / StemCell / Fate），**不更新 LM 权重** 即可 session 学习、长久记忆与 targeted 检索。
+
+### 孵化能力（2026-07-02）
+
+- **TPI-v2 0.755** · **NPPI 0.848** — 零权重推理期学习
+- **Novel 6/6** · 数据效率 @10% **100%**
+- **Polluted 48% → Transfer 87%**（+38.7pp）— Fate snapshot 救援
+- 文档：[`INCUBATION_CAPABILITY.md`](valhalla-unified-core/docs/INCUBATION_CAPABILITY.md)
 
 ### 亮点（对外可引用）
 
@@ -114,7 +133,7 @@ Valhalla 是 **AI 记忆与混合推理平台**：语料 ingest 为 **Triad 结�
 - **Needle 4/4 · RULER 20/20** — 会话 append 长程召回
 - **Holdout 15/15** — 套件外泛化
 - **MCQ 0.5B→3B 65%→98%** — Qwen lm_patch 缩放
-- **长久记忆 96% · Proactive 71/72 · PPI 0.890 · 30 轮 follow-up 96.7%**
+- **长久记忆 94.7% · Proactive 71/72 · PPI 0.890 · 30 轮 follow-up 96.7%**
 
 解读文档：[`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
 

@@ -1,7 +1,7 @@
 # Valhalla AI — Documentation Index
 
 **Scope:** ValhallaBase inference, memory, benchmarks, and product docs only.  
-**Updated:** 2026-07-01
+**Updated:** 2026-07-02
 
 > Non-AI work in this monorepo (cryptography, physics simulation, legacy Wave tooling) is **out of scope** for this index — not maintained here.
 
@@ -36,6 +36,7 @@
 
 | Pack | Path | Use |
 |------|------|-----|
+| **孵化能力总结** | [`../valhalla-unified-core/docs/INCUBATION_CAPABILITY.md`](../valhalla-unified-core/docs/INCUBATION_CAPABILITY.md) | **Triad 孵化 · TPI/NPPI · 零权重学习** |
 | **Valhalla Unified Core (VUC)** | [`../valhalla-unified-core/`](../valhalla-unified-core/) | Canonical product doc, protocols, landing page |
 | **Valid benchmark interpretation** | [`../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) | Runs · meaning · because |
 | **Platform reference** | [`../valhalla-unified-core/docs/VALHALLA_BASE_PLATFORM.md`](../valhalla-unified-core/docs/VALHALLA_BASE_PLATFORM.md) | Architecture & production config |
