@@ -1,0 +1,31 @@
+{
+  "context": [
+    "Valhalla is the base. The LM is the decode head.",
+    "Incubation replaces prompt-window RAG for structure memory.",
+    "Zero LM weight updates — session learning via Triad snapshot."
+  ],
+  "questions": [
+    {
+      "id": "prod1",
+      "text": "Does Valhalla update LM weights during session ingest?",
+      "score_type": "open",
+      "keywords": ["zero", "no", "weight"]
+    }
+  ],
+  "config": {
+    "decode": "hybrid",
+    "follow_up_decode": "native_follow_up_aware",
+    "fate_ingress_routing": "quad_cycle",
+    "fate_qa_feedback": true,
+    "fate_routing_free": false,
+    "fate_weight_mode": "fixed",
+    "mcq_decode": "lm_patch",
+    "proactive_enabled": true,
+    "proactive_min_fate_signals": 64,
+    "incubation_cycles": 2,
+    "lm_model": "Qwen/Qwen2.5-0.5B-Instruct",
+    "patch_body": "triad",
+    "strength": 0.08,
+    "max_new": 128
+  }
+}

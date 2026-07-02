@@ -38,6 +38,7 @@
 | Pack | Path | Use |
 |------|------|-----|
 | **3-minute demo** | [`valhalla/DEMO.md`](valhalla/DEMO.md) | Corpus → ask → session → proactive |
+| **ValhallaBase CLI & API** | [`valhalla/VALHALLA_BASE_CLI.md`](valhalla/VALHALLA_BASE_CLI.md) | **Protocol header · schemas · complete commands** |
 | **Product doc hub** | [`valhalla/README.md`](valhalla/README.md) | VUC links that work on GitHub |
 | **孵化能力总结** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) | **Triad 孵化 · TPI/NPPI · 零权重学习** |
 | **Valhalla Unified Core (VUC)** | [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) | Canonical product doc, protocols, landing page |

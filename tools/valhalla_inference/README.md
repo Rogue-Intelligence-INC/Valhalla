@@ -4,9 +4,11 @@ Valhalla 各模块 ↔ Transformer 的统一加载层（vLLM 风格 API + **Valh
 
 ## Valhalla-as-base（上下文灵活基座）
 
-Valhalla **同时作为基座**：每请求动态 `context` → Triad 孵化 → 结构快照 → 可选 LM decode。
+**Rust 优先：** in-process `ValhallaBaseClient` · `valhalla_base demo v1|needle|corpus` · `valhalla_base serve`
 
-**3-minute demo:** [`docs/valhalla/DEMO.md`](../../docs/valhalla/DEMO.md) · Product docs: [VUC](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)
+完整 CLI/API：[`docs/valhalla/VALHALLA_BASE_CLI.md`](../../docs/valhalla/VALHALLA_BASE_CLI.md) · `manifestsys/hub-f64/include/valhalla_base.h`
+
+Python 薄包装（subprocess，legacy）：`valhalla_base.py`
 
 | 对比 | 标准 LLM | ValhallaBase |
 |------|----------|--------------|
@@ -21,7 +23,7 @@ python3 tools/valhalla_inference/test_valhalla_base_context.py
 python3 tools/valhalla_inference/test_valhalla_base_context.py --decode native
 ```
 
-协议: `valhalla-base-v1` · `manifestsys/hub-f64/src/valhalla_base.rs`
+协议: `valhalla-base-v1` · **完整 CLI/API：** [`docs/valhalla/VALHALLA_BASE_CLI.md`](../../docs/valhalla/VALHALLA_BASE_CLI.md) · `manifestsys/hub-f64/include/valhalla_base.h`
 
 ### v1 扩展（1 hybrid · 2 session · 3 multimodal）
 

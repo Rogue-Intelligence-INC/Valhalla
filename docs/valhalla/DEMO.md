@@ -1,75 +1,84 @@
 # ValhallaBase — 3-Minute Demo
 
-**Goal:** Show corpus → structure snapshot → grounded answer → session append → proactive — without reading the full codebase.
+**Goal:** Show corpus → structure snapshot → grounded answer → session append — **Rust-native first**.
 
-**Prerequisites:** Rust 1.70+, Python 3.10+, optional CUDA (`RUSTFLAGS='-L /opt/cuda/lib64'`).
+**Prerequisites:** Rust 1.70+, optional CUDA (`RUSTFLAGS='-L /opt/cuda/lib64'`).
 
 ---
 
 ## 0. One-time setup
 
 ```bash
-git submodule update --init valhalla-unified-core   # product docs corpus
 RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_base
 ```
 
----
-
-## 1. Local corpus ingest + QA (~90s)
-
-Zero-weight teach from local markdown, then eval with citations:
-
-```bash
-python3 tools/valhalla_inference/run_local_corpus_demo.py
-```
-
-Protocol: `local-corpus-demo-v1` · Report: `reports/valhalla_inference/local_corpus_demo.json`
+Full API reference: [`VALHALLA_BASE_CLI.md`](./VALHALLA_BASE_CLI.md)
 
 ---
 
-## 2. RAGTruth faithfulness (~60s, 40Q subset)
+## 1. v1 extensions smoke (~30s, Rust)
+
+Hybrid routing · session append · multimodal:
 
 ```bash
-python3 tools/valhalla_inference/test_ragtruth_v1.py
+valhalla_base demo v1
+# → reports/valhalla_inference/valhalla_base_v1_extensions.json
 ```
-
-Tier A headline: **40/40 grounded** · full 100Q: `test_ragtruth_full_v1.py`
 
 ---
 
-## 3. Needle session recall (~30s)
-
-Append-then-ask long-range recall:
+## 2. Local corpus ingest (~60s, Rust)
 
 ```bash
-python3 tools/valhalla_inference/test_needle_session_v1.py
+git submodule update --init valhalla-unified-core
+valhalla_base demo corpus
+# → reports/valhalla_inference/local_corpus_demo_rust.json
 ```
 
-Tier A headline: **4/4 @ depth 30**
+Legacy Python (extended probes): `python3 tools/valhalla_inference/run_local_corpus_demo.py`
 
 ---
 
-## 4. Follow-up native (~60s)
-
-30-turn follow-up decode on structured session:
+## 3. Needle session recall (~30s, Rust)
 
 ```bash
-python3 tools/valhalla_inference/test_context_flexibility_goal.py
+valhalla_base demo needle --fast    # depths 5,10
+valhalla_base demo needle           # depths 5,10,20,30
+# → reports/valhalla_inference/needle_session_v1_test.json
 ```
-
-Headline: **96.7%** follow-up native
 
 ---
 
-## 5. Proactive Fate (~60s)
-
-Idle self-probe + grounded nudge (Fate `signal_tick` gate):
+## 4. One-shot ask (Rust)
 
 ```bash
-python3 tools/valhalla_inference/test_proactive_fate_v2.py
+valhalla_base ask "What is the protocol?" \
+  --context "ValhallaBase primary protocol is valhalla-base-v1." --native
 ```
 
-Headline: **71/72 · PPI 0.890**
+---
+
+## 5. HTTP serve
+
+```bash
+valhalla_base serve --port 8787
+curl -s http://127.0.0.1:8787/health
+curl -s -X POST http://127.0.0.1:8787/v1/infer \
+  -H 'content-type: application/json' \
+  -d @manifestsys/hub-f64/examples/valhalla_base/open_qa.json
+```
+
+---
+
+## 6. Python-only batteries (still require Python harness)
+
+| Test | Command |
+|------|---------|
+| RAGTruth 40Q | `python3 tools/valhalla_inference/test_ragtruth_v1.py` |
+| Follow-up 30-turn | `python3 tools/valhalla_inference/test_context_flexibility_goal.py` |
+| Proactive Fate v2 | `python3 tools/valhalla_inference/test_proactive_fate_v2.py` |
+
+Industry suite (needle via Rust): `python3 tools/valhalla_inference/run_industry_benchmarks.py --fast`
 
 ---
 
@@ -77,4 +86,4 @@ Headline: **71/72 · PPI 0.890**
 
 **ValhallaBase is a structure-first AI memory substrate that turns context into persistent Triad snapshots, enabling grounded retrieval, session learning, proactive routing, and hybrid LM decoding without LM weight updates.**
 
-Product docs: [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) · Benchmark interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
+Product docs: [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)

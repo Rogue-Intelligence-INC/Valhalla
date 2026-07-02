@@ -83,10 +83,10 @@ Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/val
 ```bash
 git submodule update --init valhalla-unified-core
 RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_base
-python3 tools/valhalla_inference/run_local_corpus_demo.py   # ~90s demo
+./tools/valhalla_inference/valhalla_base_cli.sh open    # or: valhalla_base --example open | valhalla_base --pretty
 ```
 
-Full benchmark suite + industry harness: see [`docs/valhalla/DEMO.md`](docs/valhalla/DEMO.md) and [`tools/valhalla_inference/README.md`](tools/valhalla_inference/README.md).
+Full API: [`docs/valhalla/VALHALLA_BASE_CLI.md`](docs/valhalla/VALHALLA_BASE_CLI.md)
 
 ### Repository layout (AI)
 
@@ -108,6 +108,7 @@ Valhalla/
 |-----|---------|
 | [`docs/README.md`](docs/README.md) | Documentation index |
 | [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) | Platform reference (VUC) |
+| [`docs/valhalla/VALHALLA_BASE_CLI.md`](docs/valhalla/VALHALLA_BASE_CLI.md) | **CLI · JSON schema · programmatic API** |
 | [`docs/valhalla/DEMO.md`](docs/valhalla/DEMO.md) | **3-minute demo** (corpus → ask → session → proactive) |
 | [`docs/valhalla/README.md`](docs/valhalla/README.md) | Product doc hub (fixes submodule 404s) |
 | [`reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) | **What to cite · runs · because** |

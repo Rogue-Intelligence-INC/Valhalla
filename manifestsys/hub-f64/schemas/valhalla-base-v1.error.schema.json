@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rogue-intelligence.inc/schemas/valhalla-base-v1.error.schema.json",
+  "title": "ValhallaBaseErrorBody",
+  "type": "object",
+  "required": ["protocol", "ok", "error", "error_kind"],
+  "properties": {
+    "protocol": { "const": "valhalla-base-v1" },
+    "ok": { "const": false },
+    "error": { "type": "string" },
+    "error_kind": {
+      "type": "string",
+      "enum": ["parse", "validate", "runtime", "io"]
+    }
+  },
+  "additionalProperties": false
+}

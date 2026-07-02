@@ -27,9 +27,10 @@ HERE = Path(__file__).resolve().parent
 REPORTS = REPO / "reports/valhalla_inference"
 PY = sys.executable
 VENV_PY = REPO / ".venv-llm" / "bin" / "python3"
+VB_BIN = REPO / "target" / "release" / "valhalla_base"
 
 INDUSTRY_TESTS = [
-    ("needle", "test_needle_session_v1.py", []),
+    ("needle", None, "rust"),  # valhalla_base demo needle
     ("ragtruth", "test_ragtruth_v1.py", []),
     ("ragtruth-full", "test_ragtruth_full_v1.py", []),
     ("longbench", "test_longbench_v2_v1.py", []),
@@ -53,6 +54,25 @@ ROADMAP_PENDING = [
     "Qwen 7B MCQ ladder measured",
     "RAGAS reference-free on production traces",
 ]
+
+
+def ensure_valhalla_base(extra_env: dict[str, str]) -> Path:
+    if VB_BIN.is_file():
+        return VB_BIN
+    print("Building valhalla_base (Rust)...")
+    rc = subprocess.call(
+        ["cargo", "build", "-p", "hub-f64", "--release", "--bin", "valhalla_base"],
+        cwd=REPO,
+        env={**os.environ, **extra_env},
+    )
+    if rc or not VB_BIN.is_file():
+        raise RuntimeError("failed to build valhalla_base")
+    return VB_BIN
+
+
+def run_rust_demo(label: str, demo: str, flags: list[str], extra_env: dict[str, str]) -> int:
+    vb = ensure_valhalla_base(extra_env)
+    return run_cmd(label, [str(vb), "demo", demo, *flags], extra_env=extra_env)
 
 
 def run_cmd(label: str, cmd: list[str], *, extra_env: dict[str, str] | None = None) -> int:
@@ -204,8 +224,11 @@ def main() -> None:
     for label, script, extra in INDUSTRY_TESTS:
         if label in args.skip:
             continue
-        py = VENV_PY if label == "lara" and VENV_PY.is_file() else PY
-        rc = run_cmd(label, [str(py), str(HERE / script), *flags, *extra], extra_env=cuda)
+        if script is None and extra == "rust":
+            rc = run_rust_demo(label, label, flags, cuda)
+        else:
+            py = VENV_PY if label == "lara" and VENV_PY.is_file() else PY
+            rc = run_cmd(label, [str(py), str(HERE / script), *flags, *extra], extra_env=cuda)
         if rc:
             failed += 1
 

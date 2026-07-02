@@ -1,43 +1,29 @@
 {
-  "timestamp": "2026-07-02T03:45:49.292156+00:00",
-  "protocol": "needle-session-v1",
   "benchmark": "Needle-in-a-haystack (session append)",
-  "needle": "The magic registration code for Project Valhalla is XK-7742.",
-  "question": "What is the magic registration code for Project Valhalla?",
+  "correct": 2,
   "depths": [
     5,
-    10,
-    20,
-    30
+    10
   ],
-  "n": 4,
-  "correct": 4,
+  "n": 2,
+  "needle": "The magic registration code for Project Valhalla is XK-7742.",
+  "protocol": "needle-session-v1",
+  "question": "What is the magic registration code for Project Valhalla?",
   "recall": 1.0,
   "rows": [
     {
+      "answer": "[corpus:5] The magic registration code for Project Valhalla is XK-7742",
+      "correct": true,
       "depth": 5,
-      "session_lines": 12,
-      "correct": true,
-      "answer": "[corpus:5] The magic registration code for Project Valhalla is XK-7742"
+      "session_lines": 12
     },
     {
+      "answer": "[corpus:10] The magic registration code for Project Valhalla is XK-7742",
+      "correct": true,
       "depth": 10,
-      "session_lines": 22,
-      "correct": true,
-      "answer": "[corpus:10] The magic registration code for Project Valhalla is XK-7742"
-    },
-    {
-      "depth": 20,
-      "session_lines": 42,
-      "correct": true,
-      "answer": "[corpus:20] The magic registration code for Project Valhalla is XK-7742"
-    },
-    {
-      "depth": 30,
-      "session_lines": 62,
-      "correct": true,
-      "answer": "[corpus:30] The magic registration code for Project Valhalla is XK-7742"
+      "session_lines": 22
     }
   ],
+  "timestamp": "1783034774",
   "verdict": "NEEDLE_STRONG"
 }

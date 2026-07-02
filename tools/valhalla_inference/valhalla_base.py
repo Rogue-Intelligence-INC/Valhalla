@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Valhalla-as-base Python API — hybrid, persistent session, multimodal context."""
+"""Valhalla-as-base Python API — thin subprocess wrapper.
+
+Prefer Rust in-process API when embedding in Rust:
+  hub_f64::ValhallaBaseClient
+
+Prefer Rust CLI for benchmarks/demos:
+  valhalla_base demo v1|needle|corpus
+  valhalla_base ask QUESTION --context LINE
+  valhalla_base serve --port 8787
+"""
 
 from __future__ import annotations
 
@@ -102,6 +111,24 @@ class ValhallaBase:
             env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64"},
         )
 
+    def _run_bin(self, payload: dict[str, Any]) -> dict[str, Any]:
+        proc = subprocess.run(
+            [str(BIN), "--json-error"],
+            input=json.dumps(payload),
+            capture_output=True,
+            text=True,
+            env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64"},
+        )
+        if proc.stderr:
+            print(proc.stderr, end="", flush=True)
+        raw = proc.stdout.strip()
+        if not raw:
+            raise RuntimeError(proc.stderr or "valhalla_base returned empty stdout")
+        doc = json.loads(raw)
+        if proc.returncode != 0 or doc.get("ok") is False:
+            raise RuntimeError(doc.get("error") or proc.stderr or "valhalla_base failed")
+        return doc
+
     def run(
         self,
         questions: list[dict[str, Any]],
@@ -160,17 +187,8 @@ class ValhallaBase:
                 if self.session.session_state and not has_fresh_context:
                     payload["session"] = self.session.session_state
 
-        proc = subprocess.run(
-            [str(BIN)],
-            input=json.dumps(payload),
-            capture_output=True,
-            text=True,
-            check=True,
-            env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64"},
-        )
-        if proc.stderr:
-            print(proc.stderr, end="", flush=True)
-        doc = json.loads(proc.stdout)
+        proc = self._run_bin(payload)
+        doc = proc
         self.session.apply_response(doc)
         return doc
 
@@ -207,16 +225,6 @@ class ValhallaBase:
                 "proactive_min_spread": self.proactive_min_spread,
             },
         }
-        proc = subprocess.run(
-            [str(BIN)],
-            input=json.dumps(payload),
-            capture_output=True,
-            text=True,
-            check=True,
-            env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64"},
-        )
-        if proc.stderr:
-            print(proc.stderr, end="", flush=True)
-        doc = json.loads(proc.stdout)
+        doc = self._run_bin(payload)
         self.session.apply_response(doc)
         return doc

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rogue-intelligence.inc/schemas/valhalla-base-v1.response.schema.json",
+  "title": "ValhallaBaseResponse",
+  "description": "Protocol valhalla-base-v1 — stdout payload from valhalla_base binary",
+  "type": "object",
+  "required": [
+    "protocol",
+    "context_lines",
+    "context_fingerprint",
+    "decode",
+    "session",
+    "features",
+    "rows"
+  ],
+  "properties": {
+    "protocol": { "const": "valhalla-base-v1" },
+    "context_lines": { "type": "integer", "minimum": 0 },
+    "context_fingerprint": { "type": "string" },
+    "decode": {
+      "type": "string",
+      "enum": ["native", "lm_patch", "hybrid"]
+    },
+    "session": { "type": "object" },
+    "features": { "type": "array", "items": { "type": "string" } },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "score_type", "answer", "decode_path", "correct", "score"],
+        "properties": {
+          "id": { "type": "string" },
+          "score_type": { "type": "string" },
+          "answer": { "type": "string" },
+          "decode_path": { "type": "string" },
+          "correct": { "type": "boolean" },
+          "score": { "type": "object" },
+          "retrieval_corpus_idx": { "type": "integer" },
+          "fog_decision": { "type": "string" },
+          "mcq_patch_confidence": { "type": "number" }
+        }
+      }
+    },
+    "fate_telemetry": { "type": "object" },
+    "proactive": { "type": "object" }
+  },
+  "additionalProperties": true
+}

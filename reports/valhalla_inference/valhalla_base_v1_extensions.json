@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-29T20:16:06.550500+00:00",
+  "protocol": "valhalla-base-v1-extensions",
   "tests": {
     "hybrid": {
       "features": [
@@ -13,34 +13,20 @@
       ],
       "rows": [
         {
-          "id": "hybrid_open",
+          "answer": "[corpus:0] The SI unit of force is the Newton",
           "decode_path": "valhalla_base/native/pipeline_open",
-          "answer": "[corpus:0] The SI unit of force is the Newton"
+          "id": "hybrid_open"
         },
         {
-          "id": "hybrid_mcq",
+          "answer": "ANSWER: B",
           "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
-          "answer": "ANSWER: B"
+          "id": "hybrid_mcq"
         }
       ]
     },
-    "session": {
-      "fp_before": "1181ed642cb756b0",
-      "fp_after": "21da18820a3b49da",
-      "fingerprint_changed": true,
-      "lines_ingested": 2,
-      "features": [
-        "context_flex",
-        "hybrid_routing",
-        "session_append",
-        "follow_up_aware_retrieval",
-        "fate_weight_fixed",
-        "fate_ingress_quad_cycle",
-        "fate_qa_feedback",
-        "proactive_idle"
-      ]
-    },
     "multimodal": {
+      "answer": "[corpus:2] [image_context]",
+      "context_lines": 3,
       "features": [
         "context_flex",
         "hybrid_routing",
@@ -50,9 +36,24 @@
         "fate_qa_feedback",
         "proactive_idle",
         "multimodal_context"
+      ]
+    },
+    "session": {
+      "features": [
+        "context_flex",
+        "hybrid_routing",
+        "session_append",
+        "follow_up_aware_retrieval",
+        "fate_weight_fixed",
+        "fate_ingress_quad_cycle",
+        "fate_qa_feedback",
+        "proactive_idle"
       ],
-      "context_lines": 3,
-      "answer": "[corpus:2] [image_context]"
+      "fingerprint_changed": true,
+      "fp_after": "21da18820a3b49da",
+      "fp_before": "1181ed642cb756b0",
+      "lines_ingested": 2
     }
-  }
+  },
+  "timestamp": "1783033332"
 }

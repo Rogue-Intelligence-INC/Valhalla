@@ -33,6 +33,14 @@ pub mod hybrid;
 pub mod fused_lm;
 #[cfg(feature = "patch-lm")]
 pub mod valhalla_base;
+#[cfg(feature = "patch-lm")]
+pub mod valhalla_base_protocol;
+#[cfg(feature = "patch-lm")]
+pub mod valhalla_base_client;
+#[cfg(feature = "patch-lm")]
+pub mod valhalla_base_bench;
+#[cfg(feature = "patch-lm")]
+pub mod valhalla_base_http;
 pub mod mcq_fate;
 pub mod mcq_pairwise;
 pub mod multimodal;
@@ -57,6 +65,29 @@ pub use signal_ingress::{
     PATCH_VECTOR_DIM,
 };
 pub use smoke_report::{SmokeReport, SMOKE_CORPUS};
+
+#[cfg(feature = "patch-lm")]
+pub use valhalla_base::{
+    context_fingerprint, item_to_corpus_line, run_valhalla_base, ValhallaBaseConfig,
+    ValhallaBaseDecode, ValhallaBaseQuestion, ValhallaBaseRequest, ValhallaBaseResponse,
+    ValhallaBaseRow, ValhallaBaseSessionState, ValhallaContextItem, ValhallaFateIngressRouting,
+    ValhallaFateWeightMode, ValhallaFollowUpDecode, ValhallaMcqDecode, VALHALLA_BASE_PROTOCOL,
+};
+#[cfg(feature = "patch-lm")]
+pub use valhalla_base_protocol::{
+    example_names, example_request, execute_request, execute_request_json, parse_request_json,
+    production_config, serialize_error, serialize_response, validate_request,
+    validate_request_json, ValhallaBaseErrorBody, ValhallaBaseErrorKind,
+};
+#[cfg(feature = "patch-lm")]
+pub use valhalla_base_client::{RunOptions, ValhallaBaseClient};
+#[cfg(feature = "patch-lm")]
+pub use valhalla_base_bench::{
+    default_corpus_dirs, run_local_corpus_demo, run_needle_session, run_v1_extensions,
+    write_report,
+};
+#[cfg(feature = "patch-lm")]
+pub use valhalla_base_http::{infer_sync, serve as serve_valhalla_base_http};
 
 // 系统存储
 pub use valhalla_storage::{SystemStorage, AllStorages, init_all_storages};

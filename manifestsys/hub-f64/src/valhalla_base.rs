@@ -134,6 +134,7 @@ impl From<ValhallaBaseQuestion> for FairPrompt {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValhallaBaseConfig {
+    #[serde(default = "default_lm_model")]
     pub lm_model: String,
     #[serde(default = "default_triad")]
     pub patch_body: String,
@@ -205,6 +206,9 @@ fn default_true() -> bool {
 fn default_triad() -> String {
     "triad".into()
 }
+fn default_lm_model() -> String {
+    "Qwen/Qwen2.5-0.5B-Instruct".into()
+}
 fn default_strength() -> f64 {
     DEFAULT_STRENGTH
 }
@@ -233,7 +237,7 @@ fn cap_question_history(history: Vec<String>) -> Vec<String> {
 impl Default for ValhallaBaseConfig {
     fn default() -> Self {
         Self {
-            lm_model: "Qwen/Qwen2.5-0.5B-Instruct".into(),
+            lm_model: default_lm_model(),
             patch_body: default_triad(),
             strength: default_strength(),
             max_new: default_max_new(),

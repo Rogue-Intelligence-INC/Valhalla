@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rogue-intelligence.inc/schemas/valhalla-base-v1.request.schema.json",
+  "title": "ValhallaBaseRequest",
+  "description": "Protocol valhalla-base-v1 — stdin payload for valhalla_base binary",
+  "type": "object",
+  "properties": {
+    "context": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Legacy text corpus lines"
+    },
+    "context_items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/context_item" }
+    },
+    "append_lines": { "type": "array", "items": { "type": "string" } },
+    "append_items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/context_item" }
+    },
+    "session": { "$ref": "#/$defs/session_state" },
+    "questions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/question" }
+    },
+    "proactive_idle": { "type": "boolean", "default": false },
+    "config": { "$ref": "#/$defs/config" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "context_item": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "audio_features": { "type": "array", "items": { "type": "number" } },
+        "image_features": { "type": "array", "items": { "type": "number" } }
+      },
+      "additionalProperties": false
+    },
+    "session_state": {
+      "type": "object",
+      "required": ["corpus", "fingerprint", "lines_ingested", "snapshot"],
+      "properties": {
+        "corpus": { "type": "array", "items": { "type": "string" } },
+        "fingerprint": { "type": "string" },
+        "lines_ingested": { "type": "integer", "minimum": 0 },
+        "snapshot": { "type": "object" },
+        "question_history": { "type": "array", "items": { "type": "string" } },
+        "fate_baseline_tick": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "question": {
+      "type": "object",
+      "required": ["id", "text"],
+      "properties": {
+        "id": { "type": "string" },
+        "text": { "type": "string" },
+        "score_type": {
+          "type": "string",
+          "enum": ["open", "mcq", "numeric"],
+          "default": "open"
+        },
+        "reference_answer": { "type": "string" },
+        "keywords": { "type": "array", "items": { "type": "string" } },
+        "audio_features": { "type": "array", "items": { "type": "number" } },
+        "image_features": { "type": "array", "items": { "type": "number" } }
+      }
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "lm_model": { "type": "string" },
+        "patch_body": { "type": "string", "default": "triad" },
+        "strength": { "type": "number", "default": 0.08 },
+        "max_new": { "type": "integer", "default": 128 },
+        "incubation_cycles": { "type": "integer", "default": 2 },
+        "use_cpu": { "type": "boolean", "default": false },
+        "decode": {
+          "type": "string",
+          "enum": ["native", "lm_patch", "hybrid"],
+          "default": "lm_patch"
+        },
+        "core_fusion": { "type": "boolean", "default": false },
+        "mcq_decode": {
+          "type": "string",
+          "enum": ["lm_patch", "structure_fate", "max_pick"]
+        },
+        "follow_up_decode": {
+          "type": "string",
+          "enum": ["inherit", "lm_patch_on_follow_up", "native_follow_up_aware"]
+        },
+        "fate_weight_mode": { "type": "string", "enum": ["fixed", "evaluated"] },
+        "fate_routing_free": { "type": "boolean" },
+        "fate_ingress_routing": {
+          "type": "string",
+          "enum": ["quad_cycle", "round_robin", "semantic", "hybrid_quad_semantic"]
+        },
+        "fate_qa_feedback": { "type": "boolean", "default": true },
+        "proactive_enabled": { "type": "boolean", "default": true },
+        "proactive_min_fate_signals": { "type": "integer", "default": 64 },
+        "proactive_min_turns": { "type": "integer" },
+        "proactive_min_spread": { "type": "number" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

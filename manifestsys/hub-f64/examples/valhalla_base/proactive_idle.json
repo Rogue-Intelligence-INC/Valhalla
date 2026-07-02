@@ -1,0 +1,17 @@
+{
+  "context": [
+    "Topic: quarterly revenue review for product ValhallaBase.",
+    "Key fact: Tier A RAGTruth score is 100 out of 100 grounded answers.",
+    "Key fact: Needle session recall is 4 out of 4 at depth 30."
+  ],
+  "questions": [],
+  "proactive_idle": true,
+  "config": {
+    "decode": "hybrid",
+    "follow_up_decode": "native_follow_up_aware",
+    "fate_ingress_routing": "quad_cycle",
+    "fate_qa_feedback": true,
+    "proactive_enabled": true,
+    "proactive_min_fate_signals": 64
+  }
+}

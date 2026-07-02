@@ -1,0 +1,19 @@
+{
+  "context": [
+    "Session line 0: project codename is NIFLHEIM.",
+    "Session line 1: storage backend is TriadIncubationSnapshot."
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "text": "What is the project codename?",
+      "score_type": "open",
+      "keywords": ["NIFLHEIM"]
+    }
+  ],
+  "config": {
+    "decode": "hybrid",
+    "follow_up_decode": "native_follow_up_aware",
+    "fate_ingress_routing": "quad_cycle"
+  }
+}
