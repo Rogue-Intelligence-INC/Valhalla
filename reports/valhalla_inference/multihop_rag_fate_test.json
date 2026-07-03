@@ -1,0 +1,163 @@
+{
+  "accuracy": 0.48,
+  "benchmark": "MultiHop-RAG",
+  "bundle": "multihop_rag_slice25.json",
+  "correct": 12,
+  "multihop_fate": true,
+  "n": 25,
+  "protocol": "multihop-rag-fate",
+  "rows": [
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_1454"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_921"
+    },
+    {
+      "answer": "Helena World Chronicle",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "id": "MH_774"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_1514"
+    },
+    {
+      "answer": "no",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_1762"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_537"
+    },
+    {
+      "answer": "no",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_2223"
+    },
+    {
+      "answer": "Sam Bankman-Fried Before",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "id": "MH_2275"
+    },
+    {
+      "answer": "MVP OPOY DPOY",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "id": "MH_575"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_1089"
+    },
+    {
+      "answer": "no",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_1526"
+    },
+    {
+      "answer": "Google Googles",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "id": "MH_331"
+    },
+    {
+      "answer": "The Justice Department",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "id": "MH_9"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_1591"
+    },
+    {
+      "answer": "Similar",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_relation",
+      "id": "MH_886"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_1395"
+    },
+    {
+      "answer": "Agree",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_relation",
+      "id": "MH_1710"
+    },
+    {
+      "answer": "Bankman-Fried",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "id": "MH_2328"
+    },
+    {
+      "answer": "Google Search",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "id": "MH_1121"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_1065"
+    },
+    {
+      "answer": "no",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_1088"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_3"
+    },
+    {
+      "answer": "Mondays",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "id": "MH_2064"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "id": "MH_168"
+    },
+    {
+      "answer": "Google Search",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "id": "MH_2106"
+    }
+  ],
+  "timestamp": "1783053281",
+  "verdict": "OPEN_QA_VIABLE"
+}

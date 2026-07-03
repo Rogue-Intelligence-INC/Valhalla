@@ -44,6 +44,7 @@ pub mod valhalla_base_http;
 pub mod mcq_fate;
 pub mod mcq_pairwise;
 pub mod multihop_compose;
+pub mod multihop_fate;
 pub mod multimodal;
 pub mod compose_fate;
 pub mod model_fate;

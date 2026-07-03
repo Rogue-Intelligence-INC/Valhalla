@@ -544,6 +544,172 @@ pub fn run_multihop_rag(
     }))
 }
 
+/// MultiHop-RAG — Fate hop-wise adaptation (E7-φ, no answer lexicon).
+pub fn run_multihop_fate_rag(
+    bundle_path: &Path,
+    limit: usize,
+    fast: bool,
+    max_corpus_lines: usize,
+) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
+    std::env::set_var("VALHALLA_CORPUS_LINE_AFFINITY_WEIGHT", "algebra");
+    let raw = std::fs::read_to_string(bundle_path).map_err(|e| {
+        ValhallaBaseErrorBody::new(
+            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Io,
+            format!("read {}: {e}", bundle_path.display()),
+        )
+    })?;
+    let doc: MultihopBundle = serde_json::from_str(&raw).map_err(|e| {
+        ValhallaBaseErrorBody::new(
+            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Parse,
+            format!("parse multihop bundle: {e}"),
+        )
+    })?;
+
+    let mut items: Vec<_> = doc
+        .items
+        .into_iter()
+        .filter(|i| !i.corpus.is_empty())
+        .collect();
+    if limit > 0 {
+        items.truncate(limit);
+    }
+
+    let mut rows = Vec::new();
+    let mut correct = 0usize;
+    for item in &items {
+        let mut corpus = item.corpus.clone();
+        if corpus.len() > max_corpus_lines {
+            corpus.truncate(max_corpus_lines);
+        }
+        let mut base = ValhallaBaseClient::production();
+        base.config.multihop_fate = true;
+        base.config.multihop_v2 = false;
+        base.config.fate_qa_feedback = false;
+        base.config.incubation_cycles = if fast { 1 } else { 2 };
+        base.config.max_new = 128;
+        base.set_context(corpus.iter().map(|s| s.as_str()));
+        let resp = base.run(
+            vec![ValhallaBaseQuestion {
+                id: item.id.clone(),
+                text: item.question.clone(),
+                score_type: "open".into(),
+                reference_answer: item.answer.clone(),
+                keywords: Vec::new(),
+                audio_features: None,
+                image_features: None,
+            }],
+            RunOptions::default(),
+        )?;
+        let ans = resp.rows.first().map(|r| r.answer.as_str()).unwrap_or("");
+        let ok = score_short_answer(ans, &item.answer);
+        if ok {
+            correct += 1;
+        }
+        rows.push(serde_json::json!({
+            "id": item.id,
+            "correct": ok,
+            "answer": ans.chars().take(200).collect::<String>(),
+            "decode_path": resp.rows.first().map(|r| r.decode_path.as_str()).unwrap_or(""),
+        }));
+    }
+
+    let n = items.len().max(1);
+    let acc = correct as f64 / n as f64;
+    Ok(serde_json::json!({
+        "timestamp": now_iso(),
+        "protocol": "multihop-rag-fate",
+        "benchmark": "MultiHop-RAG",
+        "bundle": bundle_path.file_name().and_then(|s| s.to_str()).unwrap_or(""),
+        "multihop_fate": true,
+        "n": items.len(),
+        "correct": correct,
+        "accuracy": (acc * 10000.0).round() / 10000.0,
+        "verdict": verdict_open_qa(acc),
+        "rows": rows,
+    }))
+}
+
+/// MultiHop-RAG — Fate adapt + optional v2 compose (hybrid).
+pub fn run_multihop_hybrid_rag(
+    bundle_path: &Path,
+    limit: usize,
+    fast: bool,
+    max_corpus_lines: usize,
+) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
+    std::env::set_var("VALHALLA_CORPUS_LINE_AFFINITY_WEIGHT", "algebra");
+    let raw = std::fs::read_to_string(bundle_path).map_err(|e| {
+        ValhallaBaseErrorBody::new(
+            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Io,
+            format!("read {}: {e}", bundle_path.display()),
+        )
+    })?;
+    let doc: MultihopBundle = serde_json::from_str(&raw).map_err(|e| {
+        ValhallaBaseErrorBody::new(
+            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Parse,
+            format!("parse multihop bundle: {e}"),
+        )
+    })?;
+    let mut items: Vec<_> = doc
+        .items
+        .into_iter()
+        .filter(|i| !i.corpus.is_empty())
+        .collect();
+    if limit > 0 {
+        items.truncate(limit);
+    }
+    let mut rows = Vec::new();
+    let mut correct = 0usize;
+    for item in &items {
+        let mut corpus = item.corpus.clone();
+        if corpus.len() > max_corpus_lines {
+            corpus.truncate(max_corpus_lines);
+        }
+        let mut base = ValhallaBaseClient::production();
+        base.config.multihop_fate = true;
+        base.config.multihop_v2 = true;
+        base.config.fate_qa_feedback = false;
+        base.config.incubation_cycles = if fast { 1 } else { 2 };
+        base.config.max_new = 128;
+        base.set_context(corpus.iter().map(|s| s.as_str()));
+        let resp = base.run(
+            vec![ValhallaBaseQuestion {
+                id: item.id.clone(),
+                text: item.question.clone(),
+                score_type: "open".into(),
+                reference_answer: item.answer.clone(),
+                keywords: Vec::new(),
+                audio_features: None,
+                image_features: None,
+            }],
+            RunOptions::default(),
+        )?;
+        let ans = resp.rows.first().map(|r| r.answer.as_str()).unwrap_or("");
+        let ok = score_short_answer(ans, &item.answer);
+        if ok {
+            correct += 1;
+        }
+        rows.push(serde_json::json!({
+            "id": item.id,
+            "correct": ok,
+            "answer": ans.chars().take(200).collect::<String>(),
+            "decode_path": resp.rows.first().map(|r| r.decode_path.as_str()).unwrap_or(""),
+        }));
+    }
+    let n = items.len().max(1);
+    let acc = correct as f64 / n as f64;
+    Ok(serde_json::json!({
+        "timestamp": now_iso(),
+        "protocol": "multihop-rag-fate-v2-hybrid",
+        "multihop_fate": true,
+        "multihop_v2": true,
+        "n": items.len(),
+        "correct": correct,
+        "accuracy": (acc * 10000.0).round() / 10000.0,
+        "verdict": verdict_open_qa(acc),
+        "rows": rows,
+    }))
+}
+
 pub fn write_report(path: &Path, doc: &serde_json::Value) -> Result<(), ValhallaBaseErrorBody> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent).map_err(|e| {

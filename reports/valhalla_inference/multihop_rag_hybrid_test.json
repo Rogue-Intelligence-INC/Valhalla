@@ -1,0 +1,162 @@
+{
+  "accuracy": 0.68,
+  "correct": 17,
+  "multihop_fate": true,
+  "multihop_v2": true,
+  "n": 25,
+  "protocol": "multihop-rag-fate-v2-hybrid",
+  "rows": [
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_yesno",
+      "id": "MH_1454"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_yesno",
+      "id": "MH_921"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_774"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_yesno",
+      "id": "MH_1514"
+    },
+    {
+      "answer": "no",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_yesno",
+      "id": "MH_1762"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_entity+multihop_fate_yesno",
+      "id": "MH_537"
+    },
+    {
+      "answer": "no",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_yesno",
+      "id": "MH_2223"
+    },
+    {
+      "answer": "Sam Bankman-Fried",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_2275"
+    },
+    {
+      "answer": "Tyreek Hill",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_575"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open+multihop_fate_yesno",
+      "id": "MH_1089"
+    },
+    {
+      "answer": "no",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_yesno",
+      "id": "MH_1526"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_331"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_9"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_yesno",
+      "id": "MH_1591"
+    },
+    {
+      "answer": "Similar",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_relation",
+      "id": "MH_886"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/pipeline_open+multihop_fate_yesno",
+      "id": "MH_1395"
+    },
+    {
+      "answer": "Agree",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open+multihop_fate_relation",
+      "id": "MH_1710"
+    },
+    {
+      "answer": "Sam Bankman-Fried",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_2328"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_entity",
+      "id": "MH_1121"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open+multihop_fate_yesno",
+      "id": "MH_1065"
+    },
+    {
+      "answer": "no",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_yesno",
+      "id": "MH_1088"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open+multihop_fate_yesno",
+      "id": "MH_3"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_2064"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno+multihop_fate_yesno",
+      "id": "MH_168"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_entity",
+      "id": "MH_2106"
+    }
+  ],
+  "timestamp": "1783053274",
+  "verdict": "OPEN_QA_STRONG"
+}

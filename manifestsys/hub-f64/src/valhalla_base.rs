@@ -184,6 +184,9 @@ pub struct ValhallaBaseConfig {
     /// Multi-hop structure composition for open QA (hop split + yes/no / entity synthesis).
     #[serde(default)]
     pub multihop_v2: bool,
+    /// Multi-hop Fate adaptation (E7-φ hop-wise corpus affinity, no answer lexicon).
+    #[serde(default)]
+    pub multihop_fate: bool,
 }
 
 fn default_proactive_min_fate_signals() -> usize {
@@ -259,6 +262,7 @@ impl Default for ValhallaBaseConfig {
             proactive_min_turns: 0,
             proactive_min_spread: default_proactive_min_spread(),
             multihop_v2: crate::multihop_compose::multihop_v2_enabled(),
+            multihop_fate: crate::multihop_fate::multihop_fate_enabled(),
         }
     }
 }
@@ -795,6 +799,7 @@ fn run_native_one(
         mcq_fate: p.score_type == "mcq" && cfg.mcq_decode == ValhallaMcqDecode::StructureFate,
         pipeline_v4: true,
         multihop_v2: cfg.multihop_v2,
+        multihop_fate: cfg.multihop_fate,
         incubation_snapshot: Some(fused_snap),
     };
     let resp = run_native_qa_batch(&batch);

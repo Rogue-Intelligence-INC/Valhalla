@@ -60,6 +60,9 @@ pub struct NativeQaBatchRequest {
     /// Multi-hop structure composition (hop split + yes/no / entity synthesis).
     #[serde(default)]
     pub multihop_v2: bool,
+    /// Multi-hop Fate hop-wise adaptation (E7 corpus affinity discovery).
+    #[serde(default)]
+    pub multihop_fate: bool,
     /// Pre-built incubation snapshot (skip corpus incubation; use for context+core fusion).
     #[serde(default)]
     pub incubation_snapshot: Option<TriadIncubationSnapshot>,
@@ -2046,6 +2049,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
 
     let mut results = Vec::with_capacity(req.questions.len());
     let multihop_v2 = req.multihop_v2 || crate::multihop_compose::multihop_v2_enabled();
+    let multihop_fate = req.multihop_fate || crate::multihop_fate::multihop_fate_enabled();
     let use_pipeline_v4 = req.pipeline_v4 || pipeline::pipeline_v4_enabled();
     let pipe_cfg = pipeline::PipelineConfig::default();
 
@@ -2070,6 +2074,29 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             q.audio_features.as_deref(),
             &front,
         );
+
+        let mut fate_line_aff = snap.corpus_line_affinity.clone();
+        if multihop_fate && q.score_type == "open" {
+            let corpus_refs: Vec<crate::multihop_fate::CorpusLineRef> = memories
+                .iter()
+                .filter_map(|m| {
+                    m.corpus_idx.map(|idx| crate::multihop_fate::CorpusLineRef {
+                        idx,
+                        text: m.text.clone(),
+                        signals: m.signals.clone(),
+                    })
+                })
+                .collect();
+            let _fate_adapt = crate::multihop_fate::run_multihop_fate_adapt(
+                &mut qa_session,
+                &q.question,
+                &corpus_refs,
+                question_ports,
+                req.qa_cycles.max(2),
+                &front,
+            );
+            fate_line_aff = qa_session.incubation_snapshot().corpus_line_affinity;
+        }
 
         let use_mcq_fate = req.mcq_fate || mcq_fate::mcq_fate_cycles_enabled();
 
@@ -2120,7 +2147,11 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             )
         };
 
-        let line_aff = &snap.corpus_line_affinity;
+        let line_aff = if multihop_fate && q.score_type == "open" {
+            &fate_line_aff
+        } else {
+            &snap.corpus_line_affinity
+        };
         let (mut answer, top, mut decode_path, retrieval_corpus_idx) =
             if let Some(ref po) = pipeline_outcome {
                 if q.score_type == "mcq" {
@@ -2194,7 +2225,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             native_reject,
         );
 
-        if q.score_type == "open" && !multihop_v2 {
+        if q.score_type == "open" && !multihop_v2 && !multihop_fate {
             (answer, decode_path) = apply_open_fog_gate(answer, decode_path, Some(&fog_decision));
         }
 
@@ -2204,6 +2235,44 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             {
                 answer = mh_ans;
                 decode_path = mh_path;
+            }
+        }
+        if multihop_fate && q.score_type == "open" {
+            let corpus_refs: Vec<crate::multihop_fate::CorpusLineRef> = memories
+                .iter()
+                .filter_map(|m| {
+                    m.corpus_idx.map(|idx| crate::multihop_fate::CorpusLineRef {
+                        idx,
+                        text: m.text.clone(),
+                        signals: m.signals.clone(),
+                    })
+                })
+                .collect();
+            let q_sig = question_ports.embedding.clone();
+            let fate_decode = if multihop_v2 {
+                crate::multihop_fate::decode_fate_comparison_only(
+                    &q.question,
+                    &corpus_refs,
+                    &fate_line_aff,
+                    &report.hub_prefs,
+                    &q_sig,
+                )
+            } else {
+                crate::multihop_fate::decode_from_fate_structure(
+                    &q.question,
+                    &corpus_refs,
+                    &fate_line_aff,
+                    &report.hub_prefs,
+                    &q_sig,
+                )
+            };
+            if let Some((mh_ans, mh_path)) = fate_decode {
+                answer = mh_ans;
+                decode_path = if multihop_v2 {
+                    format!("{decode_path}+{mh_path}")
+                } else {
+                    mh_path
+                };
             }
         }
 

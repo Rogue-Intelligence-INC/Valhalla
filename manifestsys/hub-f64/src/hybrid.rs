@@ -291,6 +291,7 @@ pub fn run_memory_track(
         mcq_fate,
         pipeline_v4: cfg.pipeline_v4,
         multihop_v2: false,
+        multihop_fate: false,
         incubation_snapshot: None,
     };
 

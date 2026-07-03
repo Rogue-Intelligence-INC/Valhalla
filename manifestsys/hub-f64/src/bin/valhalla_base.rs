@@ -9,8 +9,8 @@ use std::process;
 
 use hub_f64::valhalla_base::VALHALLA_BASE_PROTOCOL;
 use hub_f64::valhalla_base_bench::{
-    default_corpus_dirs, run_local_corpus_demo, run_multihop_rag, run_needle_session,
-    run_v1_extensions, write_report,
+    default_corpus_dirs, run_local_corpus_demo, run_multihop_fate_rag, run_multihop_hybrid_rag,
+    run_multihop_rag, run_needle_session, run_v1_extensions, write_report,
 };
 use hub_f64::valhalla_base_client::ValhallaBaseClient;
 use hub_f64::valhalla_base_http;
@@ -53,7 +53,7 @@ fn print_help() {
 
 SUBCOMMANDS (Rust-native — prefer over Python wrappers):
   ask TEXT [--context LINE]... [--score-type open|mcq] [--native]
-  demo v1|needle|corpus|multihop [--fast] [--repo ROOT] [--limit N]
+  demo v1|needle|corpus|multihop|multihop-fate [--fast] [--repo ROOT] [--limit N]
   serve [--port 8787] [--pretty]
 
 JSON MODE (stdin/stdout — backward compatible):
@@ -206,13 +206,37 @@ fn cmd_demo(args: &[String]) {
                 doc
             })
         }
+        "multihop-fate" => {
+            let limit = args
+                .windows(2)
+                .find(|w| w[0] == "--limit")
+                .and_then(|w| w[1].parse().ok())
+                .unwrap_or(if fast { 5 } else { 0 });
+            let bundle = repo.join("tools/standard_benchmarks/bundled/multihop_rag_slice25.json");
+            run_multihop_fate_rag(&bundle, limit, fast, 32).map(|doc| {
+                write_report(&reports.join("multihop_rag_fate_test.json"), &doc).ok();
+                doc
+            })
+        }
+        "multihop-hybrid" => {
+            let limit = args
+                .windows(2)
+                .find(|w| w[0] == "--limit")
+                .and_then(|w| w[1].parse().ok())
+                .unwrap_or(if fast { 5 } else { 0 });
+            let bundle = repo.join("tools/standard_benchmarks/bundled/multihop_rag_slice25.json");
+            run_multihop_hybrid_rag(&bundle, limit, fast, 32).map(|doc| {
+                write_report(&reports.join("multihop_rag_hybrid_test.json"), &doc).ok();
+                doc
+            })
+        }
         "" | "help" | "--help" | "-h" => {
-            eprintln!("usage: valhalla_base demo v1|needle|corpus|multihop [--fast] [--repo ROOT] [--limit N]");
+            eprintln!("usage: valhalla_base demo v1|needle|corpus|multihop|multihop-fate|multihop-hybrid [--fast] [--repo ROOT] [--limit N]");
             return;
         }
         other => Err(ValhallaBaseErrorBody::new(
             hub_f64::valhalla_base_protocol::ValhallaBaseErrorKind::Validate,
-            format!("unknown demo {other:?}; use v1, needle, corpus, or multihop"),
+            format!("unknown demo {other:?}; use v1, needle, corpus, multihop, or multihop-fate"),
         )),
     };
 
