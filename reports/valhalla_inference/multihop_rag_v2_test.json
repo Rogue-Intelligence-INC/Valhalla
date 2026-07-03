@@ -1,0 +1,163 @@
+{
+  "accuracy": 0.6,
+  "benchmark": "MultiHop-RAG",
+  "bundle": "multihop_rag_slice25.json",
+  "correct": 15,
+  "multihop_v2": true,
+  "n": 25,
+  "protocol": "multihop-rag-v2",
+  "rows": [
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_1454"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_921"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_774"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_1514"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_1762"
+    },
+    {
+      "answer": "Sydney",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_entity",
+      "id": "MH_537"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_2223"
+    },
+    {
+      "answer": "Sam Bankman-Fried",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_2275"
+    },
+    {
+      "answer": "Tyreek Hill",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_575"
+    },
+    {
+      "answer": "Google",
+      "correct": false,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_1089"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_1526"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_331"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_9"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_1591"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_886"
+    },
+    {
+      "answer": "[corpus:1] Point Spread Betting - What is a Point Spread Bet?: If a piece of news or a prevailing sentiment starts to gain traction about a particular team's increased chances of winning, this can inf",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_1395"
+    },
+    {
+      "answer": "Mario",
+      "correct": false,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_1710"
+    },
+    {
+      "answer": "Sam Bankman-Fried",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_2328"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_entity",
+      "id": "MH_1121"
+    },
+    {
+      "answer": "[corpus:0] NBA Prop Bets - Best Team and Player Props 2023/24 Season: You can find value in player and team props by gathering information from multiple sources and tracking how players and their team",
+      "correct": false,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_1065"
+    },
+    {
+      "answer": "Yes",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_1088"
+    },
+    {
+      "answer": "[corpus:1] How the conspiracy-fueled Epoch Times went mainstream and made millions: The group reported $76 million in subscription revenue in 2021, compared to nearly $7 million in 2019",
+      "correct": false,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_3"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
+      "id": "MH_2064"
+    },
+    {
+      "answer": "Yes",
+      "correct": false,
+      "decode_path": "valhalla_base/native/multihop_v2_yesno",
+      "id": "MH_168"
+    },
+    {
+      "answer": "Google",
+      "correct": true,
+      "decode_path": "valhalla_base/native/multihop_v2_entity",
+      "id": "MH_2106"
+    }
+  ],
+  "timestamp": "1783036153",
+  "verdict": "OPEN_QA_VIABLE"
+}

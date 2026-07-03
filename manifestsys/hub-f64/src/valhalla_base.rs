@@ -181,6 +181,9 @@ pub struct ValhallaBaseConfig {
     /// Minimum hub_prefs spread — default τ(0)=12/138 from E7 algebra.
     #[serde(default = "default_proactive_min_spread")]
     pub proactive_min_spread: f64,
+    /// Multi-hop structure composition for open QA (hop split + yes/no / entity synthesis).
+    #[serde(default)]
+    pub multihop_v2: bool,
 }
 
 fn default_proactive_min_fate_signals() -> usize {
@@ -255,6 +258,7 @@ impl Default for ValhallaBaseConfig {
             proactive_min_fate_signals: default_proactive_min_fate_signals(),
             proactive_min_turns: 0,
             proactive_min_spread: default_proactive_min_spread(),
+            multihop_v2: crate::multihop_compose::multihop_v2_enabled(),
         }
     }
 }
@@ -790,6 +794,7 @@ fn run_native_one(
         ingress_mode: Some("grinder".into()),
         mcq_fate: p.score_type == "mcq" && cfg.mcq_decode == ValhallaMcqDecode::StructureFate,
         pipeline_v4: true,
+        multihop_v2: cfg.multihop_v2,
         incubation_snapshot: Some(fused_snap),
     };
     let resp = run_native_qa_batch(&batch);

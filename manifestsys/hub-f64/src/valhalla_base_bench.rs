@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
+use serde::Deserialize;
 
 use crate::valhalla_base::{ValhallaBaseQuestion, ValhallaContextItem};
 use crate::valhalla_base_client::{RunOptions, ValhallaBaseClient};
@@ -403,6 +404,144 @@ pub fn default_corpus_dirs(repo_root: &Path) -> Vec<PathBuf> {
         repo_root.join("valhalla-unified-core/docs"),
         repo_root.join("docs"),
     ]
+}
+
+fn score_short_answer(answer: &str, gold: &str) -> bool {
+    let ref_s = gold.trim();
+    if ref_s.is_empty() {
+        return false;
+    }
+    let low = answer.to_lowercase();
+    if low.contains(&ref_s.to_lowercase()) {
+        return true;
+    }
+    let ref_tokens: Vec<String> = ref_s
+        .split_whitespace()
+        .filter_map(|w| {
+            let t: String = w
+                .chars()
+                .filter(|c| c.is_ascii_alphanumeric())
+                .collect::<String>()
+                .to_lowercase();
+            if t.len() >= 2 {
+                Some(t)
+            } else {
+                None
+            }
+        })
+        .collect();
+    if ref_tokens.is_empty() {
+        return false;
+    }
+    let hit = ref_tokens.iter().filter(|t| low.contains(t.as_str())).count();
+    hit >= (ref_tokens.len() + 1) / 2
+}
+
+fn verdict_open_qa(acc: f64) -> &'static str {
+    if acc >= 0.65 {
+        "OPEN_QA_STRONG"
+    } else if acc >= 0.40 {
+        "OPEN_QA_VIABLE"
+    } else {
+        "OPEN_QA_DEVELOPING"
+    }
+}
+
+#[derive(Deserialize)]
+struct MultihopBundle {
+    items: Vec<MultihopItem>,
+}
+
+#[derive(Deserialize)]
+struct MultihopItem {
+    id: String,
+    question: String,
+    answer: String,
+    #[serde(default)]
+    corpus: Vec<String>,
+}
+
+/// MultiHop-RAG slice25 — structure composition decode (multihop_v2).
+pub fn run_multihop_rag(
+    bundle_path: &Path,
+    limit: usize,
+    fast: bool,
+    max_corpus_lines: usize,
+) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
+    let raw = std::fs::read_to_string(bundle_path).map_err(|e| {
+        ValhallaBaseErrorBody::new(
+            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Io,
+            format!("read {}: {e}", bundle_path.display()),
+        )
+    })?;
+    let doc: MultihopBundle = serde_json::from_str(&raw).map_err(|e| {
+        ValhallaBaseErrorBody::new(
+            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Parse,
+            format!("parse multihop bundle: {e}"),
+        )
+    })?;
+
+    let mut items: Vec<_> = doc
+        .items
+        .into_iter()
+        .filter(|i| !i.corpus.is_empty())
+        .collect();
+    if limit > 0 {
+        items.truncate(limit);
+    }
+
+    let mut rows = Vec::new();
+    let mut correct = 0usize;
+    for item in &items {
+        let mut corpus = item.corpus.clone();
+        if corpus.len() > max_corpus_lines {
+            corpus.truncate(max_corpus_lines);
+        }
+        let mut base = ValhallaBaseClient::production();
+        base.config.multihop_v2 = true;
+        base.config.fate_qa_feedback = false;
+        base.config.incubation_cycles = if fast { 1 } else { 2 };
+        base.config.max_new = 128;
+        base.set_context(corpus.iter().map(|s| s.as_str()));
+        let resp = base.run(
+            vec![ValhallaBaseQuestion {
+                id: item.id.clone(),
+                text: item.question.clone(),
+                score_type: "open".into(),
+                reference_answer: item.answer.clone(),
+                keywords: Vec::new(),
+                audio_features: None,
+                image_features: None,
+            }],
+            RunOptions::default(),
+        )?;
+        let ans = resp.rows.first().map(|r| r.answer.as_str()).unwrap_or("");
+        let ok = score_short_answer(ans, &item.answer);
+        if ok {
+            correct += 1;
+        }
+        rows.push(serde_json::json!({
+            "id": item.id,
+            "correct": ok,
+            "answer": ans.chars().take(200).collect::<String>(),
+            "decode_path": resp.rows.first().map(|r| r.decode_path.as_str()).unwrap_or(""),
+        }));
+    }
+
+    let n = items.len().max(1);
+    let acc = correct as f64 / n as f64;
+    Ok(serde_json::json!({
+        "timestamp": now_iso(),
+        "protocol": "multihop-rag-v2",
+        "benchmark": "MultiHop-RAG",
+        "bundle": bundle_path.file_name().and_then(|s| s.to_str()).unwrap_or(""),
+        "multihop_v2": true,
+        "n": items.len(),
+        "correct": correct,
+        "accuracy": (acc * 10000.0).round() / 10000.0,
+        "verdict": verdict_open_qa(acc),
+        "rows": rows,
+    }))
 }
 
 pub fn write_report(path: &Path, doc: &serde_json::Value) -> Result<(), ValhallaBaseErrorBody> {

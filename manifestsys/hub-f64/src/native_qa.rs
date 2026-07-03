@@ -57,6 +57,9 @@ pub struct NativeQaBatchRequest {
     /// v4: LM decompose → Valhalla → recompose decode path.
     #[serde(default)]
     pub pipeline_v4: bool,
+    /// Multi-hop structure composition (hop split + yes/no / entity synthesis).
+    #[serde(default)]
+    pub multihop_v2: bool,
     /// Pre-built incubation snapshot (skip corpus incubation; use for context+core fusion).
     #[serde(default)]
     pub incubation_snapshot: Option<TriadIncubationSnapshot>,
@@ -1319,6 +1322,7 @@ fn decode_open(
     question: &str,
     prior_questions: &[String],
     corpus_line_affinity: &[f64],
+    multihop_v2: bool,
 ) -> (String, Vec<NativeMatch>, String, Option<usize>) {
     let min_score = min_retrieval_score();
     let min_kw = min_open_keyword_overlap();
@@ -1391,6 +1395,30 @@ fn decode_open(
                 "open_reject_low_score".into(),
                 None,
             );
+        }
+        if multihop_v2 {
+            let mh: Vec<crate::multihop_compose::MultihopCandidate> = candidates
+                .iter()
+                .map(|(i, sc, kw)| {
+                    let m = &memories[*i];
+                    crate::multihop_compose::MultihopCandidate {
+                        text: m.text.clone(),
+                        corpus_idx: m.corpus_idx,
+                        source: m.source.clone(),
+                        score: *sc,
+                        kw: *kw,
+                    }
+                })
+                .collect();
+            if let Some((ans, path)) = crate::multihop_compose::compose_multihop_open(question, &mh) {
+                if path.starts_with("multihop_v2_yesno") || path.starts_with("multihop_v2_entity") {
+                    let picked_idx = mh
+                        .iter()
+                        .max_by(|a, b| a.score.partial_cmp(&b.score).unwrap_or(std::cmp::Ordering::Equal))
+                        .and_then(|c| c.corpus_idx);
+                    return (ans, top, path, picked_idx);
+                }
+            }
         }
         let m = &memories[*idx];
         let picked_idx = m.corpus_idx;
@@ -1702,6 +1730,7 @@ pub fn run_native_qa(req: &NativeQaRequest) -> NativeQaResponse {
             &req.question,
             &[],
             &[],
+            false,
         ),
     };
 
@@ -1715,6 +1744,7 @@ pub fn run_native_qa(req: &NativeQaRequest) -> NativeQaResponse {
         stem_cells: report.model_patch.stem_cell_count,
         tile_dim: report.tile_dim,
         stem_dim: report.stem_dim,
+
         top_matches,
         report_mode: report.mode,
         decode_path,
@@ -1783,6 +1813,56 @@ fn feed_grinder_corpus(
     (memories, dl_encoder)
 }
 
+fn multihop_candidates_from_memories(
+    question: &str,
+    memories: &[MemoryEntry],
+) -> Vec<crate::multihop_compose::MultihopCandidate> {
+    let q_low = question.to_lowercase();
+    let min_kw = min_open_keyword_overlap();
+    let mut out: Vec<crate::multihop_compose::MultihopCandidate> = memories
+        .iter()
+        .filter(|m| m.corpus_idx.is_some())
+        .filter(|m| m.text.to_lowercase() != q_low)
+        .filter_map(|m| {
+            let kw = keyword_overlap_count(question, &m.text);
+            if kw < min_kw {
+                return None;
+            }
+            let score = kw as f64 * 0.12 + m.signals.iter().take(8).sum::<f64>() * 1e-4;
+            Some(crate::multihop_compose::MultihopCandidate {
+                text: m.text.clone(),
+                corpus_idx: m.corpus_idx,
+                source: m.source.clone(),
+                score,
+                kw,
+            })
+        })
+        .collect();
+    out.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+    out
+}
+
+fn apply_multihop_post_compose(
+    question: &str,
+    memories: &[MemoryEntry],
+    answer: &str,
+) -> Option<(String, String)> {
+    let candidates = multihop_candidates_from_memories(question, memories);
+    let composed = crate::multihop_compose::compose_multihop_short_answer(question, &candidates)?;
+    let ans_low = answer.to_lowercase().trim().to_string();
+    let mh_low = composed.0.to_lowercase();
+    if composed.1.contains("yesno") {
+        return Some(composed);
+    }
+    if composed.1.contains("entity") {
+        if ans_low == mh_low {
+            return None;
+        }
+        return Some(composed);
+    }
+    None
+}
+
 fn decode_from_report(
     question: &str,
     score_type: &str,
@@ -1794,6 +1874,7 @@ fn decode_from_report(
     front: &DlFrontConfig,
     prior_questions: &[String],
     corpus_line_affinity: &[f64],
+    multihop_v2: bool,
 ) -> (String, Vec<NativeMatch>, String, Option<usize>) {
     let q_sig = memories
         .iter()
@@ -1885,6 +1966,7 @@ fn decode_from_report(
             question,
             prior_questions,
             corpus_line_affinity,
+            multihop_v2,
         ),
     }
 }
@@ -1963,6 +2045,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
     };
 
     let mut results = Vec::with_capacity(req.questions.len());
+    let multihop_v2 = req.multihop_v2 || crate::multihop_compose::multihop_v2_enabled();
     let use_pipeline_v4 = req.pipeline_v4 || pipeline::pipeline_v4_enabled();
     let pipe_cfg = pipeline::PipelineConfig::default();
 
@@ -2052,6 +2135,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                         &front,
                         prior,
                         line_aff,
+                        multihop_v2,
                     );
                     let (ans, path) = pipeline::merge_mcq_pipeline_decode(
                         &dec_ans,
@@ -2071,6 +2155,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                         &front,
                         prior,
                         line_aff,
+                        multihop_v2,
                     );
                     (a, t, format!("pipeline_v4_{}", q.score_type), ridx)
                 }
@@ -2086,6 +2171,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                     &front,
                     prior,
                     line_aff,
+                    multihop_v2,
                 )
             };
 
@@ -2108,8 +2194,17 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             native_reject,
         );
 
-        if q.score_type == "open" {
+        if q.score_type == "open" && !multihop_v2 {
             (answer, decode_path) = apply_open_fog_gate(answer, decode_path, Some(&fog_decision));
+        }
+
+        if multihop_v2 && q.score_type == "open" {
+            if let Some((mh_ans, mh_path)) =
+                apply_multihop_post_compose(&q.question, &memories, &answer)
+            {
+                answer = mh_ans;
+                decode_path = mh_path;
+            }
         }
 
         results.push(NativeQaBatchItem {

@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """MultiHop-RAG — COLM 2024 multi-hop news QA.
 
-Protocol: multihop-rag-v1
+Protocol: multihop-rag-v1 (v2 when --v2)
 
 Usage:
   python3 tools/valhalla_inference/test_multihop_rag_v1.py --fast
+  python3 tools/valhalla_inference/test_multihop_rag_v1.py --v2
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -32,8 +34,24 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--fast", action="store_true")
+    ap.add_argument("--v2", action="store_true", help="Rust multihop_v2 structure composition")
     ap.add_argument("--max-corpus-lines", type=int, default=32)
     args = ap.parse_args()
+
+    if args.v2:
+        cmd = [
+            str(REPO / "target/release/valhalla_base"),
+            "demo",
+            "multihop",
+            "--repo",
+            str(REPO),
+        ]
+        if args.fast:
+            cmd.append("--fast")
+        if args.limit > 0:
+            cmd.extend(["--limit", str(args.limit)])
+        subprocess.run(cmd, check=True)
+        return
 
     doc = load_bundled(BUNDLE)
     items = [i for i in doc["items"] if i.get("corpus")]

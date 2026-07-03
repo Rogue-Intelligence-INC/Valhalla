@@ -290,6 +290,7 @@ pub fn run_memory_track(
         ingress_mode: Some("grinder".into()),
         mcq_fate,
         pipeline_v4: cfg.pipeline_v4,
+        multihop_v2: false,
         incubation_snapshot: None,
     };
 
