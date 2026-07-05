@@ -21,6 +21,12 @@ from typing import Any, Literal
 
 REPO = Path(__file__).resolve().parents[2]
 BIN = REPO / "target/release/valhalla_base"
+DEFAULT_LM = "Qwen/Qwen2.5-3B-Instruct"
+
+
+def default_lm_model() -> str:
+    return os.environ.get("VALHALLA_LM_MODEL", DEFAULT_LM).strip()
+
 
 DecodeMode = Literal["native", "lm_patch", "hybrid"]
 McqDecodeMode = Literal["lm_patch", "structure_fate", "max_pick"]
@@ -46,7 +52,7 @@ class ValhallaBaseSession:
 class ValhallaBase:
     """Valhalla is the base; LM is decode head. Supports hybrid / session / multimodal."""
 
-    lm_model: str = "Qwen/Qwen2.5-0.5B-Instruct"
+    lm_model: str = field(default_factory=default_lm_model)
     patch_body: str = "triad"
     strength: float = 0.08
     max_new: int = 128
@@ -108,7 +114,7 @@ class ValhallaBase:
             ["cargo", "build", "-p", "hub-f64", "--release", "--bin", "valhalla_base"],
             check=True,
             cwd=REPO,
-            env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64"},
+            env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64", "LIBRARY_PATH": os.environ.get("LIBRARY_PATH", f"/opt/cuda/targets/x86_64-linux/lib:{os.environ.get('LIBRARY_PATH', '')}")},
         )
 
     def _run_bin(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -117,7 +123,7 @@ class ValhallaBase:
             input=json.dumps(payload),
             capture_output=True,
             text=True,
-            env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64"},
+            env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64", "LIBRARY_PATH": os.environ.get("LIBRARY_PATH", f"/opt/cuda/targets/x86_64-linux/lib:{os.environ.get('LIBRARY_PATH', '')}")},
         )
         if proc.stderr:
             print(proc.stderr, end="", flush=True)

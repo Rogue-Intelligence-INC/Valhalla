@@ -54,10 +54,13 @@ question → rank fragments (affinity) → merge top-k → QA pulse → decode
 | `VALHALLA_FRAGMENT_MIN_LINES` | `2` | 最短段行数 |
 | `VALHALLA_FRAGMENT_MAX_LINES` | `48` | 最长段行数 |
 | `VALHALLA_LIVE_SESSION` | `1` | Batch QA 持久 session |
-| `VALHALLA_QUERY_FRAGMENT_MERGE` | `1` | 按问题 merge 片段 |
-| `VALHALLA_QUERY_FRAGMENT_TOP_K` | `3` | 每题最多 merge 片段数 |
+| **`VALHALLA_DYNAMIC_CORPUS_FRAGMENTS`** | **`1`（随 `FRAGMENT_MODE≠off`）** | **统一功能：全 corpus ingest + query merge + keyword anchor** |
+| `VALHALLA_QUERY_FRAGMENT_TOP_K` | `3` | 每题 fragment top-k（>32 行时自动放大至 `ceil(n/20)`） |
+| `VALHALLA_FRAGMENT_KEYWORD_ANCHOR_FRAC` | `0.35` | 高 keyword 重叠行强制进检索候选（needle 保底） |
+| `VALHALLA_NATIVE_MAX_CORPUS_LINES` | `32` | **仅 legacy**（`DYNAMIC_CORPUS_FRAGMENTS=0` 时 tail ingest） |
+| `VALHALLA_INGEST_ALL_CORPUS` | `0` | legacy 强制全 ingest（已被 dynamic 取代） |
 
-回退 legacy：`VALHALLA_FRAGMENT_MODE=line VALHALLA_QUERY_FRAGMENT_MERGE=0`
+回退 legacy：`VALHALLA_DYNAMIC_CORPUS_FRAGMENTS=0`（恢复 tail-32 ingest，merge 默认关）
 
 ---
 

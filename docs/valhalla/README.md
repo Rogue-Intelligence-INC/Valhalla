@@ -1,6 +1,6 @@
 # ValhallaBase — Product Docs Hub
 
-**Updated:** 2026-07-03
+**Updated:** 2026-07-06
 
 Canonical product documentation lives in the **[valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)** repository (git submodule at `valhalla-unified-core/`). GitHub does **not** serve submodule files at paths under the main Valhalla tree — use the links below.
 
@@ -23,7 +23,10 @@ Canonical product documentation lives in the **[valhalla-unified-core](https://g
 | Doc | Path |
 |-----|------|
 | Valid benchmark interpretation | [`reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
+| **Release 2026-07-06** | [RELEASE_20260706.md](./RELEASE_20260706.md) |
+| **Manifold fragments v1** | [MANIFOLD_FRAGMENT_V1.md](./MANIFOLD_FRAGMENT_V1.md) |
 | Full suite summary (2026-07-02) | [`reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md`](../../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md) |
+| MCQ scaling (0.5B→3B) | [`reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md`](../../reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md) |
 | Doc index | [`docs/README.md`](../README.md) |
 
 ---

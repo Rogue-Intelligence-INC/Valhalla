@@ -58,12 +58,16 @@ pub mod fate_orchestrator;
 pub mod smoke_report;
 
 pub use fate_orchestrator::{
-    export_fragment, fragment_mode, ingest_corpus_with_fragments,
-    ingest_corpus_with_fragments_mode, ingest_line_density_fragment,
+    export_fragment, fate_warmup_enabled, fragment_mode, ingest_corpus_with_fragments,
+    ingest_corpus_with_fragments_mode, ingest_corpus_with_fragments_mode_full,
+    ingest_line_density_fragment,
     ingress_and_adapt, live_session_enabled, merge_fragments, merge_fragments_for_query,
-    multi_fragment_enabled, pretrain_corpus_to_library, pulse_question_live, query_fragment_merge_enabled,
-    query_fragment_top_k, run_fate_adapt, score_fragment_for_query, select_fragments_for_query,
-    FateAdaptOutcome, FateDensitySegmenter, FateOrchestratorConfig, FragmentCloseMeta, FragmentMode,
+    multi_fragment_enabled, pretrain_corpus_to_library, pulse_question_live,
+    corpus_ingest_skip, dynamic_corpus_fragments_enabled, explicit_ingest_all_corpus,
+    query_fragment_merge_enabled, query_fragment_top_k, run_fate_adapt, run_fate_convergence_cycles,
+    run_fate_warmup, score_fragment_for_query, select_fragments_for_query,
+    FateAdaptOutcome, FateCycleLimits, FateDensitySegmenter, FateOrchestratorConfig, FateWarmupOutcome,
+    FragmentCloseMeta, FragmentMode,
     ManifoldFragmentLibrary, PretrainStats, QueryFragmentSelection, SnapshotFragment,
     FRAGMENT_LIBRARY_VERSION, MANIFOLD_PROTOCOL,
 };

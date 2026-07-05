@@ -85,6 +85,48 @@ pub struct FateOrchestratorConfig {
     pub hard_max_cycles: usize,
     /// During adapt phase, enable Fate preference routing + evaluated weights.
     pub fate_adapt_unlock: bool,
+    /// Soft max for warmup phase (Fate convergence stops earlier when possible).
+    pub warmup_cycles: usize,
+    /// Prelearn line count (0 = auto from corpus size).
+    pub warmup_prelearn_lines: usize,
+    /// When false, skip prelearn + warmup (overrides env in unit tests).
+    pub warmup_enabled: bool,
+}
+
+/// Per-phase cycle bounds — Fate convergence is stop authority within [min, soft_max], capped at hard_max.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct FateCycleLimits {
+    pub min_cycles: usize,
+    pub soft_max_cycles: usize,
+    pub hard_max_cycles: usize,
+}
+
+impl FateCycleLimits {
+    pub fn adapt(cfg: &FateOrchestratorConfig) -> Self {
+        Self {
+            min_cycles: cfg.min_cycles,
+            soft_max_cycles: cfg.soft_max_cycles,
+            hard_max_cycles: cfg.hard_max_cycles,
+        }
+    }
+
+    pub fn warmup(cfg: &FateOrchestratorConfig) -> Self {
+        let soft = cfg.warmup_cycles.clamp(1, 64);
+        Self {
+            min_cycles: env_usize("VALHALLA_FATE_WARMUP_MIN", 1).clamp(1, 32),
+            soft_max_cycles: soft,
+            hard_max_cycles: env_usize("VALHALLA_FATE_WARMUP_HARD_MAX", soft.saturating_mul(2).max(8))
+                .clamp(4, 128),
+        }
+    }
+
+    pub fn pulse(_cfg: &FateOrchestratorConfig) -> Self {
+        Self {
+            min_cycles: env_usize("VALHALLA_FATE_PULSE_MIN", 1).clamp(1, 16),
+            soft_max_cycles: env_usize("VALHALLA_FATE_PULSE_SOFT_MAX", 4).clamp(1, 32),
+            hard_max_cycles: env_usize("VALHALLA_FATE_PULSE_HARD_MAX", 12).clamp(2, 64),
+        }
+    }
 }
 
 impl Default for FateOrchestratorConfig {
@@ -94,8 +136,39 @@ impl Default for FateOrchestratorConfig {
             soft_max_cycles: env_usize("VALHALLA_FATE_ADAPT_SOFT_MAX", 48).clamp(4, 512),
             hard_max_cycles: env_usize("VALHALLA_FATE_ADAPT_HARD_MAX", 128).clamp(8, 1024),
             fate_adapt_unlock: env_bool("VALHALLA_FATE_ADAPT_UNLOCK", true),
+            warmup_cycles: env_usize("VALHALLA_FATE_WARMUP_CYCLES", 4).clamp(1, 64),
+            warmup_prelearn_lines: env_usize("VALHALLA_FATE_WARMUP_PRELEARN_LINES", 0),
+            warmup_enabled: env_bool("VALHALLA_FATE_WARMUP", true),
         }
     }
+}
+
+/// `VALHALLA_FATE_WARMUP=1` (default on) — prelearn lines + warmup cycles before dynamic fragments.
+pub fn fate_warmup_enabled() -> bool {
+    env_bool("VALHALLA_FATE_WARMUP", true)
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct FateWarmupOutcome {
+    pub cycles_executed: usize,
+    pub prelearn_lines: usize,
+    pub pref_history_len: usize,
+    pub signal_tick: u64,
+    pub aggregate_score: f64,
+    pub stopped_reason: String,
+}
+
+fn warmup_prelearn_count(corpus_lines: usize, cfg: &FateOrchestratorConfig) -> usize {
+    if corpus_lines <= 1 {
+        return 0;
+    }
+    let auto = (corpus_lines / 3).clamp(1, 4);
+    let configured = if cfg.warmup_prelearn_lines > 0 {
+        cfg.warmup_prelearn_lines
+    } else {
+        auto
+    };
+    configured.min(corpus_lines.saturating_sub(1))
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -116,6 +189,10 @@ pub struct PretrainStats {
     pub adapt_cycles: usize,
     pub stopped_reason: String,
     pub aggregate_score: f64,
+    #[serde(default)]
+    pub warmup_cycles: usize,
+    #[serde(default)]
+    pub warmup_prelearn_lines: usize,
 }
 
 /// Offline / runtime fragment store — bake + session preload.
@@ -173,6 +250,36 @@ pub fn multi_fragment_enabled() -> bool {
     !matches!(fragment_mode(), FragmentMode::Off)
 }
 
+/// Unified dynamic corpus: **full-line Fate ingest** + **query fragment merge**.
+///
+/// Replaces the legacy tail window (`VALHALLA_NATIVE_MAX_CORPUS_LINES`, default 32)
+/// when active. Disable with `VALHALLA_DYNAMIC_CORPUS_FRAGMENTS=0` (falls back to
+/// legacy line cap + optional `VALHALLA_QUERY_FRAGMENT_MERGE`).
+pub fn dynamic_corpus_fragments_enabled() -> bool {
+    match std::env::var("VALHALLA_DYNAMIC_CORPUS_FRAGMENTS") {
+        Ok(v) => {
+            let v = v.trim().to_ascii_lowercase();
+            !(v == "0" || v == "false" || v == "off")
+        }
+        Err(_) => multi_fragment_enabled(),
+    }
+}
+
+/// Lines to skip at corpus ingest (legacy tail-only window).
+/// Returns `0` when dynamic corpus fragments or explicit full ingest is active.
+pub fn corpus_ingest_skip(len: usize, explicit_ingest_all: bool) -> usize {
+    if explicit_ingest_all || dynamic_corpus_fragments_enabled() {
+        return 0;
+    }
+    let max_ingest = env_usize("VALHALLA_NATIVE_MAX_CORPUS_LINES", 32);
+    len.saturating_sub(max_ingest)
+}
+
+pub fn explicit_ingest_all_corpus(request_flag: Option<bool>) -> bool {
+    request_flag.unwrap_or(false)
+        || env_bool("VALHALLA_INGEST_ALL_CORPUS", false)
+}
+
 /// `VALHALLA_FRAGMENT_MODE=density|line|off` (default: density).
 pub fn fragment_mode() -> FragmentMode {
     if std::env::var("VALHALLA_MULTI_FRAGMENT")
@@ -207,10 +314,13 @@ pub fn live_session_enabled() -> bool {
 
 fn truncate_label(s: &str, max: usize) -> String {
     let t = s.trim();
-    if t.len() <= max {
+    let n = t.chars().count();
+    if n <= max {
         t.to_string()
     } else {
-        format!("{}…", &t[..max.saturating_sub(1)])
+        let take = max.saturating_sub(1);
+        let shortened: String = t.chars().take(take).collect();
+        format!("{shortened}…")
     }
 }
 
@@ -434,24 +544,24 @@ fn pulse_ingest_line(
     session: &mut TriadSession,
     ports: &BodyFrontPorts,
     line: Option<&str>,
-    pulse_cycles: usize,
+    cfg: &FateOrchestratorConfig,
 ) {
     session.emit_body_ports_with_line(ports, line);
-    session.run_optimize_cycles_fate_owned(pulse_cycles.max(1));
+    let _ = run_fate_convergence_cycles(session, &FateCycleLimits::pulse(cfg));
     if session.hub.is_data_flowing() {
         session.hub.mark_epoch_complete();
     }
 }
 
-/// Ingest one corpus line, pulse Fate, record per-line fragment track.
+/// Ingest one corpus line, Fate-convergence pulse, record per-line fragment track.
 pub fn ingest_line_record_fragment(
     session: &mut TriadSession,
     ports: &BodyFrontPorts,
     line: Option<&str>,
     idx: usize,
-    pulse_cycles: usize,
+    cfg: &FateOrchestratorConfig,
 ) {
-    pulse_ingest_line(session, ports, line, pulse_cycles);
+    pulse_ingest_line(session, ports, line, cfg);
     let label = line
         .map(|s| truncate_label(s, 96))
         .unwrap_or_else(|| format!("corpus_line_{idx}"));
@@ -465,9 +575,9 @@ pub fn ingest_line_density_fragment(
     ports: &BodyFrontPorts,
     line: Option<&str>,
     idx: usize,
-    pulse_cycles: usize,
+    cfg: &FateOrchestratorConfig,
 ) {
-    pulse_ingest_line(session, ports, line, pulse_cycles);
+    pulse_ingest_line(session, ports, line, cfg);
     let label = line
         .map(|s| truncate_label(s, 96))
         .unwrap_or_else(|| format!("corpus_line_{idx}"));
@@ -484,10 +594,10 @@ pub fn ingest_modality_record_fragment(
     item: &ModalityInput,
     front: &DlFrontConfig,
     idx: usize,
-    pulse_cycles: usize,
+    cfg: &FateOrchestratorConfig,
 ) {
     let _ = session.feed_modality(item.clone(), front);
-    session.run_optimize_cycles_fate_owned(pulse_cycles.max(1));
+    let _ = run_fate_convergence_cycles(session, &FateCycleLimits::pulse(cfg));
     if multi_fragment_enabled() && fragment_mode() == FragmentMode::Line {
         let kind = match item {
             ModalityInput::Text { .. } => "text",
@@ -521,30 +631,67 @@ pub fn ingest_corpus_with_fragments_mode(
     cfg: &FateOrchestratorConfig,
     mode: FragmentMode,
 ) -> FateAdaptOutcome {
-    let pulse = 1usize;
+    let (outcome, _) = ingest_corpus_with_fragments_mode_full(session, lines, ports, cfg, mode);
+    outcome
+}
+
+/// Corpus ingress with optional Fate prelearn + warmup before fragment recording.
+pub fn ingest_corpus_with_fragments_mode_full(
+    session: &mut TriadSession,
+    lines: &[String],
+    ports: &[BodyFrontPorts],
+    cfg: &FateOrchestratorConfig,
+    mode: FragmentMode,
+) -> (FateAdaptOutcome, Option<FateWarmupOutcome>) {
     let n = lines.len().min(ports.len());
+    let prelearn_n = if cfg.warmup_enabled && fate_warmup_enabled() && mode != FragmentMode::Off {
+        warmup_prelearn_count(n, cfg)
+    } else {
+        0
+    };
+
+    let mut warmup_outcome = None;
+
+    // Phase 1: prelearn — pulse Fate, no fragment tracks.
+    for i in 0..prelearn_n {
+        let line = lines[i].trim();
+        let line_ref = if line.is_empty() { None } else { Some(line) };
+        pulse_ingest_line(session, &ports[i], line_ref, cfg);
+    }
+
+    // Phase 2: Fate warmup cycles before dynamic segmentation.
+    if prelearn_n > 0 {
+        warmup_outcome = Some(run_fate_warmup(session, cfg, prelearn_n));
+    }
+
+    // Phase 3: remainder with fragment recording.
     let mut segmenter = FateDensitySegmenter::new();
-    for i in 0..n {
+    if prelearn_n > 0 && mode == FragmentMode::Density {
+        segmenter.start_next_segment(prelearn_n);
+    }
+    for i in prelearn_n..n {
         let line = lines[i].trim();
         let line_ref = if line.is_empty() { None } else { Some(line) };
         match mode {
             FragmentMode::Density => {
-                ingest_line_density_fragment(session, &mut segmenter, &ports[i], line_ref, i, pulse);
+                ingest_line_density_fragment(session, &mut segmenter, &ports[i], line_ref, i, cfg);
             }
             FragmentMode::Line => {
-                ingest_line_record_fragment(session, &ports[i], line_ref, i, pulse);
+                ingest_line_record_fragment(session, &ports[i], line_ref, i, cfg);
             }
             FragmentMode::Off => {
-                pulse_ingest_line(session, &ports[i], line_ref, pulse);
+                pulse_ingest_line(session, &ports[i], line_ref, cfg);
             }
         }
     }
-    if mode == FragmentMode::Density && n > 0 {
+    if mode == FragmentMode::Density && n > prelearn_n {
         if let Some((id, label, meta)) = segmenter.flush(session, n - 1) {
             session.record_fragment_with_meta(&id, &label, meta);
         }
     }
-    run_fate_adapt(session, cfg)
+
+    let adapt = run_fate_adapt(session, cfg);
+    (adapt, warmup_outcome)
 }
 
 /// Live QA pulse — question on persistent session (no fork).
@@ -576,7 +723,8 @@ pub fn pretrain_corpus_to_library(
         .iter()
         .map(|l| grind_text_hash(l, cap))
         .collect();
-    let outcome = ingest_corpus_with_fragments(&mut session, lines, &ports, cfg);
+    let (outcome, warmup) =
+        ingest_corpus_with_fragments_mode_full(&mut session, lines, &ports, cfg, fragment_mode());
     let snap = session.manifold_snapshot();
     let stats = PretrainStats {
         lines_fed: lines.len(),
@@ -588,6 +736,8 @@ pub fn pretrain_corpus_to_library(
         adapt_cycles: outcome.cycles_executed,
         stopped_reason: outcome.stopped_reason,
         aggregate_score: outcome.aggregate_score,
+        warmup_cycles: warmup.as_ref().map(|w| w.cycles_executed).unwrap_or(0),
+        warmup_prelearn_lines: warmup.as_ref().map(|w| w.prelearn_lines).unwrap_or(0),
     };
     ManifoldFragmentLibrary::new(snap.fragments.clone(), snap, stats)
 }
@@ -681,14 +831,14 @@ fn fate_should_stop(
     session: &TriadSession,
     tracker: &FateTracker,
     cycle: usize,
-    cfg: &FateOrchestratorConfig,
+    limits: &FateCycleLimits,
     aggregate_score: f64,
 ) -> Option<&'static str> {
-    if cycle < cfg.min_cycles {
+    if cycle < limits.min_cycles {
         return None;
     }
     let exploring = tracker.still_exploring();
-    if exploring && cycle < cfg.soft_max_cycles {
+    if exploring && cycle < limits.soft_max_cycles {
         return None;
     }
     let pattern = session.hub.get_fate_convergence_pattern();
@@ -859,13 +1009,44 @@ fn keyword_overlap_score(question: &str, text: &str) -> f64 {
     overlap as f64 / q_words.len() as f64
 }
 
-/// Query-conditioned fragment pick — enabled by default when fragments exist.
+/// Query-conditioned fragment pick — part of [`dynamic_corpus_fragments_enabled`].
 pub fn query_fragment_merge_enabled() -> bool {
-    env_bool("VALHALLA_QUERY_FRAGMENT_MERGE", true)
+    if dynamic_corpus_fragments_enabled() {
+        return true;
+    }
+    env_bool("VALHALLA_QUERY_FRAGMENT_MERGE", false)
 }
 
-pub fn query_fragment_top_k() -> usize {
-    env_usize("VALHALLA_QUERY_FRAGMENT_TOP_K", 3).clamp(1, 32)
+pub fn query_fragment_top_k(corpus_lines: usize) -> usize {
+    let base = env_usize("VALHALLA_QUERY_FRAGMENT_TOP_K", 3).clamp(1, 32);
+    if !dynamic_corpus_fragments_enabled() {
+        return base;
+    }
+    if corpus_lines <= 32 {
+        return base;
+    }
+    corpus_lines.div_ceil(20).clamp(base, 32)
+}
+
+/// Keyword-strong corpus lines always enter the retrieval candidate set
+/// (prevents needle / rare-token lines from being dropped by fragment top-k).
+fn union_keyword_anchor_lines(
+    selection: &mut QueryFragmentSelection,
+    corpus: &[String],
+    question: &str,
+) {
+    if !dynamic_corpus_fragments_enabled() || corpus.is_empty() {
+        return;
+    }
+    let min_frac = env_f64("VALHALLA_FRAGMENT_KEYWORD_ANCHOR_FRAC", 0.35);
+    for (i, line) in corpus.iter().enumerate() {
+        if keyword_overlap_score(question, line) >= min_frac
+            && !selection.corpus_line_indices.contains(&i)
+        {
+            selection.corpus_line_indices.push(i);
+        }
+    }
+    selection.corpus_line_indices.sort_unstable();
 }
 
 fn is_mergeable_fragment(id: &str) -> bool {
@@ -962,6 +1143,7 @@ pub fn merge_fragments_for_query(
     question: &str,
     question_sig: &[f64],
     corpus_line_signals: &[(usize, Vec<f64>)],
+    corpus_lines: &[String],
     budget: crate::signal_ingress::IngressBudget,
     body: BodyTarget,
     top_k: usize,
@@ -970,7 +1152,9 @@ pub fn merge_fragments_for_query(
         .iter()
         .map(|(idx, sig)| (*idx, signal_cosine(question_sig, sig)))
         .collect();
-    let selection = select_fragments_for_query(fragments, question, question_sig, &line_align, top_k);
+    let mut selection =
+        select_fragments_for_query(fragments, question, question_sig, &line_align, top_k);
+    union_keyword_anchor_lines(&mut selection, corpus_lines, question);
     let selected: Vec<SnapshotFragment> = selection
         .selected_ids
         .iter()
@@ -1006,6 +1190,76 @@ pub fn corpus_line_indices_for_selection(
     out.sort_unstable();
     out
 }
+
+/// Fate-owned cycles until convergence (or phase limits).
+pub fn run_fate_convergence_cycles(
+    session: &mut TriadSession,
+    limits: &FateCycleLimits,
+) -> (usize, String, f64) {
+    let mut tracker = FateTracker::new();
+    let mut cycles = 0usize;
+    let mut aggregate_score = 0.0;
+    let mut stopped_reason = "hard_max".to_string();
+
+    while cycles < limits.hard_max_cycles {
+        session.run_optimize_cycles_fate_owned(1);
+        if matches!(session.body, BodyTarget::Hub | BodyTarget::Triad) {
+            session.hub.mark_epoch_complete();
+        }
+        cycles += 1;
+        aggregate_score = compute_aggregate_score(session);
+        tracker.record(aggregate_score);
+
+        if let Some(reason) = fate_should_stop(session, &tracker, cycles, limits, aggregate_score) {
+            stopped_reason = reason.to_string();
+            break;
+        }
+        if cycles >= limits.soft_max_cycles {
+            stopped_reason = "soft_max".into();
+            break;
+        }
+    }
+
+    (cycles, stopped_reason, aggregate_score)
+}
+
+/// Fate-owned warmup cycles after prelearn corpus lines (before fragment segmentation).
+pub fn run_fate_warmup(
+    session: &mut TriadSession,
+    cfg: &FateOrchestratorConfig,
+    prelearn_lines: usize,
+) -> FateWarmupOutcome {
+    let saved_mode = session.hub.fate_weight_mode;
+    let saved_free = session.hub.fate_routing_free;
+    let saved_ingress = session.hub.ingress_routing;
+
+    if cfg.fate_adapt_unlock {
+        session.hub.set_fate_policy(
+            FateWeightMode::Evaluated,
+            true,
+            IngressRoutingMode::RoundRobin,
+        );
+    }
+
+    let limits = FateCycleLimits::warmup(cfg);
+    let (cycles, stopped_reason, aggregate_score) =
+        run_fate_convergence_cycles(session, &limits);
+
+    session
+        .hub
+        .set_fate_policy(saved_mode, saved_free, saved_ingress);
+
+    let state = session.hub.fate_system.export_convergence_state();
+    FateWarmupOutcome {
+        cycles_executed: cycles,
+        prelearn_lines,
+        pref_history_len: state.preference_history.len(),
+        signal_tick: state.signal_tick,
+        aggregate_score,
+        stopped_reason,
+    }
+}
+
 pub fn run_fate_adapt(session: &mut TriadSession, cfg: &FateOrchestratorConfig) -> FateAdaptOutcome {
     let saved_mode = session.hub.fate_weight_mode;
     let saved_free = session.hub.fate_routing_free;
@@ -1019,32 +1273,9 @@ pub fn run_fate_adapt(session: &mut TriadSession, cfg: &FateOrchestratorConfig) 
         );
     }
 
-    let mut tracker = FateTracker::new();
-    let mut cycles = 0usize;
-    let mut aggregate_score = 0.0;
-    let mut stopped_reason = "hard_max".to_string();
-
-    while cycles < cfg.hard_max_cycles {
-        session.run_optimize_cycles_fate_owned(1);
-        if matches!(
-            session.body,
-            BodyTarget::Hub | BodyTarget::Triad
-        ) {
-            session.hub.mark_epoch_complete();
-        }
-        cycles += 1;
-        aggregate_score = compute_aggregate_score(session);
-        tracker.record(aggregate_score);
-
-        if let Some(reason) = fate_should_stop(session, &tracker, cycles, cfg, aggregate_score) {
-            stopped_reason = reason.to_string();
-            break;
-        }
-        if cycles >= cfg.soft_max_cycles {
-            stopped_reason = "soft_max".into();
-            break;
-        }
-    }
+    let limits = FateCycleLimits::adapt(cfg);
+    let (cycles, stopped_reason, aggregate_score) =
+        run_fate_convergence_cycles(session, &limits);
 
     session
         .hub
@@ -1153,6 +1384,7 @@ mod tests {
             soft_max_cycles: 12,
             hard_max_cycles: 24,
             fate_adapt_unlock: true,
+            ..Default::default()
         };
         let outcome = run_fate_adapt(&mut session, &cfg);
         assert!(outcome.cycles_executed >= cfg.min_cycles);
@@ -1167,6 +1399,7 @@ mod tests {
             soft_max_cycles: 8,
             hard_max_cycles: 16,
             fate_adapt_unlock: true,
+            ..Default::default()
         };
         run_fate_adapt(&mut session, &cfg);
         let snap = session.manifold_snapshot();
@@ -1207,6 +1440,8 @@ mod tests {
             soft_max_cycles: 8,
             hard_max_cycles: 16,
             fate_adapt_unlock: true,
+            warmup_enabled: false,
+            ..Default::default()
         };
         ingest_corpus_with_fragments_mode(&mut session, &lines, &ports, &cfg, FragmentMode::Line);
         let snap = session.manifold_snapshot();
@@ -1228,6 +1463,8 @@ mod tests {
             soft_max_cycles: 8,
             hard_max_cycles: 16,
             fate_adapt_unlock: true,
+            warmup_enabled: false,
+            ..Default::default()
         };
         ingest_corpus_with_fragments_mode(
             &mut session,
@@ -1344,12 +1581,88 @@ mod tests {
             "Which planet is closest to the Sun?",
             &q_ports.embedding,
             &corpus_sigs,
+            &[
+                "Mercury is the closest planet to the Sun.".into(),
+                "Venus is the second planet from the Sun.".into(),
+            ],
             budget,
             BodyTarget::Triad,
             1,
         );
         assert_eq!(sel2.selected_ids, sel.selected_ids);
         assert!(!merged.tile.completed_tiles.is_empty() || !merged.stem.cells.is_empty());
+    }
+
+    #[test]
+    fn dynamic_fragments_keyword_anchor_keeps_needle_line() {
+        std::env::remove_var("VALHALLA_DYNAMIC_CORPUS_FRAGMENTS");
+        std::env::remove_var("VALHALLA_QUERY_FRAGMENT_MERGE");
+        let needle = "The magic registration code for Project Valhalla is XK-7742.";
+        let question = "What is the magic registration code for Project Valhalla?";
+        let filler: Vec<String> = (0..62)
+            .map(|i| format!("Generic filler fact number {i} about science and geography."))
+            .collect();
+        let mut corpus = filler;
+        corpus[30] = needle.to_string();
+
+        let budget = IngressBudget::experiment();
+        let cap = default_port_cap();
+        let mut session = TriadSession::with_body(budget.clone(), BodyTarget::Triad);
+        let ports: Vec<_> = corpus.iter().map(|l| grind_text_hash(l, cap)).collect();
+        let cfg = FateOrchestratorConfig {
+            min_cycles: 1,
+            soft_max_cycles: 4,
+            hard_max_cycles: 8,
+            fate_adapt_unlock: false,
+            warmup_enabled: false,
+            ..Default::default()
+        };
+        ingest_corpus_with_fragments_mode(
+            &mut session,
+            &corpus,
+            &ports,
+            &cfg,
+            FragmentMode::Density,
+        );
+        let snap = session.manifold_snapshot();
+        let frags: Vec<_> = snap
+            .fragments
+            .iter()
+            .filter(|f| f.id != "merged" && f.id != "main")
+            .cloned()
+            .collect();
+        assert!(!frags.is_empty(), "expected density fragments");
+
+        let q_ports = grind_text_hash(question, cap);
+        let corpus_sigs: Vec<_> = corpus
+            .iter()
+            .enumerate()
+            .map(|(i, l)| (i, grind_text_hash(l, cap).embedding))
+            .collect();
+        let top_k = query_fragment_top_k(corpus.len());
+        let (_, selection) = merge_fragments_for_query(
+            &frags,
+            question,
+            &q_ports.embedding,
+            &corpus_sigs,
+            &corpus,
+            budget,
+            BodyTarget::Triad,
+            top_k,
+        );
+        assert!(
+            selection.corpus_line_indices.contains(&30),
+            "needle line 30 must be anchored: {:?}",
+            selection.corpus_line_indices
+        );
+    }
+
+    #[test]
+    fn truncate_label_respects_utf8_boundaries() {
+        let long = "Cloud VoIP Service. | With our Cloud VoIP service, you can get VoIP service completely in the cloud with no equipment required for toll-free numbers.";
+        let out = truncate_label(long, 120);
+        assert!(out.ends_with('…'));
+        assert!(out.chars().count() <= 121);
     }
 
     #[test]
@@ -1360,6 +1673,9 @@ mod tests {
             soft_max_cycles: 6,
             hard_max_cycles: 12,
             fate_adapt_unlock: true,
+            warmup_cycles: 2,
+            warmup_prelearn_lines: 0,
+            ..Default::default()
         };
         let lib = pretrain_corpus_to_library(BodyTarget::Triad, &lines, &cfg);
         assert_eq!(lib.version, FRAGMENT_LIBRARY_VERSION);
@@ -1369,5 +1685,103 @@ mod tests {
         let loaded = ManifoldFragmentLibrary::load_json(&dir).unwrap();
         let _ = std::fs::remove_file(&dir);
         assert!(loaded.merged_snapshot.is_some());
+    }
+
+    #[test]
+    fn fate_warmup_builds_preference_history() {
+        let budget = IngressBudget::experiment();
+        let mut session = TriadSession::with_body(budget, BodyTarget::Triad);
+        let lines: Vec<String> = (0..8)
+            .map(|i| format!("Warmup corpus line {i} about astronomy and orbital dynamics."))
+            .collect();
+        let cap = default_port_cap();
+        let ports: Vec<_> = lines
+            .iter()
+            .map(|l| crate::grinder::grind_text_hash(l, cap))
+            .collect();
+        let cfg = FateOrchestratorConfig {
+            min_cycles: 2,
+            soft_max_cycles: 8,
+            hard_max_cycles: 16,
+            fate_adapt_unlock: true,
+            warmup_enabled: true,
+            warmup_cycles: 3,
+            warmup_prelearn_lines: 2,
+            ..Default::default()
+        };
+        let (_, warmup) = ingest_corpus_with_fragments_mode_full(
+            &mut session,
+            &lines,
+            &ports,
+            &cfg,
+            FragmentMode::Density,
+        );
+        let w = warmup.expect("warmup should run when prelearn > 0");
+        assert_eq!(w.prelearn_lines, 2);
+        let warmup_limits = FateCycleLimits::warmup(&cfg);
+        assert!(w.cycles_executed >= warmup_limits.min_cycles);
+        assert!(w.cycles_executed <= warmup_limits.hard_max_cycles);
+        assert!(!w.stopped_reason.is_empty());
+        assert!(
+            w.pref_history_len >= 2,
+            "warmup should grow preference_history, got {}",
+            w.pref_history_len
+        );
+    }
+
+    #[test]
+    fn convergence_cycles_respect_fate_limits() {
+        let mut session = smoke_session();
+        let limits = FateCycleLimits {
+            min_cycles: 2,
+            soft_max_cycles: 12,
+            hard_max_cycles: 24,
+        };
+        let (cycles, reason, score) = run_fate_convergence_cycles(&mut session, &limits);
+        assert!(cycles >= limits.min_cycles);
+        assert!(cycles <= limits.hard_max_cycles);
+        assert!(!reason.is_empty());
+        assert!(score >= 0.0 && score <= 1.0);
+    }
+
+    #[test]
+    fn prelearn_lines_skip_fragments_until_warmup_done() {
+        std::env::set_var("VALHALLA_FRAGMENT_MAX_LINES", "2");
+        let budget = IngressBudget::experiment();
+        let mut session = TriadSession::with_body(budget, BodyTarget::Triad);
+        let lines: Vec<String> = (0..6)
+            .map(|i| format!("Segment line {i} for density fragment warmup test."))
+            .collect();
+        let cap = default_port_cap();
+        let ports: Vec<_> = lines
+            .iter()
+            .map(|l| crate::grinder::grind_text_hash(l, cap))
+            .collect();
+        let cfg = FateOrchestratorConfig {
+            min_cycles: 2,
+            soft_max_cycles: 6,
+            hard_max_cycles: 12,
+            fate_adapt_unlock: true,
+            warmup_enabled: true,
+            warmup_cycles: 2,
+            warmup_prelearn_lines: 3,
+            ..Default::default()
+        };
+        ingest_corpus_with_fragments_mode(&mut session, &lines, &ports, &cfg, FragmentMode::Density);
+        let snap = session.manifold_snapshot();
+        let seg_frags: Vec<_> = snap
+            .fragments
+            .iter()
+            .filter(|f| f.id.starts_with("seg_"))
+            .collect();
+        assert!(
+            seg_frags.iter().all(|f| f.line_start >= 3),
+            "fragments should start after prelearn lines: {:?}",
+            seg_frags
+                .iter()
+                .map(|f| (f.id.as_str(), f.line_start, f.line_end))
+                .collect::<Vec<_>>()
+        );
+        std::env::remove_var("VALHALLA_FRAGMENT_MAX_LINES");
     }
 }

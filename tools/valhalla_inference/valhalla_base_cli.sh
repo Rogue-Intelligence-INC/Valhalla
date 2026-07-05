@@ -5,6 +5,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 BIN="${VALHALLA_BASE_BIN:-$ROOT/target/release/valhalla_base}"
 export RUSTFLAGS="${RUSTFLAGS:--L /opt/cuda/lib64}"
+export LIBRARY_PATH="/opt/cuda/targets/x86_64-linux/lib:${LIBRARY_PATH:-}"
+export VALHALLA_USE_CPU="${VALHALLA_USE_CPU:-0}"
+export VALHALLA_LM_MODEL="${VALHALLA_LM_MODEL:-Qwen/Qwen2.5-3B-Instruct}"
 
 ensure_bin() {
   if [[ -x "$BIN" ]]; then return; fi

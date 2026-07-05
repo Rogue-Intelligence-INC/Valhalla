@@ -51,9 +51,11 @@ PROTOCOL = "model-scaling-v1"
 REPORTS = REPO / "reports/valhalla_inference"
 
 
-def production_base(*, lm_model: str = "Qwen/Qwen2.5-0.5B-Instruct") -> ValhallaBase:
+def production_base(*, lm_model: str | None = None) -> ValhallaBase:
+    from benchmark_env import default_lm_model  # noqa: E402
+
     return ValhallaBase(
-        lm_model=lm_model,
+        lm_model=lm_model or default_lm_model(),
         decode="hybrid",
         mcq_decode="lm_patch",
         follow_up_decode="native_follow_up_aware",

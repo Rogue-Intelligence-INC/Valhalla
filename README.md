@@ -1,8 +1,8 @@
 # Valhalla — AI Memory & Hybrid Inference Platform
 
 <p align="center">
-  <strong>ValhallaBase</strong> · structure-first context · hybrid decode · industry RAG benchmarks<br>
-  <strong>结构记忆体</strong> · 混合路由 · 第三方 benchmark 全绿
+  <strong>ValhallaBase</strong> · dynamic corpus fragments · Qwen2.5-3B · industry benchmarks<br>
+  <strong>结构记忆体</strong> · 全语料动态片段 · 3B 生产默认 · 第三方 benchmark
 </p>
 
 <p align="center">
@@ -37,9 +37,11 @@ Valhalla is an **AI memory & hybrid inference platform** built around **Valhalla
 | **Needle session** | **4/4** @ depth 30 | Session-level long-range recall |
 | **RULER-style** | **20/20** single + multi-needle | Deep needle retrieval on append protocol |
 | **External holdout** | **15/15** | Out-of-suite generalization |
-| **MCQ ladder** (46Q) | **0.5B 65% → 3B 98%** | lm_patch scales with Qwen backbone |
+| **MCQ ladder** (46Q) | **0.5B 61% → 3B 98%** | lm_patch scales with Qwen backbone |
 
-Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
+**2026-07-06 release:** [RELEASE_20260706.md](docs/valhalla/RELEASE_20260706.md) · dynamic corpus fragments · Fate convergence · 3B+CUDA default
+
+Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) · [`MCQ_SCALING_POTENTIAL_20260706.md`](reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md)
 
 ### 孵化能力（Incubation — zero-weight learning）
 
@@ -63,7 +65,14 @@ Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/val
 | **Open retrieval** (targeted) | **31/31 (100%)** |
 | **Zero cross-topic drift** | **0/48** probes |
 
-### Architecture edge
+### Architecture edge (2026-07-06)
+
+| | Legacy prompt RAG | **ValhallaBase v2026-07** |
+|--|-------------------|---------------------------|
+| Long corpus | Truncate / last-N lines | **Dynamic fragments** — full ingest + query merge |
+| Needle @ depth 30 | Fragment filter gap | **Keyword anchor** + scaled top-k → **4/4** |
+| Default LM | 0.5B | **Qwen2.5-3B-Instruct + CUDA** |
+| Adapt cycles | Fixed count | **Fate convergence** (warmup + adapt) |
 
 | | Transformer prompt stack | **ValhallaBase** |
 |--|--------------------------|------------------|
@@ -82,8 +91,16 @@ Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/val
 
 ```bash
 git submodule update --init valhalla-unified-core
+export LIBRARY_PATH=/opt/cuda/targets/x86_64-linux/lib:$LIBRARY_PATH
 RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_base
 ./tools/valhalla_inference/valhalla_base_cli.sh open    # or: valhalla_base --example open | valhalla_base --pretty
+```
+
+Industry benchmarks (3B, split from AGI):
+
+```bash
+python3 tools/valhalla_inference/run_industry_benchmarks.py --all          # regular suite
+python3 tools/valhalla_inference/run_industry_benchmarks.py --agi-only     # TPI · fair-bench · incubation
 ```
 
 Full API: [`docs/valhalla/VALHALLA_BASE_CLI.md`](docs/valhalla/VALHALLA_BASE_CLI.md)
@@ -110,6 +127,8 @@ Valhalla/
 | [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) | Platform reference (VUC) |
 | [`docs/valhalla/VALHALLA_BASE_CLI.md`](docs/valhalla/VALHALLA_BASE_CLI.md) | **CLI · JSON schema · programmatic API** |
 | [`docs/valhalla/DEMO.md`](docs/valhalla/DEMO.md) | **3-minute demo** (corpus → ask → session → proactive) |
+| [`docs/valhalla/RELEASE_20260706.md`](docs/valhalla/RELEASE_20260706.md) | **Latest release** — dynamic fragments · 3B · Fate convergence |
+| [`docs/valhalla/MANIFOLD_FRAGMENT_V1.md`](docs/valhalla/MANIFOLD_FRAGMENT_V1.md) | Fragment manifold protocol |
 | [`docs/valhalla/README.md`](docs/valhalla/README.md) | Product doc hub (fixes submodule 404s) |
 | [`reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) | **What to cite · runs · because** |
 | [`reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md) | Master experiment summary |
@@ -141,7 +160,7 @@ Valhalla 是 **AI 记忆与混合推理平台**：语料经 **Triad 孵化** 为
 - **RAGTruth 100/100** — ACL 2024 RAG 忠实度 industry 级
 - **Needle 4/4 · RULER 20/20** — 会话 append 长程召回
 - **Holdout 15/15** — 套件外泛化
-- **MCQ 0.5B→3B 65%→98%** — Qwen lm_patch 缩放
+- **MCQ 0.5B→3B 61%→98%** — Qwen lm_patch 缩放
 - **长久记忆 94.7% · Proactive 71/72 · PPI 0.890 · 30 轮 follow-up 96.7%**
 
 解读文档：[`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
@@ -149,6 +168,7 @@ Valhalla 是 **AI 记忆与混合推理平台**：语料经 **Triad 孵化** 为
 ### 快速复现
 
 ```bash
+export LIBRARY_PATH=/opt/cuda/targets/x86_64-linux/lib:$LIBRARY_PATH
 RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_base
 python3 tools/valhalla_inference/run_industry_benchmarks.py --all
 ```
@@ -161,7 +181,7 @@ python3 tools/valhalla_inference/run_industry_benchmarks.py --all
 
 - Rust 1.70+ · CUDA optional (`RUSTFLAGS='-L /opt/cuda/lib64'`)
 - Python 3.10+ · `.venv-llm` for trad LM / HF datasets
-- Default backbone: `Qwen2.5-0.5B-Instruct`
+- Default backbone: **`Qwen2.5-3B-Instruct`** · CUDA recommended (`benchmark_env.py`)
 
 ## License
 

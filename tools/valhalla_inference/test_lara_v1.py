@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -46,8 +47,18 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--with-trad", action="store_true")
-    ap.add_argument("--lm-model", default="Qwen/Qwen2.5-0.5B-Instruct")
+    from benchmark_env import default_lm_model  # noqa: E402
+
+    ap.add_argument("--lm-model", default=None)
+    ap.add_argument("--legacy-v2", action="store_true", help="enable legacy rule multihop_v2 ablation")
+    ap.add_argument("--no-open-fate", action="store_true", help="disable global open Fate")
     args = ap.parse_args()
+    lm_model = args.lm_model or default_lm_model()
+
+    if args.legacy_v2:
+        os.environ.setdefault("VALHALLA_MULTIHOP_V2", "1")
+    if args.no_open_fate:
+        os.environ["VALHALLA_OPEN_FATE"] = "0"
 
     doc = load_bundled(BUNDLE)
     items = doc["items"]
@@ -62,13 +73,13 @@ def main() -> None:
         try:
             from loader import ValhallaLLM  # noqa: E402
 
-            lm = ValhallaLLM(resolve_lm_path(args.lm_model), engine="transformers")
+            lm = ValhallaLLM(resolve_lm_path(lm_model), engine="transformers")
         except Exception as exc:  # noqa: BLE001
             print(f"trad SKIP: {exc}\n")
             lm = None
 
     for item in items:
-        base = make_base(fast=args.fast, lm_model=args.lm_model)
+        base = make_base(fast=args.fast, lm_model=lm_model)
         corpus = item.get("rag_corpus") or []
         ans_rag = run_open_item(base, item_id=item["id"], question=item["question"], corpus=corpus)
         ok_rag = score_short_answer(ans_rag, item["answer"])

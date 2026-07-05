@@ -2,6 +2,15 @@
 
 Valhalla 各模块 ↔ Transformer 的统一加载层（vLLM 风格 API + **Valhalla-as-base**）。
 
+**2026-07-06 生产默认：** `Qwen2.5-3B-Instruct` · CUDA · [`benchmark_env.py`](./benchmark_env.py) · [`RELEASE_20260706.md`](../../docs/valhalla/RELEASE_20260706.md)
+
+```bash
+# Industry（常规）
+python3 tools/valhalla_inference/run_industry_benchmarks.py --all
+# AGI / 训练代理（单独）
+python3 tools/valhalla_inference/run_industry_benchmarks.py --agi-only
+```
+
 ## Valhalla-as-base（上下文灵活基座）
 
 **Rust 优先：** in-process `ValhallaBaseClient` · `valhalla_base demo v1|needle|corpus` · `valhalla_base serve`

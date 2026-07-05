@@ -219,7 +219,18 @@ fn default_triad() -> String {
     "triad".into()
 }
 fn default_lm_model() -> String {
-    "Qwen/Qwen2.5-0.5B-Instruct".into()
+    std::env::var("VALHALLA_LM_MODEL")
+        .unwrap_or_else(|_| "Qwen/Qwen2.5-3B-Instruct".into())
+}
+
+fn default_use_cpu() -> bool {
+    std::env::var("VALHALLA_USE_CPU")
+        .ok()
+        .map(|v| {
+            let v = v.trim().to_ascii_lowercase();
+            v == "1" || v == "true" || v == "on"
+        })
+        .unwrap_or(false)
 }
 fn default_strength() -> f64 {
     DEFAULT_STRENGTH
@@ -258,7 +269,7 @@ impl Default for ValhallaBaseConfig {
             strength: default_strength(),
             max_new: default_max_new(),
             incubation_cycles: default_cycles(),
-            use_cpu: false,
+            use_cpu: default_use_cpu(),
             decode: ValhallaBaseDecode::LmPatch,
             core_fusion: false,
             mcq_decode: ValhallaMcqDecode::LmPatch,
@@ -463,6 +474,7 @@ fn merge_context(req: &ValhallaBaseRequest) -> (Vec<String>, Vec<ValhallaContext
 
 fn feed_context_item(session: &mut TriadSession, item: &ValhallaContextItem, front: &DlFrontConfig) {
     let mut idx = session.fragment_tracks.len();
+    let orch = crate::fate_orchestrator::FateOrchestratorConfig::default();
     if let Some(text) = item.text.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
         if crate::fate_orchestrator::multi_fragment_enabled() {
             crate::fate_orchestrator::ingest_modality_record_fragment(
@@ -472,7 +484,7 @@ fn feed_context_item(session: &mut TriadSession, item: &ValhallaContextItem, fro
                 },
                 front,
                 idx,
-                1,
+                &orch,
             );
         } else {
             session.feed_modality(
@@ -493,7 +505,7 @@ fn feed_context_item(session: &mut TriadSession, item: &ValhallaContextItem, fro
                 },
                 front,
                 idx,
-                1,
+                &orch,
             );
         } else {
             session.feed_modality(
@@ -514,7 +526,7 @@ fn feed_context_item(session: &mut TriadSession, item: &ValhallaContextItem, fro
                 },
                 front,
                 idx,
-                1,
+                &orch,
             );
         } else {
             session.feed_modality(

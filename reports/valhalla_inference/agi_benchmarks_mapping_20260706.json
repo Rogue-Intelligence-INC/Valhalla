@@ -1,0 +1,90 @@
+{
+  "timestamp": "2026-07-06T01:30:00+08:00",
+  "source": "Web search 2026 frontier AGI benchmarks + Valhalla proxy mapping",
+  "mega_run_log": "reports/valhalla_inference/mega_benchmark_20260706_012049.log",
+  "clusters_2026": [
+    {
+      "cluster": "Knowledge / MMLU",
+      "frontier_benchmarks": ["MMLU-Pro", "MMMLU"],
+      "valhalla_proxy": ["mcq-ladder-v1", "longbench-v2-v1", "fair-benchmark MCQ", "incubation-benchmark MMLU-style"],
+      "status": "running_in_mega"
+    },
+    {
+      "cluster": "Math reasoning",
+      "frontier_benchmarks": ["GSM8K", "MATH", "AIME-2025", "FrontierMath"],
+      "valhalla_proxy": ["fair-benchmark math_word", "TPI-v2 training potential", "external-domain GSM8K"],
+      "status": "running_in_mega"
+    },
+    {
+      "cluster": "Expert STEM",
+      "frontier_benchmarks": ["GPQA Diamond", "Humanity's Last Exam (HLE)"],
+      "valhalla_proxy": ["fair-benchmark open physics/chem/bio (partial GPQA proxy)"],
+      "status": "partial; HLE/GPQA-full not wired"
+    },
+    {
+      "cluster": "Abstract reasoning / AGI",
+      "frontier_benchmarks": ["ARC-AGI-2", "BIG-Bench Hard"],
+      "valhalla_proxy": [],
+      "status": "pending — needs ARC adapter"
+    },
+    {
+      "cluster": "Code / agents",
+      "frontier_benchmarks": ["SWE-bench Verified", "LiveCodeBench", "HumanEval"],
+      "valhalla_proxy": [],
+      "status": "pending — Valhalla is RAG/manifold not code agent"
+    },
+    {
+      "cluster": "Tool use / agents",
+      "frontier_benchmarks": ["BFCL v4", "WebArena", "OSWorld", "Terminal-Bench", "Tau-Bench"],
+      "valhalla_proxy": [],
+      "status": "pending"
+    },
+    {
+      "cluster": "RAG faithfulness",
+      "frontier_benchmarks": ["RAGTruth", "RAGBench", "RAGAS"],
+      "valhalla_proxy": ["ragtruth-v1", "ragtruth-full-v1"],
+      "status": "running_in_mega"
+    },
+    {
+      "cluster": "Long context / memory",
+      "frontier_benchmarks": ["Needle", "RULER", "LoCoMo", "LongBench-v2"],
+      "valhalla_proxy": ["needle-session-v1", "ruler-v1", "locomo-v1", "longbench-v2-v1", "long-memory-v1"],
+      "status": "running_in_mega"
+    },
+    {
+      "cluster": "Multi-hop QA",
+      "frontier_benchmarks": ["MultiHop-RAG", "FRAMES", "HotpotQA-style"],
+      "valhalla_proxy": ["multihop-rag hybrid", "frames-v1"],
+      "status": "running_in_mega"
+    },
+    {
+      "cluster": "Training / substrate",
+      "frontier_benchmarks": ["Zero-shot transfer", "Continual learning", "Structure vs LM SGD"],
+      "valhalla_proxy": ["TPI-v2", "NPPI", "model-scaling-v1", "proactive-fate-v2"],
+      "status": "running_in_mega"
+    }
+  ],
+  "industry_suite": [
+    "ragtruth-v1",
+    "ragtruth-full-v1",
+    "needle-session-v1",
+    "longbench-v2-v1",
+    "frames-v1",
+    "multihop-rag hybrid",
+    "locomo-v1",
+    "ruler-v1",
+    "lara-v1",
+    "external-holdout-v1",
+    "mcq-ladder-v1"
+  ],
+  "pending_frontier_adapters": [
+    "ARC-AGI-2",
+    "HLE",
+    "GPQA Diamond full",
+    "SWE-bench Verified",
+    "LiveCodeBench",
+    "MMLU-Pro harness",
+    "RAGBench galileo-ai",
+    "FRAMES full 824Q"
+  ]
+}

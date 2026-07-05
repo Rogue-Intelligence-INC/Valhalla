@@ -117,6 +117,10 @@ pub struct NativeQaBatchResponse {
     pub live_session: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub manifold_protocol: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fate_warmup_cycles: Option<usize>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fate_warmup_prelearn_lines: Option<usize>,
     pub results: Vec<NativeQaBatchItem>,
 }
 
@@ -1715,19 +1719,9 @@ pub fn run_native_qa(req: &NativeQaRequest) -> NativeQaResponse {
             panic!("ingress_mode=grinder requires corpus_ports");
         }
         let shards = shards.unwrap();
-        let max_ingest = std::env::var("VALHALLA_NATIVE_MAX_CORPUS_LINES")
-            .ok()
-            .and_then(|v| v.parse().ok())
-            .unwrap_or(32);
-        let ingest_all = req.ingest_all_corpus.unwrap_or(false)
-            || std::env::var("VALHALLA_INGEST_ALL_CORPUS")
-                .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
-                .unwrap_or(false);
-        let ingest_skip = if ingest_all {
-            0
-        } else {
-            shards.len().saturating_sub(max_ingest)
-        };
+        let ingest_all = crate::fate_orchestrator::explicit_ingest_all_corpus(req.ingest_all_corpus);
+        let ingest_skip =
+            crate::fate_orchestrator::corpus_ingest_skip(shards.len(), ingest_all);
         for (i, ports) in shards.iter().enumerate() {
             let t = req
                 .corpus
@@ -1954,14 +1948,6 @@ pub fn run_native_qa(req: &NativeQaRequest) -> NativeQaResponse {
     }
 }
 
-fn corpus_ingest_skip(len: usize, ingest_all: bool) -> usize {
-    if ingest_all {
-        return 0;
-    }
-    let max_ingest = env_usize("VALHALLA_NATIVE_MAX_CORPUS_LINES", 32);
-    len.saturating_sub(max_ingest)
-}
-
 fn corpus_memories_from_ports(corpus: &[String], shards: &[BodyFrontPorts]) -> Vec<MemoryEntry> {
     let mut memories = Vec::new();
     for (i, ports) in shards.iter().enumerate() {
@@ -1987,10 +1973,11 @@ fn feed_grinder_corpus(
     shards: &[BodyFrontPorts],
     ingest_all: bool,
 ) -> (Vec<MemoryEntry>, String) {
-    let ingest_skip = corpus_ingest_skip(shards.len(), ingest_all);
+    let ingest_skip = crate::fate_orchestrator::corpus_ingest_skip(shards.len(), ingest_all);
     let mut memories = Vec::new();
     let mut dl_encoder = String::from("grinder");
     let mode = crate::fate_orchestrator::fragment_mode();
+    let orch = crate::fate_orchestrator::FateOrchestratorConfig::default();
     let mut segmenter = crate::fate_orchestrator::FateDensitySegmenter::new();
     let mut last_ingested_idx = 0usize;
     for (i, ports) in shards.iter().enumerate() {
@@ -2021,7 +2008,7 @@ fn feed_grinder_corpus(
                         ports,
                         line_ref,
                         i,
-                        1,
+                        &orch,
                     );
                 }
                 crate::fate_orchestrator::FragmentMode::Line => {
@@ -2030,7 +2017,7 @@ fn feed_grinder_corpus(
                         ports,
                         line_ref,
                         i,
-                        1,
+                        &orch,
                     );
                 }
                 crate::fate_orchestrator::FragmentMode::Off => {
@@ -2255,26 +2242,51 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
         .and_then(|v| v.parse().ok())
         .unwrap_or(128);
 
-    let (corpus_memories, _dl_encoder, mut live_session, mut snap, incubation_report) =
+    let (corpus_memories, _dl_encoder, mut live_session, mut snap, incubation_report, fate_warmup) =
         if let Some(pre) = req.incubation_snapshot.clone() {
             let memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
             let mut session =
                 TriadSession::from_incubation_snapshot(budget.clone(), body, pre.clone());
             let report = session.build_feed_report("native_batch_prebuilt_snap", 0);
-            (memories, "grinder".into(), session, pre, report)
+            (memories, "grinder".into(), session, pre, report, None)
         } else {
             let mut session = TriadSession::with_body(budget.clone(), body);
-            let (corpus_memories, dl_encoder) =
-                feed_grinder_corpus(&mut session, &req.corpus, &req.corpus_ports, true);
-            if use_live || crate::fate_orchestrator::multi_fragment_enabled() {
+            let corpus_memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
+            let dl_encoder = req
+                .corpus_ports
+                .first()
+                .map(|p| p.encoder.clone())
+                .unwrap_or_else(|| "grinder".into());
+            let fate_warmup = if use_live || crate::fate_orchestrator::multi_fragment_enabled() {
                 let orch = crate::fate_orchestrator::FateOrchestratorConfig::default();
-                crate::fate_orchestrator::run_fate_adapt(&mut session, &orch);
+                let (_, warmup) = crate::fate_orchestrator::ingest_corpus_with_fragments_mode_full(
+                    &mut session,
+                    &req.corpus,
+                    &req.corpus_ports,
+                    &orch,
+                    crate::fate_orchestrator::fragment_mode(),
+                );
+                warmup
             } else {
+                feed_grinder_corpus(
+                    &mut session,
+                    &req.corpus,
+                    &req.corpus_ports,
+                    true,
+                );
                 session.run_optimize_cycles(req.incubation_cycles);
-            }
+                None
+            };
             let incubation_report = session.build_feed_report("native_batch_incubation", 0);
             let snap = session.manifold_snapshot();
-            (corpus_memories, dl_encoder, session, snap, incubation_report)
+            (
+                corpus_memories,
+                dl_encoder,
+                session,
+                snap,
+                incubation_report,
+                fate_warmup,
+            )
         };
 
     let fragment_count = snap.fragments.len();
@@ -2323,12 +2335,13 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                 .iter()
                 .filter_map(|m| m.corpus_idx.map(|idx| (idx, m.signals.clone())))
                 .collect();
-            let top_k = crate::fate_orchestrator::query_fragment_top_k();
+            let top_k = crate::fate_orchestrator::query_fragment_top_k(req.corpus.len());
             let (merged, sel) = crate::fate_orchestrator::merge_fragments_for_query(
                 &fragment_source,
                 &q.question,
                 &question_ports.embedding,
                 &corpus_sigs,
+                &req.corpus,
                 budget.clone(),
                 body,
                 top_k,
@@ -2662,6 +2675,8 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
         fragment_count,
         live_session: use_live,
         manifold_protocol,
+        fate_warmup_cycles: fate_warmup.as_ref().map(|w| w.cycles_executed),
+        fate_warmup_prelearn_lines: fate_warmup.as_ref().map(|w| w.prelearn_lines),
         results,
     }
 }
