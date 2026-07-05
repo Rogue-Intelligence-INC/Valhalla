@@ -1,6 +1,6 @@
 # Industry benchmarks — ValhallaBase
 
-**Generated:** 2026-07-02T08:04:31.719562+00:00
+**Generated:** 2026-07-05T16:37:57.930374+00:00
 
 ## Results
 
@@ -12,10 +12,13 @@
 | LongBench-v2 | `longbench-v2-v1` | **7/20 (35%)** | LONGBENCH_V2_VIABLE |
 | FRAMES | `frames-v1` | **0/25 (0%)** | OPEN_QA_DEVELOPING |
 | MultiHop-RAG | `multihop-rag-v1` | **9/25 (36%)** | OPEN_QA_DEVELOPING |
+| MultiHop-RAG v2 | `multihop-rag-v2` | **15/25 (60%)** | OPEN_QA_VIABLE |
+| MultiHop-RAG Fate | `multihop-rag-fate` | **13/25 (52%)** | OPEN_QA_VIABLE |
+| MultiHop-RAG hybrid | `multihop-rag-fate-v2-hybrid` | **16/25 (64%)** | OPEN_QA_VIABLE |
 | LoCoMo | `locomo-v1` | **1/30 (3%)** | OPEN_QA_DEVELOPING |
 | RULER-style | `ruler-v1` | **20/20 (100%)** | NEEDLE_STRONG |
-| LaRA RAG vs LC | `lara-v1` | **RAG 5/20 · LC 14/20** | STRUCTURE_RAG_BELOW_LC |
-| MCQ ladder | `mcq-ladder-v1` | **0.5B 65% → 3.0B 98%** | MCQ_LADDER_SCALES |
+| LaRA RAG vs LC | `lara-v1` | **RAG 12/20** | RAG_ONLY |
+| MCQ ladder | `mcq-ladder-v1` | **0.5B 61% → 3.0B 98%** | MCQ_LADDER_SCALES |
 | External holdout | `external-holdout-v1` | **15/15 (100%)** | EXTERNAL_HOLDOUT_STRONG |
 
 ## Roadmap (pending)

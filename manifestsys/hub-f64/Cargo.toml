@@ -105,6 +105,14 @@ path = "src/bin/valhalla_fused_lm.rs"
 required-features = ["patch-lm"]
 
 [[bin]]
+name = "manifold_pretrain"
+path = "src/bin/manifold_pretrain.rs"
+
+[[bin]]
+name = "manifold_orchestrator_smoke"
+path = "src/bin/manifold_orchestrator_smoke.rs"
+
+[[bin]]
 name = "valhalla_base"
 path = "src/bin/valhalla_base.rs"
 required-features = ["patch-lm"]

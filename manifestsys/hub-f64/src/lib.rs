@@ -54,7 +54,19 @@ pub mod multimodal_compose;
 pub mod valhalla_adapter;
 pub mod native_qa;
 pub mod signal_ingress;
+pub mod fate_orchestrator;
 pub mod smoke_report;
+
+pub use fate_orchestrator::{
+    export_fragment, fragment_mode, ingest_corpus_with_fragments,
+    ingest_corpus_with_fragments_mode, ingest_line_density_fragment,
+    ingress_and_adapt, live_session_enabled, merge_fragments, merge_fragments_for_query,
+    multi_fragment_enabled, pretrain_corpus_to_library, pulse_question_live, query_fragment_merge_enabled,
+    query_fragment_top_k, run_fate_adapt, score_fragment_for_query, select_fragments_for_query,
+    FateAdaptOutcome, FateDensitySegmenter, FateOrchestratorConfig, FragmentCloseMeta, FragmentMode,
+    ManifoldFragmentLibrary, PretrainStats, QueryFragmentSelection, SnapshotFragment,
+    FRAGMENT_LIBRARY_VERSION, MANIFOLD_PROTOCOL,
+};
 
 pub use native_qa::{run_native_qa, run_native_qa_batch, NativeQaBatchRequest, NativeQaRequest, NativeQaResponse};
 pub use dl_front::{
@@ -98,7 +110,7 @@ pub use valhalla_storage::{SystemStorage, AllStorages, init_all_storages};
 pub use fate_f64::{
     FateSystem, DeformationSignal, SystemType as FateSystemType,
     SystemPreferences, ResourceLimits, SignalBatch, FateEvaluation,
-    TripleFateCombined, FateSlice, FateDataEntry,
+    TripleFateCombined, FateSlice, FateDataEntry, FateConvergenceState,
 };
 
 // Quad systems (f64)

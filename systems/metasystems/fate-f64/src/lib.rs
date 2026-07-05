@@ -207,6 +207,16 @@ impl Default for SystemPreferences {
     }
 }
 
+/// Persisted Fate convergence state — survives snapshot fork/restore.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct FateConvergenceState {
+    pub preference_history: Vec<[f64; 4]>,
+    pub system_weights: [f64; 4],
+    pub system_counts: [u64; 4],
+    pub signal_tick: u64,
+    pub data_flowing: bool,
+}
+
 impl SystemPreferences {
     /// Get preferred system index
     pub fn preferred_system(&self) -> usize {
@@ -473,6 +483,26 @@ impl FateSystem {
             .filter(|&t| t > 0)
             .unwrap_or_else(|| total_routed.max(1));
         self.data_flowing = true;
+    }
+
+    /// Export full convergence state for manifold snapshot persistence.
+    pub fn export_convergence_state(&self) -> FateConvergenceState {
+        FateConvergenceState {
+            preference_history: self.preference_history.clone(),
+            system_weights: self.system_weights,
+            system_counts: self.system_counts,
+            signal_tick: self.signal_tick,
+            data_flowing: self.data_flowing,
+        }
+    }
+
+    /// Restore convergence state from manifold snapshot (preserves marginal history).
+    pub fn import_convergence_state(&mut self, state: &FateConvergenceState) {
+        self.preference_history = state.preference_history.clone();
+        self.system_weights = state.system_weights;
+        self.system_counts = state.system_counts;
+        self.signal_tick = state.signal_tick;
+        self.data_flowing = state.data_flowing;
     }
     
     /// Calculate system preferences (O(1) with accumulators)

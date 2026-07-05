@@ -6,11 +6,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::dl_front::{encode_modality, BodyFrontPorts, DlFrontConfig, ModalityInput};
 use crate::fair_score::{extract_mcq_letter, format_prompt_text, score_answer, FairPrompt, ScoreResult};
+use crate::fate_orchestrator::{self, FateOrchestratorConfig};
 use crate::free_multimodal_fate::{fuse_universal_core_on_snapshot, UniversalCoreMetrics};
 use crate::grinder::{default_port_cap, grind_text_hash};
 use crate::native_qa::{
-    fog_tau_algebraic, run_native_qa, run_native_qa_batch, FogDecision, FogEvidence,
-    NativeQaBatchRequest, NativeQaQuestionSpec, NativeQaRequest,
+    fog_tau_algebraic, run_native_qa, run_native_qa_batch, structural_open_on_topic, FogDecision,
+    FogEvidence, NativeQaBatchRequest, NativeQaQuestionSpec, NativeQaRequest,
 };
 use crate::patch_lm::{PatchLmConfig, DEFAULT_MAX_NEW, DEFAULT_STRENGTH};
 use crate::signal_ingress::{BodyTarget, IngressBudget, TriadIncubationSnapshot, TriadSession};
@@ -181,14 +182,19 @@ pub struct ValhallaBaseConfig {
     /// Minimum hub_prefs spread — default τ(0)=12/138 from E7 algebra.
     #[serde(default = "default_proactive_min_spread")]
     pub proactive_min_spread: f64,
-    /// Multi-hop structure composition for open QA (hop split + yes/no / entity synthesis).
+    /// Legacy benchmark: rule-based multihop compose (opt-in `VALHALLA_MULTIHOP_V2`).
     #[serde(default)]
     pub multihop_v2: bool,
-    /// Multi-hop Fate adaptation (E7-φ hop-wise corpus affinity, no answer lexicon).
+    /// Global open Fate — pre-QA adapt + structure decode (default on).
+    #[serde(default = "default_open_fate_cfg")]
+    pub open_fate: bool,
+    /// When true, Fate orchestrator runs adapt cycles (default manifold runtime).
+    #[serde(default = "default_true")]
+    pub fate_orchestrate: bool,
+    /// Deprecated alias for `open_fate`.
     #[serde(default)]
     pub multihop_fate: bool,
 }
-
 fn default_proactive_min_fate_signals() -> usize {
     std::env::var("VALHALLA_PROACTIVE_MIN_FATE_SIGNALS")
         .ok()
@@ -240,6 +246,10 @@ fn cap_question_history(history: Vec<String>) -> Vec<String> {
     history[history.len() - cap..].to_vec()
 }
 
+fn default_open_fate_cfg() -> bool {
+    crate::multihop_fate::open_fate_enabled()
+}
+
 impl Default for ValhallaBaseConfig {
     fn default() -> Self {
         Self {
@@ -262,7 +272,9 @@ impl Default for ValhallaBaseConfig {
             proactive_min_turns: 0,
             proactive_min_spread: default_proactive_min_spread(),
             multihop_v2: crate::multihop_compose::multihop_v2_enabled(),
-            multihop_fate: crate::multihop_fate::multihop_fate_enabled(),
+            open_fate: default_open_fate_cfg(),
+            fate_orchestrate: true,
+            multihop_fate: default_open_fate_cfg(),
         }
     }
 }
@@ -450,29 +462,68 @@ fn merge_context(req: &ValhallaBaseRequest) -> (Vec<String>, Vec<ValhallaContext
 }
 
 fn feed_context_item(session: &mut TriadSession, item: &ValhallaContextItem, front: &DlFrontConfig) {
+    let mut idx = session.fragment_tracks.len();
     if let Some(text) = item.text.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
-        session.feed_modality(
-            ModalityInput::Text {
-                content: text.to_string(),
-            },
-            front,
-        );
+        if crate::fate_orchestrator::multi_fragment_enabled() {
+            crate::fate_orchestrator::ingest_modality_record_fragment(
+                session,
+                &ModalityInput::Text {
+                    content: text.to_string(),
+                },
+                front,
+                idx,
+                1,
+            );
+        } else {
+            session.feed_modality(
+                ModalityInput::Text {
+                    content: text.to_string(),
+                },
+                front,
+            );
+        }
+        idx += 1;
     }
     if let Some(audio) = item.audio_features.as_ref().filter(|v| !v.is_empty()) {
-        session.feed_modality(
-            ModalityInput::AudioFeatures {
-                values: audio.clone(),
-            },
-            front,
-        );
+        if crate::fate_orchestrator::multi_fragment_enabled() {
+            crate::fate_orchestrator::ingest_modality_record_fragment(
+                session,
+                &ModalityInput::AudioFeatures {
+                    values: audio.clone(),
+                },
+                front,
+                idx,
+                1,
+            );
+        } else {
+            session.feed_modality(
+                ModalityInput::AudioFeatures {
+                    values: audio.clone(),
+                },
+                front,
+            );
+        }
+        idx += 1;
     }
     if let Some(img) = item.image_features.as_ref().filter(|v| !v.is_empty()) {
-        session.feed_modality(
-            ModalityInput::ImageFeatures {
-                values: img.clone(),
-            },
-            front,
-        );
+        if crate::fate_orchestrator::multi_fragment_enabled() {
+            crate::fate_orchestrator::ingest_modality_record_fragment(
+                session,
+                &ModalityInput::ImageFeatures {
+                    values: img.clone(),
+                },
+                front,
+                idx,
+                1,
+            );
+        } else {
+            session.feed_modality(
+                ModalityInput::ImageFeatures {
+                    values: img.clone(),
+                },
+                front,
+            );
+        }
     }
 }
 
@@ -527,6 +578,40 @@ fn fate_telemetry_from_snap(snap: &TriadIncubationSnapshot, cfg: &ValhallaBaseCo
     }
 }
 
+fn run_incubation_adapt(session: &mut TriadSession, cycles: usize, cfg: &ValhallaBaseConfig) -> TriadIncubationSnapshot {
+    if cfg.fate_orchestrate {
+        let orch = FateOrchestratorConfig::default();
+        let (_, snap) = fate_orchestrator::ingress_and_adapt(session, cycles, &orch);
+        snap
+    } else {
+        session.run_optimize_cycles(cycles.max(1));
+        session.incubation_snapshot()
+    }
+}
+
+fn feed_lines_with_fragments(
+    session: &mut TriadSession,
+    lines: &[String],
+    cfg: &ValhallaBaseConfig,
+) -> TriadIncubationSnapshot {
+    let cap = default_port_cap();
+    if cfg.fate_orchestrate && fate_orchestrator::multi_fragment_enabled() {
+        let ports: Vec<BodyFrontPorts> = lines
+            .iter()
+            .map(|l| grind_text_hash(l, cap))
+            .collect();
+        let orch = FateOrchestratorConfig::default();
+        fate_orchestrator::ingest_corpus_with_fragments(session, lines, &ports, &orch);
+        session.manifold_snapshot()
+    } else {
+        for line in lines {
+            let ports = grind_text_hash(line, cap);
+            session.emit_body_ports_with_line(&ports, Some(line));
+        }
+        run_incubation_adapt(session, cfg.incubation_cycles.max(1), cfg)
+    }
+}
+
 fn build_snapshot_from_items(
     body: &str,
     lines: &[String],
@@ -543,13 +628,7 @@ fn build_snapshot_from_items(
         let budget = IngressBudget::experiment();
         let mut session = TriadSession::with_body(budget, target);
         apply_fate_config(&mut session, cfg);
-        let cap = default_port_cap();
-        for line in lines {
-            let ports = grind_text_hash(line, cap);
-            session.emit_body_ports_with_line(&ports, Some(line));
-        }
-        session.run_optimize_cycles(cycles.max(1));
-        return session.incubation_snapshot();
+        return feed_lines_with_fragments(&mut session, lines, cfg);
     }
     let target = BodyTarget::parse(body);
     let budget = IngressBudget::experiment();
@@ -564,8 +643,7 @@ fn build_snapshot_from_items(
     for item in items {
         feed_context_item(&mut session, item, &front);
     }
-    session.run_optimize_cycles(cycles.max(1));
-    session.incubation_snapshot()
+    run_incubation_adapt(&mut session, cycles, cfg)
 }
 
 fn extend_snapshot(
@@ -589,8 +667,7 @@ fn extend_snapshot(
     for item in new_items {
         feed_context_item(&mut session, item, &front);
     }
-    session.run_optimize_cycles(cycles.max(1));
-    session.incubation_snapshot()
+    run_incubation_adapt(&mut session, cycles, cfg)
 }
 
 fn resolve_snapshot(
@@ -721,6 +798,24 @@ fn core_fusion_row(metrics: &UniversalCoreMetrics, snap_label: &str) -> CoreFusi
     }
 }
 
+fn open_prompt_has_scorable_reference(p: &FairPrompt) -> bool {
+    !p.reference_answer.trim().is_empty()
+        || p.keywords.iter().any(|k| !k.trim().is_empty())
+}
+
+fn fate_feedback_on_topic(p: &FairPrompt, row: &ValhallaBaseRow, lines: &[String]) -> bool {
+    if p.score_type != "open" {
+        return row.correct;
+    }
+    if open_prompt_has_scorable_reference(p) {
+        return row.correct;
+    }
+    let line_text = row
+        .retrieval_corpus_idx
+        .and_then(|i| lines.get(i).map(|s| s.as_str()));
+    structural_open_on_topic(&p.text, &row.answer, line_text)
+}
+
 fn apply_qa_feedback_to_snapshot(
     snap: TriadIncubationSnapshot,
     cfg: &ValhallaBaseConfig,
@@ -799,8 +894,13 @@ fn run_native_one(
         mcq_fate: p.score_type == "mcq" && cfg.mcq_decode == ValhallaMcqDecode::StructureFate,
         pipeline_v4: true,
         multihop_v2: cfg.multihop_v2,
-        multihop_fate: cfg.multihop_fate,
-        incubation_snapshot: Some(fused_snap),
+        open_fate: cfg.open_fate || cfg.multihop_fate,
+        multihop_fate: cfg.open_fate || cfg.multihop_fate,
+        incubation_snapshot: if cfg.fate_orchestrate {
+            None
+        } else {
+            Some(fused_snap)
+        },
     };
     let resp = run_native_qa_batch(&batch);
     let row = resp.results.into_iter().next().ok_or("native batch empty")?;
@@ -1406,7 +1506,7 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
                 context_snap,
                 cfg,
                 &q.text,
-                row.correct,
+                fate_feedback_on_topic(&p, &row, &lines),
                 &q_ports,
                 row.retrieval_corpus_idx,
                 Some(q_ports.embedding.clone()),

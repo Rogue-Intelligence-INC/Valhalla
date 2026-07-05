@@ -707,6 +707,21 @@ pub struct TriadIncubationSnapshot {
     /// Fate logical time (signal_tick) after incubation / QA — proactive time unit.
     #[serde(default)]
     pub fate_signal_tick: u64,
+    /// Manifold protocol tag — `valhalla-manifold-v1` when full Fate state is present.
+    #[serde(default)]
+    pub manifold_protocol: Option<String>,
+    /// Fused patch vector (256-d) at export time.
+    #[serde(default)]
+    pub patch_vector: Vec<f64>,
+    /// Full Fate convergence history (marginal stop survives fork).
+    #[serde(default)]
+    pub fate_convergence: Option<crate::FateConvergenceState>,
+    /// Hub triple_fate storage slice.
+    #[serde(default)]
+    pub hub_triple_fate: Option<crate::FateSlice>,
+    /// Composable structure fragments (modality / shard / corpus tracks).
+    #[serde(default)]
+    pub fragments: Vec<crate::fate_orchestrator::SnapshotFragment>,
 }
 
 fn default_fate_weight_mode_str() -> String {
@@ -756,6 +771,8 @@ pub struct TriadSession {
     ingress_encoder: String,
     /// Parallel to corpus line indices; persisted in incubation snapshot.
     corpus_line_affinity: Vec<f64>,
+    /// Per-line / per-modality fragment tracks (manifold compose).
+    pub fragment_tracks: Vec<crate::fate_orchestrator::SnapshotFragment>,
 }
 
 impl TriadSession {
@@ -778,7 +795,23 @@ impl TriadSession {
             hub_routed: [0; 4],
             ingress_encoder: String::new(),
             corpus_line_affinity: Vec::new(),
+            fragment_tracks: Vec::new(),
         }
+    }
+
+    /// Record current session state as a composable fragment track.
+    pub fn record_fragment(&mut self, id: &str, label: &str) {
+        self.record_fragment_with_meta(id, label, crate::fate_orchestrator::FragmentCloseMeta::default());
+    }
+
+    pub fn record_fragment_with_meta(
+        &mut self,
+        id: &str,
+        label: &str,
+        meta: crate::fate_orchestrator::FragmentCloseMeta,
+    ) {
+        self.fragment_tracks
+            .push(crate::fate_orchestrator::export_fragment(self, id, label, meta));
     }
 
     /// Feed raw payload through legacy char/f64 encoder (unchanged path).
@@ -1121,10 +1154,33 @@ impl TriadSession {
     }
 
     pub fn incubation_snapshot(&self) -> TriadIncubationSnapshot {
+        self.manifold_snapshot()
+    }
+
+    /// Full manifold export — Tile/Stem + Fate convergence + fragments.
+    pub fn manifold_snapshot(&self) -> TriadIncubationSnapshot {
         let prefs = self.hub.get_fate_preferences();
         let mode_str = match self.hub.fate_weight_mode {
             crate::FateWeightMode::Fixed => "fixed",
             crate::FateWeightMode::Evaluated => "evaluated",
+        };
+        let report = self.make_feed_report("manifold_export", 0);
+        let fragments = if self.fragment_tracks.is_empty() {
+            vec![crate::fate_orchestrator::export_fragment(
+                self,
+                "main",
+                "default",
+                crate::fate_orchestrator::FragmentCloseMeta::default(),
+            )]
+        } else {
+            let mut frags = self.fragment_tracks.clone();
+            frags.push(crate::fate_orchestrator::export_fragment(
+                self,
+                "merged",
+                "session_merged",
+                crate::fate_orchestrator::FragmentCloseMeta::default(),
+            ));
+            frags
         };
         TriadIncubationSnapshot {
             completed_tiles: self.tile.completed_tiles.clone(),
@@ -1143,6 +1199,50 @@ impl TriadSession {
             },
             corpus_line_affinity: self.corpus_line_affinity.clone(),
             fate_signal_tick: self.hub.fate_system().get_logical_time(),
+            manifold_protocol: Some(crate::fate_orchestrator::MANIFOLD_PROTOCOL.into()),
+            patch_vector: report.model_patch.patch_vector.clone(),
+            fate_convergence: Some(self.hub.fate_system.export_convergence_state()),
+            hub_triple_fate: Some(self.hub.triple_fate.freeze()),
+            fragments,
+        }
+    }
+
+    pub fn hub_routed_snapshot(&self) -> [u64; 4] {
+        self.hub_routed
+    }
+
+    pub fn corpus_line_affinity_snapshot(&self) -> Vec<f64> {
+        self.corpus_line_affinity.clone()
+    }
+
+    pub fn restore_hub_routed(&mut self, routed: [u64; 4]) {
+        self.hub_routed = routed;
+    }
+
+    pub fn restore_corpus_line_affinity(&mut self, aff: Vec<f64>) {
+        self.corpus_line_affinity = aff;
+    }
+
+    /// Fate-owned optimize — no Tile/Stem early break (Fate decides stop externally).
+    pub fn run_optimize_cycles_fate_owned(&mut self, optimize_cycles: usize) {
+        let cycles = optimize_cycles.max(1);
+        if matches!(self.body, BodyTarget::Hub | BodyTarget::Triad) {
+            self.hub.mark_epoch_complete();
+        }
+        let run_tile = matches!(self.body, BodyTarget::Tile | BodyTarget::Triad);
+        let run_stem = matches!(self.body, BodyTarget::StemCell | BodyTarget::Triad);
+
+        for _ in 0..cycles {
+            if run_tile {
+                self.tile.process_tiles_cycle();
+            }
+            if run_stem {
+                self.stem.process_cells_cycle();
+                let _ = self.stem.evolve(0.5);
+                if self.stem.cells.len() >= 4 {
+                    let _ = self.stem.evolve(0.35);
+                }
+            }
         }
     }
 
@@ -1178,6 +1278,12 @@ impl TriadSession {
                 None
             },
         );
+        if let Some(ref conv) = snap.fate_convergence {
+            session.hub.fate_system.import_convergence_state(conv);
+        }
+        if let Some(ref slice) = snap.hub_triple_fate {
+            session.hub.triple_fate = crate::TripleFateCombined::thaw(slice.clone());
+        }
     }
 
     /// Apply QA answer feedback into Fate + Tile/Stem passive loop.
@@ -1206,6 +1312,7 @@ impl TriadSession {
         session.hub_routed = snap.hub_routed;
         session.ingress_encoder = snap.ingress_encoder;
         session.corpus_line_affinity = snap.corpus_line_affinity.clone();
+        session.fragment_tracks = snap.fragments.clone();
         session
     }
 

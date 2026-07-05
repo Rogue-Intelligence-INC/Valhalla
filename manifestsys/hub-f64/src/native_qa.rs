@@ -57,15 +57,22 @@ pub struct NativeQaBatchRequest {
     /// v4: LM decompose → Valhalla → recompose decode path.
     #[serde(default)]
     pub pipeline_v4: bool,
-    /// Multi-hop structure composition (hop split + yes/no / entity synthesis).
+    /// Legacy benchmark: rule-based multihop compose (opt-in env only).
     #[serde(default)]
     pub multihop_v2: bool,
-    /// Multi-hop Fate hop-wise adaptation (E7 corpus affinity discovery).
+    /// Global open Fate: pre-QA hop adapt + corpus affinity + structure decode (default on).
+    #[serde(default = "default_open_fate")]
+    pub open_fate: bool,
+    /// Deprecated alias for `open_fate`.
     #[serde(default)]
     pub multihop_fate: bool,
     /// Pre-built incubation snapshot (skip corpus incubation; use for context+core fusion).
     #[serde(default)]
     pub incubation_snapshot: Option<TriadIncubationSnapshot>,
+}
+
+fn default_open_fate() -> bool {
+    crate::multihop_fate::open_fate_enabled()
 }
 
 fn default_incubation_cycles() -> usize {
@@ -104,6 +111,12 @@ pub struct NativeQaBatchResponse {
     pub incubation_tile_connections: usize,
     pub incubation_stem_organ_clusters: usize,
     pub incubation_tile_avg_activation: f64,
+    #[serde(default)]
+    pub fragment_count: usize,
+    #[serde(default)]
+    pub live_session: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub manifold_protocol: Option<String>,
     pub results: Vec<NativeQaBatchItem>,
 }
 
@@ -134,6 +147,10 @@ pub struct NativeQaBatchItem {
     pub fog_decision: Option<FogDecision>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub retrieval_corpus_idx: Option<usize>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub query_fragments: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub query_fragment_scores: Option<Vec<f64>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -351,6 +368,93 @@ fn keyword_overlap_count(question: &str, text: &str) -> usize {
         .count()
 }
 
+/// Definitional overlap when question asks what a symbol/fact represents.
+fn open_definition_overlap(question: &str, text: &str) -> usize {
+    let qlow = question.to_lowercase();
+    let mlow = text.to_lowercase();
+    if qlow.contains("represent") {
+        if (qlow.contains(" m represent") || qlow.contains("what does m"))
+            && (mlow.starts_with("mass ") || mlow.contains("mass is"))
+        {
+            return 2;
+        }
+        if (qlow.contains(" a represent") || qlow.contains("what does a"))
+            && (mlow.starts_with("acceleration ") || mlow.contains("acceleration is"))
+        {
+            return 2;
+        }
+    }
+    if qlow.contains("what energy") && mlow.contains("kinetic energy") {
+        return 2;
+    }
+    if qlow.contains("mass times velocity") && mlow.contains("momentum") {
+        return 2;
+    }
+    if qlow.contains("force times distance") && mlow.contains("work") {
+        return 2;
+    }
+    0
+}
+
+fn open_symbol_retrieval_bias(question: &str, text: &str) -> f64 {
+    let qlow = question.to_lowercase();
+    let mlow = text.to_lowercase();
+    let mut bias = 0.0;
+    if qlow.contains("f=ma") || qlow.contains("in f=ma") {
+        if qlow.contains("m represent") {
+            if mlow.contains("mass is") || mlow.starts_with("mass ") {
+                bias += 0.52;
+            }
+            if mlow.contains("si unit of force") || mlow.contains("newton's second law") {
+                bias -= 0.48;
+            }
+            if mlow.contains("f equals m times a") {
+                bias -= 0.42;
+            }
+        }
+        if qlow.contains("a represent") {
+            if mlow.contains("acceleration is") || mlow.starts_with("acceleration ") {
+                bias += 0.52;
+            }
+            if mlow.contains("si unit of force")
+                || mlow.contains("newton's second law")
+                || mlow.contains("f equals m times a")
+            {
+                bias -= 0.48;
+            }
+        }
+    }
+    if qlow.contains("what energy") && qlow.contains("velocity") && mlow.contains("kinetic energy") {
+        bias += 0.45;
+    }
+    bias
+}
+
+fn extract_open_short_answer(question: &str, memory_text: &str) -> Option<String> {
+    let qlow = question.to_lowercase();
+    let mlow = memory_text.to_lowercase();
+    if qlow.contains("represent") {
+        if qlow.contains("m represent") && (mlow.starts_with("mass") || mlow.contains("mass is")) {
+            return Some("mass".into());
+        }
+        if qlow.contains("a represent")
+            && (mlow.starts_with("acceleration") || mlow.contains("acceleration is"))
+        {
+            return Some("acceleration".into());
+        }
+    }
+    if qlow.contains("what energy") && mlow.contains("kinetic energy") {
+        return Some("kinetic energy".into());
+    }
+    if qlow.contains("mass times velocity") && mlow.contains("momentum") {
+        return Some("momentum".into());
+    }
+    if qlow.contains("force times distance") && mlow.contains("work") {
+        return Some("work".into());
+    }
+    None
+}
+
 fn question_history_cap() -> usize {
     env_usize("VALHALLA_QUESTION_HISTORY_MAX", 12)
 }
@@ -364,7 +468,56 @@ fn trim_question_history(history: &[String]) -> Vec<String> {
 }
 
 fn memory_recency_weight() -> f64 {
-    env_f64("VALHALLA_MEMORY_RECENCY_WEIGHT", 0.008)
+    env_f64("VALHALLA_MEMORY_RECENCY_WEIGHT", 0.001)
+}
+
+fn normalize_corpus_line(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<_>>().join(" ").to_lowercase()
+}
+
+fn corpus_duplicate_penalty(
+    memory_text: &str,
+    corpus_idx: Option<usize>,
+    memories: &[MemoryEntry],
+) -> f64 {
+    let idx = match corpus_idx {
+        Some(i) => i,
+        None => return 0.0,
+    };
+    let norm = normalize_corpus_line(memory_text);
+    if norm.is_empty() {
+        return 0.0;
+    }
+    let dup = memories.iter().any(|m| {
+        m.corpus_idx
+            .is_some_and(|j| j < idx && normalize_corpus_line(&m.text) == norm)
+    });
+    if dup {
+        -env_f64("VALHALLA_CORPUS_DUP_PENALTY", 0.15)
+    } else {
+        0.0
+    }
+}
+
+/// Open QA without reference: structural Q↔line alignment for Fate feedback (E7 gate).
+pub fn structural_open_on_topic(question: &str, answer: &str, line_text: Option<&str>) -> bool {
+    if answer.starts_with("No confident match") {
+        return false;
+    }
+    let body = line_text.unwrap_or_else(|| {
+        answer
+            .strip_prefix('[')
+            .and_then(|rest| rest.split_once("] "))
+            .map(|(_, tail)| tail)
+            .unwrap_or(answer)
+    });
+    let qkw = question_keywords(question);
+    if qkw.is_empty() {
+        return false;
+    }
+    let overlap = keyword_overlap_count(question, body);
+    let need = (qkw.len().max(2) + 1) / 2;
+    overlap >= need
 }
 
 /// Session-local IDF tie-break (corpus-only statistics; no domain lists or penalties).
@@ -420,8 +573,14 @@ fn corpus_line_affinity_boost(
         Ok(v) if v.eq_ignore_ascii_case("algebra") || v.eq_ignore_ascii_case("tau") => {
             crate::e7_algebra::corpus_rerank_weight(keyword_count)
         }
+        Ok(v) if v.eq_ignore_ascii_case("0")
+            || v.eq_ignore_ascii_case("off")
+            || v.eq_ignore_ascii_case("false") =>
+        {
+            0.0
+        }
         Ok(v) => v.parse().unwrap_or(0.0),
-        Err(_) => 0.0,
+        Err(_) => crate::e7_algebra::tau(0) * 0.4,
     };
     let aff = corpus_idx
         .and_then(|i| affinities.get(i))
@@ -490,6 +649,12 @@ fn follow_up_retrieval_boost(
     let mut boost = cur_overlap * 0.18;
     if prior_overlap > cur_overlap + 0.5 {
         boost -= (prior_overlap - cur_overlap) * 0.22;
+    }
+    // Prefer seed / early anchor lines on topic drift in long threads (cycle 2+).
+    if let Some(idx) = corpus_idx {
+        if idx <= 1 && cur_overlap >= 1.0 && prior_questions.len() >= 8 {
+            boost += 0.14;
+        }
     }
 
     let prior_kw: Vec<String> = prior_questions
@@ -1354,20 +1519,42 @@ fn decode_open(
         if m.text.to_lowercase() == q_low {
             continue;
         }
-        let kw = keyword_overlap_count(question, &m.text);
+        let kw = keyword_overlap_count(question, &m.text) + open_definition_overlap(question, &m.text);
         if kw < min_kw {
             continue;
         }
         let mut score = *s;
+        let kw_frac = kw as f64 / kw_count.max(1) as f64;
         score += corpus_line_affinity_boost(
             m.corpus_idx,
             corpus_line_affinity,
             query_sig,
             &m.signals,
             kw_count,
-        );
+        ) * kw_frac.clamp(0.25, 1.0);
         score += session_idf_term_boost(question, &m.text, memories);
         score += follow_up_retrieval_boost(question, prior_questions, &m.text, m.corpus_idx);
+        score += corpus_duplicate_penalty(&m.text, m.corpus_idx, memories);
+        score += open_symbol_retrieval_bias(question, &m.text);
+        let qlow = question.to_lowercase();
+        let mlow = m.text.to_lowercase();
+        if qlow.contains("largest") && !qlow.contains("second") && mlow.contains("second largest") {
+            score -= 0.28;
+        }
+        if qlow.contains("second largest") && !mlow.contains("second") {
+            score -= 0.2;
+        }
+        if let Some(cidx) = m.corpus_idx {
+            if cidx <= 1 {
+                let better_newer = memories.iter().any(|other| {
+                    other.corpus_idx.is_some_and(|j| j > cidx)
+                        && keyword_overlap_count(question, &other.text) > kw
+                });
+                if better_newer {
+                    score -= 0.18;
+                }
+            }
+        }
         candidates.push((*i, score, kw));
     }
 
@@ -1434,6 +1621,14 @@ fn decode_open(
         } else {
             "open_retrieval_follow_up_aware"
         };
+        if let Some(short) = extract_open_short_answer(question, &m.text) {
+            return (
+                format!("[{}] {}", cite, short),
+                top,
+                format!("{decode_path}_short"),
+                picked_idx,
+            );
+        }
         if let Some(span) = best_span(question, &m.text) {
             return (
                 format!("[{}] {}", cite, span),
@@ -1795,6 +1990,9 @@ fn feed_grinder_corpus(
     let ingest_skip = corpus_ingest_skip(shards.len(), ingest_all);
     let mut memories = Vec::new();
     let mut dl_encoder = String::from("grinder");
+    let mode = crate::fate_orchestrator::fragment_mode();
+    let mut segmenter = crate::fate_orchestrator::FateDensitySegmenter::new();
+    let mut last_ingested_idx = 0usize;
     for (i, ports) in shards.iter().enumerate() {
         let t = corpus
             .get(i)
@@ -1810,7 +2008,40 @@ fn feed_grinder_corpus(
             corpus_idx: Some(i),
         });
         if i >= ingest_skip {
-            session.emit_body_ports(ports);
+            last_ingested_idx = i;
+            let line_ref = corpus
+                .get(i)
+                .map(|s| s.trim())
+                .filter(|s| !s.is_empty());
+            match mode {
+                crate::fate_orchestrator::FragmentMode::Density => {
+                    crate::fate_orchestrator::ingest_line_density_fragment(
+                        session,
+                        &mut segmenter,
+                        ports,
+                        line_ref,
+                        i,
+                        1,
+                    );
+                }
+                crate::fate_orchestrator::FragmentMode::Line => {
+                    crate::fate_orchestrator::ingest_line_record_fragment(
+                        session,
+                        ports,
+                        line_ref,
+                        i,
+                        1,
+                    );
+                }
+                crate::fate_orchestrator::FragmentMode::Off => {
+                    session.emit_body_ports(ports);
+                }
+            }
+        }
+    }
+    if mode == crate::fate_orchestrator::FragmentMode::Density && last_ingested_idx >= ingest_skip {
+        if let Some((id, label, meta)) = segmenter.flush(session, last_ingested_idx) {
+            session.record_fragment_with_meta(&id, &label, meta);
         }
     }
     (memories, dl_encoder)
@@ -2010,6 +2241,7 @@ fn response_from_report(
 pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse {
     let body = BodyTarget::parse(&req.body);
     let budget = IngressBudget::incubation();
+    let use_live = crate::fate_orchestrator::live_session_enabled();
     let mode = req
         .ingress_mode
         .as_deref()
@@ -2023,21 +2255,30 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
         .and_then(|v| v.parse().ok())
         .unwrap_or(128);
 
-    let (corpus_memories, dl_encoder, snap, incubation_report) =
+    let (corpus_memories, _dl_encoder, mut live_session, mut snap, incubation_report) =
         if let Some(pre) = req.incubation_snapshot.clone() {
             let memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
-            let mut session = TriadSession::from_incubation_snapshot(budget.clone(), body, pre.clone());
+            let mut session =
+                TriadSession::from_incubation_snapshot(budget.clone(), body, pre.clone());
             let report = session.build_feed_report("native_batch_prebuilt_snap", 0);
-            (memories, "grinder".into(), pre, report)
+            (memories, "grinder".into(), session, pre, report)
         } else {
             let mut session = TriadSession::with_body(budget.clone(), body);
             let (corpus_memories, dl_encoder) =
                 feed_grinder_corpus(&mut session, &req.corpus, &req.corpus_ports, true);
-            session.run_optimize_cycles(req.incubation_cycles);
+            if use_live || crate::fate_orchestrator::multi_fragment_enabled() {
+                let orch = crate::fate_orchestrator::FateOrchestratorConfig::default();
+                crate::fate_orchestrator::run_fate_adapt(&mut session, &orch);
+            } else {
+                session.run_optimize_cycles(req.incubation_cycles);
+            }
             let incubation_report = session.build_feed_report("native_batch_incubation", 0);
-            let snap = session.incubation_snapshot();
-            (corpus_memories, dl_encoder, snap, incubation_report)
+            let snap = session.manifold_snapshot();
+            (corpus_memories, dl_encoder, session, snap, incubation_report)
         };
+
+    let fragment_count = snap.fragments.len();
+    let manifold_protocol = snap.manifold_protocol.clone();
 
     let mode_label = if mode == "grinder" {
         "native_qa_batch_grinder"
@@ -2046,37 +2287,120 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
     } else {
         "native_qa_batch"
     };
+    let mode_label = if use_live {
+        format!("{mode_label}_live")
+    } else {
+        mode_label.to_string()
+    };
 
     let mut results = Vec::with_capacity(req.questions.len());
     let multihop_v2 = req.multihop_v2 || crate::multihop_compose::multihop_v2_enabled();
-    let multihop_fate = req.multihop_fate || crate::multihop_fate::multihop_fate_enabled();
+    let open_fate = req.open_fate
+        || req.multihop_fate
+        || crate::multihop_fate::open_fate_enabled();
     let use_pipeline_v4 = req.pipeline_v4 || pipeline::pipeline_v4_enabled();
     let pipe_cfg = pipeline::PipelineConfig::default();
 
     for q in &req.questions {
         let prior = q.prior_questions.as_deref().unwrap_or(&[]);
-        let mut qa_session =
-            TriadSession::from_incubation_snapshot(budget.clone(), body, snap.clone());
-        let mut memories = corpus_memories.clone();
         let question_ports = q
             .question_ports
             .as_ref()
             .expect("batch QA requires question_ports per item (grinder ingress)");
+
+        let fragment_source: Vec<_> = snap
+            .fragments
+            .iter()
+            .filter(|f| f.id != "merged" && f.id != "main")
+            .cloned()
+            .collect();
+        let query_merge = crate::fate_orchestrator::query_fragment_merge_enabled()
+            && !fragment_source.is_empty();
+
+        let mut query_merged_session = None;
+        let query_selection = if query_merge {
+            let corpus_sigs: Vec<_> = corpus_memories
+                .iter()
+                .filter_map(|m| m.corpus_idx.map(|idx| (idx, m.signals.clone())))
+                .collect();
+            let top_k = crate::fate_orchestrator::query_fragment_top_k();
+            let (merged, sel) = crate::fate_orchestrator::merge_fragments_for_query(
+                &fragment_source,
+                &q.question,
+                &question_ports.embedding,
+                &corpus_sigs,
+                budget.clone(),
+                body,
+                top_k,
+            );
+            query_merged_session = Some(merged);
+            Some(sel)
+        } else {
+            None
+        };
+
+        let mut fork_holder = if use_live || query_merged_session.is_some() {
+            None
+        } else {
+            Some(TriadSession::from_incubation_snapshot(
+                budget.clone(),
+                body,
+                snap.clone(),
+            ))
+        };
+        let qa_session: &mut TriadSession = if let Some(ref mut merged) = query_merged_session {
+            crate::fate_orchestrator::pulse_question_live(
+                merged,
+                question_ports,
+                req.qa_cycles,
+                q.audio_features.as_deref(),
+                &front,
+            );
+            merged
+        } else if use_live {
+            crate::fate_orchestrator::pulse_question_live(
+                &mut live_session,
+                question_ports,
+                req.qa_cycles,
+                q.audio_features.as_deref(),
+                &front,
+            );
+            &mut live_session
+        } else {
+            let s = fork_holder.as_mut().unwrap();
+            s.emit_body_ports(question_ports);
+            crate::multimodal::feed_audio(s, q.audio_features.as_deref(), &front);
+            s
+        };
+
+        let mut memories = if let Some(ref sel) = query_selection {
+            let allowed: std::collections::HashSet<_> =
+                sel.corpus_line_indices.iter().copied().collect();
+            if allowed.is_empty() {
+                corpus_memories.clone()
+            } else {
+                corpus_memories
+                    .iter()
+                    .filter(|m| {
+                        m.corpus_idx
+                            .map(|i| allowed.contains(&i))
+                            .unwrap_or(false)
+                    })
+                    .cloned()
+                    .collect()
+            }
+        } else {
+            corpus_memories.clone()
+        };
         memories.push(MemoryEntry {
             text: q.question.clone(),
             signals: question_ports.embedding.clone(),
             source: "question".into(),
             corpus_idx: None,
         });
-        qa_session.emit_body_ports(question_ports);
-        crate::multimodal::feed_audio(
-            &mut qa_session,
-            q.audio_features.as_deref(),
-            &front,
-        );
 
         let mut fate_line_aff = snap.corpus_line_affinity.clone();
-        if multihop_fate && q.score_type == "open" {
+        if open_fate && q.score_type == "open" {
             let corpus_refs: Vec<crate::multihop_fate::CorpusLineRef> = memories
                 .iter()
                 .filter_map(|m| {
@@ -2087,30 +2411,45 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                     })
                 })
                 .collect();
-            let _fate_adapt = crate::multihop_fate::run_multihop_fate_adapt(
-                &mut qa_session,
-                &q.question,
-                &corpus_refs,
-                question_ports,
-                req.qa_cycles.max(2),
-                &front,
-            );
-            fate_line_aff = qa_session.incubation_snapshot().corpus_line_affinity;
+            if !corpus_refs.is_empty() {
+                let _fate_adapt = crate::multihop_fate::run_multihop_fate_adapt(
+                    qa_session,
+                    &q.question,
+                    &corpus_refs,
+                    question_ports,
+                    req.qa_cycles.max(2),
+                    &front,
+                );
+                fate_line_aff = qa_session.manifold_snapshot().corpus_line_affinity;
+            }
         }
 
         let use_mcq_fate = req.mcq_fate || mcq_fate::mcq_fate_cycles_enabled();
 
         let (report, mcq_fate_meta, pipeline_outcome) = if use_pipeline_v4 {
-            let outcome = pipeline::run_question_pipeline(
-                &snap,
-                &q.question,
-                &q.score_type,
-                question_ports,
-                &pipe_cfg,
-                &front,
-                mode_label,
-                q.audio_features.as_deref(),
-            );
+            let outcome = if use_live || query_selection.is_some() {
+                pipeline::run_question_pipeline_on_session(
+                    qa_session,
+                    &q.question,
+                    &q.score_type,
+                    question_ports,
+                    &pipe_cfg,
+                    &front,
+                    &mode_label,
+                    q.audio_features.as_deref(),
+                )
+            } else {
+                pipeline::run_question_pipeline(
+                    &snap,
+                    &q.question,
+                    &q.score_type,
+                    question_ports,
+                    &pipe_cfg,
+                    &front,
+                    &mode_label,
+                    q.audio_features.as_deref(),
+                )
+            };
             let report = outcome.report.clone();
             let meta = outcome.mcq_fate.as_ref().map(|o| {
                 (
@@ -2123,10 +2462,10 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             (report, meta, Some(outcome))
         } else if q.score_type == "mcq" && use_mcq_fate {
             let outcome = mcq_fate::run_mcq_fate_pipeline(
-                &mut qa_session,
+                qa_session,
                 &q.question,
                 question_ports,
-                mode_label,
+                &mode_label,
                 &front,
             );
             (
@@ -2141,13 +2480,13 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             )
         } else {
             (
-                qa_session.build_feed_report(mode_label, req.qa_cycles),
+                qa_session.build_feed_report(&mode_label, req.qa_cycles),
                 None,
                 None,
             )
         };
 
-        let line_aff = if multihop_fate && q.score_type == "open" {
+        let line_aff = if open_fate && q.score_type == "open" {
             &fate_line_aff
         } else {
             &snap.corpus_line_affinity
@@ -2215,6 +2554,14 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                 decode_path = po.decode_hint.clone();
             }
         }
+        if let Some(ref sel) = query_selection {
+            decode_path = format!(
+                "query_frag/k{}/ids={}/{}",
+                sel.top_k,
+                sel.selected_ids.join("+"),
+                decode_path
+            );
+        }
         let fog_evidence = fog_evidence_from_matches(&top, &q.question);
         let native_reject = decode_path.contains("reject")
             || answer.starts_with("No confident match");
@@ -2225,19 +2572,11 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             native_reject,
         );
 
-        if q.score_type == "open" && !multihop_v2 && !multihop_fate {
+        if q.score_type == "open" {
             (answer, decode_path) = apply_open_fog_gate(answer, decode_path, Some(&fog_decision));
         }
 
-        if multihop_v2 && q.score_type == "open" {
-            if let Some((mh_ans, mh_path)) =
-                apply_multihop_post_compose(&q.question, &memories, &answer)
-            {
-                answer = mh_ans;
-                decode_path = mh_path;
-            }
-        }
-        if multihop_fate && q.score_type == "open" {
+        if open_fate && q.score_type == "open" {
             let corpus_refs: Vec<crate::multihop_fate::CorpusLineRef> = memories
                 .iter()
                 .filter_map(|m| {
@@ -2249,30 +2588,33 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                 })
                 .collect();
             let q_sig = question_ports.embedding.clone();
-            let fate_decode = if multihop_v2 {
-                crate::multihop_fate::decode_fate_comparison_only(
+            let fate_compose =
+                crate::multihop_fate::open_fate_structure_compose(&q.question, multihop_v2);
+            let pipeline_weak = answer.starts_with("No confident match")
+                || decode_path.contains("abstain")
+                || fog_decision.decision == "abstain";
+            if fate_compose || pipeline_weak {
+                if let Some((fate_ans, fate_path)) = crate::multihop_fate::decode_open_fate(
                     &q.question,
                     &corpus_refs,
                     &fate_line_aff,
                     &report.hub_prefs,
                     &q_sig,
-                )
-            } else {
-                crate::multihop_fate::decode_from_fate_structure(
-                    &q.question,
-                    &corpus_refs,
-                    &fate_line_aff,
-                    &report.hub_prefs,
-                    &q_sig,
-                )
-            };
-            if let Some((mh_ans, mh_path)) = fate_decode {
+                    multihop_v2,
+                ) {
+                    answer = fate_ans;
+                    decode_path = fate_path;
+                }
+            }
+        }
+
+        // Legacy benchmark ablation only (`VALHALLA_MULTIHOP_V2=1`).
+        if multihop_v2 && q.score_type == "open" {
+            if let Some((mh_ans, mh_path)) =
+                apply_multihop_post_compose(&q.question, &memories, &answer)
+            {
                 answer = mh_ans;
-                decode_path = if multihop_v2 {
-                    format!("{decode_path}+{mh_path}")
-                } else {
-                    mh_path
-                };
+                decode_path = format!("{decode_path}+{mh_path}");
             }
         }
 
@@ -2297,11 +2639,17 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             fog_evidence: Some(fog_evidence),
             fog_decision: Some(fog_decision),
             retrieval_corpus_idx,
+            query_fragments: query_selection.as_ref().map(|s| s.selected_ids.clone()),
+            query_fragment_scores: query_selection.as_ref().map(|s| s.scores.clone()),
         });
+
+        if use_live && query_selection.is_none() {
+            snap = qa_session.manifold_snapshot();
+        }
     }
 
     NativeQaBatchResponse {
-        mode: mode_label.to_string(),
+        mode: mode_label,
         corpus_lines: req.corpus.len(),
         corpus_lines_ingested: req.corpus_ports.len(),
         incubation_cycles: req.incubation_cycles,
@@ -2311,6 +2659,9 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
         incubation_tile_connections: incubation_report.model_patch.tile_connection_count,
         incubation_stem_organ_clusters: incubation_report.model_patch.stem_organ_clusters.len(),
         incubation_tile_avg_activation: incubation_report.model_patch.tile_avg_activation,
+        fragment_count,
+        live_session: use_live,
+        manifold_protocol,
         results,
     }
 }

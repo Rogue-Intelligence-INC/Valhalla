@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-02T08:04:31.709939+00:00",
+  "timestamp": "2026-07-05T08:33:54.761561+00:00",
   "protocol": "mcq-ladder-v1",
   "phase": "test",
   "mcq_n": 46,
@@ -18,8 +18,8 @@
   "arms": {
     "hybrid/qwen_0.5b": {
       "n": 46,
-      "correct": 30,
-      "accuracy": 0.6521739130434783,
+      "correct": 28,
+      "accuracy": 0.6086956521739131,
       "rows": [
         {
           "id": "MCQ_BIO_01",
@@ -123,8 +123,8 @@
         },
         {
           "id": "MCQ_F20",
-          "correct": true,
-          "answer": "ANSWER: B"
+          "correct": false,
+          "answer": "ANSWER: C"
         },
         {
           "id": "MCQ_F21",
@@ -163,8 +163,8 @@
         },
         {
           "id": "MCQ_F28",
-          "correct": true,
-          "answer": "ANSWER: A"
+          "correct": false,
+          "answer": "ANSWER: C"
         },
         {
           "id": "MCQ_F29",
@@ -501,14 +501,14 @@
   },
   "hybrid_lm_patch_scaling": {
     "x": "log10(params_b)",
-    "intercept": 0.7783,
-    "slope": 0.4191,
+    "intercept": 0.7517,
+    "slope": 0.4749,
     "r2": 1.0,
     "points": [
       {
         "model_id": "qwen_0.5b",
         "params_b": 0.5,
-        "accuracy": 0.6521739130434783
+        "accuracy": 0.6086956521739131
       },
       {
         "model_id": "qwen_3b",

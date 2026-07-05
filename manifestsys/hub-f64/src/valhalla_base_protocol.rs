@@ -21,6 +21,9 @@ pub fn production_config() -> ValhallaBaseConfig {
         fate_qa_feedback: true,
         fate_routing_free: false,
         proactive_enabled: true,
+        fate_orchestrate: true,
+        open_fate: true,
+        multihop_fate: true,
         ..ValhallaBaseConfig::default()
     }
 }

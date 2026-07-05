@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-02T08:04:31.719562+00:00",
+  "timestamp": "2026-07-05T16:37:57.930374+00:00",
   "benchmarks": [
     {
       "name": "RAGTruth",
@@ -44,6 +44,27 @@
       "file": "multihop_rag_v1_test.json"
     },
     {
+      "name": "MultiHop-RAG v2",
+      "protocol": "multihop-rag-v2",
+      "result": "15/25 (60%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "multihop_rag_v2_test.json"
+    },
+    {
+      "name": "MultiHop-RAG Fate",
+      "protocol": "multihop-rag-fate",
+      "result": "13/25 (52%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "multihop_rag_fate_test.json"
+    },
+    {
+      "name": "MultiHop-RAG hybrid",
+      "protocol": "multihop-rag-fate-v2-hybrid",
+      "result": "16/25 (64%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "multihop_rag_hybrid_test.json"
+    },
+    {
       "name": "LoCoMo",
       "protocol": "locomo-v1",
       "result": "1/30 (3%)",
@@ -60,14 +81,14 @@
     {
       "name": "LaRA RAG vs LC",
       "protocol": "lara-v1",
-      "result": "RAG 5/20 · LC 14/20",
-      "verdict": "STRUCTURE_RAG_BELOW_LC",
+      "result": "RAG 12/20",
+      "verdict": "RAG_ONLY",
       "file": "lara_v1_test.json"
     },
     {
       "name": "MCQ ladder",
       "protocol": "mcq-ladder-v1",
-      "result": "0.5B 65% → 3.0B 98%",
+      "result": "0.5B 61% → 3.0B 98%",
       "verdict": "MCQ_LADDER_SCALES",
       "file": "mcq_ladder_v1_test.json"
     },

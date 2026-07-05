@@ -105,6 +105,32 @@ pub fn run_question_pipeline(
     mode_label: &str,
     audio_features: Option<&[f64]>,
 ) -> PipelineOutcome {
+    let budget = IngressBudget::experiment();
+    let mut session =
+        TriadSession::from_incubation_snapshot(budget, cfg.qa_body, snap.clone());
+    run_question_pipeline_on_session(
+        &mut session,
+        question,
+        score_type,
+        whole_ports,
+        cfg,
+        front,
+        mode_label,
+        audio_features,
+    )
+}
+
+/// v4 pipeline on a **live** session (no snapshot fork).
+pub fn run_question_pipeline_on_session(
+    session: &mut TriadSession,
+    question: &str,
+    score_type: &str,
+    whole_ports: &crate::dl_front::BodyFrontPorts,
+    cfg: &PipelineConfig,
+    front: &DlFrontConfig,
+    mode_label: &str,
+    audio_features: Option<&[f64]>,
+) -> PipelineOutcome {
     let use_mm = crate::multimodal::fusion_enabled()
         && audio_features.map(|a| !a.is_empty()).unwrap_or(false);
     let mode_override = if use_mm {
@@ -126,8 +152,6 @@ pub fn run_question_pipeline(
         cfg.cycles_per_shard
     };
     let plan = plan_decomposition(question, score_type, mode_override, audio_features);
-    let budget = IngressBudget::experiment();
-    let mut session = TriadSession::from_incubation_snapshot(budget, cfg.qa_body, snap.clone());
 
     let compose_fate_mode = compose
         && crate::compose_fate::compose_fate_cycles_enabled()
@@ -138,7 +162,7 @@ pub fn run_question_pipeline(
 
     let (report, mcq_fate, compose_fate, shard_scores) = if compose_fate_mode {
         let outcome = crate::compose_fate::run_compose_fate_pipeline(
-            &mut session,
+            session,
             &plan,
             whole_ports,
             mode_label,
@@ -152,7 +176,7 @@ pub fn run_question_pipeline(
         && plan.mode != DecomposeMode::McqMultimodalCompose
     {
         let outcome = mcq_fate::run_mcq_fate_pipeline(
-            &mut session,
+            session,
             question,
             whole_ports,
             mode_label,
@@ -163,7 +187,7 @@ pub fn run_question_pipeline(
     } else {
         session.emit_body_ports(whole_ports);
         let scores = crate::task_decompose::feed_decompose_plan(
-            &mut session,
+            session,
             &plan,
             front,
             cycles_per_shard,

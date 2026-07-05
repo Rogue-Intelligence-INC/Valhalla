@@ -6,6 +6,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use serde::Serialize;
 use serde::Deserialize;
 
+use crate::grinder::{default_port_cap, grind_text_hash};
+use crate::native_qa::{
+    run_native_qa_batch, NativeQaBatchItem, NativeQaBatchRequest, NativeQaQuestionSpec,
+};
 use crate::valhalla_base::{ValhallaBaseQuestion, ValhallaContextItem};
 use crate::valhalla_base_client::{RunOptions, ValhallaBaseClient};
 use crate::valhalla_base_protocol::ValhallaBaseErrorBody;
@@ -461,6 +465,97 @@ struct MultihopItem {
     corpus: Vec<String>,
 }
 
+#[derive(Clone, Copy)]
+struct MultihopNativeFlags {
+    multihop_v2: bool,
+    multihop_fate: bool,
+}
+
+fn grind_ports_line(line: &str) -> crate::dl_front::BodyFrontPorts {
+    grind_text_hash(line, default_port_cap())
+}
+
+fn run_multihop_native_batch(
+    item: &MultihopItem,
+    corpus: &[String],
+    fast: bool,
+    flags: MultihopNativeFlags,
+) -> NativeQaBatchItem {
+    let corpus_ports: Vec<_> = corpus.iter().map(|l| grind_ports_line(l)).collect();
+    let q_ports = grind_ports_line(&item.question);
+    let batch = NativeQaBatchRequest {
+        body: "triad".into(),
+        corpus: corpus.to_vec(),
+        corpus_ports,
+        questions: vec![NativeQaQuestionSpec {
+            id: Some(item.id.clone()),
+            question: item.question.clone(),
+            score_type: "open".into(),
+            question_ports: Some(q_ports),
+            audio_features: None,
+            prior_questions: None,
+        }],
+        incubation_cycles: if fast { 1 } else { 2 },
+        qa_cycles: 1,
+        ingress_mode: Some("grinder".into()),
+        mcq_fate: false,
+        pipeline_v4: true,
+        multihop_v2: flags.multihop_v2,
+        open_fate: flags.multihop_fate,
+        multihop_fate: flags.multihop_fate,
+        incubation_snapshot: None,
+    };
+    let resp = run_native_qa_batch(&batch);
+    resp.results
+        .into_iter()
+        .next()
+        .unwrap_or(NativeQaBatchItem {
+            id: item.id.clone(),
+            answer: String::new(),
+            score_type: "open".into(),
+            decode_path: "empty".into(),
+            tile_count: 0,
+            stem_cells: 0,
+            tile_connections: 0,
+            tile_avg_activation: 0.0,
+            stem_organ_clusters: 0,
+            correct: false,
+            mcq_fate_cycles: 0,
+            mcq_fate_stopped: String::new(),
+            mcq_decompose_score: 0.0,
+            mcq_aggregate_score: 0.0,
+            fog_evidence: None,
+            fog_decision: None,
+            retrieval_corpus_idx: None,
+            query_fragments: None,
+            query_fragment_scores: None,
+        })
+}
+
+fn multihop_result_row(item: &MultihopItem, row: &NativeQaBatchItem) -> (bool, serde_json::Value) {
+    let ans = row.answer.as_str();
+    let ok = score_short_answer(ans, &item.answer);
+    (
+        ok,
+        serde_json::json!({
+            "id": item.id,
+            "correct": ok,
+            "answer": ans.chars().take(200).collect::<String>(),
+            "decode_path": row.decode_path,
+            "query_fragments": row.query_fragments,
+            "query_fragment_scores": row.query_fragment_scores,
+        }),
+    )
+}
+
+fn multihop_corpus(item: &MultihopItem, max_corpus_lines: usize) -> Vec<String> {
+    let mut corpus = item.corpus.clone();
+    if corpus.len() > max_corpus_lines {
+        corpus.truncate(max_corpus_lines);
+    }
+    corpus
+}
+
 /// MultiHop-RAG slice25 — structure composition decode (multihop_v2).
 pub fn run_multihop_rag(
     bundle_path: &Path,
@@ -493,39 +588,21 @@ pub fn run_multihop_rag(
     let mut rows = Vec::new();
     let mut correct = 0usize;
     for item in &items {
-        let mut corpus = item.corpus.clone();
-        if corpus.len() > max_corpus_lines {
-            corpus.truncate(max_corpus_lines);
-        }
-        let mut base = ValhallaBaseClient::production();
-        base.config.multihop_v2 = true;
-        base.config.fate_qa_feedback = false;
-        base.config.incubation_cycles = if fast { 1 } else { 2 };
-        base.config.max_new = 128;
-        base.set_context(corpus.iter().map(|s| s.as_str()));
-        let resp = base.run(
-            vec![ValhallaBaseQuestion {
-                id: item.id.clone(),
-                text: item.question.clone(),
-                score_type: "open".into(),
-                reference_answer: item.answer.clone(),
-                keywords: Vec::new(),
-                audio_features: None,
-                image_features: None,
-            }],
-            RunOptions::default(),
-        )?;
-        let ans = resp.rows.first().map(|r| r.answer.as_str()).unwrap_or("");
-        let ok = score_short_answer(ans, &item.answer);
+        let corpus = multihop_corpus(item, max_corpus_lines);
+        let row = run_multihop_native_batch(
+            item,
+            &corpus,
+            fast,
+            MultihopNativeFlags {
+                multihop_v2: true,
+                multihop_fate: false,
+            },
+        );
+        let (ok, json_row) = multihop_result_row(item, &row);
         if ok {
             correct += 1;
         }
-        rows.push(serde_json::json!({
-            "id": item.id,
-            "correct": ok,
-            "answer": ans.chars().take(200).collect::<String>(),
-            "decode_path": resp.rows.first().map(|r| r.decode_path.as_str()).unwrap_or(""),
-        }));
+        rows.push(json_row);
     }
 
     let n = items.len().max(1);
@@ -536,6 +613,8 @@ pub fn run_multihop_rag(
         "benchmark": "MultiHop-RAG",
         "bundle": bundle_path.file_name().and_then(|s| s.to_str()).unwrap_or(""),
         "multihop_v2": true,
+        "native_qa_batch": true,
+        "query_fragment_merge": crate::fate_orchestrator::query_fragment_merge_enabled(),
         "n": items.len(),
         "correct": correct,
         "accuracy": (acc * 10000.0).round() / 10000.0,
@@ -577,40 +656,21 @@ pub fn run_multihop_fate_rag(
     let mut rows = Vec::new();
     let mut correct = 0usize;
     for item in &items {
-        let mut corpus = item.corpus.clone();
-        if corpus.len() > max_corpus_lines {
-            corpus.truncate(max_corpus_lines);
-        }
-        let mut base = ValhallaBaseClient::production();
-        base.config.multihop_fate = true;
-        base.config.multihop_v2 = false;
-        base.config.fate_qa_feedback = false;
-        base.config.incubation_cycles = if fast { 1 } else { 2 };
-        base.config.max_new = 128;
-        base.set_context(corpus.iter().map(|s| s.as_str()));
-        let resp = base.run(
-            vec![ValhallaBaseQuestion {
-                id: item.id.clone(),
-                text: item.question.clone(),
-                score_type: "open".into(),
-                reference_answer: item.answer.clone(),
-                keywords: Vec::new(),
-                audio_features: None,
-                image_features: None,
-            }],
-            RunOptions::default(),
-        )?;
-        let ans = resp.rows.first().map(|r| r.answer.as_str()).unwrap_or("");
-        let ok = score_short_answer(ans, &item.answer);
+        let corpus = multihop_corpus(item, max_corpus_lines);
+        let row = run_multihop_native_batch(
+            item,
+            &corpus,
+            fast,
+            MultihopNativeFlags {
+                multihop_v2: false,
+                multihop_fate: true,
+            },
+        );
+        let (ok, json_row) = multihop_result_row(item, &row);
         if ok {
             correct += 1;
         }
-        rows.push(serde_json::json!({
-            "id": item.id,
-            "correct": ok,
-            "answer": ans.chars().take(200).collect::<String>(),
-            "decode_path": resp.rows.first().map(|r| r.decode_path.as_str()).unwrap_or(""),
-        }));
+        rows.push(json_row);
     }
 
     let n = items.len().max(1);
@@ -621,6 +681,8 @@ pub fn run_multihop_fate_rag(
         "benchmark": "MultiHop-RAG",
         "bundle": bundle_path.file_name().and_then(|s| s.to_str()).unwrap_or(""),
         "multihop_fate": true,
+        "native_qa_batch": true,
+        "query_fragment_merge": crate::fate_orchestrator::query_fragment_merge_enabled(),
         "n": items.len(),
         "correct": correct,
         "accuracy": (acc * 10000.0).round() / 10000.0,
@@ -660,40 +722,21 @@ pub fn run_multihop_hybrid_rag(
     let mut rows = Vec::new();
     let mut correct = 0usize;
     for item in &items {
-        let mut corpus = item.corpus.clone();
-        if corpus.len() > max_corpus_lines {
-            corpus.truncate(max_corpus_lines);
-        }
-        let mut base = ValhallaBaseClient::production();
-        base.config.multihop_fate = true;
-        base.config.multihop_v2 = true;
-        base.config.fate_qa_feedback = false;
-        base.config.incubation_cycles = if fast { 1 } else { 2 };
-        base.config.max_new = 128;
-        base.set_context(corpus.iter().map(|s| s.as_str()));
-        let resp = base.run(
-            vec![ValhallaBaseQuestion {
-                id: item.id.clone(),
-                text: item.question.clone(),
-                score_type: "open".into(),
-                reference_answer: item.answer.clone(),
-                keywords: Vec::new(),
-                audio_features: None,
-                image_features: None,
-            }],
-            RunOptions::default(),
-        )?;
-        let ans = resp.rows.first().map(|r| r.answer.as_str()).unwrap_or("");
-        let ok = score_short_answer(ans, &item.answer);
+        let corpus = multihop_corpus(item, max_corpus_lines);
+        let row = run_multihop_native_batch(
+            item,
+            &corpus,
+            fast,
+            MultihopNativeFlags {
+                multihop_v2: true,
+                multihop_fate: true,
+            },
+        );
+        let (ok, json_row) = multihop_result_row(item, &row);
         if ok {
             correct += 1;
         }
-        rows.push(serde_json::json!({
-            "id": item.id,
-            "correct": ok,
-            "answer": ans.chars().take(200).collect::<String>(),
-            "decode_path": resp.rows.first().map(|r| r.decode_path.as_str()).unwrap_or(""),
-        }));
+        rows.push(json_row);
     }
     let n = items.len().max(1);
     let acc = correct as f64 / n as f64;
@@ -702,6 +745,8 @@ pub fn run_multihop_hybrid_rag(
         "protocol": "multihop-rag-fate-v2-hybrid",
         "multihop_fate": true,
         "multihop_v2": true,
+        "native_qa_batch": true,
+        "query_fragment_merge": crate::fate_orchestrator::query_fragment_merge_enabled(),
         "n": items.len(),
         "correct": correct,
         "accuracy": (acc * 10000.0).round() / 10000.0,
