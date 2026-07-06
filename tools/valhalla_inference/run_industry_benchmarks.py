@@ -6,7 +6,7 @@ Default backbone: Qwen2.5-3B-Instruct + CUDA GPU (see benchmark_env.py).
 Protocols included:
   ragtruth-v1, ragtruth-full-v1, needle-session-v1, longbench-v2-v1
   frames-v1, multihop-rag-v1, locomo-v1, lara-v1, ruler-v1
-  external-holdout-v1 (GSM8K/MMLU AGI proxy), mcq-ladder-v1 @ 3B
+  mcq-ladder-v1 @ 3B (serve mode, single model)
 
 Usage:
   python3 tools/valhalla_inference/run_industry_benchmarks.py --fast
@@ -28,7 +28,7 @@ REPO = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from benchmark_env import apply_gpu_env, default_lm_model  # noqa: E402
+from benchmark_env import apply_gpu_env, benchmark_runtime, default_lm_model  # noqa: E402
 REPORTS = REPO / "reports/valhalla_inference"
 PY = sys.executable
 VENV_PY = REPO / ".venv-llm" / "bin" / "python3"
@@ -234,42 +234,47 @@ def main() -> None:
             sys.exit("download failed")
 
     flags = ["--fast"] if args.fast else []
-    gpu_env = apply_gpu_env()
-    print(f"Backbone: {default_lm_model()}  GPU: VALHALLA_USE_CPU={gpu_env.get('VALHALLA_USE_CPU')}")
     failed = 0
 
-    if not args.agi_only:
-        for label, script, extra in INDUSTRY_TESTS:
-            if label in args.skip:
-                continue
-            if script is None and extra == "rust":
-                rc = run_rust_demo(label, label, flags, gpu_env)
-            else:
-                py = VENV_PY if label == "lara" and VENV_PY.is_file() else PY
-                rc = run_cmd(label, [str(py), str(HERE / script), *flags, *extra], extra_env=gpu_env)
-            if rc:
-                failed += 1
+    with benchmark_runtime() as gpu_env:
+        print(
+            f"Backbone: {default_lm_model()}  GPU: VALHALLA_USE_CPU={gpu_env.get('VALHALLA_USE_CPU')}"
+            f"  serve={gpu_env.get('VALHALLA_BASE_URL', 'subprocess')}"
+        )
 
-        if args.all and not args.skip_scaling:
-            rc = run_cmd(
-                "mcq-ladder",
-                [str(PY), str(HERE / "test_mcq_ladder_v1.py"), *flags],
-                extra_env=gpu_env,
-            )
-            if rc:
-                failed += 1
+        if not args.agi_only:
+            for label, script, extra in INDUSTRY_TESTS:
+                if label in args.skip:
+                    continue
+                if script is None and extra == "rust":
+                    rc = run_rust_demo(label, label, flags, gpu_env)
+                else:
+                    py = VENV_PY if label == "lara" and VENV_PY.is_file() else PY
+                    rc = run_cmd(label, [str(py), str(HERE / script), *flags, *extra], extra_env=gpu_env)
+                if rc:
+                    failed += 1
 
-    if args.agi or args.agi_only:
-        agi_py = VENV_PY if VENV_PY.is_file() else PY
-        for label, script, extra in AGI_TRAINING_TESTS:
-            if label in args.skip:
-                continue
-            script_path = Path(script)
-            if not script_path.is_absolute():
-                script_path = HERE / script
-            rc = run_cmd(label, [str(agi_py), str(script_path), *flags, *extra], extra_env=gpu_env)
-            if rc:
-                failed += 1
+            if args.all and not args.skip_scaling:
+                mcq_extra = [*flags, "--model", "qwen_3b"]
+                rc = run_cmd(
+                    "mcq-ladder",
+                    [str(PY), str(HERE / "test_mcq_ladder_v1.py"), *mcq_extra],
+                    extra_env=gpu_env,
+                )
+                if rc:
+                    failed += 1
+
+        if args.agi or args.agi_only:
+            agi_py = VENV_PY if VENV_PY.is_file() else PY
+            for label, script, extra in AGI_TRAINING_TESTS:
+                if label in args.skip:
+                    continue
+                script_path = Path(script)
+                if not script_path.is_absolute():
+                    script_path = HERE / script
+                rc = run_cmd(label, [str(agi_py), str(script_path), *flags, *extra], extra_env=gpu_env)
+                if rc:
+                    failed += 1
 
     md = write_summary(aggregate())
     print(f"\n{'=' * 64}\nSummary → {md}")

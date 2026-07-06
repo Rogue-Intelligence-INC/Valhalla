@@ -17,7 +17,7 @@
 | **RAGTruth** faithful RAG | **100/100** · 0 abstain | [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
 | **Needle + RULER** session recall | **4/4 · 20/20** | same |
 | **External holdout** | **15/15** | `external_holdout_test.json` |
-| **MCQ ladder** Qwen scaling | **61% → 98%** (46Q) | [`MCQ_SCALING_POTENTIAL_20260706.md`](../reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md) |
+| **MCQ ladder** Qwen scaling | **63% → 98%** (45/46) | [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](../reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) |
 
 ### Native ValhallaBase
 

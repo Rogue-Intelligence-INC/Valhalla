@@ -67,8 +67,8 @@ def main() -> None:
 
     rows: list[dict[str, Any]] = []
     correct = 0
+    base = make_base(fast=args.fast)
     for item in items:
-        base = make_base(fast=args.fast)
         corpus = split_context_to_corpus(item["context"], max_lines=args.max_corpus_lines)
         base.set_context(corpus)
         prompt = format_mcq_prompt(item)

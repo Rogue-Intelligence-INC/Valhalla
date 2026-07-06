@@ -37,11 +37,11 @@ Valhalla is an **AI memory & hybrid inference platform** built around **Valhalla
 | **Needle session** | **4/4** @ depth 30 | Session-level long-range recall |
 | **RULER-style** | **20/20** single + multi-needle | Deep needle retrieval on append protocol |
 | **External holdout** | **15/15** | Out-of-suite generalization |
-| **MCQ ladder** (46Q) | **0.5B 61% → 3B 98%** | lm_patch scales with Qwen backbone |
+| **MCQ ladder** (46Q) | **0.5B 63% → 3B 98%** (45/46) | lm_patch scales with Qwen backbone |
 
-**2026-07-06 release:** [RELEASE_20260706.md](docs/valhalla/RELEASE_20260706.md) · dynamic corpus fragments · Fate convergence · 3B+CUDA default
+**2026-07-06 industry 3B run:** [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) · serve + LM cache for faster re-runs
 
-Full interpretation: [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) · [`MCQ_SCALING_POTENTIAL_20260706.md`](reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md)
+Full interpretation: [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) · [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) · [`MCQ_SCALING_POTENTIAL_20260706.md`](reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md)
 
 ### 孵化能力（Incubation — zero-weight learning）
 
@@ -133,9 +133,9 @@ Valhalla/
 | [`reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) | **What to cite · runs · because** |
 | [`reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md) | Master experiment summary |
 
-### Honest boundaries (Tier B)
+### Honest boundaries (Tier B — 3B run 2026-07-06)
 
-LongBench **35%** · MultiHop **36%** · LaRA RAG **25%** vs LC **70%** — documented with protocol caveats. Do **not** cite FRAMES (no Wikipedia corpus) or LoCoMo 3% (64-line cap) as official scores.
+LongBench **4/20 (20%)** · MultiHop hybrid **16/25 (64%)** · LaRA RAG **60%** vs LC **65%** — documented with protocol caveats. Do **not** cite FRAMES (no Wikipedia corpus) or LoCoMo 0/30 (truncated slice) as official scores.
 
 **Positioning:** ValhallaBase is strong on **grounded retrieval, session memory, and MCQ patch scaling** — not a long-chain reasoning replacement today. Next phase: **multi-hop structure composition** (not prompt-window chain-of-thought).
 
@@ -160,10 +160,10 @@ Valhalla 是 **AI 记忆与混合推理平台**：语料经 **Triad 孵化** 为
 - **RAGTruth 100/100** — ACL 2024 RAG 忠实度 industry 级
 - **Needle 4/4 · RULER 20/20** — 会话 append 长程召回
 - **Holdout 15/15** — 套件外泛化
-- **MCQ 0.5B→3B 61%→98%** — Qwen lm_patch 缩放
+- **MCQ 0.5B→3B 63%→98%** (45/46) — Qwen lm_patch 缩放
 - **长久记忆 94.7% · Proactive 71/72 · PPI 0.890 · 30 轮 follow-up 96.7%**
 
-解读文档：[`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
+解读文档：[`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) · [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
 
 ### 快速复现
 

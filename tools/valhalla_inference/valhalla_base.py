@@ -15,6 +15,8 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
@@ -117,7 +119,39 @@ class ValhallaBase:
             env={**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64", "LIBRARY_PATH": os.environ.get("LIBRARY_PATH", f"/opt/cuda/targets/x86_64-linux/lib:{os.environ.get('LIBRARY_PATH', '')}")},
         )
 
+    def _serve_url(self) -> str | None:
+        url = os.environ.get("VALHALLA_BASE_URL", "").strip().rstrip("/")
+        return url or None
+
+    def _run_http(self, payload: dict[str, Any]) -> dict[str, Any]:
+        base_url = self._serve_url()
+        if not base_url:
+            raise RuntimeError("VALHALLA_BASE_URL not set")
+        req = urllib.request.Request(
+            f"{base_url}/v1/infer",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=3600) as resp:
+                raw = resp.read().decode("utf-8").strip()
+        except urllib.error.HTTPError as exc:
+            raw = exc.read().decode("utf-8", errors="replace").strip()
+            if raw:
+                doc = json.loads(raw)
+                raise RuntimeError(doc.get("error") or raw) from exc
+            raise RuntimeError(str(exc)) from exc
+        if not raw:
+            raise RuntimeError("valhalla_base serve returned empty body")
+        doc = json.loads(raw)
+        if doc.get("ok") is False:
+            raise RuntimeError(doc.get("error") or "valhalla_base serve failed")
+        return doc
+
     def _run_bin(self, payload: dict[str, Any]) -> dict[str, Any]:
+        if self._serve_url():
+            return self._run_http(payload)
         proc = subprocess.run(
             [str(BIN), "--json-error"],
             input=json.dumps(payload),

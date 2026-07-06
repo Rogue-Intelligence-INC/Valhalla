@@ -23,6 +23,7 @@ Canonical product documentation lives in the **[valhalla-unified-core](https://g
 | Doc | Path |
 |-----|------|
 | Valid benchmark interpretation | [`reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
+| **Industry 3B summary (2026-07-06)** | [`reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](../../reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) |
 | **Release 2026-07-06** | [RELEASE_20260706.md](./RELEASE_20260706.md) |
 | **Manifold fragments v1** | [MANIFOLD_FRAGMENT_V1.md](./MANIFOLD_FRAGMENT_V1.md) |
 | Full suite summary (2026-07-02) | [`reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md`](../../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md) |

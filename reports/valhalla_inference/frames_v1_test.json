@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-02T04:17:12.397730+00:00",
+  "timestamp": "2026-07-06T02:21:04.170351+00:00",
   "protocol": "frames-v1",
   "benchmark": "FRAMES",
   "citation": "NAACL 2025 FRAMES — multi-hop RAG",
@@ -50,7 +50,7 @@
     {
       "id": "FRAMES_228",
       "correct": false,
-      "answer": "[corpus:2] Reference: h",
+      "answer": "Reference",
       "gold": "Elizabeth Monroe"
     },
     {
@@ -80,7 +80,7 @@
     {
       "id": "FRAMES_758",
       "correct": false,
-      "answer": "[corpus:6] Reference: s",
+      "answer": "[corpus:2] Reference: h",
       "gold": "Henry O. Fairbanks and Thomas P. Koch"
     },
     {
@@ -92,7 +92,7 @@
     {
       "id": "FRAMES_89",
       "correct": false,
-      "answer": "[corpus:6] Reference: s",
+      "answer": "[corpus:2] Reference: h",
       "gold": "November 24, 1921"
     },
     {
@@ -128,7 +128,7 @@
     {
       "id": "FRAMES_223",
       "correct": false,
-      "answer": "[corpus:6] Reference: s",
+      "answer": "Yes",
       "gold": "Dockers"
     },
     {
@@ -152,7 +152,7 @@
     {
       "id": "FRAMES_27",
       "correct": false,
-      "answer": "[corpus:6] Reference: s",
+      "answer": "[corpus:2] Reference: h",
       "gold": "9"
     },
     {

@@ -2,10 +2,10 @@
 
 Valhalla 各模块 ↔ Transformer 的统一加载层（vLLM 风格 API + **Valhalla-as-base**）。
 
-**2026-07-06 生产默认：** `Qwen2.5-3B-Instruct` · CUDA · [`benchmark_env.py`](./benchmark_env.py) · [`RELEASE_20260706.md`](../../docs/valhalla/RELEASE_20260706.md)
+**2026-07-06 生产默认：** `Qwen2.5-3B-Instruct` · CUDA · [`benchmark_env.py`](./benchmark_env.py) · [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](../../reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md)
 
 ```bash
-# Industry（常规）
+# Industry（常规 — 自动 valhalla_base serve + LM 权重缓存）
 python3 tools/valhalla_inference/run_industry_benchmarks.py --all
 # AGI / 训练代理（单独）
 python3 tools/valhalla_inference/run_industry_benchmarks.py --agi-only
@@ -17,7 +17,7 @@ python3 tools/valhalla_inference/run_industry_benchmarks.py --agi-only
 
 完整 CLI/API：[`docs/valhalla/VALHALLA_BASE_CLI.md`](../../docs/valhalla/VALHALLA_BASE_CLI.md) · `manifestsys/hub-f64/include/valhalla_base.h`
 
-Python 薄包装（subprocess，legacy）：`valhalla_base.py`
+Python 薄包装：默认经 **`valhalla_base serve`** HTTP（`benchmark_runtime()`）；设 `VALHALLA_BASE_NO_SERVE=1` 回退 subprocess。
 
 | 对比 | 标准 LLM | ValhallaBase |
 |------|----------|--------------|

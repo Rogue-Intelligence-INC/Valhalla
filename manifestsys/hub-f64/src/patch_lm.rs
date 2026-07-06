@@ -2,6 +2,7 @@
 
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex, OnceLock};
 
 use candle_core::{safetensors::load as load_safetensors, DType, Device, Tensor};
 use candle_nn::{Activation, VarBuilder};
@@ -227,6 +228,49 @@ struct BaseWeights {
     tensors: HashMap<String, Tensor>,
     device: Device,
     dtype: DType,
+}
+
+#[derive(Clone, Hash, PartialEq, Eq)]
+struct LmCacheKey {
+    model_dir: PathBuf,
+    use_cpu: bool,
+}
+
+static LM_WEIGHT_CACHE: OnceLock<Mutex<HashMap<LmCacheKey, Arc<BaseWeights>>>> = OnceLock::new();
+static TOKENIZER_CACHE: OnceLock<Mutex<HashMap<PathBuf, Arc<Tokenizer>>>> = OnceLock::new();
+
+fn load_base_weights(model_dir: &Path, use_cpu: bool) -> Result<Arc<BaseWeights>, String> {
+    let key = LmCacheKey {
+        model_dir: model_dir.to_path_buf(),
+        use_cpu,
+    };
+    let cache = LM_WEIGHT_CACHE.get_or_init(|| Mutex::new(HashMap::new()));
+    let mut guard = cache.lock().map_err(|e| e.to_string())?;
+    if let Some(hit) = guard.get(&key) {
+        return Ok(Arc::clone(hit));
+    }
+    eprintln!(
+        "patch_lm: loading weights {} (cpu={})",
+        model_dir.display(),
+        use_cpu
+    );
+    let base = Arc::new(BaseWeights::load(model_dir, use_cpu)?);
+    guard.insert(key, Arc::clone(&base));
+    Ok(base)
+}
+
+fn load_tokenizer(model_dir: &Path) -> Result<Arc<Tokenizer>, String> {
+    let key = model_dir.to_path_buf();
+    let cache = TOKENIZER_CACHE.get_or_init(|| Mutex::new(HashMap::new()));
+    let mut guard = cache.lock().map_err(|e| e.to_string())?;
+    if let Some(hit) = guard.get(&key) {
+        return Ok(Arc::clone(hit));
+    }
+    let tok = Arc::new(
+        Tokenizer::from_file(model_dir.join("tokenizer.json")).map_err(|e| e.to_string())?,
+    );
+    guard.insert(key, Arc::clone(&tok));
+    Ok(tok)
 }
 
 impl BaseWeights {
@@ -736,9 +780,8 @@ pub fn run_patch_track(
     };
     let mp = export.report.model_patch.clone();
 
-    let base = BaseWeights::load(&cfg.model_dir, cfg.use_cpu)?;
-    let tokenizer = Tokenizer::from_file(cfg.model_dir.join("tokenizer.json"))
-        .map_err(|e| e.to_string())?;
+    let base = load_base_weights(&cfg.model_dir, cfg.use_cpu)?;
+    let tokenizer = load_tokenizer(&cfg.model_dir)?;
     let eos = tokenizer
         .token_to_id("<|endoftext|>")
         .or_else(|| tokenizer.token_to_id("<|im_end|>"))
@@ -823,9 +866,8 @@ pub fn run_patch_track_v4_with_snap(
     cfg: &PatchLmConfig,
     audio_by_id: Option<&HashMap<String, Vec<f64>>>,
 ) -> Result<Vec<PatchTrackRow>, String> {
-    let base = BaseWeights::load(&cfg.model_dir, cfg.use_cpu)?;
-    let tokenizer = Tokenizer::from_file(cfg.model_dir.join("tokenizer.json"))
-        .map_err(|e| e.to_string())?;
+    let base = load_base_weights(&cfg.model_dir, cfg.use_cpu)?;
+    let tokenizer = load_tokenizer(&cfg.model_dir)?;
     let eos = tokenizer
         .token_to_id("<|endoftext|>")
         .or_else(|| tokenizer.token_to_id("<|im_end|>"))
@@ -1072,9 +1114,8 @@ fn run_baked_track_v4(
         );
     }
 
-    let base = BaseWeights::load(&cfg.model_dir, cfg.use_cpu)?;
-    let tokenizer = Tokenizer::from_file(cfg.model_dir.join("tokenizer.json"))
-        .map_err(|e| e.to_string())?;
+    let base = load_base_weights(&cfg.model_dir, cfg.use_cpu)?;
+    let tokenizer = load_tokenizer(&cfg.model_dir)?;
     let eos = tokenizer
         .token_to_id("<|endoftext|>")
         .or_else(|| tokenizer.token_to_id("<|im_end|>"))

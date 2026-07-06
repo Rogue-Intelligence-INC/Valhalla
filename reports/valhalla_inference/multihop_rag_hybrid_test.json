@@ -1,12 +1,12 @@
 {
   "accuracy": 0.64,
   "correct": 16,
+  "dynamic_corpus_fragments": true,
   "multihop_fate": true,
   "multihop_v2": true,
   "n": 25,
   "native_qa_batch": true,
   "protocol": "multihop-rag-fate-v2-hybrid",
-  "query_fragment_merge": true,
   "rows": [
     {
       "answer": "Yes",
@@ -14,10 +14,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_yesno",
       "id": "MH_1454",
       "query_fragment_scores": [
-        0.4108505141071682
+        0.25451719557035274
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -26,10 +26,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_yesno",
       "id": "MH_921",
       "query_fragment_scores": [
-        0.23779293267192825
+        0.07740983799543874
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -38,11 +38,9 @@
       "decode_path": "multihop_fate_entity+multihop_v2_entity",
       "id": "MH_774",
       "query_fragment_scores": [
-        0.40909871525813596,
-        0.08891048458234427
+        0.4063340478295094
       ],
       "query_fragments": [
-        "seg_0",
         "seg_1"
       ]
     },
@@ -52,10 +50,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_yesno",
       "id": "MH_1514",
       "query_fragment_scores": [
-        0.2508383605350252
+        0.11033736879832977
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -64,10 +62,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_yesno",
       "id": "MH_1762",
       "query_fragment_scores": [
-        0.23889381687372632
+        0.08112153072655574
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -76,10 +74,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_entity",
       "id": "MH_537",
       "query_fragment_scores": [
-        0.24385482514823795
+        0.10831052840007847
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -88,10 +86,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_yesno",
       "id": "MH_2223",
       "query_fragment_scores": [
-        0.22626666660068007
+        0.07695697326423233
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -100,22 +98,22 @@
       "decode_path": "multihop_fate_entity",
       "id": "MH_2275",
       "query_fragment_scores": [
-        0.4161832112396862
+        0.2604177951978743
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
-      "answer": "Tyreek Hill",
-      "correct": true,
-      "decode_path": "multihop_fate_entity+multihop_v2_entity",
+      "answer": "MVP OPOY DPOY",
+      "correct": false,
+      "decode_path": "multihop_fate_entity",
       "id": "MH_575",
       "query_fragment_scores": [
-        0.2494784633684706
+        0.08696979696319711
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -124,10 +122,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_entity",
       "id": "MH_1089",
       "query_fragment_scores": [
-        0.4437154345836605
+        0.276033071782566
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -136,10 +134,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_yesno",
       "id": "MH_1526",
       "query_fragment_scores": [
-        0.24681570977926537
+        0.09240826521217482
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -148,11 +146,9 @@
       "decode_path": "multihop_fate_entity+multihop_v2_entity",
       "id": "MH_331",
       "query_fragment_scores": [
-        0.42044766385911586,
-        0.11310958147428685
+        0.41437535614497634
       ],
       "query_fragments": [
-        "seg_0",
         "seg_1"
       ]
     },
@@ -162,10 +158,10 @@
       "decode_path": "multihop_fate_entity+multihop_v2_entity",
       "id": "MH_9",
       "query_fragment_scores": [
-        0.39639443751198783
+        0.2422102484226018
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -174,10 +170,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_yesno",
       "id": "MH_1591",
       "query_fragment_scores": [
-        0.2569350981980037
+        0.09681455106397104
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -186,10 +182,10 @@
       "decode_path": "multihop_fate_relation+multihop_v2_yesno",
       "id": "MH_886",
       "query_fragment_scores": [
-        0.4159043252927058
+        0.26276763553241533
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -198,10 +194,10 @@
       "decode_path": "multihop_fate_entity",
       "id": "MH_1395",
       "query_fragment_scores": [
-        0.41261120914407146
+        0.2566387936090692
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -210,23 +206,21 @@
       "decode_path": "multihop_fate_relation",
       "id": "MH_1710",
       "query_fragment_scores": [
-        0.2674703229443513
+        0.0987854062159035
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
-      "answer": "Bankman-Fried",
-      "correct": false,
+      "answer": "Sam Bankman-Fried Because FTX",
+      "correct": true,
       "decode_path": "multihop_fate_entity",
       "id": "MH_2328",
       "query_fragment_scores": [
-        0.4282801958148909,
-        0.09516092567210405
+        0.4297878337330668
       ],
       "query_fragments": [
-        "seg_0",
         "seg_1"
       ]
     },
@@ -236,11 +230,9 @@
       "decode_path": "multihop_fate_entity+multihop_v2_entity",
       "id": "MH_1121",
       "query_fragment_scores": [
-        0.412571009798132,
-        0.07819851034788153
+        0.40362703624146
       ],
       "query_fragments": [
-        "seg_0",
         "seg_1"
       ]
     },
@@ -250,10 +242,10 @@
       "decode_path": "multihop_fate_yesno",
       "id": "MH_1065",
       "query_fragment_scores": [
-        0.2888986595960003
+        0.08659828130676857
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -262,10 +254,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_yesno",
       "id": "MH_1088",
       "query_fragment_scores": [
-        0.4242950390608937
+        0.2524626231425653
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -274,10 +266,10 @@
       "decode_path": "multihop_fate_yesno",
       "id": "MH_3",
       "query_fragment_scores": [
-        0.25267419381941614
+        0.11259678828446801
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -286,11 +278,9 @@
       "decode_path": "multihop_fate_entity+multihop_v2_entity",
       "id": "MH_2064",
       "query_fragment_scores": [
-        0.41120555794410085,
-        0.09150494273724663
+        0.41024655557301026
       ],
       "query_fragments": [
-        "seg_0",
         "seg_1"
       ]
     },
@@ -300,10 +290,10 @@
       "decode_path": "multihop_fate_yesno+multihop_v2_yesno",
       "id": "MH_168",
       "query_fragment_scores": [
-        0.2533616919686783
+        0.10380610791949335
       ],
       "query_fragments": [
-        "seg_0"
+        "seg_1"
       ]
     },
     {
@@ -312,15 +302,13 @@
       "decode_path": "multihop_fate_entity+multihop_v2_entity",
       "id": "MH_2106",
       "query_fragment_scores": [
-        0.4206626985944155,
-        0.08899666567001734
+        0.41921016505981906
       ],
       "query_fragments": [
-        "seg_0",
         "seg_1"
       ]
     }
   ],
-  "timestamp": "1783269675",
+  "timestamp": "1783304464",
   "verdict": "OPEN_QA_VIABLE"
 }

@@ -1,92 +1,92 @@
 {
-  "timestamp": "2026-07-02T04:17:55.498313+00:00",
+  "timestamp": "2026-07-06T02:34:02.059201+00:00",
   "protocol": "lara-v1",
   "benchmark": "LaRA-style RAG vs LC",
   "bundle": "lara_rag_vs_lc_slice20.json",
   "n": 20,
   "valhalla_rag": {
-    "correct": 5,
-    "accuracy": 0.25,
+    "correct": 12,
+    "accuracy": 0.6,
     "rows": [
       {
         "id": "LARA_1694",
-        "correct": false,
-        "answer": "[corpus:0] Is Sam Bankman-Fried a bad ‘man’ or a good ‘boy’? Lawyers swap opening statements before first witnesses take"
+        "correct": true,
+        "answer": "Yes"
       },
       {
         "id": "LARA_772",
         "correct": false,
-        "answer": "[corpus:0] Fly with Delta frequently? Small business owners can score a solid welcome bonus and other perks with the Del"
+        "answer": "Yes"
       },
       {
         "id": "LARA_1413",
-        "correct": false,
-        "answer": "[corpus:1] The Steam Deck OLED improves much more than its screen: Since the original Steam Deck launched, Valve has bee"
+        "correct": true,
+        "answer": "[corpus:2] Steam Deck OLED review: It's just better: The Steam Deck OLED will go on sale on November 16th at 1pm ET, and"
       },
       {
         "id": "LARA_1008",
         "correct": true,
-        "answer": "[corpus:0] Sex, Signal messages, and sabotaging FTX's code: SBF execs and Bahamas roommates tell all in court: During cr"
+        "answer": "[corpus:2] Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier: The prosecution"
       },
       {
         "id": "LARA_1582",
         "correct": false,
-        "answer": "[corpus:0] Moneyline Betting - What is the Moneyline and How Does it Work?: This means if you bet $100 on the Red Sox an"
+        "answer": "no"
       },
       {
         "id": "LARA_485",
         "correct": false,
-        "answer": "[corpus:0] News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The "
+        "answer": "no"
       },
       {
         "id": "LARA_1092",
         "correct": false,
-        "answer": "[corpus:0] How shooting Beyoncé and Kamala Harris made this photographer famous too: His career has only blossomed in th"
+        "answer": "Ballsy"
       },
       {
         "id": "LARA_384",
-        "correct": false,
-        "answer": "[corpus:0] 8 authors and their 8 gift book picks for this holiday season: As a writer, Scott Hurff doesn’t always write "
+        "correct": true,
+        "answer": "[corpus:1] A provocative role for technologists in product innovation: The core of product design is decision-making wit"
       },
       {
         "id": "LARA_333",
-        "correct": false,
-        "answer": "[corpus:2] News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The "
+        "correct": true,
+        "answer": "Yes"
       },
       {
         "id": "LARA_917",
         "correct": false,
-        "answer": "[corpus:0] Inter Miami vs FC Cincinnati live score, result, updates, highlights with Lionel Messi's MLS playoffs on line"
+        "answer": "no"
       },
       {
         "id": "LARA_1452",
         "correct": false,
-        "answer": "[corpus:0] — The Bears answer right back and sack Dobbs, with Sweat and Brisker in there to take him down"
+        "answer": "[corpus:1] Hottest seat on each NFC team: Buns burning for these four head coaches: In his second season as HC, the defe"
       },
       {
         "id": "LARA_2031",
         "correct": true,
-        "answer": "[corpus:1] What’s it going to do about it?: Brown added that he was “surprised” to see that a second valuation expert ha"
+        "answer": "no"
       },
       {
         "id": "LARA_402",
-        "correct": false,
-        "answer": "[corpus:0] 8 predictions for AI in 2024: The “app store for AI” will be pushed hard as the platform to get your AI toys "
+        "correct": true,
+        "answer": "Yes"
       },
       {
         "id": "LARA_19",
-        "correct": false,
-        "answer": "[corpus:0] 49ers live score, updates, highlights from NFL 'Sunday Night Football' game: Fans can also stream the game vi"
+        "correct": true,
+        "answer": "[corpus:1] Watch great noir this Noirvember: Where to watch: Streaming free with ads on Tubi, and free with a library ca"
       },
       {
         "id": "LARA_1553",
         "correct": false,
-        "answer": "[corpus:1] Video games in 2023: Acquisitions, layoffs, unions: It’s estimated that more than 9,000 people in video games"
+        "answer": "no"
       },
       {
         "id": "LARA_2147",
-        "correct": true,
-        "answer": "[corpus:0] Inter Miami vs FC Cincinnati live score, result, updates, highlights with Lionel Messi's MLS playoffs on line"
+        "correct": false,
+        "answer": "[corpus:1] Watch Argentina vs Paraguay live stream, TV channel, lineups, betting odds for World Cup qualifying match: He"
       },
       {
         "id": "LARA_2344",
@@ -95,13 +95,13 @@
       },
       {
         "id": "LARA_2425",
-        "correct": false,
-        "answer": "[corpus:0] Early impressions of Google’s Gemini aren’t great: Google compared the performance of Gemini Pro to GPT-4’s p"
+        "correct": true,
+        "answer": "Yes"
       },
       {
         "id": "LARA_1198",
-        "correct": false,
-        "answer": "[corpus:0] 'Angels, demons, spirits and souls do exist,' says exorcist priest who warns against Ouija board use: Doe's s"
+        "correct": true,
+        "answer": "[corpus:1] The best horror movies you can watch right now: Clive Barker’s 1987 directorial debut adapts his 1986 novella"
       },
       {
         "id": "LARA_2050",
@@ -111,108 +111,108 @@
     ]
   },
   "trad_long_context": {
-    "correct": 14,
-    "accuracy": 0.7,
+    "correct": 13,
+    "accuracy": 0.65,
     "rows": [
       {
         "id": "LARA_1694",
         "correct": false,
-        "answer": "Based on the provided reference facts, I can analyze whether the 'Fortune' article suggests a different perspective on S"
+        "answer": "Based on the information provided, it seems that the 'Fortune' article is focusing on the perspective that the ultimate "
       },
       {
         "id": "LARA_772",
-        "correct": false,
-        "answer": "Based on the reference facts provided:\n\n1. The Speed of Light in Vacuum: Approximately 299,792,458 meters per second.\n2."
+        "correct": true,
+        "answer": "Based on the reference facts provided, the discount on Sony WF-1000XM5 earbuds was reported as a first-time occurrence. "
       },
       {
         "id": "LARA_1413",
         "correct": true,
-        "answer": "Based on the information provided, there appears to be some inconsistency between the reports from Polygon and Engadget "
+        "answer": "Based on the reference facts provided, there is no specific information given about the consistency or inconsistency of "
       },
       {
         "id": "LARA_1008",
         "correct": true,
-        "answer": "Based on the provided information, the individual you're referring to is **Sam Altman**. According to the article:\n\n- Sa"
+        "answer": "Based on the reference facts provided and the details mentioned in the news articles, the individual you are referring t"
       },
       {
         "id": "LARA_1582",
         "correct": false,
-        "answer": "Based on the information provided, there appears to be some confusion between the two articles. The Sporting News articl"
+        "answer": "Based on the information provided, the Sporting News article suggests that bettors earn a fixed profit when betting on t"
       },
       {
         "id": "LARA_485",
-        "correct": true,
-        "answer": "Yes, both articles suggest that Google's anticompetitive behavior can harm news publishers' revenue. The TechCrunch arti"
+        "correct": false,
+        "answer": "Based on the reference facts provided, the TechCrunch article does not explicitly claim that Google's anticompetitive be"
       },
       {
         "id": "LARA_1092",
         "correct": true,
-        "answer": "Based on the information provided, it appears that the article from 'The Age' suggests that Tyler Mitchell's career has "
+        "answer": "Based on the reference texts provided, there is no mention of Tyler Mitchell or his career being described as unsuccessf"
       },
       {
         "id": "LARA_384",
         "correct": true,
-        "answer": "Yes, the portrayal of Scott Hurff's perspective on product design changed significantly between the articles published o"
+        "answer": "Based on the reference facts provided, there is no specific information about a change in TechCrunch's portrayal of Scot"
       },
       {
         "id": "LARA_333",
-        "correct": true,
-        "answer": "Yes, there was consistency in the portrayal of Google's involvement in anticompetitive practices between the two reports"
+        "correct": false,
+        "answer": "Based on the reference facts provided, there is no direct information about the specific portrayal of Google's involveme"
       },
       {
         "id": "LARA_917",
-        "correct": false,
-        "answer": "Based on the provided reference facts, there is no mention of any achievement by FC Cincinnati or Ratcliffe in their res"
+        "correct": true,
+        "answer": "Yes, you are correct. The reference articles do not directly mention the Supporters' Shield win by FC Cincinnati or Ratc"
       },
       {
         "id": "LARA_1452",
-        "correct": true,
-        "answer": "Yes, according to the provided information, the performance of the Chicago Bears' defense was reported as improving afte"
+        "correct": false,
+        "answer": "Based on the information provided, there is no direct mention of the Chicago Bears' defense being reported as improved b"
       },
       {
         "id": "LARA_2031",
-        "correct": false,
-        "answer": "Based on the provided reference facts, I can analyze the content of both articles to determine their respective themes:\n"
+        "correct": true,
+        "answer": "Based on the provided references, neither article directly suggests that either Portfolio Management Services (PMS) or m"
       },
       {
         "id": "LARA_402",
         "correct": true,
-        "answer": "Yes, there was a significant change in the company's strategic focus between the two reports. According to the TechCrunc"
+        "answer": "Yes, according to the TechCrunch reports, there was a notable shift in OpenAI's strategic focus between these two dates."
       },
       {
         "id": "LARA_19",
         "correct": true,
-        "answer": "No, the Sporting News article does not suggest that streaming services do not require a subscription for viewing the Cow"
+        "answer": "Based on the information provided, it appears there might be some confusion. The reference fact states that \"Fans can al"
       },
       {
         "id": "LARA_1553",
         "correct": false,
-        "answer": "Based on the provided reference facts, I can conclude that:\n\n1. The TechCrunch article does not mention any layoffs at S"
+        "answer": "Based on the reference facts provided, the TechCrunch article does not mention any layoffs at Starz. The Engadget articl"
       },
       {
         "id": "LARA_2147",
         "correct": true,
-        "answer": "After a period of injury affecting his participation in the MLS playoffs with Inter Miami, Lionel Messi was recognized f"
+        "answer": "Based on the reference facts provided, Lionel Messi is recognized for both his influence on integrating emerging talents"
       },
       {
         "id": "LARA_2344",
-        "correct": true,
-        "answer": "Based on the reference facts provided, it appears that the TechCrunch article describing ChatGPT's multifunctional capab"
+        "correct": false,
+        "answer": "The two TechCrunch articles you've referenced provide different perspectives on ChatGPT's capabilities. The first articl"
       },
       {
         "id": "LARA_2425",
         "correct": true,
-        "answer": "Yes, the TechCrunch article suggests that Google's Gemini Pro is being compared to OpenAI's GPT-3.5 in terms of performa"
+        "answer": "Yes, you're correct in your understanding. \n\nThe TechCrunch article mentions that Google's Gemini Pro was compared to Op"
       },
       {
         "id": "LARA_1198",
         "correct": true,
-        "answer": "Yes, there were inconsistencies in the reporting of the adaptation sequence of the original works into films between the"
+        "answer": "Based on the reference facts provided, there does not appear to be an inconsistency regarding the adaptation sequences f"
       },
       {
         "id": "LARA_2050",
         "correct": true,
-        "answer": "Based on the provided information, Sam Bankman-Fried is the individual facing a criminal trial as reported by TechCrunch"
+        "answer": "The individual facing a criminal trial as reported by TechCrunch, who persuaded a former colleague from Jane Street to j"
       }
     ]
   },
