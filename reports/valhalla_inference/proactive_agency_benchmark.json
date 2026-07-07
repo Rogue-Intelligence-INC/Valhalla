@@ -1,0 +1,182 @@
+{
+  "timestamp": "2026-07-07T23:16:12.037982+00:00",
+  "protocol": "proactive-agency-benchmark-v1",
+  "lm_model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10",
+  "config": {
+    "fast": false,
+    "mega": true,
+    "max_turns": 3000,
+    "ask_every": 32,
+    "extend_chunk": 8,
+    "max_session_corpus": 128,
+    "compare_base": false,
+    "tracks": [
+      "long_dialogue"
+    ]
+  },
+  "metrics": {
+    "long_dialogue": {
+      "n": 1,
+      "primary_rate": 0.0,
+      "supplement_rate": 0.0,
+      "proactive_rate": 0.0,
+      "pass_rate": 0.0
+    },
+    "multimodal_natural": {
+      "n": 0,
+      "all_hit_rate": 0.0,
+      "avg_consistency": 0.0,
+      "pass_rate": 0.0
+    },
+    "crosslang": {
+      "n": 0,
+      "ccu": 0.0,
+      "pass_rate": 0.0
+    },
+    "agency_index": 0.0
+  },
+  "tracks": {
+    "long_dialogue": [
+      {
+        "id": "mega_locomo_3k",
+        "turns": 3000,
+        "ask_turns": 94,
+        "extend_turns": 2906,
+        "ask_every": 32,
+        "segment_resets": 114,
+        "decode_count": 460,
+        "dialogue_elapsed_s": 139.9,
+        "primary_question": "When did Caroline go to the LGBTQ support group?",
+        "answer_primary": "[corpus:14] It's great to see how far LGBTQ rights have come, but there's still plenty of progress to be made",
+        "answer_supplement": "[corpus:4] What's a favorite book you remember from your childhood?",
+        "primary_correct": false,
+        "supplement_rich": false,
+        "supplement_grounded": false,
+        "supplement_pass": false,
+        "proactive": {
+          "triggered": false,
+          "emitted": false,
+          "nudge": "",
+          "trigger_reason": "spread=0.0000<0.0031",
+          "fate_signals": 37
+        },
+        "proactive_pass": false,
+        "pass": false,
+        "turn_log_sample": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "Summarize the latest point in our conversation in one sentence. (context: D1)",
+            "answer": "[corpus:24] [D10:7] Caroline: Last weekend our city held a pride parade! So many people marched through the streets waving flags, holding signs and celebrating love and diversity"
+          },
+          {
+            "turn": 33,
+            "kind": "ask",
+            "question": "Who spoke last and what did they say? (context: D1)",
+            "answer": "[corpus:20] I'm meeting so many cool people who are as passionate as I am about rights and community support"
+          },
+          {
+            "turn": 2945,
+            "kind": "ask",
+            "question": "What topic are we discussing now? (context: D13)",
+            "answer": "[corpus:20] [D4:18] Melanie: Congrats Caroline! Good on you for going after what you really care about"
+          },
+          {
+            "turn": 2977,
+            "kind": "ask",
+            "question": "Recall one fact mentioned recently. (context: D13)",
+            "answer": "[corpus:24] I couldn't have done it without them"
+          }
+        ]
+      }
+    ],
+    "multimodal_natural": [],
+    "crosslang": []
+  },
+  "arms": {
+    "baked": {
+      "lm_model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10",
+      "tracks": {
+        "long_dialogue": [
+          {
+            "id": "mega_locomo_3k",
+            "turns": 3000,
+            "ask_turns": 94,
+            "extend_turns": 2906,
+            "ask_every": 32,
+            "segment_resets": 114,
+            "decode_count": 460,
+            "dialogue_elapsed_s": 139.9,
+            "primary_question": "When did Caroline go to the LGBTQ support group?",
+            "answer_primary": "[corpus:14] It's great to see how far LGBTQ rights have come, but there's still plenty of progress to be made",
+            "answer_supplement": "[corpus:4] What's a favorite book you remember from your childhood?",
+            "primary_correct": false,
+            "supplement_rich": false,
+            "supplement_grounded": false,
+            "supplement_pass": false,
+            "proactive": {
+              "triggered": false,
+              "emitted": false,
+              "nudge": "",
+              "trigger_reason": "spread=0.0000<0.0031",
+              "fate_signals": 37
+            },
+            "proactive_pass": false,
+            "pass": false,
+            "turn_log_sample": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "Summarize the latest point in our conversation in one sentence. (context: D1)",
+                "answer": "[corpus:24] [D10:7] Caroline: Last weekend our city held a pride parade! So many people marched through the streets waving flags, holding signs and celebrating love and diversity"
+              },
+              {
+                "turn": 33,
+                "kind": "ask",
+                "question": "Who spoke last and what did they say? (context: D1)",
+                "answer": "[corpus:20] I'm meeting so many cool people who are as passionate as I am about rights and community support"
+              },
+              {
+                "turn": 2945,
+                "kind": "ask",
+                "question": "What topic are we discussing now? (context: D13)",
+                "answer": "[corpus:20] [D4:18] Melanie: Congrats Caroline! Good on you for going after what you really care about"
+              },
+              {
+                "turn": 2977,
+                "kind": "ask",
+                "question": "Recall one fact mentioned recently. (context: D13)",
+                "answer": "[corpus:24] I couldn't have done it without them"
+              }
+            ]
+          }
+        ],
+        "multimodal_natural": [],
+        "crosslang": []
+      },
+      "metrics": {
+        "long_dialogue": {
+          "n": 1,
+          "primary_rate": 0.0,
+          "supplement_rate": 0.0,
+          "proactive_rate": 0.0,
+          "pass_rate": 0.0
+        },
+        "multimodal_natural": {
+          "n": 0,
+          "all_hit_rate": 0.0,
+          "avg_consistency": 0.0,
+          "pass_rate": 0.0
+        },
+        "crosslang": {
+          "n": 0,
+          "ccu": 0.0,
+          "pass_rate": 0.0
+        },
+        "agency_index": 0.0
+      }
+    }
+  },
+  "verdict": "AGENCY_WEAK",
+  "elapsed_s": 140.0
+}

@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-"""Valhalla-as-base Python API — thin subprocess wrapper.
+"""Valhalla-as-base — thin wrapper over Rust `valhalla_base` binary.
 
-Prefer Rust in-process API when embedding in Rust:
+**Production / long-chain / batch eval: use Rust in-process or CLI:**
   hub_f64::ValhallaBaseClient
+  valhalla_base demo locomo|needle-prod
+  cargo test -p hub-f64 --lib valhalla_base_client::tests --release --features patch-lm
 
-Prefer Rust CLI for benchmarks/demos:
-  valhalla_base demo v1|needle|corpus
-  valhalla_base ask QUESTION --context LINE
-  valhalla_base serve --port 8787
+Python `run()` remains JSON stdin/stdout to the same Rust core (not a separate logic path).
 """
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import subprocess
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
@@ -33,6 +34,7 @@ def default_lm_model() -> str:
 DecodeMode = Literal["native", "lm_patch", "hybrid"]
 McqDecodeMode = Literal["lm_patch", "structure_fate", "max_pick"]
 FollowUpDecodeMode = Literal["inherit", "lm_patch_on_follow_up", "native_follow_up_aware"]
+ContextIngestMode = Literal["targeted", "retrieval", "full"]
 
 
 @dataclass
@@ -52,7 +54,12 @@ class ValhallaBaseSession:
 
 @dataclass
 class ValhallaBase:
-    """Valhalla is the base; LM is decode head. Supports hybrid / session / multimodal."""
+    """Valhalla is the base; LM is decode head.
+
+    Production stack (default):
+      hybrid decode · targeted context ingest · session affinity reanchor
+      fate_qa_feedback · native_follow_up_aware · quad_cycle ingress
+    """
 
     lm_model: str = field(default_factory=default_lm_model)
     patch_body: str = "triad"
@@ -71,14 +78,56 @@ class ValhallaBase:
     proactive_min_fate_signals: int = 64
     proactive_min_turns: int = 2  # legacy alias → min_fate_signals = turns * 32
     proactive_min_spread: float = 12 / 138 * 5 / 140  # τ(0)·δ/(dim+r)
+    context_ingest: ContextIngestMode = "targeted"
+    reanchor_affinity: bool = True
+    fate_warmup_enabled: bool = True
+    fate_warmup_cycles: int = 4
+    fate_warmup_prelearn_lines: int = 0
     session: ValhallaBaseSession = field(default_factory=ValhallaBaseSession)
     context_items: list[dict[str, Any]] = field(default_factory=list)
     _pending_append: list[dict[str, Any]] = field(default_factory=list, repr=False)
+    _use_append_only: bool = field(default=False, repr=False)
 
-    def set_context(self, lines: list[str]) -> None:
-        self.session = ValhallaBaseSession()
+    def set_context(self, lines: list[str], *, preserve_session: bool = False) -> None:
+        """Replace wire context. Clears session unless preserve_session=True."""
+        if not preserve_session:
+            self.session = ValhallaBaseSession()
         self.context_items = [{"text": ln} for ln in lines if ln.strip()]
         self._pending_append.clear()
+        self._use_append_only = False
+
+    def reanchor_session_corpus(self) -> None:
+        """Clear session corpus fingerprint but keep snapshot affinity + history."""
+        if not self.session.session_state:
+            return
+        sess = copy.deepcopy(self.session.session_state)
+        sess["corpus"] = []
+        sess["fingerprint"] = ""
+        self.session.session_state = sess
+        self.context_items.clear()
+        self._pending_append.clear()
+
+    def ingest_for_prompt(
+        self,
+        prompt: dict[str, Any],
+        corpus: list[str],
+        *,
+        k: int = 8,
+        mode: ContextIngestMode | None = None,
+    ) -> list[str]:
+        """Production per-question ingest: targeted lines + optional affinity reanchor."""
+        from context_routing import resolve_context_lines  # noqa: WPS433
+
+        ingest = mode or self.context_ingest
+        lines = resolve_context_lines(prompt, corpus, mode=ingest, k=k)
+        if self.reanchor_affinity and self.session.session_state is not None:
+            self.reanchor_session_corpus()
+            for ln in lines:
+                self.append_context(ln)
+            self._use_append_only = True
+        else:
+            self.set_context(lines)
+        return lines
 
     def append_context(self, line: str) -> None:
         line = line.strip()
@@ -103,11 +152,190 @@ class ValhallaBase:
             item["image_features"] = image_features
         if item:
             self.context_items.append(item)
+            self._pending_append.append(item)
+
+    def session_extend(self) -> dict[str, Any]:
+        """Extend session snapshot from pending append lines (no QA — long-chain ingest)."""
+        self._ensure_bin()
+        if not self.session.session_state:
+            raise RuntimeError("session_extend requires an active session")
+        pending = list(self._pending_append)
+        if not pending:
+            raise RuntimeError("session_extend requires pending append lines")
+        payload: dict[str, Any] = {
+            "questions": [],
+            "session_extend_only": True,
+            "session": self.session.session_state,
+            "append_items": pending,
+            "append_lines": [str(it["text"]) for it in pending if it.get("text")],
+            "config": self._config_payload(),
+        }
+        doc = self._run_bin(payload)
+        self.session.apply_response(doc)
+        self._pending_append.clear()
+        return doc
 
     def clear_context(self) -> None:
         self.session = ValhallaBaseSession()
         self.context_items.clear()
         self._pending_append.clear()
+        self._use_append_only = False
+
+    def _config_payload(self) -> dict[str, Any]:
+        return {
+            "lm_model": self.lm_model,
+            "patch_body": self.patch_body,
+            "strength": self.strength,
+            "max_new": self.max_new,
+            "incubation_cycles": self.incubation_cycles,
+            "decode": self.decode,
+            "mcq_decode": self.mcq_decode,
+            "follow_up_decode": self.follow_up_decode,
+            "fate_weight_mode": self.fate_weight_mode,
+            "fate_routing_free": self.fate_routing_free,
+            "fate_ingress_routing": self.fate_ingress_routing,
+            "fate_qa_feedback": self.fate_qa_feedback,
+            "fate_warmup_enabled": self.fate_warmup_enabled,
+            "fate_warmup_cycles": self.fate_warmup_cycles,
+            "fate_warmup_prelearn_lines": self.fate_warmup_prelearn_lines,
+            "core_fusion": self.core_fusion,
+            "proactive_enabled": self.proactive_enabled,
+            "proactive_min_fate_signals": self.proactive_min_fate_signals,
+            "proactive_min_turns": self.proactive_min_turns,
+            "proactive_min_spread": self.proactive_min_spread,
+        }
+
+    def _pause_requested(self, pause_file: str | None = None) -> bool:
+        path = (pause_file or os.environ.get("VALHALLA_PAUSE_FILE", "")).strip()
+        return bool(path) and Path(path).is_file()
+
+    def save_checkpoint(self, path: str | Path, *, index: int, rows: list[dict[str, Any]], warmup_done: bool = False) -> None:
+        """Persist batch progress for resume."""
+        doc = {
+            "protocol": "valhalla-base-checkpoint-v1",
+            "index": index,
+            "questions_done": index,
+            "rows": rows,
+            "session_state": self.session.session_state,
+            "warmup_done": warmup_done,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        p = Path(path)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def load_checkpoint(self, path: str | Path) -> dict[str, Any]:
+        """Restore session from checkpoint; returns checkpoint doc."""
+        doc = json.loads(Path(path).read_text(encoding="utf-8"))
+        sess = doc.get("session_state")
+        if sess:
+            self.session.session_state = sess
+            self.session.corpus = list(sess.get("corpus") or [])
+            self.session.fingerprint = str(sess.get("fingerprint") or "")
+        return doc
+
+    def fate_warmup_corpus(self, corpus: list[str], *, n_lines: int = 4) -> dict[str, Any]:
+        """Fate prelearn + warmup on seed corpus lines (no QA decode)."""
+        self._ensure_bin()
+        lines = [ln.strip() for ln in corpus if ln.strip()]
+        if not lines:
+            raise ValueError("fate_warmup_corpus: corpus is empty")
+        if len(lines) == 1:
+            lines = lines * 2
+        else:
+            lines = lines[: max(2, n_lines)]
+        payload: dict[str, Any] = {
+            "context": lines,
+            "questions": [],
+            "fate_warmup_only": True,
+            "config": self._config_payload(),
+        }
+        if self.session.session_state:
+            payload["session"] = self.session.session_state
+        doc = self._run_bin(payload)
+        self.session.apply_response(doc)
+        return doc
+
+    def dialogue_warmup(self, turns: list[str]) -> None:
+        """Open-turn dialogue warmup before eval (builds hub_prefs spread)."""
+        for i, q in enumerate(turns):
+            self.ask(q, qid=f"dw{i}")
+
+    def run_batch(
+        self,
+        questions: list[dict[str, Any]],
+        corpus: list[str],
+        *,
+        ingest_mode: ContextIngestMode | None = None,
+        context_k: int = 8,
+        warmup_corpus_lines: int = 4,
+        dialogue_warmup: list[str] | None = None,
+        checkpoint_path: str | Path | None = None,
+        checkpoint_every: int = 0,
+        resume_from: str | Path | None = None,
+        pause_file: str | None = None,
+    ) -> dict[str, Any]:
+        """Production eval: Fate corpus warmup → optional dialogue → per-question ingest + QA."""
+        all_rows: list[dict[str, Any]] = []
+        last_doc: dict[str, Any] = {}
+        start_idx = 0
+        warmup_done = False
+
+        if resume_from:
+            ckpt = self.load_checkpoint(resume_from)
+            all_rows = list(ckpt.get("rows") or [])
+            start_idx = int(ckpt.get("index") or len(all_rows))
+            warmup_done = bool(ckpt.get("warmup_done"))
+            if checkpoint_path is None:
+                checkpoint_path = resume_from
+
+        if not warmup_done and self.fate_warmup_enabled and warmup_corpus_lines > 0:
+            last_doc = self.fate_warmup_corpus(corpus, n_lines=warmup_corpus_lines)
+            warmup_done = True
+
+        if dialogue_warmup:
+            self.dialogue_warmup(dialogue_warmup)
+
+        paused = False
+        for i in range(start_idx, len(questions)):
+            if self._pause_requested(pause_file):
+                paused = True
+                if checkpoint_path:
+                    self.save_checkpoint(
+                        checkpoint_path,
+                        index=i,
+                        rows=all_rows,
+                        warmup_done=warmup_done,
+                    )
+                break
+            q = questions[i]
+            self.ingest_for_prompt(q, corpus, k=context_k, mode=ingest_mode)
+            doc = self.run([q], append_only=self._use_append_only)
+            self._use_append_only = False
+            last_doc = doc
+            all_rows.extend(doc.get("rows") or [])
+            if checkpoint_path and checkpoint_every > 0 and (i + 1) % checkpoint_every == 0:
+                self.save_checkpoint(
+                    checkpoint_path,
+                    index=i + 1,
+                    rows=all_rows,
+                    warmup_done=warmup_done,
+                )
+
+        if not last_doc:
+            return {"rows": [], "protocol": "valhalla-base-v1", "paused": paused}
+        out = dict(last_doc)
+        out["rows"] = all_rows
+        out["paused"] = paused
+        out["questions_done"] = len(all_rows)
+        if checkpoint_path and not paused and len(all_rows) >= len(questions):
+            self.save_checkpoint(
+                checkpoint_path,
+                index=len(questions),
+                rows=all_rows,
+                warmup_done=warmup_done,
+            )
+        return out
 
     def _ensure_bin(self) -> None:
         if BIN.is_file():
@@ -180,25 +408,7 @@ class ValhallaBase:
         self._ensure_bin()
         payload: dict[str, Any] = {
             "questions": questions,
-            "config": {
-                "lm_model": self.lm_model,
-                "patch_body": self.patch_body,
-                "strength": self.strength,
-                "max_new": self.max_new,
-                "incubation_cycles": self.incubation_cycles,
-                "decode": self.decode,
-                "mcq_decode": self.mcq_decode,
-                "follow_up_decode": self.follow_up_decode,
-                "fate_weight_mode": self.fate_weight_mode,
-                "fate_routing_free": self.fate_routing_free,
-                "fate_ingress_routing": self.fate_ingress_routing,
-                "fate_qa_feedback": self.fate_qa_feedback,
-                "core_fusion": self.core_fusion,
-                "proactive_enabled": self.proactive_enabled,
-                "proactive_min_fate_signals": self.proactive_min_fate_signals,
-                "proactive_min_turns": self.proactive_min_turns,
-                "proactive_min_spread": self.proactive_min_spread,
-            },
+            "config": self._config_payload(),
         }
 
         if append_only and self.session.session_state:
@@ -233,7 +443,11 @@ class ValhallaBase:
         return doc
 
     def ask(self, text: str, *, score_type: str = "open", qid: str = "q0") -> str:
-        doc = self.run([{"id": qid, "text": text, "score_type": score_type}])
+        append_only = bool(self._pending_append and self.session.session_state)
+        doc = self.run(
+            [{"id": qid, "text": text, "score_type": score_type}],
+            append_only=append_only,
+        )
         rows = doc.get("rows") or []
         return rows[0]["answer"] if rows else ""
 
@@ -246,24 +460,7 @@ class ValhallaBase:
             "questions": [],
             "proactive_idle": True,
             "session": self.session.session_state,
-            "config": {
-                "lm_model": self.lm_model,
-                "patch_body": self.patch_body,
-                "strength": self.strength,
-                "max_new": self.max_new,
-                "incubation_cycles": self.incubation_cycles,
-                "decode": self.decode,
-                "mcq_decode": self.mcq_decode,
-                "follow_up_decode": self.follow_up_decode,
-                "fate_weight_mode": self.fate_weight_mode,
-                "fate_routing_free": self.fate_routing_free,
-                "fate_ingress_routing": self.fate_ingress_routing,
-                "fate_qa_feedback": self.fate_qa_feedback,
-                "proactive_enabled": self.proactive_enabled,
-                "proactive_min_fate_signals": self.proactive_min_fate_signals,
-                "proactive_min_turns": self.proactive_min_turns,
-                "proactive_min_spread": self.proactive_min_spread,
-            },
+            "config": self._config_payload(),
         }
         doc = self._run_bin(payload)
         self.session.apply_response(doc)

@@ -1,0 +1,150 @@
+{
+  "protocol": "fundraise-aggregate-v1",
+  "timestamp": "2026-07-07T23:17:17.600297+00:00",
+  "summary": {
+    "panels": 15,
+    "pass": 7,
+    "watch": 5,
+    "gap": 3,
+    "fundraise_ready": true
+  },
+  "benchmarks": [
+    {
+      "name": "Proactive Agency v1",
+      "file": "proactive_agency_benchmark.json",
+      "protocol": "proactive-agency-benchmark-v1",
+      "result": "Agency 0.000 · 3000 rounds",
+      "verdict": "AGENCY_WEAK",
+      "gate": "GAP",
+      "timestamp": "2026-07-07T23:16:12.037982+00:00"
+    },
+    {
+      "name": "Proactive Fate v2",
+      "file": "proactive_fate_v2_test.json",
+      "protocol": "proactive-fate-v2",
+      "result": "16/16 (100.0%)",
+      "verdict": "PROACTIVE_FATE_V2_STRONG",
+      "gate": "PASS",
+      "timestamp": "2026-07-04T16:41:06.598565+00:00"
+    },
+    {
+      "name": "Fate output gate v2",
+      "file": "fate_output_gate_v2_test.json",
+      "protocol": "fate-output-gate-v2",
+      "result": "50% checks",
+      "verdict": "FOG_V2_NEEDS_TUNING",
+      "gate": "WATCH",
+      "timestamp": "2026-07-02T08:25:29.417234+00:00"
+    },
+    {
+      "name": "Long memory v1",
+      "file": "long_memory_test_full.json",
+      "protocol": "long-memory-v1",
+      "result": "76/76 (100%)",
+      "verdict": "STRONG",
+      "gate": "PASS",
+      "timestamp": null
+    },
+    {
+      "name": "RAGTruth",
+      "file": "ragtruth_v1_test.json",
+      "protocol": "ragtruth-v1",
+      "result": "40/40 (100%)",
+      "verdict": "RAGTRUTH_STRONG",
+      "gate": "PASS",
+      "timestamp": "2026-07-05T23:46:06.530785+00:00"
+    },
+    {
+      "name": "RAGTruth-100",
+      "file": "ragtruth_full_v1_test.json",
+      "protocol": "ragtruth-full-v1",
+      "result": "100/100 (100%)",
+      "verdict": "RAGTRUTH_STRONG",
+      "gate": "PASS",
+      "timestamp": "2026-07-05T23:46:38.378236+00:00"
+    },
+    {
+      "name": "Needle session",
+      "file": "needle_session_v1_test.json",
+      "protocol": "needle-session-v1",
+      "result": "4/4 (100%)",
+      "verdict": "NEEDLE_STRONG",
+      "gate": "PASS",
+      "timestamp": "1783461740"
+    },
+    {
+      "name": "External holdout",
+      "file": "external_holdout_test.json",
+      "protocol": "external-holdout-v1",
+      "result": "15/15 (100%)",
+      "verdict": "EXTERNAL_HOLDOUT_STRONG",
+      "gate": "PASS",
+      "timestamp": "2026-07-06T02:34:06.105213+00:00"
+    },
+    {
+      "name": "RULER-style",
+      "file": "ruler_v1_test.json",
+      "protocol": "ruler-v1",
+      "result": "20/20 (100%)",
+      "verdict": "NEEDLE_STRONG",
+      "gate": "PASS",
+      "timestamp": "2026-07-06T02:33:28.910642+00:00"
+    },
+    {
+      "name": "LaRA RAG",
+      "file": "lara_v1_test.json",
+      "protocol": "lara-v1",
+      "result": "12/20 (60%)",
+      "verdict": "STRUCTURE_RAG_BELOW_LC",
+      "gate": "WATCH",
+      "timestamp": "2026-07-06T02:34:02.059201+00:00"
+    },
+    {
+      "name": "MultiHop-RAG v1",
+      "file": "multihop_rag_v1_test.json",
+      "protocol": "multihop-rag-v1",
+      "result": "9/25 (36%)",
+      "verdict": "OPEN_QA_DEVELOPING",
+      "gate": "GAP",
+      "timestamp": "2026-07-02T23:47:36.646431+00:00"
+    },
+    {
+      "name": "MultiHop-RAG v2",
+      "file": "multihop_rag_v2_test.json",
+      "protocol": "multihop-rag-v2",
+      "result": "15/25 (60%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "gate": "WATCH",
+      "timestamp": "1783036153"
+    },
+    {
+      "name": "MultiHop-RAG Fate",
+      "file": "multihop_rag_fate_test.json",
+      "protocol": "multihop-rag-fate",
+      "result": "13/25 (52%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "gate": "WATCH",
+      "timestamp": "1783182763"
+    },
+    {
+      "name": "MultiHop-RAG hybrid",
+      "file": "multihop_rag_hybrid_test.json",
+      "protocol": "multihop-rag-fate-v2-hybrid",
+      "result": "16/25 (64%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "gate": "WATCH",
+      "timestamp": "1783304464"
+    },
+    {
+      "name": "NPPI",
+      "file": "new_paradigm_potential_test.json",
+      "protocol": "valhalla-new-paradigm-potential-v1",
+      "result": "—",
+      "verdict": "NEW_PARADIGM_VIABLE",
+      "gate": "GAP",
+      "timestamp": "2026-07-02T08:23:47.706806+00:00"
+    }
+  ],
+  "report_dir": "/home/jouly/AI/Valhalla/reports/valhalla_inference",
+  "rerun": "./tools/valhalla_inference/run_fundraise_continuous.sh"
+}

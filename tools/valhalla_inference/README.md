@@ -2,18 +2,33 @@
 
 Valhalla 各模块 ↔ Transformer 的统一加载层（vLLM 风格 API + **Valhalla-as-base**）。
 
-**2026-07-06 生产默认：** `Qwen2.5-3B-Instruct` · CUDA · serve + LM cache · [`MCQ_LADDER_FULL_20260707.md`](../../reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md)
+**2026-07-07 GPU 加速（patch_lm）：** MCQ logprob **prefill + suffix decode**（908→~16 forwards/题）· `PatchTensorScratch` 复用权重 · generate 首步 prefill。实测 0.5B MCQ **~55s → ~3.7s/题**（serve + CUDA）。可选 `VALHALLA_LM_F16=1` 半精度权重。
 
 ```bash
 # Industry（常规）
 python3 tools/valhalla_inference/run_industry_benchmarks.py --all
 # MCQ 全阶梯 0.5B/3B/7B
 tools/valhalla_inference/run_mcq_full_ladder.sh
+# 主动性 AI 基准（高轮次对话 + 多模态 + 跨语言）
+tools/valhalla_inference/run_proactive_agency_benchmark.sh --verbose
+tools/valhalla_inference/run_proactive_agency_benchmark.sh --mega --turns 3000
 # AGI / 训练代理（单独）
 python3 tools/valhalla_inference/run_industry_benchmarks.py --agi-only
 ```
 
 ## Valhalla-as-base（上下文灵活基座）
+
+**生产栈（默认内建）：** `hybrid` · `targeted` ingest · session affinity reanchor · `fate_qa_feedback` · `native_follow_up_aware`
+
+```python
+from valhalla_base import ValhallaBase
+
+base = ValhallaBase()  # defaults = production stack
+base.ingest_for_prompt(prompt_dict, corpus)  # targeted + reanchor
+base.run([question], append_only=True)
+# or batch:
+base.run_batch(questions, corpus)
+```
 
 **Rust 优先：** in-process `ValhallaBaseClient` · `valhalla_base demo v1|needle|corpus` · `valhalla_base serve`
 
@@ -149,6 +164,9 @@ Hybrid 路由 / 每题 runtime patch **不在** vLLM 图内；需外部 orchestr
 | `test_new_paradigm_potential.py` | new-paradigm-v1 | NPPI |
 | `test_context_topic_drift.py` | context-topic-drift | swap / drift |
 | `run_local_corpus_demo.py` | local-corpus-demo-v1 | 本机语料 ingest |
+| `test_fate_output_gate.py` | fate-output-gate-v2 | FOG precision/coverage |
+| `test_proactive_fate_v2.py` | proactive-fate-v2 | PPI-v2 / UP / MAR · **Fate signal_tick warmup** |
+| `run_proactive_agency_benchmark.py` | **proactive-agency-v1** | **Agency Index** · 3000-round mega · multimodal · crosslang CCU |
 
 ```bash
 # 新范式潜力（fair holdout + 合成 novel + 负对照）
@@ -158,10 +176,13 @@ python3 tools/valhalla_inference/test_new_paradigm_potential.py
 python3 tools/valhalla_inference/run_local_corpus_demo.py \
   --corpus-dir valhalla-unified-core/docs
 
-| `test_fate_output_gate.py` | fate-output-gate-v2 | FOG precision/coverage |
-| `test_proactive_fate_v2.py` | proactive-fate-v2 | PPI-v2 / UP / MAR · **Fate signal_tick warmup** |
+# 主动性 AI 完整基准（baked 3B 默认）
+tools/valhalla_inference/run_proactive_agency_benchmark.sh --verbose
+# Mega 3000 轮（内存有界：segment-decodes + corpus cap + serve）
+VALHALLA_BASE_URL=http://127.0.0.1:8788 \
+  tools/valhalla_inference/run_proactive_agency_benchmark.sh \
+  --mega --turns 3000 --extend-chunk 8 --segment-decodes 4 --verbose
 
-```bash
 # 统一置信区间报告（Wilson + bootstrap，汇总全部实验 JSON）
 python3 tools/valhalla_inference/run_confidence_report.py
 

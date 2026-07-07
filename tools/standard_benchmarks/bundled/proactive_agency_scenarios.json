@@ -1,0 +1,132 @@
+{
+  "protocol": "proactive-agency-dialogues-v1",
+  "source": "LoCoMo slice + handcraft multi-turn",
+  "scenarios": [
+    {
+      "id": "loco_lgbtq_date",
+      "corpus_lines": 48,
+      "session_lines": [
+        "[D1:1] Caroline: Hey Mel! Good to see you! How have you been?",
+        "[D1:2] Melanie: Hey Caroline! Good to see you! I'm swamped with the kids & work.",
+        "[D1:3] Caroline: I went to a LGBTQ support group yesterday and it was so powerful.",
+        "[D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?",
+        "[D1:5] Caroline: The transgender stories were so inspiring!",
+        "[D10:3] Caroline: I just joined a new LGBTQ activist group last Tues.",
+        "[D10:5] Caroline: Our group Connected LGBTQ Activists plans events and campaigns.",
+        "[D11:4] Caroline: I went to a pride parade last Friday - so much energy and love.",
+        "[D11:10] Caroline: My art is about expressing my trans experience.",
+        "[D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives."
+      ],
+      "dialogue_turns": [
+        "What did Caroline do yesterday according to the conversation?",
+        "Tell me more about Caroline's LGBTQ support group experience.",
+        "What is Caroline's activist group called?",
+        "What themes does Caroline explore in her art?",
+        "How did the pride parade make Caroline feel?",
+        "What career is Caroline considering?",
+        "What happened on Caroline's hike?",
+        "Does Melanie have children?",
+        "What summer tradition does Melanie's family enjoy?",
+        "What concert did Melanie attend for her daughter's birthday?",
+        "What painting theme did Caroline describe as Embracing Identity?",
+        "How does art help Caroline with self-discovery?"
+      ],
+      "primary_question": "When did Caroline go to the LGBTQ support group?",
+      "gold_answer": "7 May 2023",
+      "keywords": ["may", "2023", "yesterday", "support group", "lgbtq"],
+      "supplement_prompt": "Please supplement your previous answer with any additional dates or context mentioned in our conversation.",
+      "supplement_keywords": ["may", "2023", "tuesday", "friday", "group"],
+      "proactive_keywords": ["lgbtq", "caroline", "support", "pride", "trans"]
+    },
+    {
+      "id": "science_water",
+      "corpus_lines": 8,
+      "session_lines": [
+        "Water boils at 100 degrees Celsius at standard atmospheric pressure.",
+        "The boiling point depends on altitude and pressure.",
+        "Steam forms when liquid water reaches its boiling point.",
+        "At sea level one atmosphere equals 101325 pascals.",
+        "Water freezes at 0 degrees Celsius at standard pressure.",
+        "Phase changes release or absorb latent heat.",
+        "Evaporation occurs below boiling point at any temperature.",
+        "Superheated water can exceed 100C without boiling in clean containers."
+      ],
+      "dialogue_turns": [
+        "At what temperature does water boil at standard pressure?",
+        "What happens when water reaches boiling point?",
+        "How does altitude affect boiling point?",
+        "What is the freezing point of water?",
+        "What is latent heat in phase changes?",
+        "Can water boil below 100 degrees?",
+        "What is sea level pressure in pascals?",
+        "What is evaporation versus boiling?",
+        "What is superheated water?",
+        "Does steam form only at exactly 100C?",
+        "Why does pressure matter for boiling?",
+        "Summarize water phase changes we discussed."
+      ],
+      "primary_question": "At standard atmospheric pressure, what temperature does water boil in Celsius?",
+      "gold_answer": "100",
+      "keywords": ["100", "celsius", "boil"],
+      "supplement_prompt": "Add more detail to your last answer about boiling — mention pressure or steam if relevant.",
+      "supplement_keywords": ["100", "steam", "pressure", "celsius", "atmosphere"],
+      "proactive_keywords": ["100", "boil", "water", "celsius", "steam"]
+    },
+    {
+      "id": "geo_canberra",
+      "corpus_lines": 10,
+      "session_lines": [
+        "The capital city of Australia is Canberra not Sydney or Melbourne.",
+        "Canberra is located in the Australian Capital Territory.",
+        "Sydney is the largest city in Australia but not the capital.",
+        "Melbourne is a major cultural hub in Victoria.",
+        "Australia is a country and continent in Oceania.",
+        "Parliament House is located in Canberra.",
+        "Canberra was selected as capital in 1908 as a compromise.",
+        "The name Canberra may derive from an Aboriginal word meaning meeting place.",
+        "Lake Burley Griffin is an artificial lake in central Canberra.",
+        "Many embassies are located in Canberra."
+      ],
+      "dialogue_turns": [
+        "What is the capital of Australia?",
+        "Is Sydney the capital of Australia?",
+        "Where is Canberra located?",
+        "Why was Canberra chosen as capital?",
+        "What lake is in central Canberra?",
+        "Which city is largest in Australia?",
+        "What continent is Australia on?",
+        "What is in Parliament House city?",
+        "What does Canberra name possibly mean?",
+        "Where are many embassies in Australia?",
+        "Compare Canberra and Melbourne briefly.",
+        "Recap Australian capital facts from our chat."
+      ],
+      "primary_question": "What is the capital of Australia?",
+      "gold_answer": "Canberra",
+      "keywords": ["canberra"],
+      "supplement_prompt": "Elaborate on your previous answer — explain why Canberra not Sydney.",
+      "supplement_keywords": ["canberra", "sydney", "capital", "territory", "1908"],
+      "proactive_keywords": ["canberra", "australia", "capital", "sydney"]
+    }
+  ],
+  "multimodal_prompts": [
+    {
+      "id": "MM_PHYS_01",
+      "text": "What is the SI unit of force? Answer briefly.",
+      "keywords": ["newton", "n"],
+      "corpus": ["The SI unit of force is the newton, symbol N.", "Force equals mass times acceleration."]
+    },
+    {
+      "id": "MM_BIO_01",
+      "text": "Which organelle performs photosynthesis in plant cells?",
+      "keywords": ["chloroplast"],
+      "corpus": ["Chloroplasts are the organelles where photosynthesis occurs in plants.", "They contain chlorophyll."]
+    },
+    {
+      "id": "MM_HIST_01",
+      "text": "In which year did World War Two end?",
+      "keywords": ["1945"],
+      "corpus": ["World War Two ended in 1945 with Germany's unconditional surrender.", "VE Day was in May 1945."]
+    }
+  ]
+}

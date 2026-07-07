@@ -60,6 +60,7 @@
 | Protocol | Result | Notes |
 |----------|--------|-------|
 | `proactive-fate-v2` | **71/72 · PPI 0.890** | Fate `signal_tick` warmup (min=64); Gates 3/3 |
+| **`proactive-agency-v1`** | **Agency 0.600** · **3000-round mega 140s** | 高轮次 + multimodal + **CCU 100%**; proactive spread gate pending |
 | `long-memory-v1` production | **72/76 (94.7%)** | extended_20 56/60 |
 | `fate-output-gate-v2` | emit precision **100%** (20/20) | coverage 64.5%; FOG_V2_NEEDS_TUNING |
 | `crosslang-core-unified-v1` | **18/18 · CCU 0.95** | |

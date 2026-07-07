@@ -83,6 +83,7 @@
 |-----------|------|------|----------|--------|----------|
 | Long memory | 多轮 | **73/76 (96.0%)** | append-then-ask 四 arm | 长久记忆生产协议 | E7 algebra corpus feedback |
 | Proactive Fate v2 | ×1 | **71/72 · PPI 0.890** | 主动探针 + Fate 信号门控 | 低幻觉 proactive | `min_fate_signals=64` since baseline |
+| **Proactive Agency v1** | ×2 | **Agency 0.600** (24r) · **3000r mega 140s** | 高轮次 + 多模态 + 跨语 CCU | 千轮 infra 验证 · **CCU 100%** | segment reset 控内存；spread 门控待修 |
 | Open retrieval targeted | ×1 | **31/31 (100%)** | fair scaling open arm | 结构检索 backbone 无关 | Fate rerank 不依赖 LM 大小 |
 | Follow-up native 30-turn | 历史 | **96.7%** | 多轮对话 | 上下文连贯 | session persistent |
 

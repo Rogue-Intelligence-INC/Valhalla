@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use axum::{
-    extract::State,
+    extract::{DefaultBodyLimit, State},
     http::StatusCode,
     response::{IntoResponse, Response},
     routing::{get, post},
@@ -84,6 +84,7 @@ pub fn router(state: Arc<HttpState>) -> Router {
         .route("/health", get(health))
         .route("/v1/protocol", get(protocol_info))
         .route("/v1/infer", post(infer))
+        .layer(DefaultBodyLimit::max(32 * 1024 * 1024))
         .layer(CorsLayer::permissive())
         .with_state(state)
 }
