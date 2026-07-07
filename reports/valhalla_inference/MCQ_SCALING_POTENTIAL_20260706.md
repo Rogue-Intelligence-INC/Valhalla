@@ -1,19 +1,19 @@
-# MCQ 缩放潜力 — 0.5B → 3B 分解与 Valhalla 上限
+# MCQ 缩放潜力 — 0.5B → 3B → 7B（实测）
 
-**日期:** 2026-07-06  
+**日期:** 2026-07-06 / 2026-07-07  
 **协议:** `mcq-ladder-v1` · `valhalla_hybrid_lm_patch`  
-**数据:** `reports/valhalla_inference/mcq_ladder_v1_test.json`
+**数据:** [`mcq_ladder_v1_full_test.json`](./mcq_ladder_v1_full_test.json) · 全阶梯报告 [`MCQ_LADDER_FULL_20260707.md`](./MCQ_LADDER_FULL_20260707.md)
 
 ---
 
-## 核心结论
+## 核心结论（三点实测）
 
-| 维度 | 0.5B | 3B | Δ |
-|------|------|-----|---|
-| **Valhalla hybrid + lm_patch** | 28/46 (61%) | 45/46 (98%) | **+37 pp** |
-| 仅换 LM，Valhalla 栈不变 | ✓ | ✓ | 差距主要来自 **LM logprob 分辨率** |
+| 维度 | 0.5B | 3B | 7B |
+|------|------|-----|-----|
+| **Valhalla hybrid + lm_patch** | 29/46 (**63%**) | 45/46 (**98%**) | 44/46 (**96%**) |
+| 仅换 LM，Valhalla 栈不变 | ✓ | ✓ | ✓ |
 
-**0.5B→3B 的跃迁比任何单点 industry 分数更能说明潜力：** 同一 Fate/Space/检索栈下，backbone 从 0.5B 换到 3B，MCQ 几乎打满。说明 Valhalla 的 **结构层已把 0.5B 的 logprob 天花板抬高 ~45–50 pp**；3B 只是把最后一档 logprob 歧义消掉。
+**0.5B→3B** 跃迁 +35 pp；**3B→7B** 无增益（触顶）。**生产默认保持 3B。**
 
 ---
 
@@ -23,34 +23,34 @@
 
 在 0.5B 上已观测：
 
-- **trad_lm RAG MCQ** ≈ 15% → **Valhalla hybrid lm_patch** ≈ 61% → **+46 pp**
-- 开放检索 holdout、RAGTruth、RULER 等：**不依赖 MCQ logprob  ladder**，在 0.5B 上已接近饱和
+- **trad_lm RAG MCQ** ≈ 15% → **Valhalla hybrid lm_patch** ≈ 63% → **+48 pp**
+- 开放检索 holdout、RAGTruth、RULER 等：**不依赖 MCQ logprob ladder**，在 0.5B 上已接近饱和
 
 → Fate 会话 + hybrid decode + lm_patch 是 **与参数量正交的增益通道**。
 
 ### 2. LM 缩放贡献（同栈、换 backbone）
 
-两点拟合（log₁₀ params）：
+三点拟合（log₁₀ params，serve 模式 2026-07-07）：
 
 ```
-acc ≈ 0.752 + 0.475 · log₁₀(B)     (R² = 1.0, n=2)
+acc ≈ 0.750 + 0.310 · log₁₀(B)     (R² = 0.865, n=3)
 ```
 
-| B | 实测/外推 MCQ |
-|---|---------------|
-| 0.5B | 61% (实测) |
-| 3B | 98% (实测) |
-| 7B | ~100% (外推，待测) |
+| B | 实测 MCQ |
+|---|----------|
+| 0.5B | 63% |
+| 3B | **98%** ← 生产甜点 |
+| 7B | 96%（−1 题 vs 3B） |
 
-0.5B→3B 预测 Δ ≈ **+37 pp**，与实测 **+37 pp** 一致 → 缩放律在 Valhalla 栈上 **可预测**。
+0.5B→3B 仍占绝大部分缩放收益；7B 外推 ~100% **未兑现** — MCQ logprob 在 3B 已封顶。
 
 ### 3. 潜力解读
 
 | 层级 | 含义 |
 |------|------|
 | **结构潜力** | 0.5B 上 +45–50 pp → 小 LM 也能被 manifold 抬到可用 MCQ |
-| **缩放潜力** | 结构固定时，acc 随 log B 近线性 → 7B 有望 MCQ 封顶 |
-| **产品默认** | 后续 benchmark **以 Qwen2.5-3B-Instruct 为主干**（GPU 默认开） |
+| **缩放潜力** | 结构固定时，**3B 为 lm_patch MCQ 最优**；更大 LM 无必要 |
+| **产品默认** | **Qwen2.5-3B-Instruct** + CUDA + `valhalla_base serve` |
 
 ---
 
@@ -68,16 +68,17 @@ MCQ ladder 是 **知识/推理 logprob 分辨率** 的探针；RAG/needle 是 **
 
 ---
 
-## 后续测试策略（3B 为主）
+## 后续测试策略
 
-1. **Industry:** `run_industry_benchmarks.py --all`（默认 3B + CUDA）
-2. **AGI / 训练代理:** `--agi` → TPI-v2、fair-benchmark test、incubation standard
-3. **对照:** 保留 0.5B 结果作 scaling 基线，新跑一律 `VALHALLA_LM_MODEL=Qwen/Qwen2.5-3B-Instruct`
+1. **Industry:** `run_industry_benchmarks.py --all`（默认 3B + serve）
+2. **MCQ 全阶梯:** `tools/valhalla_inference/run_mcq_full_ladder.sh`（0.5B/3B/7B）
+3. **AGI / 训练代理:** `--agi-only`（与 industry 分开，避免 10h+ 串联）
 
 ```bash
 export LIBRARY_PATH=/opt/cuda/targets/x86_64-linux/lib:$LIBRARY_PATH
 export RUSTFLAGS="-L /opt/cuda/lib64"
-python3 tools/valhalla_inference/run_industry_benchmarks.py --all --agi
+python3 tools/valhalla_inference/run_industry_benchmarks.py --all
+tools/valhalla_inference/run_mcq_full_ladder.sh   # optional 7B ladder
 ```
 
 ---

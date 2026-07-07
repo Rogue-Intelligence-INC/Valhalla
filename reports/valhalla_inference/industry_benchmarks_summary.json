@@ -88,7 +88,7 @@
     {
       "name": "MCQ ladder",
       "protocol": "mcq-ladder-v1",
-      "result": "0.5B 63% → 3.0B 98%",
+      "result": "0.5B 63% → 3.0B 98% → 7.0B 96%",
       "verdict": "MCQ_LADDER_SCALES",
       "file": "mcq_ladder_v1_test.json"
     },

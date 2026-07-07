@@ -23,16 +23,18 @@ ValhallaBase on **Qwen2.5-3B** reaches **industry-grade grounded RAG** (RAGTruth
 | **Needle session** | needle-session-v1 | **4/4 (100%)** @ depth 30 | NEEDLE_STRONG |
 | **RULER-style** | ruler-v1 | **20/20 (100%)** | NEEDLE_STRONG |
 | **External holdout** | external-holdout-v1 | **15/15 (100%)** | EXTERNAL_HOLDOUT_STRONG |
-| **MCQ ladder** | mcq-ladder-v1 | **0.5B 29/46 (63%) → 3B 45/46 (98%)** | MCQ_LADDER_SCALES |
+| **MCQ ladder** | mcq-ladder-v1 | **0.5B 63% → 3B 98% → 7B 96%** (29/45/44 of 46) | MCQ_LADDER_SCALES |
+
+Full ladder (serve, 2026-07-07): [`MCQ_LADDER_FULL_20260707.md`](./MCQ_LADDER_FULL_20260707.md)
 
 ### What this proves
 
 - **Faithful RAG** at ACL 2024 RAGTruth level — zero abstain on measured slice.
 - **Session long-range recall** — dynamic fragments + keyword anchor fix needle @ corpus index 30 (**4/4** without disabling query merge).
 - **Generalization** — holdout GSM8K/MMLU-style proxy **15/15** outside fair-1.2 training corpus.
-- **Backbone scaling** — same Valhalla stack, only LM changes: **+35pp** MCQ from 0.5B→3B; 3B closes the remaining lm_patch gap.
+- **Backbone scaling** — same Valhalla stack: **+35pp** 0.5B→3B; **3B optimal** (7B measured 44/46, no gain).
 
-Fit (n=2): `acc ≈ 0.752 + 0.475·log₁₀(B)` — see [`MCQ_SCALING_POTENTIAL_20260706.md`](./MCQ_SCALING_POTENTIAL_20260706.md).
+Three-point fit (2026-07-07): `acc ≈ 0.750 + 0.310·log₁₀(B)` (R²=0.865) — see [`MCQ_LADDER_FULL_20260707.md`](./MCQ_LADDER_FULL_20260707.md).
 
 ---
 

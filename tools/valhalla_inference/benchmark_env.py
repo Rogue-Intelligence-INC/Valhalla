@@ -114,10 +114,17 @@ def valhalla_serve(
     port = port or int(os.environ.get("VALHALLA_BASE_PORT", str(DEFAULT_SERVE_PORT)))
     url = f"http://127.0.0.1:{port}"
     if _health_ok(url):
-        print(f"valhalla_serve: reusing {url}")
-        os.environ["VALHALLA_BASE_URL"] = url
-        yield url
-        return
+        # Reuse only if we did not start it (external serve); verify with short timeout.
+        try:
+            import urllib.request
+            with urllib.request.urlopen(f"{url.rstrip('/')}/v1/protocol", timeout=3.0) as resp:
+                if resp.status == 200:
+                    print(f"valhalla_serve: reusing {url}")
+                    os.environ["VALHALLA_BASE_URL"] = url
+                    yield url
+                    return
+        except (urllib.error.URLError, TimeoutError, OSError):
+            print(f"valhalla_serve: stale serve at {url}, starting fresh")
 
     env = {**os.environ, **(extra_env or {})}
     bin_path = _ensure_bin(env)

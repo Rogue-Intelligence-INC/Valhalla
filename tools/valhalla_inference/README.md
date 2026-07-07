@@ -2,11 +2,13 @@
 
 Valhalla 各模块 ↔ Transformer 的统一加载层（vLLM 风格 API + **Valhalla-as-base**）。
 
-**2026-07-06 生产默认：** `Qwen2.5-3B-Instruct` · CUDA · [`benchmark_env.py`](./benchmark_env.py) · [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](../../reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md)
+**2026-07-06 生产默认：** `Qwen2.5-3B-Instruct` · CUDA · serve + LM cache · [`MCQ_LADDER_FULL_20260707.md`](../../reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md)
 
 ```bash
-# Industry（常规 — 自动 valhalla_base serve + LM 权重缓存）
+# Industry（常规）
 python3 tools/valhalla_inference/run_industry_benchmarks.py --all
+# MCQ 全阶梯 0.5B/3B/7B
+tools/valhalla_inference/run_mcq_full_ladder.sh
 # AGI / 训练代理（单独）
 python3 tools/valhalla_inference/run_industry_benchmarks.py --agi-only
 ```

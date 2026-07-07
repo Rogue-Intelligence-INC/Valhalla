@@ -1,7 +1,7 @@
 # Valhalla AI — Documentation Index
 
 **Scope:** ValhallaBase inference, memory, benchmarks, and product docs only.  
-**Updated:** 2026-07-06
+**Updated:** 2026-07-07
 
 > Non-AI work in this monorepo (cryptography, physics simulation, legacy Wave tooling) is **out of scope** for this index — not maintained here.  
 > **Product docs** are in [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) (submodule). Use [`valhalla/README.md`](valhalla/README.md) for working links — paths like `../valhalla-unified-core/docs/*.md` **404 on GitHub**.
@@ -17,7 +17,7 @@
 | **RAGTruth** faithful RAG | **100/100** · 0 abstain | [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
 | **Needle + RULER** session recall | **4/4 · 20/20** | same |
 | **External holdout** | **15/15** | `external_holdout_test.json` |
-| **MCQ ladder** Qwen scaling | **63% → 98%** (45/46) | [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](../reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) |
+| **MCQ ladder** Qwen scaling | **63% → 98% → 96%** (0.5B/3B/7B) | [`MCQ_LADDER_FULL_20260707.md`](../reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) |
 
 ### Native ValhallaBase
 
@@ -29,7 +29,7 @@
 | **Open retrieval** targeted | **31/31** | `model_scaling_v1_test.json` |
 | **Zero cross-topic drift** | **0/48** | `context_topic_drift_test.json` |
 
-**One-line (Tier A only):** RAGTruth 100/100 · Needle 4/4 · RULER 20/20 · Holdout 15/15 · MCQ 65%→98%
+**One-line (Tier A only):** RAGTruth 100/100 · Needle 4/4 · RULER 20/20 · Holdout 15/15 · MCQ 63%→98%→96% (3B sweet spot)
 
 ---
 

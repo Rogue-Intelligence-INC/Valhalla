@@ -106,11 +106,14 @@ def main() -> None:
     ap.add_argument("--with-trad", action="store_true", help="also run trad_lm per model")
     ap.add_argument("--model", action="append", dest="model_ids")
     ap.add_argument("--skip-7b", action="store_true", default=True)
+    ap.add_argument("--full-ladder", action="store_true", help="0.5B + 3B + 7B (overrides --skip-7b)")
+    ap.add_argument("--output", default="mcq_ladder_v1_test.json", help="report JSON filename under reports/valhalla_inference/")
     args = ap.parse_args()
 
     limit = 10 if args.fast else args.limit
     models = [m for m in QWEN_LM_PATCH_LADDER if not args.model_ids or m.id in args.model_ids]
-    if args.skip_7b:
+    explicit_7b = args.model_ids and "qwen_7b" in args.model_ids
+    if args.skip_7b and not args.full_ladder and not explicit_7b:
         models = [m for m in models if m.id != "qwen_7b"]
 
     suite = load_suite()
@@ -202,7 +205,7 @@ def main() -> None:
         report["hybrid_lm_patch_scaling"]["projections"] = proj
 
     REPORTS.mkdir(parents=True, exist_ok=True)
-    out = REPORTS / "mcq_ladder_v1_test.json"
+    out = REPORTS / args.output
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Verdict: {report['verdict']}")
     if hybrid_fit:

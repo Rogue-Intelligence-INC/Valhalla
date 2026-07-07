@@ -37,11 +37,11 @@ Valhalla is an **AI memory & hybrid inference platform** built around **Valhalla
 | **Needle session** | **4/4** @ depth 30 | Session-level long-range recall |
 | **RULER-style** | **20/20** single + multi-needle | Deep needle retrieval on append protocol |
 | **External holdout** | **15/15** | Out-of-suite generalization |
-| **MCQ ladder** (46Q) | **0.5B 63% → 3B 98%** (45/46) | lm_patch scales with Qwen backbone |
+| **MCQ ladder** (46Q) | **0.5B 63% → 3B 98% → 7B 96%** | lm_patch scales to 3B; 7B at ceiling |
 
-**2026-07-06 industry 3B run:** [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) · serve + LM cache for faster re-runs
+**2026-07-07 full ladder (0.5B/3B/7B):** [`MCQ_LADDER_FULL_20260707.md`](reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) · **2026-07-06 industry 3B:** [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md)
 
-Full interpretation: [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) · [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) · [`MCQ_SCALING_POTENTIAL_20260706.md`](reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md)
+Full interpretation: [`MCQ_LADDER_FULL_20260707.md`](reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) · [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) · [`MCQ_SCALING_POTENTIAL_20260706.md`](reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md)
 
 ### 孵化能力（Incubation — zero-weight learning）
 
@@ -160,7 +160,7 @@ Valhalla 是 **AI 记忆与混合推理平台**：语料经 **Triad 孵化** 为
 - **RAGTruth 100/100** — ACL 2024 RAG 忠实度 industry 级
 - **Needle 4/4 · RULER 20/20** — 会话 append 长程召回
 - **Holdout 15/15** — 套件外泛化
-- **MCQ 0.5B→3B 63%→98%** (45/46) — Qwen lm_patch 缩放
+- **MCQ 0.5B→3B→7B 63%→98%→96%** — 3B 为生产甜点；7B 触顶无增益
 - **长久记忆 94.7% · Proactive 71/72 · PPI 0.890 · 30 轮 follow-up 96.7%**
 
 解读文档：[`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) · [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
