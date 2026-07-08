@@ -29,10 +29,11 @@ Valhalla is an **AI memory & hybrid inference platform** built around **Valhalla
 | **PPI-v2** | **0.650** · 68/72 | Fate 门控自动插话 · mismatch 不乱发 |
 | **MAR** | **100%** | 错域会话主动 abstain |
 | **FIR** | **0%** | 无幻觉式打断 |
-| **Agency Index** | **0.644** | 四轨：长对话 + 多模态 + 跨语言 + PPI |
+| **Agency Index** | **0.639** | 四轨 full：8 long · 10 multimodal · CCU 100% · PPI |
+| **Multimodal** | **90%** | 10 prompts · consistency 0.90 |
 | **Crosslang CCU** | **100%** | EN/ZH/FR 同一 Triad 核心 |
 
-详见 [`PROACTIVE_AGENCY_BENCHMARK.md`](reports/valhalla_inference/PROACTIVE_AGENCY_BENCHMARK.md) · 审计 [`PROACTIVE_AGENCY_AUDIT_20260708.md`](reports/valhalla_inference/PROACTIVE_AGENCY_AUDIT_20260708.md)
+详见 [`PROACTIVE_AGENCY_FULL_20260708.md`](reports/valhalla_inference/PROACTIVE_AGENCY_FULL_20260708.md) · [`PROACTIVE_AGENCY_BENCHMARK.md`](reports/valhalla_inference/PROACTIVE_AGENCY_BENCHMARK.md) · 审计 [`PROACTIVE_AGENCY_AUDIT_20260708.md`](reports/valhalla_inference/PROACTIVE_AGENCY_AUDIT_20260708.md)
 
 > **Repo note:** Product docs live in **[valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)** (git submodule). Links below use the VUC repo so they work on GitHub. Crypto, physics, legacy Wave, and patent trees in this monorepo are **out of scope** for ValhallaBase — see [`docs/README.md`](docs/README.md).
 
@@ -51,7 +52,7 @@ Valhalla is an **AI memory & hybrid inference platform** built around **Valhalla
 | **External holdout** | **15/15** | Out-of-suite generalization |
 | **MCQ ladder** (46Q) | **0.5B 63% → 3B 96% → 7B 98%** | lm_patch scales to 3B; F16 GPU verified 2026-07-08 |
 
-**2026-07-08:** Industry 3B **11/11** · **自动反应 PPI-v2 0.65** · Agency **0.644** · MCQ F16 GPU · [`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md)
+**2026-07-08:** Industry 3B **11/11** · **自动反应 PPI-v2 0.65** · Agency **0.639** (full) · multimodal **90%** · MCQ F16 GPU · [`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md)
 
 **2026-07-07 full ladder (0.5B/3B/7B):** [`MCQ_LADDER_FULL_20260707.md`](reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) · **2026-07-08 F16 rerun:** [`MCQ_LADDER_MEM_GPU_20260708.md`](reports/valhalla_inference/MCQ_LADDER_MEM_GPU_20260708.md) · **2026-07-06 industry 3B:** [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md)
 
@@ -76,7 +77,7 @@ Full interpretation: [`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inferenc
 | **Long memory** (append-then-ask) | **72/76 (94.7%)** |
 | **Follow-up native** (30-turn) | **96.7%** |
 | **Proactive Fate v2** | **68/72 · PPI 0.650** | 自动反应门控 |
-| **Agency Index** | **0.644** | 主动性 AI 四轨综合 |
+| **Agency Index** | **0.639** | 主动性 AI 四轨 full（8 long · 10 mm）|
 | **Open retrieval** (targeted) | **31/31 (100%)** |
 | **Zero cross-topic drift** | **0/48** probes |
 
@@ -152,7 +153,7 @@ Valhalla/
 
 LongBench **7/20 (35%)** · MultiHop hybrid **14/25 (56%)** · LaRA RAG **8/20** vs LC **13/20** · LoCoMo **1/30 (3%)** · FRAMES **0/25** — documented with protocol caveats. Do **not** cite truncated slices as official production scores.
 
-**Proactive agency (2026-07-08):** Agency Index **0.644** · **PPI-v2 0.65** · Crosslang **100%** · 自动反应门控 MAR 100% / FIR 0%
+**Proactive agency (2026-07-08 full):** Agency Index **0.639** · **PPI-v2 0.65** · Multimodal **90%** · Crosslang **100%** · 自动反应门控 MAR 100% / FIR 0%
 
 **Positioning:** ValhallaBase is strong on **grounded retrieval, session memory, and MCQ patch scaling** — not a long-chain reasoning replacement today. Next phase: **multi-hop structure composition** (not prompt-window chain-of-thought).
 
@@ -177,9 +178,9 @@ Valhalla 是 **AI 记忆与混合推理平台**：语料经 **Triad 孵化** 为
 - **RAGTruth 100/100** — ACL 2024 RAG 忠实度 industry 级
 - **Needle 4/4 · RULER 20/20** — 会话 append 长程召回
 - **Holdout 15/15** — 套件外泛化
-- **自动反应 PPI-v2 0.65** · Agency Index **0.644** · 门控 MAR 100% / FIR 0%
+- **自动反应 PPI-v2 0.65** · Agency Index **0.639** · 门控 MAR 100% / FIR 0%
 - **Industry 3B 2026-07-08** — Tier A 全 100% · MCQ F16 63%→96%→98%
-- **Proactive agency** — 跨语言 CCU **100%** · 多模态一致性 **67%**
+- **Proactive agency full** — 10 multimodal **90%** · 8 long dialogue · CCU **100%**
 - **长久记忆 94.7% · Proactive 71/72 · PPI 0.890 · 30 轮 follow-up 96.7%**
 
 解读文档：[`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md) · [`INDUSTRY_3B_RUN_STATUS.md`](reports/valhalla_inference/INDUSTRY_3B_RUN_STATUS.md)

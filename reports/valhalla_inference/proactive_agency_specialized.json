@@ -1,0 +1,432 @@
+{
+  "timestamp": "2026-07-08T05:21:22.686492+00:00",
+  "protocol": "proactive-agency-benchmark-v1",
+  "lm_model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10",
+  "config": {
+    "fast": false,
+    "full": false,
+    "specialized_reaction": true,
+    "mega": false,
+    "max_turns": 24,
+    "ask_every": 2,
+    "extend_chunk": 8,
+    "max_session_corpus": 0,
+    "compare_base": false,
+    "tracks": [
+      "long_dialogue"
+    ]
+  },
+  "metrics": {
+    "long_dialogue": {
+      "n": 3,
+      "primary_rate": 0.6666666666666666,
+      "supplement_rate": 0.3333333333333333,
+      "proactive_rate": 1.0,
+      "pass_rate": 0.3333333333333333
+    },
+    "multimodal_natural": {
+      "n": 0,
+      "all_hit_rate": 0.0,
+      "avg_consistency": 0.0,
+      "pass_rate": 0.0
+    },
+    "crosslang": {
+      "n": 0,
+      "ccu": 0.0,
+      "pass_rate": 0.0
+    },
+    "proactive_reaction": {
+      "protocol": "proactive-fate-v2",
+      "ppi_v2": 0.65,
+      "pass_rate": 0.9444444444444444,
+      "gates_ok": true,
+      "unsolicited_precision": 0.0,
+      "mismatch_abstain_rate": 1.0,
+      "false_interrupt_rate": 0.0,
+      "verdict": [
+        "PROACTIVE_FATE_V2_VIABLE",
+        "LOW_MISMATCH_INTERRUPT",
+        "NO_HALLUCINATION_ON_MISMATCH",
+        "GATES_OK"
+      ],
+      "n_trials": 72
+    },
+    "agency_index": 0.3108,
+    "agency_formula": "0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2"
+  },
+  "tracks": {
+    "long_dialogue": [
+      {
+        "id": "loco_lgbtq_date",
+        "turns": 12,
+        "ask_turns": 12,
+        "extend_turns": 0,
+        "ask_every": 2,
+        "segment_resets": 0,
+        "decode_count": 17,
+        "dialogue_elapsed_s": 0.3,
+        "primary_question": "When did Caroline go to the LGBTQ support group?",
+        "answer_primary": "[corpus:5] [D10:3] Caroline: I just joined a new LGBTQ activist group last Tues",
+        "answer_supplement": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?",
+        "primary_correct": false,
+        "supplement_rich": true,
+        "supplement_grounded": false,
+        "supplement_pass": false,
+        "proactive": {
+          "triggered": false,
+          "emitted": false,
+          "nudge": "",
+          "trigger_reason": "spread=0.0000<0.0031",
+          "fate_signals": 37,
+          "mode": "defer_gate_ok"
+        },
+        "proactive_pass": true,
+        "pass": false,
+        "turn_log_sample": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "What did Caroline do yesterday according to the conversation?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "Tell me more about Caroline's LGBTQ support group experience.",
+            "answer": "[corpus:2] [D1:3] Caroline: I went to a LGBTQ support group yesterday and it was so powerful"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "What painting theme did Caroline describe as Embracing Identity?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "How does art help Caroline with self-discovery?",
+            "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
+          }
+        ]
+      },
+      {
+        "id": "science_water",
+        "turns": 12,
+        "ask_turns": 12,
+        "extend_turns": 0,
+        "ask_every": 2,
+        "segment_resets": 0,
+        "decode_count": 17,
+        "dialogue_elapsed_s": 0.2,
+        "primary_question": "At standard atmospheric pressure, what temperature does water boil in Celsius?",
+        "answer_primary": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure",
+        "answer_supplement": "[corpus:2] Steam forms when liquid water reaches its boiling point",
+        "primary_correct": true,
+        "supplement_rich": true,
+        "supplement_grounded": true,
+        "supplement_pass": true,
+        "proactive": {
+          "triggered": false,
+          "emitted": false,
+          "nudge": "",
+          "trigger_reason": "spread=0.0000<0.0031",
+          "fate_signals": 37,
+          "mode": "defer_gate_ok"
+        },
+        "proactive_pass": true,
+        "pass": true,
+        "turn_log_sample": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "At what temperature does water boil at standard pressure?",
+            "answer": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "What happens when water reaches boiling point?",
+            "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "Why does pressure matter for boiling?",
+            "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "Summarize water phase changes we discussed.",
+            "answer": "[corpus:5] Phase changes release or absorb latent heat"
+          }
+        ]
+      },
+      {
+        "id": "geo_canberra",
+        "turns": 12,
+        "ask_turns": 12,
+        "extend_turns": 0,
+        "ask_every": 2,
+        "segment_resets": 0,
+        "decode_count": 17,
+        "dialogue_elapsed_s": 0.3,
+        "primary_question": "What is the capital of Australia?",
+        "answer_primary": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
+        "answer_supplement": "[corpus:5] Parliament House is located in Canberra",
+        "primary_correct": true,
+        "supplement_rich": false,
+        "supplement_grounded": true,
+        "supplement_pass": false,
+        "proactive": {
+          "triggered": false,
+          "emitted": false,
+          "nudge": "",
+          "trigger_reason": "spread=0.0000<0.0031",
+          "fate_signals": 37,
+          "mode": "defer_gate_ok"
+        },
+        "proactive_pass": true,
+        "pass": false,
+        "turn_log_sample": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "What is the capital of Australia?",
+            "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "Is Sydney the capital of Australia?",
+            "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "Compare Canberra and Melbourne briefly.",
+            "answer": "[corpus:4] Australia is a country and continent in Oceania"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "Recap Australian capital facts from our chat.",
+            "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
+          }
+        ]
+      }
+    ],
+    "multimodal_natural": [],
+    "crosslang": []
+  },
+  "arms": {
+    "baked": {
+      "lm_model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10",
+      "tracks": {
+        "long_dialogue": [
+          {
+            "id": "loco_lgbtq_date",
+            "turns": 12,
+            "ask_turns": 12,
+            "extend_turns": 0,
+            "ask_every": 2,
+            "segment_resets": 0,
+            "decode_count": 17,
+            "dialogue_elapsed_s": 0.3,
+            "primary_question": "When did Caroline go to the LGBTQ support group?",
+            "answer_primary": "[corpus:5] [D10:3] Caroline: I just joined a new LGBTQ activist group last Tues",
+            "answer_supplement": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?",
+            "primary_correct": false,
+            "supplement_rich": true,
+            "supplement_grounded": false,
+            "supplement_pass": false,
+            "proactive": {
+              "triggered": false,
+              "emitted": false,
+              "nudge": "",
+              "trigger_reason": "spread=0.0000<0.0031",
+              "fate_signals": 37,
+              "mode": "defer_gate_ok"
+            },
+            "proactive_pass": true,
+            "pass": false,
+            "turn_log_sample": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "What did Caroline do yesterday according to the conversation?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "Tell me more about Caroline's LGBTQ support group experience.",
+                "answer": "[corpus:2] [D1:3] Caroline: I went to a LGBTQ support group yesterday and it was so powerful"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "What painting theme did Caroline describe as Embracing Identity?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "How does art help Caroline with self-discovery?",
+                "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
+              }
+            ]
+          },
+          {
+            "id": "science_water",
+            "turns": 12,
+            "ask_turns": 12,
+            "extend_turns": 0,
+            "ask_every": 2,
+            "segment_resets": 0,
+            "decode_count": 17,
+            "dialogue_elapsed_s": 0.2,
+            "primary_question": "At standard atmospheric pressure, what temperature does water boil in Celsius?",
+            "answer_primary": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure",
+            "answer_supplement": "[corpus:2] Steam forms when liquid water reaches its boiling point",
+            "primary_correct": true,
+            "supplement_rich": true,
+            "supplement_grounded": true,
+            "supplement_pass": true,
+            "proactive": {
+              "triggered": false,
+              "emitted": false,
+              "nudge": "",
+              "trigger_reason": "spread=0.0000<0.0031",
+              "fate_signals": 37,
+              "mode": "defer_gate_ok"
+            },
+            "proactive_pass": true,
+            "pass": true,
+            "turn_log_sample": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "At what temperature does water boil at standard pressure?",
+                "answer": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "What happens when water reaches boiling point?",
+                "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "Why does pressure matter for boiling?",
+                "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "Summarize water phase changes we discussed.",
+                "answer": "[corpus:5] Phase changes release or absorb latent heat"
+              }
+            ]
+          },
+          {
+            "id": "geo_canberra",
+            "turns": 12,
+            "ask_turns": 12,
+            "extend_turns": 0,
+            "ask_every": 2,
+            "segment_resets": 0,
+            "decode_count": 17,
+            "dialogue_elapsed_s": 0.3,
+            "primary_question": "What is the capital of Australia?",
+            "answer_primary": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
+            "answer_supplement": "[corpus:5] Parliament House is located in Canberra",
+            "primary_correct": true,
+            "supplement_rich": false,
+            "supplement_grounded": true,
+            "supplement_pass": false,
+            "proactive": {
+              "triggered": false,
+              "emitted": false,
+              "nudge": "",
+              "trigger_reason": "spread=0.0000<0.0031",
+              "fate_signals": 37,
+              "mode": "defer_gate_ok"
+            },
+            "proactive_pass": true,
+            "pass": false,
+            "turn_log_sample": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "What is the capital of Australia?",
+                "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "Is Sydney the capital of Australia?",
+                "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "Compare Canberra and Melbourne briefly.",
+                "answer": "[corpus:4] Australia is a country and continent in Oceania"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "Recap Australian capital facts from our chat.",
+                "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
+              }
+            ]
+          }
+        ],
+        "multimodal_natural": [],
+        "crosslang": []
+      },
+      "metrics": {
+        "long_dialogue": {
+          "n": 3,
+          "primary_rate": 0.6666666666666666,
+          "supplement_rate": 0.3333333333333333,
+          "proactive_rate": 1.0,
+          "pass_rate": 0.3333333333333333
+        },
+        "multimodal_natural": {
+          "n": 0,
+          "all_hit_rate": 0.0,
+          "avg_consistency": 0.0,
+          "pass_rate": 0.0
+        },
+        "crosslang": {
+          "n": 0,
+          "ccu": 0.0,
+          "pass_rate": 0.0
+        },
+        "proactive_reaction": {
+          "protocol": "proactive-fate-v2",
+          "ppi_v2": 0.65,
+          "pass_rate": 0.9444444444444444,
+          "gates_ok": true,
+          "unsolicited_precision": 0.0,
+          "mismatch_abstain_rate": 1.0,
+          "false_interrupt_rate": 0.0,
+          "verdict": [
+            "PROACTIVE_FATE_V2_VIABLE",
+            "LOW_MISMATCH_INTERRUPT",
+            "NO_HALLUCINATION_ON_MISMATCH",
+            "GATES_OK"
+          ],
+          "n_trials": 72
+        },
+        "agency_index": 0.3108,
+        "agency_formula": "0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2"
+      }
+    }
+  },
+  "verdict": "AGENCY_WEAK",
+  "elapsed_s": 66.6
+}

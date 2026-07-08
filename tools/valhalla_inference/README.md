@@ -166,7 +166,7 @@ Hybrid 路由 / 每题 runtime patch **不在** vLLM 图内；需外部 orchestr
 | `run_local_corpus_demo.py` | local-corpus-demo-v1 | 本机语料 ingest |
 | `test_fate_output_gate.py` | fate-output-gate-v2 | FOG precision/coverage |
 | `test_proactive_fate_v2.py` | proactive-fate-v2 | PPI-v2 / UP / MAR · **Fate signal_tick warmup** |
-| `run_proactive_agency_benchmark.py` | **proactive-agency-v1** | **Agency Index 0.644** · Track D PPI-v2 · multimodal · CCU 100% |
+| `run_proactive_agency_benchmark.py` | **proactive-agency-v1** | **Agency Index 0.639** (full) · 10 multimodal · 8 long · CCU 100% · PPI-v2 0.650 |
 
 ```bash
 # 新范式潜力（fair holdout + 合成 novel + 负对照）
@@ -178,6 +178,10 @@ python3 tools/valhalla_inference/run_local_corpus_demo.py \
 
 # 主动性 AI 完整基准（baked 3B 默认）
 tools/valhalla_inference/run_proactive_agency_benchmark.sh --verbose
+# 补齐版（10 multimodal + 5 LoCoMo + full PPI-v2）
+tools/valhalla_inference/run_proactive_agency_full.sh --verbose
+# 自动反应专项（handcraft long_dialogue + PPI-v2）
+tools/valhalla_inference/run_proactive_agency_specialized.sh --verbose
 # Mega 3000 轮（内存有界：segment-decodes + corpus cap + serve）
 VALHALLA_BASE_URL=http://127.0.0.1:8788 \
   tools/valhalla_inference/run_proactive_agency_benchmark.sh \

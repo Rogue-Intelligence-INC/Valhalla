@@ -1,82 +1,54 @@
 # Proactive Agency Benchmark
 
-**Protocol:** `proactive-agency-benchmark-v1`  
-**Model:** `Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10` (baked tri-modal)  
+**Protocol:** `proactive-agency-benchmark-v1` + `proactive-fate-v2` (Track D)  
+**Model:** `Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10`  
 **Updated:** 2026-07-08
 
 ---
 
-## 最大亮点 — 自动反应（Automatic Reaction）
-
-ValhallaBase 的 **主动性 AI** 不靠 prompt 触发，而靠 **Fate 结构门控** 在 `proactive_idle` 时自动探测会话、择机插话：
-
-| 能力 | 结果 | 协议 |
-|------|------|------|
-| **自动反应 PPI-v2** | **0.650** · 68/72 pass | `proactive-fate-v2` Track D |
-| **门控安全** | MAR **100%** · FIR **0%** | mismatch 不乱插话 |
-| **跨语言 CCU** | **100%** | EN/ZH/FR 同一核心 |
-| **Agency Index** | **0.644** | AGENCY_VIABLE |
-
-> **对外引用：** 自动反应能力用 **PPI-v2 + G/H/F 电池**；Agency Index 含 **35% PPI 权重**。  
-> 审计：[`PROACTIVE_AGENCY_AUDIT_20260708.md`](./PROACTIVE_AGENCY_AUDIT_20260708.md)
-
----
-
-## Executive summary
-
-| Run | Rounds | Duration | Agency Index | Verdict | Highlight |
-|-----|--------|----------|--------------|---------|-----------|
-| **Standard（4 tracks）** | 24 × 3 scenarios | 18s | **0.644** | AGENCY_VIABLE | PPI-v2 **0.65** · CCU **100%** · proactive gate **100%** |
-| **Mega（infra only）** | **3000** | **140s** | — | infra | 460 decode · 114 segment resets · **不计 Agency** |
-
----
-
-## Tracks
-
-| Track | 内容 | 指标 |
-|-------|------|------|
-| **A** long_dialogue | 高轮次 session → primary → supplement → `proactive_idle` | primary / supplement / proactive gate |
-| **B** multimodal_natural | 同题 text / TTS / image / tri-modal | consistency |
-| **C** crosslang | EN / ZH / FR 同事实 | CCU |
-| **D** proactive_reaction | **自动反应** G/H/F 电池 | **PPI-v2** · UP · MAR · FIR |
-
-**Agency Index** = 0.25×long_pass + 0.20×multimodal + 0.20×crosslang + **0.35×PPI-v2**
-
----
-
-## Standard run（2026-07-08 重跑）
+## Headline (full benchmark)
 
 | Metric | Value |
 |--------|-------|
-| Agency Index | **0.644** |
-| Long-dialogue pass | 33.3% |
-| Proactive gate pass | **100%** (spread defer — 门控正常) |
-| Multimodal consistency | 0.667 |
-| Crosslang CCU | **100%** |
-| PPI-v2 (Track D) | **0.650** |
+| **Agency Index** | **0.639** (AGENCY_VIABLE) |
+| Long-dialogue | n=**8** · pass **12.5%** · proactive gate **100%** |
+| Multimodal | n=**10** · pass **90%** · consistency **0.90** |
+| Crosslang CCU | **100%** (6 facts × EN/ZH/FR) |
+| **PPI-v2 自动反应** | **0.650** · 68/72 pass · GATES_OK |
+| MAR / FIR | **100% / 0%** |
 
----
-
-## Mega run（3000 轮 · 基础设施 · 不计分）
-
-见 [`proactive_agency_mega.json`](./proactive_agency_mega.json) · 140s · segment reset 内存有界
+**Agency formula:** `0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2`
 
 ---
 
 ## Run
 
 ```bash
-# Standard（四轨含自动反应 PPI）
+# 标准 smoke
 tools/valhalla_inference/run_proactive_agency_benchmark.sh --verbose
 
-# 仅自动反应电池
-python3 tools/valhalla_inference/test_proactive_fate_v2.py
+# 补齐版（10 multimodal + 5 LoCoMo + full PPI-v2）
+tools/valhalla_inference/run_proactive_agency_full.sh --verbose
 
-# Mega 压测（不计 Agency Index）
-tools/valhalla_inference/run_proactive_agency_benchmark.sh --mega --turns 3000 --extend-chunk 8
+# 自动反应专项（handcraft long_dialogue + PPI-v2）
+tools/valhalla_inference/run_proactive_agency_specialized.sh --verbose
+
+# Mega 3000（基础设施压测，不计 Agency Index）
+VALHALLA_BASE_URL=http://127.0.0.1:8788 \
+  tools/valhalla_inference/run_proactive_agency_benchmark.sh \
+  --mega --turns 3000 --extend-chunk 8 --segment-decodes 4 --verbose
 ```
 
-**Artifacts:** `proactive_agency_standard.json` · `proactive_fate_v2_test.json`
+---
+
+## Reports
+
+| File | Purpose |
+|------|---------|
+| [`proactive_agency_full.json`](./proactive_agency_full.json) | 补齐版完整跑分 |
+| [`proactive_agency_specialized.json`](./proactive_agency_specialized.json) | 自动反应专项 |
+| [`PROACTIVE_AGENCY_FULL_20260708.md`](./PROACTIVE_AGENCY_FULL_20260708.md) | 补齐版解读 |
+| [`PROACTIVE_AGENCY_AUDIT_20260708.md`](./PROACTIVE_AGENCY_AUDIT_20260708.md) | 合法性/合理性/全面性审计 |
 
 ---
 

@@ -25,7 +25,7 @@
 
 | 项 | 评估 |
 |----|------|
-| 场景数 | 3 handcraft + LoCoMo 扩展 — **合理** 作 smoke，非穷尽 |
+| 场景数 | **3 handcraft + 5 LoCoMo**（`--full`）— 已补齐 |
 | 评分 | primary keyword ≥34% · supplement rich+grounded — **合法** |
 | 原缺陷 | 无 spread-building warmup → `spread=0` 恒失败 |
 | **修补** | `spread_warmup_for_proactive()` 3-turn + `score_proactive_pass()` defer 门控 |
@@ -34,7 +34,7 @@
 
 | 项 | 评估 |
 |----|------|
-| 样本 | 3 prompts — **偏少**，作一致性演示 |
+| 样本 | **10 prompts** — 补齐完成（phys/bio/hist/chem/geo/math/cs）|
 | 指标 | keyword hits + cross-modality consistency — **合理** |
 | 已知 | MM_BIO_01 偶发 0-hit（baked adapter 敏感）|
 
@@ -80,9 +80,11 @@ Agency = 0.25·long_pass + 0.20·multimodal_pass + 0.20·crosslang + 0.35·PPI-v
 
 ## 待补项（非阻塞）
 
-1. multimodal 扩至 ≥10 prompts（fair multimodal slice）
-2. long_dialogue 增 DailyDialog / LoCoMo 全对话 proactive 场景
-3. mega + targeted reanchor（避免 primary 失忆）
+1. ~~multimodal 扩至 ≥10 prompts~~ → **已完成**（见 `PROACTIVE_AGENCY_FULL_20260708.md`）
+2. ~~long_dialogue 增 LoCoMo 场景~~ → **已完成**（`--full` locomo-extra=5）
+3. mega + targeted reanchor（避免 primary 失忆）— **仍待工程验证**
+
+**最新完整跑分：** Agency Index **0.639** · multimodal **90%** · CCU **100%** · PPI-v2 **0.650**
 
 ---
 

@@ -26,20 +26,27 @@
 
 ---
 
-## 2. Proactive agency — ✅ 审计 + 重跑（2026-07-08）
+## 2. Proactive agency — ✅ 补齐 + 专项测试（2026-07-08）
 
 | 指标 | 结果 |
 |------|------|
-| **Agency Index** | **0.644** (AGENCY_VIABLE) |
+| **Agency Index** | **0.639** (AGENCY_VIABLE) — full 版 |
 | **PPI-v2 自动反应** | **0.650** · 68/72 pass |
 | **门控 MAR / FIR** | **100% / 0%** |
+| Long-dialogue | n=**8** (3 handcraft + 5 LoCoMo) · proactive gate **100%** |
+| Multimodal | n=**10** · pass **90%** · consistency **0.90** |
 | Crosslang CCU | **100%** |
-| Multimodal | **67%** |
 | Mega 3000轮 | 140s infra（**不计 Agency**）|
 
 **四轨公式:** `0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2`
 
+```bash
+tools/valhalla_inference/run_proactive_agency_full.sh --verbose
+tools/valhalla_inference/run_proactive_agency_specialized.sh --verbose
+```
+
 **审计:** [`PROACTIVE_AGENCY_AUDIT_20260708.md`](./PROACTIVE_AGENCY_AUDIT_20260708.md)  
+**补齐报告:** [`PROACTIVE_AGENCY_FULL_20260708.md`](./PROACTIVE_AGENCY_FULL_20260708.md)  
 **报告:** [`PROACTIVE_AGENCY_BENCHMARK.md`](./PROACTIVE_AGENCY_BENCHMARK.md)
 
 ---
@@ -65,6 +72,7 @@
 - `benchmark_env.py`: `wait_infer_ready()` for serve warmup
 - `test_mcq_ladder_v1.py`: `--memory-safe`, isolated long-batch MCQ
 - `valhalla_base.py`: HTTP broken-pipe retry; `run_mcq_full_ladder.sh`: F16 + GPU defaults
+- `run_proactive_agency_benchmark.py`: `--full` / `--specialized-reaction` · 10 multimodal · LoCoMo 扩展修复
 
 ---
 
