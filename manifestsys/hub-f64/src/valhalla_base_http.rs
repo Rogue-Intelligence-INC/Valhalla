@@ -1,4 +1,4 @@
-//! HTTP server for ValhallaBase — stateless JSON API (session in request body).
+//! ValhallaBase HTTP server — JSON API + optional triad dashboard.
 
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -13,6 +13,7 @@ use axum::{
 use serde::Serialize;
 use tower_http::cors::CorsLayer;
 
+use crate::triad_dashboard::{self, TriadDashboardState};
 use crate::valhalla_base::{ValhallaBaseRequest, ValhallaBaseResponse, VALHALLA_BASE_PROTOCOL};
 use crate::valhalla_base_protocol::{
     execute_request, serialize_error, ValhallaBaseErrorBody, ValhallaBaseErrorKind,
@@ -24,18 +25,34 @@ pub struct HttpState {
 }
 
 #[derive(Serialize)]
-struct HealthResponse {
-    protocol: &'static str,
-    ok: bool,
-    service: &'static str,
+pub struct HealthResponse {
+    pub protocol: &'static str,
+    pub ok: bool,
+    pub service: &'static str,
+    pub version: &'static str,
+    pub git_sha: &'static str,
+    pub endpoints: Vec<&'static str>,
 }
 
 #[derive(Serialize)]
-struct ProtocolInfo {
-    protocol: &'static str,
-    transport: &'static str,
-    endpoints: Vec<&'static str>,
-    header: &'static str,
+pub struct ProtocolInfo {
+    pub protocol: &'static str,
+    pub transport: &'static str,
+    pub endpoints: Vec<&'static str>,
+    pub header: &'static str,
+    pub reproduction_doc: &'static str,
+}
+
+#[derive(Serialize)]
+pub struct ReproManifest {
+    pub protocol: &'static str,
+    pub version: &'static str,
+    pub git_sha: &'static str,
+    pub smoke_command: &'static str,
+    pub suite_command: &'static str,
+    pub dashboard_url: &'static str,
+    pub infer_url: &'static str,
+    pub health_url: &'static str,
 }
 
 pub async fn health() -> Json<HealthResponse> {
@@ -43,6 +60,15 @@ pub async fn health() -> Json<HealthResponse> {
         protocol: VALHALLA_BASE_PROTOCOL,
         ok: true,
         service: "valhalla_base",
+        version: env!("CARGO_PKG_VERSION"),
+        git_sha: option_env!("VALHALLA_GIT_SHA").unwrap_or("dev"),
+        endpoints: vec![
+            "GET /health",
+            "GET /v1/protocol",
+            "GET /v1/repro",
+            "POST /v1/infer",
+            "GET /dashboard/",
+        ],
     })
 }
 
@@ -50,8 +76,28 @@ pub async fn protocol_info() -> Json<ProtocolInfo> {
     Json(ProtocolInfo {
         protocol: VALHALLA_BASE_PROTOCOL,
         transport: "application/json",
-        endpoints: vec!["POST /v1/infer", "GET /health", "GET /v1/protocol"],
+        endpoints: vec![
+            "POST /v1/infer",
+            "GET /health",
+            "GET /v1/protocol",
+            "GET /v1/repro",
+            "GET /dashboard/",
+        ],
         header: "manifestsys/hub-f64/include/valhalla_base.h",
+        reproduction_doc: "REPRODUCTION.md",
+    })
+}
+
+pub async fn repro_manifest() -> Json<ReproManifest> {
+    Json(ReproManifest {
+        protocol: VALHALLA_BASE_PROTOCOL,
+        version: env!("CARGO_PKG_VERSION"),
+        git_sha: option_env!("VALHALLA_GIT_SHA").unwrap_or("dev"),
+        smoke_command: "valhalla_base demo v1",
+        suite_command: "python3 tools/valhalla_inference/run_suite_sequential.py --suite fate-core",
+        dashboard_url: "/dashboard/",
+        infer_url: "/v1/infer",
+        health_url: "/health",
     })
 }
 
@@ -79,22 +125,41 @@ fn api_error(err: ValhallaBaseErrorBody, pretty: bool) -> Response {
         .into_response()
 }
 
-pub fn router(state: Arc<HttpState>) -> Router {
+pub fn api_router(state: Arc<HttpState>) -> Router {
     Router::new()
         .route("/health", get(health))
         .route("/v1/protocol", get(protocol_info))
+        .route("/v1/repro", get(repro_manifest))
         .route("/v1/infer", post(infer))
         .layer(DefaultBodyLimit::max(32 * 1024 * 1024))
         .layer(CorsLayer::permissive())
         .with_state(state)
 }
 
-pub async fn serve(addr: SocketAddr, pretty: bool) -> Result<(), Box<dyn std::error::Error>> {
+pub fn router(state: Arc<HttpState>, dashboard: Option<TriadDashboardState>) -> Router {
+    let mut app = api_router(state);
+    if let Some(dash) = dashboard {
+        app = app.nest("/dashboard", triad_dashboard::dashboard_router(dash));
+    }
+    app
+}
+
+pub async fn serve(
+    addr: SocketAddr,
+    pretty: bool,
+    with_dashboard: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
     let state = Arc::new(HttpState { pretty });
-    let app = router(state);
-    eprintln!(
-        "{VALHALLA_BASE_PROTOCOL}: HTTP listening on http://{addr}/health"
-    );
+    let dashboard = if with_dashboard {
+        Some(triad_dashboard::new_dashboard_state())
+    } else {
+        None
+    };
+    let app = router(state, dashboard);
+    eprintln!("{VALHALLA_BASE_PROTOCOL}: HTTP http://{addr}/health");
+    if with_dashboard {
+        eprintln!("  triad dashboard: http://{addr}/dashboard/");
+    }
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
     Ok(())

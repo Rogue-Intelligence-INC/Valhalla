@@ -271,7 +271,9 @@ fn cmd_serve(args: &[String]) {
     let pretty = args.iter().any(|a| a == "--pretty");
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let rt = tokio::runtime::Runtime::new().expect("tokio runtime");
-    if let Err(e) = rt.block_on(valhalla_base_http::serve(addr, pretty)) {
+    let with_dashboard = args.iter().any(|a| a == "--with-dashboard")
+        || std::env::var("VALHALLA_WITH_DASHBOARD").ok().as_deref() == Some("1");
+    if let Err(e) = rt.block_on(valhalla_base_http::serve(addr, pretty, with_dashboard)) {
         fail(
             ValhallaBaseErrorBody::new(
                 hub_f64::valhalla_base_protocol::ValhallaBaseErrorKind::Io,

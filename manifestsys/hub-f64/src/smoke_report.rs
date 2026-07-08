@@ -3,6 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::signal_ingress::{EncodingMode, IngressBudget, IngressPayload, TriadSession};
+use crate::triad_viz::{build_viz_from_feed, TriadVizSnapshot};
 use crate::{HubConfig, HubRequest, Priority, RequestType, ValhallaHub};
 use stem_cell::StemCellComplete;
 use valhalla_tile_quattro::TileQuattroComplete;
@@ -39,6 +40,9 @@ pub struct SmokeReport {
     pub encoding_mode: String,
     pub ingress_items: usize,
     pub budget_exhausted: bool,
+    /// Tile heatmap + stem organ clusters for dashboard (ingress path only).
+    #[serde(default)]
+    pub viz: TriadVizSnapshot,
 }
 
 impl SmokeReport {
@@ -63,10 +67,11 @@ impl SmokeReport {
             );
         }
         let mode_label = format!("{:?}", mode);
-        let r = session.finalize(&mode_label);
+        let r = session.finalize_with_cycles(&mode_label, 4);
         let hub_ok = r.hub_signals > 0 && r.hub_routed.iter().sum::<u64>() == r.hub_signals;
         let tile_ok = r.tile_completed > 0 || r.tile_ops > 0;
         let stem_ok = r.stem_cells > 0;
+        let viz = build_viz_from_feed(&r);
 
         SmokeReport {
             hub_signals: r.hub_signals,
@@ -85,6 +90,7 @@ impl SmokeReport {
             encoding_mode: r.mode,
             ingress_items: r.stats.items_processed,
             budget_exhausted: r.stats.budget_exhausted,
+            viz,
         }
     }
 
@@ -164,6 +170,7 @@ impl SmokeReport {
             encoding_mode: "legacy_char".into(),
             ingress_items: SMOKE_CORPUS.len(),
             budget_exhausted: false,
+            viz: TriadVizSnapshot::default(),
         }
     }
 }

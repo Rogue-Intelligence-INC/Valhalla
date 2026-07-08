@@ -56,6 +56,9 @@ pub mod native_qa;
 pub mod signal_ingress;
 pub mod fate_orchestrator;
 pub mod smoke_report;
+pub mod triad_dashboard;
+pub mod triad_viz_types;
+pub mod triad_viz;
 
 pub use fate_orchestrator::{
     export_fragment, fate_warmup_enabled, fragment_mode, ingest_corpus_with_fragments,
@@ -83,6 +86,9 @@ pub use signal_ingress::{
     PATCH_VECTOR_DIM,
 };
 pub use smoke_report::{SmokeReport, SMOKE_CORPUS};
+pub use triad_viz_types::{
+    StemOrganViz, TileNeuronViz, TileSynapseViz, TriadVizSnapshot, CycleVizPoint,
+};
 
 #[cfg(feature = "patch-lm")]
 pub use valhalla_base::{

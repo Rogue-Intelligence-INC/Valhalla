@@ -3,10 +3,13 @@
 //! Accepts text, bytes, f64 series, or JSON payloads and converts them to f64
 //! signal sequences under an explicit resource budget before feeding Hub / Tile / StemCell.
 
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 use crate::{HubConfig, HubRequest, Priority, RequestType, ValhallaHub};
 use crate::dl_front::{encode_modality, BodyFrontPorts, DlFrontConfig, ModalityInput};
+use crate::triad_viz_types::{signature_hue, TileNeuronViz, TileSynapseViz};
 use stem_cell::{CompleteCell, StemCellComplete};
 use valhalla_tile_quattro::{CompletedTile, TileQuattroComplete};
 
@@ -364,6 +367,11 @@ pub struct ValhallaModelPatch {
     /// DL / grinder encoder label when ingress used transformer front.
     #[serde(default)]
     pub ingress_encoder: String,
+    /// Per-tile neural identity + internal weights (dashboard).
+    #[serde(default)]
+    pub tile_neurons: Vec<TileNeuronViz>,
+    #[serde(default)]
+    pub tile_synapses: Vec<TileSynapseViz>,
 }
 
 pub const PATCH_VECTOR_DIM: usize = 256;
@@ -376,6 +384,50 @@ pub struct StemOrganCluster {
     pub cell_count: usize,
     pub avg_energy: f64,
     pub internal_edges: usize,
+}
+
+const VIZ_MAX_TILES: usize = 64;
+const VIZ_WEIGHT_PREVIEW: usize = 8;
+
+fn build_tile_neurons(tile: &TileQuattroComplete) -> Vec<TileNeuronViz> {
+    tile.completed_tiles
+        .iter()
+        .take(VIZ_MAX_TILES)
+        .enumerate()
+        .map(|(i, t)| TileNeuronViz {
+            index: i,
+            id: t.id.clone(),
+            activation: t.activation,
+            bias: t.bias,
+            weights: t.weights.iter().take(VIZ_WEIGHT_PREVIEW).copied().collect(),
+            hue: signature_hue(&t.data_signature),
+            connection_count: t.connections.len(),
+        })
+        .collect()
+}
+
+fn build_tile_synapses(tile: &TileQuattroComplete) -> Vec<TileSynapseViz> {
+    let id_to_idx: HashMap<String, usize> = tile
+        .completed_tiles
+        .iter()
+        .enumerate()
+        .map(|(i, t)| (t.id.clone(), i))
+        .collect();
+    let mut edges = Vec::new();
+    for (i, t) in tile.completed_tiles.iter().enumerate().take(VIZ_MAX_TILES) {
+        for (wi, conn_id) in t.connections.iter().enumerate() {
+            if let Some(&j) = id_to_idx.get(conn_id) {
+                if i != j {
+                    edges.push(TileSynapseViz {
+                        from: i,
+                        to: j,
+                        weight: t.weights.get(wi).copied().unwrap_or(0.5),
+                    });
+                }
+            }
+        }
+    }
+    edges
 }
 
 fn stem_cluster_signature(stem: &StemCellComplete, members: &[String]) -> Vec<f64> {
@@ -683,6 +735,16 @@ pub fn build_model_patch(
         stem_cluster_signatures,
         stem_cluster_energies,
         ingress_encoder: String::new(),
+        tile_neurons: if matches!(body, BodyTarget::Tile | BodyTarget::Triad) {
+            build_tile_neurons(tile)
+        } else {
+            Vec::new()
+        },
+        tile_synapses: if matches!(body, BodyTarget::Tile | BodyTarget::Triad) {
+            build_tile_synapses(tile)
+        } else {
+            Vec::new()
+        },
     }
 }
 
@@ -1407,7 +1469,31 @@ impl TriadSession {
 
     /// Run `optimize_cycles` rounds of Tile / StemCell processing before patch export.
     pub fn finalize_with_cycles(mut self, mode_label: &str, optimize_cycles: usize) -> TriadFeedReport {
-        self.build_feed_report(mode_label, optimize_cycles)
+        let cycles = optimize_cycles.max(1);
+        let mut cycle_trace = Vec::with_capacity(cycles);
+        for c in 0..cycles {
+            self.run_optimize_cycles(1);
+            if matches!(self.body, BodyTarget::Tile | BodyTarget::Triad) {
+                let _ = self.tile.process_tiles_cycle();
+            }
+            let tstatus = self.tile.get_status();
+            let connections: usize = self.stem.cells.iter().map(|c| c.connections.len()).sum();
+            cycle_trace.push(CycleSnapshot {
+                cycle: c,
+                tile_completed: tstatus.completed_tiles,
+                tile_merges: 0,
+                tile_splits: 0,
+                tile_dim: tstatus.dimension,
+                stem_cells: self.stem.get_status().cell_count,
+                stem_connections: connections,
+                stem_merges: 0,
+                stem_divisions: 0,
+                stem_dim: self.stem.space.current_dimension,
+            });
+        }
+        let mut report = self.build_feed_report(mode_label, optimize_cycles);
+        report.cycle_trace = cycle_trace;
+        report
     }
 }
 
