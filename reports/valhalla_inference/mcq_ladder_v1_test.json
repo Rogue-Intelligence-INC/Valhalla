@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-06T06:20:12.778528+00:00",
+  "timestamp": "2026-07-08T03:56:38.318898+00:00",
   "protocol": "mcq-ladder-v1",
   "phase": "test",
   "mcq_n": 46,
@@ -13,13 +13,18 @@
       "id": "qwen_3b",
       "hf_id": "Qwen/Qwen2.5-3B-Instruct",
       "params_b": 3.0
+    },
+    {
+      "id": "qwen_7b",
+      "hf_id": "Qwen/Qwen2.5-7B-Instruct",
+      "params_b": 7.0
     }
   ],
   "arms": {
-    "hybrid/qwen_0.5b": {
+    "hybrid/qwen_3b": {
       "n": 46,
-      "correct": 29,
-      "accuracy": 0.6304347826086957,
+      "correct": 44,
+      "accuracy": 0.9565217391304348,
       "rows": [
         {
           "id": "MCQ_BIO_01",
@@ -33,8 +38,8 @@
         },
         {
           "id": "MCQ_ECON_01",
-          "correct": false,
-          "answer": "ANSWER: A"
+          "correct": true,
+          "answer": "ANSWER: B"
         },
         {
           "id": "MCQ_PHIL_01",
@@ -43,8 +48,8 @@
         },
         {
           "id": "MCQ_MED_01",
-          "correct": false,
-          "answer": "ANSWER: A"
+          "correct": true,
+          "answer": "ANSWER: C"
         },
         {
           "id": "MCQ_HIST_02",
@@ -63,8 +68,8 @@
         },
         {
           "id": "MCQ_F03",
-          "correct": false,
-          "answer": "ANSWER: A"
+          "correct": true,
+          "answer": "ANSWER: B"
         },
         {
           "id": "MCQ_F06",
@@ -78,8 +83,8 @@
         },
         {
           "id": "MCQ_F08",
-          "correct": false,
-          "answer": "ANSWER: C"
+          "correct": true,
+          "answer": "ANSWER: D"
         },
         {
           "id": "MCQ_F09",
@@ -93,13 +98,13 @@
         },
         {
           "id": "MCQ_F11",
-          "correct": false,
-          "answer": "ANSWER: A"
+          "correct": true,
+          "answer": "ANSWER: C"
         },
         {
           "id": "MCQ_F12",
-          "correct": false,
-          "answer": "ANSWER: C"
+          "correct": true,
+          "answer": "ANSWER: B"
         },
         {
           "id": "MCQ_F13",
@@ -113,8 +118,8 @@
         },
         {
           "id": "MCQ_F18",
-          "correct": false,
-          "answer": "ANSWER: C"
+          "correct": true,
+          "answer": "ANSWER: B"
         },
         {
           "id": "MCQ_F19",
@@ -123,8 +128,8 @@
         },
         {
           "id": "MCQ_F20",
-          "correct": false,
-          "answer": "ANSWER: C"
+          "correct": true,
+          "answer": "ANSWER: B"
         },
         {
           "id": "MCQ_F21",
@@ -148,13 +153,13 @@
         },
         {
           "id": "MCQ_F25",
-          "correct": false,
-          "answer": "ANSWER: C"
+          "correct": true,
+          "answer": "ANSWER: B"
         },
         {
           "id": "MCQ_F26",
-          "correct": false,
-          "answer": "ANSWER: B"
+          "correct": true,
+          "answer": "ANSWER: D"
         },
         {
           "id": "MCQ_F27",
@@ -178,8 +183,8 @@
         },
         {
           "id": "MCQ_F31",
-          "correct": false,
-          "answer": "ANSWER: C"
+          "correct": true,
+          "answer": "ANSWER: B"
         },
         {
           "id": "MCQ_F32",
@@ -193,13 +198,13 @@
         },
         {
           "id": "MCQ_F35",
-          "correct": false,
-          "answer": "ANSWER: D"
+          "correct": true,
+          "answer": "ANSWER: B"
         },
         {
           "id": "MCQ_F38",
-          "correct": false,
-          "answer": "ANSWER: A"
+          "correct": true,
+          "answer": "ANSWER: B"
         },
         {
           "id": "MCQ_F41",
@@ -214,7 +219,7 @@
         {
           "id": "MCQ_F43",
           "correct": false,
-          "answer": "ANSWER: C"
+          "answer": "ANSWER: D"
         },
         {
           "id": "MCQ_F44",
@@ -228,8 +233,8 @@
         },
         {
           "id": "MCQ_F46",
-          "correct": false,
-          "answer": "ANSWER: B"
+          "correct": true,
+          "answer": "ANSWER: A"
         },
         {
           "id": "MCQ_F47",
@@ -243,8 +248,8 @@
         },
         {
           "id": "MCQ_F49",
-          "correct": false,
-          "answer": "ANSWER: C"
+          "correct": true,
+          "answer": "ANSWER: A"
         },
         {
           "id": "MCQ_F50",
@@ -252,12 +257,14 @@
           "answer": "ANSWER: B"
         }
       ],
-      "lm_model": "Qwen/Qwen2.5-0.5B-Instruct",
-      "model_id": "qwen_0.5b",
-      "params_b": 0.5,
+      "lm_model": "Qwen/Qwen2.5-3B-Instruct",
+      "context_ingest": "targeted",
+      "fate_warmup": null,
+      "model_id": "qwen_3b",
+      "params_b": 3.0,
       "arm": "valhalla_hybrid_lm_patch"
     },
-    "hybrid/qwen_3b": {
+    "hybrid/qwen_7b": {
       "n": 46,
       "correct": 45,
       "accuracy": 0.9782608695652174,
@@ -493,34 +500,44 @@
           "answer": "ANSWER: B"
         }
       ],
-      "lm_model": "Qwen/Qwen2.5-3B-Instruct",
-      "model_id": "qwen_3b",
-      "params_b": 3.0,
+      "lm_model": "Qwen/Qwen2.5-7B-Instruct",
+      "context_ingest": "targeted",
+      "fate_warmup": null,
+      "model_id": "qwen_7b",
+      "params_b": 7.0,
       "arm": "valhalla_hybrid_lm_patch"
+    },
+    "hybrid/qwen_0.5b": {
+      "n": 46,
+      "correct": 29,
+      "accuracy": 0.6304347826086957,
+      "model_id": "qwen_0.5b",
+      "params_b": 0.5,
+      "arm": "valhalla_hybrid_lm_patch",
+      "lm_model": "Qwen/Qwen2.5-0.5B-Instruct",
+      "context_ingest": "targeted"
     }
   },
   "hybrid_lm_patch_scaling": {
     "x": "log10(params_b)",
-    "intercept": 0.765,
-    "slope": 0.447,
-    "r2": 1.0,
+    "slope": 0.32143402507563723,
+    "intercept": 0.7456574681800429,
+    "r2": 0.9318929422421469,
     "points": [
       {
         "model_id": "qwen_0.5b",
         "params_b": 0.5,
-        "accuracy": 0.6304347826086957
+        "accuracy": 0.6304
       },
       {
         "model_id": "qwen_3b",
         "params_b": 3.0,
-        "accuracy": 0.9782608695652174
-      }
-    ],
-    "projections": [
+        "accuracy": 0.9565
+      },
       {
-        "params_b": 7.0,
         "model_id": "qwen_7b",
-        "accuracy_proj": 1.0
+        "params_b": 7.0,
+        "accuracy": 0.9783
       }
     ]
   },
@@ -529,5 +546,10 @@
     "Rust lm_patch supports sharded safetensors (Qwen 3B/7B index.json).",
     "Gemma/Phi require bake to Qwen2 or separate architecture — not in this ladder."
   ],
+  "config": {
+    "memory_safe": true,
+    "gpu": true,
+    "lm_f16": true
+  },
   "verdict": "MCQ_LADDER_SCALES"
 }

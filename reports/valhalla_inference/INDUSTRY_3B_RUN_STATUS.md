@@ -1,57 +1,57 @@
-# 3B 全表 benchmark — 运行中
+# 3B 全行业 Benchmark 套件 — 已完成
 
-**启动:** 2026-07-06 06:31  
-**主干:** `Qwen/Qwen2.5-3B-Instruct` · GPU · `VALHALLA_USE_CPU=0`  
-**命令:** `run_industry_benchmarks.py --all --agi`  
-**日志:** `industry_3b_20260706_063100.log`  
-**健康检查:** 2026-07-06 — 前次 run 在 LongBench 中断；Needle 已修复 **4/4**；全表已重跑
+**完成:** 2026-07-08 · **耗时:** 1736s (~29 min)  
+**主干:** `Qwen/Qwen2.5-3B-Instruct` · GPU · serve @8787  
+**日志:** `reports/valhalla_inference/industry_suite_run.log`
 
-## 前次中断结果（063100.log）
+## Tier A — 强项（100%）
 
-| 步骤 | 3B 结果 |
-|------|---------|
-| Needle | 3/4（已修复 → **4/4**） |
-| RAGTruth-40 | 40/40 |
-| RAGTruth-100 | 99/100 |
-| LongBench-v2 | 中断（未完成） |
-| 其余 + AGI | 未跑 |
+| Benchmark | 结果 | Verdict |
+|-----------|------|---------|
+| RAGTruth-40 | **40/40** | RAGTRUTH_STRONG |
+| RAGTruth-100 | **100/100** | RAGTRUTH_STRONG |
+| Needle session | **4/4** | NEEDLE_STRONG |
+| RULER-style | **20/20** | NEEDLE_STRONG |
+| External holdout | **15/15** | EXTERNAL_HOLDOUT_STRONG |
 
-## 进度
+## Tier B — 可用 / 发展中
 
-| 步骤 | 状态 | 3B 结果 |
-|------|------|---------|
-| Needle session | ✅ | 3/4 (75%) |
-| RAGTruth-40 | ✅ | 40/40 (100%) |
-| RAGTruth-100 | ✅ | 99/100 (99%) |
-| LongBench-v2 | 🔄 进行中 (~2/20) | — |
-| FRAMES | ⏳ | — |
-| MultiHop hybrid | ⏳ | — |
-| LoCoMo | ⏳ | — |
-| RULER | ⏳ | — |
-| LaRA | ⏳ | — |
-| External holdout | ⏳ | — |
-| MCQ ladder | ⏳ | — |
-| TPI-v2 | ⏳ | — |
-| fair-benchmark | ⏳ | — |
-| incubation standard | ⏳ | — |
+| Benchmark | 结果 | Verdict |
+|-----------|------|---------|
+| LongBench-v2 | **7/20 (35%)** | LONGBENCH_V2_VIABLE |
+| MultiHop hybrid | **14/25 (56%)** | OPEN_QA_VIABLE |
+| MultiHop v2 | **15/25 (60%)** | OPEN_QA_VIABLE |
+| LaRA | RAG **8/20** · LC **13/20** | STRUCTURE_RAG_BELOW_LC |
+| LoCoMo | **1/30 (3%)** | OPEN_QA_DEVELOPING |
+| FRAMES | **0/25 (0%)** | OPEN_QA_DEVELOPING |
 
-## 健康检查 (07:00)
+## MCQ ladder — GPU F16 补跑（2026-07-08）
 
-- 日志无 `Error` / `Traceback` / `FAIL` / `panic`
-- 主进程 PID 64093 存活 (~30min)
-- LongBench 子进程 `valhalla_base` CPU ~115%，3B 模型已加载
-- 已完成 JSON 校验：`needle` / `ragtruth` / `ragtruth-full` verdict 正常
-- LongBench 单题 ~10–15min（长上下文 ingest + 3B lm_patch），属预期慢，非卡死
+| 模型 | 结果 | 状态 |
+|------|------|------|
+| 0.5B | **29/46 (63.0%)** | ✅ F16 · isolated session |
+| 3B | **44/46 (95.7%)** | ✅ F16 GPU |
+| 7B | **45/46 (97.8%)** | ✅ F16 GPU |
 
-## 监控
+**根因修复:** 长 batch session snapshot >32MB → broken pipe；改为 per-question `clear_context()` + per-model serve restart。
+
+**文档:** [`MCQ_LADDER_MEM_GPU_20260708.md`](./MCQ_LADDER_MEM_GPU_20260708.md)
+
+## 汇总
+
+- JSON: `industry_benchmarks_summary.json`
+- Markdown: `INDUSTRY_BENCHMARKS_20260630.md`
+- 总览: `BENCHMARK_SUMMARY_20260708.md`
+- Checkpoint: `checkpoints/industry_suite_checkpoint.json`（11/11 ✅）
+
+## 复现
 
 ```bash
-tail -f reports/valhalla_inference/industry_3b_20260706_063100.log
-ps -p $(pgrep -f 'run_industry_benchmarks.py --all --agi' | head -1) -o etime=
-nvidia-smi
+RUSTFLAGS='-L /opt/cuda/lib64' VALHALLA_USE_CPU=0 \
+  .venv-llm/bin/python3 tools/valhalla_inference/run_industry_benchmarks.py \
+  --all --verbose --checkpoint-dir reports/valhalla_inference/checkpoints
+
+# MCQ ladder（GPU F16 · memory-safe）
+export VALHALLA_LM_F16=1 VALHALLA_USE_CPU=0
+tools/valhalla_inference/run_mcq_full_ladder.sh
 ```
-
-## 完成后
-
-汇总 JSON: `industry_benchmarks_summary.json`  
-Markdown: `INDUSTRY_BENCHMARKS_20260630.md`

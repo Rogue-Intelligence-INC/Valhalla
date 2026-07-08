@@ -17,7 +17,9 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -43,24 +45,45 @@ REPORTS = REPO / "reports/valhalla_inference"
 
 
 def run_valhalla_mcq_batch(
-    corpus: list[str], prompts: list[dict], *, lm_model: str, ctx_mode: str
+    corpus: list[str], prompts: list[dict], *, lm_model: str, ctx_mode: str, skip_warmup: bool = False
 ) -> dict[str, Any]:
-    """One ValhallaBase + one LM load per model (important for 3B/7B)."""
-    rows: list[dict] = []
-    correct = 0
-    base = production_base(lm_model=lm_model)
-    for p in prompts:
-        ctx = ctx_for_prompt(p, corpus, mode=ctx_mode)
-        base.set_context(ctx)
-        q = {
+    """One ValhallaBase + production ingest (warmup → targeted + affinity reanchor)."""
+    ingest = "targeted" if ctx_mode == "corpus_for_prompt" else ctx_mode
+    questions = [
+        {
             "id": p["id"],
             "text": strict_user_text(p),
             "score_type": "mcq",
             "reference_answer": p.get("reference_answer", ""),
             "keywords": p.get("keywords") or [],
         }
-        out = base.run([q])
-        row = (out.get("rows") or [{}])[0]
+        for p in prompts
+    ]
+    # Long MCQ batches inflate session snapshots and break HTTP (>32MB / broken pipe).
+    isolated = skip_warmup or len(prompts) > 12
+    if isolated:
+        base = production_base(lm_model=lm_model)
+        if skip_warmup:
+            base.fate_warmup_enabled = False
+        rows: list[dict] = []
+        for p, q in zip(prompts, questions):
+            base.clear_context()
+            base.ingest_for_prompt(p, corpus, k=8, mode=ingest)  # type: ignore[arg-type]
+            doc = base.run([q])
+            row = (doc.get("rows") or [{}])[0]
+            rows.append(row)
+        out = {"rows": rows, "fate_warmup": None}
+    else:
+        base = production_base(lm_model=lm_model)
+        out = base.run_batch(
+            questions,
+            corpus,
+            ingest_mode=ingest,  # type: ignore[arg-type]
+            warmup_corpus_lines=0 if skip_warmup else 4,
+        )
+    rows: list[dict] = []
+    correct = 0
+    for p, row in zip(prompts, out.get("rows") or []):
         ans = str(row.get("answer") or "")
         ok = bool(score_answer(ans, p)["correct"])
         correct += int(ok)
@@ -72,6 +95,8 @@ def run_valhalla_mcq_batch(
         "accuracy": correct / max(n, 1),
         "rows": rows,
         "lm_model": lm_model,
+        "context_ingest": ingest,
+        "fate_warmup": out.get("fate_warmup"),
     }
 
 
@@ -98,6 +123,80 @@ def run_trad_mcq(lm, corpus: list[str], prompts: list[dict], model: ScalingModel
     }
 
 
+def run_models(
+    models: list[ScalingModel],
+    corpus: list[str],
+    prompts: list[dict],
+    *,
+    with_trad: bool,
+    memory_safe: bool,
+) -> tuple[dict[str, Any], list[float], list[float], list[float]]:
+    """Run hybrid lm_patch (and optional trad) per model; optional fresh serve per model."""
+    from benchmark_env import benchmark_runtime  # noqa: WPS433
+
+    arms: dict[str, Any] = {}
+    xs: list[float] = []
+    ys_hybrid: list[float] = []
+    ys_trad: list[float] = []
+
+    def one_model(model: ScalingModel) -> None:
+        print(f"[hybrid lm_patch] {model.hf_id} ({model.params_b}B) …")
+
+        def run_hybrid() -> dict[str, Any]:
+            resolve_lm_path(model.hf_id)
+            return run_valhalla_mcq_batch(
+                corpus, prompts, lm_model=model.hf_id, ctx_mode="corpus_for_prompt", skip_warmup=memory_safe,
+            )
+
+        try:
+            arm = run_hybrid()
+            arm["model_id"] = model.id
+            arm["params_b"] = model.params_b
+            arm["arm"] = "valhalla_hybrid_lm_patch"
+            arms[f"hybrid/{model.id}"] = arm
+            xs.append(log10_params(model.params_b))
+            ys_hybrid.append(arm["accuracy"])
+            print(f"    {arm['correct']}/{arm['n']} ({arm['accuracy']:.1%})\n")
+        except Exception as exc:  # noqa: BLE001
+            arms[f"hybrid/{model.id}"] = {"skipped": True, "error": str(exc), "model_id": model.id}
+            print(f"    SKIP: {exc}\n")
+
+        if with_trad:
+            from loader import ValhallaLLM  # noqa: E402
+
+            print(f"[trad mcq] {model.hf_id} …")
+            try:
+                lm = ValhallaLLM(resolve_lm_path(model.hf_id), engine="transformers")
+                tarm = run_trad_mcq(lm, corpus, prompts, model)
+                arms[f"trad/{model.id}"] = tarm
+                ys_trad.append(tarm["accuracy"])
+                print(f"    {tarm['correct']}/{tarm['n']} ({tarm['accuracy']:.1%})\n")
+            except Exception as exc:  # noqa: BLE001
+                arms[f"trad/{model.id}"] = {"skipped": True, "error": str(exc)}
+                print(f"    SKIP: {exc}\n")
+
+    for model in models:
+        if memory_safe:
+            from benchmark_env import wait_infer_ready  # noqa: WPS433
+
+            try:
+                with benchmark_runtime(extra_env={"VALHALLA_LM_MODEL": model.hf_id}):
+                    url = os.environ.get("VALHALLA_BASE_URL", "")
+                    if url:
+                        print(f"    waiting for {model.hf_id} weights …")
+                        timeout = 900.0 if model.params_b >= 3.0 else 600.0
+                        wait_infer_ready(url, lm_model=model.hf_id, timeout_s=timeout)
+                    one_model(model)
+            except Exception as exc:  # noqa: BLE001
+                arms[f"hybrid/{model.id}"] = {"skipped": True, "error": str(exc), "model_id": model.id}
+                print(f"    SKIP {model.id}: {exc}\n")
+            time.sleep(3)
+        else:
+            one_model(model)
+
+    return arms, xs, ys_hybrid, ys_trad
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--phase", default="test")
@@ -107,6 +206,11 @@ def main() -> None:
     ap.add_argument("--model", action="append", dest="model_ids")
     ap.add_argument("--skip-7b", action="store_true", default=True)
     ap.add_argument("--full-ladder", action="store_true", help="0.5B + 3B + 7B (overrides --skip-7b)")
+    ap.add_argument(
+        "--memory-safe",
+        action="store_true",
+        help="restart valhalla_base serve per model (cap VRAM; use with VALHALLA_LM_F16=1)",
+    )
     ap.add_argument("--output", default="mcq_ladder_v1_test.json", help="report JSON filename under reports/valhalla_inference/")
     args = ap.parse_args()
 
@@ -124,40 +228,17 @@ def main() -> None:
 
     print(f"=== {PROTOCOL} n={len(prompts)} models={[m.id for m in models]} ===\n")
 
-    arms: dict[str, Any] = {}
-    xs: list[float] = []
-    ys_hybrid: list[float] = []
-    ys_trad: list[float] = []
+    if args.memory_safe:
+        arms, xs, ys_hybrid, ys_trad = run_models(
+            models, corpus, prompts, with_trad=args.with_trad, memory_safe=True,
+        )
+    else:
+        from benchmark_env import benchmark_runtime  # noqa: WPS433
 
-    for model in models:
-        print(f"[hybrid lm_patch] {model.hf_id} ({model.params_b}B) …")
-        try:
-            resolve_lm_path(model.hf_id)  # fail fast if weights missing
-            arm = run_valhalla_mcq_batch(corpus, prompts, lm_model=model.hf_id, ctx_mode="corpus_for_prompt")
-            arm["model_id"] = model.id
-            arm["params_b"] = model.params_b
-            arm["arm"] = "valhalla_hybrid_lm_patch"
-            arms[f"hybrid/{model.id}"] = arm
-            xs.append(log10_params(model.params_b))
-            ys_hybrid.append(arm["accuracy"])
-            print(f"    {arm['correct']}/{arm['n']} ({arm['accuracy']:.1%})\n")
-        except Exception as exc:  # noqa: BLE001
-            arms[f"hybrid/{model.id}"] = {"skipped": True, "error": str(exc), "model_id": model.id}
-            print(f"    SKIP: {exc}\n")
-
-        if args.with_trad:
-            from loader import ValhallaLLM  # noqa: E402
-
-            print(f"[trad mcq] {model.hf_id} …")
-            try:
-                lm = ValhallaLLM(resolve_lm_path(model.hf_id), engine="transformers")
-                tarm = run_trad_mcq(lm, corpus, prompts, model)
-                arms[f"trad/{model.id}"] = tarm
-                ys_trad.append(tarm["accuracy"])
-                print(f"    {tarm['correct']}/{tarm['n']} ({tarm['accuracy']:.1%})\n")
-            except Exception as exc:  # noqa: BLE001
-                arms[f"trad/{model.id}"] = {"skipped": True, "error": str(exc)}
-                print(f"    SKIP: {exc}\n")
+        with benchmark_runtime():
+            arms, xs, ys_hybrid, ys_trad = run_models(
+                models, corpus, prompts, with_trad=args.with_trad, memory_safe=False,
+            )
 
     hybrid_fit = linear_fit(xs, ys_hybrid) if len(xs) >= 2 else {}
     trad_fit = linear_fit(xs, ys_trad) if len(ys_trad) >= 2 else {}
@@ -187,6 +268,11 @@ def main() -> None:
             "Rust lm_patch supports sharded safetensors (Qwen 3B/7B index.json).",
             "Gemma/Phi require bake to Qwen2 or separate architecture — not in this ladder.",
         ],
+        "config": {
+            "memory_safe": args.memory_safe,
+            "gpu": os.environ.get("VALHALLA_USE_CPU", "0") == "0",
+            "lm_f16": os.environ.get("VALHALLA_LM_F16", "0") in ("1", "true", "yes"),
+        },
     }
 
     if hybrid_fit.get("slope", 0) > 0.03:

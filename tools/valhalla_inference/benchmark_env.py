@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import time
@@ -45,21 +46,23 @@ def apply_gpu_env() -> dict[str, str]:
 
 
 def production_valhalla_base_kwargs(**overrides):
-    """Kwargs aligned with benchmark production_base + 3B default."""
-    from valhalla_base import ValhallaBase  # noqa: WPS433 — local import
-
+    """Kwargs aligned with long-memory + targeted production stack."""
     base = {
         "lm_model": default_lm_model(),
         "decode": "hybrid",
         "mcq_decode": "lm_patch",
         "follow_up_decode": "native_follow_up_aware",
         "fate_ingress_routing": "quad_cycle",
-        "fate_qa_feedback": False,
+        "fate_qa_feedback": True,
+        "context_ingest": "targeted",
+        "reanchor_affinity": True,
+        "fate_warmup_enabled": True,
+        "fate_warmup_cycles": int(os.environ.get("VALHALLA_FATE_WARMUP_CYCLES", "4")),
         "incubation_cycles": 2,
         "max_new": 128,
     }
     base.update(overrides)
-    return ValhallaBase(**base)
+    return base
 
 
 def serve_enabled() -> bool:
@@ -88,6 +91,55 @@ def _wait_health(url: str, *, timeout_s: float = 180.0) -> None:
         last_err = f"waiting for {health}"
         time.sleep(0.5)
     raise RuntimeError(f"valhalla_base serve not healthy at {health}: {last_err}")
+
+
+def wait_infer_ready(
+    url: str,
+    *,
+    lm_model: str | None = None,
+    timeout_s: float = 600.0,
+) -> None:
+    """Poll /v1/infer with fate_warmup until model weights are loaded (avoids broken pipe)."""
+    base = url.rstrip("/")
+    payload: dict[str, object] = {
+        "context": [
+            "The capital of France is Paris.",
+            "Paris is on the Seine river.",
+        ],
+        "questions": [],
+        "fate_warmup_only": True,
+        "config": {
+            "decode": "hybrid",
+            "fate_warmup_enabled": True,
+            "fate_warmup_cycles": 1,
+            "lm_model": lm_model or default_lm_model(),
+            "patch_body": "triad",
+        },
+    }
+    data = json.dumps(payload).encode("utf-8")
+    deadline = time.monotonic() + timeout_s
+    last_err = "timeout"
+    while time.monotonic() < deadline:
+        req = urllib.request.Request(
+            f"{base}/v1/infer",
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=300.0) as resp:
+                raw = resp.read().decode("utf-8").strip()
+                if resp.status == 200 and raw:
+                    doc = json.loads(raw)
+                    if doc.get("ok") is not False:
+                        return
+                    last_err = str(doc.get("error") or raw)
+        except urllib.error.HTTPError as exc:
+            last_err = exc.read().decode("utf-8", errors="replace").strip() or str(exc)
+        except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+            last_err = str(exc)
+        time.sleep(3.0)
+    raise RuntimeError(f"valhalla_base infer not ready at {base}: {last_err}")
 
 
 def _ensure_bin(env: dict[str, str]) -> Path:
@@ -151,6 +203,8 @@ def valhalla_serve(
         err = proc.stderr.read() if proc.stderr else ""
         if err.strip():
             print(err, end="", flush=True)
+        os.environ.pop("VALHALLA_BASE_URL", None)
+        time.sleep(1.5)
 
 
 @contextmanager

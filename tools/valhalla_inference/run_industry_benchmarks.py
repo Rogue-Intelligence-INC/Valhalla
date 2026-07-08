@@ -12,6 +12,9 @@ Usage:
   python3 tools/valhalla_inference/run_industry_benchmarks.py --fast
   python3 tools/valhalla_inference/run_industry_benchmarks.py --download-first --all
   python3 tools/valhalla_inference/run_industry_benchmarks.py --aggregate-only
+  python3 tools/valhalla_inference/run_industry_benchmarks.py --all --verbose --checkpoint-dir reports/valhalla_inference/checkpoints
+  python3 tools/valhalla_inference/run_industry_benchmarks.py --resume --pause-file /tmp/vb_pause
+  touch /tmp/vb_pause   # graceful pause between benchmarks
 """
 
 from __future__ import annotations
@@ -21,6 +24,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -28,14 +32,25 @@ REPO = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+from benchmark_cli import (  # noqa: E402
+    ProgressBar,
+    init_suite_checkpoint,
+    mark_suite_done,
+    pause_requested,
+    save_suite_checkpoint,
+    suite_completed_labels,
+)
 from benchmark_env import apply_gpu_env, benchmark_runtime, default_lm_model  # noqa: E402
+
 REPORTS = REPO / "reports/valhalla_inference"
+CHECKPOINTS_DEFAULT = REPORTS / "checkpoints"
+SUITE_CHECKPOINT = CHECKPOINTS_DEFAULT / "industry_suite_checkpoint.json"
 PY = sys.executable
 VENV_PY = REPO / ".venv-llm" / "bin" / "python3"
 VB_BIN = REPO / "target" / "release" / "valhalla_base"
 
 INDUSTRY_TESTS = [
-    ("needle", None, "rust"),  # valhalla_base demo needle
+    ("needle", None, "rust"),
     ("ragtruth", "test_ragtruth_v1.py", []),
     ("ragtruth-full", "test_ragtruth_full_v1.py", []),
     ("longbench", "test_longbench_v2_v1.py", []),
@@ -62,11 +77,26 @@ ROADMAP_PENDING = [
     "RAGAS reference-free on production traces",
 ]
 
+# Per-benchmark report filenames (for suite checkpoint metadata)
+REPORT_FILES: dict[str, str] = {
+    "needle": "needle_session_v1_test.json",
+    "ragtruth": "ragtruth_v1_test.json",
+    "ragtruth-full": "ragtruth_full_v1_test.json",
+    "longbench": "longbench_v2_v1_test.json",
+    "frames": "frames_v1_test.json",
+    "multihop": "multihop_rag_hybrid_test.json",
+    "locomo": "locomo_v1_test.json",
+    "ruler": "ruler_v1_test.json",
+    "lara": "lara_v1_test.json",
+    "external-holdout": "external_holdout_test.json",
+    "mcq-ladder": "mcq_ladder_v1_test.json",
+}
+
 
 def ensure_valhalla_base(extra_env: dict[str, str]) -> Path:
     if VB_BIN.is_file():
         return VB_BIN
-    print("Building valhalla_base (Rust)...")
+    print("Building valhalla_base (Rust)...", flush=True)
     rc = subprocess.call(
         ["cargo", "build", "-p", "hub-f64", "--release", "--bin", "valhalla_base"],
         cwd=REPO,
@@ -77,15 +107,52 @@ def ensure_valhalla_base(extra_env: dict[str, str]) -> Path:
     return VB_BIN
 
 
-def run_rust_demo(label: str, demo: str, flags: list[str], extra_env: dict[str, str]) -> int:
-    vb = ensure_valhalla_base(extra_env)
-    return run_cmd(label, [str(vb), "demo", demo, *flags], extra_env=extra_env)
+def bench_flags(args: argparse.Namespace, label: str, *, rust: bool = False) -> list[str]:
+    """Build per-benchmark flags: fast, checkpoint (Rust demos only), pause."""
+    flags: list[str] = []
+    if args.fast:
+        flags.append("--fast")
+    # Suite-level checkpoint handles resume between benchmarks; in-run checkpoint is Rust-only.
+    if rust and args.checkpoint_dir:
+        ckpt = args.checkpoint_dir / f"{label}.checkpoint.json"
+        flags.extend(["--checkpoint", str(ckpt), "--checkpoint-every", str(args.checkpoint_every)])
+        if args.verbose:
+            flags.append("--verbose")
+        if args.resume and ckpt.is_file():
+            flags.extend(["--resume", str(ckpt)])
+    if args.pause_file:
+        flags.extend(["--pause-file", str(args.pause_file)])
+    return flags
 
 
-def run_cmd(label: str, cmd: list[str], *, extra_env: dict[str, str] | None = None) -> int:
-    print(f"\n{'=' * 64}\n[{label}]\n$ {' '.join(cmd)}\n")
+def run_cmd(label: str, cmd: list[str], *, extra_env: dict[str, str] | None = None, verbose: bool = False) -> int:
+    print(f"\n{'=' * 64}\n[{label}]\n$ {' '.join(cmd)}\n", flush=True)
     env = {**os.environ, **(extra_env or {})}
-    return subprocess.call(cmd, cwd=REPO, env=env)
+    t0 = time.monotonic()
+    if verbose:
+        return subprocess.call(cmd, cwd=REPO, env=env)
+    proc = subprocess.run(cmd, cwd=REPO, env=env, capture_output=True, text=True)
+    if proc.stdout:
+        print(proc.stdout, end="", flush=True)
+    if proc.stderr:
+        print(proc.stderr, end="", file=sys.stderr, flush=True)
+    elapsed = time.monotonic() - t0
+    print(f"[{label}] exit={proc.returncode} elapsed={elapsed:.1f}s", flush=True)
+    return proc.returncode
+
+
+def run_rust_demo(
+    label: str,
+    demo: str,
+    flags: list[str],
+    extra_env: dict[str, str],
+    *,
+    verbose: bool,
+) -> int:
+    vb = ensure_valhalla_base(extra_env)
+    if not verbose:
+        flags = [*flags, "--verbose"]  # Rust progress bar on stderr
+    return run_cmd(label, [str(vb), "demo", demo, *flags], extra_env=extra_env, verbose=verbose)
 
 
 def load_json(name: str) -> dict | None:
@@ -190,7 +257,7 @@ def write_summary(results: dict) -> Path:
             "",
             "```bash",
             "HF_ENDPOINT=https://hf-mirror.com .venv-llm/bin/python3 tools/standard_benchmarks/download_standard_benchmarks.py --all",
-            "RUSTFLAGS=\"-L /opt/cuda/lib64\" python3 tools/valhalla_inference/run_industry_benchmarks.py",
+            "RUSTFLAGS=\"-L /opt/cuda/lib64\" python3 tools/valhalla_inference/run_industry_benchmarks.py --all --verbose",
             "```",
             "",
             "---",
@@ -202,18 +269,39 @@ def write_summary(results: dict) -> Path:
     return out_md
 
 
+def build_test_list(args: argparse.Namespace) -> list[tuple[str, str | None, str | list]]:
+    tests: list[tuple[str, str | None, str | list]] = []
+    if not args.agi_only:
+        tests.extend(INDUSTRY_TESTS)
+        if args.all and not args.skip_scaling:
+            tests.append(("mcq-ladder", "test_mcq_ladder_v1.py", ["--model", args.model]))
+    if args.agi or args.agi_only:
+        tests.extend(AGI_TRAINING_TESTS)
+    return [(l, s, e) for l, s, e in tests if l not in args.skip]
+
+
 def main() -> None:
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description="ValhallaBase industry benchmark suite (3B default)")
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--download-first", action="store_true")
     ap.add_argument("--offline-download", action="store_true", help="reuse download cache only")
-    ap.add_argument("--all", action="store_true", help="include mcq-ladder @ 3B")
-    ap.add_argument("--agi", action="store_true", help="include AGI/training proxies (TPI, fair-benchmark, incubation)")
-    ap.add_argument("--agi-only", action="store_true", help="run AGI/training proxies only (skip industry suite)")
+    ap.add_argument("--all", action="store_true", help="include mcq-ladder @ 3B (full suite)")
+    ap.add_argument("--agi", action="store_true", help="include AGI/training proxies")
+    ap.add_argument("--agi-only", action="store_true", help="AGI proxies only")
     ap.add_argument("--skip-scaling", action="store_true")
     ap.add_argument("--aggregate-only", action="store_true")
     ap.add_argument("--skip", action="append", dest="skip", default=[])
+    ap.add_argument("--verbose", "-v", action="store_true", help="progress bars + detailed output")
+    ap.add_argument("--checkpoint-dir", type=Path, default=None, help="per-benchmark checkpoint dir")
+    ap.add_argument("--checkpoint-every", type=int, default=1, help="save every N items (in-benchmark)")
+    ap.add_argument("--suite-checkpoint", type=Path, default=SUITE_CHECKPOINT, help="suite-level resume file")
+    ap.add_argument("--resume", action="store_true", help="skip completed benchmarks (suite checkpoint)")
+    ap.add_argument("--pause-file", type=Path, help="touch this file to pause between benchmarks")
+    ap.add_argument("--model", default="qwen_3b", help="MCQ ladder model id (default qwen_3b)")
     args = ap.parse_args()
+
+    if args.checkpoint_dir is None and (args.resume or args.verbose):
+        args.checkpoint_dir = CHECKPOINTS_DEFAULT
 
     if args.aggregate_only:
         md = write_summary(aggregate())
@@ -229,58 +317,87 @@ def main() -> None:
             **os.environ,
             "HF_ENDPOINT": os.environ.get("HF_ENDPOINT", "https://hf-mirror.com"),
         }
-        rc = run_cmd("download-bundles", dl_cmd, extra_env=dl_env)
+        rc = run_cmd("download-bundles", dl_cmd, extra_env=dl_env, verbose=args.verbose)
         if rc:
             sys.exit("download failed")
 
-    flags = ["--fast"] if args.fast else []
+    test_list = build_test_list(args)
+    labels = [t[0] for t in test_list]
+    suite_doc = init_suite_checkpoint(
+        args.suite_checkpoint,
+        model=default_lm_model(),
+        tests=labels,
+        resume=args.resume,
+    )
+    done = suite_completed_labels(suite_doc) if args.resume else set()
+
     failed = 0
+    paused = False
+    suite_start = time.monotonic()
 
     with benchmark_runtime() as gpu_env:
         print(
             f"Backbone: {default_lm_model()}  GPU: VALHALLA_USE_CPU={gpu_env.get('VALHALLA_USE_CPU')}"
-            f"  serve={gpu_env.get('VALHALLA_BASE_URL', 'subprocess')}"
+            f"  serve={gpu_env.get('VALHALLA_BASE_URL', 'subprocess')}",
+            flush=True,
         )
+        if args.checkpoint_dir:
+            args.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+            print(f"Checkpoints → {args.checkpoint_dir}", flush=True)
+        if args.pause_file:
+            print(f"Pause: touch {args.pause_file}", flush=True)
 
-        if not args.agi_only:
-            for label, script, extra in INDUSTRY_TESTS:
-                if label in args.skip:
-                    continue
-                if script is None and extra == "rust":
-                    rc = run_rust_demo(label, label, flags, gpu_env)
-                else:
-                    py = VENV_PY if label == "lara" and VENV_PY.is_file() else PY
-                    rc = run_cmd(label, [str(py), str(HERE / script), *flags, *extra], extra_env=gpu_env)
-                if rc:
-                    failed += 1
+        pending = [t for t in test_list if t[0] not in done]
+        suite_bar = ProgressBar("Industry suite", len(test_list), enabled=True)
+        suite_bar.set(len(done))
 
-            if args.all and not args.skip_scaling:
-                mcq_extra = [*flags, "--model", "qwen_3b"]
-                rc = run_cmd(
-                    "mcq-ladder",
-                    [str(PY), str(HERE / "test_mcq_ladder_v1.py"), *mcq_extra],
-                    extra_env=gpu_env,
-                )
-                if rc:
-                    failed += 1
+        for label, script, extra in test_list:
+            if label in done:
+                print(f"[skip] {label} (already completed)", flush=True)
+                continue
 
-        if args.agi or args.agi_only:
-            agi_py = VENV_PY if VENV_PY.is_file() else PY
-            for label, script, extra in AGI_TRAINING_TESTS:
-                if label in args.skip:
-                    continue
-                script_path = Path(script)
-                if not script_path.is_absolute():
-                    script_path = HERE / script
-                rc = run_cmd(label, [str(agi_py), str(script_path), *flags, *extra], extra_env=gpu_env)
-                if rc:
-                    failed += 1
+            if pause_requested(args.pause_file):
+                suite_doc["paused"] = True
+                save_suite_checkpoint(args.suite_checkpoint, suite_doc)
+                suite_bar.finish("paused")
+                print(f"\nPause requested — suite checkpoint → {args.suite_checkpoint}", flush=True)
+                paused = True
+                break
+
+            flags = bench_flags(args, label, rust=(script is None and extra == "rust"))
+            if script is None and extra == "rust":
+                rc = run_rust_demo(label, label, flags, gpu_env, verbose=args.verbose)
+            else:
+                py = VENV_PY if VENV_PY.is_file() else PY
+                script_path = Path(script) if script and Path(script).is_absolute() else HERE / str(script)
+                extra_list = list(extra) if isinstance(extra, list) else []
+                cmd = [str(py), str(script_path), *flags, *extra_list]
+                rc = run_cmd(label, cmd, extra_env=gpu_env, verbose=args.verbose)
+
+            report_file = REPORT_FILES.get(label)
+            mark_suite_done(suite_doc, label, exit_code=rc, report=report_file)
+            save_suite_checkpoint(args.suite_checkpoint, suite_doc)
+            write_summary(aggregate())
+
+            suite_bar.inc()
+            if rc:
+                failed += 1
+                if not args.verbose:
+                    print(f"[{label}] FAILED (continuing suite)", flush=True)
+
+        if not paused:
+            suite_bar.finish(f"done ({time.monotonic() - suite_start:.0f}s)")
 
     md = write_summary(aggregate())
-    print(f"\n{'=' * 64}\nSummary → {md}")
+    print(f"\n{'=' * 64}\nSummary → {md}", flush=True)
+    print(f"Suite checkpoint → {args.suite_checkpoint}", flush=True)
+
+    if paused:
+        print("Suite paused — resume with: --resume", flush=True)
+        sys.exit(0)
     if failed:
         sys.exit(f"{failed} industry benchmark step(s) failed")
-    print("Industry benchmark suite completed.")
+    print("Industry benchmark suite completed.", flush=True)
 
 
 if __name__ == "__main__":

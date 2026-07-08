@@ -37,11 +37,13 @@ Valhalla is an **AI memory & hybrid inference platform** built around **Valhalla
 | **Needle session** | **4/4** @ depth 30 | Session-level long-range recall |
 | **RULER-style** | **20/20** single + multi-needle | Deep needle retrieval on append protocol |
 | **External holdout** | **15/15** | Out-of-suite generalization |
-| **MCQ ladder** (46Q) | **0.5B 63% → 3B 98% → 7B 96%** | lm_patch scales to 3B; 7B at ceiling |
+| **MCQ ladder** (46Q) | **0.5B 63% → 3B 96% → 7B 98%** | lm_patch scales to 3B; F16 GPU verified 2026-07-08 |
 
-**2026-07-07 full ladder (0.5B/3B/7B):** [`MCQ_LADDER_FULL_20260707.md`](reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) · **2026-07-06 industry 3B:** [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md)
+**2026-07-08:** Industry 3B suite **11/11** (~29 min) · Proactive agency **3000-round mega** (140s, memory-bounded) · MCQ **GPU F16 + memory-safe** harness ([`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md))
 
-Full interpretation: [`MCQ_LADDER_FULL_20260707.md`](reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) · [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) · [`MCQ_SCALING_POTENTIAL_20260706.md`](reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md)
+**2026-07-07 full ladder (0.5B/3B/7B):** [`MCQ_LADDER_FULL_20260707.md`](reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) · **2026-07-08 F16 rerun:** [`MCQ_LADDER_MEM_GPU_20260708.md`](reports/valhalla_inference/MCQ_LADDER_MEM_GPU_20260708.md) · **2026-07-06 industry 3B:** [`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md)
+
+Full interpretation: [`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md) · [`MCQ_LADDER_FULL_20260707.md`](reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) · [`INDUSTRY_3B_RUN_STATUS.md`](reports/valhalla_inference/INDUSTRY_3B_RUN_STATUS.md)
 
 ### 孵化能力（Incubation — zero-weight learning）
 
@@ -133,9 +135,11 @@ Valhalla/
 | [`reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) | **What to cite · runs · because** |
 | [`reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md) | Master experiment summary |
 
-### Honest boundaries (Tier B — 3B run 2026-07-06)
+### Honest boundaries (Tier B — 3B run 2026-07-08)
 
-LongBench **4/20 (20%)** · MultiHop hybrid **16/25 (64%)** · LaRA RAG **60%** vs LC **65%** — documented with protocol caveats. Do **not** cite FRAMES (no Wikipedia corpus) or LoCoMo 0/30 (truncated slice) as official scores.
+LongBench **7/20 (35%)** · MultiHop hybrid **14/25 (56%)** · LaRA RAG **8/20** vs LC **13/20** · LoCoMo **1/30 (3%)** · FRAMES **0/25** — documented with protocol caveats. Do **not** cite truncated slices as official production scores.
+
+**Proactive agency (2026-07-08):** Standard 24-turn **Agency Index 0.600** · Crosslang **100%** · 3000-round mega **140s** with segment reset (proactive spread gate still open).
 
 **Positioning:** ValhallaBase is strong on **grounded retrieval, session memory, and MCQ patch scaling** — not a long-chain reasoning replacement today. Next phase: **multi-hop structure composition** (not prompt-window chain-of-thought).
 
@@ -160,10 +164,12 @@ Valhalla 是 **AI 记忆与混合推理平台**：语料经 **Triad 孵化** 为
 - **RAGTruth 100/100** — ACL 2024 RAG 忠实度 industry 级
 - **Needle 4/4 · RULER 20/20** — 会话 append 长程召回
 - **Holdout 15/15** — 套件外泛化
-- **MCQ 0.5B→3B→7B 63%→98%→96%** — 3B 为生产甜点；7B 触顶无增益
+- **MCQ 0.5B→3B→7B 63%→96%→98%** — F16 GPU 2026-07-08 实测；3B 生产默认
+- **Industry 3B 2026-07-08** — Tier A 全 100% · LongBench 35% · MultiHop hybrid 56%
+- **Proactive agency** — 3000 轮 mega 140s · Agency Index 0.600（24 轮标准）
 - **长久记忆 94.7% · Proactive 71/72 · PPI 0.890 · 30 轮 follow-up 96.7%**
 
-解读文档：[`INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) · [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)
+解读文档：[`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md) · [`INDUSTRY_3B_RUN_STATUS.md`](reports/valhalla_inference/INDUSTRY_3B_RUN_STATUS.md)
 
 ### 快速复现
 

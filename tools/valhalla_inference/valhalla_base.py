@@ -15,6 +15,7 @@ import copy
 import json
 import os
 import subprocess
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
@@ -355,21 +356,33 @@ class ValhallaBase:
         base_url = self._serve_url()
         if not base_url:
             raise RuntimeError("VALHALLA_BASE_URL not set")
-        req = urllib.request.Request(
-            f"{base_url}/v1/infer",
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=3600) as resp:
-                raw = resp.read().decode("utf-8").strip()
-        except urllib.error.HTTPError as exc:
-            raw = exc.read().decode("utf-8", errors="replace").strip()
-            if raw:
-                doc = json.loads(raw)
-                raise RuntimeError(doc.get("error") or raw) from exc
-            raise RuntimeError(str(exc)) from exc
+        data = json.dumps(payload).encode("utf-8")
+        last_exc: Exception | None = None
+        for attempt in range(5):
+            req = urllib.request.Request(
+                f"{base_url}/v1/infer",
+                data=data,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=3600) as resp:
+                    raw = resp.read().decode("utf-8").strip()
+                break
+            except (urllib.error.URLError, OSError) as exc:
+                last_exc = exc
+                if attempt < 4 and ("Broken pipe" in str(exc) or "Connection reset" in str(exc)):
+                    time.sleep(2.0 * (attempt + 1))
+                    continue
+                raise
+            except urllib.error.HTTPError as exc:
+                raw = exc.read().decode("utf-8", errors="replace").strip()
+                if raw:
+                    doc = json.loads(raw)
+                    raise RuntimeError(doc.get("error") or raw) from exc
+                raise RuntimeError(str(exc)) from exc
+        else:
+            raise RuntimeError(str(last_exc) or "valhalla_base serve failed")
         if not raw:
             raise RuntimeError("valhalla_base serve returned empty body")
         doc = json.loads(raw)
