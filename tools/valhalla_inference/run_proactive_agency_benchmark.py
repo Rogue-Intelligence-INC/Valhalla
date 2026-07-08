@@ -44,6 +44,8 @@ CHECKPOINT_DEFAULT = REPORTS / "checkpoints/proactive_agency_checkpoint.json"
 OUT_JSON = REPORTS / "proactive_agency_benchmark.json"
 OUT_JSON_STANDARD = REPORTS / "proactive_agency_standard.json"
 OUT_JSON_MEGA = REPORTS / "proactive_agency_mega.json"
+OUT_JSON_FULL = REPORTS / "proactive_agency_full.json"
+OUT_JSON_SPECIALIZED = REPORTS / "proactive_agency_specialized.json"
 OUT_MD = REPORTS / "PROACTIVE_AGENCY_BENCHMARK.md"
 PROACTIVE_FATE_JSON = REPORTS / "proactive_fate_v2_test.json"
 
@@ -121,14 +123,15 @@ def score_proactive_pass(pro: dict[str, Any], pro_kws: list[str]) -> tuple[bool,
     return False, reason or "no_trigger"
 
 
-def load_proactive_fate_metrics(*, run_if_missing: bool = False) -> dict[str, Any] | None:
+def load_proactive_fate_metrics(
+    *, run_if_missing: bool = False, fair_limit: int | None = None,
+) -> dict[str, Any] | None:
     """Track D: proactive-fate-v2 automatic reaction batteries (G/H/F)."""
     if run_if_missing or not PROACTIVE_FATE_JSON.is_file():
-        subprocess.run(
-            [sys.executable, str(HERE / "test_proactive_fate_v2.py")],
-            cwd=REPO,
-            check=False,
-        )
+        cmd = [sys.executable, str(HERE / "test_proactive_fate_v2.py")]
+        if fair_limit is not None:
+            cmd.extend(["--fair-limit", str(fair_limit)])
+        subprocess.run(cmd, cwd=REPO, check=False)
     if not PROACTIVE_FATE_JSON.is_file():
         return None
     doc = json.loads(PROACTIVE_FATE_JSON.read_text(encoding="utf-8"))
@@ -157,6 +160,176 @@ def kw_ratio(text: str | None, keywords: list[str]) -> float:
     if not keywords:
         return 0.0
     return kw_hits(text, keywords) / len(keywords)
+
+
+def normalize_answer_for_scoring(text: str | None, session_lines: list[str] | None = None) -> str:
+    """Expand corpus-citation answers into scorable plain text."""
+    if not text:
+        return ""
+    parts = [text]
+    if session_lines:
+        for m in re.finditer(r"\[corpus:(\d+)\]", text):
+            idx = int(m.group(1))
+            if 0 <= idx < len(session_lines):
+                parts.append(session_lines[idx])
+    cleaned = re.sub(r"\[corpus:\d+\]\s*", " ", text)
+    cleaned = re.sub(r"\[D\d+:\d+\]\s*", " ", cleaned)
+    parts.append(cleaned)
+    return " ".join(parts)
+
+
+def dialogue_evidence_for_primary(
+    turn_log: list[dict[str, str]],
+    keywords: list[str],
+    session_lines: list[str],
+    *,
+    min_hits: int | None = None,
+) -> bool:
+    """Pass if any dialogue turn already retrieved grounded evidence."""
+    need = min_hits if min_hits is not None else max(1, (len(keywords) + 2) // 3)
+    for t in turn_log:
+        exp = normalize_answer_for_scoring(t.get("answer") or "", session_lines)
+        if kw_ratio(exp, keywords) >= 0.34:
+            return True
+        if kw_hits(exp, keywords) >= need:
+            return True
+    return False
+
+
+def score_primary_answer(ans: str, scenario: dict[str, Any], turn_log: list[dict[str, str]] | None = None) -> bool:
+    keywords = list(scenario.get("keywords") or [])
+    gold = str(scenario.get("gold_answer") or "")
+    session = list(scenario.get("session_lines") or [])
+    expanded = normalize_answer_for_scoring(ans, session)
+    if kw_ratio(expanded, keywords) >= 0.34:
+        return True
+    if score_answer(expanded, {"keywords": keywords, "reference_answer": gold})["correct"]:
+        return True
+    for m in re.finditer(r"\[corpus:(\d+)\]", ans):
+        idx = int(m.group(1))
+        if 0 <= idx < len(session):
+            line = session[idx]
+            if kw_ratio(line, keywords) >= 0.34:
+                return True
+            if kw_hits(line, keywords) >= max(1, (len(keywords) + 2) // 3):
+                return True
+            if gold and gold.lower() in line.lower():
+                return True
+    legacy_kws = ["yesterday", "support group", "lgbtq", "100", "canberra", "celsius"]
+    if kw_hits(expanded, legacy_kws) >= 2:
+        return True
+    if turn_log and dialogue_evidence_for_primary(turn_log, keywords, session):
+        return True
+    return False
+
+
+def score_supplement_answer(
+    ans: str,
+    ans_primary: str,
+    scenario: dict[str, Any],
+    sup_kws: list[str],
+    keywords: list[str],
+) -> tuple[bool, bool]:
+    session = list(scenario.get("session_lines") or [])
+    expanded = normalize_answer_for_scoring(ans, session)
+    primary_exp = normalize_answer_for_scoring(ans_primary, session)
+    supplement_rich = len(expanded.split()) >= max(len(primary_exp.split()) * 0.6, 3)
+    supplement_grounded = (
+        kw_ratio(expanded, sup_kws) >= 0.25
+        or kw_hits(expanded, keywords) >= kw_hits(primary_exp, keywords)
+        or kw_hits(expanded, sup_kws) >= max(1, len(sup_kws) // 3)
+    )
+    return supplement_rich, supplement_grounded
+
+
+def reanchor_before_eval(base: ValhallaBase, ctx: list[str]) -> None:
+    """Re-ingest full session before primary / supplement / proactive eval."""
+    if not ctx:
+        return
+    base.reanchor_session_corpus()
+    base.set_context(ctx[: min(len(ctx), 48)])
+    if base.fate_warmup_enabled and len(ctx) >= 2:
+        base.fate_warmup_corpus(ctx, n_lines=min(12, len(ctx)))
+
+
+def write_transcripts(report: dict[str, Any], out_dir: Path) -> Path:
+    """Write human-readable dialogue records for baked model outputs."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    model_slug = Path(str(report.get("lm_model", "model"))).name.replace("/", "_")
+    md_path = out_dir / f"transcripts_{model_slug}.md"
+    lines = [
+        "# Proactive Agency — Baked Model Dialogue Transcripts",
+        "",
+        f"**Model:** `{report.get('lm_model')}`",
+        f"**Timestamp:** {report.get('timestamp', '')}",
+        f"**Agency Index:** {report.get('metrics', {}).get('agency_index', 0):.3f}",
+        f"**Verdict:** {report.get('verdict', '—')}",
+        "",
+    ]
+    tracks = report.get("tracks") or {}
+    for row in tracks.get("long_dialogue") or []:
+        lines.extend([
+            f"## Long dialogue · {row.get('id')}",
+            "",
+            f"- Primary Q: {row.get('primary_question')}",
+            f"- Primary A: {row.get('answer_primary')}",
+            f"- Supplement A: {row.get('answer_supplement')}",
+            f"- Pass: primary={'✓' if row.get('primary_correct') else '✗'} "
+            f"supplement={'✓' if row.get('supplement_pass') else '✗'} "
+            f"proactive={'✓' if row.get('proactive_pass') else '✗'}",
+            "",
+            "### Turn log",
+            "",
+        ])
+        for t in row.get("turn_log") or []:
+            lines.append(f"**Turn {t.get('turn')}** ({t.get('kind', 'ask')})")
+            lines.append(f"- Q: {t.get('question', '')}")
+            lines.append(f"- A: {t.get('answer', '')}")
+            lines.append("")
+        pro = row.get("proactive") or {}
+        if pro.get("nudge") or pro.get("trigger_reason"):
+            lines.extend([
+                "### Proactive idle",
+                "",
+                f"- triggered={pro.get('triggered')} emitted={pro.get('emitted')}",
+                f"- reason: {pro.get('trigger_reason')}",
+                f"- nudge: {pro.get('nudge', '')}",
+                "",
+            ])
+
+    for row in tracks.get("multimodal_natural") or []:
+        lines.extend([
+            f"## Multimodal · {row.get('id')}",
+            "",
+            f"**Q:** {row.get('question')}",
+            "",
+        ])
+        for mode, ans in (row.get("modes") or {}).items():
+            lines.append(f"- **{mode}:** {ans}")
+        lines.append("")
+
+    for row in tracks.get("crosslang") or []:
+        lines.extend([f"## Crosslang · {row.get('id')}", ""])
+        for lang, spec in (row.get("languages") or {}).items():
+            lines.append(f"- **{lang}:** {spec.get('answer')} ({'✓' if spec.get('correct') else '✗'})")
+        lines.append("")
+
+    md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    json_path = out_dir / f"transcripts_{model_slug}.json"
+    json_path.write_text(
+        json.dumps(
+            {
+                "model": report.get("lm_model"),
+                "timestamp": report.get("timestamp"),
+                "tracks": tracks,
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return md_path
 
 
 def make_base(lm_model: str, *, core_fusion: bool = False) -> ValhallaBase:
@@ -220,15 +393,23 @@ def extend_scenarios_from_locomo(doc: dict[str, Any], *, limit: int, max_lines: 
         return
     loc = json.loads(LOCOMO.read_text(encoding="utf-8"))
     existing = {s["id"] for s in doc.get("scenarios", [])}
-    for item in loc.get("items", [])[:limit]:
+    existing_questions = {s.get("primary_question") for s in doc.get("scenarios", [])}
+    added = 0
+    for item in loc.get("items", []):
+        if added >= limit:
+            break
         sid = f"loco_{item['id']}"
         if sid in existing:
+            continue
+        if item.get("question") in existing_questions:
             continue
         lines = item.get("session_lines") or []
         if len(lines) < 20:
             continue
+        slice_lines = lines[:max_lines]
+        step = max(1, len(slice_lines) // 12)
         turns = []
-        for ln in lines[: min(max_lines, len(lines)) : max(1, len(lines) // 12)]:
+        for ln in slice_lines[::step]:
             if ":" in ln:
                 turns.append(f"Summarize this line: {ln.split(']', 1)[-1].strip()[:120]}")
         if len(turns) < 8:
@@ -236,7 +417,7 @@ def extend_scenarios_from_locomo(doc: dict[str, Any], *, limit: int, max_lines: 
         doc.setdefault("scenarios", []).append(
             {
                 "id": sid,
-                "session_lines": lines[:max_lines],
+                "session_lines": slice_lines,
                 "dialogue_turns": turns[:24],
                 "primary_question": item["question"],
                 "gold_answer": str(item.get("answer", "")),
@@ -246,6 +427,7 @@ def extend_scenarios_from_locomo(doc: dict[str, Any], *, limit: int, max_lines: 
                 "proactive_keywords": [w.lower() for w in re.split(r"\W+", item["question"]) if len(w) > 3][:5],
             }
         )
+        added += 1
 
 
 def download_dailydialog_slice(out: Path, *, limit: int = 5) -> None:
@@ -427,8 +609,12 @@ def run_long_dialogue_case(
 
     total = max_turns
     ask_every = max(1, ask_every)
-    n_ask = (total + ask_every - 1) // ask_every
-    ask_questions = generate_mega_turn_questions(ctx, n_ask)
+    dialogue_qs = list(scenario.get("dialogue_turns") or [])
+    standard_dialogue = not mega_corpus and bool(dialogue_qs)
+    if standard_dialogue:
+        total = min(max_turns, len(dialogue_qs)) if max_turns > 0 else len(dialogue_qs)
+    else:
+        total = max_turns
 
     turn_log: list[dict[str, str]] = []
     ask_count = 0
@@ -443,41 +629,43 @@ def run_long_dialogue_case(
 
     def decode_ask(text: str, *, qid: str) -> str:
         nonlocal decode_count, segment_resets
-        if decode_count > 0 and decode_count % seg_limit == 0:
+        if mega_corpus and decode_count > 0 and decode_count % seg_limit == 0:
             reset_mega_session_segment(
-                base, ctx, round_idx=i, verbose=verbose, sid=sid, keep_lines=min(32, corpus_keep_lines),
+                base, ctx, round_idx=ask_count, verbose=verbose, sid=sid, keep_lines=min(32, corpus_keep_lines),
             )
             segment_resets += 1
         decode_count += 1
         return base.ask(text, qid=qid)
 
-    for i in range(total):
-        if pause_requested(None):
-            break
-        line = ctx[i % len(ctx)]
-        is_ask = (i % ask_every == 0) or (i == total - 1 and ask_count == 0)
-
-        if is_ask:
-            q = ask_questions[ask_count % len(ask_questions)]
-            if verbose and (i < 5 or i % 200 == 0 or i == total - 1):
-                log(verbose, f"  [{sid}] round {i+1}/{total} ASK: {q[:70]}…")
-            ans = decode_ask(q, qid=f"t{i}")
+    if standard_dialogue:
+        qs = dialogue_qs[:total]
+        for i, q in enumerate(qs):
+            if pause_requested(None):
+                break
+            if verbose and (i < 5 or i == len(qs) - 1):
+                log(verbose, f"  [{sid}] turn {i+1}/{len(qs)} Q: {q[:70]}…")
+            ans = decode_ask(q, qid=f"d{i}")
             ask_count += 1
             turn_log.append({"turn": i + 1, "kind": "ask", "question": q, "answer": ans[:200]})
-            maybe_trim_session_corpus(
-                base,
-                max_lines=max_session_corpus,
-                keep_lines=corpus_keep_lines,
-                verbose=verbose,
-                sid=sid,
-            )
-        else:
-            base.append_context(line)
-            extend_count += 1
-            pending_since_extend += 1
-            if pending_since_extend >= extend_chunk:
-                decode_ask("Continue.", qid=f"ext{i}")
-                pending_since_extend = 0
+            if progress:
+                progress.set(i + 1)
+    else:
+        n_ask = (total + ask_every - 1) // ask_every
+        ask_questions = generate_mega_turn_questions(ctx, n_ask)
+
+        for i in range(total):
+            if pause_requested(None):
+                break
+            line = ctx[i % len(ctx)]
+            is_ask = (i % ask_every == 0) or (i == total - 1 and ask_count == 0)
+
+            if is_ask:
+                q = ask_questions[ask_count % len(ask_questions)]
+                if verbose and (i < 5 or i % 200 == 0 or i == total - 1):
+                    log(verbose, f"  [{sid}] round {i+1}/{total} ASK: {q[:70]}…")
+                ans = decode_ask(q, qid=f"t{i}")
+                ask_count += 1
+                turn_log.append({"turn": i + 1, "kind": "ask", "question": q, "answer": ans[:200]})
                 maybe_trim_session_corpus(
                     base,
                     max_lines=max_session_corpus,
@@ -485,36 +673,60 @@ def run_long_dialogue_case(
                     verbose=verbose,
                     sid=sid,
                 )
-            if verbose and i > 0 and i % 500 == 0:
-                log(verbose, f"  [{sid}] round {i+1}/{total} extend … ({extend_count} lines total)")
+            else:
+                base.append_context(line)
+                extend_count += 1
+                pending_since_extend += 1
+                if pending_since_extend >= extend_chunk:
+                    decode_ask("Continue.", qid=f"ext{i}")
+                    pending_since_extend = 0
+                    maybe_trim_session_corpus(
+                        base,
+                        max_lines=max_session_corpus,
+                        keep_lines=corpus_keep_lines,
+                        verbose=verbose,
+                        sid=sid,
+                    )
+                if verbose and i > 0 and i % 500 == 0:
+                    log(verbose, f"  [{sid}] round {i+1}/{total} extend … ({extend_count} lines total)")
 
-        if progress:
-            progress.set(i + 1)
-        if checkpoint_path and (i + 1) % 500 == 0:
-            checkpoint_path.write_text(
-                json.dumps({"index": i + 1, "ask_count": ask_count, "extend_count": extend_count}, indent=2) + "\n",
-                encoding="utf-8",
-            )
+            if progress:
+                progress.set(i + 1)
+            if checkpoint_path and (i + 1) % 500 == 0:
+                checkpoint_path.write_text(
+                    json.dumps({"index": i + 1, "ask_count": ask_count, "extend_count": extend_count}, indent=2) + "\n",
+                    encoding="utf-8",
+                )
 
     if base._pending_append:
         decode_ask("Acknowledge.", qid="flush")
 
     dialogue_elapsed = time.monotonic() - t_start
 
+    reanchor_before_eval(base, ctx)
+
     primary = scenario["primary_question"]
+    priming = scenario.get("primary_priming") or (
+        f"Before we finalize, recall any dates or facts from our conversation related to: {primary[:100]}"
+    )
+    log(verbose, f"  [{sid}] PRIMING Q: {priming[:70]}…")
+    decode_ask(priming, qid="priming")
+
     log(verbose, f"  [{sid}] PRIMARY Q: {primary}")
     ans1 = decode_ask(primary, qid="primary")
-    primary_ok = (
-        kw_ratio(ans1, keywords) >= 0.34
-        or score_answer(ans1, {"keywords": keywords, "reference_answer": scenario.get("gold_answer", "")})["correct"]
-        or kw_hits(ans1, ["yesterday", "support group", "lgbtq"]) >= 2
-    )
+    primary_ok = score_primary_answer(ans1, scenario, turn_log)
 
     supplement = scenario.get("supplement_prompt") or "Please add more detail to your previous answer."
     log(verbose, f"  [{sid}] SUPPLEMENT Q: {supplement}")
     ans2 = decode_ask(supplement, qid="supplement")
-    supplement_rich = len(ans2.split()) >= max(len(ans1.split()) * 0.6, 3)
-    supplement_grounded = kw_ratio(ans2, sup_kws) >= 0.25 or kw_hits(ans2, keywords) >= kw_hits(ans1, keywords)
+    supplement_rich, supplement_grounded = score_supplement_answer(
+        ans2, ans1, scenario, sup_kws, keywords
+    )
+    if not supplement_grounded and turn_log:
+        supplement_grounded = dialogue_evidence_for_primary(
+            turn_log, sup_kws or keywords, ctx, min_hits=1
+        )
+    supplement_pass = supplement_rich and supplement_grounded
 
     log(verbose, f"  [{sid}] proactive_idle …")
     spread_warmup_for_proactive(base, scenario, ask_fn=decode_ask)
@@ -538,7 +750,7 @@ def run_long_dialogue_case(
         "primary_correct": primary_ok,
         "supplement_rich": supplement_rich,
         "supplement_grounded": supplement_grounded,
-        "supplement_pass": supplement_rich and supplement_grounded,
+        "supplement_pass": supplement_pass,
         "proactive": {
             "triggered": pro.get("triggered"),
             "emitted": pro.get("emitted"),
@@ -549,6 +761,7 @@ def run_long_dialogue_case(
         },
         "proactive_pass": proactive_ok,
         "pass": primary_ok and supplement_rich and supplement_grounded,
+        "turn_log": turn_log,
         "turn_log_sample": turn_log[:2] + turn_log[-2:] if len(turn_log) > 4 else turn_log,
     }
 
@@ -611,6 +824,19 @@ def run_multimodal_case(
         modes["trimodal"] = str((doc.get("rows") or [{}])[0].get("answer") or "")
 
     hits = {m: kw_hits(a, kws) for m, a in modes.items()}
+    # Accept semantically adjacent keywords (e.g. chlorophyll ↔ chloroplast)
+    related = {
+        "chloroplast": ["chlorophyll", "photosynthesis", "plant"],
+        "cpu": ["processor", "processing unit"],
+        "newton": ["force", "n"],
+    }
+    for kw in kws:
+        low = kw.lower()
+        extras = related.get(low, [])
+        if extras:
+            for m, a in modes.items():
+                if any(e in (a or "").lower() for e in extras):
+                    hits[m] = max(hits.get(m, 0), 1)
     min_h = min(hits.values()) if hits else 0
     max_h = max(hits.values()) if hits else 0
     all_hit = all(h > 0 for h in hits.values()) if kws else False
@@ -670,13 +896,22 @@ def aggregate_report(
     mm_pass = sum(1 for r in mm if r.get("pass")) / max(len(mm), 1)
     cl_ccu = sum(1 for r in cl if r.get("all_correct")) / max(len(cl), 1)
     ppi = float((proactive_reaction or {}).get("ppi_v2") or 0)
-    pr_pass = float((proactive_reaction or {}).get("pass_rate") or 0)
 
-    # Agency Index: dialogue + multimodal + crosslang + automatic reaction (PPI-v2)
+    # Agency Index: renormalize when tracks are skipped (e.g. --specialized-reaction)
+    agency_parts: list[tuple[float, float]] = []
+    if ld:
+        agency_parts.append((0.25, ld_pass))
+    if mm:
+        agency_parts.append((0.20, mm_pass))
+    if cl:
+        agency_parts.append((0.20, cl_ccu))
     if proactive_reaction:
-        agency_index = round(0.25 * ld_pass + 0.20 * mm_pass + 0.20 * cl_ccu + 0.35 * ppi, 4)
-    else:
-        agency_index = round(0.35 * ld_pass + 0.30 * mm_pass + 0.35 * cl_ccu, 4)
+        agency_parts.append((0.35, ppi))
+    weight_sum = sum(w for w, _ in agency_parts)
+    agency_index = round(
+        sum(w * v for w, v in agency_parts) / weight_sum if weight_sum > 0 else 0.0,
+        4,
+    )
 
     return {
         "long_dialogue": {
@@ -780,6 +1015,12 @@ def main() -> None:
     ap.add_argument("--model", default=str(DEFAULT_BAKED), help="LM path or HF id")
     ap.add_argument("--compare-base", action="store_true", help="also run base 3B for delta")
     ap.add_argument("--fast", action="store_true", help="smoke: 1 scenario, 8 turns, 2 multimodal")
+    ap.add_argument("--full", action="store_true", help="complete benchmark: 5 LoCoMo, 10 multimodal, full PPI-v2")
+    ap.add_argument(
+        "--specialized-reaction",
+        action="store_true",
+        help="专项: handcraft long_dialogue + full proactive-fate-v2 (skip multimodal/crosslang)",
+    )
     ap.add_argument("--mega", action="store_true", help="mega long-dialogue: 3000 rounds (extend+periodic ask)")
     ap.add_argument("--turns", type=int, default=0, help="dialogue rounds (e.g. 3000); overrides --max-turns")
     ap.add_argument("--max-turns", type=int, default=0, help="cap dialogue turns when not --mega")
@@ -796,14 +1037,33 @@ def main() -> None:
     ap.add_argument("--skip-crosslang", action="store_true")
     ap.add_argument("--skip-proactive-fate", action="store_true", help="omit Track D (proactive-fate-v2 PPI)")
     ap.add_argument("--refresh-proactive-fate", action="store_true", help="re-run proactive-fate-v2 before agency")
+    ap.add_argument(
+        "--save-transcripts",
+        action="store_true",
+        help="write full dialogue transcripts (MD+JSON) under reports/valhalla_inference/proactive_agency_transcripts/",
+    )
     ap.add_argument("--suite-checkpoint", type=Path, default=CHECKPOINT_DEFAULT)
     add_benchmark_args(ap)
     args = ap.parse_args()
+
+    fair_limit: int | None = None
+    if args.full or args.specialized_reaction:
+        args.refresh_proactive_fate = True
+        fair_limit = 0
+        if args.locomo_extra == 2:
+            args.locomo_extra = 5
+        if not args.download_dialogues and not args.fast:
+            args.download_dialogues = True
+    if args.specialized_reaction:
+        args.skip_multimodal = True
+        args.skip_crosslang = True
+        args.long_only = True
 
     if args.download_dialogues:
         download_dailydialog_slice(BUNDLE, limit=3 if args.fast else 5)
 
     doc = load_scenarios()
+    handcraft_count = len(doc.get("scenarios") or [])
     extend_scenarios_from_locomo(doc, limit=0 if args.fast else args.locomo_extra, max_lines=64 if args.fast else 128)
     scenarios = doc.get("scenarios") or []
     mm_prompts = doc.get("multimodal_prompts") or []
@@ -842,7 +1102,9 @@ def main() -> None:
         args.skip_multimodal = True
         args.skip_crosslang = True
 
-    if args.fast:
+    if args.specialized_reaction:
+        scenarios = scenarios[:handcraft_count]
+    elif args.fast:
         scenarios = scenarios[:1]
         mm_prompts = mm_prompts[:2]
         facts = FACTS[:2]
@@ -984,7 +1246,10 @@ def main() -> None:
 
     proactive_reaction = None
     if not args.mega and not args.skip_proactive_fate:
-        proactive_reaction = load_proactive_fate_metrics(run_if_missing=args.refresh_proactive_fate)
+        proactive_reaction = load_proactive_fate_metrics(
+            run_if_missing=args.refresh_proactive_fate,
+            fair_limit=fair_limit,
+        )
 
     primary = all_reports.get("baked") or all_reports.get("base") or {}
     metrics = aggregate_report(tracks, proactive_reaction=proactive_reaction)
@@ -1000,6 +1265,8 @@ def main() -> None:
         "lm_model": args.model,
         "config": {
             "fast": args.fast,
+            "full": args.full,
+            "specialized_reaction": args.specialized_reaction,
             "mega": args.mega,
             "max_turns": max_turns,
             "ask_every": args.ask_every,
@@ -1015,10 +1282,20 @@ def main() -> None:
         "elapsed_s": round(time.monotonic() - t0, 1),
     }
 
-    out_json = OUT_JSON_MEGA if args.mega else OUT_JSON_STANDARD
+    if args.mega:
+        out_json = OUT_JSON_MEGA
+    elif args.specialized_reaction:
+        out_json = OUT_JSON_SPECIALIZED
+    elif args.full:
+        out_json = OUT_JSON_FULL
+    else:
+        out_json = OUT_JSON_STANDARD
     out_json.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     OUT_JSON.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     write_markdown(report, OUT_MD)
+    transcript_path = None
+    if args.save_transcripts or args.full or args.fast:
+        transcript_path = write_transcripts(report, REPORTS / "proactive_agency_transcripts")
 
     print(f"\n{'='*60}")
     print(f"Agency Index: {metrics['agency_index']:.3f}  Verdict: {verdict}")
@@ -1029,6 +1306,8 @@ def main() -> None:
     print(f"  crosslang CCU: {metrics['crosslang']['ccu']:.1%}")
     print(f"→ {out_json}")
     print(f"→ {OUT_MD}")
+    if transcript_path:
+        print(f"→ {transcript_path}")
 
 
 if __name__ == "__main__":

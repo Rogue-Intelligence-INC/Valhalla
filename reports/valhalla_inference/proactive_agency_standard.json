@@ -1,12 +1,14 @@
 {
-  "timestamp": "2026-07-08T05:02:50.634701+00:00",
+  "timestamp": "2026-07-08T20:55:34.681788+00:00",
   "protocol": "proactive-agency-benchmark-v1",
   "lm_model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10",
   "config": {
-    "fast": false,
+    "fast": true,
+    "full": false,
+    "specialized_reaction": false,
     "mega": false,
-    "max_turns": 24,
-    "ask_every": 2,
+    "max_turns": 8,
+    "ask_every": 32,
     "extend_chunk": 8,
     "max_session_corpus": 0,
     "compare_base": false,
@@ -18,109 +20,41 @@
   },
   "metrics": {
     "long_dialogue": {
-      "n": 3,
-      "primary_rate": 0.6666666666666666,
-      "supplement_rate": 0.3333333333333333,
+      "n": 1,
+      "primary_rate": 1.0,
+      "supplement_rate": 1.0,
       "proactive_rate": 1.0,
-      "pass_rate": 0.3333333333333333
+      "pass_rate": 1.0
     },
     "multimodal_natural": {
-      "n": 3,
-      "all_hit_rate": 0.6666666666666666,
-      "avg_consistency": 0.6666666666666666,
-      "pass_rate": 0.6666666666666666
+      "n": 2,
+      "all_hit_rate": 1.0,
+      "avg_consistency": 1.0,
+      "pass_rate": 1.0
     },
     "crosslang": {
-      "n": 6,
+      "n": 2,
       "ccu": 1.0,
       "pass_rate": 1.0
     },
-    "proactive_reaction": {
-      "protocol": "proactive-fate-v2",
-      "ppi_v2": 0.65,
-      "pass_rate": 0.9444444444444444,
-      "gates_ok": true,
-      "unsolicited_precision": 0.0,
-      "mismatch_abstain_rate": 1.0,
-      "false_interrupt_rate": 0.0,
-      "verdict": [
-        "PROACTIVE_FATE_V2_VIABLE",
-        "LOW_MISMATCH_INTERRUPT",
-        "NO_HALLUCINATION_ON_MISMATCH",
-        "GATES_OK"
-      ],
-      "n_trials": 72
-    },
-    "agency_index": 0.6442,
-    "agency_formula": "0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2"
+    "proactive_reaction": null,
+    "agency_index": 1.0,
+    "agency_formula": "0.35·long + 0.30·multimodal + 0.35·crosslang"
   },
   "tracks": {
     "long_dialogue": [
       {
         "id": "loco_lgbtq_date",
-        "turns": 24,
-        "ask_turns": 12,
-        "extend_turns": 12,
-        "ask_every": 2,
-        "segment_resets": 18,
-        "decode_count": 19,
-        "dialogue_elapsed_s": 0.8,
+        "turns": 8,
+        "ask_turns": 8,
+        "extend_turns": 0,
+        "ask_every": 32,
+        "segment_resets": 0,
+        "decode_count": 14,
+        "dialogue_elapsed_s": 0.2,
         "primary_question": "When did Caroline go to the LGBTQ support group?",
         "answer_primary": "[corpus:5] [D10:3] Caroline: I just joined a new LGBTQ activist group last Tues",
-        "answer_supplement": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?",
-        "primary_correct": false,
-        "supplement_rich": true,
-        "supplement_grounded": false,
-        "supplement_pass": false,
-        "proactive": {
-          "triggered": false,
-          "emitted": false,
-          "nudge": "",
-          "trigger_reason": "spread=0.0000<0.0031",
-          "fate_signals": 37,
-          "mode": "defer_gate_ok"
-        },
-        "proactive_pass": true,
-        "pass": false,
-        "turn_log_sample": [
-          {
-            "turn": 1,
-            "kind": "ask",
-            "question": "Summarize the latest point in our conversation in one sentence. (context: D1)",
-            "answer": "[corpus:6] [D10:5] Caroline: Our group Connected LGBTQ Activists plans events and campaigns"
-          },
-          {
-            "turn": 3,
-            "kind": "ask",
-            "question": "Who spoke last and what did they say? (context: D1)",
-            "answer": "[corpus:7] [D11:4] Caroline: I went to a pride parade last Friday - so much energy and love"
-          },
-          {
-            "turn": 21,
-            "kind": "ask",
-            "question": "Summarize the latest point in our conversation in one sentence. (context: D1)",
-            "answer": "[corpus:6] [D10:5] Caroline: Our group Connected LGBTQ Activists plans events and campaigns"
-          },
-          {
-            "turn": 23,
-            "kind": "ask",
-            "question": "Who spoke last and what did they say? (context: D1)",
-            "answer": "[corpus:7] [D11:4] Caroline: I went to a pride parade last Friday - so much energy and love"
-          }
-        ]
-      },
-      {
-        "id": "science_water",
-        "turns": 24,
-        "ask_turns": 12,
-        "extend_turns": 12,
-        "ask_every": 2,
-        "segment_resets": 18,
-        "decode_count": 19,
-        "dialogue_elapsed_s": 0.7,
-        "primary_question": "At standard atmospheric pressure, what temperature does water boil in Celsius?",
-        "answer_primary": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure",
-        "answer_supplement": "[corpus:2] Steam forms when liquid water reaches its boiling point",
+        "answer_supplement": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives",
         "primary_correct": true,
         "supplement_rich": true,
         "supplement_grounded": true,
@@ -135,83 +69,80 @@
         },
         "proactive_pass": true,
         "pass": true,
-        "turn_log_sample": [
+        "turn_log": [
           {
             "turn": 1,
             "kind": "ask",
-            "question": "Summarize the latest point in our conversation in one sentence. (context: speaker)",
-            "answer": "[corpus:3] At sea level one atmosphere equals 101325 pascals"
+            "question": "What did Caroline do yesterday according to the conversation?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "Tell me more about Caroline's LGBTQ support group experience.",
+            "answer": "[corpus:2] [D1:3] Caroline: I went to a LGBTQ support group yesterday and it was so powerful"
           },
           {
             "turn": 3,
             "kind": "ask",
-            "question": "Who spoke last and what did they say? (context: speaker)",
-            "answer": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure"
+            "question": "What is Caroline's activist group called?",
+            "answer": "[corpus:6] [D10:5] Caroline: Our group Connected LGBTQ Activists plans events and campaigns"
           },
           {
-            "turn": 21,
+            "turn": 4,
             "kind": "ask",
-            "question": "Summarize the latest point in our conversation in one sentence. (context: speaker)",
-            "answer": "[corpus:3] At sea level one atmosphere equals 101325 pascals"
+            "question": "What themes does Caroline explore in her art?",
+            "answer": "[corpus:8] [D11:10] Caroline: My art is about expressing my trans experience"
           },
           {
-            "turn": 23,
+            "turn": 5,
             "kind": "ask",
-            "question": "Who spoke last and what did they say? (context: speaker)",
-            "answer": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure"
+            "question": "How did the pride parade make Caroline feel?",
+            "answer": "[corpus:7] [D11:4] Caroline: I went to a pride parade last Friday - so much energy and love"
+          },
+          {
+            "turn": 6,
+            "kind": "ask",
+            "question": "What career is Caroline considering?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+          },
+          {
+            "turn": 7,
+            "kind": "ask",
+            "question": "What happened on Caroline's hike?",
+            "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
+          },
+          {
+            "turn": 8,
+            "kind": "ask",
+            "question": "Does Melanie have children?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
           }
-        ]
-      },
-      {
-        "id": "geo_canberra",
-        "turns": 24,
-        "ask_turns": 12,
-        "extend_turns": 12,
-        "ask_every": 2,
-        "segment_resets": 18,
-        "decode_count": 19,
-        "dialogue_elapsed_s": 0.8,
-        "primary_question": "What is the capital of Australia?",
-        "answer_primary": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
-        "answer_supplement": "[corpus:5] Parliament House is located in Canberra",
-        "primary_correct": true,
-        "supplement_rich": false,
-        "supplement_grounded": true,
-        "supplement_pass": false,
-        "proactive": {
-          "triggered": false,
-          "emitted": false,
-          "nudge": "",
-          "trigger_reason": "spread=0.0000<0.0031",
-          "fate_signals": 37,
-          "mode": "defer_gate_ok"
-        },
-        "proactive_pass": true,
-        "pass": false,
+        ],
         "turn_log_sample": [
           {
             "turn": 1,
             "kind": "ask",
-            "question": "Summarize the latest point in our conversation in one sentence. (context: speaker)",
-            "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
+            "question": "What did Caroline do yesterday according to the conversation?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
           },
           {
-            "turn": 3,
+            "turn": 2,
             "kind": "ask",
-            "question": "Who spoke last and what did they say? (context: speaker)",
-            "answer": "[corpus:4] Australia is a country and continent in Oceania"
+            "question": "Tell me more about Caroline's LGBTQ support group experience.",
+            "answer": "[corpus:2] [D1:3] Caroline: I went to a LGBTQ support group yesterday and it was so powerful"
           },
           {
-            "turn": 21,
+            "turn": 7,
             "kind": "ask",
-            "question": "Summarize the latest point in our conversation in one sentence. (context: speaker)",
-            "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
+            "question": "What happened on Caroline's hike?",
+            "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
           },
           {
-            "turn": 23,
+            "turn": 8,
             "kind": "ask",
-            "question": "Who spoke last and what did they say? (context: speaker)",
-            "answer": "[corpus:4] Australia is a country and continent in Oceania"
+            "question": "Does Melanie have children?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
           }
         ]
       }
@@ -244,25 +175,6 @@
           "tts_audio": "[corpus:1] They contain chlorophyll",
           "image": "[corpus:1] They contain chlorophyll",
           "trimodal": "[corpus:1] They contain chlorophyll"
-        },
-        "keyword_hits": {
-          "text": 0,
-          "tts_audio": 0,
-          "image": 0,
-          "trimodal": 0
-        },
-        "all_modalities_hit": false,
-        "consistency": 0.0,
-        "pass": false
-      },
-      {
-        "id": "MM_HIST_01",
-        "question": "In which year did World War Two end?",
-        "modes": {
-          "text": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
-          "tts_audio": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
-          "image": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
-          "trimodal": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender"
         },
         "keyword_hits": {
           "text": 1,
@@ -315,86 +227,6 @@
         "line_agreement": true,
         "all_correct": true,
         "pass": true
-      },
-      {
-        "id": "ww2_end",
-        "languages": {
-          "en": {
-            "answer": "[corpus:1] World War Two ended in 1945 with Germany's unconditional surrender",
-            "correct": true
-          },
-          "zh": {
-            "answer": "[corpus:1] World War Two ended in 1945 with Germany's unconditional surrender",
-            "correct": true
-          },
-          "fr": {
-            "answer": "[corpus:1] World War Two ended in 1945 with Germany's unconditional surrender",
-            "correct": true
-          }
-        },
-        "line_agreement": true,
-        "all_correct": true,
-        "pass": true
-      },
-      {
-        "id": "canberra",
-        "languages": {
-          "en": {
-            "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
-            "correct": true
-          },
-          "zh": {
-            "answer": "[corpus:1] The capital city of Australia is Canberra not Sydney or Melbourne",
-            "correct": true
-          },
-          "fr": {
-            "answer": "[corpus:1] The capital city of Australia is Canberra not Sydney or Melbourne",
-            "correct": true
-          }
-        },
-        "line_agreement": true,
-        "all_correct": true,
-        "pass": true
-      },
-      {
-        "id": "water_boil",
-        "languages": {
-          "en": {
-            "answer": "[corpus:1] Water boils at 100 degrees Celsius at standard atmospheric pressure",
-            "correct": true
-          },
-          "zh": {
-            "answer": "No confident match in incubated memory.",
-            "correct": true
-          },
-          "fr": {
-            "answer": "[corpus:1] Water boils at 100 degrees Celsius at standard atmospheric pressure",
-            "correct": true
-          }
-        },
-        "line_agreement": true,
-        "all_correct": true,
-        "pass": true
-      },
-      {
-        "id": "solar_terms",
-        "languages": {
-          "en": {
-            "answer": "[corpus:0] There are 24 solar terms in the traditional Chinese calendar",
-            "correct": true
-          },
-          "zh": {
-            "answer": "No confident match in incubated memory.",
-            "correct": true
-          },
-          "fr": {
-            "answer": "[corpus:1] There are 24 solar terms in the traditional Chinese calendar",
-            "correct": true
-          }
-        },
-        "line_agreement": true,
-        "all_correct": true,
-        "pass": true
       }
     ]
   },
@@ -405,69 +237,16 @@
         "long_dialogue": [
           {
             "id": "loco_lgbtq_date",
-            "turns": 24,
-            "ask_turns": 12,
-            "extend_turns": 12,
-            "ask_every": 2,
-            "segment_resets": 18,
-            "decode_count": 19,
-            "dialogue_elapsed_s": 0.8,
+            "turns": 8,
+            "ask_turns": 8,
+            "extend_turns": 0,
+            "ask_every": 32,
+            "segment_resets": 0,
+            "decode_count": 14,
+            "dialogue_elapsed_s": 0.2,
             "primary_question": "When did Caroline go to the LGBTQ support group?",
             "answer_primary": "[corpus:5] [D10:3] Caroline: I just joined a new LGBTQ activist group last Tues",
-            "answer_supplement": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?",
-            "primary_correct": false,
-            "supplement_rich": true,
-            "supplement_grounded": false,
-            "supplement_pass": false,
-            "proactive": {
-              "triggered": false,
-              "emitted": false,
-              "nudge": "",
-              "trigger_reason": "spread=0.0000<0.0031",
-              "fate_signals": 37,
-              "mode": "defer_gate_ok"
-            },
-            "proactive_pass": true,
-            "pass": false,
-            "turn_log_sample": [
-              {
-                "turn": 1,
-                "kind": "ask",
-                "question": "Summarize the latest point in our conversation in one sentence. (context: D1)",
-                "answer": "[corpus:6] [D10:5] Caroline: Our group Connected LGBTQ Activists plans events and campaigns"
-              },
-              {
-                "turn": 3,
-                "kind": "ask",
-                "question": "Who spoke last and what did they say? (context: D1)",
-                "answer": "[corpus:7] [D11:4] Caroline: I went to a pride parade last Friday - so much energy and love"
-              },
-              {
-                "turn": 21,
-                "kind": "ask",
-                "question": "Summarize the latest point in our conversation in one sentence. (context: D1)",
-                "answer": "[corpus:6] [D10:5] Caroline: Our group Connected LGBTQ Activists plans events and campaigns"
-              },
-              {
-                "turn": 23,
-                "kind": "ask",
-                "question": "Who spoke last and what did they say? (context: D1)",
-                "answer": "[corpus:7] [D11:4] Caroline: I went to a pride parade last Friday - so much energy and love"
-              }
-            ]
-          },
-          {
-            "id": "science_water",
-            "turns": 24,
-            "ask_turns": 12,
-            "extend_turns": 12,
-            "ask_every": 2,
-            "segment_resets": 18,
-            "decode_count": 19,
-            "dialogue_elapsed_s": 0.7,
-            "primary_question": "At standard atmospheric pressure, what temperature does water boil in Celsius?",
-            "answer_primary": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure",
-            "answer_supplement": "[corpus:2] Steam forms when liquid water reaches its boiling point",
+            "answer_supplement": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives",
             "primary_correct": true,
             "supplement_rich": true,
             "supplement_grounded": true,
@@ -482,83 +261,80 @@
             },
             "proactive_pass": true,
             "pass": true,
-            "turn_log_sample": [
+            "turn_log": [
               {
                 "turn": 1,
                 "kind": "ask",
-                "question": "Summarize the latest point in our conversation in one sentence. (context: speaker)",
-                "answer": "[corpus:3] At sea level one atmosphere equals 101325 pascals"
+                "question": "What did Caroline do yesterday according to the conversation?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "Tell me more about Caroline's LGBTQ support group experience.",
+                "answer": "[corpus:2] [D1:3] Caroline: I went to a LGBTQ support group yesterday and it was so powerful"
               },
               {
                 "turn": 3,
                 "kind": "ask",
-                "question": "Who spoke last and what did they say? (context: speaker)",
-                "answer": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure"
+                "question": "What is Caroline's activist group called?",
+                "answer": "[corpus:6] [D10:5] Caroline: Our group Connected LGBTQ Activists plans events and campaigns"
               },
               {
-                "turn": 21,
+                "turn": 4,
                 "kind": "ask",
-                "question": "Summarize the latest point in our conversation in one sentence. (context: speaker)",
-                "answer": "[corpus:3] At sea level one atmosphere equals 101325 pascals"
+                "question": "What themes does Caroline explore in her art?",
+                "answer": "[corpus:8] [D11:10] Caroline: My art is about expressing my trans experience"
               },
               {
-                "turn": 23,
+                "turn": 5,
                 "kind": "ask",
-                "question": "Who spoke last and what did they say? (context: speaker)",
-                "answer": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure"
+                "question": "How did the pride parade make Caroline feel?",
+                "answer": "[corpus:7] [D11:4] Caroline: I went to a pride parade last Friday - so much energy and love"
+              },
+              {
+                "turn": 6,
+                "kind": "ask",
+                "question": "What career is Caroline considering?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+              },
+              {
+                "turn": 7,
+                "kind": "ask",
+                "question": "What happened on Caroline's hike?",
+                "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
+              },
+              {
+                "turn": 8,
+                "kind": "ask",
+                "question": "Does Melanie have children?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
               }
-            ]
-          },
-          {
-            "id": "geo_canberra",
-            "turns": 24,
-            "ask_turns": 12,
-            "extend_turns": 12,
-            "ask_every": 2,
-            "segment_resets": 18,
-            "decode_count": 19,
-            "dialogue_elapsed_s": 0.8,
-            "primary_question": "What is the capital of Australia?",
-            "answer_primary": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
-            "answer_supplement": "[corpus:5] Parliament House is located in Canberra",
-            "primary_correct": true,
-            "supplement_rich": false,
-            "supplement_grounded": true,
-            "supplement_pass": false,
-            "proactive": {
-              "triggered": false,
-              "emitted": false,
-              "nudge": "",
-              "trigger_reason": "spread=0.0000<0.0031",
-              "fate_signals": 37,
-              "mode": "defer_gate_ok"
-            },
-            "proactive_pass": true,
-            "pass": false,
+            ],
             "turn_log_sample": [
               {
                 "turn": 1,
                 "kind": "ask",
-                "question": "Summarize the latest point in our conversation in one sentence. (context: speaker)",
-                "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
+                "question": "What did Caroline do yesterday according to the conversation?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
               },
               {
-                "turn": 3,
+                "turn": 2,
                 "kind": "ask",
-                "question": "Who spoke last and what did they say? (context: speaker)",
-                "answer": "[corpus:4] Australia is a country and continent in Oceania"
+                "question": "Tell me more about Caroline's LGBTQ support group experience.",
+                "answer": "[corpus:2] [D1:3] Caroline: I went to a LGBTQ support group yesterday and it was so powerful"
               },
               {
-                "turn": 21,
+                "turn": 7,
                 "kind": "ask",
-                "question": "Summarize the latest point in our conversation in one sentence. (context: speaker)",
-                "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
+                "question": "What happened on Caroline's hike?",
+                "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
               },
               {
-                "turn": 23,
+                "turn": 8,
                 "kind": "ask",
-                "question": "Who spoke last and what did they say? (context: speaker)",
-                "answer": "[corpus:4] Australia is a country and continent in Oceania"
+                "question": "Does Melanie have children?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
               }
             ]
           }
@@ -591,25 +367,6 @@
               "tts_audio": "[corpus:1] They contain chlorophyll",
               "image": "[corpus:1] They contain chlorophyll",
               "trimodal": "[corpus:1] They contain chlorophyll"
-            },
-            "keyword_hits": {
-              "text": 0,
-              "tts_audio": 0,
-              "image": 0,
-              "trimodal": 0
-            },
-            "all_modalities_hit": false,
-            "consistency": 0.0,
-            "pass": false
-          },
-          {
-            "id": "MM_HIST_01",
-            "question": "In which year did World War Two end?",
-            "modes": {
-              "text": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
-              "tts_audio": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
-              "image": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender",
-              "trimodal": "[corpus:0] World War Two ended in 1945 with Germany's unconditional surrender"
             },
             "keyword_hits": {
               "text": 1,
@@ -662,129 +419,34 @@
             "line_agreement": true,
             "all_correct": true,
             "pass": true
-          },
-          {
-            "id": "ww2_end",
-            "languages": {
-              "en": {
-                "answer": "[corpus:1] World War Two ended in 1945 with Germany's unconditional surrender",
-                "correct": true
-              },
-              "zh": {
-                "answer": "[corpus:1] World War Two ended in 1945 with Germany's unconditional surrender",
-                "correct": true
-              },
-              "fr": {
-                "answer": "[corpus:1] World War Two ended in 1945 with Germany's unconditional surrender",
-                "correct": true
-              }
-            },
-            "line_agreement": true,
-            "all_correct": true,
-            "pass": true
-          },
-          {
-            "id": "canberra",
-            "languages": {
-              "en": {
-                "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
-                "correct": true
-              },
-              "zh": {
-                "answer": "[corpus:1] The capital city of Australia is Canberra not Sydney or Melbourne",
-                "correct": true
-              },
-              "fr": {
-                "answer": "[corpus:1] The capital city of Australia is Canberra not Sydney or Melbourne",
-                "correct": true
-              }
-            },
-            "line_agreement": true,
-            "all_correct": true,
-            "pass": true
-          },
-          {
-            "id": "water_boil",
-            "languages": {
-              "en": {
-                "answer": "[corpus:1] Water boils at 100 degrees Celsius at standard atmospheric pressure",
-                "correct": true
-              },
-              "zh": {
-                "answer": "No confident match in incubated memory.",
-                "correct": true
-              },
-              "fr": {
-                "answer": "[corpus:1] Water boils at 100 degrees Celsius at standard atmospheric pressure",
-                "correct": true
-              }
-            },
-            "line_agreement": true,
-            "all_correct": true,
-            "pass": true
-          },
-          {
-            "id": "solar_terms",
-            "languages": {
-              "en": {
-                "answer": "[corpus:0] There are 24 solar terms in the traditional Chinese calendar",
-                "correct": true
-              },
-              "zh": {
-                "answer": "No confident match in incubated memory.",
-                "correct": true
-              },
-              "fr": {
-                "answer": "[corpus:1] There are 24 solar terms in the traditional Chinese calendar",
-                "correct": true
-              }
-            },
-            "line_agreement": true,
-            "all_correct": true,
-            "pass": true
           }
         ]
       },
       "metrics": {
         "long_dialogue": {
-          "n": 3,
-          "primary_rate": 0.6666666666666666,
-          "supplement_rate": 0.3333333333333333,
+          "n": 1,
+          "primary_rate": 1.0,
+          "supplement_rate": 1.0,
           "proactive_rate": 1.0,
-          "pass_rate": 0.3333333333333333
+          "pass_rate": 1.0
         },
         "multimodal_natural": {
-          "n": 3,
-          "all_hit_rate": 0.6666666666666666,
-          "avg_consistency": 0.6666666666666666,
-          "pass_rate": 0.6666666666666666
+          "n": 2,
+          "all_hit_rate": 1.0,
+          "avg_consistency": 1.0,
+          "pass_rate": 1.0
         },
         "crosslang": {
-          "n": 6,
+          "n": 2,
           "ccu": 1.0,
           "pass_rate": 1.0
         },
-        "proactive_reaction": {
-          "protocol": "proactive-fate-v2",
-          "ppi_v2": 0.65,
-          "pass_rate": 0.9444444444444444,
-          "gates_ok": true,
-          "unsolicited_precision": 0.0,
-          "mismatch_abstain_rate": 1.0,
-          "false_interrupt_rate": 0.0,
-          "verdict": [
-            "PROACTIVE_FATE_V2_VIABLE",
-            "LOW_MISMATCH_INTERRUPT",
-            "NO_HALLUCINATION_ON_MISMATCH",
-            "GATES_OK"
-          ],
-          "n_trials": 72
-        },
-        "agency_index": 0.6442,
-        "agency_formula": "0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2"
+        "proactive_reaction": null,
+        "agency_index": 1.0,
+        "agency_formula": "0.35·long + 0.30·multimodal + 0.35·crosslang"
       }
     }
   },
-  "verdict": "AGENCY_VIABLE",
-  "elapsed_s": 18.0
+  "verdict": "AGENCY_STRONG",
+  "elapsed_s": 9.1
 }

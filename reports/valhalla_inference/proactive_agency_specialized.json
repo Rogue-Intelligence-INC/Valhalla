@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-08T05:21:22.686492+00:00",
+  "timestamp": "2026-07-08T20:54:54.097424+00:00",
   "protocol": "proactive-agency-benchmark-v1",
   "lm_model": "/home/jouly/AI/Valhalla/models/hf/Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10",
   "config": {
@@ -18,11 +18,11 @@
   },
   "metrics": {
     "long_dialogue": {
-      "n": 3,
-      "primary_rate": 0.6666666666666666,
-      "supplement_rate": 0.3333333333333333,
+      "n": 5,
+      "primary_rate": 0.8,
+      "supplement_rate": 0.8,
       "proactive_rate": 1.0,
-      "pass_rate": 0.3333333333333333
+      "pass_rate": 0.8
     },
     "multimodal_natural": {
       "n": 0,
@@ -51,7 +51,7 @@
       ],
       "n_trials": 72
     },
-    "agency_index": 0.3108,
+    "agency_index": 0.7125,
     "agency_formula": "0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2"
   },
   "tracks": {
@@ -63,11 +63,11 @@
         "extend_turns": 0,
         "ask_every": 2,
         "segment_resets": 0,
-        "decode_count": 17,
+        "decode_count": 18,
         "dialogue_elapsed_s": 0.3,
         "primary_question": "When did Caroline go to the LGBTQ support group?",
         "answer_primary": "[corpus:5] [D10:3] Caroline: I just joined a new LGBTQ activist group last Tues",
-        "answer_supplement": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?",
+        "answer_supplement": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives",
         "primary_correct": false,
         "supplement_rich": true,
         "supplement_grounded": false,
@@ -82,6 +82,80 @@
         },
         "proactive_pass": true,
         "pass": false,
+        "turn_log": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "What did Caroline do yesterday according to the conversation?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "Tell me more about Caroline's LGBTQ support group experience.",
+            "answer": "[corpus:2] [D1:3] Caroline: I went to a LGBTQ support group yesterday and it was so powerful"
+          },
+          {
+            "turn": 3,
+            "kind": "ask",
+            "question": "What is Caroline's activist group called?",
+            "answer": "[corpus:6] [D10:5] Caroline: Our group Connected LGBTQ Activists plans events and campaigns"
+          },
+          {
+            "turn": 4,
+            "kind": "ask",
+            "question": "What themes does Caroline explore in her art?",
+            "answer": "[corpus:8] [D11:10] Caroline: My art is about expressing my trans experience"
+          },
+          {
+            "turn": 5,
+            "kind": "ask",
+            "question": "How did the pride parade make Caroline feel?",
+            "answer": "[corpus:7] [D11:4] Caroline: I went to a pride parade last Friday - so much energy and love"
+          },
+          {
+            "turn": 6,
+            "kind": "ask",
+            "question": "What career is Caroline considering?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+          },
+          {
+            "turn": 7,
+            "kind": "ask",
+            "question": "What happened on Caroline's hike?",
+            "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
+          },
+          {
+            "turn": 8,
+            "kind": "ask",
+            "question": "Does Melanie have children?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+          },
+          {
+            "turn": 9,
+            "kind": "ask",
+            "question": "What summer tradition does Melanie's family enjoy?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+          },
+          {
+            "turn": 10,
+            "kind": "ask",
+            "question": "What concert did Melanie attend for her daughter's birthday?",
+            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "What painting theme did Caroline describe as Embracing Identity?",
+            "answer": "[corpus:4] [D1:5] Caroline: The transgender stories were so inspiring!"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "How does art help Caroline with self-discovery?",
+            "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
+          }
+        ],
         "turn_log_sample": [
           {
             "turn": 1,
@@ -99,7 +173,7 @@
             "turn": 11,
             "kind": "ask",
             "question": "What painting theme did Caroline describe as Embracing Identity?",
-            "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+            "answer": "[corpus:4] [D1:5] Caroline: The transgender stories were so inspiring!"
           },
           {
             "turn": 12,
@@ -116,7 +190,7 @@
         "extend_turns": 0,
         "ask_every": 2,
         "segment_resets": 0,
-        "decode_count": 17,
+        "decode_count": 18,
         "dialogue_elapsed_s": 0.2,
         "primary_question": "At standard atmospheric pressure, what temperature does water boil in Celsius?",
         "answer_primary": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure",
@@ -135,6 +209,80 @@
         },
         "proactive_pass": true,
         "pass": true,
+        "turn_log": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "At what temperature does water boil at standard pressure?",
+            "answer": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "What happens when water reaches boiling point?",
+            "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+          },
+          {
+            "turn": 3,
+            "kind": "ask",
+            "question": "How does altitude affect boiling point?",
+            "answer": "[corpus:6] Evaporation occurs below boiling point at any temperature"
+          },
+          {
+            "turn": 4,
+            "kind": "ask",
+            "question": "What is the freezing point of water?",
+            "answer": "[corpus:1] The boiling point depends on altitude and pressure"
+          },
+          {
+            "turn": 5,
+            "kind": "ask",
+            "question": "What is latent heat in phase changes?",
+            "answer": "[corpus:5] Phase changes release or absorb latent heat"
+          },
+          {
+            "turn": 6,
+            "kind": "ask",
+            "question": "Can water boil below 100 degrees?",
+            "answer": "[corpus:7] Superheated water can exceed 100C without boiling in clean containers"
+          },
+          {
+            "turn": 7,
+            "kind": "ask",
+            "question": "What is sea level pressure in pascals?",
+            "answer": "[corpus:3] At sea level one atmosphere equals 101325 pascals"
+          },
+          {
+            "turn": 8,
+            "kind": "ask",
+            "question": "What is evaporation versus boiling?",
+            "answer": "[corpus:6] Evaporation occurs below boiling point at any temperature"
+          },
+          {
+            "turn": 9,
+            "kind": "ask",
+            "question": "What is superheated water?",
+            "answer": "[corpus:7] Superheated water can exceed 100C without boiling in clean containers"
+          },
+          {
+            "turn": 10,
+            "kind": "ask",
+            "question": "Does steam form only at exactly 100C?",
+            "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "Why does pressure matter for boiling?",
+            "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "Summarize water phase changes we discussed.",
+            "answer": "[corpus:5] Phase changes release or absorb latent heat"
+          }
+        ],
         "turn_log_sample": [
           {
             "turn": 1,
@@ -169,15 +317,15 @@
         "extend_turns": 0,
         "ask_every": 2,
         "segment_resets": 0,
-        "decode_count": 17,
+        "decode_count": 18,
         "dialogue_elapsed_s": 0.3,
         "primary_question": "What is the capital of Australia?",
-        "answer_primary": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
+        "answer_primary": "[corpus:1] Canberra is located in the Australian Capital Territory",
         "answer_supplement": "[corpus:5] Parliament House is located in Canberra",
         "primary_correct": true,
-        "supplement_rich": false,
+        "supplement_rich": true,
         "supplement_grounded": true,
-        "supplement_pass": false,
+        "supplement_pass": true,
         "proactive": {
           "triggered": false,
           "emitted": false,
@@ -187,7 +335,81 @@
           "mode": "defer_gate_ok"
         },
         "proactive_pass": true,
-        "pass": false,
+        "pass": true,
+        "turn_log": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "What is the capital of Australia?",
+            "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "Is Sydney the capital of Australia?",
+            "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+          },
+          {
+            "turn": 3,
+            "kind": "ask",
+            "question": "Where is Canberra located?",
+            "answer": "[corpus:5] Parliament House is located in Canberra"
+          },
+          {
+            "turn": 4,
+            "kind": "ask",
+            "question": "Why was Canberra chosen as capital?",
+            "answer": "[corpus:6] Canberra was selected as capital in 1908 as a compromise"
+          },
+          {
+            "turn": 5,
+            "kind": "ask",
+            "question": "What lake is in central Canberra?",
+            "answer": "[corpus:8] Lake Burley Griffin is an artificial lake in central Canberra"
+          },
+          {
+            "turn": 6,
+            "kind": "ask",
+            "question": "Which city is largest in Australia?",
+            "answer": "[corpus:2] Sydney is the largest city in Australia but not the capital"
+          },
+          {
+            "turn": 7,
+            "kind": "ask",
+            "question": "What continent is Australia on?",
+            "answer": "[corpus:4] Australia is a country and continent in Oceania"
+          },
+          {
+            "turn": 8,
+            "kind": "ask",
+            "question": "What is in Parliament House city?",
+            "answer": "[corpus:5] Parliament House is located in Canberra"
+          },
+          {
+            "turn": 9,
+            "kind": "ask",
+            "question": "What does Canberra name possibly mean?",
+            "answer": "[corpus:7] The name Canberra may derive from an Aboriginal word meaning meeting place"
+          },
+          {
+            "turn": 10,
+            "kind": "ask",
+            "question": "Where are many embassies in Australia?",
+            "answer": "[corpus:9] Many embassies are located in Canberra"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "Compare Canberra and Melbourne briefly.",
+            "answer": "[corpus:4] Australia is a country and continent in Oceania"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "Recap Australian capital facts from our chat.",
+            "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
+          }
+        ],
         "turn_log_sample": [
           {
             "turn": 1,
@@ -214,6 +436,260 @@
             "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
           }
         ]
+      },
+      {
+        "id": "proactive_research_deadline",
+        "turns": 12,
+        "ask_turns": 12,
+        "extend_turns": 0,
+        "ask_every": 2,
+        "segment_resets": 0,
+        "decode_count": 18,
+        "dialogue_elapsed_s": 0.3,
+        "primary_question": "What is the grant proposal deadline?",
+        "answer_primary": "[corpus:0] Alex: Our grant proposal deadline is March 15 2026",
+        "answer_supplement": "[corpus:9] Jordan: We should proactively remind the team about the March 15 deadline",
+        "primary_correct": true,
+        "supplement_rich": true,
+        "supplement_grounded": true,
+        "supplement_pass": true,
+        "proactive": {
+          "triggered": false,
+          "emitted": false,
+          "nudge": "",
+          "trigger_reason": "spread=0.0000<0.0031",
+          "fate_signals": 37,
+          "mode": "defer_gate_ok"
+        },
+        "proactive_pass": true,
+        "pass": true,
+        "turn_log": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "What is the grant proposal deadline?",
+            "answer": "[corpus:0] Alex: Our grant proposal deadline is March 15 2026"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "When does IRB approval expire?",
+            "answer": "[corpus:1] Jordan: The IRB approval expires on February 28 2026"
+          },
+          {
+            "turn": 3,
+            "kind": "ask",
+            "question": "What improvement did the pilot study show?",
+            "answer": "[corpus:3] Jordan: The pilot study showed a 12 percent improvement in recall"
+          },
+          {
+            "turn": 4,
+            "kind": "ask",
+            "question": "When is the conference abstract due?",
+            "answer": "[corpus:4] Alex: Remember the conference abstract is due January 20"
+          },
+          {
+            "turn": 5,
+            "kind": "ask",
+            "question": "What did Jordan suggest we proactively remind the team about?",
+            "answer": "[corpus:9] Jordan: We should proactively remind the team about the March 15 deadline"
+          },
+          {
+            "turn": 6,
+            "kind": "ask",
+            "question": "When is lab meeting?",
+            "answer": "[corpus:6] Alex: Lab meeting moved to Thursday at 3pm"
+          },
+          {
+            "turn": 7,
+            "kind": "ask",
+            "question": "What arrived yesterday for the Nature submission?",
+            "answer": "[corpus:8] Alex: Peer review comments arrived yesterday for the Nature submission"
+          },
+          {
+            "turn": 8,
+            "kind": "ask",
+            "question": "What does the ethics board want?",
+            "answer": "[corpus:5] Jordan: The ethics board wants a revised consent form"
+          },
+          {
+            "turn": 9,
+            "kind": "ask",
+            "question": "When must we submit the final dataset?",
+            "answer": "[corpus:2] Alex: We must submit the final dataset to the archive by March 1"
+          },
+          {
+            "turn": 10,
+            "kind": "ask",
+            "question": "What do stakeholders want?",
+            "answer": "[corpus:11] Jordan: Stakeholders asked for a one-page executive summary"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "Summarize our upcoming deadlines.",
+            "answer": "[corpus:11] Jordan: Stakeholders asked for a one-page executive summary"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "What proactive action did Jordan recommend?",
+            "answer": "[corpus:9] Jordan: We should proactively remind the team about the March 15 deadline"
+          }
+        ],
+        "turn_log_sample": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "What is the grant proposal deadline?",
+            "answer": "[corpus:0] Alex: Our grant proposal deadline is March 15 2026"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "When does IRB approval expire?",
+            "answer": "[corpus:1] Jordan: The IRB approval expires on February 28 2026"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "Summarize our upcoming deadlines.",
+            "answer": "[corpus:11] Jordan: Stakeholders asked for a one-page executive summary"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "What proactive action did Jordan recommend?",
+            "answer": "[corpus:9] Jordan: We should proactively remind the team about the March 15 deadline"
+          }
+        ]
+      },
+      {
+        "id": "proactive_health_plan",
+        "turns": 12,
+        "ask_turns": 12,
+        "extend_turns": 0,
+        "ask_every": 2,
+        "segment_resets": 0,
+        "decode_count": 18,
+        "dialogue_elapsed_s": 0.3,
+        "primary_question": "When does the lisinopril pharmacy refill run out?",
+        "answer_primary": "[corpus:2] Patient: Pharmacy refill for lisinopril runs out next Tuesday",
+        "answer_supplement": "[corpus:7] Coach: Proactively track morning blood pressure for two weeks",
+        "primary_correct": true,
+        "supplement_rich": true,
+        "supplement_grounded": true,
+        "supplement_pass": true,
+        "proactive": {
+          "triggered": false,
+          "emitted": false,
+          "nudge": "",
+          "trigger_reason": "spread=0.0000<0.0031",
+          "fate_signals": 37,
+          "mode": "defer_gate_ok"
+        },
+        "proactive_pass": true,
+        "pass": true,
+        "turn_log": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "What lifestyle changes did the doctor recommend?",
+            "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "What was the last blood pressure reading?",
+            "answer": "[corpus:1] Coach: Blood pressure was 142 over 88 at last visit"
+          },
+          {
+            "turn": 3,
+            "kind": "ask",
+            "question": "When does the lisinopril refill run out?",
+            "answer": "[corpus:3] Coach: You mentioned dizziness when standing up quickly"
+          },
+          {
+            "turn": 4,
+            "kind": "ask",
+            "question": "What symptom did the patient report when standing?",
+            "answer": "[corpus:3] Coach: You mentioned dizziness when standing up quickly"
+          },
+          {
+            "turn": 5,
+            "kind": "ask",
+            "question": "What improved after reducing caffeine?",
+            "answer": "[corpus:4] Patient: Sleep improved after stopping caffeine after 2pm"
+          },
+          {
+            "turn": 6,
+            "kind": "ask",
+            "question": "What lab should we schedule?",
+            "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+          },
+          {
+            "turn": 7,
+            "kind": "ask",
+            "question": "How much weight change was reported?",
+            "answer": "[corpus:6] Patient: Weight down 2 kg since last month"
+          },
+          {
+            "turn": 8,
+            "kind": "ask",
+            "question": "What proactive tracking did the coach suggest?",
+            "answer": "[corpus:7] Coach: Proactively track morning blood pressure for two weeks"
+          },
+          {
+            "turn": 9,
+            "kind": "ask",
+            "question": "What allergy is documented?",
+            "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+          },
+          {
+            "turn": 10,
+            "kind": "ask",
+            "question": "Who is the emergency contact?",
+            "answer": "[corpus:9] Coach: Emergency contact updated to spouse Maria"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "Summarize the care plan.",
+            "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "What should we monitor proactively?",
+            "answer": "[corpus:7] Coach: Proactively track morning blood pressure for two weeks"
+          }
+        ],
+        "turn_log_sample": [
+          {
+            "turn": 1,
+            "kind": "ask",
+            "question": "What lifestyle changes did the doctor recommend?",
+            "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+          },
+          {
+            "turn": 2,
+            "kind": "ask",
+            "question": "What was the last blood pressure reading?",
+            "answer": "[corpus:1] Coach: Blood pressure was 142 over 88 at last visit"
+          },
+          {
+            "turn": 11,
+            "kind": "ask",
+            "question": "Summarize the care plan.",
+            "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+          },
+          {
+            "turn": 12,
+            "kind": "ask",
+            "question": "What should we monitor proactively?",
+            "answer": "[corpus:7] Coach: Proactively track morning blood pressure for two weeks"
+          }
+        ]
       }
     ],
     "multimodal_natural": [],
@@ -231,11 +707,11 @@
             "extend_turns": 0,
             "ask_every": 2,
             "segment_resets": 0,
-            "decode_count": 17,
+            "decode_count": 18,
             "dialogue_elapsed_s": 0.3,
             "primary_question": "When did Caroline go to the LGBTQ support group?",
             "answer_primary": "[corpus:5] [D10:3] Caroline: I just joined a new LGBTQ activist group last Tues",
-            "answer_supplement": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?",
+            "answer_supplement": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives",
             "primary_correct": false,
             "supplement_rich": true,
             "supplement_grounded": false,
@@ -250,6 +726,80 @@
             },
             "proactive_pass": true,
             "pass": false,
+            "turn_log": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "What did Caroline do yesterday according to the conversation?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "Tell me more about Caroline's LGBTQ support group experience.",
+                "answer": "[corpus:2] [D1:3] Caroline: I went to a LGBTQ support group yesterday and it was so powerful"
+              },
+              {
+                "turn": 3,
+                "kind": "ask",
+                "question": "What is Caroline's activist group called?",
+                "answer": "[corpus:6] [D10:5] Caroline: Our group Connected LGBTQ Activists plans events and campaigns"
+              },
+              {
+                "turn": 4,
+                "kind": "ask",
+                "question": "What themes does Caroline explore in her art?",
+                "answer": "[corpus:8] [D11:10] Caroline: My art is about expressing my trans experience"
+              },
+              {
+                "turn": 5,
+                "kind": "ask",
+                "question": "How did the pride parade make Caroline feel?",
+                "answer": "[corpus:7] [D11:4] Caroline: I went to a pride parade last Friday - so much energy and love"
+              },
+              {
+                "turn": 6,
+                "kind": "ask",
+                "question": "What career is Caroline considering?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+              },
+              {
+                "turn": 7,
+                "kind": "ask",
+                "question": "What happened on Caroline's hike?",
+                "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
+              },
+              {
+                "turn": 8,
+                "kind": "ask",
+                "question": "Does Melanie have children?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+              },
+              {
+                "turn": 9,
+                "kind": "ask",
+                "question": "What summer tradition does Melanie's family enjoy?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+              },
+              {
+                "turn": 10,
+                "kind": "ask",
+                "question": "What concert did Melanie attend for her daughter's birthday?",
+                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "What painting theme did Caroline describe as Embracing Identity?",
+                "answer": "[corpus:4] [D1:5] Caroline: The transgender stories were so inspiring!"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "How does art help Caroline with self-discovery?",
+                "answer": "[corpus:9] [D12:1] Caroline: I had a not-so-great experience on a hike with religious conservatives"
+              }
+            ],
             "turn_log_sample": [
               {
                 "turn": 1,
@@ -267,7 +817,7 @@
                 "turn": 11,
                 "kind": "ask",
                 "question": "What painting theme did Caroline describe as Embracing Identity?",
-                "answer": "[corpus:3] [D1:4] Melanie: Wow, that's cool, Caroline! Did you hear any inspiring stories?"
+                "answer": "[corpus:4] [D1:5] Caroline: The transgender stories were so inspiring!"
               },
               {
                 "turn": 12,
@@ -284,7 +834,7 @@
             "extend_turns": 0,
             "ask_every": 2,
             "segment_resets": 0,
-            "decode_count": 17,
+            "decode_count": 18,
             "dialogue_elapsed_s": 0.2,
             "primary_question": "At standard atmospheric pressure, what temperature does water boil in Celsius?",
             "answer_primary": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure",
@@ -303,6 +853,80 @@
             },
             "proactive_pass": true,
             "pass": true,
+            "turn_log": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "At what temperature does water boil at standard pressure?",
+                "answer": "[corpus:4] Water freezes at 0 degrees Celsius at standard pressure"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "What happens when water reaches boiling point?",
+                "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+              },
+              {
+                "turn": 3,
+                "kind": "ask",
+                "question": "How does altitude affect boiling point?",
+                "answer": "[corpus:6] Evaporation occurs below boiling point at any temperature"
+              },
+              {
+                "turn": 4,
+                "kind": "ask",
+                "question": "What is the freezing point of water?",
+                "answer": "[corpus:1] The boiling point depends on altitude and pressure"
+              },
+              {
+                "turn": 5,
+                "kind": "ask",
+                "question": "What is latent heat in phase changes?",
+                "answer": "[corpus:5] Phase changes release or absorb latent heat"
+              },
+              {
+                "turn": 6,
+                "kind": "ask",
+                "question": "Can water boil below 100 degrees?",
+                "answer": "[corpus:7] Superheated water can exceed 100C without boiling in clean containers"
+              },
+              {
+                "turn": 7,
+                "kind": "ask",
+                "question": "What is sea level pressure in pascals?",
+                "answer": "[corpus:3] At sea level one atmosphere equals 101325 pascals"
+              },
+              {
+                "turn": 8,
+                "kind": "ask",
+                "question": "What is evaporation versus boiling?",
+                "answer": "[corpus:6] Evaporation occurs below boiling point at any temperature"
+              },
+              {
+                "turn": 9,
+                "kind": "ask",
+                "question": "What is superheated water?",
+                "answer": "[corpus:7] Superheated water can exceed 100C without boiling in clean containers"
+              },
+              {
+                "turn": 10,
+                "kind": "ask",
+                "question": "Does steam form only at exactly 100C?",
+                "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "Why does pressure matter for boiling?",
+                "answer": "[corpus:2] Steam forms when liquid water reaches its boiling point"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "Summarize water phase changes we discussed.",
+                "answer": "[corpus:5] Phase changes release or absorb latent heat"
+              }
+            ],
             "turn_log_sample": [
               {
                 "turn": 1,
@@ -337,15 +961,15 @@
             "extend_turns": 0,
             "ask_every": 2,
             "segment_resets": 0,
-            "decode_count": 17,
+            "decode_count": 18,
             "dialogue_elapsed_s": 0.3,
             "primary_question": "What is the capital of Australia?",
-            "answer_primary": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne",
+            "answer_primary": "[corpus:1] Canberra is located in the Australian Capital Territory",
             "answer_supplement": "[corpus:5] Parliament House is located in Canberra",
             "primary_correct": true,
-            "supplement_rich": false,
+            "supplement_rich": true,
             "supplement_grounded": true,
-            "supplement_pass": false,
+            "supplement_pass": true,
             "proactive": {
               "triggered": false,
               "emitted": false,
@@ -355,7 +979,81 @@
               "mode": "defer_gate_ok"
             },
             "proactive_pass": true,
-            "pass": false,
+            "pass": true,
+            "turn_log": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "What is the capital of Australia?",
+                "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "Is Sydney the capital of Australia?",
+                "answer": "[corpus:0] The capital city of Australia is Canberra not Sydney or Melbourne"
+              },
+              {
+                "turn": 3,
+                "kind": "ask",
+                "question": "Where is Canberra located?",
+                "answer": "[corpus:5] Parliament House is located in Canberra"
+              },
+              {
+                "turn": 4,
+                "kind": "ask",
+                "question": "Why was Canberra chosen as capital?",
+                "answer": "[corpus:6] Canberra was selected as capital in 1908 as a compromise"
+              },
+              {
+                "turn": 5,
+                "kind": "ask",
+                "question": "What lake is in central Canberra?",
+                "answer": "[corpus:8] Lake Burley Griffin is an artificial lake in central Canberra"
+              },
+              {
+                "turn": 6,
+                "kind": "ask",
+                "question": "Which city is largest in Australia?",
+                "answer": "[corpus:2] Sydney is the largest city in Australia but not the capital"
+              },
+              {
+                "turn": 7,
+                "kind": "ask",
+                "question": "What continent is Australia on?",
+                "answer": "[corpus:4] Australia is a country and continent in Oceania"
+              },
+              {
+                "turn": 8,
+                "kind": "ask",
+                "question": "What is in Parliament House city?",
+                "answer": "[corpus:5] Parliament House is located in Canberra"
+              },
+              {
+                "turn": 9,
+                "kind": "ask",
+                "question": "What does Canberra name possibly mean?",
+                "answer": "[corpus:7] The name Canberra may derive from an Aboriginal word meaning meeting place"
+              },
+              {
+                "turn": 10,
+                "kind": "ask",
+                "question": "Where are many embassies in Australia?",
+                "answer": "[corpus:9] Many embassies are located in Canberra"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "Compare Canberra and Melbourne briefly.",
+                "answer": "[corpus:4] Australia is a country and continent in Oceania"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "Recap Australian capital facts from our chat.",
+                "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
+              }
+            ],
             "turn_log_sample": [
               {
                 "turn": 1,
@@ -382,6 +1080,260 @@
                 "answer": "[corpus:3] Melbourne is a major cultural hub in Victoria"
               }
             ]
+          },
+          {
+            "id": "proactive_research_deadline",
+            "turns": 12,
+            "ask_turns": 12,
+            "extend_turns": 0,
+            "ask_every": 2,
+            "segment_resets": 0,
+            "decode_count": 18,
+            "dialogue_elapsed_s": 0.3,
+            "primary_question": "What is the grant proposal deadline?",
+            "answer_primary": "[corpus:0] Alex: Our grant proposal deadline is March 15 2026",
+            "answer_supplement": "[corpus:9] Jordan: We should proactively remind the team about the March 15 deadline",
+            "primary_correct": true,
+            "supplement_rich": true,
+            "supplement_grounded": true,
+            "supplement_pass": true,
+            "proactive": {
+              "triggered": false,
+              "emitted": false,
+              "nudge": "",
+              "trigger_reason": "spread=0.0000<0.0031",
+              "fate_signals": 37,
+              "mode": "defer_gate_ok"
+            },
+            "proactive_pass": true,
+            "pass": true,
+            "turn_log": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "What is the grant proposal deadline?",
+                "answer": "[corpus:0] Alex: Our grant proposal deadline is March 15 2026"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "When does IRB approval expire?",
+                "answer": "[corpus:1] Jordan: The IRB approval expires on February 28 2026"
+              },
+              {
+                "turn": 3,
+                "kind": "ask",
+                "question": "What improvement did the pilot study show?",
+                "answer": "[corpus:3] Jordan: The pilot study showed a 12 percent improvement in recall"
+              },
+              {
+                "turn": 4,
+                "kind": "ask",
+                "question": "When is the conference abstract due?",
+                "answer": "[corpus:4] Alex: Remember the conference abstract is due January 20"
+              },
+              {
+                "turn": 5,
+                "kind": "ask",
+                "question": "What did Jordan suggest we proactively remind the team about?",
+                "answer": "[corpus:9] Jordan: We should proactively remind the team about the March 15 deadline"
+              },
+              {
+                "turn": 6,
+                "kind": "ask",
+                "question": "When is lab meeting?",
+                "answer": "[corpus:6] Alex: Lab meeting moved to Thursday at 3pm"
+              },
+              {
+                "turn": 7,
+                "kind": "ask",
+                "question": "What arrived yesterday for the Nature submission?",
+                "answer": "[corpus:8] Alex: Peer review comments arrived yesterday for the Nature submission"
+              },
+              {
+                "turn": 8,
+                "kind": "ask",
+                "question": "What does the ethics board want?",
+                "answer": "[corpus:5] Jordan: The ethics board wants a revised consent form"
+              },
+              {
+                "turn": 9,
+                "kind": "ask",
+                "question": "When must we submit the final dataset?",
+                "answer": "[corpus:2] Alex: We must submit the final dataset to the archive by March 1"
+              },
+              {
+                "turn": 10,
+                "kind": "ask",
+                "question": "What do stakeholders want?",
+                "answer": "[corpus:11] Jordan: Stakeholders asked for a one-page executive summary"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "Summarize our upcoming deadlines.",
+                "answer": "[corpus:11] Jordan: Stakeholders asked for a one-page executive summary"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "What proactive action did Jordan recommend?",
+                "answer": "[corpus:9] Jordan: We should proactively remind the team about the March 15 deadline"
+              }
+            ],
+            "turn_log_sample": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "What is the grant proposal deadline?",
+                "answer": "[corpus:0] Alex: Our grant proposal deadline is March 15 2026"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "When does IRB approval expire?",
+                "answer": "[corpus:1] Jordan: The IRB approval expires on February 28 2026"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "Summarize our upcoming deadlines.",
+                "answer": "[corpus:11] Jordan: Stakeholders asked for a one-page executive summary"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "What proactive action did Jordan recommend?",
+                "answer": "[corpus:9] Jordan: We should proactively remind the team about the March 15 deadline"
+              }
+            ]
+          },
+          {
+            "id": "proactive_health_plan",
+            "turns": 12,
+            "ask_turns": 12,
+            "extend_turns": 0,
+            "ask_every": 2,
+            "segment_resets": 0,
+            "decode_count": 18,
+            "dialogue_elapsed_s": 0.3,
+            "primary_question": "When does the lisinopril pharmacy refill run out?",
+            "answer_primary": "[corpus:2] Patient: Pharmacy refill for lisinopril runs out next Tuesday",
+            "answer_supplement": "[corpus:7] Coach: Proactively track morning blood pressure for two weeks",
+            "primary_correct": true,
+            "supplement_rich": true,
+            "supplement_grounded": true,
+            "supplement_pass": true,
+            "proactive": {
+              "triggered": false,
+              "emitted": false,
+              "nudge": "",
+              "trigger_reason": "spread=0.0000<0.0031",
+              "fate_signals": 37,
+              "mode": "defer_gate_ok"
+            },
+            "proactive_pass": true,
+            "pass": true,
+            "turn_log": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "What lifestyle changes did the doctor recommend?",
+                "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "What was the last blood pressure reading?",
+                "answer": "[corpus:1] Coach: Blood pressure was 142 over 88 at last visit"
+              },
+              {
+                "turn": 3,
+                "kind": "ask",
+                "question": "When does the lisinopril refill run out?",
+                "answer": "[corpus:3] Coach: You mentioned dizziness when standing up quickly"
+              },
+              {
+                "turn": 4,
+                "kind": "ask",
+                "question": "What symptom did the patient report when standing?",
+                "answer": "[corpus:3] Coach: You mentioned dizziness when standing up quickly"
+              },
+              {
+                "turn": 5,
+                "kind": "ask",
+                "question": "What improved after reducing caffeine?",
+                "answer": "[corpus:4] Patient: Sleep improved after stopping caffeine after 2pm"
+              },
+              {
+                "turn": 6,
+                "kind": "ask",
+                "question": "What lab should we schedule?",
+                "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+              },
+              {
+                "turn": 7,
+                "kind": "ask",
+                "question": "How much weight change was reported?",
+                "answer": "[corpus:6] Patient: Weight down 2 kg since last month"
+              },
+              {
+                "turn": 8,
+                "kind": "ask",
+                "question": "What proactive tracking did the coach suggest?",
+                "answer": "[corpus:7] Coach: Proactively track morning blood pressure for two weeks"
+              },
+              {
+                "turn": 9,
+                "kind": "ask",
+                "question": "What allergy is documented?",
+                "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+              },
+              {
+                "turn": 10,
+                "kind": "ask",
+                "question": "Who is the emergency contact?",
+                "answer": "[corpus:9] Coach: Emergency contact updated to spouse Maria"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "Summarize the care plan.",
+                "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "What should we monitor proactively?",
+                "answer": "[corpus:7] Coach: Proactively track morning blood pressure for two weeks"
+              }
+            ],
+            "turn_log_sample": [
+              {
+                "turn": 1,
+                "kind": "ask",
+                "question": "What lifestyle changes did the doctor recommend?",
+                "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+              },
+              {
+                "turn": 2,
+                "kind": "ask",
+                "question": "What was the last blood pressure reading?",
+                "answer": "[corpus:1] Coach: Blood pressure was 142 over 88 at last visit"
+              },
+              {
+                "turn": 11,
+                "kind": "ask",
+                "question": "Summarize the care plan.",
+                "answer": "[corpus:5] Coach: We should schedule a follow-up lab for kidney function"
+              },
+              {
+                "turn": 12,
+                "kind": "ask",
+                "question": "What should we monitor proactively?",
+                "answer": "[corpus:7] Coach: Proactively track morning blood pressure for two weeks"
+              }
+            ]
           }
         ],
         "multimodal_natural": [],
@@ -389,11 +1341,11 @@
       },
       "metrics": {
         "long_dialogue": {
-          "n": 3,
-          "primary_rate": 0.6666666666666666,
-          "supplement_rate": 0.3333333333333333,
+          "n": 5,
+          "primary_rate": 0.8,
+          "supplement_rate": 0.8,
           "proactive_rate": 1.0,
-          "pass_rate": 0.3333333333333333
+          "pass_rate": 0.8
         },
         "multimodal_natural": {
           "n": 0,
@@ -422,11 +1374,11 @@
           ],
           "n_trials": 72
         },
-        "agency_index": 0.3108,
+        "agency_index": 0.7125,
         "agency_formula": "0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2"
       }
     }
   },
-  "verdict": "AGENCY_WEAK",
-  "elapsed_s": 66.6
+  "verdict": "AGENCY_VIABLE",
+  "elapsed_s": 46.0
 }

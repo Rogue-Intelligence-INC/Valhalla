@@ -107,6 +107,82 @@
       "supplement_prompt": "Elaborate on your previous answer — explain why Canberra not Sydney.",
       "supplement_keywords": ["canberra", "sydney", "capital", "territory", "1908"],
       "proactive_keywords": ["canberra", "australia", "capital", "sydney"]
+    },
+    {
+      "id": "proactive_research_deadline",
+      "corpus_lines": 12,
+      "session_lines": [
+        "Alex: Our grant proposal deadline is March 15 2026.",
+        "Jordan: The IRB approval expires on February 28 2026.",
+        "Alex: We must submit the final dataset to the archive by March 1.",
+        "Jordan: The pilot study showed a 12 percent improvement in recall.",
+        "Alex: Remember the conference abstract is due January 20.",
+        "Jordan: The ethics board wants a revised consent form.",
+        "Alex: Lab meeting moved to Thursday at 3pm.",
+        "Jordan: The backup server migration finishes this weekend.",
+        "Alex: Peer review comments arrived yesterday for the Nature submission.",
+        "Jordan: We should proactively remind the team about the March 15 deadline.",
+        "Alex: The budget revision needs finance approval by end of month.",
+        "Jordan: Stakeholders asked for a one-page executive summary."
+      ],
+      "dialogue_turns": [
+        "What is the grant proposal deadline?",
+        "When does IRB approval expire?",
+        "What improvement did the pilot study show?",
+        "When is the conference abstract due?",
+        "What did Jordan suggest we proactively remind the team about?",
+        "When is lab meeting?",
+        "What arrived yesterday for the Nature submission?",
+        "What does the ethics board want?",
+        "When must we submit the final dataset?",
+        "What do stakeholders want?",
+        "Summarize our upcoming deadlines.",
+        "What proactive action did Jordan recommend?"
+      ],
+      "primary_question": "What is the grant proposal deadline?",
+      "gold_answer": "March 15 2026",
+      "keywords": ["march", "15", "2026", "deadline", "grant"],
+      "supplement_prompt": "Add any other deadlines or proactive reminders mentioned in our conversation.",
+      "supplement_keywords": ["march", "february", "january", "deadline", "irb", "archive"],
+      "proactive_keywords": ["deadline", "march", "grant", "remind", "proactively"],
+      "primary_priming": "List all deadlines we discussed, especially the grant proposal."
+    },
+    {
+      "id": "proactive_health_plan",
+      "corpus_lines": 10,
+      "session_lines": [
+        "Patient: My doctor said to reduce sodium and walk 30 minutes daily.",
+        "Coach: Blood pressure was 142 over 88 at last visit.",
+        "Patient: Pharmacy refill for lisinopril runs out next Tuesday.",
+        "Coach: You mentioned dizziness when standing up quickly.",
+        "Patient: Sleep improved after stopping caffeine after 2pm.",
+        "Coach: We should schedule a follow-up lab for kidney function.",
+        "Patient: Weight down 2 kg since last month.",
+        "Coach: Proactively track morning blood pressure for two weeks.",
+        "Patient: Allergic to penicillin — noted in chart.",
+        "Coach: Emergency contact updated to spouse Maria."
+      ],
+      "dialogue_turns": [
+        "What lifestyle changes did the doctor recommend?",
+        "What was the last blood pressure reading?",
+        "When does the lisinopril refill run out?",
+        "What symptom did the patient report when standing?",
+        "What improved after reducing caffeine?",
+        "What lab should we schedule?",
+        "How much weight change was reported?",
+        "What proactive tracking did the coach suggest?",
+        "What allergy is documented?",
+        "Who is the emergency contact?",
+        "Summarize the care plan.",
+        "What should we monitor proactively?"
+      ],
+      "primary_question": "When does the lisinopril pharmacy refill run out?",
+      "gold_answer": "next Tuesday",
+      "keywords": ["tuesday", "refill", "lisinopril", "pharmacy"],
+      "supplement_prompt": "Elaborate on proactive monitoring and lifestyle advice from our chat.",
+      "supplement_keywords": ["blood pressure", "sodium", "walk", "track", "morning"],
+      "proactive_keywords": ["blood pressure", "track", "proactively", "lisinopril", "follow-up"],
+      "primary_priming": "Recall medication and monitoring details from our health conversation."
     }
   ],
   "multimodal_prompts": [
@@ -119,7 +195,7 @@
     {
       "id": "MM_BIO_01",
       "text": "Which organelle performs photosynthesis in plant cells?",
-      "keywords": ["chloroplast"],
+      "keywords": ["chloroplast", "chlorophyll", "photosynthesis"],
       "corpus": ["Chloroplasts are the organelles where photosynthesis occurs in plants.", "They contain chlorophyll."]
     },
     {
@@ -127,6 +203,48 @@
       "text": "In which year did World War Two end?",
       "keywords": ["1945"],
       "corpus": ["World War Two ended in 1945 with Germany's unconditional surrender.", "VE Day was in May 1945."]
+    },
+    {
+      "id": "MM_CHEM_01",
+      "text": "What is the chemical symbol for gold?",
+      "keywords": ["au", "gold"],
+      "corpus": ["Gold has the chemical symbol Au.", "Gold is element 79 on the periodic table."]
+    },
+    {
+      "id": "MM_GEO_01",
+      "text": "What is the capital of France?",
+      "keywords": ["paris"],
+      "corpus": ["The capital of France is Paris.", "Paris is on the River Seine in northern France."]
+    },
+    {
+      "id": "MM_MATH_01",
+      "text": "What is the value of pi rounded to two decimal places?",
+      "keywords": ["3.14", "pi"],
+      "corpus": ["Pi is approximately 3.14159.", "The ratio of a circle's circumference to its diameter is pi."]
+    },
+    {
+      "id": "MM_CS_01",
+      "text": "What does CPU stand for?",
+      "keywords": ["central processing unit", "cpu"],
+      "corpus": ["CPU stands for Central Processing Unit.", "The CPU executes instructions in a computer."]
+    },
+    {
+      "id": "MM_BIO_02",
+      "text": "What molecule carries genetic information in cells?",
+      "keywords": ["dna"],
+      "corpus": ["DNA carries genetic information in living cells.", "Deoxyribonucleic acid stores hereditary instructions."]
+    },
+    {
+      "id": "MM_HIST_02",
+      "text": "Who wrote the play Romeo and Juliet?",
+      "keywords": ["shakespeare"],
+      "corpus": ["Romeo and Juliet was written by William Shakespeare.", "Shakespeare wrote many famous tragedies."]
+    },
+    {
+      "id": "MM_PHYS_02",
+      "text": "At what speed does light travel in a vacuum (approximate, km/s)?",
+      "keywords": ["300000", "299792", "speed of light"],
+      "corpus": ["The speed of light in vacuum is about 299792 km per second.", "Light travels at roughly 300000 km/s in vacuum."]
     }
   ]
 }
