@@ -18,7 +18,7 @@
 | **B** | MultiHop hybrid | **14/25 (56%)** | OPEN_QA_VIABLE |
 | **B** | MultiHop v2 | **15/25 (60%)** | OPEN_QA_VIABLE |
 | **B** | LaRA | RAG **8/20** · LC **13/20** | STRUCTURE_RAG_BELOW_LC |
-| **B** | LoCoMo | **1/30 (3%)** | OPEN_QA_DEVELOPING |
+| **B** | LoCoMo | **14/30 (47%)** | OPEN_QA_VIABLE |
 | **B** | FRAMES | **0/25 (0%)** | OPEN_QA_DEVELOPING |
 | **B** | MCQ ladder | **0.5B 63% · 3B 96% · 7B 98%** (F16 GPU) | MCQ_LADDER_SCALES |
 
@@ -26,15 +26,15 @@
 
 ---
 
-## 2. Proactive agency — ✅ 补齐 + 专项测试（2026-07-08）
+## 2. Proactive agency — ✅ AGENCY_STRONG（2026-07-09）
 
 | 指标 | 结果 |
 |------|------|
-| **Agency Index** | **0.639** (AGENCY_VIABLE) — full 版 |
+| **Agency Index** | **0.778** (AGENCY_STRONG) — full 版 |
 | **PPI-v2 自动反应** | **0.650** · 68/72 pass |
 | **门控 MAR / FIR** | **100% / 0%** |
-| Long-dialogue | n=**8** (3 handcraft + 5 LoCoMo) · proactive gate **100%** |
-| Multimodal | n=**10** · pass **90%** · consistency **0.90** |
+| Long-dialogue | n=**10** · pass **60%** · proactive gate **100%** |
+| Multimodal | n=**10** · pass **100%** · consistency **1.0** |
 | Crosslang CCU | **100%** |
 | Mega 3000轮 | 140s infra（**不计 Agency**）|
 
@@ -73,6 +73,36 @@ tools/valhalla_inference/run_proactive_agency_specialized.sh --verbose
 - `test_mcq_ladder_v1.py`: `--memory-safe`, isolated long-batch MCQ
 - `valhalla_base.py`: HTTP broken-pipe retry; `run_mcq_full_ladder.sh`: F16 + GPU defaults
 - `run_proactive_agency_benchmark.py`: `--full` / `--specialized-reaction` · 10 multimodal · LoCoMo 扩展修复
+
+---
+
+## 5. Fate 长链套件回归（2026-07-09）
+
+顺序 runner：`python3 tools/valhalla_inference/run_suite_sequential.py --all`
+
+| 模块 | 结果 |
+|------|------|
+| fate-pretrain-holdout | train/holdout **100%** |
+| fate-longchain-unified | theme_drift **0%** · holdout **100%** · composite **0.950** |
+| fate-routing-ab | parallel/targeted **67%** (+33pp) low-resource |
+| fate-parallel-longchain | parallel **100%** (+50pp) |
+| standard-fast (8项) | 8/8 PASS |
+| context-topic-drift | extended on-topic **96.7%** |
+
+**修复**: `score_locomo_answer`（evidence-aware）、LoCoMo `--fast` minimal corpus、holdout charity-race isolated 检索。
+
+**汇总**: [`suite_summaries/INDEX_FULL_20260709.md`](./suite_summaries/INDEX_FULL_20260709.md) · [`PRODUCTIZATION_ASSESSMENT_20260709.md`](./PRODUCTIZATION_ASSESSMENT_20260709.md)
+
+---
+
+## 6. 产品化 / 融资就绪（2026-07-09）
+
+| 维度 | 状态 |
+|------|------|
+| 第三方复现 | ✅ `REPRODUCTION.md` · `make repro` · Docker · `/v1/repro` |
+| 全套件 benchmark | ✅ fate + rust-unit + industry + proactive（见 INDEX_FULL） |
+| 模型分发 | 🟡 0.5B Git LFS · 3B metadata + 本地 bake |
+| 开放 QA 长链 | 🟡 LoCoMo 47% ↑ · FRAMES 仍 developing |
 
 ---
 

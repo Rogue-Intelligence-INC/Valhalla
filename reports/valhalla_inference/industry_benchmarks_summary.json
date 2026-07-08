@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-08T03:00:00.000000+00:00",
+  "timestamp": "2026-07-08T21:59:00.583404+00:00",
   "benchmarks": [
     {
       "name": "RAGTruth",
@@ -67,8 +67,8 @@
     {
       "name": "LoCoMo",
       "protocol": "locomo-v1-rust",
-      "result": "1/30 (3%)",
-      "verdict": "OPEN_QA_DEVELOPING",
+      "result": "14/30 (47%)",
+      "verdict": "OPEN_QA_VIABLE",
       "file": "locomo_v1_test.json"
     },
     {
@@ -88,8 +88,8 @@
     {
       "name": "MCQ ladder",
       "protocol": "mcq-ladder-v1",
-      "result": "0.5B 29/46 (63%) · 3B 44/46 (96%) · 7B 45/46 (98%)",
-      "verdict": "MCQ_LADDER_SCALES",
+      "result": "3.0B 98%",
+      "verdict": "MCQ_LADDER_FLAT",
       "file": "mcq_ladder_v1_test.json"
     },
     {

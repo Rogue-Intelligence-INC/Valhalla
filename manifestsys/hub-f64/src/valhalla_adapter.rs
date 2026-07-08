@@ -149,6 +149,8 @@ mod tests {
             stem_cluster_signatures: vec![],
             stem_cluster_energies: vec![],
             ingress_encoder: String::new(),
+            tile_neurons: vec![],
+            tile_synapses: vec![],
         };
         let spec = build_compose_adapter(&mp, 896);
         assert_eq!(spec.lm_head_compose.len(), 896);

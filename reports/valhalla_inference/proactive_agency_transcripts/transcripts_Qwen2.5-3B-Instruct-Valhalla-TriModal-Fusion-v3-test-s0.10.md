@@ -1,7 +1,7 @@
 # Proactive Agency — Baked Model Dialogue Transcripts
 
 **Model:** `/home/jouly/AI/Valhalla/models/hf/Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10`
-**Timestamp:** 2026-07-08T20:56:41.526360+00:00
+**Timestamp:** 2026-07-08T22:00:40.231958+00:00
 **Agency Index:** 0.777
 **Verdict:** AGENCY_STRONG
 
