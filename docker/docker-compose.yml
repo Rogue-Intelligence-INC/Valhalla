@@ -1,0 +1,39 @@
+# Valhalla Base — docker compose for third-party reproduction
+services:
+  valhalla-base:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        VALHALLA_GIT_SHA: ${VALHALLA_GIT_SHA:-compose}
+    image: valhalla-base:local
+    environment:
+      VALHALLA_USE_CPU: "1"
+      VALHALLA_SERVE_DASHBOARD: "1"
+    volumes:
+      - ../reports:/valhalla/reports
+    working_dir: /valhalla
+    command: ["make", "repro"]
+
+  valhalla-serve:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: valhalla-base:local
+    ports:
+      - "8787:8787"
+    environment:
+      VALHALLA_USE_CPU: "1"
+      VALHALLA_SERVE_DASHBOARD: "1"
+    command: ["valhalla_base", "serve", "--with-dashboard", "--port", "8787"]
+
+  valhalla-dashboard:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: valhalla-base:local
+    ports:
+      - "8765:8765"
+    environment:
+      VALHALLA_USE_CPU: "1"
+    command: ["valhalla_dashboard"]
