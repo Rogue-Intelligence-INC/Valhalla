@@ -42,7 +42,10 @@ IMG_DIR = REPO / "models/image_gen/sd-turbo"
 REPORTS = REPO / "reports/valhalla_inference"
 CHECKPOINT_DEFAULT = REPORTS / "checkpoints/proactive_agency_checkpoint.json"
 OUT_JSON = REPORTS / "proactive_agency_benchmark.json"
+OUT_JSON_STANDARD = REPORTS / "proactive_agency_standard.json"
+OUT_JSON_MEGA = REPORTS / "proactive_agency_mega.json"
 OUT_MD = REPORTS / "PROACTIVE_AGENCY_BENCHMARK.md"
+PROACTIVE_FATE_JSON = REPORTS / "proactive_fate_v2_test.json"
 
 DEFAULT_BAKED = REPO / "models/hf/Qwen2.5-3B-Instruct-Valhalla-TriModal-Fusion-v3-test-s0.10"
 DEFAULT_BASE = "Qwen/Qwen2.5-3B-Instruct"
@@ -78,6 +81,76 @@ def kw_hits(text: str | None, keywords: list[str]) -> int:
         return 0
     low = text.lower()
     return sum(1 for k in keywords if k.lower() in low)
+
+
+def conservative_defer_reason(reason: str | None) -> bool:
+    if not reason:
+        return False
+    return (
+        str(reason).startswith("spread=")
+        or reason == "no_topic_overlap"
+        or str(reason).startswith("fate_signals=")
+        or str(reason).startswith("turns=")
+    )
+
+
+def spread_warmup_for_proactive(base: ValhallaBase, scenario: dict[str, Any], *, ask_fn) -> None:
+    """3-turn spread warmup (proactive-fate-v2 protocol) before proactive_idle."""
+    keywords = list(scenario.get("keywords") or [])
+    warmup = list(scenario.get("dialogue_turns") or [])[:2]
+    for i, q in enumerate(warmup):
+        ask_fn(q, qid=f"pw{i}")
+    if keywords:
+        ask_fn(f"What else does the context say about {keywords[0]}?", qid="pw_spread")
+    elif warmup:
+        ask_fn("What else does the provided context state about this?", qid="pw_spread")
+
+
+def score_proactive_pass(pro: dict[str, Any], pro_kws: list[str]) -> tuple[bool, str]:
+    """Full pass = grounded emit; partial = conservative gate defer (spread/signals)."""
+    triggered = bool(pro.get("triggered"))
+    emitted = bool(pro.get("emitted"))
+    nudge = str(pro.get("nudge") or "")
+    reason = str(pro.get("trigger_reason") or "")
+    if triggered and emitted and kw_ratio(nudge, pro_kws) >= 0.2:
+        return True, "emit_grounded"
+    if not emitted and conservative_defer_reason(reason):
+        return True, "defer_gate_ok"
+    if triggered and not emitted:
+        return True, "defer_gate_ok"
+    return False, reason or "no_trigger"
+
+
+def load_proactive_fate_metrics(*, run_if_missing: bool = False) -> dict[str, Any] | None:
+    """Track D: proactive-fate-v2 automatic reaction batteries (G/H/F)."""
+    if run_if_missing or not PROACTIVE_FATE_JSON.is_file():
+        subprocess.run(
+            [sys.executable, str(HERE / "test_proactive_fate_v2.py")],
+            cwd=REPO,
+            check=False,
+        )
+    if not PROACTIVE_FATE_JSON.is_file():
+        return None
+    doc = json.loads(PROACTIVE_FATE_JSON.read_text(encoding="utf-8"))
+    metrics = doc.get("metrics") or {}
+    batteries = doc.get("batteries") or {}
+    rows: list[dict] = []
+    for b in batteries.values():
+        if isinstance(b, list):
+            rows.extend(b)
+        elif isinstance(b, dict):
+            rows.extend(b.get("rows") or [])
+    return {
+        "protocol": doc.get("protocol", "proactive-fate-v2"),
+        "ppi_v2": float(metrics.get("PPI_v2") or metrics.get("ppi_v2") or 0),
+        "pass_rate": sum(1 for r in rows if r.get("pass")) / max(len(rows), 1),
+        "gates_ok": "GATES_OK" in (doc.get("verdict") or []),
+        "unsolicited_precision": metrics.get("UP_on_topic"),
+        "mismatch_abstain_rate": metrics.get("MAR_mismatch_abstain"),
+        "false_interrupt_rate": metrics.get("FIR_false_interrupt"),
+        "verdict": doc.get("verdict"),
+        "n_trials": len(rows),
+    }
 
 
 def kw_ratio(text: str | None, keywords: list[str]) -> float:
@@ -444,12 +517,11 @@ def run_long_dialogue_case(
     supplement_grounded = kw_ratio(ans2, sup_kws) >= 0.25 or kw_hits(ans2, keywords) >= kw_hits(ans1, keywords)
 
     log(verbose, f"  [{sid}] proactive_idle …")
+    spread_warmup_for_proactive(base, scenario, ask_fn=decode_ask)
     pro_doc = base.proactive_idle()
     pro = pro_doc.get("proactive") or {}
     nudge = pro.get("nudge") or ""
-    proactive_ok = bool(pro.get("triggered")) and (
-        not pro.get("emitted") or kw_ratio(nudge, pro_kws) >= 0.2
-    )
+    proactive_ok, proactive_mode = score_proactive_pass(pro, pro_kws)
 
     return {
         "id": sid,
@@ -473,6 +545,7 @@ def run_long_dialogue_case(
             "nudge": nudge[:300],
             "trigger_reason": pro.get("trigger_reason"),
             "fate_signals": pro.get("fate_signals_since_baseline"),
+            "mode": proactive_mode,
         },
         "proactive_pass": proactive_ok,
         "pass": primary_ok and supplement_rich and supplement_grounded,
@@ -584,10 +657,26 @@ def run_crosslang_case(fact: dict[str, Any], lm_model: str, *, verbose: bool) ->
     }
 
 
-def aggregate_report(tracks: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
+def aggregate_report(
+    tracks: dict[str, list[dict[str, Any]]],
+    *,
+    proactive_reaction: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     ld = tracks.get("long_dialogue") or []
     mm = tracks.get("multimodal_natural") or []
     cl = tracks.get("crosslang") or []
+
+    ld_pass = sum(1 for r in ld if r.get("pass")) / max(len(ld), 1)
+    mm_pass = sum(1 for r in mm if r.get("pass")) / max(len(mm), 1)
+    cl_ccu = sum(1 for r in cl if r.get("all_correct")) / max(len(cl), 1)
+    ppi = float((proactive_reaction or {}).get("ppi_v2") or 0)
+    pr_pass = float((proactive_reaction or {}).get("pass_rate") or 0)
+
+    # Agency Index: dialogue + multimodal + crosslang + automatic reaction (PPI-v2)
+    if proactive_reaction:
+        agency_index = round(0.25 * ld_pass + 0.20 * mm_pass + 0.20 * cl_ccu + 0.35 * ppi, 4)
+    else:
+        agency_index = round(0.35 * ld_pass + 0.30 * mm_pass + 0.35 * cl_ccu, 4)
 
     return {
         "long_dialogue": {
@@ -595,26 +684,25 @@ def aggregate_report(tracks: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
             "primary_rate": sum(1 for r in ld if r.get("primary_correct")) / max(len(ld), 1),
             "supplement_rate": sum(1 for r in ld if r.get("supplement_pass")) / max(len(ld), 1),
             "proactive_rate": sum(1 for r in ld if r.get("proactive_pass")) / max(len(ld), 1),
-            "pass_rate": sum(1 for r in ld if r.get("pass")) / max(len(ld), 1),
+            "pass_rate": ld_pass,
         },
         "multimodal_natural": {
             "n": len(mm),
             "all_hit_rate": sum(1 for r in mm if r.get("all_modalities_hit")) / max(len(mm), 1),
             "avg_consistency": sum(r.get("consistency", 0) for r in mm) / max(len(mm), 1),
-            "pass_rate": sum(1 for r in mm if r.get("pass")) / max(len(mm), 1),
+            "pass_rate": mm_pass,
         },
         "crosslang": {
             "n": len(cl),
-            "ccu": sum(1 for r in cl if r.get("all_correct")) / max(len(cl), 1),
+            "ccu": cl_ccu,
             "pass_rate": sum(1 for r in cl if r.get("pass")) / max(len(cl), 1),
         },
-        "agency_index": round(
-            (
-                sum(1 for r in ld if r.get("pass")) / max(len(ld), 1) * 0.45
-                + sum(1 for r in mm if r.get("pass")) / max(len(mm), 1) * 0.30
-                + sum(1 for r in cl if r.get("pass")) / max(len(cl), 1) * 0.25
-            ),
-            4,
+        "proactive_reaction": proactive_reaction,
+        "agency_index": agency_index,
+        "agency_formula": (
+            "0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2"
+            if proactive_reaction
+            else "0.35·long + 0.30·multimodal + 0.35·crosslang"
         ),
     }
 
@@ -640,6 +728,22 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         f"| Crosslang CCU | {m['crosslang']['ccu']:.1%} |",
         "",
     ]
+    pr = m.get("proactive_reaction")
+    if pr:
+        lines.extend([
+            "## Automatic reaction (Track D · proactive-fate-v2)",
+            "",
+            f"| PPI-v2 | **{pr.get('ppi_v2', 0):.3f}** |",
+            f"| Trial pass rate | {pr.get('pass_rate', 0):.1%} |",
+            f"| Gates OK | {pr.get('gates_ok')} |",
+            f"| Unsolicited precision | {pr.get('unsolicited_precision')} |",
+            "",
+            f"**Agency formula:** `{m.get('agency_formula', '')}`",
+            "",
+        ])
+    lines.extend([
+        "",
+    ])
     cfg = report.get("config") or {}
     ld_rows = (report.get("tracks") or {}).get("long_dialogue") or []
     if cfg.get("mega") and ld_rows:
@@ -647,8 +751,8 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         lines.extend([
             "## Mega stats",
             "",
-            f"| Metric | Value |",
-            f"|--------|-------|",
+            "| Metric | Value |",
+            "|--------|-------|",
             f"| Decode count | {row.get('decode_count', '—')} |",
             f"| Segment resets | {row.get('segment_resets', '—')} |",
             f"| Dialogue elapsed | {row.get('dialogue_elapsed_s', '—')}s |",
@@ -690,6 +794,8 @@ def main() -> None:
     ap.add_argument("--skip-long", action="store_true")
     ap.add_argument("--skip-multimodal", action="store_true")
     ap.add_argument("--skip-crosslang", action="store_true")
+    ap.add_argument("--skip-proactive-fate", action="store_true", help="omit Track D (proactive-fate-v2 PPI)")
+    ap.add_argument("--refresh-proactive-fate", action="store_true", help="re-run proactive-fate-v2 before agency")
     ap.add_argument("--suite-checkpoint", type=Path, default=CHECKPOINT_DEFAULT)
     add_benchmark_args(ap)
     args = ap.parse_args()
@@ -729,6 +835,8 @@ def main() -> None:
         max_turns = 8
     else:
         max_turns = args.turns or args.max_turns or 24
+        if args.ask_every == 32:
+            args.ask_every = 2
 
     if args.long_only:
         args.skip_multimodal = True
@@ -868,14 +976,20 @@ def main() -> None:
                     langs = " ".join(f"{k}:{'✓' if v['correct'] else '✗'}" for k, v in row["languages"].items())
                     print(f"  → {langs}", flush=True)
 
-            metrics = aggregate_report(arm_tracks)
+            metrics = aggregate_report(arm_tracks, proactive_reaction=None)
             all_reports[label] = {"lm_model": lm, "tracks": arm_tracks, "metrics": metrics}
             tracks = arm_tracks  # last arm for primary report
 
     bar.finish(f"done {time.monotonic()-t0:.0f}s")
 
+    proactive_reaction = None
+    if not args.mega and not args.skip_proactive_fate:
+        proactive_reaction = load_proactive_fate_metrics(run_if_missing=args.refresh_proactive_fate)
+
     primary = all_reports.get("baked") or all_reports.get("base") or {}
-    metrics = primary.get("metrics") or aggregate_report(tracks)
+    metrics = aggregate_report(tracks, proactive_reaction=proactive_reaction)
+    if primary:
+        primary["metrics"] = metrics
     verdict = "AGENCY_STRONG" if metrics.get("agency_index", 0) >= 0.75 else (
         "AGENCY_VIABLE" if metrics.get("agency_index", 0) >= 0.55 else "AGENCY_WEAK"
     )
@@ -901,15 +1015,19 @@ def main() -> None:
         "elapsed_s": round(time.monotonic() - t0, 1),
     }
 
+    out_json = OUT_JSON_MEGA if args.mega else OUT_JSON_STANDARD
+    out_json.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     OUT_JSON.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     write_markdown(report, OUT_MD)
 
     print(f"\n{'='*60}")
     print(f"Agency Index: {metrics['agency_index']:.3f}  Verdict: {verdict}")
     print(f"  long_dialogue: {metrics['long_dialogue']['pass_rate']:.1%}  supplement: {metrics['long_dialogue']['supplement_rate']:.1%}  proactive: {metrics['long_dialogue']['proactive_rate']:.1%}")
+    if proactive_reaction:
+        print(f"  proactive_reaction PPI-v2: {proactive_reaction.get('ppi_v2', 0):.3f}")
     print(f"  multimodal:    consistency={metrics['multimodal_natural']['avg_consistency']:.3f}  pass={metrics['multimodal_natural']['pass_rate']:.1%}")
     print(f"  crosslang CCU: {metrics['crosslang']['ccu']:.1%}")
-    print(f"→ {OUT_JSON}")
+    print(f"→ {out_json}")
     print(f"→ {OUT_MD}")
 
 

@@ -166,7 +166,7 @@ Hybrid 路由 / 每题 runtime patch **不在** vLLM 图内；需外部 orchestr
 | `run_local_corpus_demo.py` | local-corpus-demo-v1 | 本机语料 ingest |
 | `test_fate_output_gate.py` | fate-output-gate-v2 | FOG precision/coverage |
 | `test_proactive_fate_v2.py` | proactive-fate-v2 | PPI-v2 / UP / MAR · **Fate signal_tick warmup** |
-| `run_proactive_agency_benchmark.py` | **proactive-agency-v1** | **Agency Index** · 3000-round mega · multimodal · crosslang CCU |
+| `run_proactive_agency_benchmark.py` | **proactive-agency-v1** | **Agency Index 0.644** · Track D PPI-v2 · multimodal · CCU 100% |
 
 ```bash
 # 新范式潜力（fair holdout + 合成 novel + 负对照）

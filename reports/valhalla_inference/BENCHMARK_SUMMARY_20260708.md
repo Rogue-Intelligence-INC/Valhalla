@@ -26,16 +26,21 @@
 
 ---
 
-## 2. Proactive agency — ✅ complete
+## 2. Proactive agency — ✅ 审计 + 重跑（2026-07-08）
 
-| Run | Rounds | Duration | Agency Index | Highlight |
-|-----|--------|----------|--------------|-----------|
-| Standard (3 tracks) | 24 | 14s | **0.600** | Crosslang **100%** · Multimodal **67%** |
-| Mega (memory-bounded) | **3000** | **140s** | 0.000 | **460 decode · 114 segment resets** |
+| 指标 | 结果 |
+|------|------|
+| **Agency Index** | **0.644** (AGENCY_VIABLE) |
+| **PPI-v2 自动反应** | **0.650** · 68/72 pass |
+| **门控 MAR / FIR** | **100% / 0%** |
+| Crosslang CCU | **100%** |
+| Multimodal | **67%** |
+| Mega 3000轮 | 140s infra（**不计 Agency**）|
 
-**Finding:** Session snapshot hits **100MB+** without segment reset; proactive blocked by `spread=0` not round count.
+**四轨公式:** `0.25·long + 0.20·multimodal + 0.20·crosslang + 0.35·PPI-v2`
 
-**Doc:** [`PROACTIVE_AGENCY_BENCHMARK.md`](./PROACTIVE_AGENCY_BENCHMARK.md)
+**审计:** [`PROACTIVE_AGENCY_AUDIT_20260708.md`](./PROACTIVE_AGENCY_AUDIT_20260708.md)  
+**报告:** [`PROACTIVE_AGENCY_BENCHMARK.md`](./PROACTIVE_AGENCY_BENCHMARK.md)
 
 ---
 

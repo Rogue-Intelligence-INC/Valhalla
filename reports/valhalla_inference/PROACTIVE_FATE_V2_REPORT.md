@@ -1,22 +1,21 @@
 # Proactive Fate v2 — Experiment Report
 
-**Protocol:** `proactive-fate-v2` · **Date:** 2026-07-02
+**Protocol:** `proactive-fate-v2` · **Date:** 2026-07-08
 
 ## Headline
 
 | Metric | Value |
 |--------|-------|
-| **PPI-v2** (composite) | **0.890** |
-| On-topic unsolicited precision | 100.0% |
-| On-topic emit rate | 80.0% |
-| Mismatch abstain rate | 88.2% |
-| False interrupt rate | 3.1% |
-| Trigger rate (eligible) | 46.4% |
+| **PPI-v2** (composite) | **0.650** |
+| On-topic unsolicited precision | 0.0% |
+| On-topic emit rate | 0.0% |
+| Mismatch abstain rate | 100.0% |
+| False interrupt rate | 0.0% |
+| Trigger rate (eligible) | 0.0% |
 
 ## Verdict
 
-- `PROACTIVE_FATE_V2_STRONG`
-- `HIGH_UNSOLICITED_PRECISION`
+- `PROACTIVE_FATE_V2_VIABLE`
 - `LOW_MISMATCH_INTERRUPT`
 - `NO_HALLUCINATION_ON_MISMATCH`
 - `GATES_OK`
@@ -24,8 +23,8 @@
 ## Batteries
 
 - Gates: 3/3
-- Handcraft: 7/7
-- Fair holdout: 61/62
+- Handcraft: 3/7
+- Fair holdout: 62/62
 
 ## Known gaps
 
