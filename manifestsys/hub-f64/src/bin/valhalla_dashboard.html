@@ -21,7 +21,7 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: "IBM Plex Sans", "Noto Sans SC", system-ui, sans-serif;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.5;
@@ -166,10 +166,10 @@
 
     <div class="grid">
       <div class="card" style="grid-column: 1 / -1;">
-        <h2>Architecture / 架构</h2>
+        <h2>Architecture</h2>
         <div class="arch">
           <div class="arch-row">
-            <span class="arch-box">Text / 训练文本</span>
+            <span class="arch-box">Training text</span>
             <span class="arch-arrow">→</span>
             <span class="arch-box">f64 signals</span>
             <span class="arch-arrow">→</span>
@@ -188,13 +188,13 @@
             <span class="arch-box">Tile closure</span>
             <span class="arch-box">StemCell graph</span>
             <span class="arch-arrow">·</span>
-            <span class="arch-box">独立模块 / modular products</span>
+            <span class="arch-box">Modular products</span>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2>Hub routing / 四系统路由</h2>
+        <h2>Hub routing</h2>
         <div id="hubBars"></div>
         <p style="font-size:0.8rem;color:var(--muted);margin-top:8px;">
           Signals: <strong id="hubSignals">—</strong> · explore-phase round-robin until Fate converges
@@ -202,12 +202,12 @@
       </div>
 
       <div class="card">
-        <h2>Fate preferences / 偏好向量</h2>
+        <h2>Fate preferences</h2>
         <div class="prefs" id="prefGrid"></div>
       </div>
 
       <div class="card">
-        <h2>Tile / 方块凝结</h2>
+        <h2>Tile closure</h2>
         <div class="stat-grid">
           <div class="stat"><div class="label">Completed tiles</div><div class="value" id="tileCompleted">—</div></div>
           <div class="stat"><div class="label">Operations</div><div class="value" id="tileOps">—</div></div>
@@ -217,7 +217,7 @@
       </div>
 
       <div class="card">
-        <h2>StemCell / 细胞网络</h2>
+        <h2>StemCell network</h2>
         <div class="stat-grid">
           <div class="stat"><div class="label">Cells</div><div class="value" id="stemCells">—</div></div>
           <div class="stat"><div class="label">Connections</div><div class="value" id="stemConn">—</div></div>

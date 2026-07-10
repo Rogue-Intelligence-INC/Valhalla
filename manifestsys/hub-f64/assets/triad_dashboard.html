@@ -12,7 +12,7 @@
       --pass: #22c55e; --fail: #ef4444; --accent: #6366f1;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "IBM Plex Sans", "Noto Sans SC", system-ui, sans-serif;
+    body { font-family: "IBM Plex Sans", system-ui, sans-serif;
       background: var(--bg); color: var(--text); line-height: 1.5; padding: 24px; }
     .wrap { max-width: 1200px; margin: 0 auto; }
     header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
@@ -62,7 +62,7 @@
 
     <div class="grid">
       <div class="card" style="grid-column:1/-1;">
-        <h2>Tile internal neural nets / 每块 Tile 内部神经网络</h2>
+        <h2>Tile internal neural nets</h2>
         <canvas id="tileCanvas" class="viz-canvas tall" width="900" height="320"></canvas>
         <div class="legend">
           <span><span class="swatch" style="background:#818cf8"></span>Each panel = one tile · hue = data_signature identity</span>
@@ -72,7 +72,7 @@
       </div>
 
       <div class="card" style="grid-column:1/-1;">
-        <h2>Inter-tile synapses / Tile 间突触</h2>
+        <h2>Inter-tile synapses</h2>
         <canvas id="synapseCanvas" class="viz-canvas" width="900" height="280"></canvas>
         <div class="legend">
           <span>Node color = tile hue · line width ∝ synaptic weight · links from spontaneous connections</span>
@@ -80,7 +80,7 @@
       </div>
 
       <div class="card" style="grid-column:1/-1;">
-        <h2>StemCell organ formation / 干细胞器官形成</h2>
+        <h2>StemCell organ formation</h2>
         <canvas id="stemCanvas" class="viz-canvas tall" width="900" height="320"></canvas>
         <div class="legend">
           <span><span class="swatch" style="background:#34d399"></span>Each lobe = organ cluster · hue = cluster signature</span>
@@ -90,7 +90,7 @@
       </div>
 
       <div class="card" style="grid-column:1/-1;">
-        <h2>Incubation cycle trace / 凝结周期</h2>
+        <h2>Incubation cycle trace</h2>
         <canvas id="cycleCanvas" class="viz-canvas" width="900" height="180"></canvas>
       </div>
 
