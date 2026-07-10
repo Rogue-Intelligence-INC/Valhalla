@@ -35,6 +35,9 @@ Thumbs.db
 # Logs
 *.log
 
+# Local demo recordings (not for repo)
+reports/demo/
+
 # Local config
 .env
 .env.local
