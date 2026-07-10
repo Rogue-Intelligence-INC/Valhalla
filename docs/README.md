@@ -36,6 +36,7 @@
 
 | Pack | Path | Use |
 |------|------|-----|
+| **One-click test** | [`scripts/run_highlight_test.sh`](../scripts/run_highlight_test.sh) | Pillar smoke on any Linux host |
 | **Product positioning** | [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) | **What ValhallaBase is / is not** |
 | **Release 2026-07-06** | [`valhalla/RELEASE_20260706.md`](valhalla/RELEASE_20260706.md) | Dynamic fragments · Fate convergence |
 | **3-minute demo** | [`valhalla/DEMO.md`](valhalla/DEMO.md) | Corpus → ask → session → proactive |

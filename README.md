@@ -6,15 +6,54 @@
 </p>
 
 <p align="center">
+  <a href="#one-click-test">One-click test</a> ·
   <a href="#highlights">Highlights</a> ·
   <a href="#english">English</a> ·
   <a href="#中文">中文</a> ·
   <a href="docs/README.md">Docs</a> ·
-  <a href="docs/valhalla/DEMO.md">Demo</a> ·
-  <a href="https://github.com/Rogue-Intelligence-INC/valhalla-unified-core">Valhalla Unified Core</a>
+  <a href="https://github.com/Rogue-Intelligence-INC/valhalla-unified-core">VUC</a>
 </p>
 
-**Organization:** [Rogue Intelligence Inc.](https://github.com/Rogue-Intelligence-INC)
+---
+
+## Headline numbers
+
+| Pillar | Metric | Verdict |
+|--------|--------|---------|
+| **Backbone independence** | RWKV · MoE · Dense open **4/4** | `VALHALLA_BASE_INDEPENDENT` |
+| **Proactive agency** | Agency **0.778** · PPI **0.650** · MAR **100%** · FIR **0%** | Fate-gated reaction |
+| **Anti-hallucination** | RAGTruth **99/100** · theme drift **0%** | Industry faithfulness |
+| **Session context** | Needle **4/4** · RULER **20/20** · long mem **94.7%** | Append protocol |
+| **Incubation** | TPI **0.755** · transfer **+38.7pp** | Zero LM gradients |
+
+> **Not a 3B LM product.** Runtime default **0.5B**; **3B** = industry benchmark calibration only.
+
+<a name="one-click-test"></a>
+## One-click test（任意机器）
+
+Auto-detects **GPU/CPU**, **CUDA paths**, **Python venv**, and runs pillar smoke (~8–15 min GPU):
+
+```bash
+git clone --recurse-submodules https://github.com/Rogue-Intelligence-INC/Valhalla.git
+cd Valhalla
+./scripts/run_highlight_test.sh
+```
+
+| Flag | Effect |
+|------|--------|
+| `--full` | + backbone orthogonality panel + fate-core suite |
+| `--cpu-only` | Force CPU (no NVIDIA driver) |
+| `--skip-build` | Reuse existing `target/release/valhalla_base` |
+
+```bash
+make highlight          # same as script
+make highlight-full     # --full
+```
+
+**Checks:** Triad smoke · RAGTruth · Needle · Proactive gates · Fate holdout unit  
+**Reports:** `reports/valhalla_inference/` · Guide: [`REPRODUCTION.md`](REPRODUCTION.md)
+
+---
 
 Valhalla is an **AI memory & hybrid inference platform** built around **ValhallaBase**: context is **incubated** into a **Triad structure snapshot** (Hub / Tile / StemCell / Fate) with **zero LM weight updates**; a companion LM acts as the **swappable decode head** — not a standalone foundation model.
 
@@ -22,9 +61,13 @@ Valhalla is an **AI memory & hybrid inference platform** built around **Valhalla
 
 **Investor one-liner:** ValhallaBase is **backbone-agnostic structure memory** with **proactive Fate agency**, **industry-grade RAG faithfulness**, and **session-native context** — zero weight updates. **3B is benchmark calibration only, not the product.**
 
+---
+
+**Organization:** [Rogue Intelligence Inc.](https://github.com/Rogue-Intelligence-INC)
+
 **Canonical positioning:** [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
 
-### 自动反应 / Automatic Reaction（主动性 AI 核心）
+### 自动反应 / Automatic Reaction
 
 | 能力 | 结果 | 说明 |
 |------|------|------|
@@ -106,6 +149,12 @@ Runtime default LM: **Qwen2.5-0.5B** when `VALHALLA_LM_MODEL` unset. Industry su
 
 ```bash
 git submodule update --init valhalla-unified-core
+./scripts/run_highlight_test.sh    # one-click pillar test
+```
+
+Build + CLI demo:
+
+```bash
 export LIBRARY_PATH=/opt/cuda/targets/x86_64-linux/lib:$LIBRARY_PATH
 RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_base
 ./tools/valhalla_inference/valhalla_base_cli.sh open
@@ -142,6 +191,12 @@ LongBench **7/20** · MultiHop **14/25** · FRAMES **1/25** (wiki pending) · La
 ### 是什么
 
 ValhallaBase 是 **LM 无关的结构记忆基座**：语料经 Triad 孵化为结构快照，**不更新 LM 权重**；LM 仅为可替换 decode 头。**3B 仅用于行业 benchmark 标定，不是产品默认尺寸。**
+
+### 一键验证
+
+```bash
+./scripts/run_highlight_test.sh
+```
 
 ### 五大亮点
 

@@ -11,15 +11,26 @@
 | Linux x86_64 | Arch/Ubuntu tested |
 | Rust 1.75+ | `rustup default stable` |
 | Python 3.10+ | benchmark harness only |
-| CUDA (optional) | GPU LM; set `VALHALLA_USE_CPU=1` for CPU-only smoke |
-| HuggingFace cache | Qwen2.5-3B for full LM benchmarks |
+| CUDA (optional) | Auto-detected; `--cpu-only` for CPU smoke |
+| HuggingFace cache | Default LM **0.5B**; set `VALHALLA_LM_MODEL` for larger backbones |
 
 ---
 
 ## 2. One-command reproduction
 
+### Highlight test (recommended — product pillars)
+
 ```bash
-git clone <repo-url> Valhalla && cd Valhalla
+git clone --recurse-submodules <repo-url> Valhalla && cd Valhalla
+./scripts/run_highlight_test.sh
+```
+
+Runs: **build → Triad smoke → RAGTruth → Needle → Proactive gates → Fate unit tests**  
+Add `--full` for backbone orthogonality + fate-core.
+
+### Full engineering repro
+
+```bash
 cp .env.example .env   # optional — edit paths
 make repro
 ```
@@ -132,7 +143,7 @@ See `.env.example`. Key variables:
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `VALHALLA_USE_CPU` | `0` | Force CPU inference |
-| `VALHALLA_LM_MODEL` | `Qwen/Qwen2.5-3B-Instruct` | HF model id |
+| `VALHALLA_LM_MODEL` | `Qwen/Qwen2.5-0.5B-Instruct` | HF model id (decode head) |
 | `VALHALLA_BASE_PORT` | `8787` | HTTP serve port |
 | `VALHALLA_SERVE_DASHBOARD` | `0` | Mount `/dashboard` on serve |
 | `VALHALLA_DASHBOARD_PORT` | `8765` | Standalone dashboard |
@@ -161,7 +172,7 @@ Latest rollup: `reports/valhalla_inference/suite_summaries/INDEX_FULL_*.md`
 | `manifestsys/hub-f64/schemas/` | JSON Schema |
 | `docs/valhalla/VALHALLA_BASE_CLI.md` | Full CLI reference |
 | `tools/valhalla_inference/run_suite_sequential.py` | Suite runner |
-| `Makefile` | Build / serve / repro targets |
+| `scripts/run_highlight_test.sh` | **One-click pillar test** (any host) |
 
 ---
 
@@ -171,4 +182,4 @@ Valhalla Base runtime is proprietary. Third-party reproduction requires written 
 
 ---
 
-*Updated 2026-07-09 · Rogue Intelligence LNC.*
+*Updated 2026-07-10 · Rogue Intelligence LNC.*

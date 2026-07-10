@@ -14,10 +14,11 @@ DASH          := target/release/valhalla_dashboard
 PY            ?= python3
 REPO          := $(CURDIR)
 
-.PHONY: help build build-all smoke demo serve serve-dash dashboard suite suite-all test-triad clean repro
+.PHONY: help build build-all smoke demo serve serve-dash dashboard suite suite-all test-triad highlight clean repro
 
 help:
 	@echo "Valhalla Base engineering targets"
+	@echo "  make highlight    — one-click pillar test (see scripts/run_highlight_test.sh)"
 	@echo "  make build        — valhalla_base release (patch-lm)"
 	@echo "  make build-all    — valhalla_base + valhalla_dashboard"
 	@echo "  make smoke        — triad smoke via demo v1"
@@ -62,6 +63,12 @@ repro: build build-all smoke suite test-triad
 	@echo "→ Reproduction complete. Reports: reports/valhalla_inference/"
 	@echo "→ Dashboard: make dashboard  OR  make serve-dash"
 	@echo "→ Manifest: curl -s http://127.0.0.1:8787/v1/repro (when serve running)"
+
+highlight:
+	./scripts/run_highlight_test.sh
+
+highlight-full:
+	./scripts/run_highlight_test.sh --full
 
 clean:
 	$(CARGO) clean -p $(PKG)
