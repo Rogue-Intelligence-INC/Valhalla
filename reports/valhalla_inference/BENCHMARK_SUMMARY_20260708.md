@@ -51,6 +51,23 @@ tools/valhalla_inference/run_proactive_agency_specialized.sh --verbose
 
 ---
 
+## 3. ValhallaBase backbone 独立性 — ✅（2026-07-10）
+
+| Tier | 模型 | 结果 |
+|------|------|------|
+| open | RWKV-7 · Phi-tiny-MoE · Qwen2.5-3B | native/hybrid **4/4** 逐题一致 → **INDEPENDENT** |
+| memory | 同上 × needle depth 5,10 | hybrid = native ref → **MEMORY_INDEPENDENT** |
+| extended | fusion · proactive gates · longchain | 全部 OK（固定 Qwen 栈 smoke） |
+
+```bash
+.venv-llm/bin/python3 tools/valhalla_inference/run_valhalla_independence.py --fast --with-trad --with-memory
+.venv-llm/bin/python3 tools/valhalla_inference/valhalla_backbone.py --list
+```
+
+**Doc:** [`VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md`](./VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md)
+
+---
+
 ## 3. MCQ ladder — memory-safe GPU F16 (补跑)
 
 | Fix | Purpose |

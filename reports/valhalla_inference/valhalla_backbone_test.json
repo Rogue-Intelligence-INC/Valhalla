@@ -1,0 +1,304 @@
+{
+  "protocol": "valhalla-backbone-v1",
+  "timestamp": "2026-07-10T01:55:52.975032+00:00",
+  "n_questions": 4,
+  "specs": {
+    "rwkv7-0_1b-g1": {
+      "id": "rwkv7-0_1b-g1",
+      "hf_id": "fla-hub/rwkv7-0.1B-g1",
+      "kind": "causal_lm",
+      "category": "rwkv",
+      "arms": {
+        "native": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "hybrid": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "trad": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "model_path": "/home/jouly/.cache/modelscope/hub/models/fla-hub/rwkv7-0.1B-g1",
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": ">\nAlright, I need to explain Newton's second law in one sentence and then give the formula. Let's start by recalling what Newton's second law states. Newton's s"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": ">\nAlright, I need to determine the temperature of water that boils at standard atmospheric pressure. Let's break down the information provided and see how to ap"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": ">\nAlright, I need to address the main function of mitochondria in the context of cellular respiration. Let's start by recalling what mitochondria are. Mitochond"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": ">\nAlright, I need to determine the year in which World War II ended. Let's break this down step by step.\nFirst, let's recall that World War II ended in 1945 wit"
+            }
+          ]
+        }
+      },
+      "model_path": "/home/jouly/.cache/modelscope/hub/models/fla-hub/rwkv7-0.1B-g1"
+    },
+    "phi-tiny-moe-instruct": {
+      "id": "phi-tiny-moe-instruct",
+      "hf_id": "microsoft/Phi-tiny-MoE-instruct",
+      "kind": "causal_lm",
+      "category": "moe",
+      "arms": {
+        "native": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "hybrid": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "trad": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "model_path": "/home/jouly/.cache/huggingface/hub/models--microsoft--Phi-tiny-MoE-instruct/snapshots/2fe50e88d0e2a5a132563815686ea0dcc8e252b5",
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "Newton's second law states that the force acting on an object is equal to the mass of the object multiplied by its acceleration, which can be expressed as F = m"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "Water boils at 100 degrees Celsius at standard atmospheric pressure."
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "The main function of mitochondria is to produce adenosine triphosphate (ATP), the cell's primary energy currency, through the process of cellular respiration in"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "World War II ended in 1945 with Germany's unconditional surrender."
+            }
+          ]
+        }
+      },
+      "model_path": "/home/jouly/.cache/huggingface/hub/models--microsoft--Phi-tiny-MoE-instruct/snapshots/2fe50e88d0e2a5a132563815686ea0dcc8e252b5"
+    },
+    "qwen2_5-3b-instruct": {
+      "id": "qwen2_5-3b-instruct",
+      "hf_id": "Qwen/Qwen2.5-3B-Instruct",
+      "kind": "causal_lm",
+      "category": "custom",
+      "arms": {
+        "native": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "hybrid": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "trad": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "model_path": "/home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1",
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "Newton's second law states that the force acting on an object is equal to its mass multiplied by its acceleration, mathematically expressed as \\( F = m \\cdot a "
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "At standard atmospheric pressure, which is approximately 1 atmosphere or 101.325 kPa, water boils at a temperature of 100 degrees Celsius."
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "The main function of mitochondria is to produce ATP through the process of cellular respiration, providing energy for the cell."
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "World War II ended in 1945 with Germany's unconditional surrender."
+            }
+          ]
+        }
+      },
+      "model_path": "/home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1"
+    }
+  }
+}

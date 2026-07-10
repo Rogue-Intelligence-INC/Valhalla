@@ -63,6 +63,7 @@ class ValhallaLLM:
         trust_remote_code: bool = True,
         dtype: str = "auto",
         max_model_len: int = 4096,
+        load_in_4bit: bool = False,
     ) -> None:
         self.model_dir = Path(model).resolve()
         self.info: ValhallaModelInfo = inspect_model(self.model_dir)
@@ -70,6 +71,7 @@ class ValhallaLLM:
         self.trust_remote_code = trust_remote_code
         self.dtype = dtype
         self.max_model_len = max_model_len
+        self.load_in_4bit = load_in_4bit
         self._backend: Any = None
         self._tokenizer: Any = None
 
@@ -95,6 +97,22 @@ class ValhallaLLM:
         else:
             self._load_transformers()
 
+    def unload(self) -> None:
+        """Release GPU weights between backbone sweeps."""
+        self._backend = None
+        self._tokenizer = None
+        try:
+            import gc
+
+            gc.collect()
+            import torch
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                torch.cuda.synchronize()
+        except Exception:
+            pass
+
     def _load_transformers(self) -> None:
         import torch
         from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
@@ -102,23 +120,55 @@ class ValhallaLLM:
         self._tokenizer = AutoTokenizer.from_pretrained(
             str(self.model_dir), trust_remote_code=self.trust_remote_code
         )
+        if self._tokenizer.pad_token_id is None and self._tokenizer.eos_token_id is not None:
+            self._tokenizer.pad_token = self._tokenizer.eos_token
+
         torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         if self.dtype == "float32":
             torch_dtype = torch.float32
-        cfg = AutoConfig.from_pretrained(str(self.model_dir))
-        # Prefer built-in architecture (avoids stale remote modeling_phi3.py on Phi-3).
-        use_remote = self.trust_remote_code and cfg.model_type not in (
+        elif self.dtype == "bfloat16":
+            torch_dtype = torch.bfloat16
+
+        cfg = AutoConfig.from_pretrained(
+            str(self.model_dir), trust_remote_code=self.trust_remote_code
+        )
+        builtin_types = {
             "phi3",
+            "phimoe",
             "gemma2",
+            "gemma3",
             "llama",
             "qwen2",
+            "qwen3",
+            "qwen2_moe",
+            "qwen_moe",
+            "qwen3_moe",
+            "mixtral",
+            "falcon_mamba",
+            "mamba2",
+            "mamba",
+            "modernbert",
+        }
+        remote_types = {"rwkv7", "rwkv", "jetmoe", "olmoe", "deepseek_v2", "qwen2_vl"}
+        use_remote = self.trust_remote_code and (
+            cfg.model_type not in builtin_types or cfg.model_type in remote_types
         )
+
+        model_kwargs: dict[str, Any] = {
+            "torch_dtype": torch_dtype,
+            "trust_remote_code": use_remote,
+        }
+        if self.load_in_4bit or "4bit" in self.model_dir.name.lower():
+            from transformers import BitsAndBytesConfig
+
+            model_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
+            model_kwargs["device_map"] = "auto"
+        elif torch.cuda.is_available():
+            model_kwargs["device_map"] = "auto"
+
         self._backend = AutoModelForCausalLM.from_pretrained(
             str(self.model_dir),
-            torch_dtype=torch_dtype,
-            device_map="auto" if torch.cuda.is_available() else None,
-            trust_remote_code=use_remote,
-            attn_implementation="eager",
+            **model_kwargs,
         )
         self._backend.eval()
         self.engine = "transformers"
@@ -148,9 +198,11 @@ class ValhallaLLM:
                 str(self.model_dir), trust_remote_code=self.trust_remote_code
             )
         messages = [{"role": "user", "content": prompt}]
-        return self._tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
-        )
+        if getattr(self._tokenizer, "chat_template", None):
+            return self._tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
+        return prompt
 
     def generate(
         self,

@@ -106,6 +106,7 @@ def make_base(**kwargs: Any) -> ValhallaBase:
         follow_up_decode="native_follow_up_aware",
         fate_ingress_routing="quad_cycle",
         fate_qa_feedback=True,
+        fate_warmup_enabled=True,
         proactive_enabled=True,
         proactive_min_fate_signals=64,
         proactive_min_turns=2,
@@ -195,6 +196,8 @@ def trial_proactive(
     proactive_enabled: bool = True,
 ) -> dict[str, Any]:
     base = make_base(proactive_enabled=proactive_enabled)
+    if base.fate_warmup_enabled and len(ctx) >= 2:
+        base.fate_warmup_corpus(ctx, n_lines=min(4, len(ctx)))
     base.set_context(ctx)
     run_warmup(base, warmup)
     doc = base.proactive_idle()
@@ -434,9 +437,12 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
         "## Batteries",
         "",
         f"- Gates: {sum(1 for r in report['batteries']['gates'] if r.get('pass'))}/{len(report['batteries']['gates'])}",
-        f"- Handcraft: {sum(1 for r in report['batteries']['handcraft'] if r.get('pass'))}/{len(report['batteries']['handcraft'])}",
-        f"- Fair holdout: {sum(1 for r in report['batteries']['fair'] if r.get('pass'))}/{len(report['batteries']['fair'])}",
-        "",
+    ]
+    if hc := report["batteries"].get("handcraft"):
+        lines.append(f"- Handcraft: {sum(1 for r in hc if r.get('pass'))}/{len(hc)}")
+    if fair := report["batteries"].get("fair"):
+        lines.append(f"- Fair holdout: {sum(1 for r in fair if r.get('pass'))}/{len(fair)}")
+    lines += [
         "## Known gaps",
         "",
         "- Time gate: Fate `signal_tick` since `fate_baseline_tick` (default min=64), not turn count.",
@@ -459,12 +465,17 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--fair-limit", type=int, default=0, help="0 = all open_retrieval holdout")
+    ap.add_argument("--gates-only", action="store_true", help="Run gate battery only (resource-light)")
     args = ap.parse_args()
 
-    gates = battery_gates()
-    hand = battery_handcraft()
-    fair = battery_fair(args.fair_limit)
-    all_rows = gates + hand + fair
+    if args.gates_only:
+        gates = battery_gates()
+        all_rows = gates
+    else:
+        gates = battery_gates()
+        hand = battery_handcraft()
+        fair = battery_fair(args.fair_limit)
+        all_rows = gates + hand + fair
 
     passed = sum(1 for r in all_rows if r.get("pass"))
     metrics = compute_metrics(all_rows)
@@ -497,13 +508,17 @@ def main() -> None:
         },
         "config": {
             "fair_limit": args.fair_limit,
+            "gates_only": args.gates_only,
             "production_stack": "hybrid + native_follow_up_aware + quad_cycle + fate_qa_feedback",
         },
         "metrics": metrics,
-        "batteries": {"gates": gates, "handcraft": hand, "fair": fair},
         "summary": {"passed": passed, "total": len(all_rows), "pass_rate": passed / len(all_rows)},
         "verdict": verdict,
     }
+    if args.gates_only:
+        report["batteries"] = {"gates": gates}
+    else:
+        report["batteries"] = {"gates": gates, "handcraft": hand, "fair": fair}
     from run_confidence_report import analyze_proactive_v2  # noqa: WPS433
 
     report["confidence_intervals"] = analyze_proactive_v2(report).get("metrics", [])
@@ -528,12 +543,16 @@ def main() -> None:
     print(f"Report: {json_path}")
     print(f"Markdown: {md_path}")
 
-    if not suite_pass_check(metrics, gates, passed, len(all_rows)):
+    if not suite_pass_check(metrics, gates, passed, len(all_rows), gates_only=args.gates_only):
         sys.exit(1)
 
 
-def suite_pass_check(metrics: dict, gates: list, passed: int, total: int) -> bool:
+def suite_pass_check(
+    metrics: dict, gates: list, passed: int, total: int, *, gates_only: bool = False,
+) -> bool:
     """Documented exit policy for CI."""
+    if gates_only:
+        return all(r.get("pass") for r in gates)
     if not all(r.get("pass") for r in gates):
         return False
     if metrics["FIR_false_interrupt"] > 0.05:
