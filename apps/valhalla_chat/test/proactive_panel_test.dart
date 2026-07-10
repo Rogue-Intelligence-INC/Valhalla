@@ -11,7 +11,7 @@ void main() {
         home: Scaffold(
           body: ProactivePanel(
             state: const ProactiveState(minFateSignals: 0),
-            modelState: const ModelState(fateSignalTick: 0, fateBaselineTick: 0),
+            modelState: ModelState(fateSignalTick: 0, fateBaselineTick: 0),
             autoAfterTurn: false,
             loading: false,
             onToggle: (_) {},
