@@ -91,7 +91,16 @@ pub struct ValhallaBaseSessionState {
     pub corpus: Vec<String>,
     pub fingerprint: String,
     pub lines_ingested: usize,
+    /// Dynamic density fragments — primary session memory when `fragment_only` is on.
+    #[serde(default)]
+    pub fragments: Vec<crate::fate_orchestrator::SnapshotFragment>,
+    /// Legacy carrier; under fragment-only holds metadata + fragments only (no tile/stem blob).
     pub snapshot: TriadIncubationSnapshot,
+    /// Fate adaptive algebra counters + rollback stack for long-run sessions.
+    #[serde(default)]
+    pub fate_algebra_meta: crate::fate_adaptive_algebra::FateAlgebraMeta,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub fate_rollback_stack: Vec<crate::signal_ingress::TriadIncubationSnapshot>,
     /// Prior user questions in this session (for follow-up routing / retrieval).
     #[serde(default)]
     pub question_history: Vec<String>,
@@ -179,7 +188,7 @@ pub struct ValhallaBaseConfig {
     /// Deprecated alias — mapped to fate signals if set and min_fate_signals unset in env.
     #[serde(default = "default_proactive_min_turns_legacy")]
     pub proactive_min_turns: usize,
-    /// Minimum hub_prefs spread — default τ(0)=12/138 from E7 algebra.
+    /// Minimum hub_prefs spread — default from Fate adaptive coupling scale.
     #[serde(default = "default_proactive_min_spread")]
     pub proactive_min_spread: f64,
     /// Legacy benchmark: rule-based multihop compose (opt-in `VALHALLA_MULTIHOP_V2`).
@@ -191,6 +200,15 @@ pub struct ValhallaBaseConfig {
     /// When true, Fate orchestrator runs adapt cycles (default manifold runtime).
     #[serde(default = "default_true")]
     pub fate_orchestrate: bool,
+    /// Prelearn + Fate warmup cycles before fragment ingest (production default on).
+    #[serde(default = "default_true")]
+    pub fate_warmup_enabled: bool,
+    /// Fate warmup cycle budget (maps to `FateOrchestratorConfig::warmup_cycles`).
+    #[serde(default = "default_fate_warmup_cycles")]
+    pub fate_warmup_cycles: usize,
+    /// Prelearn line count before warmup; 0 = auto (corpus/3 clamped).
+    #[serde(default)]
+    pub fate_warmup_prelearn_lines: usize,
     /// Deprecated alias for `open_fate`.
     #[serde(default)]
     pub multihop_fate: bool,
@@ -207,7 +225,7 @@ fn default_proactive_min_turns_legacy() -> usize {
 }
 
 fn default_proactive_min_spread() -> f64 {
-    // τ(0) × δ/(dim+r) — E7 coupling scale (≈0.003), not raw τ(0)
+    // adaptive coupling × delta scale (session-driven, not fixed constants)
     fog_tau_algebraic(0) * crate::native_qa::fog_delta_required_algebraic(1.0)
 }
 
@@ -220,7 +238,7 @@ fn default_triad() -> String {
 }
 fn default_lm_model() -> String {
     std::env::var("VALHALLA_LM_MODEL")
-        .unwrap_or_else(|_| "Qwen/Qwen2.5-3B-Instruct".into())
+        .unwrap_or_else(|_| "Qwen/Qwen2.5-0.5B-Instruct".into())
 }
 
 fn default_use_cpu() -> bool {
@@ -240,6 +258,14 @@ fn default_max_new() -> usize {
 }
 fn default_cycles() -> usize {
     2
+}
+
+fn default_fate_warmup_cycles() -> usize {
+    std::env::var("VALHALLA_FATE_WARMUP_CYCLES")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(4)
+        .clamp(1, 64)
 }
 
 fn question_history_cap() -> usize {
@@ -270,10 +296,10 @@ impl Default for ValhallaBaseConfig {
             max_new: default_max_new(),
             incubation_cycles: default_cycles(),
             use_cpu: default_use_cpu(),
-            decode: ValhallaBaseDecode::LmPatch,
+            decode: ValhallaBaseDecode::Hybrid,
             core_fusion: false,
             mcq_decode: ValhallaMcqDecode::LmPatch,
-            follow_up_decode: ValhallaFollowUpDecode::Inherit,
+            follow_up_decode: ValhallaFollowUpDecode::NativeFollowUpAware,
             fate_weight_mode: ValhallaFateWeightMode::Fixed,
             fate_routing_free: false,
             fate_ingress_routing: ValhallaFateIngressRouting::QuadCycle,
@@ -285,6 +311,9 @@ impl Default for ValhallaBaseConfig {
             multihop_v2: crate::multihop_compose::multihop_v2_enabled(),
             open_fate: default_open_fate_cfg(),
             fate_orchestrate: true,
+            fate_warmup_enabled: true,
+            fate_warmup_cycles: default_fate_warmup_cycles(),
+            fate_warmup_prelearn_lines: 0,
             multihop_fate: default_open_fate_cfg(),
         }
     }
@@ -309,6 +338,18 @@ pub struct ValhallaBaseRequest {
     /// When true with empty `questions`, run proactive idle (self-probe + FOG nudge).
     #[serde(default)]
     pub proactive_idle: bool,
+    /// When true with context set, run Fate prelearn+warmup ingest only (no QA decode).
+    #[serde(default)]
+    pub fate_warmup_only: bool,
+    /// When true with session + append payload, extend session snapshot only (no QA).
+    #[serde(default)]
+    pub session_extend_only: bool,
+    /// When true with session, Fate-link dynamic fragments + adapt (long-chain finalize).
+    #[serde(default)]
+    pub fate_link_only: bool,
+    /// When true with session, extra Fate warmup+link+adapt (multi-pass pretrain).
+    #[serde(default)]
+    pub fate_pretrain_adapt_only: bool,
     #[serde(default)]
     pub config: ValhallaBaseConfig,
 }
@@ -373,7 +414,7 @@ pub struct FateTelemetry {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fate_ingress_routing: Option<String>,
     pub incubation_cycles: usize,
-    /// E7 algebra identifiers for Fate/FOG gates
+    /// Fate adaptive algebra identifiers for Fate/FOG gates
     #[serde(default = "default_algebra_formula")]
     pub algebra_formula: String,
     #[serde(default)]
@@ -383,7 +424,26 @@ pub struct FateTelemetry {
 }
 
 fn default_algebra_formula() -> String {
-    "e7_tau_v1".into()
+    "fate_adaptive_v1".into()
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FateWarmupSummary {
+    pub cycles_executed: usize,
+    pub prelearn_lines: usize,
+    pub aggregate_score: f64,
+    pub stopped_reason: String,
+}
+
+impl From<crate::fate_orchestrator::FateWarmupOutcome> for FateWarmupSummary {
+    fn from(w: crate::fate_orchestrator::FateWarmupOutcome) -> Self {
+        Self {
+            cycles_executed: w.cycles_executed,
+            prelearn_lines: w.prelearn_lines,
+            aggregate_score: w.aggregate_score,
+            stopped_reason: w.stopped_reason,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -397,6 +457,8 @@ pub struct ValhallaBaseResponse {
     pub rows: Vec<ValhallaBaseRow>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fate_telemetry: Option<FateTelemetry>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fate_warmup: Option<FateWarmupSummary>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub proactive: Option<ProactiveOutcome>,
 }
@@ -446,13 +508,14 @@ fn merge_context(req: &ValhallaBaseRequest) -> (Vec<String>, Vec<ValhallaContext
 
     for l in &req.append_lines {
         let t = l.trim();
-        if !t.is_empty() {
-            lines.push(t.to_string());
-            items.push(ValhallaContextItem {
-                text: Some(t.to_string()),
-                ..Default::default()
-            });
+        if t.is_empty() || line_already_present(&lines, t) {
+            continue;
         }
+        lines.push(t.to_string());
+        items.push(ValhallaContextItem {
+            text: Some(t.to_string()),
+            ..Default::default()
+        });
     }
     items.extend(req.append_items.clone());
 
@@ -601,26 +664,42 @@ fn run_incubation_adapt(session: &mut TriadSession, cycles: usize, cfg: &Valhall
     }
 }
 
+fn fate_orchestrator_config(cfg: &ValhallaBaseConfig) -> crate::fate_orchestrator::FateOrchestratorConfig {
+    let mut orch = crate::fate_orchestrator::FateOrchestratorConfig::default();
+    orch.warmup_enabled = cfg.fate_warmup_enabled;
+    orch.warmup_cycles = cfg.fate_warmup_cycles.clamp(1, 64);
+    if cfg.fate_warmup_prelearn_lines > 0 {
+        orch.warmup_prelearn_lines = cfg.fate_warmup_prelearn_lines;
+    }
+    orch
+}
+
 fn feed_lines_with_fragments(
     session: &mut TriadSession,
     lines: &[String],
     cfg: &ValhallaBaseConfig,
-) -> TriadIncubationSnapshot {
+) -> (TriadIncubationSnapshot, Option<crate::fate_orchestrator::FateWarmupOutcome>) {
     let cap = default_port_cap();
-    if cfg.fate_orchestrate && fate_orchestrator::multi_fragment_enabled() {
+    if cfg.fate_orchestrate {
         let ports: Vec<BodyFrontPorts> = lines
             .iter()
             .map(|l| grind_text_hash(l, cap))
             .collect();
-        let orch = FateOrchestratorConfig::default();
-        fate_orchestrator::ingest_corpus_with_fragments(session, lines, &ports, &orch);
-        session.manifold_snapshot()
+        let orch = fate_orchestrator_config(cfg);
+        let mode = crate::fate_orchestrator::production_fragment_mode();
+        let (_, warmup) = crate::fate_orchestrator::ingest_corpus_with_fragments_mode_full(
+            session, lines, &ports, &orch, mode,
+        );
+        (crate::fate_orchestrator::export_session_after_ingest(session), warmup)
     } else {
         for line in lines {
             let ports = grind_text_hash(line, cap);
             session.emit_body_ports_with_line(&ports, Some(line));
         }
-        run_incubation_adapt(session, cfg.incubation_cycles.max(1), cfg)
+        (
+            run_incubation_adapt(session, cfg.incubation_cycles.max(1), cfg),
+            None,
+        )
     }
 }
 
@@ -630,7 +709,7 @@ fn build_snapshot_from_items(
     items: &[ValhallaContextItem],
     cycles: usize,
     cfg: &ValhallaBaseConfig,
-) -> TriadIncubationSnapshot {
+) -> (TriadIncubationSnapshot, Option<crate::fate_orchestrator::FateWarmupOutcome>) {
     let has_mm = items.iter().any(|i| {
         i.audio_features.as_ref().is_some_and(|v| !v.is_empty())
             || i.image_features.as_ref().is_some_and(|v| !v.is_empty())
@@ -655,7 +734,7 @@ fn build_snapshot_from_items(
     for item in items {
         feed_context_item(&mut session, item, &front);
     }
-    run_incubation_adapt(&mut session, cycles, cfg)
+    (run_incubation_adapt(&mut session, cycles, cfg), None)
 }
 
 fn extend_snapshot(
@@ -665,21 +744,99 @@ fn extend_snapshot(
     new_items: &[ValhallaContextItem],
     cycles: usize,
     cfg: &ValhallaBaseConfig,
+    corpus_base_idx: usize,
 ) -> TriadIncubationSnapshot {
     let target = BodyTarget::parse(body);
     let budget = IngressBudget::experiment();
-    let mut session = TriadSession::from_incubation_snapshot(budget, target, prev);
-    apply_fate_config(&mut session, cfg);
+    let mut session = if cfg.fate_orchestrate && crate::fate_orchestrator::fragment_only_session_enabled() {
+        let frags = crate::fate_orchestrator::stored_fragments(&prev);
+        let mut s = crate::fate_orchestrator::session_from_stored_fragments(
+            &frags,
+            &prev.corpus_line_affinity,
+            budget.clone(),
+            target,
+        );
+        apply_fate_config(&mut s, cfg);
+        s
+    } else {
+        let mut s = TriadSession::from_incubation_snapshot(budget.clone(), target, prev);
+        apply_fate_config(&mut s, cfg);
+        s
+    };
     let front = DlFrontConfig::default();
     let cap = default_port_cap();
-    for line in new_lines {
-        let ports = grind_text_hash(line, cap);
-        session.emit_body_ports_with_line(&ports, Some(line));
+
+    if cfg.fate_orchestrate && !new_lines.is_empty() {
+        let ports: Vec<BodyFrontPorts> = new_lines
+            .iter()
+            .map(|l| grind_text_hash(l, cap))
+            .collect();
+        let orch = fate_orchestrator_config(cfg);
+        let mode = crate::fate_orchestrator::production_fragment_mode();
+        let _ = crate::fate_orchestrator::append_corpus_with_fragments_mode(
+            &mut session,
+            new_lines,
+            &ports,
+            &orch,
+            corpus_base_idx,
+            mode,
+        );
+        if crate::fate_orchestrator::fate_link_fragments_enabled() {
+            let _ = crate::fate_orchestrator::fate_link_fragments(&mut session, &orch);
+        }
+    } else {
+        for line in new_lines {
+            let ports = grind_text_hash(line, cap);
+            session.emit_body_ports_with_line(&ports, Some(line));
+        }
+        let _ = run_incubation_adapt(&mut session, cycles, cfg);
     }
+
     for item in new_items {
         feed_context_item(&mut session, item, &front);
     }
-    run_incubation_adapt(&mut session, cycles, cfg)
+    if new_lines.is_empty() && !new_items.is_empty() && !cfg.fate_orchestrate {
+        let _ = run_incubation_adapt(&mut session, cycles, cfg);
+    }
+    crate::fate_orchestrator::export_session_after_ingest(&session)
+}
+
+fn normalize_line_key(s: &str) -> String {
+    s.split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_ascii_lowercase()
+}
+
+fn line_already_present(lines: &[String], candidate: &str) -> bool {
+    let key = normalize_line_key(candidate);
+    lines.iter().any(|l| normalize_line_key(l) == key)
+}
+
+/// Map learned affinity from prior session corpus onto fresh targeted lines.
+fn reanchor_snapshot_affinity(
+    prev: &ValhallaBaseSessionState,
+    new_lines: &[String],
+    mut snap: TriadIncubationSnapshot,
+) -> TriadIncubationSnapshot {
+    let old_aff = &prev.snapshot.corpus_line_affinity;
+    if old_aff.is_empty() || new_lines.is_empty() {
+        return snap;
+    }
+    let mut new_aff = vec![0.0; new_lines.len()];
+    for (ni, line) in new_lines.iter().enumerate() {
+        let key = normalize_line_key(line);
+        for (oi, old_line) in prev.corpus.iter().enumerate() {
+            if normalize_line_key(old_line) == key {
+                if let Some(&v) = old_aff.get(oi) {
+                    new_aff[ni] = v;
+                }
+                break;
+            }
+        }
+    }
+    snap.corpus_line_affinity = new_aff;
+    snap
 }
 
 fn resolve_snapshot(
@@ -687,18 +844,22 @@ fn resolve_snapshot(
     lines: &[String],
     items: &[ValhallaContextItem],
     incremental: bool,
-) -> TriadIncubationSnapshot {
+) -> (TriadIncubationSnapshot, Option<crate::fate_orchestrator::FateWarmupOutcome>) {
     let cycles = req.config.incubation_cycles.max(1);
     let body = &req.config.patch_body;
     if incremental {
         if let Some(sess) = &req.session {
-            return extend_snapshot(
-                body,
-                sess.snapshot.clone(),
-                &req.append_lines,
-                &req.append_items,
-                cycles,
-                &req.config,
+            return (
+                extend_snapshot(
+                    body,
+                    sess.snapshot.clone(),
+                    &req.append_lines,
+                    &req.append_items,
+                    cycles,
+                    &req.config,
+                    sess.corpus.len(),
+                ),
+                None,
             );
         }
     }
@@ -708,10 +869,19 @@ fn resolve_snapshot(
             && req.append_lines.is_empty()
             && req.append_items.is_empty()
         {
-            return sess.snapshot.clone();
+            return (sess.snapshot.clone(), None);
         }
     }
-    build_snapshot_from_items(body, lines, items, cycles, &req.config)
+    let (snap, warmup) = build_snapshot_from_items(body, lines, items, cycles, &req.config);
+    if let Some(sess) = &req.session {
+        if !incremental
+            && (!req.context.is_empty() || !req.context_items.is_empty())
+            && req.config.fate_qa_feedback
+        {
+            return (reanchor_snapshot_affinity(sess, lines, snap), warmup);
+        }
+    }
+    (snap, warmup)
 }
 
 fn effective_decode(cfg: &ValhallaBaseConfig, score_type: &str) -> ValhallaBaseDecode {
@@ -841,7 +1011,17 @@ fn apply_qa_feedback_to_snapshot(
 ) -> TriadIncubationSnapshot {
     let budget = IngressBudget::experiment();
     let target = BodyTarget::parse(&cfg.patch_body);
-    let mut session = TriadSession::from_incubation_snapshot(budget, target, snap);
+    let frags = crate::fate_orchestrator::stored_fragments(&snap);
+    let mut session = if crate::fate_orchestrator::fragment_only_session_enabled() && !frags.is_empty() {
+        crate::fate_orchestrator::session_from_stored_fragments(
+            &frags,
+            &snap.corpus_line_affinity,
+            budget,
+            target,
+        )
+    } else {
+        TriadSession::from_incubation_snapshot(budget, target, snap)
+    };
     apply_fate_config(&mut session, cfg);
     session.emit_body_ports(question_ports);
     if cfg.fate_qa_feedback {
@@ -852,7 +1032,26 @@ fn apply_qa_feedback_to_snapshot(
             session.apply_corpus_retrieval_feedback(idx, &qs, &ls, lt, on_topic);
         }
     }
-    session.incubation_snapshot()
+    crate::fate_orchestrator::export_session_after_ingest(&session)
+}
+
+fn session_state_from_snap(
+    corpus: &[String],
+    snap: TriadIncubationSnapshot,
+    question_history: Vec<String>,
+    fate_baseline_tick: u64,
+) -> ValhallaBaseSessionState {
+    ValhallaBaseSessionState {
+        corpus: corpus.to_vec(),
+        fingerprint: context_fingerprint(corpus),
+        lines_ingested: corpus.len(),
+        fragments: crate::fate_orchestrator::stored_fragments(&snap),
+        snapshot: snap,
+        fate_algebra_meta: Default::default(),
+        fate_rollback_stack: Vec::new(),
+        question_history,
+        fate_baseline_tick,
+    }
 }
 
 fn effective_proactive_min_fate_signals(cfg: &ValhallaBaseConfig) -> usize {
@@ -884,6 +1083,8 @@ fn run_native_one(
     let corpus_ports: Vec<BodyFrontPorts> =
         corpus.iter().map(|l| grind_ports_for_line(l)).collect();
     let q_ports = grind_ports_for_line(&format_prompt_text(p));
+    let fragment_only = crate::fate_orchestrator::fragment_only_session_enabled();
+    let stored = crate::fate_orchestrator::stored_fragments(&fused_snap);
     let batch = NativeQaBatchRequest {
         body: cfg.patch_body.clone(),
         corpus: corpus.to_vec(),
@@ -908,10 +1109,15 @@ fn run_native_one(
         multihop_v2: cfg.multihop_v2,
         open_fate: cfg.open_fate || cfg.multihop_fate,
         multihop_fate: cfg.open_fate || cfg.multihop_fate,
-        incubation_snapshot: if cfg.fate_orchestrate {
+        incubation_snapshot: if fragment_only && !stored.is_empty() {
             None
         } else {
             Some(fused_snap)
+        },
+        corpus_fragments: if fragment_only && !stored.is_empty() {
+            Some(stored)
+        } else {
+            None
         },
     };
     let resp = run_native_qa_batch(&batch);
@@ -938,13 +1144,43 @@ fn run_native_one(
 }
 
 fn run_lm_one(
-    _corpus: &[String],
+    corpus: &[String],
     p: &FairPrompt,
     q: &ValhallaBaseQuestion,
     cfg: &ValhallaBaseConfig,
     context_snap: TriadIncubationSnapshot,
 ) -> Result<ValhallaBaseRow, String> {
     let (fused_snap, core_row) = maybe_fuse_core(cfg, context_snap, q, p);
+    let snap_for_patch = if crate::fate_orchestrator::fragment_only_session_enabled() {
+        let frags = crate::fate_orchestrator::stored_fragments(&fused_snap);
+        if frags.is_empty() {
+            fused_snap
+        } else {
+            let qtext = format_prompt_text(p);
+            let q_ports = grind_ports_for_line(&qtext);
+            let corpus_sigs: Vec<(usize, Vec<f64>)> = corpus
+                .iter()
+                .enumerate()
+                .map(|(i, l)| (i, grind_ports_for_line(l).embedding))
+                .collect();
+            let body = BodyTarget::parse(&cfg.patch_body);
+            let budget = IngressBudget::experiment();
+            let top_k = crate::fate_orchestrator::query_fragment_top_k(corpus.len());
+            let (merged, _) = crate::fate_orchestrator::merge_fragments_for_query(
+                &frags,
+                &qtext,
+                &q_ports.embedding,
+                &corpus_sigs,
+                corpus,
+                budget,
+                body,
+                top_k,
+            );
+            crate::fate_orchestrator::compact_manifold_snapshot(&merged)
+        }
+    } else {
+        fused_snap
+    };
     let patch_cfg = PatchLmConfig {
         model_dir: crate::patch_lm::resolve_model_dir(&cfg.lm_model),
         patch_body: cfg.patch_body.clone(),
@@ -963,7 +1199,7 @@ fn run_lm_one(
         }
     }
     let patch_rows = crate::patch_lm::run_patch_track_v4_with_snap(
-        &fused_snap,
+        &snap_for_patch,
         std::slice::from_ref(p),
         &patch_cfg,
         if audio_by_id.is_empty() {
@@ -1001,6 +1237,59 @@ fn run_lm_one(
         },
         retrieval_corpus_idx: None,
     })
+}
+
+/// True when native open retrieval abstained (FOG / low score / no keyword overlap).
+fn native_open_answer_rejected(answer: &str, decode_path: &str) -> bool {
+    answer.starts_with("No confident match")
+        || decode_path.contains("open_reject")
+        || decode_path.contains("open_fog_abstain")
+}
+
+fn hybrid_open_lm_fallback_enabled() -> bool {
+    std::env::var("VALHALLA_HYBRID_OPEN_LM_FALLBACK")
+        .map(|v| {
+            let v = v.trim().to_ascii_lowercase();
+            !(v == "0" || v == "false" || v == "off")
+        })
+        .unwrap_or(true)
+}
+
+/// Hybrid open path: native retrieval first; LM decode when native abstains.
+fn run_open_decode_row(
+    corpus: &[String],
+    p: &FairPrompt,
+    q: &ValhallaBaseQuestion,
+    cfg: &ValhallaBaseConfig,
+    context_snap: TriadIncubationSnapshot,
+    prior_questions: &[String],
+) -> Result<ValhallaBaseRow, String> {
+    let native = run_native_one(
+        corpus,
+        p,
+        q,
+        cfg,
+        context_snap.clone(),
+        prior_questions,
+    )?;
+    if cfg.decode != ValhallaBaseDecode::Hybrid
+        || p.score_type != "open"
+        || !hybrid_open_lm_fallback_enabled()
+        || !native_open_answer_rejected(&native.answer, &native.decode_path)
+    {
+        return Ok(native);
+    }
+    let mut patch = run_lm_one(corpus, p, q, cfg, context_snap)?;
+    let native_tag = native
+        .decode_path
+        .strip_prefix("valhalla_base/native/")
+        .unwrap_or(&native.decode_path);
+    let lm_tag = patch
+        .decode_path
+        .strip_prefix("valhalla_base/lm_patch/")
+        .unwrap_or(&patch.decode_path);
+    patch.decode_path = format!("valhalla_base/hybrid/open_lm_fallback/{native_tag}/{lm_tag}");
+    Ok(patch)
 }
 
 /// Deploy MCQ pick: native structure vs lm_patch logprob (no oracle labels).
@@ -1393,15 +1682,162 @@ fn run_proactive_idle(
 /// Run Valhalla-as-base with hybrid / session / multimodal context.
 pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseResponse, String> {
     let (lines, items, incremental) = merge_context(req);
-    if lines.is_empty() && items.is_empty() {
+    if lines.is_empty() && items.is_empty() && !req.fate_link_only && !req.fate_pretrain_adapt_only {
         return Err("valhalla_base: context must contain at least one item or line".into());
     }
-    if req.questions.is_empty() && !req.proactive_idle {
-        return Err("valhalla_base: questions must be non-empty (or set proactive_idle)".into());
+    if req.questions.is_empty()
+        && !req.proactive_idle
+        && !req.fate_warmup_only
+        && !req.session_extend_only
+        && !req.fate_link_only
+        && !req.fate_pretrain_adapt_only
+    {
+        return Err(
+            "valhalla_base: questions must be non-empty (or set proactive_idle / fate_warmup_only / session_extend_only / fate_link_only / fate_pretrain_adapt_only)"
+                .into(),
+        );
     }
 
-    let mut context_snap = resolve_snapshot(req, &lines, &items, incremental);
+    if req.fate_pretrain_adapt_only {
+        let prev = req
+            .session
+            .as_ref()
+            .ok_or("valhalla_base: fate_pretrain_adapt_only requires session")?;
+        let orch = fate_orchestrator_config(&req.config);
+        let target = BodyTarget::parse(&req.config.patch_body);
+        let explore = std::env::var("VALHALLA_FATE_PRETRAIN_EXPLORE")
+            .map(|v| {
+                let v = v.trim().to_ascii_lowercase();
+                !(v == "0" || v == "false" || v == "off")
+            })
+            .unwrap_or(true);
+        let (linked_snap, warmup, link_out) = crate::fate_orchestrator::fate_pretrain_adapt_snapshot(
+            &prev.snapshot,
+            &orch,
+            target,
+            explore,
+        );
+        let session = session_state_from_snap(
+            &prev.corpus,
+            linked_snap.clone(),
+            prev.question_history.clone(),
+            prev.fate_baseline_tick,
+        );
+        return Ok(ValhallaBaseResponse {
+            protocol: VALHALLA_BASE_PROTOCOL.to_string(),
+            context_lines: prev.corpus.len(),
+            context_fingerprint: session.fingerprint.clone(),
+            decode: req.config.decode,
+            session,
+            features: vec![
+                "fate_pretrain_adapt_only".into(),
+                "fate_fragment_link".into(),
+                format!("warmup_cycles:{}", warmup.cycles_executed),
+                format!("links_merged:{}", link_out.links_merged),
+            ],
+            rows: vec![],
+            fate_telemetry: Some(fate_telemetry_from_snap(&linked_snap, &req.config)),
+            fate_warmup: Some(FateWarmupSummary::from(warmup)),
+            proactive: None,
+        });
+    }
+
+    if req.fate_link_only {
+        let prev = req
+            .session
+            .as_ref()
+            .ok_or("valhalla_base: fate_link_only requires session")?;
+        let orch = fate_orchestrator_config(&req.config);
+        let target = BodyTarget::parse(&req.config.patch_body);
+        let (linked_snap, link_out) =
+            crate::fate_orchestrator::fate_link_snapshot(&prev.snapshot, &orch, target);
+        let session = session_state_from_snap(
+            &prev.corpus,
+            linked_snap.clone(),
+            prev.question_history.clone(),
+            prev.fate_baseline_tick,
+        );
+        return Ok(ValhallaBaseResponse {
+            protocol: VALHALLA_BASE_PROTOCOL.to_string(),
+            context_lines: prev.corpus.len(),
+            context_fingerprint: session.fingerprint.clone(),
+            decode: req.config.decode,
+            session,
+            features: vec![
+                "fate_link_only".into(),
+                "fate_fragment_link".into(),
+                format!("links_merged:{}", link_out.links_merged),
+            ],
+            rows: vec![],
+            fate_telemetry: Some(fate_telemetry_from_snap(&linked_snap, &req.config)),
+            fate_warmup: None,
+            proactive: None,
+        });
+    }
+
+    let (mut context_snap, fate_warmup) = resolve_snapshot(req, &lines, &items, incremental);
     let cfg = &req.config;
+
+    if req.session_extend_only {
+        if !incremental {
+            return Err(
+                "valhalla_base: session_extend_only requires session + append_lines/items (no full context)"
+                    .into(),
+            );
+        }
+        let session = session_state_from_snap(
+            &lines,
+            context_snap.clone(),
+            req.session
+                .as_ref()
+                .map(|s| s.question_history.clone())
+                .unwrap_or_default(),
+            req.session
+                .as_ref()
+                .map(|s| s.fate_baseline_tick)
+                .unwrap_or(context_snap.fate_signal_tick),
+        );
+        return Ok(ValhallaBaseResponse {
+            protocol: VALHALLA_BASE_PROTOCOL.to_string(),
+            context_lines: lines.len(),
+            context_fingerprint: session.fingerprint.clone(),
+            decode: cfg.decode,
+            session,
+            features: vec!["context_flex".into(), "session_extend_only".into(), "session_append".into()],
+            rows: vec![],
+            fate_telemetry: Some(fate_telemetry_from_snap(&context_snap, cfg)),
+            fate_warmup: fate_warmup.map(FateWarmupSummary::from),
+            proactive: None,
+        });
+    }
+
+    if req.fate_warmup_only {
+        let session = session_state_from_snap(
+            &lines,
+            context_snap.clone(),
+            req.session
+                .as_ref()
+                .map(|s| s.question_history.clone())
+                .unwrap_or_default(),
+            context_snap.fate_signal_tick,
+        );
+        let mut features = vec!["context_flex".into(), "fate_warmup_only".into()];
+        if fate_warmup.is_some() {
+            features.push("fate_warmup".into());
+        }
+        return Ok(ValhallaBaseResponse {
+            protocol: VALHALLA_BASE_PROTOCOL.to_string(),
+            context_lines: lines.len(),
+            context_fingerprint: session.fingerprint.clone(),
+            decode: cfg.decode,
+            session,
+            features,
+            rows: vec![],
+            fate_telemetry: Some(fate_telemetry_from_snap(&context_snap, cfg)),
+            fate_warmup: fate_warmup.map(FateWarmupSummary::from),
+            proactive: None,
+        });
+    }
 
     let continuing_session_only = req.session.is_some()
         && req.context.is_empty()
@@ -1458,6 +1894,19 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
     if cfg.fate_qa_feedback {
         features.push("fate_qa_feedback".into());
     }
+    if cfg.fate_warmup_enabled {
+        features.push("fate_warmup".into());
+    }
+    if crate::fate_orchestrator::fragment_only_session_enabled() {
+        features.push("fragment_only".into());
+        features.push("dynamic_fragments".into());
+    }
+    if crate::fate_orchestrator::fate_link_fragments_enabled() {
+        features.push("fate_fragment_link".into());
+    }
+    if crate::natural_channels::natural_channels_enabled() {
+        features.push("natural_channels".into());
+    }
     if cfg.proactive_enabled {
         features.push("proactive_idle".into());
     }
@@ -1503,7 +1952,25 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
                 let mode = effective_decode_for_question(cfg, &p.score_type, is_follow_up);
                 match mode {
                     ValhallaBaseDecode::Native => {
-                        run_native_one(&lines, &p, q, cfg, context_snap.clone(), &prior)?
+                        if cfg.decode == ValhallaBaseDecode::Hybrid && p.score_type == "open" {
+                            run_open_decode_row(
+                                &lines,
+                                &p,
+                                q,
+                                cfg,
+                                context_snap.clone(),
+                                &prior,
+                            )?
+                        } else {
+                            run_native_one(
+                                &lines,
+                                &p,
+                                q,
+                                cfg,
+                                context_snap.clone(),
+                                &prior,
+                            )?
+                        }
                     }
                     ValhallaBaseDecode::LmPatch => {
                         run_lm_one(&lines, &p, q, cfg, context_snap.clone())?
@@ -1533,14 +2000,12 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
 
     let snap = context_snap;
     let fate_tel = fate_telemetry_from_snap(&snap, cfg);
-    let session = ValhallaBaseSessionState {
-        corpus: lines.clone(),
-        fingerprint: context_fingerprint(&lines),
-        lines_ingested: lines.len(),
-        snapshot: snap,
-        question_history: cap_question_history(prior),
-        fate_baseline_tick: fate_baseline,
-    };
+    let session = session_state_from_snap(
+        &lines,
+        snap,
+        cap_question_history(prior),
+        fate_baseline,
+    );
 
     Ok(ValhallaBaseResponse {
         protocol: VALHALLA_BASE_PROTOCOL.to_string(),
@@ -1551,6 +2016,7 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         features,
         rows,
         fate_telemetry: Some(fate_tel),
+        fate_warmup: fate_warmup.map(FateWarmupSummary::from),
         proactive: proactive_outcome,
     })
 }
@@ -1584,6 +2050,22 @@ mod tests {
     }
 
     #[test]
+    fn native_open_reject_detection() {
+        assert!(native_open_answer_rejected(
+            "No confident match in incubated memory.",
+            "open_reject_low_score"
+        ));
+        assert!(native_open_answer_rejected(
+            "Some text",
+            "valhalla_base/native/open_fog_abstain"
+        ));
+        assert!(!native_open_answer_rejected(
+            "[corpus:0] answer",
+            "open_retrieval_span"
+        ));
+    }
+
+    #[test]
     fn proactive_acronym_gdp_matches_gross_domestic_product() {
         let prior = vec![
             "What does GDP stand for?".into(),
@@ -1596,12 +2078,66 @@ mod tests {
     }
 
     #[test]
-    fn proactive_single_digit_overlap() {
-        let prior = vec![
-            "How many electrons in first shell?".into(),
-            "Does the context say anything about 2?".into(),
-        ];
-        let line = "The first electron shell holds at most 2 electrons.";
-        assert!(proactive_overlap_count(line, &prior) >= 1);
+    fn append_lines_dedup_by_normalized_text() {
+        let req = ValhallaBaseRequest {
+            context: vec!["Alpha line".into()],
+            append_lines: vec!["Alpha   line".into(), "Beta".into()],
+            ..Default::default()
+        };
+        let (lines, _, _) = merge_context(&req);
+        assert_eq!(lines.len(), 2);
+        assert!(lines.iter().any(|l| l.starts_with("Beta")));
+    }
+
+    #[test]
+    fn reanchor_carries_line_affinity_by_text() {
+        let prev = ValhallaBaseSessionState {
+            corpus: vec!["Paris is capital.".into(), "Other.".into()],
+            fingerprint: "x".into(),
+            lines_ingested: 2,
+            fragments: vec![],
+            snapshot: TriadIncubationSnapshot {
+                corpus_line_affinity: vec![0.0, 0.42],
+                completed_tiles: vec![],
+                stem_cells: vec![],
+                tile_total_operations: 0,
+                hub_routed: [0; 4],
+                ingress_encoder: "char".into(),
+                hub_prefs: vec![],
+                fate_weight_mode: "fixed".into(),
+                fate_routing_free: false,
+                fate_ingress_routing: "quad_cycle".into(),
+                fate_signal_tick: 0,
+                manifold_protocol: None,
+                patch_vector: vec![],
+                fate_convergence: None,
+                hub_triple_fate: None,
+                fragments: vec![],
+            },
+            fate_algebra_meta: Default::default(),
+            fate_rollback_stack: Vec::new(),
+            question_history: vec![],
+            fate_baseline_tick: 0,
+        };
+        let snap = TriadIncubationSnapshot {
+            completed_tiles: vec![],
+            stem_cells: vec![],
+            tile_total_operations: 0,
+            hub_routed: [0; 4],
+            ingress_encoder: "char".into(),
+            hub_prefs: vec![],
+            fate_weight_mode: "fixed".into(),
+            fate_routing_free: false,
+            fate_ingress_routing: "quad_cycle".into(),
+            corpus_line_affinity: vec![],
+            fate_signal_tick: 0,
+            manifold_protocol: None,
+            patch_vector: vec![],
+            fate_convergence: None,
+            hub_triple_fate: None,
+            fragments: vec![],
+        };
+        let out = reanchor_snapshot_affinity(&prev, &["Other.".into()], snap);
+        assert!((out.corpus_line_affinity[0] - 0.42).abs() < 1e-9);
     }
 }

@@ -127,6 +127,17 @@ smoke_test() {
     }')"
   echo "$mm" | python3 -c "import json,sys; d=json.load(sys.stdin); print('  ok=', d.get('ok', True), 'context_items=', 'context_items' in str(d))"
 
+  echo "[smoke] POST /v1/infer (hybrid LM fallback — casual query) …"
+  local casual
+  casual="$(curl -sf -X POST "${API_URL}/v1/infer" \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "questions":[{"id":"q1","text":"hi there","score_type":"open"}],
+      "context":["ValhallaBase primary protocol is valhalla-base-v1.","Production decode mode is hybrid with native retrieval for open QA."],
+      "config":{"decode":"hybrid","proactive_enabled":false}
+    }')"
+  echo "$casual" | python3 -c "import json,sys; d=json.load(sys.stdin); a=(d.get('rows') or [{}])[0].get('answer',''); print('  ok=', not a.startswith('No confident match'), 'path=', (d.get('rows') or [{}])[0].get('decode_path','')[:60])"
+
   echo "[smoke] all API checks passed"
 }
 

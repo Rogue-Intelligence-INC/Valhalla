@@ -2,14 +2,13 @@
 
 <p align="center">
   <strong>ValhallaBase</strong> · structure-trainable memory · proactive agency · grounded context<br>
-  <strong>结构可训练记忆体</strong> · L1/L2/L3 训练栈 · 主动性 · 忠实检索 · 非固定尺寸 LM 产品
+  L1/L2/L3 training stack · faithful retrieval · non-fixed-size LM product
 </p>
 
 <p align="center">
   <a href="#one-click-test">One-click test</a> ·
   <a href="#highlights">Highlights</a> ·
-  <a href="#english">English</a> ·
-  <a href="#中文">中文</a> ·
+  <a href="#web-demo">Web demo</a> ·
   <a href="docs/README.md">Docs</a> ·
   <a href="https://github.com/Rogue-Intelligence-INC/valhalla-unified-core">VUC</a>
 </p>
@@ -28,6 +27,7 @@
 | [`apps/valhalla_chat/`](apps/valhalla_chat/) | Web console |
 | [`tools/valhalla_inference/`](tools/valhalla_inference/) | Benchmarks · Pareto matrix |
 | [`scripts/run_highlight_test.sh`](scripts/run_highlight_test.sh) | One-click pillar smoke |
+| [`scripts/demo_valhalla_chat.sh`](scripts/demo_valhalla_chat.sh) | One-click web demo |
 | [`reports/valhalla_inference/`](reports/valhalla_inference/) | Citeable JSON + summaries |
 
 Engineering checkout (NDA): full tree under license — product eval uses paths above only.
@@ -49,7 +49,7 @@ Engineering checkout (NDA): full tree under license — product eval uses paths 
 > **Not a 3B LM product.** Runtime default **0.5B**; **3B** = industry benchmark calibration only.
 
 <a name="one-click-test"></a>
-## One-click test（任意机器）
+## One-click test (any machine)
 
 Auto-detects **GPU/CPU**, **CUDA paths**, **Python venv**, and runs pillar smoke (~8–15 min GPU):
 
@@ -99,30 +99,50 @@ Valhalla is an **AI memory & hybrid inference platform** built around **Valhalla
 
 **Investor one-liner:** ValhallaBase is a **structure-trainable memory substrate** — session learning, Fate pretrain, and HF bake — with **industry-grade RAG faithfulness**, **proactive Fate agency**, and **backbone-orthogonal** decode. **3B is benchmark calibration only, not the product.**
 
----
-
 **Organization:** [Rogue Intelligence Inc.](https://github.com/Rogue-Intelligence-INC)
 
 **Canonical positioning:** [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
-
-### 自动反应 / Automatic Reaction
-
-| 能力 | 结果 | 说明 |
-|------|------|------|
-| **Agency Index** | **0.778** | 四轨 proactive AI |
-| **PPI-v2** | **0.650** | Fate 门控自动插话 · mismatch 不乱发 |
-| **MAR** | **100%** | 错域会话主动 abstain |
-| **FIR** | **0%** | 无幻觉式打断 |
-| **Crosslang CCU** | **100%** | EN/ZH/FR 同一 Triad 核心 |
-
-详见 [`PROACTIVE_AGENCY_BENCHMARK.md`](reports/valhalla_inference/PROACTIVE_AGENCY_BENCHMARK.md) · [`VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md`](reports/valhalla_inference/VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md)
 
 > **Product docs:** [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) · [`docs/valhalla/README.md`](docs/valhalla/README.md)
 
 ---
 
+<a name="web-demo"></a>
+## Web demo (interactive console)
+
+One-click: backend + release Flutter web (HTML renderer, no CanvasKit CDN):
+
+```bash
+./scripts/demo_valhalla_chat.sh
+```
+
+| URL | Purpose |
+|-----|---------|
+| http://127.0.0.1:8888/ | Chat UI — session warmup · hybrid QA · multimodal ingress |
+| http://127.0.0.1:8787/dashboard/ | Triad visualization dashboard |
+
+**What to verify:** connected status · Fate warmup · grounded hybrid answer · multimodal badge on user bubble · protocol log panel.
+
+Dev mode: `./scripts/run_valhalla_chat_web.sh` · release: `./scripts/run_valhalla_chat_web.sh --release`
+
+---
+
+### Automatic reaction (proactive agency)
+
+| Capability | Result | Notes |
+|------------|--------|-------|
+| **Agency Index** | **0.778** | Four-track proactive AI |
+| **PPI-v2** | **0.650** | Fate-gated nudge · no mismatch spam |
+| **MAR** | **100%** | Cross-domain sessions abstain |
+| **FIR** | **0%** | No hallucinated interruptions |
+| **Crosslang CCU** | **100%** | EN/ZH/FR share one Triad core |
+
+See [`PROACTIVE_AGENCY_BENCHMARK.md`](reports/valhalla_inference/PROACTIVE_AGENCY_BENCHMARK.md) · [`VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md`](reports/valhalla_inference/VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md)
+
+---
+
 <a name="highlights"></a>
-## ✦ Highlights / 亮点
+## Highlights
 
 ### Product pillars (what we sell)
 
@@ -148,15 +168,15 @@ Runtime default LM: **Qwen2.5-0.5B** when `VALHALLA_LM_MODEL` unset. Industry su
 
 [`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md) · [`INDUSTRY_3B_RUN_STATUS.md`](reports/valhalla_inference/INDUSTRY_3B_RUN_STATUS.md)
 
-### 孵化能力（Incubation — zero-weight learning）
+### Incubation (zero-weight learning)
 
-| 指标 | 结果 | 说明 |
-|------|------|------|
-| **TPI-v2** | **0.755** | 推理期结构学习（无 LM 梯度） |
-| **NPPI** | **0.848** | 新范式潜力 · novel **6/6** |
-| Transfer vs polluted | **+38.7pp** | Fate snapshot 救援 session 污染 |
+| Metric | Result | Notes |
+|--------|--------|-------|
+| **TPI-v2** | **0.755** | Inference-time structure learning (no LM gradients) |
+| **NPPI** | **0.848** | Novel paradigm potential · novel **6/6** |
+| Transfer vs polluted | **+38.7pp** | Fate snapshot rescues session pollution |
 
-详见 [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md)
+See [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md)
 
 ### Native capabilities (ValhallaBase, 2026-07)
 
@@ -180,14 +200,12 @@ Runtime default LM: **Qwen2.5-0.5B** when `VALHALLA_LM_MODEL` unset. Industry su
 
 ---
 
-<a name="english"></a>
-## English
-
-### Quick start
+## Quick start
 
 ```bash
 git submodule update --init valhalla-unified-core
 ./scripts/run_highlight_test.sh    # one-click pillar test
+./scripts/demo_valhalla_chat.sh    # web console demo
 ```
 
 Build + CLI demo:
@@ -223,37 +241,11 @@ LongBench **7/20** · MultiHop **14/25** · FRAMES **1/25** (wiki pending) · La
 
 ---
 
-<a name="中文"></a>
-## 中文
-
-### 是什么
-
-ValhallaBase 是 **结构可训练的记忆基座**（L1 会话学习 · L2 Fate 预训练 · L3 HF bake）；LM 仅为可替换 decode 头，**LM SGD 非默认路径**。**3B 仅用于行业 benchmark 标定，不是产品默认尺寸。**
-
-### 一键验证
-
-```bash
-./scripts/run_highlight_test.sh
-./scripts/run_highlight_test.sh --train-proof   # L1/L2/L3 可训练证明链
-```
-
-### 六大亮点
-
-1. **可训练结构** — Pretrain holdout 6/6 · TPI 0.755 · bake Δ≈298  
-2. **抗幻觉** — RAGTruth 99/100 · theme drift 0%  
-3. **上下文记忆** — Needle/RULER 100% · 长久记忆 94.7%  
-4. **结构正交** — RWKV / MoE / Dense 同 verdict  
-5. **主动性** — Agency 0.778 · PPI 0.65 · MAR 100%  
-6. **孵化学习** — transfer +38.7pp vs polluted session
-
-解读：[`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md) · [产品定位](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) · [可训练证明](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/TRAINABILITY_PROOF.md)
-
----
-
 ## Requirements
 
 - Rust 1.70+ · CUDA optional (`RUSTFLAGS='-L /opt/cuda/lib64'`)
 - Python 3.10+ · `.venv-llm` for trad LM / HF datasets
+- Flutter 3.24+ (web demo only) · `FLUTTER_ROOT` or `~/flutter`
 - **Runtime default LM:** `Qwen2.5-0.5B-Instruct` · override via `VALHALLA_LM_MODEL`
 
 ## License

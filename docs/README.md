@@ -11,7 +11,7 @@
 
 ---
 
-## ✦ Product pillars / 产品亮点
+## Product pillars
 
 | Pillar | Result | Doc |
 |--------|--------|-----|
@@ -37,13 +37,14 @@
 | Pack | Path | Use |
 |------|------|-----|
 | **One-click test** | [`scripts/run_highlight_test.sh`](../scripts/run_highlight_test.sh) | Pillar smoke on any Linux host |
-| **Flutter chat UI** | [`apps/valhalla_chat/`](../apps/valhalla_chat/) · [`run_valhalla_chat_web.sh`](../scripts/run_valhalla_chat_web.sh) | Web UI → `POST /v1/infer` |
+| **Web demo** | [`scripts/demo_valhalla_chat.sh`](../scripts/demo_valhalla_chat.sh) | Backend + release Flutter web UI |
+| **Flutter chat UI** | [`apps/valhalla_chat/`](../apps/valhalla_chat/) · [`run_valhalla_chat_web.sh`](../scripts/run_valhalla_chat_web.sh) | Dev web UI → `POST /v1/infer` |
 | **Product positioning** | [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) | **What ValhallaBase is / is not** |
 | **Release 2026-07-06** | [`valhalla/RELEASE_20260706.md`](valhalla/RELEASE_20260706.md) | Dynamic fragments · Fate convergence |
 | **3-minute demo** | [`valhalla/DEMO.md`](valhalla/DEMO.md) | Corpus → ask → session → proactive |
 | **ValhallaBase CLI & API** | [`valhalla/VALHALLA_BASE_CLI.md`](valhalla/VALHALLA_BASE_CLI.md) | **Protocol header · schemas · complete commands** |
 | **Product doc hub** | [`valhalla/README.md`](valhalla/README.md) | VUC links that work on GitHub |
-| **孵化能力总结** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) | **Triad 孵化 · TPI/NPPI · 零权重学习** |
+| **Incubation capability** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) | **Triad incubation · TPI/NPPI · zero-weight learning** |
 | **Valhalla Unified Core (VUC)** | [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) | Canonical product doc, protocols, landing page |
 | **Investor one-pager** | [INVESTOR_ONE_PAGER.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INVESTOR_ONE_PAGER.md) | Confidential memo |
 | **Valid benchmark interpretation** | [`../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) | Runs · meaning · because |
@@ -69,10 +70,12 @@
 | LaRA RAG vs LC | B | ×1 | 25% vs 70% |
 
 **Tier B positioning:** strong on **grounded retrieval & session memory**; weak on **multi-hop composition** today — next: structure-level multi-hop, not CoT in prompt window.
+
 | LoCoMo | B† | ×1 | 3% (64-line cap) |
 | FRAMES | C | — | **invalid** (no wiki) |
 
-**Master summary:** [`FULL_BENCHMARK_SUMMARY_20260702.md`](../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md) · [`EXPERIMENT_SUMMARY_20260630.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md) · [`DAILY_SUMMARY_20260701.md`](valhalla/DAILY_SUMMARY_20260701.md)  
+**Master summary:** [`FULL_BENCHMARK_SUMMARY_20260702.md`](../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md) · [`EXPERIMENT_SUMMARY_20260630.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md) · [`DAILY_SUMMARY_20260701.md`](valhalla/DAILY_SUMMARY_20260701.md)
+
 **Runner (2026-07-06):**
 
 ```bash
@@ -106,9 +109,11 @@ RUSTFLAGS='-L /opt/cuda/lib64' python3 tools/valhalla_inference/run_industry_ben
 | Incubation / trainable LLM | `python3 tools/valhalla_inference/run_incubation_llm_benchmarks.py --fast` |
 | Integrated status | `reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md` |
 
-## 中文
+---
 
-- **产品文档：** [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) · hub [`valhalla/README.md`](valhalla/README.md)
-- **3 分钟演示：** [`valhalla/DEMO.md`](valhalla/DEMO.md)
-- **有效 benchmark 解读：** `reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`
-- **实验 JSON：** `reports/valhalla_inference/`
+## Further reading
+
+- **Product docs:** [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) · hub [`valhalla/README.md`](valhalla/README.md)
+- **3-minute demo:** [`valhalla/DEMO.md`](valhalla/DEMO.md)
+- **Valid benchmark interpretation:** `reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`
+- **Experiment JSON:** `reports/valhalla_inference/`
