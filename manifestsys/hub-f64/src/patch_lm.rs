@@ -30,7 +30,7 @@ pub enum McqDecodeMode {
     /// Generate + Valhalla affinity/fate vote (legacy hybrid patch path).
     #[default]
     GenerateResolve,
-    /// Four-way teacher-forced logprob on `ANSWER: X` — single LM forward per option.
+    /// Teacher-forced logprob on `ANSWER: X` — GPU prefill + suffix decode (4 fwd/option).
     LogprobBatch,
 }
 
@@ -158,6 +158,73 @@ fn load_safetensors_from_dir(
     Ok(tensors)
 }
 
+fn env_bool(key: &str, default: bool) -> bool {
+    std::env::var(key)
+        .ok()
+        .map(|v| matches!(v.as_str(), "1" | "true" | "TRUE" | "yes" | "YES"))
+        .unwrap_or(default)
+}
+
+/// CUDA inference dtype. Default F32 (candle matmul-safe on 4090).
+/// Set `VALHALLA_LM_F16=1` for half weights; `VALHALLA_LM_BF16=1` if your candle build supports it.
+fn lm_inference_dtype(use_cpu: bool) -> DType {
+    if use_cpu {
+        return DType::F32;
+    }
+    if env_bool("VALHALLA_LM_BF16", false) {
+        DType::BF16
+    } else if env_bool("VALHALLA_LM_F16", false) {
+        DType::F16
+    } else {
+        DType::F32
+    }
+}
+
+fn patchable_tensor_keys(n_layers: usize) -> Vec<String> {
+    let mut keys = vec!["model.embed_tokens.weight".to_string()];
+    for li in 0..n_layers {
+        keys.push(format!("model.layers.{li}.input_layernorm.weight"));
+    }
+    keys
+}
+
+/// Reset only Valhalla patch targets (layernorm scales + embed rows) from base weights.
+fn reset_patchable_tensors(
+    base: &BaseWeights,
+    scratch: &mut HashMap<String, Tensor>,
+    n_layers: usize,
+) -> Result<(), String> {
+    for key in patchable_tensor_keys(n_layers) {
+        if let Some(src) = base.tensors.get(&key) {
+            scratch.insert(key, src.copy().map_err(|e| e.to_string())?);
+        }
+    }
+    Ok(())
+}
+
+/// Mutable tensor workspace — one full clone per model, per-question patchable reset only.
+struct PatchTensorScratch {
+    tensors: HashMap<String, Tensor>,
+}
+
+impl PatchTensorScratch {
+    fn new(base: &BaseWeights) -> Result<Self, String> {
+        Ok(Self {
+            tensors: base.clone_tensors()?,
+        })
+    }
+
+    fn reset_and_patch(
+        &mut self,
+        base: &BaseWeights,
+        n_layers: usize,
+        patch: impl FnOnce(&mut HashMap<String, Tensor>) -> Result<(), String>,
+    ) -> Result<ModelForCausalLM, String> {
+        reset_patchable_tensors(base, &mut self.tensors, n_layers)?;
+        patch(&mut self.tensors)?;
+        base.build_model(self.tensors.clone())
+    }
+}
 fn tensors_to_dtype(
     loaded: HashMap<String, Tensor>,
     dtype: DType,
@@ -234,25 +301,62 @@ struct BaseWeights {
 struct LmCacheKey {
     model_dir: PathBuf,
     use_cpu: bool,
+    force_f32: bool,
 }
 
 static LM_WEIGHT_CACHE: OnceLock<Mutex<HashMap<LmCacheKey, Arc<BaseWeights>>>> = OnceLock::new();
 static TOKENIZER_CACHE: OnceLock<Mutex<HashMap<PathBuf, Arc<Tokenizer>>>> = OnceLock::new();
 
+fn lm_cache_max_entries() -> usize {
+    std::env::var("VALHALLA_LM_CACHE_MAX")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .filter(|&n| n > 0)
+        .unwrap_or(1)
+}
+
+/// Drop cached LM weights/tokenizers (HTTP `/v1/release` or between backbone switches).
+pub fn clear_lm_caches() {
+    if let Some(cache) = LM_WEIGHT_CACHE.get() {
+        if let Ok(mut guard) = cache.lock() {
+            guard.clear();
+        }
+    }
+    if let Some(cache) = TOKENIZER_CACHE.get() {
+        if let Ok(mut guard) = cache.lock() {
+            guard.clear();
+        }
+    }
+}
+
 fn load_base_weights(model_dir: &Path, use_cpu: bool) -> Result<Arc<BaseWeights>, String> {
     let key = LmCacheKey {
         model_dir: model_dir.to_path_buf(),
         use_cpu,
+        force_f32: !env_bool("VALHALLA_LM_F16", false) && !env_bool("VALHALLA_LM_BF16", false),
     };
     let cache = LM_WEIGHT_CACHE.get_or_init(|| Mutex::new(HashMap::new()));
     let mut guard = cache.lock().map_err(|e| e.to_string())?;
     if let Some(hit) = guard.get(&key) {
         return Ok(Arc::clone(hit));
     }
+    let max = lm_cache_max_entries();
+    if max <= 1 {
+        guard.clear();
+    } else {
+        while guard.len() >= max {
+            if let Some(old) = guard.keys().next().cloned() {
+                guard.remove(&old);
+            } else {
+                break;
+            }
+        }
+    }
     eprintln!(
-        "patch_lm: loading weights {} (cpu={})",
+        "patch_lm: loading weights {} (cpu={} dtype={:?})",
         model_dir.display(),
-        use_cpu
+        use_cpu,
+        lm_inference_dtype(use_cpu)
     );
     let base = Arc::new(BaseWeights::load(model_dir, use_cpu)?);
     guard.insert(key, Arc::clone(&base));
@@ -282,7 +386,7 @@ impl BaseWeights {
         } else {
             Device::Cpu
         };
-        let dtype = DType::F32;
+        let dtype = lm_inference_dtype(use_cpu);
         let tensors = load_safetensors_from_dir(model_dir, &device, dtype)?;
         let cfg = load_hf_config(model_dir)?;
         Ok(Self {
@@ -331,7 +435,12 @@ fn apply_legacy_patch_tensors(
 
     let emb_key = "model.embed_tokens.weight".to_string();
     if let Some(emb) = tensors.get_mut(&emb_key) {
-        let mut rows = emb.to_vec2::<f32>().map_err(|e| e.to_string())?;
+        let emb_dtype = emb.dtype();
+        let mut rows = emb
+            .to_dtype(DType::F32)
+            .map_err(|e| e.to_string())?
+            .to_vec2::<f32>()
+            .map_err(|e| e.to_string())?;
         for &tid in token_ids {
             let idx = tid as usize;
             if idx >= rows.len() {
@@ -345,8 +454,11 @@ fn apply_legacy_patch_tensors(
         }
         let flat: Vec<f32> = rows.into_iter().flatten().collect();
         let vocab = emb.dim(0).map_err(|e| e.to_string())?;
-        *emb = Tensor::from_vec(flat, (vocab, hidden), emb.device())
+        let patched = Tensor::from_vec(flat, (vocab, hidden), emb.device())
+            .map_err(|e| e.to_string())?
+            .to_dtype(emb_dtype)
             .map_err(|e| e.to_string())?;
+        *emb = patched;
     }
     Ok(())
 }
@@ -388,7 +500,11 @@ fn apply_mcq_patch_bias(
         return Ok(());
     }
 
-    let mut rows = emb.to_vec2::<f32>().map_err(|e| e.to_string())?;
+    let mut rows = emb
+        .to_dtype(DType::F32)
+        .map_err(|e| e.to_string())?
+        .to_vec2::<f32>()
+        .map_err(|e| e.to_string())?;
     for (letter, w) in letter_weight {
         if w <= 0.0 {
             continue;
@@ -420,7 +536,11 @@ fn apply_mcq_patch_bias(
 
     let flat: Vec<f32> = rows.into_iter().flatten().collect();
     let vocab = emb.dim(0).map_err(|e| e.to_string())?;
-    *emb = Tensor::from_vec(flat, (vocab, hidden), emb.device()).map_err(|e| e.to_string())?;
+    let emb_dtype = emb.dtype();
+    *emb = Tensor::from_vec(flat, (vocab, hidden), emb.device())
+        .map_err(|e| e.to_string())?
+        .to_dtype(emb_dtype)
+        .map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -530,7 +650,23 @@ fn logprob_of_token(logits: &Tensor, token_id: u32) -> Result<f64, String> {
     Ok((logits_vec[tok] - log_sum) as f64)
 }
 
+fn token_input(device: &Device, tokens: &[u32]) -> Result<Tensor, String> {
+    Tensor::new(tokens, device)
+        .map_err(|e| e.to_string())?
+        .unsqueeze(0)
+        .map_err(|e| e.to_string())
+}
+
+fn squeeze_last_logits(logits: &Tensor) -> Result<Tensor, String> {
+    logits
+        .squeeze(0)
+        .map_err(|e| e.to_string())?
+        .squeeze(0)
+        .map_err(|e| e.to_string())
+}
+
 /// Sum log P(token[i] | token[0..i]) for i in `score_from`..len.
+/// GPU path: one prefill forward for the prefix, then one forward per suffix token.
 fn sequence_logprob_from(
     model: &mut ModelForCausalLM,
     device: &Device,
@@ -542,25 +678,26 @@ fn sequence_logprob_from(
     }
     model.clear_kv_cache();
     let mut total = 0.0f64;
-    for i in 1..tokens.len() {
-        let (ctxt, start_pos) = if i == 1 {
-            (&tokens[0..1], 0)
-        } else {
-            (&tokens[i - 1..i], i - 1)
-        };
-        let input = Tensor::new(ctxt, device)
-            .map_err(|e| e.to_string())?
-            .unsqueeze(0)
+
+    let prefill_len = score_from.max(1);
+    let prefill = &tokens[0..prefill_len];
+    let input = token_input(device, prefill)?;
+    let logits = model.forward(&input, 0).map_err(|e| e.to_string())?;
+    let logits = squeeze_last_logits(&logits)?;
+
+    if score_from >= 1 && tokens.len() > score_from {
+        total += logprob_of_token(&logits, tokens[score_from])?;
+    } else if score_from == 0 {
+        total += logprob_of_token(&logits, tokens[1])?;
+    }
+
+    for i in (score_from + 1).max(2)..tokens.len() {
+        let input = token_input(device, &tokens[i - 1..i])?;
+        let logits = model
+            .forward(&input, i - 1)
             .map_err(|e| e.to_string())?;
-        let logits = model.forward(&input, start_pos).map_err(|e| e.to_string())?;
-        let logits = logits
-            .squeeze(0)
-            .map_err(|e| e.to_string())?
-            .squeeze(0)
-            .map_err(|e| e.to_string())?;
-        if i >= score_from {
-            total += logprob_of_token(&logits, tokens[i])?;
-        }
+        let logits = squeeze_last_logits(&logits)?;
+        total += logprob_of_token(&logits, tokens[i])?;
     }
     Ok(total)
 }
@@ -654,6 +791,7 @@ pub fn decode_mcq_logprob_compose(
 /// Build LM from baked base + Triad `model_patch` after Stem/Tile/Hub shard recompose.
 fn build_compose_recompose_model(
     base: &BaseWeights,
+    scratch: &mut PatchTensorScratch,
     tokenizer: &Tokenizer,
     user_text: &str,
     recompose: &crate::task_decompose::RecomposePatch,
@@ -670,27 +808,31 @@ fn build_compose_recompose_model(
     if let Ok(enc) = tokenizer.encode(user_text, false) {
         token_ids.extend(enc.get_ids().iter().copied());
     }
-    let mut tensors = base.clone_tensors()?;
-    let strength = crate::task_decompose::compose_patch_strength(cfg.strength, recompose, score_type);
-    apply_legacy_patch_tensors(
-        &mut tensors,
-        &recompose.model_patch,
-        strength,
-        &token_ids,
-        hidden,
-        n_layers,
-    )?;
-    if score_type == "mcq" && !recompose.mcq_option_affinity.is_empty() {
-        apply_mcq_patch_bias(
-            &mut tensors,
-            tokenizer,
-            &recompose.mcq_option_affinity,
-            &[],
+    let strength =
+        crate::task_decompose::compose_patch_strength(cfg.strength, recompose, score_type);
+    let mcq_affinity = recompose.mcq_option_affinity.clone();
+    let score_type = score_type.to_string();
+    scratch.reset_and_patch(base, n_layers, |tensors| {
+        apply_legacy_patch_tensors(
+            tensors,
+            &recompose.model_patch,
             strength,
+            &token_ids,
             hidden,
+            n_layers,
         )?;
-    }
-    base.build_model(tensors)
+        if score_type == "mcq" && !mcq_affinity.is_empty() {
+            apply_mcq_patch_bias(
+                tensors,
+                tokenizer,
+                &mcq_affinity,
+                &[],
+                strength,
+                hidden,
+            )?;
+        }
+        Ok(())
+    })
 }
 
 fn generate(
@@ -709,21 +851,18 @@ fn generate(
         .to_vec();
     let mut logits_processor = LogitsProcessor::new(299792458, None, None);
     model.clear_kv_cache();
+    let prompt_len = tokens.len();
 
-    for index in 0..max_new {
-        let context_size = if index > 0 { 1 } else { tokens.len() };
-        let start_pos = tokens.len().saturating_sub(context_size);
-        let ctxt = &tokens[start_pos..];
-        let input = Tensor::new(ctxt, device)
-            .map_err(|e| e.to_string())?
-            .unsqueeze(0)
-            .map_err(|e| e.to_string())?;
+    for gen_i in 0..max_new {
+        let (input_slice, start_pos) = if gen_i == 0 && prompt_len > 0 {
+            (&tokens[..], 0usize)
+        } else {
+            let pos = tokens.len().saturating_sub(1);
+            (&tokens[pos..], pos)
+        };
+        let input = token_input(device, input_slice)?;
         let logits = model.forward(&input, start_pos).map_err(|e| e.to_string())?;
-        let logits = logits
-            .squeeze(0)
-            .map_err(|e| e.to_string())?
-            .squeeze(0)
-            .map_err(|e| e.to_string())?;
+        let logits = squeeze_last_logits(&logits)?;
         let next = logits_processor.sample(&logits).map_err(|e| e.to_string())?;
         tokens.push(next);
         if next == eos || next == im_end {
@@ -879,6 +1018,7 @@ pub fn run_patch_track_v4_with_snap(
     let front = crate::dl_front::DlFrontConfig::default();
     let pipe_cfg = PipelineConfig::default();
     let mut rows = Vec::with_capacity(prompts.len());
+    let mut patch_scratch = PatchTensorScratch::new(&base)?;
 
     for (i, p) in prompts.iter().enumerate() {
         eprintln!("patch_v4 [{}/{}] {}", i + 1, prompts.len(), p.id);
@@ -906,8 +1046,7 @@ pub fn run_patch_track_v4_with_snap(
             token_ids.extend(enc.get_ids().iter().copied());
         }
 
-        let mut tensors = base.clone_tensors()?;
-        let mp = &outcome.recompose.model_patch;
+        let mp = outcome.recompose.model_patch.clone();
         let effective_strength = if !outcome.recompose.compose_protocol.is_empty() {
             crate::task_decompose::compose_patch_strength(
                 cfg.strength,
@@ -921,35 +1060,37 @@ pub fn run_patch_track_v4_with_snap(
         } else {
             cfg.strength
         };
-        apply_legacy_patch_tensors(
-            &mut tensors,
-            mp,
-            effective_strength,
-            &token_ids,
-            hidden,
-            n_layers,
-        )?;
+        let fate_scores: Vec<(char, f64)> = outcome
+            .mcq_fate
+            .as_ref()
+            .map(|o| o.option_scores.clone())
+            .unwrap_or_default();
+        let mcq_affinity = outcome.recompose.mcq_option_affinity.clone();
+        let score_type = p.score_type.clone();
 
-        if p.score_type == "mcq" {
-            let fate_scores = outcome
-                .mcq_fate
-                .as_ref()
-                .map(|o| o.option_scores.as_slice())
-                .unwrap_or(&[]);
-            let affinity = &outcome.recompose.mcq_option_affinity;
-            if !affinity.is_empty() || fate_scores.len() >= 2 {
-                apply_mcq_patch_bias(
-                    &mut tensors,
-                    &tokenizer,
-                    affinity,
-                    fate_scores,
-                    effective_strength,
-                    hidden,
-                )?;
+        let mut model = patch_scratch.reset_and_patch(&base, n_layers, |tensors| {
+            apply_legacy_patch_tensors(
+                tensors,
+                &mp,
+                effective_strength,
+                &token_ids,
+                hidden,
+                n_layers,
+            )?;
+            if score_type == "mcq" {
+                if !mcq_affinity.is_empty() || fate_scores.len() >= 2 {
+                    apply_mcq_patch_bias(
+                        tensors,
+                        &tokenizer,
+                        &mcq_affinity,
+                        &fate_scores,
+                        effective_strength,
+                        hidden,
+                    )?;
+                }
             }
-        }
-
-        let mut model = base.build_model(tensors)?;
+            Ok(())
+        })?;
         let decode_tag = if let Some(ref cf) = outcome.compose_fate {
             crate::task_decompose::compose_fate_decode_tag(
                 &p.score_type,
@@ -1122,7 +1263,8 @@ fn run_baked_track_v4(
         .unwrap_or(151645);
     let im_end = tokenizer.token_to_id("<|im_end|>").unwrap_or(151645);
 
-    let mut default_model = base.build_model(base.clone_tensors()?)?;
+    let mut patch_scratch = PatchTensorScratch::new(&base)?;
+    let mut default_model = base.build_model(patch_scratch.tensors.clone())?;
     let mut rows = Vec::with_capacity(prompts.len());
     let cap = default_port_cap();
     let front = crate::dl_front::DlFrontConfig::default();
@@ -1194,6 +1336,7 @@ fn run_baked_track_v4(
                     let o = compose_outcome.as_ref().unwrap();
                     let mut model = build_compose_recompose_model(
                         &base,
+                        &mut patch_scratch,
                         &tokenizer,
                         &user_text,
                         &o.recompose,
@@ -1248,6 +1391,7 @@ fn run_baked_track_v4(
                     let o = compose_outcome.as_ref().unwrap();
                     let mut model = build_compose_recompose_model(
                         &base,
+                        &mut patch_scratch,
                         &tokenizer,
                         &user_text,
                         &o.recompose,
@@ -1282,6 +1426,7 @@ fn run_baked_track_v4(
                 let o = compose_outcome.as_ref().unwrap();
                 let mut model = build_compose_recompose_model(
                     &base,
+                    &mut patch_scratch,
                     &tokenizer,
                     &user_text,
                     &o.recompose,

@@ -32,6 +32,42 @@ def load_bundled(name: str) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def corpus_has_wiki_extract(corpus: list[str]) -> bool:
+    """True if corpus lines contain real Wikipedia text, not URL placeholders."""
+    for line in corpus:
+        s = str(line).strip()
+        if not s:
+            continue
+        if s.startswith("Reference:") and "wikipedia.org" in s:
+            continue
+        if len(s) >= 40:
+            return True
+    return False
+
+
+def frames_bundle_preflight(bundle_name: str = "frames_slice25.json") -> dict[str, Any]:
+    """Check FRAMES bundle wiki corpus readiness before citing scores."""
+    doc = load_bundled(bundle_name)
+    items = doc.get("items") or []
+    ok_items = 0
+    for it in items:
+        corpus = it.get("corpus") or []
+        if it.get("wiki_fetched") or corpus_has_wiki_extract(corpus):
+            ok_items += 1
+    meta_hits = int(doc.get("wiki_items_with_extract") or 0)
+    n = len(items)
+    viable = ok_items >= max(1, n // 2) or meta_hits >= max(1, n // 2)
+    return {
+        "bundle": bundle_name,
+        "n": n,
+        "wiki_items_with_extract_meta": meta_hits,
+        "items_with_real_corpus": ok_items,
+        "viable": viable,
+        "tier": "A" if viable else "C",
+        "fix": "python3 tools/standard_benchmarks/download_standard_benchmarks.py --frames-n 25",
+    }
+
+
 def split_context_to_corpus(context: str, *, max_lines: int = 32) -> list[str]:
     """Split long context into corpus lines (paragraph-first, then sentence chunks)."""
     text = context.strip()

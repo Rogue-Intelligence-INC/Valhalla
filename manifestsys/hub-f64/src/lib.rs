@@ -32,6 +32,8 @@ pub mod hybrid;
 #[cfg(feature = "patch-lm")]
 pub mod fused_lm;
 #[cfg(feature = "patch-lm")]
+pub mod context_routing;
+#[cfg(feature = "patch-lm")]
 pub mod valhalla_base;
 #[cfg(feature = "patch-lm")]
 pub mod valhalla_base_protocol;
@@ -39,6 +41,10 @@ pub mod valhalla_base_protocol;
 pub mod valhalla_base_client;
 #[cfg(feature = "patch-lm")]
 pub mod valhalla_base_bench;
+#[cfg(feature = "patch-lm")]
+pub mod frames_wiki;
+#[cfg(feature = "patch-lm")]
+pub mod valhalla_base_eval;
 #[cfg(feature = "patch-lm")]
 pub mod valhalla_base_http;
 pub mod mcq_fate;
@@ -48,13 +54,25 @@ pub mod multihop_fate;
 pub mod multimodal;
 pub mod compose_fate;
 pub mod model_fate;
-pub mod e7_algebra;
+pub mod fate_adaptive_algebra;
+pub use fate_adaptive_algebra::{
+    fate_adaptive_context_boost, fate_adaptive_distractor_filter, fate_context_pollution,
+    fate_land_tick, fate_landing_drift, fate_landing_fingerprints, fate_signal_land_into_lines,
+    fate_signal_landing_indices, fate_time_cite_bracket, line_query_score, score_qa_algebra,
+    strip_all_citations, sync_algebra_meta, FateAlgebraMeta, FateAlgebraState,
+};
 pub mod free_multimodal_fate;
 pub mod multimodal_compose;
 pub mod valhalla_adapter;
+pub mod natural_channels;
 pub mod native_qa;
 pub mod signal_ingress;
 pub mod fate_orchestrator;
+pub mod fate_parallel_longchain;
+#[cfg(feature = "patch-lm")]
+pub mod fate_pretrain_holdout;
+#[cfg(feature = "patch-lm")]
+pub mod fate_longchain_unified;
 pub mod smoke_report;
 pub mod triad_dashboard;
 pub mod triad_viz_types;
@@ -62,6 +80,7 @@ pub mod triad_viz;
 
 pub use fate_orchestrator::{
     export_fragment, fate_warmup_enabled, fragment_mode, ingest_corpus_with_fragments,
+    append_corpus_with_fragments_mode, production_fragment_mode,
     ingest_corpus_with_fragments_mode, ingest_corpus_with_fragments_mode_full,
     ingest_line_density_fragment,
     ingress_and_adapt, live_session_enabled, merge_fragments, merge_fragments_for_query,
@@ -100,16 +119,51 @@ pub use valhalla_base::{
 #[cfg(feature = "patch-lm")]
 pub use valhalla_base_protocol::{
     example_names, example_request, execute_request, execute_request_json, parse_request_json,
-    production_config, serialize_error, serialize_response, validate_request,
-    validate_request_json, ValhallaBaseErrorBody, ValhallaBaseErrorKind,
+    ensure_production_runtime, production_config, serialize_error, serialize_response,
+    validate_request, validate_request_json, ValhallaBaseErrorBody, ValhallaBaseErrorKind,
 };
 #[cfg(feature = "patch-lm")]
-pub use valhalla_base_client::{RunOptions, ValhallaBaseClient};
+pub use context_routing::{corpus_for_prompt, resolve_context_lines, targeted_context, ContextIngestMode};
+#[cfg(feature = "patch-lm")]
+pub use valhalla_base_client::{
+    RunBatchOptions, RunBatchOutcome, RunOptions, ValhallaBaseCheckpoint, ValhallaBaseClient,
+};
 #[cfg(feature = "patch-lm")]
 pub use valhalla_base_bench::{
-    default_corpus_dirs, run_local_corpus_demo, run_needle_session, run_v1_extensions,
-    write_report,
+    default_corpus_dirs, run_local_corpus_demo, run_multihop_fate_rag, run_multihop_hybrid_rag,
+    run_multihop_rag, run_needle_session, run_longchain_fate_final_test, run_v1_extensions, write_report,
 };
+#[cfg(feature = "patch-lm")]
+pub use valhalla_base_eval::{
+    run_frames_slice, run_locomo_slice, run_long_chain_item, run_mcq_batch_item, EvalControl,
+    FramesEvalReport, LongChainEvalReport,
+};
+#[cfg(feature = "patch-lm")]
+pub use natural_channels::{natural_channels_enabled, pulse_question_natural, ChannelPick};
+#[cfg(feature = "patch-lm")]
+pub use fate_orchestrator::{
+    compact_manifold_snapshot, export_session_after_ingest, fate_link_fragments_enabled,
+    fragment_only_session_enabled, production_prelearn_count, stored_fragments, FateLinkOutcome,
+};
+#[cfg(feature = "patch-lm")]
+pub use fate_parallel_longchain::{
+    build_longchain_substrate, longchain_parallel_enabled, run_fate_parallel_longchain_item,
+    run_fate_parallel_longchain_smoke, run_locomo_routing_ab, run_longchain_qa_parallel,
+    spread_from_client, FateParallelLongchainReport, FateParallelLongchainRow, FateRoutingAbReport,
+    FateRoutingAbRow,
+};
+#[cfg(feature = "patch-lm")]
+pub use fate_longchain_unified::{
+    run_fate_longchain_unified, AnchorDriftRow, FateLongchainUnifiedReport, UnifiedPhaseRow,
+    UnifiedRouting, PROTOCOL as FATE_LONGCHAIN_UNIFIED_PROTOCOL,
+};
+#[cfg(feature = "patch-lm")]
+pub use fate_pretrain_holdout::{
+    adaptive_corpus_for_pretrain, adaptive_corpus_for_single, run_fate_pretrain_holdout,
+    score_qa_pretrain, score_with_evidence, FatePretrainHoldoutReport, HoldoutItemResult,
+    PRETRAIN_MODE,
+};
+pub use valhalla_base_client::PRETRAIN_PIPE_MODE;
 #[cfg(feature = "patch-lm")]
 pub use valhalla_base_http::{infer_sync, serve as serve_valhalla_base_http};
 
@@ -718,8 +772,22 @@ impl ValhallaHub {
         let route_share: [f64; 4] =
             std::array::from_fn(|i| routed[i] as f64 / total);
 
-        let pass_i = crate::e7_algebra::qa_pass_intensity();
-        let fail_i = crate::e7_algebra::qa_fail_intensity();
+        let state = {
+            let prefs: Vec<f64> = self
+                .fate_system
+                .calculate_system_preferences()
+                .affinities
+                .iter()
+                .copied()
+                .collect();
+            crate::fate_adaptive_algebra::FateAlgebraState::from_hub_prefs(
+                &prefs,
+                &crate::fate_adaptive_algebra::FateAlgebraMeta::default(),
+            )
+        };
+
+        let pass_i = state.qa_pass_intensity();
+        let fail_i = state.qa_fail_intensity();
 
         for i in 0..4 {
             let system = Self::quad_from_index(i);
@@ -739,7 +807,7 @@ impl ValhallaHub {
         self.mark_epoch_complete();
     }
 
-    /// Line-level structural feedback into Fate (grinder Q↔line align, E7 deltas).
+    /// Line-level structural feedback into Fate (grinder Q↔line align, adaptive deltas).
     pub fn feedback_corpus_line_structural(
         &mut self,
         line: &str,
@@ -747,15 +815,28 @@ impl ValhallaHub {
         on_topic: bool,
     ) {
         let primary = Self::route_corpus_line_semantic(line);
+        let state = {
+            let prefs: Vec<f64> = self
+                .fate_system
+                .calculate_system_preferences()
+                .affinities
+                .iter()
+                .copied()
+                .collect();
+            crate::fate_adaptive_algebra::FateAlgebraState::from_hub_prefs(
+                &prefs,
+                &crate::fate_adaptive_algebra::FateAlgebraMeta::default(),
+            )
+        };
         let intensity = if on_topic {
-            crate::e7_algebra::affinity_pos_delta(align)
+            state.affinity_pos_delta(align)
         } else {
-            crate::e7_algebra::affinity_neg_delta(align)
+            state.affinity_neg_delta(align)
         };
         let quality = if on_topic {
             0.5 + 0.45 * align.clamp(0.0, 1.0)
         } else {
-            crate::e7_algebra::neg_coupling()
+            state.neg_coupling()
         };
         self.feedback_to_fate_with_quality(&primary, intensity, Some(quality));
     }

@@ -90,7 +90,10 @@ fi
 
 export HF_ENDPOINT="${HF_ENDPOINT:-https://hf-mirror.com}"
 export VALHALLA_LM_MODEL="${VALHALLA_LM_MODEL:-Qwen/Qwen2.5-0.5B-Instruct}"
-export VALHALLA_INGRESS_RESOURCE_PERCENT="${VALHALLA_INGRESS_RESOURCE_PERCENT:-70}"
+export VALHALLA_INGRESS_RESOURCE_PERCENT="${VALHALLA_INGRESS_RESOURCE_PERCENT:-50}"
+export VALHALLA_INGRESS_MAX_ITEMS="${VALHALLA_INGRESS_MAX_ITEMS:-48}"
+export VALHALLA_LM_CACHE_MAX="${VALHALLA_LM_CACHE_MAX:-1}"
+export VALHALLA_BASE_NO_SERVE="${VALHALLA_BASE_NO_SERVE:-1}"
 export VALHALLA_GIT_SHA="${VALHALLA_GIT_SHA:-$(git rev-parse --short HEAD 2>/dev/null || echo dev)}"
 
 VB="${REPO}/target/release/valhalla_base"
@@ -180,12 +183,12 @@ run_step "proactive gates" \
   "$PY" tools/valhalla_inference/test_proactive_fate_v2.py --gates-only
 
 if [[ "$FULL" -eq 1 ]]; then
-  log "Backbone orthogonality (fast panel)"
-  run_step_optional "independence fast" \
-    "$PY" tools/valhalla_inference/run_valhalla_independence.py --fast --with-memory
+  log "Backbone orthogonality — practical six-class panel (fast)"
+  run_step_optional "independence practical" \
+    "$PY" tools/valhalla_inference/run_valhalla_independence.py --practical --fast --with-memory
 
-  log "Fate-core suite"
-  run_step_optional "fate-core" \
+  log "Fate-core suite (smoke — bounded RAM)"
+  run_step_optional "fate-core smoke" \
     "$PY" tools/valhalla_inference/run_suite_sequential.py --suite fate-core
 fi
 

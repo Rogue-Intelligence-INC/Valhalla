@@ -26,6 +26,7 @@ import os
 import subprocess
 import sys
 import time
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -44,10 +45,12 @@ from benchmark_cli import (  # noqa: E402
 from benchmark_env import (  # noqa: E402
     DEFAULT_LM_MODEL,
     apply_gpu_env,
+    apply_resource_budget,
     benchmark_calibration_lm,
     benchmark_runtime,
     default_lm_model,
     kill_serve_on_port,
+    release_resources,
 )
 
 REPORTS = REPO / "reports/valhalla_inference"
@@ -102,7 +105,7 @@ REPORT_FILES: dict[str, str] = {
 
 
 def frames_bundle_ok() -> bool:
-    """Detect corrupted FRAMES bundle (wiki_links split char-by-char)."""
+    """FRAMES bundle must have parseable wiki_links AND real Wikipedia extracts."""
     p = REPO / "tools/standard_benchmarks/bundled/frames_slice25.json"
     if not p.is_file():
         return False
@@ -114,27 +117,66 @@ def frames_bundle_ok() -> bool:
     if not items:
         return False
     links = items[0].get("wiki_links") or []
-    return bool(links) and all(len(str(u)) > 8 for u in links[: min(2, len(links))])
+    if not links or not all(len(str(u)) > 8 for u in links[: min(2, len(links))]):
+        return False
+    meta = int(doc.get("wiki_items_with_extract") or 0)
+    if meta >= max(1, len(items) // 2):
+        return True
+    # inline corpus check
+    sys.path.insert(0, str(REPO / "tools/standard_benchmarks"))
+    from common import corpus_has_wiki_extract  # noqa: WPS433
+
+    ok = sum(
+        1
+        for it in items
+        if it.get("wiki_fetched") or corpus_has_wiki_extract(it.get("corpus") or [])
+    )
+    return ok >= max(1, len(items) // 2)
 
 
-def ensure_frames_bundle(*, offline: bool, verbose: bool) -> None:
+def wiki_reachable(*, timeout_sec: float = 6.0) -> bool:
+    try:
+        urllib.request.urlopen(
+            "https://en.wikipedia.org/w/api.php?action=query&format=json&titles=Main_Page",
+            timeout=timeout_sec,
+        )
+        return True
+    except Exception:
+        return False
+
+
+def ensure_frames_bundle(*, offline: bool, verbose: bool) -> bool:
+    """Ensure FRAMES bundle has Wikipedia extracts. Returns True if viable."""
     if frames_bundle_ok():
-        return
-    print("FRAMES bundle invalid — re-downloading frames_slice25 …", flush=True)
+        return True
+    if offline or not wiki_reachable():
+        print(
+            "FRAMES bundle lacks wiki extracts; Wikipedia unreachable or offline — "
+            "skipping frames-v1 (Tier C; run ./scripts/prefetch_frames_wiki.sh when online).",
+            flush=True,
+        )
+        return False
+    print("FRAMES bundle missing wiki extracts — re-downloading frames_slice25 …", flush=True)
     dl_py = VENV_PY if VENV_PY.is_file() else PY
     dl_cmd = [
         str(dl_py),
         str(REPO / "tools/standard_benchmarks/download_standard_benchmarks.py"),
         "--frames-n",
         "25",
-        "--no-wiki-fetch",
     ]
     if offline:
         dl_cmd.append("--offline")
     dl_env = {**os.environ, "HF_ENDPOINT": os.environ.get("HF_ENDPOINT", "https://hf-mirror.com")}
     rc = run_cmd("download-frames", dl_cmd, extra_env=dl_env, verbose=verbose)
     if rc or not frames_bundle_ok():
-        raise RuntimeError("FRAMES bundle still invalid after download — check wiki_links parsing")
+        print(
+            "FRAMES bundle still lacks Wikipedia extracts — "
+            "run ./scripts/prefetch_frames_wiki.sh when en.wikipedia.org is reachable. "
+            "Skipping frames-v1 (Tier C; do not cite prior 1/25 scores).",
+            flush=True,
+        )
+        return False
+    return True
 
 
 def ensure_valhalla_base(extra_env: dict[str, str]) -> Path:
@@ -229,7 +271,18 @@ def aggregate() -> dict:
         doc = load_json(fname)
         if not doc:
             continue
-        if fname == "lara_v1_test.json":
+        if fname == "frames_v1_test.json" and not frames_bundle_ok():
+            entries.append(
+                {
+                    "name": name,
+                    "protocol": doc.get("protocol"),
+                    "result": "SKIPPED (Tier C — no wiki corpus)",
+                    "verdict": "TIER_C_INVALID",
+                    "file": fname,
+                    "citeable": False,
+                }
+            )
+            continue
             rag = doc.get("valhalla_rag") or {}
             result = f"RAG {rag.get('correct', '?')}/{doc.get('n', '?')}"
             lc = doc.get("trad_long_context")
@@ -353,6 +406,10 @@ def main() -> None:
     ap.add_argument("--fresh", action="store_true", help="ignore suite checkpoint (re-run all)")
     args = ap.parse_args()
 
+    apply_gpu_env()
+    apply_resource_budget()
+    release_resources()
+
     if args.checkpoint_dir is None and (args.resume or args.verbose):
         args.checkpoint_dir = CHECKPOINTS_DEFAULT
 
@@ -361,7 +418,9 @@ def main() -> None:
         print(f"→ {md}")
         return
 
-    ensure_frames_bundle(offline=args.offline_download, verbose=args.verbose)
+    frames_ok = ensure_frames_bundle(offline=args.offline_download, verbose=args.verbose)
+    if not frames_ok and "frames" not in args.skip:
+        args.skip = list(args.skip) + ["frames"]
 
     if args.download_first:
         dl_py = VENV_PY if VENV_PY.is_file() else PY
@@ -394,6 +453,7 @@ def main() -> None:
     with benchmark_runtime(
         extra_env={
             "VALHALLA_LM_MODEL": benchmark_calibration_lm(),
+            "VALHALLA_BASE_NO_SERVE": "1",
         },
     ) as gpu_env:
         print(
@@ -453,6 +513,7 @@ def main() -> None:
                 failed += 1
                 if not args.verbose:
                     print(f"[{label}] FAILED (continuing suite)", flush=True)
+            release_resources()
 
         if not paused:
             suite_bar.finish(f"done ({time.monotonic() - suite_start:.0f}s)")

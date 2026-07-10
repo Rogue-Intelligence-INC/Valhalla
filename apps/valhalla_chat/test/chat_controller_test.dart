@@ -49,5 +49,16 @@ void main() {
     await ctrl.sendMessage('second question');
     expect(ctrl.messages.last.text, 'second answer');
     expect(call, 2);
+    ctrl.dispose();
+  });
+
+  test('dispose suppresses notifyListeners after teardown', () {
+    final api = ValhallaApi(baseUrl: 'http://127.0.0.1:8787');
+    final ctrl = ChatController(api: api);
+    var notifications = 0;
+    ctrl.addListener(() => notifications += 1);
+    ctrl.dispose();
+    ctrl.setProactiveEnabled(false);
+    expect(notifications, 0);
   });
 }

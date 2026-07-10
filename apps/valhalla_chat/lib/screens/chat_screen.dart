@@ -24,19 +24,28 @@ class _ChatScreenState extends State<ChatScreen> {
   final _scroll = ScrollController();
   final _urlInput = TextEditingController(text: 'http://127.0.0.1:8787');
   double _logHeight = 220;
+  ChatController? _chat;
 
   @override
   void initState() {
     super.initState();
+    _chat = context.read<ChatController>();
+    _chat!.addListener(_onChatUpdate);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctrl = context.read<ChatController>();
-      ctrl.checkConnection();
-      ctrl.setSystemContext(_contextInput.text);
+      if (!mounted) return;
+      _chat!.checkConnection();
+      _chat!.setSystemContext(_contextInput.text);
     });
+  }
+
+  void _onChatUpdate() {
+    if (!mounted) return;
+    _scrollToBottom();
   }
 
   @override
   void dispose() {
+    _chat?.removeListener(_onChatUpdate);
     _input.dispose();
     _contextInput.dispose();
     _urlInput.dispose();
@@ -64,7 +73,6 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final ctrl = context.watch<ChatController>();
-    _scrollToBottom();
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0E14),

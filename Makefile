@@ -64,11 +64,17 @@ repro: build build-all smoke suite test-triad
 	@echo "→ Dashboard: make dashboard  OR  make serve-dash"
 	@echo "→ Manifest: curl -s http://127.0.0.1:8787/v1/repro (when serve running)"
 
-highlight:
+make highlight:
 	./scripts/run_highlight_test.sh
 
-highlight-full:
+make highlight-full:
 	./scripts/run_highlight_test.sh --full
+
+make full-test:
+	./scripts/run_full_valhalla_test.sh --skip-build
+
+incubation-bench:
+	.venv-llm/bin/python3 tools/valhalla_inference/run_incubation_llm_benchmarks.py --fast
 
 highlight-train-proof:
 	./scripts/run_highlight_test.sh --train-proof

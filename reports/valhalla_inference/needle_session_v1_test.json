@@ -1,15 +1,13 @@
 {
   "benchmark": "Needle-in-a-haystack (session append)",
-  "correct": 4,
+  "correct": 2,
   "depths": [
     5,
-    10,
-    20,
-    30
+    10
   ],
   "fate_pretrain_passes": 0,
   "long_chain_rust": false,
-  "n": 4,
+  "n": 2,
   "needle": "The magic registration code for Project Valhalla is XK-7742.",
   "prior_knowledge_lines": 0,
   "production_stack": false,
@@ -28,20 +26,8 @@
       "correct": true,
       "depth": 10,
       "session_lines": 21
-    },
-    {
-      "answer": "[corpus:20] [fate:90@20] The magic registration code for Project Valhalla is XK-7742",
-      "correct": true,
-      "depth": 20,
-      "session_lines": 41
-    },
-    {
-      "answer": "[corpus:30] [fate:130@30] The magic registration code for Project Valhalla is XK-7742",
-      "correct": true,
-      "depth": 30,
-      "session_lines": 61
     }
   ],
-  "timestamp": "1783659142",
+  "timestamp": "1783717227",
   "verdict": "NEEDLE_STRONG"
 }

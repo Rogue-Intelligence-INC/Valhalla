@@ -12,6 +12,11 @@ class ChatController extends ChangeNotifier {
 
   final ValhallaApi _api;
   final _uuid = const Uuid();
+  bool _disposed = false;
+
+  void _safeNotify() {
+    if (!_disposed) notifyListeners();
+  }
 
   final List<ChatMessage> messages = [];
   final List<ProtocolLogEntry> protocolLog = [];
@@ -39,13 +44,13 @@ class ChatController extends ChangeNotifier {
 
   void setShowProtocolLog(bool v) {
     showProtocolLog = v;
-    notifyListeners();
+    _safeNotify();
   }
 
   void setBaseUrl(String url) {
     baseUrl = url;
     _api.baseUrl = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
-    notifyListeners();
+    _safeNotify();
   }
 
   void setSystemContext(String text) {
@@ -54,37 +59,37 @@ class ChatController extends ChangeNotifier {
         .map((l) => l.trim())
         .where((l) => l.isNotEmpty)
         .toList();
-    notifyListeners();
+    _safeNotify();
   }
 
   void setProactiveEnabled(bool v) {
     proactiveState = proactiveState.copyWith(enabled: v);
-    notifyListeners();
+    _safeNotify();
   }
 
   void setAutoProactiveAfterTurn(bool v) {
     autoProactiveAfterTurn = v;
-    notifyListeners();
+    _safeNotify();
   }
 
   void setCoreFusion(bool v) {
     coreFusion = v;
-    notifyListeners();
+    _safeNotify();
   }
 
   void setMultimodalEnabled(bool v) {
     multimodal.enabled = v;
-    notifyListeners();
+    _safeNotify();
   }
 
   void updateMultimodal(MultimodalDraft draft) {
     multimodal = draft;
-    notifyListeners();
+    _safeNotify();
   }
 
   void clearProtocolLog() {
     protocolLog.clear();
-    notifyListeners();
+    _safeNotify();
   }
 
   void _logOut(String path, Map<String, dynamic> body, String summary) {
@@ -153,12 +158,12 @@ class ChatController extends ChangeNotifier {
       connectionError = e.toString();
       _logIn('/health', null, summary: e.toString(), error: true);
     }
-    notifyListeners();
+    _safeNotify();
   }
 
   Future<void> _refreshDashboard() async {
     dashboardViz = await _api.fetchDashboardState();
-    notifyListeners();
+    _safeNotify();
   }
 
   void _applyInferResult(InferResult result) {
@@ -172,7 +177,7 @@ class ChatController extends ChangeNotifier {
   Future<void> warmup() async {
     if (_systemContext.isEmpty) return;
     loading = true;
-    notifyListeners();
+    _safeNotify();
     try {
       final body = _api.buildInferBody(
         questionText: '',
@@ -199,7 +204,7 @@ class ChatController extends ChangeNotifier {
       _logIn('/v1/infer', null, summary: e.message, error: true);
     } finally {
       loading = false;
-      notifyListeners();
+      _safeNotify();
     }
   }
 
@@ -229,7 +234,7 @@ class ChatController extends ChangeNotifier {
       ),
     );
     loading = true;
-    notifyListeners();
+    _safeNotify();
 
     try {
       final isFirstTurn = _session == null;
@@ -328,7 +333,7 @@ class ChatController extends ChangeNotifier {
       );
     } finally {
       loading = false;
-      notifyListeners();
+      _safeNotify();
     }
   }
 
@@ -336,14 +341,14 @@ class ChatController extends ChangeNotifier {
     if (_session == null) {
       _appendSystem('Proactive requires session — send a message or warmup first.',
           error: true);
-      notifyListeners();
+      _safeNotify();
       return;
     }
     loading = true;
-    notifyListeners();
+    _safeNotify();
     await _runProactiveInternal(silent: false);
     loading = false;
-    notifyListeners();
+    _safeNotify();
   }
 
   Future<void> _runProactiveInternal({required bool silent}) async {
@@ -408,7 +413,7 @@ class ChatController extends ChangeNotifier {
       gitSha: modelState.gitSha,
     );
     proactiveState = proactiveState.copyWith(lastOutcome: null);
-    notifyListeners();
+    _safeNotify();
   }
 
   void _appendSystem(String text, {bool error = false}) {
@@ -425,6 +430,7 @@ class ChatController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _api.dispose();
     super.dispose();
   }

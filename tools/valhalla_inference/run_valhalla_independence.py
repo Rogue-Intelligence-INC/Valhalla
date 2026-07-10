@@ -23,6 +23,9 @@ Usage:
   # explicit presets
   .venv-llm/bin/python3 tools/valhalla_inference/run_valhalla_independence.py \\
     --preset rwkv7_0.1b --preset phi_tiny_moe --preset qwen_3b --fast
+
+  # six-class paper panel (dense/ssm/rwkv/moe/encoder/vision)
+  .venv-llm/bin/python3 tools/valhalla_inference/run_valhalla_independence.py --paper --fast
 """
 
 from __future__ import annotations
@@ -42,7 +45,7 @@ sys.path.insert(0, str(REPO / "tools/fair_benchmark"))
 sys.path.insert(0, str(REPO / "tools/standard_benchmarks"))
 
 from backbone_registry import Backbone, resolve  # noqa: E402
-from benchmark_env import apply_gpu_env  # noqa: E402
+from benchmark_env import apply_gpu_env, apply_resource_budget, release_resources  # noqa: E402
 from run_scale_benchmark import targeted_context  # noqa: E402
 from valhalla_backbone import (  # noqa: E402
     PROTOCOL as BACKBONE_PROTOCOL,
@@ -112,7 +115,8 @@ def _needle_run(*, lm_model: str | None, depths: list[int]) -> dict[str, Any]:
 
 
 def run_memory_smoke(backbones: list[Backbone], *, fast: bool) -> dict[str, Any]:
-    """Session needle recall — hybrid open path must match native reference."""
+    """Session needle recall — hybrid open path must match native reference (causal LM only)."""
+    causal = [bb for bb in backbones if bb.kind == "causal_lm"]
     depths = [5, 10] if fast else [5, 10, 20]
     ref = _needle_run(lm_model=None, depths=depths)
     ref_map = {r["depth"]: r["correct"] for r in ref["rows"]}
@@ -123,9 +127,10 @@ def run_memory_smoke(backbones: list[Backbone], *, fast: bool) -> dict[str, Any]
         "reference": ref,
         "backbones": {},
         "comparisons": [],
+        "skipped_non_causal": [bb.id for bb in backbones if bb.kind != "causal_lm"],
     }
     all_match = True
-    for bb in backbones:
+    for bb in causal:
         row = _needle_run(lm_model=bb.hf_id, depths=depths)
         out["backbones"][bb.id] = row
         _release_gpu()
@@ -141,17 +146,7 @@ def run_memory_smoke(backbones: list[Backbone], *, fast: bool) -> dict[str, Any]
 
 
 def _release_gpu() -> None:
-    import gc
-
-    gc.collect()
-    try:
-        import torch
-
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            torch.cuda.synchronize()
-    except Exception:
-        pass
+    release_resources()
 
 
 def _resource_env(*, smoke: bool = False) -> dict[str, str]:
@@ -327,6 +322,7 @@ def run_independence(
     limit: int = 0,
     with_trad: bool = False,
     skip_missing: bool = True,
+    panel: str = "default",
 ) -> dict[str, Any]:
     corpus, prompts = load_tasks(fast=fast, limit=limit)
     ref = run_reference(corpus, prompts)
@@ -356,7 +352,13 @@ def run_independence(
     tested = 0
 
     for bb in backbones:
-        row = experiment(bb, corpus, prompts, skip_missing=skip_missing, arms=arms)
+        bb_arms: tuple[str, ...]
+        if bb.kind == "causal_lm":
+            bb_arms = arms
+        else:
+            bb_arms = tuple(a for a in bb.valhalla_arms() if a in ("native", "encoder", "vision"))
+
+        row = experiment(bb, corpus, prompts, skip_missing=skip_missing, arms=bb_arms)
         report["backbones"][bb.id] = row
         _release_gpu()
         if row.get("skipped"):
@@ -364,6 +366,17 @@ def run_independence(
                 "backbone": bb.id,
                 "skipped": True,
                 "error": row.get("error"),
+            })
+            continue
+
+        if bb.kind != "causal_lm":
+            report["comparisons"].append({
+                "backbone": bb.id,
+                "kind": bb.kind,
+                "category": bb.category,
+                "appendix": True,
+                "arms": list((row.get("arms") or {}).keys()),
+                "note": "encoder/vision — not open-path orthogonality vs causal ref",
             })
             continue
 
@@ -411,8 +424,12 @@ def run_independence(
         "verdict": verdict,
         "backbones_tested": tested,
         "backbones_total": len(backbones),
+        "causal_tested": tested,
+        "causal_total": sum(1 for b in backbones if b.kind == "causal_lm"),
+        "appendix_count": sum(1 for c in report["comparisons"] if c.get("appendix")),
         "reference_accuracy": ref["native"]["accuracy"],
         "independent": verdict == "VALHALLA_BASE_INDEPENDENT",
+        "panel": panel,
     }
     return report
 
@@ -447,6 +464,9 @@ def _print_report(report: dict[str, Any]) -> None:
                 print(f"  trad control {cmp['backbone']}: {cmp.get('correct')}/{cmp.get('n')}")
             continue
         tag = "PASS" if cmp.get("match") else "FAIL"
+        if cmp.get("appendix"):
+            print(f"  [appendix] {cmp['backbone']} ({cmp.get('category')}) arms={cmp.get('arms')}")
+            continue
         print(f"  {tag} {cmp['backbone']}.{cmp['arm']} vs ref")
         for m in cmp.get("mismatches") or []:
             print(f"    ! {m.get('id')}: ref={m.get('ref_answer', m.get('reason'))!r}")
@@ -475,6 +495,16 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="ValhallaBase backbone-independence battery")
     ap.add_argument("--hf", action="append", help="Ad-hoc HF id (repeatable)")
     ap.add_argument("--preset", action="append", help="PRESETS key (repeatable)")
+    ap.add_argument(
+        "--paper",
+        action="store_true",
+        help="Six-class paper panel (HF paper presets; may skip if weights missing)",
+    )
+    ap.add_argument(
+        "--practical",
+        action="store_true",
+        help="Six-class panel with cached/light presets (qwen_3b · mamba · rwkv · phi-moe · modernbert)",
+    )
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--with-trad", action="store_true", help="Also run trad (control, slower)")
@@ -490,8 +520,13 @@ def main() -> int:
     args = ap.parse_args()
 
     apply_gpu_env()
-    os.environ.setdefault("VALHALLA_INGRESS_RESOURCE_PERCENT", "70")
-    os.environ.setdefault("VALHALLA_INGRESS_MAX_ITEMS", "96")
+    apply_resource_budget()
+    release_resources()
+    os.environ["VALHALLA_BASE_NO_SERVE"] = "1"
+    os.environ.pop("VALHALLA_BASE_URL", None)
+    os.environ.setdefault("VALHALLA_INGRESS_RESOURCE_PERCENT", "50")
+    os.environ.setdefault("VALHALLA_INGRESS_MAX_ITEMS", "48")
+    os.environ.setdefault("VALHALLA_LM_CACHE_MAX", "1")
     os.environ.setdefault("HF_ENDPOINT", os.environ.get("HF_ENDPOINT", "https://hf-mirror.com"))
 
     merge_path = args.merge_into or (REPORTS / "valhalla_independence_test.json")
@@ -499,8 +534,13 @@ def main() -> int:
         report = json.loads(merge_path.read_text(encoding="utf-8"))
         print(f"=== {PROTOCOL} smokes-only (merged) ===\n")
     else:
-        presets = args.preset or (None if args.hf else list(DEFAULT_PRESETS))
-        backbones = resolve(hf=args.hf, preset=presets)
+        if args.practical:
+            backbones = resolve(practical=True)
+        elif args.paper:
+            backbones = resolve(paper=True)
+        else:
+            presets = args.preset or (None if args.hf else list(DEFAULT_PRESETS))
+            backbones = resolve(hf=args.hf, preset=presets)
         if not backbones:
             print("No backbones. Use --preset or --hf.", file=sys.stderr)
             return 1
@@ -511,6 +551,7 @@ def main() -> int:
             limit=args.limit,
             with_trad=args.with_trad,
             skip_missing=not args.fail_on_skip,
+            panel="practical" if args.practical else ("paper" if args.paper else "default"),
         )
 
         if args.with_memory or args.extended:

@@ -155,7 +155,7 @@
     {
       "answer": "Google",
       "correct": true,
-      "decode_path": "open_fog_abstain+multihop_v2_entity",
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_entity",
       "id": "MH_9",
       "query_fragment_scores": [
         0.2422102484226018
@@ -179,7 +179,7 @@
     {
       "answer": "Yes",
       "correct": false,
-      "decode_path": "open_fog_abstain+multihop_v2_yesno",
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/hub/multihop_v2_yesno+multihop_v2_yesno",
       "id": "MH_886",
       "query_fragment_scores": [
         0.26276763553241533
@@ -275,7 +275,7 @@
     {
       "answer": "Google",
       "correct": true,
-      "decode_path": "open_fog_abstain+multihop_v2_entity",
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
       "id": "MH_2064",
       "query_fragment_scores": [
         0.41024655557301026
@@ -299,7 +299,7 @@
     {
       "answer": "Google",
       "correct": true,
-      "decode_path": "open_fog_abstain+multihop_v2_entity",
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_entity+multihop_v2_entity",
       "id": "MH_2106",
       "query_fragment_scores": [
         0.41921016505981906
@@ -309,6 +309,6 @@
       ]
     }
   ],
-  "timestamp": "1783660426",
+  "timestamp": "1783717366",
   "verdict": "OPEN_QA_VIABLE"
 }

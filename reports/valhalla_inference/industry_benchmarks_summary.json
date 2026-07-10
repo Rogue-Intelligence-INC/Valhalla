@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-10T05:43:44.178453+00:00",
+  "timestamp": "2026-07-10T21:03:23.595685+00:00",
   "benchmarks": [
     {
       "name": "RAGTruth",
@@ -11,14 +11,14 @@
     {
       "name": "RAGTruth-100",
       "protocol": "ragtruth-full-v1",
-      "result": "99/100 (99%)",
+      "result": "10/10 (100%)",
       "verdict": "RAGTRUTH_STRONG",
       "file": "ragtruth_full_v1_test.json"
     },
     {
       "name": "Needle session",
       "protocol": "needle-session-v1",
-      "result": "4/4 (100%)",
+      "result": "2/2 (100%)",
       "verdict": "NEEDLE_STRONG",
       "file": "needle_session_v1_test.json"
     },
@@ -32,9 +32,10 @@
     {
       "name": "FRAMES",
       "protocol": "frames-v1-rust",
-      "result": "1/25 (4%)",
-      "verdict": "OPEN_QA_DEVELOPING",
-      "file": "frames_v1_test.json"
+      "result": "SKIPPED (Tier C — no wiki corpus)",
+      "verdict": "TIER_C_INVALID",
+      "file": "frames_v1_test.json",
+      "citeable": false
     },
     {
       "name": "MultiHop-RAG",
@@ -67,21 +68,21 @@
     {
       "name": "LoCoMo",
       "protocol": "locomo-v1-rust",
-      "result": "14/30 (47%)",
-      "verdict": "OPEN_QA_VIABLE",
+      "result": "1/3 (33%)",
+      "verdict": "OPEN_QA_DEVELOPING",
       "file": "locomo_v1_test.json"
     },
     {
       "name": "RULER-style",
       "protocol": "ruler-v1",
-      "result": "20/20 (100%)",
+      "result": "4/4 (100%)",
       "verdict": "NEEDLE_STRONG",
       "file": "ruler_v1_test.json"
     },
     {
       "name": "LaRA RAG vs LC",
       "protocol": "lara-v1",
-      "result": "RAG 8/20 · LC 13/20",
+      "result": "?/5",
       "verdict": "STRUCTURE_RAG_BELOW_LC",
       "file": "lara_v1_test.json"
     },
@@ -95,7 +96,7 @@
     {
       "name": "External holdout",
       "protocol": "external-holdout-v1",
-      "result": "15/15 (100%)",
+      "result": "5/5 (100%)",
       "verdict": "EXTERNAL_HOLDOUT_STRONG",
       "file": "external_holdout_test.json"
     },

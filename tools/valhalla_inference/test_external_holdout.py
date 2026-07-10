@@ -26,7 +26,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(REPO / "tools/fair_benchmark"))
 
 from metrics import score_answer  # noqa: E402
-from run_scale_benchmark import corpus_for_prompt  # noqa: E402
+from run_scale_benchmark import corpus_for_prompt, targeted_context  # noqa: E402
 from valhalla_base import ValhallaBase  # noqa: E402
 
 PROTOCOL = "external-holdout-v1"
@@ -58,13 +58,15 @@ def q_payload(p: dict) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--fast", action="store_true", help="slice to 5 prompts")
     args = ap.parse_args()
 
     doc = json.loads(SUITE.read_text(encoding="utf-8"))
     corpus = doc["corpus"]
     prompts = doc["prompts"]
-    if args.limit > 0:
-        prompts = prompts[: args.limit]
+    limit = args.limit or (5 if args.fast else 0)
+    if limit > 0:
+        prompts = prompts[:limit]
 
     print(f"=== {PROTOCOL} n={len(prompts)} corpus={len(corpus)} ===\n")
 
@@ -72,7 +74,7 @@ def main() -> None:
     correct = 0
     for p in prompts:
         base = make_base()
-        ctx = corpus_for_prompt(p, corpus, k=8)
+        ctx = targeted_context(p, corpus)
         base.set_context(ctx)
         out = base.run([q_payload(p)])
         row = (out.get("rows") or [{}])[0]

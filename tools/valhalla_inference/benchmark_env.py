@@ -21,6 +21,14 @@ DEFAULT_LM_MODEL_ID = "qwen_0_5b"
 LEGACY_LM_MODEL = DEFAULT_LM_MODEL
 DEFAULT_SERVE_PORT = 8787
 
+# Resource budget defaults for benchmark / suite runs (override via env).
+RESOURCE_BUDGET_ENV: dict[str, str] = {
+    "VALHALLA_INGRESS_RESOURCE_PERCENT": "50",
+    "VALHALLA_INGRESS_MAX_ITEMS": "48",
+    "VALHALLA_LM_CACHE_MAX": "1",
+    "VALHALLA_SERVE_FORCE_FRESH": "1",
+}
+
 REPO = Path(__file__).resolve().parents[2]
 VB_BIN = REPO / "target" / "release" / "valhalla_base"
 
@@ -35,6 +43,49 @@ def default_lm_model() -> str:
 def benchmark_calibration_lm() -> str:
     """LM size used only for industry/third-party calibration runs."""
     return os.environ.get("VALHALLA_BENCHMARK_LM_MODEL", BENCHMARK_CALIBRATION_LM).strip()
+
+
+def apply_resource_budget() -> dict[str, str]:
+    """Clamp ingress + LM cache for long benchmark chains."""
+    env = {**os.environ}
+    for k, v in RESOURCE_BUDGET_ENV.items():
+        env.setdefault(k, v)
+    os.environ.update(env)
+    return env
+
+
+def release_lm_via_http(url: str | None = None) -> None:
+    """POST /v1/release — drop serve-side LM weight cache."""
+    base = (url or os.environ.get("VALHALLA_BASE_URL", "")).strip().rstrip("/")
+    if not base:
+        return
+    try:
+        req = urllib.request.Request(
+            f"{base}/v1/release",
+            data=b"{}",
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        urllib.request.urlopen(req, timeout=30.0)
+    except (urllib.error.URLError, TimeoutError, OSError):
+        pass
+
+
+def release_resources(*, port: int | None = None) -> None:
+    """Best-effort GPU / serve cleanup between benchmark phases."""
+    release_lm_via_http()
+    kill_serve_on_port(port)
+    try:
+        import gc
+
+        gc.collect()
+        import torch
+
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+    except Exception:
+        pass
 
 
 def apply_gpu_env() -> dict[str, str]:
@@ -192,6 +243,7 @@ def valhalla_serve(
     """Start valhalla_base HTTP serve; yield base URL; tear down on exit."""
     port = port or int(os.environ.get("VALHALLA_BASE_PORT", str(DEFAULT_SERVE_PORT)))
     url = f"http://127.0.0.1:{port}"
+    we_started = False
     if _serve_force_fresh():
         kill_serve_on_port(port)
     if _health_ok(url):
@@ -217,23 +269,34 @@ def valhalla_serve(
         stderr=subprocess.PIPE,
         text=True,
     )
+    we_started = True
     try:
         _wait_health(url)
         os.environ["VALHALLA_BASE_URL"] = url
+        lm = env.get("VALHALLA_LM_MODEL") or default_lm_model()
+        try:
+            wait_infer_ready(url, lm_model=lm, timeout_s=600.0)
+        except RuntimeError as exc:
+            print(f"valhalla_serve: warmup skipped ({exc})")
         yield url
     finally:
-        if proc.poll() is None:
-            proc.terminate()
-            try:
-                proc.wait(timeout=15)
-            except subprocess.TimeoutExpired:
-                proc.kill()
-                proc.wait(timeout=5)
-        err = proc.stderr.read() if proc.stderr else ""
-        if err.strip():
-            print(err, end="", flush=True)
+        if we_started:
+            if proc.poll() is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=15)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait(timeout=5)
+            err = proc.stderr.read() if proc.stderr else ""
+            if err.strip():
+                print(err, end="", flush=True)
+        release_lm_via_http(url)
         os.environ.pop("VALHALLA_BASE_URL", None)
-        time.sleep(1.5)
+        if we_started:
+            kill_serve_on_port(port)
+        else:
+            time.sleep(1.0)
 
 
 @contextmanager

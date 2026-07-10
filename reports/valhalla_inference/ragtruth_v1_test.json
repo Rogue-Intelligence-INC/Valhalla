@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-10T04:52:25.543416+00:00",
+  "timestamp": "2026-07-10T21:00:37.511689+00:00",
   "protocol": "ragtruth-v1",
   "benchmark": "RAGTruth (wandb/RAGTruth-processed)",
   "citation": "ACL 2024 — RAGTruth hallucination corpus",

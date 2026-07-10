@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-07-10T21:37:19.115386+00:00",
+  "mode": "fast",
+  "literature": [
+    {
+      "name": "MemoryBench",
+      "paper": "arXiv:2510.17281",
+      "focus": "continual learning from user feedback in service time",
+      "valhalla_proxy": "TPI-v2 B4 transfer + Fate session + proactive gates",
+      "url": "https://arxiv.org/abs/2510.17281"
+    },
+    {
+      "name": "CL-Bench",
+      "paper": "tencent-community/CL-bench",
+      "focus": "in-context learning of novel rules without fine-tune",
+      "valhalla_proxy": "cl-bench-slice-v1 + open_retrieval fair slice",
+      "url": "https://huggingface.co/datasets/tencent-community/CL-bench"
+    },
+    {
+      "name": "TiC-LM",
+      "paper": "arXiv:2504.02107",
+      "focus": "time-continual pretraining / forgetting-plasticity",
+      "valhalla_proxy": "L3 bake + TPI curriculum (structure path; not web-scale CPT)",
+      "url": "https://arxiv.org/abs/2504.02107"
+    },
+    {
+      "name": "Continual Learning Bench",
+      "paper": "arXiv:2606.05661",
+      "focus": "stateful gain across expert domains",
+      "valhalla_proxy": "fate-longchain-unified + external-holdout",
+      "url": "https://arxiv.org/html/2606.05661"
+    }
+  ],
+  "results": [
+    {
+      "protocol": "valhalla-base-training-potential-v2",
+      "result": "TPI 0.755 (cached)",
+      "verdict": [
+        "STRONG_INFERENCE_TIME_LEARNING",
+        "FATE_TRANSFER_RESCUES_SESSION"
+      ],
+      "citeable": true,
+      "exit_code": 0,
+      "cached": true,
+      "timestamp": "2026-07-02T08:19:28.524765+00:00"
+    },
+    {
+      "protocol": "fate-pretrain-holdout-v3",
+      "result": "train 0.4 test 0.8",
+      "verdict": "HOLDOUT_STRONG",
+      "citeable": true,
+      "exit_code": 1
+    }
+  ],
+  "summary": {
+    "protocols_run": 2,
+    "citeable": 2
+  }
+}

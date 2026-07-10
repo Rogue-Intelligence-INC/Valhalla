@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-07-10T05:14:38.511053+00:00",
+  "timestamp": "2026-07-10T21:03:21.521914+00:00",
   "protocol": "external-holdout-v1",
   "source": "tools/valhalla_model_bridge/external_domain_prompts.json",
-  "n": 15,
-  "correct": 15,
+  "n": 5,
+  "correct": 5,
   "accuracy": 1.0,
   "rows": [
     {
@@ -39,76 +39,6 @@
       "domain": "chemistry",
       "correct": true,
       "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
-      "context_lines": 1
-    },
-    {
-      "id": "TRIVIA_GEO",
-      "domain": "geography",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] The capital city of Australia is Canberra not Sydney or Melbourne",
-      "context_lines": 1
-    },
-    {
-      "id": "TRIVIA_HIST",
-      "domain": "history",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] World War Two ended in Europe on May 8 1945 with Germany's unconditional surrender",
-      "context_lines": 1
-    },
-    {
-      "id": "MMLU_CS",
-      "domain": "computer_science",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] Binary search requires a sorted array and halves the search interval each step",
-      "context_lines": 1
-    },
-    {
-      "id": "MMLU_ECON",
-      "domain": "economics",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] Supply increases when price rises according to basic microeconomic theory",
-      "context_lines": 1
-    },
-    {
-      "id": "TRIVIA_LIT",
-      "domain": "literature",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] William Shakespeare wrote Romeo and Juliet and Hamlet in Elizabethan England",
-      "context_lines": 1
-    },
-    {
-      "id": "MMLU_MED",
-      "domain": "medicine",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] Scurvy is caused by deficiency of vitamin C also called ascorbic acid",
-      "context_lines": 1
-    },
-    {
-      "id": "ZH_GEO",
-      "domain": "chinese_geography",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] 长江发源于青藏高原，是世界第三长河，源头位于唐古拉山脉。",
-      "context_lines": 1
-    },
-    {
-      "id": "ZH_HIST",
-      "domain": "chinese_history",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] 秦朝是中国历史上第一个统一的中央集权封建王朝。",
-      "context_lines": 1
-    },
-    {
-      "id": "MMLU_ASTRONOMY",
-      "domain": "astronomy",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] Mercury is the smallest planet and closest to the Sun in our solar system",
-      "context_lines": 1
-    },
-    {
-      "id": "MMLU_MATH",
-      "domain": "math",
-      "correct": true,
-      "answer": "[corpus:0] [fate:10@0] 17 multiplied by 23 equals 391",
       "context_lines": 1
     }
   ],

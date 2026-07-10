@@ -13,6 +13,7 @@ use axum::{
 use serde::Serialize;
 use tower_http::cors::CorsLayer;
 
+use crate::patch_lm;
 use crate::triad_dashboard::{self, TriadDashboardState};
 use crate::valhalla_base::{ValhallaBaseRequest, ValhallaBaseResponse, VALHALLA_BASE_PROTOCOL};
 use crate::valhalla_base_protocol::{
@@ -67,6 +68,7 @@ pub async fn health() -> Json<HealthResponse> {
             "GET /v1/protocol",
             "GET /v1/repro",
             "POST /v1/infer",
+            "POST /v1/release",
             "GET /dashboard/",
         ],
     })
@@ -78,6 +80,7 @@ pub async fn protocol_info() -> Json<ProtocolInfo> {
         transport: "application/json",
         endpoints: vec![
             "POST /v1/infer",
+            "POST /v1/release",
             "GET /health",
             "GET /v1/protocol",
             "GET /v1/repro",
@@ -99,6 +102,11 @@ pub async fn repro_manifest() -> Json<ReproManifest> {
         infer_url: "/v1/infer",
         health_url: "/health",
     })
+}
+
+pub async fn release_lm() -> Json<HealthResponse> {
+    patch_lm::clear_lm_caches();
+    health().await
 }
 
 pub async fn infer(
@@ -131,6 +139,7 @@ pub fn api_router(state: Arc<HttpState>) -> Router {
         .route("/v1/protocol", get(protocol_info))
         .route("/v1/repro", get(repro_manifest))
         .route("/v1/infer", post(infer))
+        .route("/v1/release", post(release_lm))
         .layer(DefaultBodyLimit::max(32 * 1024 * 1024))
         .layer(CorsLayer::permissive())
         .with_state(state)

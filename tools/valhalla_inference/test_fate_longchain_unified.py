@@ -53,6 +53,11 @@ def main() -> int:
             args.max_lines = 24
         if args.chunk_size == 64:
             args.chunk_size = 24
+    elif args.low_resource and args.max_lines == 0:
+        # Bug fix: max-lines=0 loads full LoCoMo corpus → unbounded RAM
+        args.max_lines = 64
+        if args.chunk_size == 64:
+            args.chunk_size = 32
 
     if args.enhanced:
         pretrain_passes = args.pretrain_passes if args.pretrain_passes is not None else 0
@@ -90,7 +95,11 @@ def main() -> int:
     env.setdefault("VALHALLA_INGRESS_RESOURCE_PERCENT", "70")
     if args.low_resource or args.smoke:
         env.setdefault("VALHALLA_INGRESS_MAX_ITEMS", "48" if args.smoke else "128")
-    proc = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True, env=env)
+    try:
+        proc = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True, env=env, timeout=600)
+    except subprocess.TimeoutExpired:
+        print("fate-longchain-unified timed out (600s)", file=sys.stderr)
+        return 1
     if args.verbose or args.low_resource or args.enhanced:
         if proc.stdout:
             print(proc.stdout)

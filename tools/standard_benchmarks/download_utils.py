@@ -208,7 +208,9 @@ def load_hf_dataset(repo: str, *, config: str | None = None, split: str = "train
 
 
 def _wiki_title_from_url(url: str) -> str:
-    return url.rstrip("/").rsplit("/", 1)[-1]
+    """Title segment only — strip query, fragment, trailing slash."""
+    path = url.split("?", 1)[0].split("#", 1)[0].rstrip("/")
+    return path.rsplit("/", 1)[-1]
 
 
 def _wiki_cache_file(title: str) -> Path:

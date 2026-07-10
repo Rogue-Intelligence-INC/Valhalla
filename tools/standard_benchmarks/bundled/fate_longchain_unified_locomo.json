@@ -1,0 +1,28 @@
+{
+  "protocol": "fate-longchain-unified-v1",
+  "source": "locomo_qa_slice30.json conv-26",
+  "description": "Anchor (D1 theme) → interleave (D2/D3 long-chain) → anchor reprobe (drift) → holdout (fresh probes)",
+  "bundle": "locomo_qa_slice30.json",
+  "anchor_ids": ["LOCO_0_0", "LOCO_0_1", "LOCO_0_2"],
+  "interleave_ids": ["LOCO_0_6", "LOCO_0_7", "LOCO_0_8", "LOCO_0_9"],
+  "holdout_ids": ["LOCO_0_3", "LOCO_0_4", "LOCO_0_5"],
+  "pretrain_ids": [
+    "LOCO_0_0",
+    "LOCO_0_1",
+    "LOCO_0_2",
+    "LOCO_0_3",
+    "LOCO_0_4",
+    "LOCO_0_5",
+    "LOCO_0_6",
+    "LOCO_0_7"
+  ],
+  "holdout_isolated_ids": ["LOCO_0_5"],
+  "corpus_neighbor": 1,
+  "fairness": {
+    "single_session_no_reset": true,
+    "anchor_text_identical_reprobe": true,
+    "holdout_never_before_phase_d": true,
+    "same_corpus_all_phases": true,
+    "scoring": "score_with_evidence (fate-pretrain-holdout-v1)"
+  }
+}

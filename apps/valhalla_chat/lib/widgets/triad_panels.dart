@@ -352,7 +352,8 @@ class ProactivePanel extends StatelessWidget {
     final p = state.lastOutcome;
     final signals = p?['fate_signals_since_baseline'] as int? ??
         modelState.fateSignalsSinceBaseline;
-    final minSig = p?['proactive_min_fate_signals'] as int? ?? state.minFateSignals;
+    final minSig = (p?['proactive_min_fate_signals'] as int? ?? state.minFateSignals)
+        .clamp(1, 1 << 30);
     final gatePct = (signals / minSig).clamp(0.0, 1.0);
 
     return AnnotatedSection(

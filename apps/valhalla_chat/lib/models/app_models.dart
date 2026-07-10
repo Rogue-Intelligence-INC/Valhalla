@@ -83,7 +83,7 @@ class ModelState {
     final stems = snap['stem_cells'] as List<dynamic>? ?? [];
     final frags = session['fragments'] as List<dynamic>? ?? [];
 
-    double spread = telemetry?['hub_prefs_spread'] as double? ?? 0;
+    double spread = (telemetry?['hub_prefs_spread'] as num?)?.toDouble() ?? 0;
     if (spread == 0 && prefs.isNotEmpty) {
       spread = prefs.reduce((a, b) => a > b ? a : b) -
           prefs.reduce((a, b) => a < b ? a : b);
@@ -117,12 +117,14 @@ class ModelState {
 
   static List<double> _asDoubleList(dynamic v) {
     if (v is! List) return [];
-    return v.map((e) => (e as num).toDouble()).toList();
+    return v
+        .map((e) => e is num ? e.toDouble() : double.tryParse('$e') ?? 0.0)
+        .toList();
   }
 
   static List<int> _asIntList(dynamic v) {
     if (v is! List) return [];
-    return v.map((e) => (e as num).toInt()).toList();
+    return v.map((e) => e is num ? e.toInt() : int.tryParse('$e') ?? 0).toList();
   }
 
   int get fateSignalsSinceBaseline =>

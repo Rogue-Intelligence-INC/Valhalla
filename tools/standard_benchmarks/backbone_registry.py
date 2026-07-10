@@ -116,14 +116,28 @@ def paper_panel() -> list[Backbone]:
     return out
 
 
+def practical_panel() -> list[Backbone]:
+    """Six-class panel using locally typical / lighter presets (cached weights)."""
+    keys: list[tuple[Category, str]] = [
+        ("dense", "qwen_3b"),
+        ("ssm", "mamba2_2.7b"),
+        ("rwkv", "rwkv7_0.1b"),
+        ("moe", "phi_tiny_moe"),
+        ("encoder", "modernbert"),
+        ("vision", "qwen2_5_vl_3b"),
+    ]
+    return [PRESETS[k] for cat, k in keys if PRESETS.get(k)]
+
+
 def resolve(
     *,
     hf: list[str] | None = None,
     preset: list[str] | None = None,
     category: Category | None = None,
     paper: bool = False,
+    practical: bool = False,
 ) -> list[Backbone]:
-    """Merge hf / preset / category / paper selections (dedupe by hf_id)."""
+    """Merge hf / preset / category / paper / practical selections (dedupe by hf_id)."""
     out: list[Backbone] = []
     seen: set[str] = set()
 
@@ -133,7 +147,10 @@ def resolve(
             seen.add(key)
             out.append(b)
 
-    if paper:
+    if practical:
+        for b in practical_panel():
+            add(b)
+    elif paper:
         for b in paper_panel():
             add(b)
     if category:

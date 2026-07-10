@@ -20,10 +20,11 @@
 
 | Pillar | Metric | Verdict |
 |--------|--------|---------|
-| **Trainability (L1/L2/L3)** | Pretrain holdout **6/6** · TPI **0.755** · bake Δ≈298 | `valhalla-train-proof-smoke-v1` |
+| **Trainability (L1/L2/L3)** | TPI **0.755** · holdout **80%** (4/5 smoke) | `run_incubation_llm_benchmarks.py --fast` |
 | **Faithfulness** | RAGTruth **99/100** · theme drift **0%** | Industry faithfulness |
 | **Session context** | Needle **4/4** · RULER **20/20** · long mem **94.7%** | Append protocol |
-| **Backbone orthogonality** | RWKV · MoE · Dense open **4/4** | `VALHALLA_BASE_INDEPENDENT` |
+| **Backbone orthogonality** | Qwen3B · RWKV · Phi-MoE open **4/4** · `MEMORY_INDEPENDENT` | `VALHALLA_BASE_INDEPENDENT` |
+| **Incubation / trainable LLM** | TPI **0.755** · holdout **80%** · 2/2 protocols citeable | `run_incubation_llm_benchmarks.py` |
 | **Proactive agency** | Agency **0.778** · PPI **0.650** · MAR **100%** | Fate-gated reaction |
 
 > **Not a 3B LM product.** Runtime default **0.5B**; **3B** = industry benchmark calibration only.
@@ -42,15 +43,23 @@ cd Valhalla
 | Flag | Effect |
 |------|--------|
 | `--train-proof` | + L2 Fate pretrain holdout · L1 TPI transfer · L3 bake artifact |
-| `--full` | + backbone orthogonality panel + fate-core suite |
+| `--full` | + backbone practical panel + fate-core smoke + industry aggregate |
 | `--cpu-only` | Force CPU (no NVIDIA driver); train-proof skips L1 TPI |
 | `--skip-build` | Reuse existing `target/release/valhalla_base` |
 
 ```bash
-make highlight          # same as script
-make highlight-full     # --full
-make highlight-train-proof  # --train-proof
+make full-test              # pillars + independence + industry + audit
+make highlight-full         # --full pillars only
 ```
+
+**Incubation / continual-learning LLM benchmarks** (MemoryBench · CL-Bench · TiC-LM proxies):
+
+```bash
+python3 tools/valhalla_inference/run_incubation_llm_benchmarks.py --fast
+```
+
+**Integrated report:** `reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md`  
+**Experiment summary:** `reports/valhalla_inference/EXPERIMENT_SUMMARY_20260711.md`
 
 **Checks:** Triad smoke · RAGTruth · Needle · Proactive gates · Fate holdout unit  
 **Train-proof:** [TRAINABILITY_PROOF.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/TRAINABILITY_PROOF.md)  
