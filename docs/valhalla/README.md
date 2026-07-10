@@ -17,7 +17,8 @@ Canonical product documentation lives in the **[valhalla-unified-core](https://g
 | **Platform reference** (runtime · Fate ingress · hybrid decode) | [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) |
 | **Investor one-pager** | [INVESTOR_ONE_PAGER.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INVESTOR_ONE_PAGER.md) |
 | **VUC landing page** | [page/index.html](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/page/index.html) |
-| **3-minute demo** | [DEMO.md](./DEMO.md) (this repo) |
+| **3-minute demo script** | [DEMO_SCRIPT_3MIN_EN.md](./DEMO_SCRIPT_3MIN_EN.md) · [DEMO.md](./DEMO.md) |
+| **Live web console** | [`scripts/demo_valhalla_chat.sh`](../../scripts/demo_valhalla_chat.sh) |
 
 ---
 

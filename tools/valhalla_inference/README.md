@@ -1,24 +1,26 @@
 # Valhalla Inference Loader
 
-Valhalla 各模块 ↔ Transformer 的统一加载层（vLLM 风格 API + **Valhalla-as-base**）。
+Unified loading layer for Valhalla modules ↔ Transformer (vLLM-style API + **Valhalla-as-base**).
 
-**2026-07-07 GPU 加速（patch_lm）：** MCQ logprob **prefill + suffix decode**（908→~16 forwards/题）· `PatchTensorScratch` 复用权重 · generate 首步 prefill。实测 0.5B MCQ **~55s → ~3.7s/题**（serve + CUDA）。可选 `VALHALLA_LM_F16=1` 半精度权重。
+**2026-07-07 GPU acceleration (patch_lm):** MCQ logprob **prefill + suffix decode** (908→~16 forwards/query) · `PatchTensorScratch` weight reuse · generate first-step prefill. Measured 0.5B MCQ **~55s → ~3.7s/query** (serve + CUDA). Optional `VALHALLA_LM_F16=1` for half-precision weights.
 
 ```bash
-# Industry（常规）
+# Industry (standard suite)
 python3 tools/valhalla_inference/run_industry_benchmarks.py --all
-# MCQ 全阶梯 0.5B/3B/7B
+# MCQ full ladder 0.5B / 3B / 7B
 tools/valhalla_inference/run_mcq_full_ladder.sh
-# 主动性 AI 基准（高轮次对话 + 多模态 + 跨语言）
+# Proactive agency (long dialogue + multimodal + cross-lingual)
 tools/valhalla_inference/run_proactive_agency_benchmark.sh --verbose
 tools/valhalla_inference/run_proactive_agency_benchmark.sh --mega --turns 3000
-# AGI / 训练代理（单独）
+# AGI / training proxies (separate)
 python3 tools/valhalla_inference/run_industry_benchmarks.py --agi-only
+# Live demo question validation
+python3 scripts/run_demo_showcase.py
 ```
 
-## Valhalla-as-base（上下文灵活基座）
+## Valhalla-as-base (context-flexible substrate)
 
-**生产栈（默认内建）：** `hybrid` · `targeted` ingest · session affinity reanchor · `fate_qa_feedback` · `native_follow_up_aware`
+**Production stack (built-in defaults):** `hybrid` · `targeted` ingest · session affinity reanchor · `fate_qa_feedback` · `native_follow_up_aware`
 
 ```python
 from valhalla_base import ValhallaBase
@@ -30,18 +32,18 @@ base.run([question], append_only=True)
 base.run_batch(questions, corpus)
 ```
 
-**Rust 优先：** in-process `ValhallaBaseClient` · `valhalla_base demo v1|needle|corpus` · `valhalla_base serve`
+**Rust-first:** in-process `ValhallaBaseClient` · `valhalla_base demo v1|needle|corpus` · `valhalla_base serve`
 
-完整 CLI/API：[`docs/valhalla/VALHALLA_BASE_CLI.md`](../../docs/valhalla/VALHALLA_BASE_CLI.md) · `manifestsys/hub-f64/include/valhalla_base.h`
+Full CLI/API: [`docs/valhalla/VALHALLA_BASE_CLI.md`](../../docs/valhalla/VALHALLA_BASE_CLI.md) · `manifestsys/hub-f64/include/valhalla_base.h`
 
-Python 薄包装：默认经 **`valhalla_base serve`** HTTP（`benchmark_runtime()`）；设 `VALHALLA_BASE_NO_SERVE=1` 回退 subprocess。
+Python wrapper: defaults to **`valhalla_base serve`** HTTP (`benchmark_runtime()`); set `VALHALLA_BASE_NO_SERVE=1` to fall back to subprocess.
 
-| 对比 | 标准 LLM | ValhallaBase |
-|------|----------|--------------|
-| Context | 拼进 prompt 窗口 | ingress → Hub/Tile/Stem 结构 |
-| 换 context | 改 prompt | `set_context()` / 换 bundle，重建 fingerprint |
-| LM 角色 | 唯一基座 | **decode head**（runtime patch） |
-| 无 LM | 不可用 | `decode=native` Tier B 记忆检索 |
+| | Standard LLM | ValhallaBase |
+|--|--------------|--------------|
+| Context | Concatenated in prompt window | ingress → Hub/Tile/Stem structure |
+| Change context | Edit prompt | `set_context()` / swap bundle, rebuild fingerprint |
+| LM role | Sole foundation model | **decode head** (runtime patch) |
+| No LM | Unavailable | `decode=native` Tier B memory retrieval |
 
 ```bash
 cargo build -p hub-f64 --release --bin valhalla_base
@@ -49,15 +51,15 @@ python3 tools/valhalla_inference/test_valhalla_base_context.py
 python3 tools/valhalla_inference/test_valhalla_base_context.py --decode native
 ```
 
-协议: `valhalla-base-v1` · **完整 CLI/API：** [`docs/valhalla/VALHALLA_BASE_CLI.md`](../../docs/valhalla/VALHALLA_BASE_CLI.md) · `manifestsys/hub-f64/include/valhalla_base.h`
+Protocol: `valhalla-base-v1` · **Full CLI/API:** [`docs/valhalla/VALHALLA_BASE_CLI.md`](../../docs/valhalla/VALHALLA_BASE_CLI.md) · `manifestsys/hub-f64/include/valhalla_base.h`
 
-### v1 扩展（1 hybrid · 2 session · 3 multimodal）
+### v1 extensions (1 hybrid · 2 session · 3 multimodal)
 
-| # | 能力 | 用法 |
-|---|------|------|
-| 1 | **Hybrid 路由** | `decode=hybrid` — open→native，mcq/numeric→LM logprob |
-| 2 | **持久 session** | `session` + `append_lines` — 增量 context，不重发全量语料 |
-| 3 | **多模态 context** | `context_items[]` — text / audio_features / image_features ingress |
+| # | Capability | Usage |
+|---|------------|-------|
+| 1 | **Hybrid routing** | `decode=hybrid` — open→native (LM fallback on abstain), mcq/numeric→LM logprob |
+| 2 | **Persistent session** | `session` + `append_lines` — incremental context without resending full corpus |
+| 3 | **Multimodal context** | `context_items[]` — text / audio_features / image_features ingress |
 
 ```bash
 python3 tools/valhalla_inference/test_valhalla_base_v1.py
@@ -72,23 +74,23 @@ base.run(questions, append_only=True)
 base.append_multimodal(text="...", audio_features=[...], image_features=[...])
 ```
 
-## 模块栈 → Transformer
+## Module stack → Transformer
 
-| 模块 | 作用 | 写入 Transformer 的方式 |
-|------|------|-------------------------|
-| **hub** | Fate 四元路由 | `quad_layer_scales` → 24 层 LayerNorm 分组缩放 |
-| **tile** | 块签名 | → `patch_vector` → hidden embed 增量 |
-| **stemcell** | 细胞图 | → 融合进 `patch_vector` |
-| **triad** | 三体并行孵化 | `build_model_patch()` → bake / runtime |
-| **dl_front** | 多模态 ingress | LM 前 384-d → 三端口（非 generate 路径） |
-| **patch_lm** | Candle Qwen2 | safetensors 加载 + 权重 surgery |
-| **fused_lm** | 单轨 LM 产品 | baked forward + MCQ logprob |
+| Module | Role | How it writes into Transformer |
+|--------|------|--------------------------------|
+| **hub** | Fate quad routing | `quad_layer_scales` → 24-layer LayerNorm group scaling |
+| **tile** | Block signatures | → `patch_vector` → hidden embed delta |
+| **stemcell** | Cell graph | → fused into `patch_vector` |
+| **triad** | Triad parallel incubation | `build_model_patch()` → bake / runtime |
+| **dl_front** | Multimodal ingress | 384-d before LM → three ports (non-generate path) |
+| **patch_lm** | Candle Qwen2 | safetensors load + weight surgery |
+| **fused_lm** | Single-track LM product | baked forward + MCQ logprob |
 
-## 加载模式
+## Load modes
 
 ```
                     ┌─────────────────────────────────────┐
-  Corpus / 多模态   │  Hub + Tile + Stem (Triad)          │
+  Corpus / multimodal │  Hub + Tile + Stem (Triad)          │
                     └──────────────┬──────────────────────┘
                                    │ model_patch
                     ┌──────────────▼──────────────────────┐
@@ -97,37 +99,37 @@ base.append_multimodal(text="...", audio_features=[...], image_features=[...])
                     └──────────────┬──────────────────────┘
            ┌───────────────────────┼───────────────────────┐
            ▼                       ▼                       ▼
-   transformers              vLLM (可选)           valhalla_fused_lm
-   AutoModel...              预 bake 当 Qwen2       Rust Candle baked_lm
+   transformers              vLLM (optional)           valhalla_fused_lm
+   AutoModel...              pre-bake as Qwen2          Rust Candle baked_lm
 ```
 
-| 模式 | 条件 | 说明 |
-|------|------|------|
-| **baked_hf** | 有 manifest，`runtime_patch=false` | 结构已在权重里；vLLM 可直接 serve |
-| **runtime_patch** | 裸 Qwen | 每题 Triad → 运行时 patch |
-| **vllm_compat** | 预 bake 目录 | `vllm serve models/hf/...` 当普通 Qwen2 |
+| Mode | Condition | Notes |
+|------|-----------|-------|
+| **baked_hf** | manifest present, `runtime_patch=false` | Structure in weights; vLLM can serve directly |
+| **runtime_patch** | bare Qwen | Per-query Triad → runtime patch |
+| **vllm_compat** | pre-bake directory | `vllm serve models/hf/...` as ordinary Qwen2 |
 
-## 快速测试
+## Quick test
 
 ```bash
 source .venv-llm/bin/activate
 export HF_ENDPOINT=https://hf-mirror.com
 
-# vLLM 风格 API（transformers 后端）
+# vLLM-style API (transformers backend)
 python3 tools/valhalla_inference/test_model_load.py
 
-# 指定引擎
+# Specify engine
 python3 tools/valhalla_inference/test_model_load.py --engine transformers
 
-# 若已装 vLLM
-pip install vllm   # 可选
+# If vLLM installed
+pip install vllm   # optional
 python3 tools/valhalla_inference/test_model_load.py --try-vllm
 
 # + Rust fused_lm smoke
 python3 tools/valhalla_inference/test_model_load.py --fused-smoke
 ```
 
-## Python API（类 vLLM）
+## Python API (vLLM-like)
 
 ```python
 import sys
@@ -139,75 +141,75 @@ out = llm.generate(["What is Newton's first law?"])
 print(out[0].text)
 ```
 
-## vLLM CLI（预 bake 模型）
+## vLLM CLI (pre-baked models)
 
-Baked 权重已是标准 Qwen2 HF 格式，`valhalla_manifest.json` 被忽略：
+Baked weights are standard Qwen2 HF format; `valhalla_manifest.json` is ignored:
 
 ```bash
 vllm serve models/hf/Qwen2.5-0.5B-Instruct-Valhalla-FreeMultimodal-Fusion-v2-test-s0.10 \
   --trust-remote-code --max-model-len 4096
 ```
 
-Hybrid 路由 / 每题 runtime patch **不在** vLLM 图内；需外部 orchestrator 或 pre-bake。
+Hybrid routing / per-query runtime patch **is not** inside the vLLM graph; use an external orchestrator or pre-bake.
 
-## 报告
+## Reports
 
 `reports/valhalla_inference/model_load_test.json`
 
-## 推理范式实验（零权重 / 非 fine-tune）
+## Inference paradigm experiments (zero-weight / non fine-tune)
 
-完整记录见 [EXPERIMENT_RECORD_INFERENCE_PARADIGM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/EXPERIMENT_RECORD_INFERENCE_PARADIGM.md)。
+Full record: [EXPERIMENT_RECORD_INFERENCE_PARADIGM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/EXPERIMENT_RECORD_INFERENCE_PARADIGM.md).
 
-| 脚本 | 协议 | 指标 |
-|------|------|------|
+| Script | Protocol | Metric |
+|--------|----------|--------|
 | `test_valhalla_base_training_potential.py --protocol v2` | training-potential-v2 | TPI-v2 |
 | `test_new_paradigm_potential.py` | new-paradigm-v1 | NPPI |
 | `test_context_topic_drift.py` | context-topic-drift | swap / drift |
-| `run_local_corpus_demo.py` | local-corpus-demo-v1 | 本机语料 ingest |
+| `run_local_corpus_demo.py` | local-corpus-demo-v1 | local corpus ingest |
 | `test_fate_output_gate.py` | fate-output-gate-v2 | FOG precision/coverage |
 | `test_proactive_fate_v2.py` | proactive-fate-v2 | PPI-v2 / UP / MAR · **Fate signal_tick warmup** |
 | `run_proactive_agency_benchmark.py` | **proactive-agency-v1** | **Agency Index 0.639** (full) · 10 multimodal · 8 long · CCU 100% · PPI-v2 0.650 |
 
 ```bash
-# 新范式潜力（fair holdout + 合成 novel + 负对照）
+# New paradigm potential (fair holdout + synthetic novel + negative controls)
 python3 tools/valhalla_inference/test_new_paradigm_potential.py
 
-# 本机 markdown 语料 → teach → 生成对比
+# Local markdown corpus → teach → generation compare
 python3 tools/valhalla_inference/run_local_corpus_demo.py \
   --corpus-dir valhalla-unified-core/docs
 
-# 主动性 AI 完整基准（baked 3B 默认）
+# Full proactive agency benchmark (baked 3B default)
 tools/valhalla_inference/run_proactive_agency_benchmark.sh --verbose
-# 补齐版（10 multimodal + 5 LoCoMo + full PPI-v2）
+# Extended (10 multimodal + 5 LoCoMo + full PPI-v2)
 tools/valhalla_inference/run_proactive_agency_full.sh --verbose
-# 自动反应专项（handcraft long_dialogue + PPI-v2）
+# Specialized (handcraft long_dialogue + PPI-v2)
 tools/valhalla_inference/run_proactive_agency_specialized.sh --verbose
-# Mega 3000 轮（内存有界：segment-decodes + corpus cap + serve）
+# Mega 3000 turns (memory-bounded: segment-decodes + corpus cap + serve)
 VALHALLA_BASE_URL=http://127.0.0.1:8788 \
   tools/valhalla_inference/run_proactive_agency_benchmark.sh \
   --mega --turns 3000 --extend-chunk 8 --segment-decodes 4 --verbose
 
-# 统一置信区间报告（Wilson + bootstrap，汇总全部实验 JSON）
+# Unified confidence intervals (Wilson + bootstrap, all experiment JSON)
 python3 tools/valhalla_inference/run_confidence_report.py
 
-# 补 traditional_lm 对照 + 刷新 TPI/NPPI（需 .venv-llm + HF Qwen cache）
+# traditional_lm control + refresh TPI/NPPI (.venv-llm + HF Qwen cache)
 .venv-llm/bin/python3 tools/valhalla_inference/test_valhalla_base_training_potential.py --only-rag
 .venv-llm/bin/python3 tools/valhalla_inference/test_new_paradigm_potential.py --only-n5
 
-# 主动 Fate — 全量 fair holdout（--fair-limit 0 = 全部 open_retrieval）
+# Proactive Fate — full fair holdout (--fair-limit 0 = all open_retrieval)
 python3 tools/valhalla_inference/test_proactive_fate_v2.py --fair-limit 0
 
-# 跨语言同核心（不切换栈）+ 外部 holdout
+# Cross-language same core (no stack switch) + external holdout
 python3 tools/valhalla_inference/test_crosslang_core_unified.py
 python3 tools/valhalla_inference/test_external_holdout.py
 
-# MCQ 专项（fair-1.2 n=46）+ max_pick 路由
+# MCQ suite (fair-1.2 n=46) + max_pick routing
 python3 tools/valhalla_inference/test_mcq_coverage_v1.py --fast
 .venv-llm/bin/python3 tools/valhalla_inference/test_mcq_coverage_v1.py --only-trad-lm
 
-# Token / wire 效率（30 轮对照）
+# Token / wire efficiency (30-turn compare)
 python3 tools/valhalla_inference/test_token_efficiency.py
 
-# Fate 输出门控（emit / abstain / defer）
+# Fate output gate (emit / abstain / defer)
 python3 tools/valhalla_inference/test_fate_output_gate.py
 ```

@@ -123,6 +123,14 @@ One-click: backend + release Flutter web (HTML renderer, no CanvasKit CDN):
 
 **What to verify:** connected status · Fate warmup · grounded hybrid answer · multimodal badge on user bubble · protocol log panel.
 
+Validate demo questions (API smoke):
+
+```bash
+python3 scripts/run_demo_showcase.py
+```
+
+See also: [`docs/valhalla/DEMO_SCRIPT_3MIN_EN.md`](docs/valhalla/DEMO_SCRIPT_3MIN_EN.md)
+
 Dev mode: `./scripts/run_valhalla_chat_web.sh` · release: `./scripts/run_valhalla_chat_web.sh --release`
 
 ---
