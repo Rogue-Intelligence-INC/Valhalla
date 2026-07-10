@@ -70,5 +70,14 @@ highlight:
 highlight-full:
 	./scripts/run_highlight_test.sh --full
 
+highlight-train-proof:
+	./scripts/run_highlight_test.sh --train-proof
+
+chat-web:
+	./scripts/run_valhalla_chat_web.sh
+
+chat-test:
+	./scripts/run_valhalla_chat_web.sh --test
+
 clean:
 	$(CARGO) clean -p $(PKG)

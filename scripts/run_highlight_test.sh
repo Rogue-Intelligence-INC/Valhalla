@@ -5,10 +5,12 @@
 #   · Triad smoke          · RAG faithfulness (RAGTruth)
 #   · Session needle       · Proactive gates (MAR/FIR)
 #   · Fate holdout unit    · Optional backbone orthogonality (--full)
+#   · Trainability L1/L2/L3 (--train-proof)
 #
 # Usage:
 #   ./scripts/run_highlight_test.sh              # ~8–15 min (GPU) / ~20 min (CPU)
 #   ./scripts/run_highlight_test.sh --full       # + independence panel + fate-core
+#   ./scripts/run_highlight_test.sh --train-proof # + L2 pretrain holdout · L1 TPI · L3 bake
 #   ./scripts/run_highlight_test.sh --cpu-only   # force CPU (no CUDA)
 #   ./scripts/run_highlight_test.sh --skip-build # reuse existing valhalla_base binary
 #
@@ -20,15 +22,17 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO"
 
 FULL=0
+TRAIN_PROOF=0
 CPU_ONLY=0
 SKIP_BUILD=0
 for arg in "$@"; do
   case "$arg" in
     --full) FULL=1 ;;
+    --train-proof) TRAIN_PROOF=1 ;;
     --cpu-only) CPU_ONLY=1 ;;
     --skip-build) SKIP_BUILD=1 ;;
     -h|--help)
-      sed -n '2,14p' "$0"
+      sed -n '2,15p' "$0"
       exit 0
       ;;
     *) echo "Unknown arg: $arg (try --help)" >&2; exit 2 ;;
@@ -144,7 +148,7 @@ echo "ValhallaBase highlight test"
 echo "  REPO=$REPO"
 echo "  PY=$PY"
 echo "  LM=$VALHALLA_LM_MODEL"
-echo "  CPU=$VALHALLA_USE_CPU  FULL=$FULL"
+echo "  CPU=$VALHALLA_USE_CPU  FULL=$FULL  TRAIN_PROOF=$TRAIN_PROOF"
 
 # ── Build ────────────────────────────────────────────────────────────────────
 if [[ "$SKIP_BUILD" -eq 0 ]] || [[ ! -x "$VB" ]]; then
@@ -183,6 +187,17 @@ if [[ "$FULL" -eq 1 ]]; then
   log "Fate-core suite"
   run_step_optional "fate-core" \
     "$PY" tools/valhalla_inference/run_suite_sequential.py --suite fate-core
+fi
+
+if [[ "$TRAIN_PROOF" -eq 1 ]]; then
+  log "Trainability proof (L1/L2/L3)"
+  TPI_ARGS=()
+  if [[ "${VALHALLA_USE_CPU}" == "1" ]]; then
+    TPI_ARGS+=(--skip-tpi)
+    echo "[hint] CPU mode → skipping L1 TPI transfer (use GPU for full chain)"
+  fi
+  run_step "train proof smoke" \
+    "$PY" tools/valhalla_inference/test_train_proof_smoke.py "${TPI_ARGS[@]}"
 fi
 
 # ── Summary ────────────────────────────────────────────────────────────────

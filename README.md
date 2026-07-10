@@ -1,8 +1,8 @@
 # Valhalla — AI Memory & Hybrid Inference Platform
 
 <p align="center">
-  <strong>ValhallaBase</strong> · backbone-agnostic structure memory · proactive agency · grounded context<br>
-  <strong>结构记忆体</strong> · LM 无关 · 主动性 · 忠实检索 · 非固定尺寸 LM 产品
+  <strong>ValhallaBase</strong> · structure-trainable memory · proactive agency · grounded context<br>
+  <strong>结构可训练记忆体</strong> · L1/L2/L3 训练栈 · 主动性 · 忠实检索 · 非固定尺寸 LM 产品
 </p>
 
 <p align="center">
@@ -20,11 +20,11 @@
 
 | Pillar | Metric | Verdict |
 |--------|--------|---------|
-| **Backbone independence** | RWKV · MoE · Dense open **4/4** | `VALHALLA_BASE_INDEPENDENT` |
-| **Proactive agency** | Agency **0.778** · PPI **0.650** · MAR **100%** · FIR **0%** | Fate-gated reaction |
-| **Anti-hallucination** | RAGTruth **99/100** · theme drift **0%** | Industry faithfulness |
+| **Trainability (L1/L2/L3)** | Pretrain holdout **6/6** · TPI **0.755** · bake Δ≈298 | `valhalla-train-proof-smoke-v1` |
+| **Faithfulness** | RAGTruth **99/100** · theme drift **0%** | Industry faithfulness |
 | **Session context** | Needle **4/4** · RULER **20/20** · long mem **94.7%** | Append protocol |
-| **Incubation** | TPI **0.755** · transfer **+38.7pp** | Zero LM gradients |
+| **Backbone orthogonality** | RWKV · MoE · Dense open **4/4** | `VALHALLA_BASE_INDEPENDENT` |
+| **Proactive agency** | Agency **0.778** · PPI **0.650** · MAR **100%** | Fate-gated reaction |
 
 > **Not a 3B LM product.** Runtime default **0.5B**; **3B** = industry benchmark calibration only.
 
@@ -41,25 +41,28 @@ cd Valhalla
 
 | Flag | Effect |
 |------|--------|
+| `--train-proof` | + L2 Fate pretrain holdout · L1 TPI transfer · L3 bake artifact |
 | `--full` | + backbone orthogonality panel + fate-core suite |
-| `--cpu-only` | Force CPU (no NVIDIA driver) |
+| `--cpu-only` | Force CPU (no NVIDIA driver); train-proof skips L1 TPI |
 | `--skip-build` | Reuse existing `target/release/valhalla_base` |
 
 ```bash
 make highlight          # same as script
 make highlight-full     # --full
+make highlight-train-proof  # --train-proof
 ```
 
 **Checks:** Triad smoke · RAGTruth · Needle · Proactive gates · Fate holdout unit  
+**Train-proof:** [TRAINABILITY_PROOF.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/TRAINABILITY_PROOF.md)  
 **Reports:** `reports/valhalla_inference/` · Guide: [`REPRODUCTION.md`](REPRODUCTION.md)
 
 ---
 
-Valhalla is an **AI memory & hybrid inference platform** built around **ValhallaBase**: context is **incubated** into a **Triad structure snapshot** (Hub / Tile / StemCell / Fate) with **zero LM weight updates**; a companion LM acts as the **swappable decode head** — not a standalone foundation model.
+Valhalla is an **AI memory & hybrid inference platform** built around **ValhallaBase**: context is **incubated** into a **Triad structure snapshot** (Hub / Tile / StemCell / Fate); structure is **trainable** via session learning (L1), Fate pretrain (L2), and HF bake (L3). A companion LM acts as the **swappable decode head** — not a standalone foundation model.
 
-> **Valhalla is the base. The LM is the decode head.** · **Structure path is backbone-orthogonal.**
+> **Valhalla is the base. The LM is the decode head.** · **Structure is trainable; LM SGD is optional.**
 
-**Investor one-liner:** ValhallaBase is **backbone-agnostic structure memory** with **proactive Fate agency**, **industry-grade RAG faithfulness**, and **session-native context** — zero weight updates. **3B is benchmark calibration only, not the product.**
+**Investor one-liner:** ValhallaBase is a **structure-trainable memory substrate** — session learning, Fate pretrain, and HF bake — with **industry-grade RAG faithfulness**, **proactive Fate agency**, and **backbone-orthogonal** decode. **3B is benchmark calibration only, not the product.**
 
 ---
 
@@ -190,23 +193,25 @@ LongBench **7/20** · MultiHop **14/25** · FRAMES **1/25** (wiki pending) · La
 
 ### 是什么
 
-ValhallaBase 是 **LM 无关的结构记忆基座**：语料经 Triad 孵化为结构快照，**不更新 LM 权重**；LM 仅为可替换 decode 头。**3B 仅用于行业 benchmark 标定，不是产品默认尺寸。**
+ValhallaBase 是 **结构可训练的记忆基座**（L1 会话学习 · L2 Fate 预训练 · L3 HF bake）；LM 仅为可替换 decode 头，**LM SGD 非默认路径**。**3B 仅用于行业 benchmark 标定，不是产品默认尺寸。**
 
 ### 一键验证
 
 ```bash
 ./scripts/run_highlight_test.sh
+./scripts/run_highlight_test.sh --train-proof   # L1/L2/L3 可训练证明链
 ```
 
-### 五大亮点
+### 六大亮点
 
-1. **结构正交** — RWKV / MoE / Dense 同 verdict  
-2. **主动性** — Agency 0.778 · PPI 0.65 · MAR 100%  
-3. **抗幻觉** — RAGTruth 99/100 · theme drift 0%  
-4. **上下文记忆** — Needle/RULER 100% · 长久记忆 94.7%  
-5. **零权重孵化** — TPI 0.755
+1. **可训练结构** — Pretrain holdout 6/6 · TPI 0.755 · bake Δ≈298  
+2. **抗幻觉** — RAGTruth 99/100 · theme drift 0%  
+3. **上下文记忆** — Needle/RULER 100% · 长久记忆 94.7%  
+4. **结构正交** — RWKV / MoE / Dense 同 verdict  
+5. **主动性** — Agency 0.778 · PPI 0.65 · MAR 100%  
+6. **孵化学习** — transfer +38.7pp vs polluted session
 
-解读：[`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md) · [产品定位](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
+解读：[`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md) · [产品定位](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) · [可训练证明](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/TRAINABILITY_PROOF.md)
 
 ---
 
