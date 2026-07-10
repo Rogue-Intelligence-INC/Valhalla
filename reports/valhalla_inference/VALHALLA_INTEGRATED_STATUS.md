@@ -1,6 +1,6 @@
 # Valhalla — Integrated Status
 
-**Generated:** 2026-07-10T21:37:19.141025+00:00
+**Generated:** 2026-07-10T22:12:28.441995+00:00
 
 ## Resource budget
 
@@ -43,6 +43,19 @@
 | MCQ ladder | 3.0B 98% | MCQ_LADDER_FLAT |
 | External holdout | 5/5 (100%) | EXTERNAL_HOLDOUT_STRONG |
 | TPI-v2 | TPI 0.755 | ['STRONG_INFERENCE_TIME_LEARNING', 'FATE_TRANSFER_RESCUES_SESSION'] |
+
+## External Pareto matrix
+
+- Backbone: `Qwen/Qwen2.5-3B-Instruct`
+- Verdict: **TOKEN_EFFICIENCY_PARETO, ACC_TRADEOFF_HONEST**
+
+| System | LoCoMo | LongBench | Proactive |
+|--------|--------|-----------|-----------|
+| full_context_lm | 1/3 | 0/3 | N/A |
+| vanilla_rag | 1/3 | 0/3 | N/A |
+| mem0 | ?/? | ?/? | N/A |
+| letta | ?/? | ?/? | N/A |
+| valhalla_base | 0/3 | 0/3 | 0 |
 
 ## Legitimacy
 

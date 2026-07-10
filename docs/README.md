@@ -1,13 +1,13 @@
 # Valhalla AI — Documentation Index
 
 **Scope:** ValhallaBase inference, memory, benchmarks, and product docs only.  
-**Updated:** 2026-07-10
+**Updated:** 2026-07-11
 
 > **Product definition:** ValhallaBase is **backbone-agnostic structure memory** — not a 3B LM product.  
 > See [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md).
 
-> Non-AI work in this monorepo (cryptography, physics simulation, legacy Wave tooling) is **out of scope** for this index — not maintained here.  
-> **Product docs** are in [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) (submodule). Use [`valhalla/README.md`](valhalla/README.md) for working links — paths like `../valhalla-unified-core/docs/*.md` **404 on GitHub**.
+> **Canonical docs:** [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) (submodule).  
+> GitHub-safe mirror: [`valhalla/README.md`](valhalla/README.md).
 
 ---
 
@@ -98,14 +98,13 @@ RUSTFLAGS='-L /opt/cuda/lib64' python3 tools/valhalla_inference/run_industry_ben
 
 ---
 
-## Out of scope (not in this index)
+## External comparison
 
-| Area | Note |
-|------|------|
-| `valhalla-crypto/` | Yaksha Cipher — separate project |
-| `s-wind-sim/` | Physics / symbolic discovery — separate |
-| `archive/` · `wave/` | Legacy Wave compiler tooling |
-| `docs/hybrid_2.0/` | Historical investor pack; superseded by VUC |
+| Report | Command |
+|--------|---------|
+| **Pareto matrix** | `python3 tools/valhalla_inference/run_external_pareto_matrix.py --fast` |
+| Incubation / trainable LLM | `python3 tools/valhalla_inference/run_incubation_llm_benchmarks.py --fast` |
+| Integrated status | `reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md` |
 
 ## 中文
 

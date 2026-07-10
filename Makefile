@@ -76,6 +76,12 @@ make full-test:
 incubation-bench:
 	.venv-llm/bin/python3 tools/valhalla_inference/run_incubation_llm_benchmarks.py --fast
 
+pareto-matrix:
+	.venv-llm/bin/python3 tools/valhalla_inference/run_external_pareto_matrix.py --fast
+
+pareto-matrix-full:
+	.venv-llm/bin/python3 tools/valhalla_inference/run_external_pareto_matrix.py --locomo-limit 10 --longbench-limit 10
+
 highlight-train-proof:
 	./scripts/run_highlight_test.sh --train-proof
 

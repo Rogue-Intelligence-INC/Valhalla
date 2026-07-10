@@ -1,0 +1,159 @@
+{
+  "timestamp": "2026-07-10T22:12:10.287142+00:00",
+  "protocol": "external-pareto-matrix-v1",
+  "constraints": {
+    "backbone": "Qwen/Qwen2.5-3B-Instruct",
+    "locomo_n": 3,
+    "longbench_n": 3,
+    "systems": [
+      "full_context_lm",
+      "vanilla_rag",
+      "valhalla_base"
+    ],
+    "scoring": "locomo: score_short_answer; longbench: mcq letter",
+    "hardware_note": "local run — record GPU model in diligence pack"
+  },
+  "locomo": {
+    "full_context_lm": {
+      "n": 3,
+      "correct": 1,
+      "accuracy": 0.3333,
+      "tokens_prompt_cum": 51966,
+      "tokens_decode_cum": 192,
+      "avg_tokens_per_query": 17386.0,
+      "avg_latency_ms": 2801.3,
+      "session_reload_bytes_cum": 199299,
+      "proactive_emitted": 0,
+      "skipped": false,
+      "skip_reason": null
+    },
+    "vanilla_rag": {
+      "n": 3,
+      "correct": 1,
+      "accuracy": 0.3333,
+      "tokens_prompt_cum": 51966,
+      "tokens_decode_cum": 192,
+      "avg_tokens_per_query": 17386.0,
+      "avg_latency_ms": 2699.1,
+      "session_reload_bytes_cum": 199299,
+      "proactive_emitted": 0,
+      "skipped": false,
+      "skip_reason": null
+    },
+    "valhalla_base": {
+      "n": 3,
+      "correct": 0,
+      "accuracy": 0.0,
+      "tokens_prompt_cum": 104,
+      "tokens_decode_cum": 192,
+      "avg_tokens_per_query": 98.7,
+      "avg_latency_ms": 276208.3,
+      "session_reload_bytes_cum": 200463,
+      "proactive_emitted": 0,
+      "skipped": false,
+      "skip_reason": null
+    }
+  },
+  "longbench": {
+    "full_context_lm": {
+      "n": 3,
+      "correct": 0,
+      "accuracy": 0.0,
+      "tokens_prompt_cum": 4061,
+      "tokens_decode_cum": 192,
+      "avg_tokens_per_query": 1417.7,
+      "avg_latency_ms": 451.2,
+      "session_reload_bytes_cum": 17787,
+      "proactive_emitted": 0,
+      "skipped": false,
+      "skip_reason": null
+    },
+    "vanilla_rag": {
+      "n": 3,
+      "correct": 0,
+      "accuracy": 0.0,
+      "tokens_prompt_cum": 4061,
+      "tokens_decode_cum": 192,
+      "avg_tokens_per_query": 1417.7,
+      "avg_latency_ms": 423.7,
+      "session_reload_bytes_cum": 17787,
+      "proactive_emitted": 0,
+      "skipped": false,
+      "skip_reason": null
+    },
+    "valhalla_base": {
+      "n": 3,
+      "correct": 0,
+      "accuracy": 0.0,
+      "tokens_prompt_cum": 2724,
+      "tokens_decode_cum": 192,
+      "avg_tokens_per_query": 972.0,
+      "avg_latency_ms": 29980.2,
+      "session_reload_bytes_cum": 13226,
+      "proactive_emitted": 0,
+      "skipped": false,
+      "skip_reason": null
+    }
+  },
+  "matrix": [
+    {
+      "system": "full_context_lm",
+      "LoCoMo": "1/3",
+      "LongBench": "0/3",
+      "Token_cost_avg": 17386.0,
+      "Latency_ms_avg": 2801.3,
+      "Session_reload_bytes": 199299,
+      "Proactive": "N/A",
+      "locomo_accuracy": 0.3333,
+      "longbench_accuracy": 0.0
+    },
+    {
+      "system": "vanilla_rag",
+      "LoCoMo": "1/3",
+      "LongBench": "0/3",
+      "Token_cost_avg": 17386.0,
+      "Latency_ms_avg": 2699.1,
+      "Session_reload_bytes": 199299,
+      "Proactive": "N/A",
+      "locomo_accuracy": 0.3333,
+      "longbench_accuracy": 0.0
+    },
+    {
+      "system": "mem0",
+      "LoCoMo": "?/?",
+      "LongBench": "?/?",
+      "Token_cost_avg": null,
+      "Latency_ms_avg": null,
+      "Session_reload_bytes": null,
+      "Proactive": "N/A",
+      "locomo_accuracy": null,
+      "longbench_accuracy": null
+    },
+    {
+      "system": "letta",
+      "LoCoMo": "?/?",
+      "LongBench": "?/?",
+      "Token_cost_avg": null,
+      "Latency_ms_avg": null,
+      "Session_reload_bytes": null,
+      "Proactive": "N/A",
+      "locomo_accuracy": null,
+      "longbench_accuracy": null
+    },
+    {
+      "system": "valhalla_base",
+      "LoCoMo": "0/3",
+      "LongBench": "0/3",
+      "Token_cost_avg": 98.7,
+      "Latency_ms_avg": 276208.3,
+      "Session_reload_bytes": 200463,
+      "Proactive": 0,
+      "locomo_accuracy": 0.0,
+      "longbench_accuracy": 0.0
+    }
+  ],
+  "verdict": [
+    "TOKEN_EFFICIENCY_PARETO",
+    "ACC_TRADEOFF_HONEST"
+  ]
+}

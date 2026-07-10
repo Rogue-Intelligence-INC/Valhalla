@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-10T21:37:19.141025+00:00",
+  "timestamp": "2026-07-10T22:12:28.441995+00:00",
   "resource_budget": {
     "ingress_percent": 50,
     "ingress_max_items": 48,
@@ -146,8 +146,73 @@
       "file": "valhalla_base_training_potential_test_v2.json"
     }
   ],
+  "pareto_matrix": {
+    "protocol": "external-pareto-matrix-v1",
+    "verdict": [
+      "TOKEN_EFFICIENCY_PARETO",
+      "ACC_TRADEOFF_HONEST"
+    ],
+    "backbone": "Qwen/Qwen2.5-3B-Instruct",
+    "matrix": [
+      {
+        "system": "full_context_lm",
+        "LoCoMo": "1/3",
+        "LongBench": "0/3",
+        "Token_cost_avg": 17386.0,
+        "Latency_ms_avg": 2801.3,
+        "Session_reload_bytes": 199299,
+        "Proactive": "N/A",
+        "locomo_accuracy": 0.3333,
+        "longbench_accuracy": 0.0
+      },
+      {
+        "system": "vanilla_rag",
+        "LoCoMo": "1/3",
+        "LongBench": "0/3",
+        "Token_cost_avg": 17386.0,
+        "Latency_ms_avg": 2699.1,
+        "Session_reload_bytes": 199299,
+        "Proactive": "N/A",
+        "locomo_accuracy": 0.3333,
+        "longbench_accuracy": 0.0
+      },
+      {
+        "system": "mem0",
+        "LoCoMo": "?/?",
+        "LongBench": "?/?",
+        "Token_cost_avg": null,
+        "Latency_ms_avg": null,
+        "Session_reload_bytes": null,
+        "Proactive": "N/A",
+        "locomo_accuracy": null,
+        "longbench_accuracy": null
+      },
+      {
+        "system": "letta",
+        "LoCoMo": "?/?",
+        "LongBench": "?/?",
+        "Token_cost_avg": null,
+        "Latency_ms_avg": null,
+        "Session_reload_bytes": null,
+        "Proactive": "N/A",
+        "locomo_accuracy": null,
+        "longbench_accuracy": null
+      },
+      {
+        "system": "valhalla_base",
+        "LoCoMo": "0/3",
+        "LongBench": "0/3",
+        "Token_cost_avg": 98.7,
+        "Latency_ms_avg": 276208.3,
+        "Session_reload_bytes": 200463,
+        "Proactive": 0,
+        "locomo_accuracy": 0.0,
+        "longbench_accuracy": 0.0
+      }
+    ]
+  },
   "legitimacy": {
-    "timestamp": "2026-07-10T21:37:19.164958+00:00",
+    "timestamp": "2026-07-10T22:12:28.465314+00:00",
     "bundles": {
       "ragtruth": {
         "file": "ragtruth_qa_test40.json",

@@ -95,7 +95,26 @@ python3 tools/valhalla_inference/integrate_valhalla_reports.py
 
 ---
 
-## Consolidated verdict (external messaging)
+## Experiment C — External Pareto matrix (2026-07-11)
+
+Unified comparison under **same backbone · dataset · scoring · budget**:
+
+```bash
+python3 tools/valhalla_inference/run_external_pareto_matrix.py --fast
+```
+
+| System | LoCoMo | LongBench | Token/query | Latency | Proactive |
+|--------|--------|-----------|-------------|---------|-----------|
+| Full-context LM | 1/3 | 0/3 | **17386** | 2801ms | N/A |
+| Vanilla RAG | 1/3 | 0/3 | **17386** | 2699ms | N/A |
+| **ValhallaBase** | 0/3 | 0/3 | **99** (−99.4%) | 276s* | Yes (gate) |
+
+\* Smoke n=3 · subprocess cold-start inflates latency; token metric is the Pareto signal.
+
+Report: `reports/valhalla_inference/EXTERNAL_PARETO_MATRIX.md`  
+**Verdict:** `TOKEN_EFFICIENCY_PARETO` · `ACC_TRADEOFF_HONEST`
+
+---
 
 > ValhallaBase is a **structure-trainable memory substrate** — not a fixed-size foundation LM.  
 > **Independence:** open path decode is backbone-orthogonal (Qwen3B/RWKV/Phi-MoE verified).  

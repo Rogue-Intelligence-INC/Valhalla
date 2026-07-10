@@ -16,6 +16,24 @@
 
 ---
 
+## Repository layout
+
+**ValhallaBase product surface** — evaluate only these paths:
+
+| Path | Role |
+|------|------|
+| [`manifestsys/`](manifestsys/) | Runtime — Hub · Tile · StemCell · Fate · `valhalla_base` |
+| [`systems/`](systems/) | Triad metasystems |
+| [`valhalla-unified-core/`](valhalla-unified-core/) | Product docs (submodule) |
+| [`apps/valhalla_chat/`](apps/valhalla_chat/) | Web console |
+| [`tools/valhalla_inference/`](tools/valhalla_inference/) | Benchmarks · Pareto matrix |
+| [`scripts/run_highlight_test.sh`](scripts/run_highlight_test.sh) | One-click pillar smoke |
+| [`reports/valhalla_inference/`](reports/valhalla_inference/) | Citeable JSON + summaries |
+
+Engineering checkout (NDA): full tree under license — product eval uses paths above only.
+
+---
+
 ## Headline numbers
 
 | Pillar | Metric | Verdict |
@@ -24,7 +42,8 @@
 | **Faithfulness** | RAGTruth **99/100** · theme drift **0%** | Industry faithfulness |
 | **Session context** | Needle **4/4** · RULER **20/20** · long mem **94.7%** | Append protocol |
 | **Backbone orthogonality** | Qwen3B · RWKV · Phi-MoE open **4/4** · `MEMORY_INDEPENDENT` | `VALHALLA_BASE_INDEPENDENT` |
-| **Incubation / trainable LLM** | TPI **0.755** · holdout **80%** · 2/2 protocols citeable | `run_incubation_llm_benchmarks.py` |
+| **External Pareto matrix** | LoCoMo · LongBench · token · latency · proactive | `run_external_pareto_matrix.py --fast` |
+| **Incubation / trainable LLM** | TPI **0.755** · holdout **80%** | `run_incubation_llm_benchmarks.py` |
 | **Proactive agency** | Agency **0.778** · PPI **0.650** · MAR **100%** | Fate-gated reaction |
 
 > **Not a 3B LM product.** Runtime default **0.5B**; **3B** = industry benchmark calibration only.
@@ -56,6 +75,13 @@ make highlight-full         # --full pillars only
 
 ```bash
 python3 tools/valhalla_inference/run_incubation_llm_benchmarks.py --fast
+```
+
+**External Pareto matrix** (full-context · vanilla RAG · ValhallaBase — same backbone):
+
+```bash
+python3 tools/valhalla_inference/run_external_pareto_matrix.py --fast
+make pareto-matrix
 ```
 
 **Integrated report:** `reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md`  
@@ -91,7 +117,7 @@ Valhalla is an **AI memory & hybrid inference platform** built around **Valhalla
 
 详见 [`PROACTIVE_AGENCY_BENCHMARK.md`](reports/valhalla_inference/PROACTIVE_AGENCY_BENCHMARK.md) · [`VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md`](reports/valhalla_inference/VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md)
 
-> **Repo note:** Product docs live in **[valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)** (git submodule). Crypto, physics, legacy Wave, and patent trees in this monorepo are **out of scope** for ValhallaBase — see [`docs/README.md`](docs/README.md).
+> **Product docs:** [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) · [`docs/valhalla/README.md`](docs/valhalla/README.md)
 
 ---
 

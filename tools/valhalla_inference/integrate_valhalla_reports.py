@@ -50,6 +50,7 @@ def build_integration() -> dict[str, Any]:
     proactive = _load("proactive_fate_v2_test.json")
     ragtruth = _load("ragtruth_v1_test.json")
     needle = _load("needle_session_v1_test.json")
+    pareto = _load("external_pareto_matrix.json")
 
     doc: dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -85,6 +86,12 @@ def build_integration() -> dict[str, Any]:
             "memory_verdict": (indep.get("memory") or {}).get("verdict") if indep else None,
         },
         "industry": industry.get("benchmarks") if industry else [],
+        "pareto_matrix": {
+            "protocol": pareto.get("protocol") if pareto else None,
+            "verdict": pareto.get("verdict") if pareto else None,
+            "backbone": (pareto.get("constraints") or {}).get("backbone") if pareto else None,
+            "matrix": pareto.get("matrix") if pareto else None,
+        },
         "legitimacy": _audit(),
     }
 
@@ -151,6 +158,25 @@ def write_md(doc: dict[str, Any]) -> Path:
     )
     for row in doc.get("industry") or []:
         lines.append(f"| {row.get('name')} | {row.get('result')} | {row.get('verdict')} |")
+
+    pm = doc.get("pareto_matrix") or {}
+    if pm.get("matrix"):
+        lines.extend(
+            [
+                "",
+                "## External Pareto matrix",
+                "",
+                f"- Backbone: `{pm.get('backbone')}`",
+                f"- Verdict: **{', '.join(pm.get('verdict') or [])}**",
+                "",
+                "| System | LoCoMo | LongBench | Proactive |",
+                "|--------|--------|-----------|-----------|",
+            ]
+        )
+        for row in pm.get("matrix") or []:
+            lines.append(
+                f"| {row.get('system')} | {row.get('LoCoMo')} | {row.get('LongBench')} | {row.get('Proactive', 'N/A')} |"
+            )
 
     s = doc.get("summary") or {}
     lines.extend(
