@@ -1,8 +1,10 @@
 # ValhallaBase — Product Docs Hub
 
-**Updated:** 2026-07-06
+**Updated:** 2026-07-10
 
 Canonical product documentation lives in the **[valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)** repository (git submodule at `valhalla-unified-core/`). GitHub does **not** serve submodule files at paths under the main Valhalla tree — use the links below.
+
+**ValhallaBase is not a 3B LM product** — see [Product positioning](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md).
 
 ---
 
@@ -10,6 +12,7 @@ Canonical product documentation lives in the **[valhalla-unified-core](https://g
 
 | Doc | Link |
 |-----|------|
+| **Product positioning** (pillars · LM orthogonality) | [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) |
 | **Incubation capability** (TPI / NPPI · zero-weight learning) | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) |
 | **Platform reference** (runtime · Fate ingress · hybrid decode) | [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) |
 | **Investor one-pager** | [INVESTOR_ONE_PAGER.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INVESTOR_ONE_PAGER.md) |

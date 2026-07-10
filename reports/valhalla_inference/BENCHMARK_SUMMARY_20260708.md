@@ -1,11 +1,30 @@
-# ValhallaBase Benchmark Summary — 2026-07-08
+# ValhallaBase Benchmark Summary — 2026-07-10
 
-**Backbone:** `Qwen/Qwen2.5-3B-Instruct` · CUDA · `VALHALLA_LM_F16` for memory-safe MCQ  
+**Product:** Backbone-agnostic structure memory · LM = decode head only  
+**Runtime default LM:** `Qwen2.5-0.5B-Instruct` (when `VALHALLA_LM_MODEL` unset)  
+**Industry calibration LM:** `Qwen2.5-3B-Instruct` (third-party suite only)  
 **Reports dir:** `reports/valhalla_inference/`
+
+**Positioning:** [VALHALLA_BASE_PRODUCT_POSITIONING.md](../../valhalla-unified-core/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
 
 ---
 
-## 1. Industry suite @ 3B — ✅ complete (~22 min, 2026-07-10 rerun)
+## 0. Product pillars（对外定位）
+
+| Pillar | Result | Verdict / protocol |
+|--------|--------|-------------------|
+| **Backbone independence** | RWKV · MoE · Dense 4/4 | `VALHALLA_BASE_INDEPENDENT` |
+| **Session memory** | needle d=5,10 hybrid=native | `MEMORY_INDEPENDENT` |
+| **Proactive agency** | Agency **0.778** · PPI **0.650** | `proactive-agency-benchmark-v1` |
+| **Anti-hallucination** | RAGTruth **99/100** · MAR **100%** · FIR **0%** | `ragtruth-v1` |
+| **Context / memory** | Needle **4/4** · RULER **20/20** · long mem **94.7%** | session append |
+| **Incubation** | TPI **0.755** · transfer **+38.7pp** | `valhalla-base-training-potential-v2` |
+
+---
+
+## 1. Industry calibration @ 3B — ✅ complete (~22 min)
+
+*3B is benchmark comparability size, **not** the product definition.*
 
 | Tier | Benchmark | Result | Verdict |
 |------|-----------|--------|---------|

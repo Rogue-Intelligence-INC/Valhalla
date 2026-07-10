@@ -80,7 +80,9 @@ See `download_utils.py` · `download_standard_benchmarks.py --offline`
 
 Human baselines (literature): LongBench-v2 overall ~53.7%; our slice is short-length MCQ only — compare cautiously.
 
-## Results (2026-07-10 full industry run @ Qwen2.5-3B)
+## Results (2026-07-10 industry calibration @ Qwen2.5-3B)
+
+*3B is third-party comparability size — **not** ValhallaBase product default (runtime default: 0.5B).*
 
 | Benchmark | Tier | Result | Verdict |
 |-----------|------|--------|---------|

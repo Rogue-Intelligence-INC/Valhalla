@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Run industry / third-party benchmark suite (max coverage).
 
-Default backbone: Qwen2.5-3B-Instruct + CUDA GPU (see benchmark_env.py).
+ValhallaBase is backbone-agnostic. This suite **calibrates** at Qwen2.5-3B for
+third-party comparability — not the product default (see VALHALLA_BASE_PRODUCT_POSITIONING.md).
 
 Protocols included:
   ragtruth-v1, ragtruth-full-v1, needle-session-v1, longbench-v2-v1
@@ -41,7 +42,9 @@ from benchmark_cli import (  # noqa: E402
     suite_completed_labels,
 )
 from benchmark_env import (  # noqa: E402
+    DEFAULT_LM_MODEL,
     apply_gpu_env,
+    benchmark_calibration_lm,
     benchmark_runtime,
     default_lm_model,
     kill_serve_on_port,
@@ -324,7 +327,9 @@ def build_test_list(args: argparse.Namespace) -> list[tuple[str, str | None, str
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="ValhallaBase industry benchmark suite (3B default)")
+    ap = argparse.ArgumentParser(
+        description="ValhallaBase industry benchmark suite (3B calibration for comparability)",
+    )
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--download-first", action="store_true")
     ap.add_argument("--offline-download", action="store_true", help="reuse download cache only")
@@ -340,7 +345,11 @@ def main() -> None:
     ap.add_argument("--suite-checkpoint", type=Path, default=SUITE_CHECKPOINT, help="suite-level resume file")
     ap.add_argument("--resume", action="store_true", help="skip completed benchmarks (suite checkpoint)")
     ap.add_argument("--pause-file", type=Path, help="touch this file to pause between benchmarks")
-    ap.add_argument("--model", default="qwen_3b", help="MCQ ladder model id (default qwen_3b)")
+    ap.add_argument(
+        "--model",
+        default="qwen_3b",
+        help="MCQ ladder preset for calibration run (default qwen_3b; not product default)",
+    )
     ap.add_argument("--fresh", action="store_true", help="ignore suite checkpoint (re-run all)")
     args = ap.parse_args()
 
@@ -382,9 +391,15 @@ def main() -> None:
     paused = False
     suite_start = time.monotonic()
 
-    with benchmark_runtime() as gpu_env:
+    with benchmark_runtime(
+        extra_env={
+            "VALHALLA_LM_MODEL": benchmark_calibration_lm(),
+        },
+    ) as gpu_env:
         print(
-            f"Backbone: {default_lm_model()}  GPU: VALHALLA_USE_CPU={gpu_env.get('VALHALLA_USE_CPU')}"
+            f"Calibration LM: {benchmark_calibration_lm()}  "
+            f"(product runtime default: {DEFAULT_LM_MODEL})  "
+            f"GPU: VALHALLA_USE_CPU={gpu_env.get('VALHALLA_USE_CPU')}"
             f"  serve={gpu_env.get('VALHALLA_BASE_URL', 'subprocess')}",
             flush=True,
         )

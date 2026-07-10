@@ -1,7 +1,11 @@
-# Industry benchmarks — Qwen2.5-3B full suite
+# Industry benchmarks — 3B calibration run
+
+> **Not the product default.** ValhallaBase runtime default is `Qwen2.5-0.5B-Instruct`.  
+> This document records **third-party benchmark calibration** at 3B for comparability.  
+> **Product positioning:** [`VALHALLA_BASE_PRODUCT_POSITIONING.md`](../../valhalla-unified-core/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
 
 **Date:** 2026-07-10  
-**Backbone:** `Qwen/Qwen2.5-3B-Instruct` (`qwen_3b`)  
+**Calibration LM:** `Qwen/Qwen2.5-3B-Instruct` (`qwen_3b`)  
 **Command:** `run_industry_benchmarks.py --all --fresh --verbose`
 
 ## Fixes applied

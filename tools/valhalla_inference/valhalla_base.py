@@ -25,7 +25,7 @@ from typing import Any, Literal
 
 REPO = Path(__file__).resolve().parents[2]
 BIN = REPO / "target/release/valhalla_base"
-DEFAULT_LM = "Qwen/Qwen2.5-3B-Instruct"
+DEFAULT_LM = "Qwen/Qwen2.5-0.5B-Instruct"
 
 
 def default_lm_model() -> str:

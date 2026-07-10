@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared benchmark defaults — 3B backbone + CUDA GPU for ValhallaBase lm_patch."""
+"""Shared benchmark runtime — ValhallaBase is backbone-agnostic; LM via VALHALLA_LM_MODEL."""
 
 from __future__ import annotations
 
@@ -13,9 +13,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
 
-DEFAULT_LM_MODEL = "Qwen/Qwen2.5-3B-Instruct"
-DEFAULT_LM_MODEL_ID = "qwen_3b"
-LEGACY_LM_MODEL = "Qwen/Qwen2.5-0.5B-Instruct"
+# Runtime default when VALHALLA_LM_MODEL unset — NOT the product definition.
+DEFAULT_LM_MODEL = "Qwen/Qwen2.5-0.5B-Instruct"
+# Industry / third-party suite calibration size only (comparability), not shipped default.
+BENCHMARK_CALIBRATION_LM = "Qwen/Qwen2.5-3B-Instruct"
+DEFAULT_LM_MODEL_ID = "qwen_0_5b"
+LEGACY_LM_MODEL = DEFAULT_LM_MODEL
 DEFAULT_SERVE_PORT = 8787
 
 REPO = Path(__file__).resolve().parents[2]
@@ -27,6 +30,11 @@ CUDA_RUSTFLAGS = "-L /opt/cuda/lib64"
 
 def default_lm_model() -> str:
     return os.environ.get("VALHALLA_LM_MODEL", DEFAULT_LM_MODEL).strip()
+
+
+def benchmark_calibration_lm() -> str:
+    """LM size used only for industry/third-party calibration runs."""
+    return os.environ.get("VALHALLA_BENCHMARK_LM_MODEL", BENCHMARK_CALIBRATION_LM).strip()
 
 
 def apply_gpu_env() -> dict[str, str]:

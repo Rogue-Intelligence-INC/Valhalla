@@ -1,35 +1,34 @@
 # Valhalla AI — Documentation Index
 
 **Scope:** ValhallaBase inference, memory, benchmarks, and product docs only.  
-**Updated:** 2026-07-07
+**Updated:** 2026-07-10
+
+> **Product definition:** ValhallaBase is **backbone-agnostic structure memory** — not a 3B LM product.  
+> See [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md).
 
 > Non-AI work in this monorepo (cryptography, physics simulation, legacy Wave tooling) is **out of scope** for this index — not maintained here.  
 > **Product docs** are in [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) (submodule). Use [`valhalla/README.md`](valhalla/README.md) for working links — paths like `../valhalla-unified-core/docs/*.md` **404 on GitHub**.
 
 ---
 
-## ✦ Highlights / 亮点（对外引用）
+## ✦ Product pillars / 产品亮点
 
-### Tier A — Industry & third-party (valid, cite)
+| Pillar | Result | Doc |
+|--------|--------|-----|
+| **Backbone independence** | `VALHALLA_BASE_INDEPENDENT` | [`VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md`](../reports/valhalla_inference/VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md) |
+| **Proactive agency** | Agency **0.778** · PPI **0.650** | [`PROACTIVE_AGENCY_BENCHMARK.md`](../reports/valhalla_inference/PROACTIVE_AGENCY_BENCHMARK.md) |
+| **Faithfulness** | RAGTruth **99/100** · MAR **100%** | [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
+| **Session context** | Needle **4/4** · long mem **94.7%** | `long_memory_test_full.json` |
+| **Incubation** | TPI **0.755** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) |
+
+### Industry calibration @ 3B (comparability — not product default)
 
 | Highlight | Result | Doc |
 |-----------|--------|-----|
-| **RAGTruth** faithful RAG | **100/100** · 0 abstain | [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
-| **Needle + RULER** session recall | **4/4 · 20/20** | same |
-| **External holdout** | **15/15** | `external_holdout_test.json` |
-| **MCQ ladder** Qwen scaling | **63% → 98% → 96%** (0.5B/3B/7B) | [`MCQ_LADDER_FULL_20260707.md`](../reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) |
+| MCQ ladder 46Q | **45/46 (98%)** | [`INDUSTRY_3B_RUN_STATUS.md`](../reports/valhalla_inference/INDUSTRY_3B_RUN_STATUS.md) |
+| LoCoMo | **14/30 (47%)** | same |
 
-### Native ValhallaBase
-
-| Highlight | Result | Report |
-|-----------|--------|--------|
-| **Long memory** append-then-ask | **72/76 (94.7%)** | `long_memory_test_full.json` |
-| **Follow-up native** 30-turn | **96.7%** | `context_flexibility_max_goal.json` |
-| **Proactive Fate v2** | **71/72 · PPI 0.890** | `proactive_fate_v2_test.json` |
-| **Open retrieval** targeted | **31/31** | `model_scaling_v1_test.json` |
-| **Zero cross-topic drift** | **0/48** | `context_topic_drift_test.json` |
-
-**One-line (Tier A only):** RAGTruth 100/100 · Needle 4/4 · RULER 20/20 · Holdout 15/15 · MCQ 63%→98%→96% (3B sweet spot)
+**Runtime default LM:** `Qwen2.5-0.5B-Instruct` (`benchmark_env.py`). Industry suite sets 3B explicitly.
 
 ---
 
@@ -37,7 +36,8 @@
 
 | Pack | Path | Use |
 |------|------|-----|
-| **Release 2026-07-06** | [`valhalla/RELEASE_20260706.md`](valhalla/RELEASE_20260706.md) | Dynamic fragments · 3B default · Fate convergence |
+| **Product positioning** | [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) | **What ValhallaBase is / is not** |
+| **Release 2026-07-06** | [`valhalla/RELEASE_20260706.md`](valhalla/RELEASE_20260706.md) | Dynamic fragments · Fate convergence |
 | **3-minute demo** | [`valhalla/DEMO.md`](valhalla/DEMO.md) | Corpus → ask → session → proactive |
 | **ValhallaBase CLI & API** | [`valhalla/VALHALLA_BASE_CLI.md`](valhalla/VALHALLA_BASE_CLI.md) | **Protocol header · schemas · complete commands** |
 | **Product doc hub** | [`valhalla/README.md`](valhalla/README.md) | VUC links that work on GitHub |

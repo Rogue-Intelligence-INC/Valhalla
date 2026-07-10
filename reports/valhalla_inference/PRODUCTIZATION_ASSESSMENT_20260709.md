@@ -1,7 +1,24 @@
 # Valhalla Base — 测试结果总结 & 产品化评估
 
-**Date:** 2026-07-10 · **Backbone:** Qwen2.5-3B-Instruct · **Baked:** TriModal-Fusion-v3 @ s0.10  
-**Git:** industry harness strengthen + full 3B rerun
+**Date:** 2026-07-10  
+**Product:** ValhallaBase — backbone-agnostic structure memory（非 3B LM 产品）  
+**Runtime default LM:** Qwen2.5-0.5B · **Industry calibration:** Qwen2.5-3B（标定用）  
+**Positioning:** [VALHALLA_BASE_PRODUCT_POSITIONING.md](../../valhalla-unified-core/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
+
+---
+
+## 0. 产品定位（五大亮点）
+
+| 维度 | 证据 | 对外话术 |
+|------|------|----------|
+| **结构正交** | RWKV/MoE/Dense → `VALHALLA_BASE_INDEPENDENT` | LM 可替换，结构路径不变 |
+| **主动性** | Agency 0.778 · PPI 0.65 · MAR 100% | Fate 门控自动反应，非 prompt 技巧 |
+| **抗幻觉** | RAGTruth 99/100 · theme drift 0% | 行业级忠实度 + 主动 abstain |
+| **上下文** | Needle 100% · 长久记忆 94.7% | Session append，非 prompt 窗口 |
+| **孵化** | TPI 0.755 | 零权重 session 学习 |
+
+**不要对外说：**「ValhallaBase 是 3B 模型。」  
+**应该说：**「结构记忆基座 + 可换 decode 头；3B 仅用于行业 benchmark 标定。」
 
 ---
 
@@ -108,13 +125,13 @@ tools/valhalla_inference/run_proactive_agency_full.sh --save-transcripts
 | **开放 QA 长链** | 🟡 中 | LoCoMo 改善至 47%；FRAMES 仍弱 |
 | **AGI 子套件** | 🟡 中 | TPI-v2 有分；fair-benchmark 未纳入 --all |
 
-**产品化结论:** **达到融资 demo + 第三方 smoke 复现门槛**；尚未达到「开箱 SaaS」——需 3B 权重托管、Docker CI、FRAMES/LoCoMo 全量。
+**产品化结论:** **达到融资 demo + 第三方 smoke 复现门槛** — 卖点是 **正交性、主动性、忠实度、上下文**，不是固定尺寸 LM。尚未达到「开箱 SaaS」——需客户 backbone 托管、Docker CI、FRAMES wiki corpus。
 
 ---
 
 ## 5. 缺口 & 建议（非阻塞融资）
 
-1. **3B 模型托管** — HuggingFace Hub `Rogue-Intelligence/...` 或 release 分片
+1. **客户 LM 托管文档** — `VALHALLA_LM_MODEL` + bake 流程（非绑定 3B）
 2. **FRAMES / LoCoMo 全量** — roadmap 已列；pitch 时标注 developing
 3. **CI badge** — GitHub Actions: `make repro` + `rust-unit` on PR
 4. **valhalla-unified-core** — landing 页同步最新 Agency 0.778 / LoCoMo 47%

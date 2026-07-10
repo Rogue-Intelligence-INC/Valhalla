@@ -1011,7 +1011,7 @@ def write_markdown(report: dict[str, Any], path: Path) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Proactive Agency Benchmark (baked 3B default)")
+    ap = argparse.ArgumentParser(description="Proactive Agency Benchmark (structure + Fate agency)")
     ap.add_argument("--model", default=str(DEFAULT_BAKED), help="LM path or HF id")
     ap.add_argument("--compare-base", action="store_true", help="also run base 3B for delta")
     ap.add_argument("--fast", action="store_true", help="smoke: 1 scenario, 8 turns, 2 multimodal")
