@@ -73,6 +73,25 @@ def serve_enabled() -> bool:
     return True
 
 
+def kill_serve_on_port(port: int | None = None) -> None:
+    """Terminate any process listening on the ValhallaBase serve port."""
+    port = port or int(os.environ.get("VALHALLA_BASE_PORT", str(DEFAULT_SERVE_PORT)))
+    for cmd in (
+        ["fuser", "-k", f"{port}/tcp"],
+        ["sh", "-c", f"lsof -ti:{port} | xargs -r kill -9 2>/dev/null || true"],
+    ):
+        try:
+            subprocess.run(cmd, capture_output=True, timeout=15, check=False)
+        except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+            pass
+    os.environ.pop("VALHALLA_BASE_URL", None)
+    time.sleep(2.0)
+
+
+def _serve_force_fresh() -> bool:
+    return os.environ.get("VALHALLA_SERVE_FORCE_FRESH", "").strip().lower() in ("1", "true", "yes")
+
+
 def _health_ok(url: str) -> bool:
     try:
         with urllib.request.urlopen(f"{url.rstrip('/')}/health", timeout=2.0) as resp:
@@ -165,6 +184,8 @@ def valhalla_serve(
     """Start valhalla_base HTTP serve; yield base URL; tear down on exit."""
     port = port or int(os.environ.get("VALHALLA_BASE_PORT", str(DEFAULT_SERVE_PORT)))
     url = f"http://127.0.0.1:{port}"
+    if _serve_force_fresh():
+        kill_serve_on_port(port)
     if _health_ok(url):
         # Reuse only if we did not start it (external serve); verify with short timeout.
         try:

@@ -1,7 +1,7 @@
 # Valhalla Base — 测试结果总结 & 产品化评估
 
-**Date:** 2026-07-09 · **Backbone:** Qwen2.5-3B-Instruct · **Baked:** TriModal-Fusion-v3 @ s0.10  
-**Git:** `e8c1a2b4`+ (rust-unit fix pending push)
+**Date:** 2026-07-10 · **Backbone:** Qwen2.5-3B-Instruct · **Baked:** TriModal-Fusion-v3 @ s0.10  
+**Git:** industry harness strengthen + full 3B rerun
 
 ---
 
@@ -18,23 +18,23 @@
 
 **耗时:** ~90s (suite) · **日志:** `suite_summaries/run_complete_20260709.log`
 
-### B. Industry 3B `run_industry_benchmarks.py --all` (11/11)
+### B. Industry 3B `run_industry_benchmarks.py --all --fresh` (11/11, 2026-07-10)
 
 | Tier | Benchmark | 结果 | Verdict |
 |------|-----------|------|---------|
-| **A 强项** | RAGTruth 40 + 100 | **100%** | RAGTRUTH_STRONG |
+| **A 强项** | RAGTruth 40 + 100 | **100% / 99%** | RAGTRUTH_STRONG |
 | **A** | Needle + RULER | **100%** | NEEDLE_STRONG |
 | **A** | External holdout | **15/15** | EXTERNAL_HOLDOUT_STRONG |
+| **A** | MCQ ladder @ 3B | **45/46 (98%)** | MCQ_LADDER_FLAT |
 | **B** | LoCoMo | **14/30 (47%)** | OPEN_QA_VIABLE ↑ |
 | **B** | MultiHop hybrid | **14/25 (56%)** | OPEN_QA_VIABLE |
 | **B** | MultiHop v2 | **15/25 (60%)** | OPEN_QA_VIABLE |
 | **B** | LongBench-v2 | **7/20 (35%)** | LONGBENCH_V2_VIABLE |
-| **B** | FRAMES | **0/25** | OPEN_QA_DEVELOPING |
+| **B** | FRAMES | **1/25 (4%)** | OPEN_QA_DEVELOPING — wiki REST timeout |
 | **B** | LaRA | RAG 8/20 · LC 13/20 | STRUCTURE_RAG_BELOW_LC |
-| **MCQ** | 3B ladder | **98%** | MCQ_LADDER_FLAT |
 | **AGI** | TPI-v2 | **0.755** | STRONG_INFERENCE_TIME_LEARNING |
 
-**耗时:** ~41 min · **JSON:** `industry_benchmarks_summary.json`
+**耗时:** ~22 min · **JSON:** `industry_benchmarks_summary.json` · **状态:** [`INDUSTRY_3B_RUN_STATUS.md`](./INDUSTRY_3B_RUN_STATUS.md)
 
 ### C. Proactive Agency `run_proactive_agency_full.sh`
 
@@ -59,7 +59,7 @@
 | **主动性 AI** | Agency **0.778 STRONG** · PPI-v2 0.65 | 长对话 + 多模态 + 自动反应四轨 |
 | **Fate 长链** | theme_drift 0% · holdout 100% | 无主题漂移的 session 凝结 |
 | **MCQ / 结构引导** | 3B **98%** F16 GPU | 结构烘焙可规模化到 7B |
-| **开放 QA 长对话** | LoCoMo 47% · FRAMES 0% | 诚实标注为 developing，非过度承诺 |
+| **开放 QA 长对话** | LoCoMo 47% · FRAMES 1/25 (wiki pending) | 诚实标注 developing |
 
 **建议 pitch 重点:** Tier A 全绿 + Proactive Agency STRONG + Fate 长链零漂移 + 第三方 `make repro`。
 

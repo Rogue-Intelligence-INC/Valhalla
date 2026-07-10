@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-08T21:59:00.583404+00:00",
+  "timestamp": "2026-07-10T05:43:44.178453+00:00",
   "benchmarks": [
     {
       "name": "RAGTruth",
@@ -11,7 +11,7 @@
     {
       "name": "RAGTruth-100",
       "protocol": "ragtruth-full-v1",
-      "result": "100/100 (100%)",
+      "result": "99/100 (99%)",
       "verdict": "RAGTRUTH_STRONG",
       "file": "ragtruth_full_v1_test.json"
     },
@@ -32,7 +32,7 @@
     {
       "name": "FRAMES",
       "protocol": "frames-v1-rust",
-      "result": "0/25 (0%)",
+      "result": "1/25 (4%)",
       "verdict": "OPEN_QA_DEVELOPING",
       "file": "frames_v1_test.json"
     },

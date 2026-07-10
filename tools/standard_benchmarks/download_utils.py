@@ -277,7 +277,7 @@ def wiki_summaries_parallel(
     urls: list[str],
     *,
     max_workers: int = 4,
-    timeout_per: int = 12,
+    timeout_per: int = 20,
     offline: bool = False,
 ) -> list[str]:
     titles = [_wiki_title_from_url(u) for u in urls if u]
@@ -288,7 +288,7 @@ def wiki_summaries_parallel(
 
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futs = [ex.submit(one, t) for t in titles]
-        for fut in as_completed(futs, timeout=max(30, timeout_per * len(titles))):
+        for fut in as_completed(futs, timeout=max(120, timeout_per * len(titles) * 2)):
             try:
                 s = fut.result()
                 if s:

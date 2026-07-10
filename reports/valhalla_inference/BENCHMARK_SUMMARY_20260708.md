@@ -5,22 +5,22 @@
 
 ---
 
-## 1. Industry suite @ 3B — ✅ complete (~29 min)
+## 1. Industry suite @ 3B — ✅ complete (~22 min, 2026-07-10 rerun)
 
 | Tier | Benchmark | Result | Verdict |
 |------|-----------|--------|---------|
 | **A** | RAGTruth-40 | **40/40** | RAGTRUTH_STRONG |
-| **A** | RAGTruth-100 | **100/100** | RAGTRUTH_STRONG |
+| **A** | RAGTruth-100 | **99/100** | RAGTRUTH_STRONG |
 | **A** | Needle session | **4/4** | NEEDLE_STRONG |
 | **A** | RULER-style | **20/20** | NEEDLE_STRONG |
 | **A** | External holdout | **15/15** | EXTERNAL_HOLDOUT_STRONG |
+| **A** | MCQ ladder @ 3B | **45/46 (98%)** | MCQ_LADDER_FLAT |
 | **B** | LongBench-v2 | **7/20 (35%)** | LONGBENCH_V2_VIABLE |
 | **B** | MultiHop hybrid | **14/25 (56%)** | OPEN_QA_VIABLE |
 | **B** | MultiHop v2 | **15/25 (60%)** | OPEN_QA_VIABLE |
 | **B** | LaRA | RAG **8/20** · LC **13/20** | STRUCTURE_RAG_BELOW_LC |
 | **B** | LoCoMo | **14/30 (47%)** | OPEN_QA_VIABLE |
-| **B** | FRAMES | **0/25 (0%)** | OPEN_QA_DEVELOPING |
-| **B** | MCQ ladder | **0.5B 63% · 3B 96% · 7B 98%** (F16 GPU) | MCQ_LADDER_SCALES |
+| **B** | FRAMES | **1/25 (4%)** | OPEN_QA_DEVELOPING — wiki fetch blocked |
 
 **Docs:** [`INDUSTRY_3B_RUN_STATUS.md`](./INDUSTRY_3B_RUN_STATUS.md) · [`industry_benchmarks_summary.json`](./industry_benchmarks_summary.json)
 
@@ -83,11 +83,14 @@ tools/valhalla_inference/run_proactive_agency_specialized.sh --verbose
 
 ---
 
-## 4. Harness fixes (2026-07-08)
+## 4. Harness fixes (2026-07-08 → 2026-07-10)
 
-- `run_industry_benchmarks.py`: `bench_flags()` only on Rust demos (fixes Python exit 2)
-- `benchmark_env.py`: `wait_infer_ready()` for serve warmup
-- `test_mcq_ladder_v1.py`: `--memory-safe`, isolated long-batch MCQ
+- `run_industry_benchmarks.py`: `bench_flags()` only on Rust demos; `--fresh`; FRAMES bundle preflight; mcq serve restart
+- `download_standard_benchmarks.py`: `_normalize_wiki_links()` (fixes char-split FRAMES corpus)
+- `benchmark_env.py`: `kill_serve_on_port()` · `VALHALLA_SERVE_FORCE_FRESH` · `wait_infer_ready()`
+- `test_mcq_ladder_v1.py`: `--memory-safe`; auto memory-safe under HTTP serve; `ladder_by_id()` model resolution
+- `test_longbench_v2_v1.py`: production path via `production_base` (legacy hybrid kept for suite — 7/20 > 4/20 production)
+- `backbone_registry.py`: explicit `id="qwen_3b"` for MCQ ladder preset
 - `valhalla_base.py`: HTTP broken-pipe retry; `run_mcq_full_ladder.sh`: F16 + GPU defaults
 - `run_proactive_agency_benchmark.py`: `--full` / `--specialized-reaction` · 10 multimodal · LoCoMo 扩展修复
 
@@ -119,7 +122,7 @@ tools/valhalla_inference/run_proactive_agency_specialized.sh --verbose
 | 第三方复现 | ✅ `REPRODUCTION.md` · `make repro` · Docker · `/v1/repro` |
 | 全套件 benchmark | ✅ fate + rust-unit + industry + proactive（见 INDEX_FULL） |
 | 模型分发 | 🟡 0.5B Git LFS · 3B metadata + 本地 bake |
-| 开放 QA 长链 | 🟡 LoCoMo 47% ↑ · FRAMES 仍 developing |
+| 开放 QA 长链 | 🟡 LoCoMo 47% ↑ · FRAMES 1/25 (wiki pending) |
 
 ---
 

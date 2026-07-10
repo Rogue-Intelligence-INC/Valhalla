@@ -40,7 +40,12 @@ from benchmark_cli import (  # noqa: E402
     save_suite_checkpoint,
     suite_completed_labels,
 )
-from benchmark_env import apply_gpu_env, benchmark_runtime, default_lm_model  # noqa: E402
+from benchmark_env import (  # noqa: E402
+    apply_gpu_env,
+    benchmark_runtime,
+    default_lm_model,
+    kill_serve_on_port,
+)
 
 REPORTS = REPO / "reports/valhalla_inference"
 CHECKPOINTS_DEFAULT = REPORTS / "checkpoints"
@@ -54,9 +59,9 @@ INDUSTRY_TESTS = [
     ("ragtruth", "test_ragtruth_v1.py", []),
     ("ragtruth-full", "test_ragtruth_full_v1.py", []),
     ("longbench", "test_longbench_v2_v1.py", []),
-    ("frames", "test_frames_v1.py", []),
+    ("frames", "test_frames_v1.py", ["--production"]),
     ("multihop", "test_multihop_rag_v1.py", ["--hybrid", "--limit", "25"]),
-    ("locomo", "test_locomo_v1.py", []),
+    ("locomo", "test_locomo_v1.py", ["--production"]),
     ("ruler", "test_ruler_v1.py", []),
     ("lara", "test_lara_v1.py", ["--with-trad"]),
     ("external-holdout", "test_external_holdout.py", []),
@@ -91,6 +96,42 @@ REPORT_FILES: dict[str, str] = {
     "external-holdout": "external_holdout_test.json",
     "mcq-ladder": "mcq_ladder_v1_test.json",
 }
+
+
+def frames_bundle_ok() -> bool:
+    """Detect corrupted FRAMES bundle (wiki_links split char-by-char)."""
+    p = REPO / "tools/standard_benchmarks/bundled/frames_slice25.json"
+    if not p.is_file():
+        return False
+    try:
+        doc = json.loads(p.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return False
+    items = doc.get("items") or []
+    if not items:
+        return False
+    links = items[0].get("wiki_links") or []
+    return bool(links) and all(len(str(u)) > 8 for u in links[: min(2, len(links))])
+
+
+def ensure_frames_bundle(*, offline: bool, verbose: bool) -> None:
+    if frames_bundle_ok():
+        return
+    print("FRAMES bundle invalid — re-downloading frames_slice25 …", flush=True)
+    dl_py = VENV_PY if VENV_PY.is_file() else PY
+    dl_cmd = [
+        str(dl_py),
+        str(REPO / "tools/standard_benchmarks/download_standard_benchmarks.py"),
+        "--frames-n",
+        "25",
+        "--no-wiki-fetch",
+    ]
+    if offline:
+        dl_cmd.append("--offline")
+    dl_env = {**os.environ, "HF_ENDPOINT": os.environ.get("HF_ENDPOINT", "https://hf-mirror.com")}
+    rc = run_cmd("download-frames", dl_cmd, extra_env=dl_env, verbose=verbose)
+    if rc or not frames_bundle_ok():
+        raise RuntimeError("FRAMES bundle still invalid after download — check wiki_links parsing")
 
 
 def ensure_valhalla_base(extra_env: dict[str, str]) -> Path:
@@ -274,7 +315,9 @@ def build_test_list(args: argparse.Namespace) -> list[tuple[str, str | None, str
     if not args.agi_only:
         tests.extend(INDUSTRY_TESTS)
         if args.all and not args.skip_scaling:
-            tests.append(("mcq-ladder", "test_mcq_ladder_v1.py", ["--model", args.model]))
+            tests.append(
+                ("mcq-ladder", "test_mcq_ladder_v1.py", ["--model", args.model, "--memory-safe"]),
+            )
     if args.agi or args.agi_only:
         tests.extend(AGI_TRAINING_TESTS)
     return [(l, s, e) for l, s, e in tests if l not in args.skip]
@@ -298,6 +341,7 @@ def main() -> None:
     ap.add_argument("--resume", action="store_true", help="skip completed benchmarks (suite checkpoint)")
     ap.add_argument("--pause-file", type=Path, help="touch this file to pause between benchmarks")
     ap.add_argument("--model", default="qwen_3b", help="MCQ ladder model id (default qwen_3b)")
+    ap.add_argument("--fresh", action="store_true", help="ignore suite checkpoint (re-run all)")
     args = ap.parse_args()
 
     if args.checkpoint_dir is None and (args.resume or args.verbose):
@@ -307,6 +351,8 @@ def main() -> None:
         md = write_summary(aggregate())
         print(f"→ {md}")
         return
+
+    ensure_frames_bundle(offline=args.offline_download, verbose=args.verbose)
 
     if args.download_first:
         dl_py = VENV_PY if VENV_PY.is_file() else PY
@@ -323,13 +369,14 @@ def main() -> None:
 
     test_list = build_test_list(args)
     labels = [t[0] for t in test_list]
+    resume_suite = args.resume and not args.fresh
     suite_doc = init_suite_checkpoint(
         args.suite_checkpoint,
         model=default_lm_model(),
         tests=labels,
-        resume=args.resume,
+        resume=resume_suite,
     )
-    done = suite_completed_labels(suite_doc) if args.resume else set()
+    done = suite_completed_labels(suite_doc) if resume_suite else set()
 
     failed = 0
     paused = False
@@ -355,6 +402,13 @@ def main() -> None:
             if label in done:
                 print(f"[skip] {label} (already completed)", flush=True)
                 continue
+
+            if label == "mcq-ladder":
+                port = int(gpu_env.get("VALHALLA_BASE_PORT", "8787"))
+                print(f"[mcq-ladder] restarting serve on :{port} …", flush=True)
+                kill_serve_on_port(port)
+                gpu_env["VALHALLA_SERVE_FORCE_FRESH"] = "1"
+                os.environ["VALHALLA_SERVE_FORCE_FRESH"] = "1"
 
             if pause_requested(args.pause_file):
                 suite_doc["paused"] = True

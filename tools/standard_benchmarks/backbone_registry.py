@@ -67,7 +67,7 @@ def _b(**kw: Any) -> Backbone:
 PRESETS: dict[str, Backbone] = {
     # dense
     "qwen3_4b": _b(hf_id="Qwen/Qwen3-4B-Instruct-2507", category="dense", paper=True),
-    "qwen_3b": _b(hf_id="Qwen/Qwen2.5-3B-Instruct", category="dense", lm_patch_rust=True),
+    "qwen_3b": _b(id="qwen_3b", hf_id="Qwen/Qwen2.5-3B-Instruct", category="dense", lm_patch_rust=True),
     "gemma3_4b": _b(hf_id="google/gemma-3-4b-it", category="dense", paper=True),
     "llama3_2_3b": _b(hf_id="meta-llama/Llama-3.2-3B-Instruct", category="dense"),
     # ssm

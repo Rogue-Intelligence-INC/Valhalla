@@ -1,24 +1,24 @@
 # Industry benchmarks — ValhallaBase
 
-**Generated:** 2026-07-07T23:50:35.485461+00:00
+**Generated:** 2026-07-10T05:43:44.178453+00:00
 
 ## Results
 
 | Benchmark | Protocol | Result | Verdict |
 |-----------|----------|--------|---------|
 | RAGTruth | `ragtruth-v1` | **40/40 (100%)** | RAGTRUTH_STRONG |
-| RAGTruth-100 | `ragtruth-full-v1` | **100/100 (100%)** | RAGTRUTH_STRONG |
+| RAGTruth-100 | `ragtruth-full-v1` | **99/100 (99%)** | RAGTRUTH_STRONG |
 | Needle session | `needle-session-v1` | **4/4 (100%)** | NEEDLE_STRONG |
 | LongBench-v2 | `longbench-v2-v1` | **7/20 (35%)** | LONGBENCH_V2_VIABLE |
-| FRAMES | `frames-v1-rust` | **0/25 (0%)** | OPEN_QA_DEVELOPING |
+| FRAMES | `frames-v1-rust` | **1/25 (4%)** | OPEN_QA_DEVELOPING |
 | MultiHop-RAG | `multihop-rag-v1` | **9/25 (36%)** | OPEN_QA_DEVELOPING |
 | MultiHop-RAG v2 | `multihop-rag-v2` | **15/25 (60%)** | OPEN_QA_VIABLE |
 | MultiHop-RAG Fate | `multihop-rag-fate` | **13/25 (52%)** | OPEN_QA_VIABLE |
 | MultiHop-RAG hybrid | `multihop-rag-fate-v2-hybrid` | **14/25 (56%)** | OPEN_QA_VIABLE |
-| LoCoMo | `locomo-v1-rust` | **1/30 (3%)** | OPEN_QA_DEVELOPING |
+| LoCoMo | `locomo-v1-rust` | **14/30 (47%)** | OPEN_QA_VIABLE |
 | RULER-style | `ruler-v1` | **20/20 (100%)** | NEEDLE_STRONG |
 | LaRA RAG vs LC | `lara-v1` | **RAG 8/20 · LC 13/20** | STRUCTURE_RAG_BELOW_LC |
-| MCQ ladder | `mcq-ladder-v1` | **0.5B 63% · 3B 96% · 7B 98%** (F16 GPU) | MCQ_LADDER_SCALES |
+| MCQ ladder | `mcq-ladder-v1` | **3.0B 98%** | MCQ_LADDER_FLAT |
 | External holdout | `external-holdout-v1` | **15/15 (100%)** | EXTERNAL_HOLDOUT_STRONG |
 | TPI-v2 | `valhalla-base-training-potential-v2` | **TPI 0.755** | ['STRONG_INFERENCE_TIME_LEARNING', 'FATE_TRANSFER_RESCUES_SESSION'] |
 

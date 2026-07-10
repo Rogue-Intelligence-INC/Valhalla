@@ -215,7 +215,14 @@ def main() -> None:
     args = ap.parse_args()
 
     limit = 10 if args.fast else args.limit
-    models = [m for m in QWEN_LM_PATCH_LADDER if not args.model_ids or m.id in args.model_ids]
+    models: list[ScalingModel] = []
+    if args.model_ids:
+        for mid in args.model_ids:
+            m = ladder_by_id(mid)
+            if m and m.lm_patch_rust:
+                models.append(m)
+    else:
+        models = list(QWEN_LM_PATCH_LADDER)
     explicit_7b = args.model_ids and "qwen_7b" in args.model_ids
     if args.skip_7b and not args.full_ladder and not explicit_7b:
         models = [m for m in models if m.id != "qwen_7b"]
@@ -226,9 +233,15 @@ def main() -> None:
     if limit > 0:
         prompts = prompts[:limit]
 
+    if not models:
+        raise SystemExit(f"no lm_patch models resolved from --model {args.model_ids!r}")
+
     print(f"=== {PROTOCOL} n={len(prompts)} models={[m.id for m in models]} ===\n")
 
-    if args.memory_safe:
+    # Under shared HTTP serve, restart per model to avoid broken-pipe after long benchmarks.
+    memory_safe = args.memory_safe or bool(os.environ.get("VALHALLA_BASE_URL", "").strip())
+
+    if memory_safe:
         arms, xs, ys_hybrid, ys_trad = run_models(
             models, corpus, prompts, with_trad=args.with_trad, memory_safe=True,
         )
@@ -269,7 +282,7 @@ def main() -> None:
             "Gemma/Phi require bake to Qwen2 or separate architecture — not in this ladder.",
         ],
         "config": {
-            "memory_safe": args.memory_safe,
+            "memory_safe": memory_safe,
             "gpu": os.environ.get("VALHALLA_USE_CPU", "0") == "0",
             "lm_f16": os.environ.get("VALHALLA_LM_F16", "0") in ("1", "true", "yes"),
         },

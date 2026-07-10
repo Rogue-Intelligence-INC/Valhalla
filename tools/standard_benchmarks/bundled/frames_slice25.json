@@ -12,24 +12,16 @@
       "answer": "21 meters",
       "reasoning_types": "Numerical reasoning | Multiple constraints",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Istiklal_Mosque,_Sarajevo",
+        "https://en.wikipedia.org/wiki/Sarajevo",
+        "https://en.wikipedia.org/wiki/Suharto",
+        "https://en.wikipedia.org/wiki/Kemusuk"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Istiklal_Mosque,_Sarajevo",
+        "Reference: https://en.wikipedia.org/wiki/Sarajevo",
+        "Reference: https://en.wikipedia.org/wiki/Suharto",
+        "Reference: https://en.wikipedia.org/wiki/Kemusuk"
       ],
       "wiki_fetched": false
     },
@@ -39,24 +31,12 @@
       "answer": "The Mona Lisa",
       "reasoning_types": "Numerical reasoning | Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Mona_Lisa#Refuge,_theft,_and_vandalism",
+        "https://en.wikipedia.org/wiki/Serj_Tankian"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Mona_Lisa#Refuge,_theft,_and_vandalism",
+        "Reference: https://en.wikipedia.org/wiki/Serj_Tankian"
       ],
       "wiki_fetched": false
     },
@@ -66,24 +46,16 @@
       "answer": "12 years.",
       "reasoning_types": "Numerical reasoning | Post processing",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Tyson_Fury",
+        "https://en.wikipedia.org/wiki/Mike_Tyson",
+        "https://en.wikipedia.org/wiki/Mike_Tyson_vs._Buster_Douglas",
+        "https://en.wikipedia.org/wiki/Tyson_Fury_vs_Oleksandr_Usyk"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Tyson_Fury",
+        "Reference: https://en.wikipedia.org/wiki/Mike_Tyson",
+        "Reference: https://en.wikipedia.org/wiki/Mike_Tyson_vs._Buster_Douglas",
+        "Reference: https://en.wikipedia.org/wiki/Tyson_Fury_vs_Oleksandr_Usyk"
       ],
       "wiki_fetched": false
     },
@@ -93,24 +65,14 @@
       "answer": "Richard Coxon.",
       "reasoning_types": "Multiple constraints",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Sailing_at_the_2003_Pan_American_Games",
+        "https://en.wikipedia.org/wiki/Lanee_Butler",
+        "https://en.wikipedia.org/wiki/Colin_Beashel"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Sailing_at_the_2003_Pan_American_Games",
+        "Reference: https://en.wikipedia.org/wiki/Lanee_Butler",
+        "Reference: https://en.wikipedia.org/wiki/Colin_Beashel"
       ],
       "wiki_fetched": false
     },
@@ -120,24 +82,14 @@
       "answer": "Angel Archer.",
       "reasoning_types": "Tabular reasoning | Multiple constraints",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Hugo_Award_for_Best_Novel",
+        "https://en.wikipedia.org/wiki/Philip_K._Dick#Career",
+        "https://en.wikipedia.org/wiki/The_Transmigration_of_Timothy_Archer"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Hugo_Award_for_Best_Novel",
+        "Reference: https://en.wikipedia.org/wiki/Philip_K._Dick#Career",
+        "Reference: https://en.wikipedia.org/wiki/The_Transmigration_of_Timothy_Archer"
       ],
       "wiki_fetched": false
     },
@@ -147,24 +99,14 @@
       "answer": "1858",
       "reasoning_types": "Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Battle_of_Sobraon",
+        "https://en.wikipedia.org/wiki/Lahore",
+        "https://en.wikipedia.org/wiki/Punjab_Province_(British_India)"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Battle_of_Sobraon",
+        "Reference: https://en.wikipedia.org/wiki/Lahore",
+        "Reference: https://en.wikipedia.org/wiki/Punjab_Province_(British_India)"
       ],
       "wiki_fetched": false
     },
@@ -174,24 +116,14 @@
       "answer": "Elizabeth Monroe",
       "reasoning_types": "Multiple constraints | Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/USS_Maine_(1889)",
+        "https://en.wikipedia.org/wiki/Maine",
+        "https://en.wikipedia.org/wiki/List_of_first_ladies_of_the_United_States"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/USS_Maine_(1889)",
+        "Reference: https://en.wikipedia.org/wiki/Maine",
+        "Reference: https://en.wikipedia.org/wiki/List_of_first_ladies_of_the_United_States"
       ],
       "wiki_fetched": false
     },
@@ -201,24 +133,16 @@
       "answer": "The Sherman Antitrust Act",
       "reasoning_types": "Multiple constraints",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Brian_Bergstein",
+        "https://en.wikipedia.org/wiki/Associated_Press",
+        "https://en.wikipedia.org/wiki/Associated_Press_v._United_States",
+        "https://en.wikipedia.org/wiki/Sherman_Antitrust_Act"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Brian_Bergstein",
+        "Reference: https://en.wikipedia.org/wiki/Associated_Press",
+        "Reference: https://en.wikipedia.org/wiki/Associated_Press_v._United_States",
+        "Reference: https://en.wikipedia.org/wiki/Sherman_Antitrust_Act"
       ],
       "wiki_fetched": false
     },
@@ -228,24 +152,14 @@
       "answer": "228 times larger",
       "reasoning_types": "Numerical reasoning | Post processing | Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Brown_County,_Kansas",
+        "https://en.wikipedia.org/wiki/Demographics_of_Paris",
+        "https://en.wikipedia.org/wiki/International_Year_for_the_Culture_of_Peace"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Brown_County,_Kansas",
+        "Reference: https://en.wikipedia.org/wiki/Demographics_of_Paris",
+        "Reference: https://en.wikipedia.org/wiki/International_Year_for_the_Culture_of_Peace"
       ],
       "wiki_fetched": false
     },
@@ -255,24 +169,12 @@
       "answer": "103",
       "reasoning_types": "Numerical reasoning | Multiple constraints",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Gunfight_at_the_O.K._Corral",
+        "https://en.wikipedia.org/wiki/The_Terminator"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Gunfight_at_the_O.K._Corral",
+        "Reference: https://en.wikipedia.org/wiki/The_Terminator"
       ],
       "wiki_fetched": false
     },
@@ -282,24 +184,12 @@
       "answer": "2,452 ft",
       "reasoning_types": "Numerical reasoning | Tabular reasoning | Post processing",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Grace%27s_High_Falls",
+        "https://en.wikipedia.org/wiki/List_of_waterfalls_by_height#By_overall_height"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Grace%27s_High_Falls",
+        "Reference: https://en.wikipedia.org/wiki/List_of_waterfalls_by_height#By_overall_height"
       ],
       "wiki_fetched": false
     },
@@ -309,24 +199,12 @@
       "answer": "Henry O. Fairbanks and Thomas P. Koch",
       "reasoning_types": "Numerical reasoning | Tabular reasoning | Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Quincy_Medical_Center",
+        "https://en.wikipedia.org/wiki/List_of_mayors_of_Quincy,_Massachusetts"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Quincy_Medical_Center",
+        "Reference: https://en.wikipedia.org/wiki/List_of_mayors_of_Quincy,_Massachusetts"
       ],
       "wiki_fetched": false
     },
@@ -336,24 +214,16 @@
       "answer": "King's College",
       "reasoning_types": "Multiple constraints | Post processing",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/The_Dragonfly_Sea",
+        "https://en.wikipedia.org/wiki/Alfred_A._Knopf",
+        "https://en.wikipedia.org/wiki/Alfred_A._Knopf_Sr.",
+        "https://en.wikipedia.org/wiki/Columbia_University"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/The_Dragonfly_Sea",
+        "Reference: https://en.wikipedia.org/wiki/Alfred_A._Knopf",
+        "Reference: https://en.wikipedia.org/wiki/Alfred_A._Knopf_Sr.",
+        "Reference: https://en.wikipedia.org/wiki/Columbia_University"
       ],
       "wiki_fetched": false
     },
@@ -363,24 +233,14 @@
       "answer": "November 24, 1921",
       "reasoning_types": "Tabular reasoning | Multiple constraints | Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Snoopy",
+        "https://en.wikipedia.org/wiki/List_of_mayors_of_New_York_City",
+        "https://en.wikipedia.org/wiki/John_Lindsay"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Snoopy",
+        "Reference: https://en.wikipedia.org/wiki/List_of_mayors_of_New_York_City",
+        "Reference: https://en.wikipedia.org/wiki/John_Lindsay"
       ],
       "wiki_fetched": false
     },
@@ -390,24 +250,14 @@
       "answer": "Colin Firth won his first Academy Award in 2011 for The King's Speech.",
       "reasoning_types": "Multiple constraints",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/A_Single_Man",
+        "https://en.wikipedia.org/wiki/Colin_Firth",
+        "https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_Colin_Firth"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/A_Single_Man",
+        "Reference: https://en.wikipedia.org/wiki/Colin_Firth",
+        "Reference: https://en.wikipedia.org/wiki/List_of_awards_and_nominations_received_by_Colin_Firth"
       ],
       "wiki_fetched": false
     },
@@ -417,24 +267,14 @@
       "answer": "Serbia",
       "reasoning_types": "Multiple constraints",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Goths",
+        "https://en.wikipedia.org/wiki/Western_Roman_Empire",
+        "https://en.wikipedia.org/wiki/Jovian_(emperor)"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Goths",
+        "Reference: https://en.wikipedia.org/wiki/Western_Roman_Empire",
+        "Reference: https://en.wikipedia.org/wiki/Jovian_(emperor)"
       ],
       "wiki_fetched": false
     },
@@ -444,24 +284,14 @@
       "answer": "55",
       "reasoning_types": "Numerical reasoning | Tabular reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/FIFA_World_Cup",
+        "https://en.wikipedia.org/wiki/Chicago_Bulls",
+        "https://en.wikipedia.org/wiki/Dallas_Cowboys"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/FIFA_World_Cup",
+        "Reference: https://en.wikipedia.org/wiki/Chicago_Bulls",
+        "Reference: https://en.wikipedia.org/wiki/Dallas_Cowboys"
       ],
       "wiki_fetched": false
     },
@@ -471,24 +301,14 @@
       "answer": "Two million.",
       "reasoning_types": "Numerical reasoning | Multiple constraints | Post processing",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Culdcept_Saga",
+        "https://en.wikipedia.org/wiki/Tow_Ubukata",
+        "https://en.wikipedia.org/wiki/Gifu_Prefecture"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Culdcept_Saga",
+        "Reference: https://en.wikipedia.org/wiki/Tow_Ubukata",
+        "Reference: https://en.wikipedia.org/wiki/Gifu_Prefecture"
       ],
       "wiki_fetched": false
     },
@@ -498,24 +318,16 @@
       "answer": "74 years",
       "reasoning_types": "Numerical reasoning | Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/List_of_World_Series_champions#World_Series_results",
+        "https://en.wikipedia.org/wiki/2021_Atlanta_Braves_season",
+        "https://en.wikipedia.org/wiki/2021_Houston_Astros_season",
+        "https://en.wikipedia.org/wiki/Jackie_Robinson"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/List_of_World_Series_champions#World_Series_results",
+        "Reference: https://en.wikipedia.org/wiki/2021_Atlanta_Braves_season",
+        "Reference: https://en.wikipedia.org/wiki/2021_Houston_Astros_season",
+        "Reference: https://en.wikipedia.org/wiki/Jackie_Robinson"
       ],
       "wiki_fetched": false
     },
@@ -525,24 +337,12 @@
       "answer": "Dockers",
       "reasoning_types": "Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Meat_Loaf#Personal_life",
+        "https://en.wikipedia.org/wiki/Levi_Strauss_%26_Co.#Blue_jeans_era_(1960s%E2%80%931980s)"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Meat_Loaf#Personal_life",
+        "Reference: https://en.wikipedia.org/wiki/Levi_Strauss_%26_Co.#Blue_jeans_era_(1960s%E2%80%931980s)"
       ],
       "wiki_fetched": false
     },
@@ -552,24 +352,14 @@
       "answer": "2024",
       "reasoning_types": "Multiple constraints | Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/St._Louis_Cardinals",
+        "https://en.wikipedia.org/wiki/Yadier_Molina",
+        "https://en.wikipedia.org/wiki/Adam_Wainwright"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/St._Louis_Cardinals",
+        "Reference: https://en.wikipedia.org/wiki/Yadier_Molina",
+        "Reference: https://en.wikipedia.org/wiki/Adam_Wainwright"
       ],
       "wiki_fetched": false
     },
@@ -579,24 +369,12 @@
       "answer": "39",
       "reasoning_types": "Numerical reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Inception",
+        "https://en.wikipedia.org/wiki/Christopher_Nolan"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Inception",
+        "Reference: https://en.wikipedia.org/wiki/Christopher_Nolan"
       ],
       "wiki_fetched": false
     },
@@ -606,24 +384,16 @@
       "answer": "25",
       "reasoning_types": "Numerical reasoning | Post processing",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Shogi",
+        "https://en.wikipedia.org/wiki/Xiangqi",
+        "https://en.wikipedia.org/wiki/China",
+        "https://en.wikipedia.org/wiki/Japan"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Shogi",
+        "Reference: https://en.wikipedia.org/wiki/Xiangqi",
+        "Reference: https://en.wikipedia.org/wiki/China",
+        "Reference: https://en.wikipedia.org/wiki/Japan"
       ],
       "wiki_fetched": false
     },
@@ -633,24 +403,12 @@
       "answer": "9",
       "reasoning_types": "Temporal reasoning",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/Tommy_Lawton",
+        "https://en.wikipedia.org/wiki/Squad_number_(association_football)"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/Tommy_Lawton",
+        "Reference: https://en.wikipedia.org/wiki/Squad_number_(association_football)"
       ],
       "wiki_fetched": false
     },
@@ -660,24 +418,12 @@
       "answer": "Edmund Fitzgerald, the man for whom the ill-fated ship SS Edmund Fitzgerald was named was born in 1895, he was 80 years old in 1975 when she sank.",
       "reasoning_types": "Numerical reasoning | Post processing",
       "wiki_links": [
-        "[",
-        "'",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":"
+        "https://en.wikipedia.org/wiki/SS_Edmund_Fitzgerald",
+        "https://en.wikipedia.org/wiki/Edmund_Fitzgerald_(disambiguation)"
       ],
       "corpus": [
-        "Reference: [",
-        "Reference: '",
-        "Reference: h",
-        "Reference: t",
-        "Reference: t",
-        "Reference: p",
-        "Reference: s",
-        "Reference: :"
+        "Reference: https://en.wikipedia.org/wiki/SS_Edmund_Fitzgerald",
+        "Reference: https://en.wikipedia.org/wiki/Edmund_Fitzgerald_(disambiguation)"
       ],
       "wiki_fetched": false
     }

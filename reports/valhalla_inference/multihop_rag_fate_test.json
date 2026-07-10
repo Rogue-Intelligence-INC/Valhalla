@@ -1,8 +1,8 @@
 {
-  "accuracy": 0.48,
+  "accuracy": 0.52,
   "benchmark": "MultiHop-RAG",
   "bundle": "multihop_rag_slice25.json",
-  "correct": 12,
+  "correct": 13,
   "multihop_fate": true,
   "n": 25,
   "protocol": "multihop-rag-fate",
@@ -20,9 +20,9 @@
       "id": "MH_921"
     },
     {
-      "answer": "Helena World Chronicle",
-      "correct": false,
-      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "answer": "[corpus:1] What to know about Fortnite maker Epic Games’ antitrust battle with Google, starting today: It will attempt to argue that Google restrains competition within two separate markets, including",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_774"
     },
     {
@@ -50,15 +50,15 @@
       "id": "MH_2223"
     },
     {
-      "answer": "Sam Bankman-Fried Before",
-      "correct": true,
-      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "answer": "[corpus:0] SBF Trial: The latest updates from the FTX collapse’s courtroom drama: The second week of the trial’s standout testimony came from Alameda Research’s former CEO Caroline Ellison, who claime",
+      "correct": false,
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_2275"
     },
     {
-      "answer": "MVP OPOY DPOY",
-      "correct": false,
-      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "answer": "[corpus:0] NFL roundup: Pats hit new low as Lions reach 9-3 for first time since 1962: Tyreek Hill had two touchdowns among his 157 receiving yards to help the Miami Dolphins rout the Washington Comma",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_575"
     },
     {
@@ -74,21 +74,21 @@
       "id": "MH_1526"
     },
     {
-      "answer": "Google Googles",
+      "answer": "[corpus:3] News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Goog",
       "correct": true,
-      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_331"
     },
     {
-      "answer": "The Justice Department",
-      "correct": false,
-      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "answer": "[corpus:2] News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Goog",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_9"
     },
     {
-      "answer": "Yes",
+      "answer": "[corpus:1] Why Mozilla is betting on a decentralized social networking future: Consumers are hungry for a new way of social networking, where trust and safety are paramount and power isn’t centralized",
       "correct": false,
-      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_1591"
     },
     {
@@ -98,9 +98,9 @@
       "id": "MH_886"
     },
     {
-      "answer": "Yes",
-      "correct": false,
-      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "answer": "[corpus:1] Point Spread Betting - What is a Point Spread Bet?: If a piece of news or a prevailing sentiment starts to gain traction about a particular team's increased chances of winning, this can inf",
+      "correct": true,
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_1395"
     },
     {
@@ -110,21 +110,21 @@
       "id": "MH_1710"
     },
     {
-      "answer": "Bankman-Fried",
+      "answer": "[corpus:0] SBF’s trial starts soon, but how did he — and FTX — get here?: Bankman-Fried was even compared to Warren Buffet and many called him the white horse of crypto (TechCrunch never did, for what",
       "correct": false,
-      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_2328"
     },
     {
-      "answer": "Google Search",
+      "answer": "[corpus:3] News publisher files class action antitrust suit against Google, citing AI’s harms to their bottom line: The case, filed by Arkansas-based publisher Helena World Chronicle, argues that Goog",
       "correct": true,
-      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_1121"
     },
     {
-      "answer": "Yes",
-      "correct": true,
-      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "answer": "[corpus:0] NBA Prop Bets - Best Team and Player Props 2023/24 Season: You can find value in player and team props by gathering information from multiple sources and tracking how players and their team",
+      "correct": false,
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_1065"
     },
     {
@@ -134,9 +134,9 @@
       "id": "MH_1088"
     },
     {
-      "answer": "Yes",
-      "correct": true,
-      "decode_path": "valhalla_base/native/multihop_fate_yesno",
+      "answer": "[corpus:1] How the conspiracy-fueled Epoch Times went mainstream and made millions: The group reported $76 million in subscription revenue in 2021, compared to nearly $7 million in 2019",
+      "correct": false,
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_3"
     },
     {
@@ -152,12 +152,12 @@
       "id": "MH_168"
     },
     {
-      "answer": "Google Search",
+      "answer": "[corpus:2] ” If the court decides the relevant market is phones and app stores, not specifically Android ones, then Google’s on the road to victory",
       "correct": true,
-      "decode_path": "valhalla_base/native/multihop_fate_entity",
+      "decode_path": "valhalla_base/native/pipeline_open",
       "id": "MH_2106"
     }
   ],
-  "timestamp": "1783053281",
+  "timestamp": "1783182763",
   "verdict": "OPEN_QA_VIABLE"
 }

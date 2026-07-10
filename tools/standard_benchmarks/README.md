@@ -80,6 +80,25 @@ See `download_utils.py` · `download_standard_benchmarks.py --offline`
 
 Human baselines (literature): LongBench-v2 overall ~53.7%; our slice is short-length MCQ only — compare cautiously.
 
+## Results (2026-07-10 full industry run @ Qwen2.5-3B)
+
+| Benchmark | Tier | Result | Verdict |
+|-----------|------|--------|---------|
+| RAGTruth 40Q / 100Q | A | **40/40 · 99/100** | RAGTRUTH_STRONG |
+| Needle + RULER | A | **4/4 · 20/20** | NEEDLE_STRONG |
+| MCQ ladder 46Q @ 3B | A | **45/46 (98%)** | MCQ_LADDER_FLAT |
+| External holdout | A | **15/15** | EXTERNAL_HOLDOUT_STRONG |
+| LoCoMo | B | **14/30 (47%)** | OPEN_QA_VIABLE |
+| MultiHop hybrid / v2 | B | **14/25 · 15/25** | OPEN_QA_VIABLE |
+| LongBench-v2 | B | **7/20 (35%)** | LONGBENCH_V2_VIABLE |
+| LaRA | B | RAG 8/20 · LC 13/20 | STRUCTURE_RAG_BELOW_LC |
+| FRAMES | C | **1/25 (4%)** | OPEN_QA_DEVELOPING — needs wiki corpus |
+
+Run: `run_industry_benchmarks.py --all --fresh --verbose` (~22 min)
+
+**Interpretation:** [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md)  
+Full write-up: [`INDUSTRY_BENCHMARKS_20260630.md`](../../reports/valhalla_inference/INDUSTRY_BENCHMARKS_20260630.md) · [`INDUSTRY_3B_RUN_STATUS.md`](../../reports/valhalla_inference/INDUSTRY_3B_RUN_STATUS.md)
+
 ## Results (2026-06-30 full industry run)
 
 | Benchmark | Tier | Result | Verdict |

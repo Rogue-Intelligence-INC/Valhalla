@@ -1,165 +1,219 @@
 {
-  "timestamp": "2026-07-06T02:21:04.170351+00:00",
-  "protocol": "frames-v1",
+  "timestamp": "2026-07-10T05:13:45.743834+00:00",
+  "protocol": "frames-v1-rust",
   "benchmark": "FRAMES",
   "citation": "NAACL 2025 FRAMES — multi-hop RAG",
   "bundle": "frames_slice25.json",
   "n": 25,
-  "correct": 0,
-  "accuracy": 0.0,
+  "correct": 1,
+  "accuracy": 0.04,
+  "dynamic_fragments": true,
+  "fragment_mode": "Density",
+  "fragment_only": true,
+  "wiki_items_fetched": 0,
   "baseline_no_rag": 0.408,
   "baseline_oracle": 0.729,
   "verdict": "OPEN_QA_DEVELOPING",
   "rows": [
     {
+      "answer": "[corpus:0] [fate:14@0] org/wiki/Istiklal_Mosque,_Sarajevo",
+      "corpus_lines": 4,
+      "correct": false,
+      "gold": "21 meters",
       "id": "FRAMES_654",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "21 meters"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:14@0] org/wiki/Mona_Lisa#Refuge,_theft,_and_vandalism",
+      "corpus_lines": 2,
+      "correct": true,
+      "gold": "The Mona Lisa",
       "id": "FRAMES_114",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "The Mona Lisa"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:3] [fate:26@3] org/wiki/Tyson_Fury_vs_Oleksandr_Usyk",
+      "corpus_lines": 4,
+      "correct": false,
+      "gold": "12 years.",
       "id": "FRAMES_25",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "12 years."
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Sailing_at_the_2003_Pan_American_Games",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "Richard Coxon.",
       "id": "FRAMES_759",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "Richard Coxon."
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Hugo_Award_for_Best_Novel",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "Angel Archer.",
       "id": "FRAMES_281",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "Angel Archer."
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Battle_of_Sobraon",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "1858",
       "id": "FRAMES_250",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "1858"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:2] [fate:46@2] org/wiki/List_of_first_ladies_of_the_United_States",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "Elizabeth Monroe",
       "id": "FRAMES_228",
-      "correct": false,
-      "answer": "Reference",
-      "gold": "Elizabeth Monroe"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Brian_Bergstein",
+      "corpus_lines": 4,
+      "correct": false,
+      "gold": "The Sherman Antitrust Act",
       "id": "FRAMES_142",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "The Sherman Antitrust Act"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:2] [fate:18@2] org/wiki/International_Year_for_the_Culture_of_Peace",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "228 times larger",
       "id": "FRAMES_754",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "228 times larger"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Gunfight_at_the_O",
+      "corpus_lines": 2,
+      "correct": false,
+      "gold": "103",
       "id": "FRAMES_104",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "103"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:1] [fate:14@1] org/wiki/List_of_waterfalls_by_height#By_overall_height",
+      "corpus_lines": 2,
+      "correct": false,
+      "gold": "2,452 ft",
       "id": "FRAMES_692",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "2,452 ft"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:1] [fate:18@1] org/wiki/List_of_mayors_of_Quincy,_Massachusetts",
+      "corpus_lines": 2,
+      "correct": false,
+      "gold": "Henry O. Fairbanks and Thomas P. Koch",
       "id": "FRAMES_758",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "Henry O. Fairbanks and Thomas P. Koch"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/The_Dragonfly_Sea",
+      "corpus_lines": 4,
+      "correct": false,
+      "gold": "King's College",
       "id": "FRAMES_558",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "King's College"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:1] [fate:14@1] org/wiki/List_of_mayors_of_New_York_City",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "November 24, 1921",
       "id": "FRAMES_89",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "November 24, 1921"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:2] [fate:18@2] org/wiki/List_of_awards_and_nominations_received_by_Colin_Firth",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "Colin Firth won his first Academy Award in 2011 for The King's Speech.",
       "id": "FRAMES_604",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "Colin Firth won his first Academy Award in 2011 for The King's Speech."
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Goths",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "Serbia",
       "id": "FRAMES_432",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "Serbia"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:2] [fate:22@2] org/wiki/Dallas_Cowboys",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "55",
       "id": "FRAMES_32",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "55"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Culdcept_Saga",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "Two million.",
       "id": "FRAMES_30",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "Two million."
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:3] [fate:22@3] org/wiki/Jackie_Robinson",
+      "corpus_lines": 4,
+      "correct": false,
+      "gold": "74 years",
       "id": "FRAMES_95",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "74 years"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Meat_Loaf#Personal_life",
+      "corpus_lines": 2,
+      "correct": false,
+      "gold": "Dockers",
       "id": "FRAMES_223",
-      "correct": false,
-      "answer": "Yes",
-      "gold": "Dockers"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:14@0] Reference: https://en",
+      "corpus_lines": 3,
+      "correct": false,
+      "gold": "2024",
       "id": "FRAMES_238",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "2024"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Inception",
+      "corpus_lines": 2,
+      "correct": false,
+      "gold": "39",
       "id": "FRAMES_517",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "39"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Shogi",
+      "corpus_lines": 4,
+      "correct": false,
+      "gold": "25",
       "id": "FRAMES_616",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "25"
+      "wiki_fetched": false
     },
     {
+      "answer": "[corpus:0] [fate:10@0] org/wiki/Tommy_Lawton",
+      "corpus_lines": 2,
+      "correct": false,
+      "gold": "9",
       "id": "FRAMES_27",
-      "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "9"
+      "wiki_fetched": false
     },
     {
-      "id": "FRAMES_574",
+      "answer": "[corpus:0] [fate:10@0] org/wiki/SS_Edmund_Fitzgerald",
+      "corpus_lines": 2,
       "correct": false,
-      "answer": "[corpus:2] Reference: h",
-      "gold": "Edmund Fitzgerald, the man for whom the ill-fated ship SS Edmund Fitzgerald was named was born in 1895, he was 80 years old in 1975 when she sank."
+      "gold": "Edmund Fitzgerald, the man for whom the ill-fated ship SS Edmund Fitzgerald was named was born in 1895, he was 80 years old in 1975 when she sank.",
+      "id": "FRAMES_574",
+      "wiki_fetched": false
     }
   ]
 }

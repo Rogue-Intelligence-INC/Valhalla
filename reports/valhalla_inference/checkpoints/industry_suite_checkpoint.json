@@ -1,0 +1,78 @@
+{
+  "protocol": "industry-suite-checkpoint-v1",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "started_at": "2026-07-10T04:52:08.948799+00:00",
+  "completed": [
+    {
+      "label": "needle",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T04:52:23.084862+00:00",
+      "report": "needle_session_v1_test.json"
+    },
+    {
+      "label": "ragtruth",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T04:52:25.552444+00:00",
+      "report": "ragtruth_v1_test.json"
+    },
+    {
+      "label": "ragtruth-full",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T04:52:30.764176+00:00",
+      "report": "ragtruth_full_v1_test.json"
+    },
+    {
+      "label": "frames",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T05:13:45.751130+00:00",
+      "report": "frames_v1_test.json"
+    },
+    {
+      "label": "multihop",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T05:13:46.538117+00:00",
+      "report": "multihop_rag_hybrid_test.json"
+    },
+    {
+      "label": "locomo",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T05:13:49.480530+00:00",
+      "report": "locomo_v1_test.json"
+    },
+    {
+      "label": "ruler",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T05:14:07.999133+00:00",
+      "report": "ruler_v1_test.json"
+    },
+    {
+      "label": "lara",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T05:14:38.181099+00:00",
+      "report": "lara_v1_test.json"
+    },
+    {
+      "label": "external-holdout",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T05:14:38.519467+00:00",
+      "report": "external_holdout_test.json"
+    },
+    {
+      "label": "mcq-ladder",
+      "exit_code": 0,
+      "timestamp": "2026-07-10T05:14:40.642893+00:00",
+      "report": "mcq_ladder_v1_test.json"
+    }
+  ],
+  "failed": [
+    {
+      "label": "longbench",
+      "exit_code": 1,
+      "timestamp": "2026-07-10T04:52:30.816880+00:00",
+      "report": "longbench_v2_v1_test.json"
+    }
+  ],
+  "pending": [],
+  "paused": false,
+  "last_updated": "2026-07-10T05:14:40.642950+00:00"
+}

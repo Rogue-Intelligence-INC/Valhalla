@@ -16,6 +16,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import ast
+import json
 import random
 import sys
 from pathlib import Path
@@ -39,6 +41,32 @@ FILLER = [
     "Mercury is the closest planet to the Sun.",
     "Oxygen makes up about 21 percent of Earth's atmosphere.",
 ]
+
+
+def _normalize_wiki_links(raw: Any) -> list[str]:
+    """Parse wiki_links from HF row (str, list, or repr string) — never char-split."""
+    if raw is None:
+        return []
+    if isinstance(raw, (list, tuple)):
+        return [str(u).strip() for u in raw if u and str(u).strip()]
+    if isinstance(raw, str):
+        s = raw.strip()
+        if not s:
+            return []
+        if s.startswith("http"):
+            return [s]
+        if s.startswith("["):
+            try:
+                parsed = json.loads(s)
+            except json.JSONDecodeError:
+                try:
+                    parsed = ast.literal_eval(s)
+                except (SyntaxError, ValueError):
+                    parsed = None
+            if isinstance(parsed, list):
+                return [str(u).strip() for u in parsed if u and str(u).strip()]
+        return []
+    return [str(raw).strip()] if raw else []
 
 
 def write_bundle(name: str, doc: dict[str, Any]) -> Path:
@@ -145,7 +173,7 @@ def download_frames(n: int, *, fetch_wiki: bool, offline: bool) -> None:
     wiki_hits = 0
     for i, idx in enumerate(pick):
         r = ds[int(idx)]
-        links = list(r.get("wiki_links") or [])
+        links = _normalize_wiki_links(r.get("wiki_links"))
         if not links:
             for k in range(1, 12):
                 lk = r.get(f"wikipedia_link_{k}")

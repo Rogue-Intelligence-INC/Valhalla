@@ -1,112 +1,112 @@
 {
-  "timestamp": "2026-07-06T02:34:02.059201+00:00",
+  "timestamp": "2026-07-10T05:14:37.758070+00:00",
   "protocol": "lara-v1",
   "benchmark": "LaRA-style RAG vs LC",
   "bundle": "lara_rag_vs_lc_slice20.json",
   "n": 20,
   "valhalla_rag": {
-    "correct": 12,
-    "accuracy": 0.6,
+    "correct": 8,
+    "accuracy": 0.4,
     "rows": [
       {
         "id": "LARA_1694",
-        "correct": true,
-        "answer": "Yes"
+        "correct": false,
+        "answer": "[corpus:2] [fate:46@2] Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier: The"
       },
       {
         "id": "LARA_772",
         "correct": false,
-        "answer": "Yes"
+        "answer": "[corpus:1] [fate:42@1] The best Prime Day deals on headphones for October 2023: That’s only $20 off, but it marks the fi"
       },
       {
         "id": "LARA_1413",
         "correct": true,
-        "answer": "[corpus:2] Steam Deck OLED review: It's just better: The Steam Deck OLED will go on sale on November 16th at 1pm ET, and"
+        "answer": "[corpus:2] [fate:22@2] Steam Deck OLED review: It's just better: The Steam Deck OLED will go on sale on November 16th at"
       },
       {
         "id": "LARA_1008",
         "correct": true,
-        "answer": "[corpus:2] Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier: The prosecution"
+        "answer": "[corpus:2] [fate:22@2] Sam Altman backs teens’ startup, Google unveils the Pixel 8 and TikTok tests an ad-free tier: The"
       },
       {
         "id": "LARA_1582",
         "correct": false,
-        "answer": "no"
+        "answer": "[corpus:1] [fate:42@1] 2023 Kentucky online sports betting sites: Best legal sportsbooks, promos, bonuses, mobile apps, "
       },
       {
         "id": "LARA_485",
         "correct": false,
-        "answer": "no"
+        "answer": "[corpus:1] [fate:42@1] Is Google Search better than the rest? And is that fair?: Wired removed the article for not meeti"
       },
       {
         "id": "LARA_1092",
         "correct": false,
-        "answer": "Ballsy"
+        "answer": "[corpus:1] [fate:42@1] ‘Bleeds green and gold’: Ballsy career-saving call that’s delivered Arnie a record-breaking momen"
       },
       {
         "id": "LARA_384",
         "correct": true,
-        "answer": "[corpus:1] A provocative role for technologists in product innovation: The core of product design is decision-making wit"
+        "answer": "[corpus:1] [fate:18@1] A provocative role for technologists in product innovation: The core of product design is decisio"
       },
       {
         "id": "LARA_333",
-        "correct": true,
-        "answer": "Yes"
+        "correct": false,
+        "answer": "[corpus:2] [fate:46@2] News publisher files class action antitrust suit against Google, citing AI’s harms to their botto"
       },
       {
         "id": "LARA_917",
         "correct": false,
-        "answer": "no"
+        "answer": "[corpus:1] [fate:42@1] From Ten Hag’s future to a leaking roof: Ratcliffe’s Manchester United in-tray: A tap-in, then, f"
       },
       {
         "id": "LARA_1452",
         "correct": false,
-        "answer": "[corpus:1] Hottest seat on each NFC team: Buns burning for these four head coaches: In his second season as HC, the defe"
+        "answer": "[corpus:1] [fate:14@1] Hottest seat on each NFC team: Buns burning for these four head coaches: In his second season as "
       },
       {
         "id": "LARA_2031",
         "correct": true,
-        "answer": "no"
+        "answer": "[corpus:1] [fate:42@1] What’s it going to do about it?: Brown added that he was “surprised” to see that a second valuati"
       },
       {
         "id": "LARA_402",
-        "correct": true,
-        "answer": "Yes"
+        "correct": false,
+        "answer": "[corpus:2] [fate:46@2] ChatGPT: Everything you need to know about the AI-powered chatbot: OpenAI announced that GPT-4 wi"
       },
       {
         "id": "LARA_19",
         "correct": true,
-        "answer": "[corpus:1] Watch great noir this Noirvember: Where to watch: Streaming free with ads on Tubi, and free with a library ca"
+        "answer": "[corpus:1] [fate:14@1] Watch great noir this Noirvember: Where to watch: Streaming free with ads on Tubi, and free with "
       },
       {
         "id": "LARA_1553",
         "correct": false,
-        "answer": "no"
+        "answer": "[corpus:1] [fate:42@1] Video games in 2023: Acquisitions, layoffs, unions: It’s estimated that more than 9,000 people in"
       },
       {
         "id": "LARA_2147",
         "correct": false,
-        "answer": "[corpus:1] Watch Argentina vs Paraguay live stream, TV channel, lineups, betting odds for World Cup qualifying match: He"
+        "answer": "[corpus:1] [fate:14@1] Watch Argentina vs Paraguay live stream, TV channel, lineups, betting odds for World Cup qualifyi"
       },
       {
         "id": "LARA_2344",
         "correct": true,
-        "answer": "[corpus:1] ChatGPT: Everything you need to know about the AI-powered chatbot: ChatGPT is a general-purpose chatbot that "
+        "answer": "[corpus:1] [fate:18@1] ChatGPT: Everything you need to know about the AI-powered chatbot: ChatGPT is a general-purpose c"
       },
       {
         "id": "LARA_2425",
-        "correct": true,
-        "answer": "Yes"
+        "correct": false,
+        "answer": "[corpus:2] [fate:46@2] News publisher files class action antitrust suit against Google, citing AI’s harms to their botto"
       },
       {
         "id": "LARA_1198",
         "correct": true,
-        "answer": "[corpus:1] The best horror movies you can watch right now: Clive Barker’s 1987 directorial debut adapts his 1986 novella"
+        "answer": "[corpus:1] [fate:18@1] The best horror movies you can watch right now: Clive Barker’s 1987 directorial debut adapts his "
       },
       {
         "id": "LARA_2050",
         "correct": true,
-        "answer": "[corpus:1] Is Sam Bankman-Fried a bad ‘man’ or a good ‘boy’? Lawyers swap opening statements before first witnesses take"
+        "answer": "[corpus:1] [fate:18@1] Is Sam Bankman-Fried a bad ‘man’ or a good ‘boy’? Lawyers swap opening statements before first wi"
       }
     ]
   },
@@ -157,7 +157,7 @@
       {
         "id": "LARA_333",
         "correct": false,
-        "answer": "Based on the reference facts provided, there is no direct information about the specific portrayal of Google's involveme"
+        "answer": "Based on the reference facts provided, there is no direct information about the portrayal of Google's involvement in ant"
       },
       {
         "id": "LARA_917",
@@ -177,7 +177,7 @@
       {
         "id": "LARA_402",
         "correct": true,
-        "answer": "Yes, according to the TechCrunch reports, there was a notable shift in OpenAI's strategic focus between these two dates."
+        "answer": "Yes, according to the reports from TechCrunch, there was a notable shift in OpenAI's strategic focus between the two dat"
       },
       {
         "id": "LARA_19",
@@ -202,7 +202,7 @@
       {
         "id": "LARA_2425",
         "correct": true,
-        "answer": "Yes, you're correct in your understanding. \n\nThe TechCrunch article mentions that Google's Gemini Pro was compared to Op"
+        "answer": "Yes, you are correct. The TechCrunch article mentions that Google's Gemini Pro was compared to OpenAI's GPT-3.5 in terms"
       },
       {
         "id": "LARA_1198",

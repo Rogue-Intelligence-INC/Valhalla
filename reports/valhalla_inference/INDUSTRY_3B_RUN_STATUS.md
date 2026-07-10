@@ -1,57 +1,54 @@
-# 3B 全行业 Benchmark 套件 — 已完成
+# Industry benchmarks — Qwen2.5-3B full suite
 
-**完成:** 2026-07-08 · **耗时:** 1736s (~29 min)  
-**主干:** `Qwen/Qwen2.5-3B-Instruct` · GPU · serve @8787  
-**日志:** `reports/valhalla_inference/industry_suite_run.log`
+**Date:** 2026-07-10  
+**Backbone:** `Qwen/Qwen2.5-3B-Instruct` (`qwen_3b`)  
+**Command:** `run_industry_benchmarks.py --all --fresh --verbose`
 
-## Tier A — 强项（100%）
+## Fixes applied
 
-| Benchmark | 结果 | Verdict |
-|-----------|------|---------|
-| RAGTruth-40 | **40/40** | RAGTRUTH_STRONG |
-| RAGTruth-100 | **100/100** | RAGTRUTH_STRONG |
-| Needle session | **4/4** | NEEDLE_STRONG |
-| RULER-style | **20/20** | NEEDLE_STRONG |
-| External holdout | **15/15** | EXTERNAL_HOLDOUT_STRONG |
+| Issue | Fix |
+|-------|-----|
+| FRAMES 0% (char-split `wiki_links`) | `_normalize_wiki_links()` in `download_standard_benchmarks.py` |
+| MCQ broken pipe after LoCoMo | `--memory-safe` + serve restart before mcq-ladder |
+| MCQ `models=[]` | `qwen_3b` preset id + `ladder_by_id()` resolution |
+| LongBench `--production` crash | Production path via `production_base` + full corpus ingest |
+| Suite resume | `--fresh` flag; FRAMES bundle preflight |
 
-## Tier B — 可用 / 发展中
+## Results (3B, post-fix)
 
-| Benchmark | 结果 | Verdict |
-|-----------|------|---------|
-| LongBench-v2 | **7/20 (35%)** | LONGBENCH_V2_VIABLE |
-| MultiHop hybrid | **14/25 (56%)** | OPEN_QA_VIABLE |
-| MultiHop v2 | **15/25 (60%)** | OPEN_QA_VIABLE |
-| LaRA | RAG **8/20** · LC **13/20** | STRUCTURE_RAG_BELOW_LC |
-| LoCoMo | **1/30 (3%)** | OPEN_QA_DEVELOPING |
-| FRAMES | **0/25 (0%)** | OPEN_QA_DEVELOPING |
+| Benchmark | Result | Verdict |
+|-----------|--------|---------|
+| Needle session | 4/4 (100%) | NEEDLE_STRONG |
+| RAGTruth | 40/40 (100%) | RAGTRUTH_STRONG |
+| RAGTruth-100 | 99/100 (99%) | RAGTRUTH_STRONG |
+| LongBench-v2 | 7/20 (35%) legacy hybrid · 4/20 production | LONGBENCH_V2_VIABLE |
+| FRAMES | 1/25 (4%) | OPEN_QA_DEVELOPING — wiki fetch blocked (no cache) |
+| MultiHop hybrid | 14/25 (56%) | OPEN_QA_VIABLE |
+| LoCoMo | **14/30 (47%)** ↑ from 1/30 | OPEN_QA_VIABLE |
+| RULER | 20/20 (100%) | NEEDLE_STRONG |
+| LaRA | RAG 8/20 · LC 13/20 | STRUCTURE_RAG_BELOW_LC |
+| External holdout | 15/15 (100%) | EXTERNAL_HOLDOUT_STRONG |
+| **MCQ ladder @ 3B** | **45/46 (98%)** | MCQ_LADDER_FLAT (single point) |
 
-## MCQ ladder — GPU F16 补跑（2026-07-08）
+## Pending / known gaps
 
-| 模型 | 结果 | 状态 |
-|------|------|------|
-| 0.5B | **29/46 (63.0%)** | ✅ F16 · isolated session |
-| 3B | **44/46 (95.7%)** | ✅ F16 GPU |
-| 7B | **45/46 (97.8%)** | ✅ F16 GPU |
+- **FRAMES:** Wikipedia REST fetch times out in this environment; bundle has valid URLs but no extracts. Re-run with network wiki access or pre-populate `tools/standard_benchmarks/cache/wiki/`.
+- **LongBench production stack:** targeted/full ingest under per-item isolation scores below legacy hybrid (4/20 vs 7/20). Industry suite uses legacy path for LongBench until Rust MCQ batch slice lands.
+- **LoCoMo:** 47% viable; adaptive routing helps vs 128-line truncate-only fallback.
 
-**根因修复:** 长 batch session snapshot >32MB → broken pipe；改为 per-question `clear_context()` + per-model serve restart。
-
-**文档:** [`MCQ_LADDER_MEM_GPU_20260708.md`](./MCQ_LADDER_MEM_GPU_20260708.md)
-
-## 汇总
-
-- JSON: `industry_benchmarks_summary.json`
-- Markdown: `INDUSTRY_BENCHMARKS_20260630.md`
-- 总览: `BENCHMARK_SUMMARY_20260708.md`
-- Checkpoint: `checkpoints/industry_suite_checkpoint.json`（11/11 ✅）
-
-## 复现
+## Re-run failed items
 
 ```bash
-RUSTFLAGS='-L /opt/cuda/lib64' VALHALLA_USE_CPU=0 \
-  .venv-llm/bin/python3 tools/valhalla_inference/run_industry_benchmarks.py \
-  --all --verbose --checkpoint-dir reports/valhalla_inference/checkpoints
+HF_ENDPOINT=https://hf-mirror.com RUSTFLAGS="-L /opt/cuda/lib64" \
+  .venv-llm/bin/python3 tools/valhalla_inference/test_longbench_v2_v1.py
 
-# MCQ ladder（GPU F16 · memory-safe）
-export VALHALLA_LM_F16=1 VALHALLA_USE_CPU=0
-tools/valhalla_inference/run_mcq_full_ladder.sh
+HF_ENDPOINT=https://hf-mirror.com RUSTFLAGS="-L /opt/cuda/lib64" \
+  .venv-llm/bin/python3 tools/valhalla_inference/test_mcq_ladder_v1.py --model qwen_3b --memory-safe
+```
+
+Full suite:
+
+```bash
+VALHALLA_INGRESS_RESOURCE_PERCENT=70 HF_ENDPOINT=https://hf-mirror.com RUSTFLAGS="-L /opt/cuda/lib64" \
+  .venv-llm/bin/python3 tools/valhalla_inference/run_industry_benchmarks.py --all --fresh --verbose
 ```
