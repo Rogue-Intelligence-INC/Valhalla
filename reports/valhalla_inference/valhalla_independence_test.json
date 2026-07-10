@@ -495,13 +495,13 @@
     "verdict": "MEMORY_INDEPENDENT"
   },
   "extended": {
-    "tier": "extended_capabilities",
+    "tier": "stack_capability_smokes",
     "resource": {
       "ingress_percent": 70,
       "ingress_max_items": 96,
       "gpu_release_between": true
     },
-    "note": "Product features on fixed Qwen stack; not backbone-independence claims.",
+    "note": "Regression on fixed production stack; not part of backbone orthogonality verdict.",
     "fusion_smoke": {
       "label": "fusion-smoke",
       "script": "test_context_core_fusion.py",
@@ -515,7 +515,7 @@
       "ok": true,
       "elapsed_s": 68.5
     },
-    "completed_at": "2026-07-10T04:29:36.680863+00:00",
+    "completed_at": "2026-07-10T04:36:00.374727+00:00",
     "proactive_smoke": {
       "label": "proactive-smoke",
       "script": "test_proactive_fate_v2.py",
@@ -524,7 +524,8 @@
       ],
       "exit_code": 0,
       "ok": true,
-      "elapsed_s": 1.4
+      "elapsed_s": 0.9,
+      "timed_out": false
     },
     "longchain_smoke": {
       "label": "longchain-smoke",
@@ -557,5 +558,12 @@
     "C_fusion_capability": true,
     "D_proactive_capability": true,
     "E_longchain_memory": true
+  },
+  "test_layers": {
+    "open_path_orthogonality": "VALHALLA_BASE_INDEPENDENT",
+    "session_memory_orthogonality": "MEMORY_INDEPENDENT",
+    "core_fusion_smoke": true,
+    "proactive_gate_smoke": true,
+    "longchain_memory_smoke": true
   }
 }

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Valhalla × backbone — single entry for experiments.
+"""Valhalla × backbone — unified experiment harness.
 
-  # ad-hoc HF model (no registry edit)
+  # ad-hoc HF checkpoint (no registry edit)
   python3 tools/valhalla_inference/valhalla_backbone.py --hf microsoft/Phi-tiny-MoE-instruct --fast
 
   # preset from backbone_registry.PRESETS
   python3 tools/valhalla_inference/valhalla_backbone.py --preset rwkv7_0.1b --fast
 
-  # paper 6-class panel
+  # architecture-class panel (paper presets)
   python3 tools/valhalla_inference/valhalla_backbone.py --paper --fast
 
   # probe load only

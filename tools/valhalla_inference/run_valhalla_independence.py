@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
-"""ValhallaBase independence — native open path must not vary by backbone.
+"""ValhallaBase backbone orthogonality battery.
 
 Protocol: valhalla-independence-v1
 
-Hypothesis (Tier B):
-  ValhallaBase ``decode=native`` and hybrid **open** answers are backbone-independent.
-  Only ``trad`` (transformers RAG) should change when swapping LM.
+Claim under test:
+  ValhallaBase ``decode=native`` and hybrid open-path outputs are orthogonal to
+  the LM backbone checkpoint. Only ``trad`` (transformers RAG) may vary per backbone.
 
-Checks per backbone (vs one reference native run):
-  1. native arm — identical per-question answers & scores
-  2. hybrid arm  — identical to reference (open uses structure path, not LM head)
-  3. trad arm (optional) — sanity control; expected to differ across backbones
+Per-backbone checks (vs one native reference run):
+  1. native arm — identical per-question answers and scores
+  2. hybrid arm  — identical to reference (open uses structure decode, not LM head)
+  3. trad arm (optional) — control baseline; may differ across backbones
 
 Usage:
-  # default panel (cached presets)
+  # default cached panel
   .venv-llm/bin/python3 tools/valhalla_inference/run_valhalla_independence.py --fast
 
-  # bring-in a new model
+  # ad-hoc HF checkpoint (no registry edit)
   .venv-llm/bin/python3 tools/valhalla_inference/run_valhalla_independence.py \\
-    --hf org/new-model --fast
+    --hf org/model-id --fast
 
   # explicit presets
   .venv-llm/bin/python3 tools/valhalla_inference/run_valhalla_independence.py \\
@@ -112,7 +112,7 @@ def _needle_run(*, lm_model: str | None, depths: list[int]) -> dict[str, Any]:
 
 
 def run_memory_smoke(backbones: list[Backbone], *, fast: bool) -> dict[str, Any]:
-    """Session needle recall — hybrid open should match native reference."""
+    """Session needle recall — hybrid open path must match native reference."""
     depths = [5, 10] if fast else [5, 10, 20]
     ref = _needle_run(lm_model=None, depths=depths)
     ref_map = {r["depth"]: r["correct"] for r in ref["rows"]}
@@ -246,12 +246,12 @@ def _longchain_smoke(*, fast: bool) -> dict[str, Any]:
 
 
 def run_extended_smokes(*, fast: bool, only: set[str] | None = None) -> dict[str, Any]:
-    """Capability smokes — fixed stack, sequential, low ingress cap."""
+    """Stack capability regression smokes — fixed Qwen stack, serial execution."""
     want = only or {"fusion", "proactive", "longchain"}
     out: dict[str, Any] = {
-        "tier": "extended_capabilities",
+        "tier": "stack_capability_smokes",
         "resource": {"ingress_percent": 70, "ingress_max_items": 96, "gpu_release_between": True},
-        "note": "Product features on fixed Qwen stack; not backbone-independence claims.",
+        "note": "Regression on fixed production stack; not part of backbone orthogonality verdict.",
     }
 
     if "fusion" in want:
@@ -345,9 +345,9 @@ def run_independence(
         "backbones": {},
         "comparisons": [],
         "notes": [
-            "Reference = single ValhallaBase(decode=native) run, backbone-agnostic.",
-            "native/hybrid per backbone must match reference (Tier B open independence).",
-            "trad is optional control — may differ by backbone.",
+            "reference = single ValhallaBase(decode=native); backbone-agnostic baseline.",
+            "native/hybrid per backbone must match reference (open-path orthogonality).",
+            "trad = optional control arm; may differ per backbone checkpoint.",
         ],
     }
 
@@ -462,7 +462,7 @@ def _print_report(report: dict[str, Any]) -> None:
             print(f"  {tag} {c['backbone']} needle hybrid vs native ref")
 
     if ext := report.get("extended"):
-        print("\n[extended capabilities — fixed stack, not backbone sweep]")
+        print("\n[stack_capability_smokes — fixed Qwen stack, not backbone sweep]")
         for key in ("fusion_smoke", "proactive_smoke", "longchain_smoke"):
             row = ext.get(key) or {}
             if not row:
@@ -480,7 +480,7 @@ def main() -> int:
     ap.add_argument("--with-trad", action="store_true", help="Also run trad (control, slower)")
     ap.add_argument("--with-memory", action="store_true", help="Needle session smoke per backbone")
     ap.add_argument("--extended", action="store_true",
-                    help="fusion + proactive + longchain smokes (sequential, 70%% ingress)")
+                    help="stack capability smokes: fusion + proactive gates + longchain")
     ap.add_argument("--smokes-only", action="store_true",
                     help="Skip open sweep; merge into existing report")
     ap.add_argument("--merge-into", type=Path, default=None, help="Merge results into JSON")
@@ -529,12 +529,12 @@ def main() -> int:
         smokes = [prev.get(k) for k in ("fusion_smoke", "proactive_smoke", "longchain_smoke") if prev.get(k)]
         report["extended"]["all_ok"] = bool(smokes) and all(s.get("ok") for s in smokes)
 
-    report["experiment_tiers"] = {
-        "A_open_independence": report.get("summary", {}).get("verdict"),
-        "B_memory_independence": (report.get("memory") or {}).get("verdict"),
-        "C_fusion_capability": ((report.get("extended") or {}).get("fusion_smoke") or {}).get("ok"),
-        "D_proactive_capability": ((report.get("extended") or {}).get("proactive_smoke") or {}).get("ok"),
-        "E_longchain_memory": ((report.get("extended") or {}).get("longchain_smoke") or {}).get("ok"),
+    report["test_layers"] = {
+        "open_path_orthogonality": report.get("summary", {}).get("verdict"),
+        "session_memory_orthogonality": (report.get("memory") or {}).get("verdict"),
+        "core_fusion_smoke": ((report.get("extended") or {}).get("fusion_smoke") or {}).get("ok"),
+        "proactive_gate_smoke": ((report.get("extended") or {}).get("proactive_smoke") or {}).get("ok"),
+        "longchain_memory_smoke": ((report.get("extended") or {}).get("longchain_smoke") or {}).get("ok"),
     }
 
     _print_report(report)

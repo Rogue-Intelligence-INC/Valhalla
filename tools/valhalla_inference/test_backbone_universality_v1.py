@@ -128,7 +128,7 @@ def main() -> None:
         "backbones": [b.hf_id for b in backbones],
         "arms": {},
         "notes": [
-            "Valhalla hybrid open path is backbone-independent (Tier B native).",
+            "Valhalla hybrid open decode is backbone-orthogonal (structure path).",
             "trad_lm via valhalla_backbone.experiment(arms=('trad',)).",
         ],
     }
