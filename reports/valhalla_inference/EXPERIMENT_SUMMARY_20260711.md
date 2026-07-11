@@ -35,13 +35,14 @@
 | Benchmark | Result | Tier |
 |-----------|--------|------|
 | RAGTruth | 40/40 | A |
-| Needle | 2/2 | A |
-| LongBench-v2 | 7/20 | A |
-| MultiHop hybrid | 14/25 | A |
+| Needle | 4/4 | A |
+| LongBench-v2 | 7/20 (35%) | B |
+| MultiHop fatewithv2 | 14/25 (56%) | B |
+| LaRA fatewithv2 | 11/20 (55%) | B |
 | RULER | 4/4 | B (fast) |
 | External holdout | 5/5 | A |
 | FRAMES | SKIPPED | C (no wiki) |
-| LoCoMo | 1/3 | B (fast) |
+| LoCoMo production | 20/30 (67%) | B |
 
 **Legitimacy:** 10/11 reports citeable.
 
@@ -81,6 +82,7 @@ External benchmarks for **incubating / training LLM systems** without assuming f
 |----------|--------|---------|----------|
 | `valhalla-base-training-potential-v2` | TPI **0.755** (cached full eval) | STRONG_INFERENCE_TIME_LEARNING | Yes |
 | `fate-pretrain-holdout-v3` | train **40%** · holdout **80%** (4/5) | HOLDOUT_STRONG (train not converged @ n=5) | Yes (holdout) |
+| `fate-longchain-unified-v5` | drift **0%** · holdout **33%** · composite **0.677** (minimal) | THEME_STABLE · HOLDOUT_PARTIAL | Yes |
 
 **Note:** `--fast` reuses cached TPI (full B1–B5 from 2026-07-02); re-run with `--force-tpi` for fresh TPI (~30+ min).
 
