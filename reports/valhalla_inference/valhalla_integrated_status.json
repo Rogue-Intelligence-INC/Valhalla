@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-10T22:12:28.441995+00:00",
+  "timestamp": "2026-07-11T08:02:04.075843+00:00",
   "resource_budget": {
     "ingress_percent": 50,
     "ingress_max_items": 48,
@@ -13,8 +13,8 @@
       "verdict": "RAGTRUTH_STRONG"
     },
     "needle": {
-      "correct": 2,
-      "n": 2,
+      "correct": 4,
+      "n": 4,
       "verdict": "NEEDLE_STRONG"
     },
     "proactive": {
@@ -53,13 +53,13 @@
     {
       "name": "Needle session",
       "protocol": "needle-session-v1",
-      "result": "2/2 (100%)",
+      "result": "4/4 (100%)",
       "verdict": "NEEDLE_STRONG",
       "file": "needle_session_v1_test.json"
     },
     {
       "name": "LongBench-v2",
-      "protocol": "longbench-v2-v1",
+      "protocol": "longbench-v2-fragmentwithfate-light-v1",
       "result": "7/20 (35%)",
       "verdict": "LONGBENCH_V2_VIABLE",
       "file": "longbench_v2_v1_test.json"
@@ -67,7 +67,7 @@
     {
       "name": "FRAMES",
       "protocol": "frames-v1-rust",
-      "result": "SKIPPED (Tier C — no wiki corpus)",
+      "result": "1/25 (4%) · Tier C (no wiki extracts)",
       "verdict": "TIER_C_INVALID",
       "file": "frames_v1_test.json",
       "citeable": false
@@ -94,8 +94,8 @@
       "file": "multihop_rag_fate_test.json"
     },
     {
-      "name": "MultiHop-RAG hybrid",
-      "protocol": "multihop-rag-fate-v2-hybrid",
+      "name": "MultiHop-RAG fatewithv2",
+      "protocol": "multihop-rag-fatewithv2",
       "result": "14/25 (56%)",
       "verdict": "OPEN_QA_VIABLE",
       "file": "multihop_rag_hybrid_test.json"
@@ -103,8 +103,8 @@
     {
       "name": "LoCoMo",
       "protocol": "locomo-v1-rust",
-      "result": "1/3 (33%)",
-      "verdict": "OPEN_QA_DEVELOPING",
+      "result": "20/30 (67%)",
+      "verdict": "OPEN_QA_STRONG",
       "file": "locomo_v1_test.json"
     },
     {
@@ -116,9 +116,9 @@
     },
     {
       "name": "LaRA RAG vs LC",
-      "protocol": "lara-v1",
-      "result": "?/5",
-      "verdict": "STRUCTURE_RAG_BELOW_LC",
+      "protocol": "lara-fatewithv2-v1",
+      "result": "RAG 11/20",
+      "verdict": "COMPETITIVE",
       "file": "lara_v1_test.json"
     },
     {
@@ -212,7 +212,7 @@
     ]
   },
   "legitimacy": {
-    "timestamp": "2026-07-10T22:12:28.465314+00:00",
+    "timestamp": "2026-07-11T08:02:04.100508+00:00",
     "bundles": {
       "ragtruth": {
         "file": "ragtruth_qa_test40.json",
@@ -297,8 +297,8 @@
         "benchmark": "needle_session",
         "protocol": "needle-session-v1",
         "report_exists": true,
-        "correct": 2,
-        "n": 2,
+        "correct": 4,
+        "n": 4,
         "verdict": "NEEDLE_STRONG",
         "tier": "A",
         "citeable": true,
@@ -349,14 +349,14 @@
         "benchmark": "locomo",
         "protocol": "locomo-v1",
         "report_exists": true,
-        "correct": 1,
-        "n": 3,
-        "verdict": "OPEN_QA_DEVELOPING",
-        "tier": "B",
+        "correct": 20,
+        "n": 30,
+        "verdict": "OPEN_QA_STRONG",
+        "tier": "A",
         "citeable": true,
-        "fast_slice": true,
+        "fast_slice": false,
         "missing_keys": [],
-        "note": "fast slice (n=3); cite with --fast label"
+        "note": "valid report"
       },
       {
         "benchmark": "ruler",
@@ -375,9 +375,9 @@
         "benchmark": "lara",
         "protocol": "lara-v1",
         "report_exists": true,
-        "correct": 2,
-        "n": 5,
-        "verdict": "STRUCTURE_RAG_BELOW_LC",
+        "correct": 11,
+        "n": 20,
+        "verdict": "COMPETITIVE",
         "tier": "A",
         "citeable": true,
         "fast_slice": false,

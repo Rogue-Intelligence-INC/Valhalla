@@ -1,10 +1,10 @@
 //! Unified long-chain + long-term memory benchmark.
 //!
-//! Protocol `fate-longchain-unified-v2` (qa_adaptive): one persistent session, four phases:
-//!   A) anchor baseline — establish thematic evidence anchors (D1)
-//!   B) interleave long-chain — later-session QA pollution (D2/D3)
-//!   C) anchor reprobe — same questions as A; measure theme/tag drift
-//!   D) holdout — fresh questions never asked in A/B
+//! Protocol `fate-longchain-unified-v4` (qa_adaptive + hybrid routing): one persistent session:
+//!   A) anchor baseline — targeted + reanchor (stable landing)
+//!   B) interleave — parallel pipes (long-chain pollution)
+//!   C) anchor reprobe — targeted + reanchor (drift probe)
+//!   D) holdout — isolated fresh worker per item (inherits pretrain affinity)
 //!
 //! Combines: LoCoMo QA scoring (holdout), targeted/parallel routing (longchain),
 //! persistent session (context-topic-drift interleave/recency concepts).
@@ -14,13 +14,13 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
-use crate::context_routing::{targeted_context, ContextIngestMode};
+use crate::context_routing::ContextIngestMode;
 use crate::fate_parallel_longchain::{
     keywords_from_gold, run_parallel_pipes, spread_from_client,
 };
 use crate::fate_adaptive_algebra::{
-    fate_adaptive_context_boost, fate_adaptive_distractor_filter, fate_context_pollution,
-    fate_landing_drift, fate_landing_fingerprints, fate_signal_landing_indices, score_qa_algebra,
+    fate_context_pollution, fate_landing_drift, fate_landing_fingerprints,
+    fate_retrieve_context_lines, fate_signal_landing_indices, score_qa_with_evidence,
     FateAlgebraState,
 };
 use crate::fate_pretrain_holdout::{
@@ -32,13 +32,50 @@ use crate::valhalla_base::ValhallaBaseQuestion;
 use crate::valhalla_base_client::{RunOptions, ValhallaBaseClient};
 use crate::valhalla_base_protocol::ValhallaBaseErrorBody;
 
-pub const PROTOCOL: &str = "fate-longchain-unified-v3";
+pub const PROTOCOL: &str = "fate-longchain-unified-v5";
+
+/// How corpus lines are chosen before Fate-density fragment ingest.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CorpusBuildMode {
+    /// Legacy: QA-driven line subset (~17–42 lines) before ingest.
+    QaAdaptiveMinimal,
+    /// Fragment path: ingest full session (capped); query merge picks segments at QA.
+    FragmentFull,
+}
+
+impl CorpusBuildMode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::QaAdaptiveMinimal => "qa_adaptive_minimal",
+            Self::FragmentFull => "fragment_full",
+        }
+    }
+
+    /// Default: fragments on → full ingest; explicit minimal only when requested.
+    pub fn resolve(explicit_minimal: bool, explicit_fragment_full: bool) -> Self {
+        if explicit_minimal {
+            return Self::QaAdaptiveMinimal;
+        }
+        if explicit_fragment_full || crate::fate_orchestrator::dynamic_corpus_fragments_enabled() {
+            return Self::FragmentFull;
+        }
+        Self::QaAdaptiveMinimal
+    }
+}
+
+fn fragment_qa_enabled() -> bool {
+    crate::fate_orchestrator::dynamic_corpus_fragments_enabled()
+        && crate::fate_orchestrator::query_fragment_merge_enabled()
+}
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum UnifiedRouting {
     Targeted,
     Parallel,
+    /// Parallel session phases (A/B/C) + fresh isolated holdout (D) — merges v3 drift fix with v1 holdout isolation.
+    Hybrid,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -76,6 +113,8 @@ pub struct FateLongchainUnifiedReport {
     pub protocol: String,
     #[serde(default)]
     pub corpus_mode: String,
+    #[serde(default)]
+    pub corpus_build: String,
     pub routing: String,
     pub low_resource: bool,
     pub corpus_lines: usize,
@@ -225,6 +264,43 @@ fn make_question(item: &BundleItem) -> ValhallaBaseQuestion {
     }
 }
 
+fn routing_for_phase(phase: &str, routing: UnifiedRouting) -> UnifiedRouting {
+    match routing {
+        // Session phases: parallel pipes (v3 — stable reprobe landing after interleave).
+        UnifiedRouting::Hybrid if phase != "holdout" => UnifiedRouting::Parallel,
+        // Holdout persistent path: targeted + reanchor (v1 — avoids parallel recency on fresh probes).
+        UnifiedRouting::Hybrid if phase == "holdout" => UnifiedRouting::Targeted,
+        other => other,
+    }
+}
+
+fn ask_fragment_qa(
+    client: &mut ValhallaBaseClient,
+    corpus: &[String],
+    item: &BundleItem,
+) -> Result<String, ValhallaBaseErrorBody> {
+    let q = make_question(item);
+    let state = client.algebra_state();
+    let aff = client
+        .session()
+        .map(|s| s.snapshot.corpus_line_affinity.clone())
+        .unwrap_or_default();
+    let lines = fate_retrieve_context_lines(&q, corpus, &state, Some(&aff));
+    client.reanchor_affinity = false;
+    let resp = client.run(
+        vec![q],
+        RunOptions {
+            context: if lines.is_empty() { None } else { Some(lines) },
+            ..Default::default()
+        },
+    )?;
+    Ok(resp
+        .rows
+        .first()
+        .map(|r| r.answer.clone())
+        .unwrap_or_default())
+}
+
 fn ask_holdout_fresh(
     client: &ValhallaBaseClient,
     corpus: &[String],
@@ -236,23 +312,19 @@ fn ask_holdout_fresh(
         .session()
         .map(|s| s.snapshot.corpus_line_affinity.clone())
         .unwrap_or_default();
-    let mut lines: Vec<String> = Vec::new();
-    fate_adaptive_context_boost(&q, corpus, &mut lines, &state, Some(&aff));
-    for l in targeted_context(&q, corpus, state.retrieval_top_k(q.keywords.len())) {
-        if !lines.iter().any(|x| x == &l) {
-            lines.push(l);
-        }
-    }
-    fate_adaptive_distractor_filter(&q, &mut lines, &state);
-    if lines.is_empty() {
-        return Ok(String::new());
-    }
-    let mut worker = ValhallaBaseClient::production();
-    worker.config = client.config.clone();
+    let lines = fate_retrieve_context_lines(&q, corpus, &state, Some(&aff));
+    let mut worker = client.spawn_fragment_qa_worker();
     worker.config.fate_qa_feedback = false;
+    if lines.is_empty() {
+        let result = run_parallel_pipes(corpus, &q, &mut worker);
+        worker.teardown();
+        let (answer, _, _, _) = result?;
+        return Ok(answer);
+    }
     worker.reanchor_affinity = true;
     worker.ingest_for_prompt(&q, &lines, lines.len().max(4), ContextIngestMode::Targeted);
     let resp = worker.run(vec![q], RunOptions::default())?;
+    worker.teardown();
     Ok(resp
         .rows
         .first()
@@ -260,10 +332,24 @@ fn ask_holdout_fresh(
         .unwrap_or_default())
 }
 
+fn ask_phase(
+    client: &mut ValhallaBaseClient,
+    corpus: &[String],
+    item: &BundleItem,
+    phase: &str,
+    routing: UnifiedRouting,
+) -> Result<String, ValhallaBaseErrorBody> {
+    if phase == "holdout" {
+        return ask_holdout_fresh(client, corpus, item);
+    }
+    ask_persistent(client, corpus, item, phase, routing_for_phase(phase, routing))
+}
+
 fn ask_persistent(
     client: &mut ValhallaBaseClient,
     corpus: &[String],
     item: &BundleItem,
+    phase: &str,
     routing: UnifiedRouting,
 ) -> Result<String, ValhallaBaseErrorBody> {
     let q = make_question(item);
@@ -272,14 +358,16 @@ fn ask_persistent(
             let (ans, _, _, _) = run_parallel_pipes(corpus, &q, client)?;
             Ok(ans)
         }
-        UnifiedRouting::Targeted => {
+        UnifiedRouting::Targeted | UnifiedRouting::Hybrid => {
+            if fragment_qa_enabled() {
+                return ask_fragment_qa(client, corpus, item);
+            }
             let state = client.algebra_state();
             let aff = client
                 .session()
                 .map(|s| s.snapshot.corpus_line_affinity.clone())
                 .unwrap_or_default();
-            let mut lines = targeted_context(&q, corpus, state.retrieval_top_k(q.keywords.len()));
-            fate_adaptive_context_boost(&q, corpus, &mut lines, &state, Some(&aff));
+            let lines = fate_retrieve_context_lines(&q, corpus, &state, Some(&aff));
             client.reanchor_affinity = true;
             client.ingest_for_prompt(&q, &lines, lines.len().max(4), ContextIngestMode::Targeted);
             let resp = client.run(vec![q], RunOptions::default())?;
@@ -292,16 +380,36 @@ fn ask_persistent(
     }
 }
 
+/// Fate algebra + evidence line overlap (eval output adapter).
+fn score_phase_item(
+    answer: &str,
+    item: &BundleItem,
+    corpus: &[String],
+    full_session: &[String],
+    state: &FateAlgebraState,
+) -> bool {
+    score_qa_with_evidence(
+        answer,
+        &item.answer,
+        &item.question,
+        &item.evidence,
+        corpus,
+        Some(full_session),
+        state,
+    )
+}
+
 fn phase_row(
     item: &BundleItem,
     phase: &str,
     answer: String,
     corpus: &[String],
+    full_session: &[String],
     state: &FateAlgebraState,
 ) -> UnifiedPhaseRow {
     let tags = fate_land_tags(&answer);
     let anchor_idx = anchor_land_index(&make_question(item), corpus, state);
-    let correct = score_qa_algebra(&answer, &item.answer, &item.question, state);
+    let correct = score_phase_item(&answer, item, corpus, full_session, state);
     let pollution = context_pollution(&answer, anchor_idx, state);
     UnifiedPhaseRow {
         id: item.id.clone(),
@@ -412,8 +520,14 @@ pub fn run_fate_longchain_unified(
     routing: UnifiedRouting,
     pretrain_passes: usize,
     max_epochs: usize,
+    corpus_build: CorpusBuildMode,
 ) -> Result<FateLongchainUnifiedReport, ValhallaBaseErrorBody> {
     crate::valhalla_base_protocol::ensure_production_runtime();
+    let effective_max_epochs = if low_resource && corpus_build == CorpusBuildMode::FragmentFull {
+        max_epochs.min(4)
+    } else {
+        max_epochs
+    };
     let spec = load_spec(spec_path);
 
     let raw = std::fs::read_to_string(bundle_path).map_err(|e| {
@@ -441,6 +555,7 @@ pub fn run_fate_longchain_unified(
     if max_lines > 0 && full_session.len() > max_lines {
         full_session.truncate(max_lines);
     }
+    let scoring_session = full_session.clone();
 
     let pool: Vec<&BundleItem> = anchors
         .iter()
@@ -454,23 +569,45 @@ pub fn run_fate_longchain_unified(
         .iter()
         .map(|i| bundle_to_pretrain(i))
         .collect();
-    let corpus_lines: Vec<String> = if low_resource {
-        let mut lines =
-            adaptive_corpus_for_pretrain(&full_session, &pool_pretrain, &FateAlgebraState::ambient());
-        if max_lines > 0 && lines.len() > max_lines {
-            lines.truncate(max_lines);
+    let corpus_lines: Vec<String> = match corpus_build {
+        CorpusBuildMode::FragmentFull => {
+            let mut lines = full_session;
+            let cap = if max_lines > 0 {
+                max_lines
+            } else if low_resource {
+                64
+            } else {
+                280
+            };
+            if lines.len() > cap {
+                lines.truncate(cap);
+            }
+            lines
         }
-        lines
-    } else {
-        let mut lines = full_session;
-        if max_lines > 0 && lines.len() > max_lines {
-            lines.truncate(max_lines);
+        CorpusBuildMode::QaAdaptiveMinimal => {
+            if low_resource {
+                let mut lines = adaptive_corpus_for_pretrain(
+                    &full_session,
+                    &pool_pretrain,
+                    &FateAlgebraState::ambient(),
+                );
+                if max_lines > 0 && lines.len() > max_lines {
+                    lines.truncate(max_lines);
+                }
+                lines
+            } else {
+                let mut lines = full_session;
+                if max_lines > 0 && lines.len() > max_lines {
+                    lines.truncate(max_lines);
+                }
+                lines
+            }
         }
-        lines
     };
 
     eprintln!(
-        "[fate-longchain-unified] routing={routing:?} corpus={} anchor={} interleave={} holdout={}",
+        "[fate-longchain-unified] routing={routing:?} corpus_build={} lines={} anchor={} interleave={} holdout={}",
+        corpus_build.as_str(),
         corpus_lines.len(),
         anchors.len(),
         interleave.len(),
@@ -488,13 +625,13 @@ pub fn run_fate_longchain_unified(
         pretrain_epochs: 0,
         pretrain_pass: 0.0,
         converged: true,
-        max_epochs,
+        max_epochs: effective_max_epochs,
         total_walk_steps: 0,
         epoch_log: Vec::new(),
         rows: Vec::new(),
     };
 
-    if max_epochs > 0 {
+    if effective_max_epochs > 0 {
         let pretrain_ids = if spec.pretrain_ids.is_empty() {
             spec.anchor_ids.clone()
         } else {
@@ -506,43 +643,70 @@ pub fn run_fate_longchain_unified(
         eprintln!(
             "[fate-longchain-unified] phase 0 fate pretrain: {} items × max {} epochs…",
             pretrain_items.len(),
-            max_epochs,
+            effective_max_epochs,
         );
         pretrain_out = run_fate_pretrain_epochs(
             &mut client,
             &corpus,
             &pretrain_items,
-            max_epochs,
+            effective_max_epochs,
             low_resource,
         )?;
+        client.teardown();
     }
 
     let mut phase_rows = Vec::new();
     let mut baseline_map: HashMap<String, UnifiedPhaseRow> = HashMap::new();
     let algebra = client.algebra_state();
 
-    // Phase A — anchor baseline
+    // Phase A — anchor baseline (hybrid: targeted + reanchor)
     eprintln!("[fate-longchain-unified] phase A anchor baseline…");
     for item in &anchors {
-        let ans = ask_persistent(&mut client, &corpus, item, routing)?;
-        let row = phase_row(item, "anchor_baseline", ans, &corpus, &algebra);
+        let ans = ask_phase(
+            &mut client,
+            &corpus,
+            item,
+            "anchor_baseline",
+            routing,
+        )?;
+        let row = phase_row(item, "anchor_baseline", ans, &corpus, &scoring_session, &algebra);
         baseline_map.insert(item.id.clone(), row.clone());
         phase_rows.push(row);
     }
 
-    // Phase B — interleave long-chain
+    // Phase B — interleave (hybrid: parallel pipes)
     eprintln!("[fate-longchain-unified] phase B interleave long-chain…");
     for item in &interleave {
-        let ans = ask_persistent(&mut client, &corpus, item, routing)?;
-        phase_rows.push(phase_row(item, "interleave", ans, &corpus, &algebra));
+        let ans = ask_phase(&mut client, &corpus, item, "interleave", routing)?;
+        phase_rows.push(phase_row(
+            item,
+            "interleave",
+            ans,
+            &corpus,
+            &scoring_session,
+            &algebra,
+        ));
     }
 
-    // Phase C — anchor reprobe (theme drift)
+    // Phase C — anchor reprobe (hybrid: targeted — stable landing for drift measure)
     eprintln!("[fate-longchain-unified] phase C anchor reprobe…");
     let mut anchor_drift_rows = Vec::new();
     for item in &anchors {
-        let ans = ask_persistent(&mut client, &corpus, item, routing)?;
-        let reprobe = phase_row(item, "anchor_reprobe", ans, &corpus, &algebra);
+        let ans = ask_phase(
+            &mut client,
+            &corpus,
+            item,
+            "anchor_reprobe",
+            routing,
+        )?;
+        let reprobe = phase_row(
+            item,
+            "anchor_reprobe",
+            ans,
+            &corpus,
+            &scoring_session,
+            &algebra,
+        );
         let base = baseline_map.get(&item.id).expect("baseline");
         let drift = theme_drift(
             &base.dialogue_tags,
@@ -570,20 +734,18 @@ pub fn run_fate_longchain_unified(
         phase_rows.push(reprobe);
     }
 
-    // Phase D — holdout (charity-race uses isolated context; others keep persistent session)
+    // Phase D — holdout (fresh isolated worker + inherited affinity + fate retrieval)
     eprintln!("[fate-longchain-unified] phase D holdout…");
-    let isolated: std::collections::HashSet<&str> = spec
-        .holdout_isolated_ids
-        .iter()
-        .map(|s| s.as_str())
-        .collect();
     for item in &holdout {
-        let ans = if isolated.contains(item.id.as_str()) {
-            ask_holdout_fresh(&client, &corpus, item)?
-        } else {
-            ask_persistent(&mut client, &corpus, item, routing)?
-        };
-        phase_rows.push(phase_row(item, "holdout", ans, &corpus, &algebra));
+        let ans = ask_phase(&mut client, &corpus, item, "holdout", routing)?;
+        phase_rows.push(phase_row(
+            item,
+            "holdout",
+            ans,
+            &corpus,
+            &scoring_session,
+            &algebra,
+        ));
     }
 
     let n = |v: f64, d: f64| if d > 0.0 { v / d } else { 0.0 };
@@ -662,9 +824,11 @@ pub fn run_fate_longchain_unified(
     Ok(FateLongchainUnifiedReport {
         protocol: PROTOCOL.into(),
         corpus_mode: PRETRAIN_MODE.into(),
+        corpus_build: corpus_build.as_str().into(),
         routing: match routing {
             UnifiedRouting::Targeted => "targeted".into(),
             UnifiedRouting::Parallel => "parallel".into(),
+            UnifiedRouting::Hybrid => "parallelwithtargeted".into(),
         },
         low_resource,
         corpus_lines: corpus_lines.len(),
@@ -678,7 +842,7 @@ pub fn run_fate_longchain_unified(
         interleave_pass,
         composite_score: composite,
         pretrain_passes: resolved_passes,
-        pretrain_max_epochs: max_epochs,
+        pretrain_max_epochs: effective_max_epochs,
         pretrain_epochs: pretrain_out.pretrain_epochs,
         pretrain_pass: pretrain_out.pretrain_pass,
         pretrain_converged: pretrain_out.converged,
@@ -707,6 +871,22 @@ mod tests {
             3,
             &state,
         ));
+    }
+
+    #[test]
+    fn hybrid_routing_phase_map() {
+        assert_eq!(
+            routing_for_phase("anchor_baseline", UnifiedRouting::Hybrid),
+            UnifiedRouting::Parallel
+        );
+        assert_eq!(
+            routing_for_phase("interleave", UnifiedRouting::Hybrid),
+            UnifiedRouting::Parallel
+        );
+        assert_eq!(
+            routing_for_phase("holdout", UnifiedRouting::Hybrid),
+            UnifiedRouting::Targeted
+        );
     }
 
     #[test]

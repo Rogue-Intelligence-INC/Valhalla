@@ -1,197 +1,197 @@
 {
-  "timestamp": "2026-07-10T05:13:49.473532+00:00",
+  "timestamp": "2026-07-11T07:45:18.976373+00:00",
   "protocol": "locomo-v1-rust",
   "benchmark": "LoCoMo",
   "bundle": "locomo_qa_slice30.json",
   "n": 30,
-  "correct": 14,
-  "accuracy": 0.4667,
+  "correct": 20,
+  "accuracy": 0.6667,
   "dynamic_fragments": true,
   "fragment_mode": "Density",
-  "max_lines": 128,
-  "chunk_size": 32,
+  "max_lines": 64,
+  "chunk_size": 0,
   "rows": [
     {
-      "answer": "[corpus:7] [fate:38@7] [fate:24@6] Caroline: Thanks, Melanie! It's awesome to have our own platform to be ourselves and support others' rights",
+      "answer": "[corpus:7] [fate:38@7] [fate:132@7] Caroline: Thanks, Melanie! It's awesome to have our own platform to be ourselves and support others' rights",
       "correct": false,
       "id": "LOCO_0_0",
       "session_lines_used": 11
     },
     {
-      "answer": "[corpus:6] [fate:34@6] [fate:20@5] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
+      "answer": "[corpus:6] [fate:34@6] [fate:124@6] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
       "correct": true,
       "id": "LOCO_0_1",
       "session_lines_used": 10
     },
     {
-      "answer": "[corpus:11] [fate:54@11] What motivated you to pursue counseling?",
+      "answer": "[corpus:2] [fate:18@2] What motivated you to pursue counseling?",
       "correct": false,
       "id": "LOCO_0_2",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:2] [fate:18@2] Guess what I did this week? I took the first step towards becoming a mom - I applied to adoption agencies! It's a big decision, but I think I'm ready to give all my love to a ch",
+      "answer": "[corpus:0] [fate:10@0] Guess what I did this week? I took the first step towards becoming a mom - I applied to adoption agencies! It's a big decision, but I think I'm ready to give all my love to a ch",
       "correct": true,
       "id": "LOCO_0_3",
       "session_lines_used": 11
     },
     {
-      "answer": "[corpus:11] [fate:54@11] [fate:40@10] Caroline: Thanks, Mel! Your backing really means a lot",
+      "answer": "[corpus:0] [fate:10@0] [fate:132@7] Caroline: Thanks! It was made for a local church and shows time changing our lives",
       "correct": false,
       "id": "LOCO_0_4",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:3] [fate:22@3] [fate:8@2] Caroline: Cool! What did it look like?",
-      "correct": false,
+      "answer": "[corpus:0] [fate:10@0] [fate:132@7] Melanie: Yeah, a buddy of mine adopted last year",
+      "correct": true,
       "id": "LOCO_0_5",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:10] [fate:50@10] My kids are so excited about summer break! We're thinking about going camping next month",
+      "answer": "[corpus:2] [fate:18@2] [fate:120@4] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
       "correct": true,
       "id": "LOCO_0_6",
       "session_lines_used": 11
     },
     {
-      "answer": "[corpus:8] [fate:42@8] What effect has the journey had on your relationships?",
+      "answer": "[corpus:0] [fate:10@0] [fate:144@10] Caroline: I'm thrilled to make a family for kids who need one",
       "correct": false,
       "id": "LOCO_0_7",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:8] [fate:42@8] Guess what I did this week? I took the first step towards becoming a mom - I applied to adoption agencies! It's a big decision, but I think I'm ready to give all my love to a ch",
+      "answer": "[corpus:0] [fate:10@0] [fate:108@1] Caroline: Last weekend our city held a pride parade! So many people marched through the streets waving flags, holding signs and celebrating love and diversity",
       "correct": true,
       "id": "LOCO_0_8",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:10] [fate:50@10] [fate:36@9] Caroline: Thanks, Mel! My friends, family and mentors are my rocks – they motivate me and give me the strength to push on",
+      "answer": "[corpus:0] [fate:10@0] [fate:120@4] Caroline: Last weekend our city held a pride parade! So many people marched through the streets waving flags, holding signs and celebrating love and diversity",
       "correct": true,
       "id": "LOCO_0_9",
       "session_lines_used": 11
     },
     {
-      "answer": "[corpus:10] [fate:50@10] [fate:36@9] Melanie: Wow, that photo is great! How long have you had such a great support system?",
-      "correct": false,
+      "answer": "[corpus:0] [fate:10@0] They've been there through everything, I've known these friends for 4 years, since I moved from my home country",
+      "correct": true,
       "id": "LOCO_0_10",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:8] [fate:42@8] They've been there through everything, I've known these friends for 4 years, since I moved from my home country",
-      "correct": false,
+      "answer": "[corpus:0] [fate:10@0] [fate:144@10] Caroline: Thanks, Melanie! This necklace is super special to me - a gift from my grandma in my home country, Sweden",
+      "correct": true,
       "id": "LOCO_0_11",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:11] [fate:54@11] A friend made it for my 18th birthday ten years ago",
+      "answer": "[corpus:0] [fate:10@0] [fate:120@4] Caroline: I started playing acoustic guitar about five years ago",
       "correct": true,
       "id": "LOCO_0_12",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:3] [fate:22@3] [fate:8@2] Melanie: Sounds great! What kind of counseling and mental health services do you want to persue?",
+      "answer": "[corpus:0] [fate:10@0] [fate:116@4] Caroline: I'm still figuring out the details, but I'm thinking of working with trans people, helping them accept themselves and supporting their mental health",
       "correct": true,
       "id": "LOCO_0_13",
       "session_lines_used": 10
     },
     {
-      "answer": "[corpus:2] [fate:18@2] [fate:4@1] Caroline: Lately, I've been looking into counseling and mental health as a career",
+      "answer": "[corpus:2] [fate:18@2] [fate:112@2] Caroline: Lately, I've been looking into counseling and mental health as a career",
       "correct": false,
       "id": "LOCO_0_14",
       "session_lines_used": 11
     },
     {
-      "answer": "[corpus:10] [fate:50@10] [fate:36@9] Caroline: Wow, Melanie! I'm getting creative too, just learning the piano",
-      "correct": false,
+      "answer": "[corpus:0] [fate:10@0] [fate:120@5] Melanie: Seven years now, and I've finally found my real muses: painting and pottery",
+      "correct": true,
       "id": "LOCO_0_15",
       "session_lines_used": 10
     },
     {
-      "answer": "[corpus:9] [fate:46@9] [fate:32@8] Melanie: Wow, Caroline! That's great! I just signed up for a pottery class yesterday",
+      "answer": "[corpus:9] [fate:46@9] [fate:136@9] Melanie: Wow, Caroline! That's great! I just signed up for a pottery class yesterday",
       "correct": true,
       "id": "LOCO_0_16",
       "session_lines_used": 10
     },
     {
-      "answer": "[corpus:11] [fate:54@11] [fate:40@10] Caroline: Thanks Mel! I'm going to a transgender conference this month",
-      "correct": true,
+      "answer": "[corpus:4] [fate:26@4] [fate:120@4] Caroline: Definitely, Mel! Finding those happy moments and clinging to them is key",
+      "correct": false,
       "id": "LOCO_0_17",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:2] [fate:18@2] [fate:4@1] Melanie: That's awesome, Caroline! Glad to hear you found a great group where you can have an impact",
-      "correct": false,
+      "answer": "[corpus:0] [fate:10@0] [fate:144@10] Melanie: We enjoy hiking in the mountains and exploring forests",
+      "correct": true,
       "id": "LOCO_0_18",
       "session_lines_used": 11
     },
     {
-      "answer": "[corpus:10] [fate:50@10] [fate:36@9] Melanie: Thanks, Caroline! It's awesome seeing the kids get excited learning something new about nature",
+      "answer": "[corpus:1] [fate:14@1] [fate:144@10] Melanie: Thanks, Caroline! It's awesome seeing the kids get excited learning something new about nature",
       "correct": true,
       "id": "LOCO_0_19",
       "session_lines_used": 11
     },
     {
-      "answer": "[corpus:5] [fate:30@5] [fate:16@4] Melanie: Hey Caroline, sorry about the hike",
+      "answer": "[corpus:5] [fate:30@5] [fate:120@5] Melanie: Hey Caroline, sorry about the hike",
       "correct": false,
       "id": "LOCO_0_20",
       "session_lines_used": 10
     },
     {
-      "answer": "[corpus:0] [fate:10@0] Life's tough but it's worth it when we have things that make us happy",
-      "correct": false,
+      "answer": "[corpus:0] [fate:10@0] [fate:132@7] Caroline: Thanks, Mel! My friends, family and mentors are my rocks – they motivate me and give me the strength to push on",
+      "correct": true,
       "id": "LOCO_0_21",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:5] [fate:30@5] [fate:16@4] Melanie: Hey Caroline! Since we last spoke, I took my kids to a park yesterday",
-      "correct": true,
+      "answer": "[corpus:0] [fate:10@0] [fate:108@1] Melanie: I feel the same way! Art is so cool like that - it connects us and helps us understand each other",
+      "correct": false,
       "id": "LOCO_0_22",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:2] [fate:18@2] Guess what I did this week? I took the first step towards becoming a mom - I applied to adoption agencies! It's a big decision, but I think I'm ready to give all my love to a ch",
-      "correct": false,
+      "answer": "[corpus:0] [fate:10@0] [fate:144@10] Melanie: I loved reading \"Charlotte's Web\" as a kid",
+      "correct": true,
       "id": "LOCO_0_23",
       "session_lines_used": 11
     },
     {
-      "answer": "[corpus:5] [fate:30@5] [fate:16@4] Melanie: That's awesome, Caroline! You drew it? What does it mean to you?",
-      "correct": false,
+      "answer": "[corpus:4] [fate:26@4] [fate:144@10] Melanie: Thanks, Caroline! These are for running",
+      "correct": true,
       "id": "LOCO_0_24",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:9] [fate:46@9] [fate:32@8] Caroline: Hey Mel, great to chat with you again! So much has happened since we last spoke - I went to an LGBTQ conference two days ago and it was really special",
+      "answer": "[corpus:9] [fate:46@9] [fate:136@9] Caroline: Hey Mel, great to chat with you again! So much has happened since we last spoke - I went to an LGBTQ conference two days ago and it was really special",
       "correct": true,
       "id": "LOCO_0_25",
       "session_lines_used": 10
     },
     {
-      "answer": "[corpus:8] [fate:42@8] I'm really looking forward to reading to them and opening up their minds",
+      "answer": "[corpus:5] [fate:30@5] Been reading that book you recommended a while ago and painting to keep busy",
       "correct": false,
       "id": "LOCO_0_26",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:3] [fate:22@3] [fate:8@2] Caroline: Cool! What did it look like?",
+      "answer": "[corpus:0] [fate:10@0] [fate:144@10] Melanie: Yeah, it's tough",
       "correct": false,
       "id": "LOCO_0_27",
       "session_lines_used": 12
     },
     {
-      "answer": "[corpus:5] [fate:30@5] [fate:16@4] Caroline: Definitely, Mel! Finding those happy moments and clinging to them is key",
+      "answer": "[corpus:0] [fate:10@0] [fate:144@10] Caroline: Thanks so much, Melanie! It's beautiful! It really brings home how much love's in families - both blood and the ones we choose",
       "correct": true,
       "id": "LOCO_0_28",
       "session_lines_used": 11
     },
     {
-      "answer": "[corpus:5] [fate:30@5] [fate:16@4] Melanie: Hey Caroline, sorry about the hike",
+      "answer": "[corpus:1] [fate:14@1] [fate:120@5] Melanie: Hey Caroline, sorry about the hike",
       "correct": true,
       "id": "LOCO_0_29",
       "session_lines_used": 10
     }
   ],
-  "verdict": "OPEN_QA_VIABLE",
+  "verdict": "OPEN_QA_STRONG",
   "runtime": "rust"
 }

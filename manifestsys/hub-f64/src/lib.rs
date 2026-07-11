@@ -57,9 +57,11 @@ pub mod model_fate;
 pub mod fate_adaptive_algebra;
 pub use fate_adaptive_algebra::{
     fate_adaptive_context_boost, fate_adaptive_distractor_filter, fate_context_pollution,
-    fate_land_tick, fate_landing_drift, fate_landing_fingerprints, fate_signal_land_into_lines,
-    fate_signal_landing_indices, fate_time_cite_bracket, line_query_score, score_qa_algebra,
-    strip_all_citations, sync_algebra_meta, FateAlgebraMeta, FateAlgebraState,
+    fate_land_tick, fate_landing_drift, fate_landing_fingerprints, fate_retrieve_context_lines,
+    fate_signal_land_into_lines, fate_signal_landing_indices, fate_time_cite_bracket,
+    line_query_score, resolve_evidence_line_indices, score_evidence_line_overlap,
+    score_qa_algebra, score_qa_with_evidence, strip_all_citations, sync_algebra_meta,
+    FateAlgebraMeta, FateAlgebraState,
 };
 pub mod free_multimodal_fate;
 pub mod multimodal_compose;
@@ -135,15 +137,16 @@ pub use valhalla_base_bench::{
 };
 #[cfg(feature = "patch-lm")]
 pub use valhalla_base_eval::{
-    run_frames_slice, run_locomo_slice, run_long_chain_item, run_mcq_batch_item, EvalControl,
-    FramesEvalReport, LongChainEvalReport,
+    run_frames_slice, run_locomo_slice, run_long_chain_item, run_longbench_slice,
+    run_mcq_batch_item, EvalControl, FramesEvalReport, LongChainEvalReport, LongbenchEvalReport,
 };
 #[cfg(feature = "patch-lm")]
 pub use natural_channels::{natural_channels_enabled, pulse_question_natural, ChannelPick};
 #[cfg(feature = "patch-lm")]
 pub use fate_orchestrator::{
-    compact_manifold_snapshot, export_session_after_ingest, fate_link_fragments_enabled,
-    fragment_only_session_enabled, production_prelearn_count, stored_fragments, FateLinkOutcome,
+    apply_eval_corpus_cap, compact_manifold_snapshot, eval_chunk_size, eval_corpus_line_cap,
+    export_session_after_ingest, fate_link_fragments_enabled, fragment_only_session_enabled,
+    production_prelearn_count, stored_fragments, FateLinkOutcome,
 };
 #[cfg(feature = "patch-lm")]
 pub use fate_parallel_longchain::{
@@ -154,8 +157,8 @@ pub use fate_parallel_longchain::{
 };
 #[cfg(feature = "patch-lm")]
 pub use fate_longchain_unified::{
-    run_fate_longchain_unified, AnchorDriftRow, FateLongchainUnifiedReport, UnifiedPhaseRow,
-    UnifiedRouting, PROTOCOL as FATE_LONGCHAIN_UNIFIED_PROTOCOL,
+    run_fate_longchain_unified, AnchorDriftRow, CorpusBuildMode, FateLongchainUnifiedReport,
+    UnifiedPhaseRow, UnifiedRouting, PROTOCOL as FATE_LONGCHAIN_UNIFIED_PROTOCOL,
 };
 #[cfg(feature = "patch-lm")]
 pub use fate_pretrain_holdout::{

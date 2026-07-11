@@ -29,7 +29,12 @@ SPEC = REPO / "tools/standard_benchmarks/bundled/fate_longchain_unified_locomo.j
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--low-resource", action="store_true")
-    ap.add_argument("--parallel", action="store_true", help="use parallel pipes (heavier)")
+    ap.add_argument("--parallel", action="store_true", help="use parallel pipes (all phases)")
+    ap.add_argument(
+        "--hybrid",
+        action="store_true",
+        help="hybrid routing: targeted anchor/reprobe, parallel interleave, fresh holdout",
+    )
     ap.add_argument("--max-lines", type=int, default=0)
     ap.add_argument("--chunk-size", type=int, default=64)
     ap.add_argument("--pretrain-passes", type=int, default=None)
@@ -43,16 +48,42 @@ def main() -> int:
     ap.add_argument(
         "--smoke",
         action="store_true",
-        help="ultra-light smoke: 24 corpus lines, chunk 24, ingress cap 48",
+        help="light smoke: 64 corpus lines, chunk 32 (ingress cap 48)",
+    )
+    ap.add_argument(
+        "--fragment-full",
+        action="store_true",
+        help="ingest full session; query fragment merge at QA (default when dynamic fragments on)",
+    )
+    ap.add_argument(
+        "--minimal-corpus",
+        action="store_true",
+        help="legacy qa_adaptive minimal line subset (overrides fragment-full)",
+    )
+    ap.add_argument(
+        "--production",
+        action="store_true",
+        help="production: hybrid + enhanced + fragment-full + max-lines 64 + epochs 4",
     )
     args = ap.parse_args()
 
-    if args.smoke:
+    if args.production:
+        args.low_resource = True
+        args.enhanced = True
+        args.hybrid = True
+        args.fragment_full = True
+        if args.max_lines == 0:
+            args.max_lines = 64
+        if args.chunk_size == 64:
+            args.chunk_size = 32
+        if args.max_epochs is None:
+            args.max_epochs = 4
+    elif args.smoke:
         args.low_resource = True
         if args.max_lines == 0:
-            args.max_lines = 24
+            args.max_lines = 32
         if args.chunk_size == 64:
-            args.chunk_size = 24
+            args.chunk_size = 32
     elif args.low_resource and args.max_lines == 0:
         # Bug fix: max-lines=0 loads full LoCoMo corpus → unbounded RAM
         args.max_lines = 64
@@ -87,14 +118,20 @@ def main() -> int:
     if args.low_resource:
         cmd.append("--low-resource")
         cmd.append("--fast")
-    if args.parallel:
+    if args.hybrid:
+        cmd.append("--hybrid")
+    elif args.parallel:
         cmd.append("--parallel")
+    if args.minimal_corpus:
+        cmd.append("--minimal-corpus")
+    elif args.fragment_full:
+        cmd.append("--fragment-full")
 
     print(" ".join(cmd), flush=True)
     env = {**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64"}
-    env.setdefault("VALHALLA_INGRESS_RESOURCE_PERCENT", "70")
+    env.setdefault("VALHALLA_INGRESS_RESOURCE_PERCENT", "50" if args.production else "70")
     if args.low_resource or args.smoke:
-        env.setdefault("VALHALLA_INGRESS_MAX_ITEMS", "48" if args.smoke else "128")
+        env.setdefault("VALHALLA_INGRESS_MAX_ITEMS", "48")
     try:
         proc = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True, env=env, timeout=600)
     except subprocess.TimeoutExpired:
@@ -112,7 +149,7 @@ def main() -> int:
     out = REPORTS / "fate_longchain_unified.json"
     doc = json.loads(out.read_text(encoding="utf-8"))
     print(
-        f"protocol {doc['protocol']}  routing={doc['routing']}  corpus={doc['corpus_lines']} lines\n"
+        f"protocol {doc['protocol']}  routing={doc['routing']}  corpus_build={doc.get('corpus_build', '?')}  corpus={doc['corpus_lines']} lines\n"
         f"  pretrain {doc.get('pretrain_pass', 0):.1%} "
         f"({doc.get('pretrain_epochs', 0)}/{doc.get('pretrain_max_epochs', 0)} epochs, "
         f"passes={doc.get('pretrain_passes', 0)}, conv={doc.get('pretrain_converged')})\n"
