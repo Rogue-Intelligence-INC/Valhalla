@@ -1,13 +1,16 @@
 # ValhallaBase CLI & Programmatic API
 
-**Protocol:** `valhalla-base-v1` · **Binary:** `valhalla_base` · **Updated:** 2026-07-03
+**Protocol:** `valhalla-base-v1` · **Binary:** `valhalla_base` · **Updated:** 2026-07-13
 
 Unified entry/exit for structure-first inference. **Rust-native path** (in-process client + demos + HTTP) replaces Python subprocess wrappers where possible.
 
 | Artifact | Path |
 |----------|------|
 | **Rust session client** | [`manifestsys/hub-f64/src/valhalla_base_client.rs`](../manifestsys/hub-f64/src/valhalla_base_client.rs) |
-| **Rust benchmarks** | [`manifestsys/hub-f64/src/valhalla_base_bench.rs`](../manifestsys/hub-f64/src/valhalla_base_bench.rs) |
+| **Rust benchmarks** | [`manifestsys/hub-f64/src/valhalla_base_bench.rs`](../manifestsys/hub-f64/src/valhalla_base_bench.rs) (re-exports [`multihop_bench.rs`](../manifestsys/hub-f64/src/multihop_bench.rs)) |
+| **Open-QA interface** | [`manifestsys/hub-f64/src/open_qa_interface.rs`](../manifestsys/hub-f64/src/open_qa_interface.rs) |
+| **Fate I/O (ingress/egress)** | [`manifestsys/hub-f64/src/fate_io.rs`](../manifestsys/hub-f64/src/fate_io.rs) |
+| **Elastic resources** | [`manifestsys/hub-f64/src/elastic_resources.rs`](../manifestsys/hub-f64/src/elastic_resources.rs) |
 | **HTTP server** | [`manifestsys/hub-f64/src/valhalla_base_http.rs`](../manifestsys/hub-f64/src/valhalla_base_http.rs) |
 | **Protocol header** | [`manifestsys/hub-f64/include/valhalla_base.h`](../manifestsys/hub-f64/include/valhalla_base.h) |
 | **Request schema** | [`manifestsys/hub-f64/schemas/valhalla-base-v1.request.schema.json`](../manifestsys/hub-f64/schemas/valhalla-base-v1.request.schema.json) |
@@ -18,6 +21,37 @@ Unified entry/exit for structure-first inference. **Rust-native path** (in-proce
 | **Rust API layer** | [`manifestsys/hub-f64/src/valhalla_base_protocol.rs`](../manifestsys/hub-f64/src/valhalla_base_protocol.rs) |
 | **Python wrapper** | [`tools/valhalla_inference/valhalla_base.py`](../tools/valhalla_inference/valhalla_base.py) |
 | **Shell helper** | [`tools/valhalla_inference/valhalla_base_cli.sh`](../tools/valhalla_inference/valhalla_base_cli.sh) |
+
+---
+
+## Architecture (2026-07-13): bench vs interface
+
+Benchmark runners **must not** embed native-QA batch logic. Use this stack:
+
+```
+multihop_bench / valhalla_base_bench  →  bundle · parallel · JSON
+open_qa_interface                     →  OpenQaRequest · run_open_qa()
+fate_io                               →  fate_ingress · fate_egress · fate_score_short_answer
+native_qa                             →  run_native_qa_batch (RelAddr + Fate + v2)
+elastic_resources                     →  ElasticResourcePlan · par_map_items
+```
+
+```bash
+# MultiHop arms (slice25, full n=25)
+valhalla_base demo multihop --limit 25          # v2 compose
+valhalla_base demo multihop-fate --limit 25     # Fate adapt
+valhalla_base demo multihop-hybrid --limit 25 # fatewithv2 (unified)
+```
+
+```rust
+use hub_f64::{OpenQaRequest, OpenQaFlags, run_open_qa_scored};
+
+let req = OpenQaRequest::new("MH_1", question, corpus)
+    .with_flags(OpenQaFlags::unified());
+let out = run_open_qa_scored(&req, gold);
+```
+
+Latest full industry run: [`EXPERIMENT_SUMMARY_20260713.md`](../../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md).
 
 ---
 

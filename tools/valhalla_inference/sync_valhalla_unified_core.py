@@ -33,6 +33,15 @@ REPORT_FILES = [
     "ragtruth_v1_test.json",
     "proactive_fate_v2_test.json",
     "valhalla_base_training_potential_test_v2.json",
+    "multihop_rag_v2_test.json",
+    "multihop_rag_fate_test.json",
+    "multihop_rag_hybrid_test.json",
+    "longbench_v2_v1_test.json",
+    "lara_v1_test.json",
+    "external_holdout_test.json",
+    "mcq_ladder_v1_test.json",
+    "EXPERIMENT_SUMMARY_20260713.md",
+    "BENCHMARK_SUMMARY_20260713.md",
     "EXPERIMENT_SUMMARY_20260711.md",
     "VALHALLA_INTEGRATED_STATUS.md",
     "EXTERNAL_PARETO_MATRIX.md",
@@ -47,6 +56,9 @@ DOC_PATCHES: list[tuple[Path, dict[str, str]]] = [
         REPO / "valhalla-unified-core" / "docs" / "EXPERIMENT_RECORD_INFERENCE_PARADIGM.md",
         {
             "> **Status:** Living document · **Updated:** 2026-06-28": (
+                f"> **Status:** Living document · **Updated:** {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+            ),
+            "> **Status:** Living document · **Updated:** 2026-07-11": (
                 f"> **Status:** Living document · **Updated:** {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
             ),
         },

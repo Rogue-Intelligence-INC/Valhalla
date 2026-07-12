@@ -2,7 +2,9 @@
 
 Unified loading layer for Valhalla modules ↔ Transformer (vLLM-style API + **Valhalla-as-base**).
 
-**2026-07-07 GPU acceleration (patch_lm):** MCQ logprob **prefill + suffix decode** (908→~16 forwards/query) · `PatchTensorScratch` weight reuse · generate first-step prefill. Measured 0.5B MCQ **~55s → ~3.7s/query** (serve + CUDA). Optional `VALHALLA_LM_F16=1` for half-precision weights.
+**2026-07-13 architecture:** bench (`multihop_bench`) → interface (`open_qa_interface`) → I/O (`fate_io`) → `native_qa_batch`. See [`docs/valhalla/VALHALLA_BASE_CLI.md`](../../docs/valhalla/VALHALLA_BASE_CLI.md) § Architecture.
+
+**Latest full industry run (2026-07-13):** Needle **4/4** · LoCoMo **17/30** · MultiHop **15/25** · MCQ **45/46** — [`EXPERIMENT_SUMMARY_20260713.md`](../../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md)
 
 ```bash
 # Industry (standard suite)

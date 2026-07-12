@@ -39,8 +39,8 @@ Engineering checkout (NDA): full tree under license — product eval uses paths 
 | Pillar | Metric | Verdict |
 |--------|--------|---------|
 | **Trainability (L1/L2/L3)** | TPI **0.755** · holdout **80%** (4/5 smoke) | `run_incubation_llm_benchmarks.py --fast` |
-| **Faithfulness** | RAGTruth **99/100** · theme drift **0%** | Industry faithfulness |
-| **Session context** | Needle **4/4** · RULER **20/20** · long mem **94.7%** | Append protocol |
+| **Faithfulness** | RAGTruth **34/40 · 88/100** · theme drift **0%** (longchain v5) | Industry faithfulness |
+| **Session context** | Needle **4/4** · RULER **15/20** · long mem **94.7%** | Append protocol |
 | **Backbone orthogonality** | Qwen3B · RWKV · Phi-MoE open **4/4** · `MEMORY_INDEPENDENT` | `VALHALLA_BASE_INDEPENDENT` |
 | **External Pareto matrix** | LoCoMo · LongBench · token · latency · proactive | `run_external_pareto_matrix.py --fast` |
 | **Incubation / trainable LLM** | TPI **0.755** · holdout **80%** | `run_incubation_llm_benchmarks.py` |
@@ -85,7 +85,8 @@ make pareto-matrix
 ```
 
 **Integrated report:** `reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md`  
-**Experiment summary:** `reports/valhalla_inference/EXPERIMENT_SUMMARY_20260711.md`
+**Experiment summary:** `reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md`  
+**Benchmark summary:** `reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md`
 
 **Checks:** Triad smoke · RAGTruth · Needle · Proactive gates · Fate holdout unit  
 **Train-proof:** [TRAINABILITY_PROOF.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/TRAINABILITY_PROOF.md)  
@@ -159,22 +160,23 @@ See [`PROACTIVE_AGENCY_BENCHMARK.md`](reports/valhalla_inference/PROACTIVE_AGENC
 | **Backbone independence** | `VALHALLA_BASE_INDEPENDENT` | RWKV · Phi-MoE · Dense — open path 4/4 match |
 | **Session memory** | `MEMORY_INDEPENDENT` | Needle hybrid = native @ d=5,10 |
 | **Proactive agency** | Agency **0.778** · PPI **0.650** | Fate-gated automatic reaction |
-| **Anti-hallucination** | RAGTruth **40/40 · 99/100** | Industry faithfulness · MAR 100% |
-| **Context / memory** | Needle **4/4** · RULER **20/20** · long mem **94.7%** | Session append, not prompt window |
+| **Anti-hallucination** | RAGTruth **34/40 · 88/100** | Industry faithfulness · MAR 100% (gates) |
+| **Context / memory** | Needle **4/4** · RULER **15/20** · long mem **94.7%** | Session append, not prompt window |
 | **Incubation** | TPI **0.755** · transfer **+38.7pp** | Zero-weight session learning |
 
-### Industry calibration @ 3B (comparability only — not product default)
+### Industry calibration @ 3B (2026-07-13 full suite)
 
 | Benchmark | Result | Note |
 |-----------|--------|------|
-| RAGTruth-100 | **99/100** | Tier A |
+| RAGTruth-100 | **88/100** | Tier A |
 | MCQ ladder 46Q | **45/46 (98%)** | lm_patch @ calibration size |
-| LoCoMo | **14/30 (47%)** | OPEN_QA_VIABLE |
-| LongBench | **7/20 (35%)** | Honest boundary |
+| LoCoMo | **17/30 (57%)** | OPEN_QA_VIABLE |
+| MultiHop fatewithv2 | **15/25 (60%)** | unified I/O + honest scoring |
+| LongBench | **4/20 (20%)** | Honest boundary |
+
+[`BENCHMARK_SUMMARY_20260713.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md)
 
 Runtime default LM: **Qwen2.5-0.5B** when `VALHALLA_LM_MODEL` unset. Industry suite sets **3B** explicitly.
-
-[`BENCHMARK_SUMMARY_20260708.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260708.md) · [`INDUSTRY_3B_RUN_STATUS.md`](reports/valhalla_inference/INDUSTRY_3B_RUN_STATUS.md)
 
 ### Incubation (zero-weight learning)
 

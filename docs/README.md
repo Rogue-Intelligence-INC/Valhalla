@@ -1,7 +1,7 @@
 # Valhalla AI — Documentation Index
 
 **Scope:** ValhallaBase inference, memory, benchmarks, and product docs only.  
-**Updated:** 2026-07-11
+**Updated:** 2026-07-13
 
 > **Product definition:** ValhallaBase is **backbone-agnostic structure memory** — not a 3B LM product.  
 > See [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md).
@@ -17,16 +17,19 @@
 |--------|--------|-----|
 | **Backbone independence** | `VALHALLA_BASE_INDEPENDENT` | [`VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md`](../reports/valhalla_inference/VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md) |
 | **Proactive agency** | Agency **0.778** · PPI **0.650** | [`PROACTIVE_AGENCY_BENCHMARK.md`](../reports/valhalla_inference/PROACTIVE_AGENCY_BENCHMARK.md) |
-| **Faithfulness** | RAGTruth **99/100** · MAR **100%** | [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
+| **Faithfulness** | RAGTruth **34/40 · 88/100** · MAR **100%** (gates) | [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
 | **Session context** | Needle **4/4** · long mem **94.7%** | `long_memory_test_full.json` |
 | **Incubation** | TPI **0.755** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) |
 
-### Industry calibration @ 3B (comparability — not product default)
+### Industry calibration @ 3B (2026-07-13 full suite)
 
 | Highlight | Result | Doc |
 |-----------|--------|-----|
-| MCQ ladder 46Q | **45/46 (98%)** | [`INDUSTRY_3B_RUN_STATUS.md`](../reports/valhalla_inference/INDUSTRY_3B_RUN_STATUS.md) |
-| LoCoMo | **14/30 (47%)** | same |
+| Needle | **4/4** | [`BENCHMARK_SUMMARY_20260713.md`](../reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) |
+| LoCoMo | **17/30 (57%)** | same |
+| MultiHop fatewithv2 | **15/25 (60%)** | [`EXPERIMENT_SUMMARY_20260713.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) |
+| MCQ ladder 46Q | **45/46 (98%)** | same |
+| Integrated status | live | [`VALHALLA_INTEGRATED_STATUS.md`](../reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md) |
 
 **Runtime default LM:** `Qwen2.5-0.5B-Instruct` (`benchmark_env.py`). Industry suite sets 3B explicitly.
 
@@ -74,7 +77,7 @@
 | LoCoMo | B† | ×1 | 3% (64-line cap) |
 | FRAMES | C | — | **invalid** (no wiki) |
 
-**Master summary:** [`FULL_BENCHMARK_SUMMARY_20260702.md`](../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md) · [`EXPERIMENT_SUMMARY_20260630.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260630.md) · [`DAILY_SUMMARY_20260701.md`](valhalla/DAILY_SUMMARY_20260701.md)
+**Master summary:** [`BENCHMARK_SUMMARY_20260713.md`](../reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) · [`FULL_BENCHMARK_SUMMARY_20260702.md`](../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md)
 
 **Runner (2026-07-06):**
 

@@ -1,6 +1,6 @@
 # ValhallaBase — Product Docs Hub
 
-**Updated:** 2026-07-10
+**Updated:** 2026-07-13
 
 Canonical product documentation lives in the **[valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)** repository (git submodule at `valhalla-unified-core/`). GitHub does **not** serve submodule files at paths under the main Valhalla tree — use the links below.
 
@@ -26,6 +26,9 @@ Canonical product documentation lives in the **[valhalla-unified-core](https://g
 
 | Doc | Path |
 |-----|------|
+| **Integrated status (latest)** | [`reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md`](../../reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md) |
+| **Experiment summary (2026-07-13)** | [`reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md`](../../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) |
+| **Benchmark summary (2026-07-13)** | [`reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md`](../../reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) |
 | Valid benchmark interpretation | [`reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
 | **Industry 3B summary (2026-07-06)** | [`reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](../../reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) |
 | **MCQ ladder full 0.5B/3B/7B (2026-07-07)** | [`reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md`](../../reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) |
