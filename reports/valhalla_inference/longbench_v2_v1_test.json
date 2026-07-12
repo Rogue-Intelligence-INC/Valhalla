@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-11T07:45:03.120844+00:00",
+  "timestamp": "2026-07-12T23:09:56.783419+00:00",
   "protocol": "longbench-v2-fragmentwithfate-light-v1",
   "benchmark": "LongBench-v2 (THUDM)",
   "citation": "LongBench v2 — 503 long-context MCQ, human baseline ~53.7%",
@@ -10,19 +10,19 @@
   "fragment_mode": "fragmentwithfate-light",
   "human_baseline_short": 0.501,
   "n": 20,
-  "correct": 7,
-  "accuracy": 0.35,
+  "correct": 4,
+  "accuracy": 0.2,
   "rows": [
     {
-      "answer": "ANSWER: D",
+      "answer": "ANSWER: B",
       "context_truncated": true,
-      "correct": true,
+      "correct": false,
       "difficulty": "hard",
       "domain": "Single-Document QA",
       "id": "66ebc7445a08c7b9b35df155"
     },
     {
-      "answer": "ANSWER: A",
+      "answer": "ANSWER: C",
       "context_truncated": true,
       "correct": false,
       "difficulty": "hard",
@@ -30,15 +30,15 @@
       "id": "66fb6d71bb02136c067c7c34"
     },
     {
-      "answer": "ANSWER: D",
+      "answer": "ANSWER: B",
       "context_truncated": true,
-      "correct": true,
+      "correct": false,
       "difficulty": "hard",
       "domain": "Multi-Document QA",
       "id": "66f3c1ab821e116aacb2ead1"
     },
     {
-      "answer": "ANSWER: A",
+      "answer": "ANSWER: D",
       "context_truncated": true,
       "correct": false,
       "difficulty": "hard",
@@ -62,7 +62,7 @@
       "id": "66f91f2cbb02136c067c4b1e"
     },
     {
-      "answer": "ANSWER: D",
+      "answer": "ANSWER: C",
       "context_truncated": true,
       "correct": false,
       "difficulty": "hard",
@@ -70,9 +70,9 @@
       "id": "66ed1556821e116aacb1ea14"
     },
     {
-      "answer": "ANSWER: D",
+      "answer": "ANSWER: C",
       "context_truncated": true,
-      "correct": true,
+      "correct": false,
       "difficulty": "hard",
       "domain": "Single-Document QA",
       "id": "66fe8eb3bb02136c067ca35f"
@@ -86,7 +86,7 @@
       "id": "66f58d6c821e116aacb33e76"
     },
     {
-      "answer": "ANSWER: D",
+      "answer": "ANSWER: B",
       "context_truncated": true,
       "correct": false,
       "difficulty": "easy",
@@ -94,15 +94,15 @@
       "id": "66fc0152bb02136c067c8826"
     },
     {
-      "answer": "ANSWER: D",
+      "answer": "ANSWER: B",
       "context_truncated": true,
-      "correct": true,
+      "correct": false,
       "difficulty": "easy",
       "domain": "Multi-Document QA",
       "id": "66fa7f1dbb02136c067c6e6b"
     },
     {
-      "answer": "ANSWER: A",
+      "answer": "ANSWER: D",
       "context_truncated": true,
       "correct": false,
       "difficulty": "hard",
@@ -118,7 +118,7 @@
       "id": "671b2c05bb02136c067d50c8"
     },
     {
-      "answer": "ANSWER: D",
+      "answer": "ANSWER: C",
       "context_truncated": true,
       "correct": false,
       "difficulty": "easy",
@@ -142,9 +142,9 @@
       "id": "66ec3d1d821e116aacb1c622"
     },
     {
-      "answer": "ANSWER: A",
+      "answer": "ANSWER: C",
       "context_truncated": true,
-      "correct": false,
+      "correct": true,
       "difficulty": "easy",
       "domain": "Single-Document QA",
       "id": "66ebc0c95a08c7b9b35de7f3"
@@ -174,6 +174,6 @@
       "id": "671b170cbb02136c067d4f4a"
     }
   ],
-  "verdict": "LONGBENCH_V2_VIABLE",
+  "verdict": "LONGBENCH_V2_DEVELOPING",
   "runtime": "rust"
 }

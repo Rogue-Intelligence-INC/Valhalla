@@ -9,9 +9,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::context_routing::{corpus_for_prompt, targeted_context, ContextIngestMode};
 use crate::fate_adaptive_algebra::{
-    fate_adaptive_context_boost, fate_retrieve_context_lines, fate_signal_land_into_lines,
-    query_tokens_from_q, score_qa_algebra, FateAlgebraState,
+    fate_adaptive_context_boost, fate_signal_land_into_lines, query_tokens_from_q, FateAlgebraState,
 };
+use crate::fate_unified_qa::{run_fate_unified_qa, FateUnifiedQaOpts};
 use crate::fate_pretrain_holdout::{
     adaptive_corpus_for_single, run_fate_pretrain_epochs, FatePretrainItem,
 };
@@ -339,20 +339,7 @@ fn run_session_targeted(
         .session()
         .map(|s| s.corpus.clone())
         .unwrap_or_default();
-    let state = client.algebra_state();
-    let aff = client
-        .session()
-        .map(|s| s.snapshot.corpus_line_affinity.clone())
-        .unwrap_or_default();
-    let lines = fate_retrieve_context_lines(q, &corpus, &state, Some(&aff));
-    client.reanchor_affinity = true;
-    client.ingest_for_prompt(q, &lines, lines.len().max(4), ContextIngestMode::Targeted);
-    let resp = client.run(vec![q.clone()], RunOptions::default())?;
-    Ok(resp
-        .rows
-        .first()
-        .map(|r| r.answer.clone())
-        .unwrap_or_default())
+    run_fate_unified_qa(client, &corpus, q, FateUnifiedQaOpts::persistent())
 }
 
 /// Long-chain ingest + parallel fuse QA (production hook when `VALHALLA_FATE_PARALLEL_LCHAIN=1`).
@@ -639,12 +626,23 @@ pub fn run_parallel_pipes(
     }
 
     let state = fate_client.algebra_state();
-    let max_rounds = state.fusion_round_cap();
+    let n_frags = fate_client
+        .session()
+        .map(|s| s.fragments.len())
+        .unwrap_or(0);
+    let max_rounds = if n_frags < 2 {
+        1
+    } else {
+        state.fusion_round_cap().min(2)
+    };
     let mut best: Option<(String, Vec<FateParallelPipeTrace>, Vec<usize>, f64)> = None;
     let mut best_score = 0.0_f64;
 
     for round in 0..max_rounds {
-        fate_client.push_fate_checkpoint();
+        if round > 0 {
+            fate_client.push_fate_checkpoint();
+        }
+        fate_client.clear_ingress_pending();
         let mut spread = spread_from_client(fate_client);
         if spread < state.delta_required(1.0) * 0.35 {
             fate_client.prime_fate_walk_signals(corpus);
@@ -762,6 +760,7 @@ pub fn run_parallel_pipes(
             .first()
             .map(|r| r.answer.clone())
             .unwrap_or_default();
+        qa_client.teardown();
 
         let score = kw_overlap_frac(&q.text, &ans);
         if score >= best_score {
@@ -788,7 +787,8 @@ pub fn run_parallel_pipes(
         )
     })
     .map(|(ans, traces, fuse_nodes, spread)| {
-        fate_client.teardown();
+        fate_client.trim_fate_rollbacks();
+        fate_client.clear_ingress_pending();
         (ans, traces, fuse_nodes, spread)
     })
 }

@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-07-10T04:52:30.757092+00:00",
+  "timestamp": "2026-07-12T22:59:47.836665+00:00",
   "protocol": "ragtruth-full-v1",
   "benchmark": "RAGTruth expanded",
   "bundle": "ragtruth_qa_test100.json",
   "n": 100,
-  "faithful": 99,
-  "faithful_rate": 0.99,
+  "faithful": 88,
+  "faithful_rate": 0.88,
   "abstain": 0,
   "verdict": "RAGTRUTH_STRONG",
   "rows": [
@@ -25,7 +25,7 @@
       "id": "12103",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:1] [fate:14@1] Expert advice on how to repair problems with stuck or frozen door locks, keys that don’t work, an"
+      "answer": "[corpus:4] [fate:26@4] For helpful do-it-yourself repair techniques for fixing common lock and latch problems, please se"
     },
     {
       "id": "14054",
@@ -55,19 +55,19 @@
       "id": "12525",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:2] [fate:22@2] The Windward Islands and the Leeward Islands are part of the Lesser Antilles of the Caribbean Sea"
+      "answer": "[corpus:2] [fate:22@2] Caribbean Sea The Windward Islands"
     },
     {
       "id": "17514",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:3] [fate:22@3] The PoachPod® allows you to float and poach an egg in boiling water like a lily pad on a pond"
+      "answer": "[corpus:2] [fate:18@2] PoachPod"
     },
     {
       "id": "16148",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:1] [fate:14@1] Best Answer: Sure you can get your topsiders wet-its no big deal"
+      "answer": "[corpus:1] [fate:14@1] Pick"
     },
     {
       "id": "12448",
@@ -91,13 +91,13 @@
       "id": "12134",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:1] [fate:10@1] 2 Season the pollock fillets with paprika and black pepper"
+      "answer": "[corpus:0] [fate:6@0] 1 Spray a baking sheet with butter flavored cooking spray"
     },
     {
       "id": "12132",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:1] [fate:10@1] 2 Season the pollock fillets with paprika and black pepper"
+      "answer": "[corpus:0] [fate:6@0] 1 Spray a baking sheet with butter flavored cooking spray"
     },
     {
       "id": "12472",
@@ -109,7 +109,7 @@
       "id": "13443",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:0] [fate:10@0] If you have oil stains from your car on a concrete driveway, there are a few different ways to re"
+      "answer": "[corpus:6] [fate:34@6] No matter how hard you try, oil stains on your concrete driveway are nearly impossible to avoid"
     },
     {
       "id": "13531",
@@ -133,13 +133,13 @@
       "id": "12105",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:1] [fate:14@1] Expert advice on how to repair problems with stuck or frozen door locks, keys that don’t work, an"
+      "answer": "[corpus:4] [fate:26@4] For helpful do-it-yourself repair techniques for fixing common lock and latch problems, please se"
     },
     {
       "id": "16453",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:1] [fate:14@1] Thank you for visiting the Dove® website"
+      "answer": "[corpus:1] [fate:14@1] Share Dove"
     },
     {
       "id": "13338",
@@ -149,9 +149,9 @@
     },
     {
       "id": "17196",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:3] [fate:22@3] The easiest way to increase your Snapchat score is to use a Snapchat score hack"
+      "answer": "[corpus:3] [fate:22@3] Yes"
     },
     {
       "id": "15177",
@@ -163,7 +163,7 @@
       "id": "13445",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:0] [fate:10@0] If you have oil stains from your car on a concrete driveway, there are a few different ways to re"
+      "answer": "[corpus:6] [fate:34@6] No matter how hard you try, oil stains on your concrete driveway are nearly impossible to avoid"
     },
     {
       "id": "15461",
@@ -205,7 +205,7 @@
       "id": "14508",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:2] [fate:22@2] Poisoning the Well Fallacy"
+      "answer": "[corpus:2] [fate:22@2] Well Fallacy Poisoning"
     },
     {
       "id": "13073",
@@ -215,9 +215,9 @@
     },
     {
       "id": "13433",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:1] [fate:14@1] Step 4: Open the water valve to fill the tank"
+      "answer": "[corpus:1] [fate:14@1] The"
     },
     {
       "id": "14504",
@@ -245,15 +245,15 @@
     },
     {
       "id": "14743",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:2] [fate:18@2] DMSO as long been used to promote healing"
+      "answer": "[corpus:1] [fate:14@1] DMSO"
     },
     {
       "id": "14513",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:2] [fate:22@2] Poisoning the Well Fallacy"
+      "answer": "[corpus:2] [fate:22@2] Well Fallacy Poisoning"
     },
     {
       "id": "16848",
@@ -275,9 +275,9 @@
     },
     {
       "id": "15553",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:2] [fate:18@2] The more you know about German life and German culture, the more enjoyable and rewarding your tri"
+      "answer": "[corpus:2] [fate:18@2] Germany"
     },
     {
       "id": "16059",
@@ -301,13 +301,13 @@
       "id": "12439",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:2] [fate:18@2] How to Make a Blood Smear STEP ONE: Place clean glass slide on a flat surface"
+      "answer": "[corpus:0] [fate:10@0] If you'd like to see red blood cells, you'll need to learn how to do a Blood Smear"
     },
     {
       "id": "16156",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:2] [fate:18@2] Most will have already pledged to whichever candidate won their state"
+      "answer": "[corpus:2] [fate:18@2] Sen John McCain"
     },
     {
       "id": "14323",
@@ -319,7 +319,7 @@
       "id": "17255",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:9] [fate:46@9] To make the most of water play the teacher needs to be an enabler"
+      "answer": "[corpus:10] [fate:50@10] Water is for children to enjoy and learn from! 25 Great Ideas for Promoting Discovery Learning "
     },
     {
       "id": "14846",
@@ -355,7 +355,7 @@
       "id": "13564",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:2] [fate:18@2] 1 Rinse pork chops, and sprinkle the wet chops on both sides with the spice mixture"
+      "answer": "[corpus:0] [fate:10@0] Oven-Fried Pork Chops The"
     },
     {
       "id": "14297",
@@ -371,15 +371,15 @@
     },
     {
       "id": "13910",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:0] [fate:14@0] Introduction to Visual Merchandising: The visual merchandiser is aware of the retail strategy and"
+      "answer": "[corpus:0] [fate:14@0] Visual Merchandising The"
     },
     {
       "id": "12765",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:6] [fate:34@6] 1000 lakhs per year, both as per the booksof account and for income-tax purposes"
+      "answer": "[corpus:1] [fate:14@1] In case an asset is discarded by the business but not sold, section 43(6) permits the scrap value"
     },
     {
       "id": "15011",
@@ -421,7 +421,7 @@
       "id": "14765",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:7] [fate:38@7] A brain natriuretic peptide (BNP) test measures the amount of the BNP hormone in your blood"
+      "answer": "[corpus:7] [fate:38@7] The B-type Natriuretic Peptide"
     },
     {
       "id": "13367",
@@ -461,9 +461,9 @@
     },
     {
       "id": "16775",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:2] [fate:22@2] What are the similarities between the nervous system and the endocrine system? Both the nervous s"
+      "answer": "[corpus:0] [fate:14@0] Endocrine System"
     },
     {
       "id": "15713",
@@ -481,7 +481,7 @@
       "id": "14283",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:5] [fate:30@5] For a basic 250 square feet project in zip code 47474, the benchmark cost to Install Carpet range"
+      "answer": "[corpus:0] [fate:10@0] uilding a second floor (also called a second story) can added much-needed space, but costs at lea"
     },
     {
       "id": "13469",
@@ -491,9 +491,9 @@
     },
     {
       "id": "14690",
-      "faithful": true,
+      "faithful": false,
       "abstain": false,
-      "answer": "[corpus:3] [fate:22@3] Refinishing and painting furniture tips and techniques and using Stain to create a cool look"
+      "answer": "[corpus:3] [fate:22@3] You"
     },
     {
       "id": "12459",
@@ -511,7 +511,7 @@
       "id": "15345",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:6] [fate:34@6] Hiking is a cardiovascular activity, depending on how hard you push yourself during a hike, and t"
+      "answer": "[corpus:6] [fate:34@6] Outdoor Hiking Promotes Mental Health"
     },
     {
       "id": "12219",
@@ -547,7 +547,7 @@
       "id": "12262",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:0] [fate:10@0] How To: Set the Default Web Browser in Windows 7"
+      "answer": "[corpus:9] [fate:46@9] To set Mozilla Firefox as your default Windows browser, take the following steps"
     },
     {
       "id": "12902",
@@ -589,7 +589,7 @@
       "id": "15716",
       "faithful": true,
       "abstain": false,
-      "answer": "[corpus:0] [fate:10@0] The word “Gemini” is a Latin word for twins and it is one of the constellations that actually loo"
+      "answer": "[corpus:0] [fate:10@0] Gemini Mythology The Story Behind"
     },
     {
       "id": "16060",

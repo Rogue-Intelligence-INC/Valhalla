@@ -795,6 +795,14 @@ fn default_fate_ingress_routing_str() -> String {
 }
 
 /// Env override: if set, scale by align; else use E7 algebraic fn(align).
+fn affinity_pos_from_align(align: f64) -> f64 {
+    crate::fate_adaptive_algebra::FateAlgebraState::ambient().affinity_pos_delta(align)
+}
+
+fn affinity_neg_from_align(align: f64) -> f64 {
+    crate::fate_adaptive_algebra::FateAlgebraState::ambient().affinity_neg_delta(align)
+}
+
 fn env_f64_override(env_key: &str, align: f64, algebraic: fn(f64) -> f64) -> f64 {
     std::env::var(env_key)
         .ok()
@@ -1352,10 +1360,14 @@ impl TriadSession {
     pub fn apply_qa_feedback(&mut self, question: &str, on_topic: bool) {
         let routed = self.hub_routed;
         self.hub.feedback_qa_outcome(question, on_topic, routed);
+        let mut meta = crate::fate_adaptive_algebra::FateAlgebraMeta::default();
+        meta.fragment_count = self.fragment_tracks.len();
+        meta.pretrain_pass_rate = if on_topic { 1.0 } else { 0.0 };
+        let state = crate::fate_adaptive_algebra::FateAlgebraState::from_meta(&meta, None);
         let intensity = if on_topic {
-            crate::e7_algebra::qa_pass_intensity()
+            state.qa_pass_intensity()
         } else {
-            crate::e7_algebra::qa_fail_intensity()
+            state.qa_fail_intensity()
         };
         self.tile.triple_fate.receive_passive(intensity * 0.5);
         self.stem.triple_fate.receive_passive(intensity * 0.5);
@@ -1378,7 +1390,7 @@ impl TriadSession {
         session
     }
 
-    /// Structural corpus-line affinity from QA outcome (grinder cosine Q↔line, E7 algebra).
+    /// Structural corpus-line affinity from QA outcome (grinder cosine Q↔line, Fate adaptive).
     pub fn apply_corpus_retrieval_feedback(
         &mut self,
         corpus_idx: usize,
@@ -1392,9 +1404,9 @@ impl TriadSession {
         }
         let align = signal_cosine_local(question_sig, line_sig).max(0.0);
         let delta = if on_topic {
-            env_f64_override("VALHALLA_CORPUS_AFFINITY_POS", align, crate::e7_algebra::affinity_pos_delta)
+            env_f64_override("VALHALLA_CORPUS_AFFINITY_POS", align, affinity_pos_from_align)
         } else {
-            -env_f64_override("VALHALLA_CORPUS_AFFINITY_NEG", align, crate::e7_algebra::affinity_neg_delta)
+            -env_f64_override("VALHALLA_CORPUS_AFFINITY_NEG", align, affinity_neg_from_align)
         };
         self.corpus_line_affinity[corpus_idx] =
             (self.corpus_line_affinity[corpus_idx] + delta).clamp(0.0, 1.0);

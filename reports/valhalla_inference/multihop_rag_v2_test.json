@@ -3,161 +3,321 @@
   "benchmark": "MultiHop-RAG",
   "bundle": "multihop_rag_slice25.json",
   "correct": 15,
+  "dynamic_corpus_fragments": true,
+  "elastic": {
+    "cuda_ready": true,
+    "lm_cache_max": 1,
+    "max_items": 48,
+    "parallel_workers": 2,
+    "resource_percent": 50,
+    "use_cpu": false
+  },
   "multihop_v2": true,
   "n": 25,
+  "native_qa_batch": true,
   "protocol": "multihop-rag-v2",
   "rows": [
     {
-      "answer": "Yes",
+      "answer": "[corpus:0] [fate:38@0] Yes",
       "correct": false,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_1454"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1454",
+      "query_fragment_scores": [
+        0.25451719557035274
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Yes",
+      "answer": "[corpus:1] [fate:46@1] Yes",
       "correct": true,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_921"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_921",
+      "query_fragment_scores": [
+        0.07740983799543874
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Google",
+      "answer": "[corpus:1] [fate:22@1] Google",
       "correct": true,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_774"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_774",
+      "query_fragment_scores": [
+        0.4063340478295094
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Yes",
+      "answer": "[corpus:1] [fate:42@1] Yes",
       "correct": true,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_1514"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1514",
+      "query_fragment_scores": [
+        0.11033736879832977
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Yes",
+      "answer": "[corpus:0] [fate:38@0] Yes",
       "correct": true,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_1762"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1762",
+      "query_fragment_scores": [
+        0.08112153072655574
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Sydney",
+      "answer": "[corpus:1] [fate:46@1] Sydney",
       "correct": false,
-      "decode_path": "valhalla_base/native/multihop_v2_entity",
-      "id": "MH_537"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_entity",
+      "id": "MH_537",
+      "query_fragment_scores": [
+        0.10831052840007847
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Yes",
+      "answer": "[corpus:1] [fate:42@1] Yes",
       "correct": false,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_2223"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_2223",
+      "query_fragment_scores": [
+        0.07695697326423233
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Sam Bankman-Fried",
-      "correct": true,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_2275"
-    },
-    {
-      "answer": "Tyreek Hill",
-      "correct": true,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_575"
-    },
-    {
-      "answer": "Google",
+      "answer": "[corpus:0] [fate:22@0] Sam Altman",
       "correct": false,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_1089"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_2275",
+      "query_fragment_scores": [
+        0.2604177951978743
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Yes",
+      "answer": "[corpus:0] [fate:18@0] Tyreek Hill",
       "correct": true,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_1526"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_575",
+      "query_fragment_scores": [
+        0.08696979696319711
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Google",
-      "correct": true,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_331"
-    },
-    {
-      "answer": "Google",
-      "correct": true,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_9"
-    },
-    {
-      "answer": "Yes",
+      "answer": "[corpus:2] [fate:22@2] Google",
       "correct": false,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_1591"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_entity",
+      "id": "MH_1089",
+      "query_fragment_scores": [
+        0.276033071782566
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Yes",
+      "answer": "[corpus:1] [fate:42@1] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1526",
+      "query_fragment_scores": [
+        0.09240826521217482
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:3] [fate:30@3] Google",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_331",
+      "query_fragment_scores": [
+        0.41437535614497634
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:2] [fate:26@2] Google",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_9",
+      "query_fragment_scores": [
+        0.2422102484226018
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:22@1] Yes",
       "correct": false,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_886"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1591",
+      "query_fragment_scores": [
+        0.09681455106397104
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "[corpus:1] Point Spread Betting - What is a Point Spread Bet?: If a piece of news or a prevailing sentiment starts to gain traction about a particular team's increased chances of winning, this can inf",
-      "correct": true,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_1395"
-    },
-    {
-      "answer": "Mario",
+      "answer": "[corpus:1] [fate:14@1] Yes",
       "correct": false,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_1710"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_relation+multihop_v2_yesno",
+      "id": "MH_886",
+      "query_fragment_scores": [
+        0.26276763553241533
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Sam Bankman-Fried",
-      "correct": true,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_2328"
-    },
-    {
-      "answer": "Google",
-      "correct": true,
-      "decode_path": "valhalla_base/native/multihop_v2_entity",
-      "id": "MH_1121"
-    },
-    {
-      "answer": "[corpus:0] NBA Prop Bets - Best Team and Player Props 2023/24 Season: You can find value in player and team props by gathering information from multiple sources and tracking how players and their team",
+      "answer": "[corpus:1] [fate:22@1] Point Spread Betting",
       "correct": false,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_1065"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_1395",
+      "query_fragment_scores": [
+        0.2566387936090692
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Yes",
+      "answer": "[corpus:0] [fate:14@0] Agree",
       "correct": true,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_1088"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_relation",
+      "id": "MH_1710",
+      "query_fragment_scores": [
+        0.0987854062159035
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "[corpus:1] How the conspiracy-fueled Epoch Times went mainstream and made millions: The group reported $76 million in subscription revenue in 2021, compared to nearly $7 million in 2019",
+      "answer": "[corpus:0] [fate:18@0] Sam Altman",
       "correct": false,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_3"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_2328",
+      "query_fragment_scores": [
+        0.4297878337330668
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Google",
+      "answer": "[corpus:3] [fate:30@3] Google",
       "correct": true,
-      "decode_path": "valhalla_base/native/pipeline_open",
-      "id": "MH_2064"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_1121",
+      "query_fragment_scores": [
+        0.40362703624146
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Yes",
+      "answer": "[corpus:0] [fate:14@0] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno",
+      "id": "MH_1065",
+      "query_fragment_scores": [
+        0.08659828130676857
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:2] [fate:46@2] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1088",
+      "query_fragment_scores": [
+        0.2524626231425653
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:22@1] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno",
+      "id": "MH_3",
+      "query_fragment_scores": [
+        0.11259678828446801
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:0] [fate:38@0] Google",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_2064",
+      "query_fragment_scores": [
+        0.41024655557301026
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:42@1] Yes",
       "correct": false,
-      "decode_path": "valhalla_base/native/multihop_v2_yesno",
-      "id": "MH_168"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_168",
+      "query_fragment_scores": [
+        0.10380610791949335
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     },
     {
-      "answer": "Google",
+      "answer": "[corpus:2] [fate:26@2] Google",
       "correct": true,
-      "decode_path": "valhalla_base/native/multihop_v2_entity",
-      "id": "MH_2106"
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_2106",
+      "query_fragment_scores": [
+        0.41921016505981906
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
     }
   ],
-  "timestamp": "1783036153",
+  "timestamp": "1783898712",
   "verdict": "OPEN_QA_VIABLE"
 }

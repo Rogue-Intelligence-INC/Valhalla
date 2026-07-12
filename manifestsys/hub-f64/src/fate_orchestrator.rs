@@ -171,7 +171,249 @@ fn warmup_prelearn_count(corpus_lines: usize, cfg: &FateOrchestratorConfig) -> u
     configured.min(corpus_lines.saturating_sub(1))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Prelearn line count for long-chain Fate warmup (public — no test changes required).
+pub fn production_prelearn_count(corpus_lines: usize) -> usize {
+    warmup_prelearn_count(corpus_lines, &FateOrchestratorConfig::default())
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct FateLinkOutcome {
+    pub fragments_in: usize,
+    pub fragments_out: usize,
+    pub links_merged: usize,
+    pub adapt_cycles: usize,
+    pub aggregate_score: f64,
+}
+
+pub fn fate_link_fragments_enabled() -> bool {
+    match std::env::var("VALHALLA_FATE_LINK_FRAGMENTS") {
+        Ok(v) => {
+            let v = v.trim().to_ascii_lowercase();
+            !(v == "0" || v == "false" || v == "off")
+        }
+        Err(_) => true,
+    }
+}
+
+fn fragment_link_score(a: &SnapshotFragment, b: &SnapshotFragment) -> f64 {
+    if a.id == "merged" || b.id == "merged" || a.id == "density_default" || b.id == "density_default" {
+        return 0.0;
+    }
+    let gap = b.line_start.saturating_sub(a.line_end);
+    let contiguous = gap <= 1;
+    if gap > 4 {
+        return 0.0;
+    }
+    let tick_gap = b.signal_tick_start.saturating_sub(a.signal_tick_end);
+    let tick_score = 1.0 / (1.0 + tick_gap as f64 * 0.02);
+    let dens_a = a.marginal_density.max(1e-9);
+    let dens_b = b.marginal_density.max(1e-9);
+    let dens_ratio = dens_a.min(dens_b) / dens_a.max(dens_b);
+    let line_score = if contiguous { 0.45 } else { 0.12 };
+    (line_score + tick_score * 0.35 + dens_ratio * 0.2).clamp(0.0, 1.0)
+}
+
+fn link_threshold() -> f64 {
+    env_f64("VALHALLA_FATE_LINK_THRESHOLD", 0.42)
+}
+
+fn fate_link_max_group_size() -> usize {
+    env_usize("VALHALLA_FATE_LINK_MAX_GROUP", 2).clamp(2, 16)
+}
+
+pub fn fate_link_each_extend_enabled() -> bool {
+    match std::env::var("VALHALLA_FATE_LINK_EACH_EXTEND") {
+        Ok(v) => {
+            let v = v.trim().to_ascii_lowercase();
+            v == "1" || v == "true" || v == "on"
+        }
+        Err(_) => false,
+    }
+}
+
+/// Fate links adjacent dynamic fragments into chain segments, then adapt.
+pub fn fate_link_fragments(
+    session: &mut TriadSession,
+    cfg: &FateOrchestratorConfig,
+) -> FateLinkOutcome {
+    if !fate_link_fragments_enabled() {
+        return FateLinkOutcome::default();
+    }
+    let tracks: Vec<SnapshotFragment> = session
+        .fragment_tracks
+        .iter()
+        .filter(|f| is_mergeable_fragment(&f.id) || f.id.starts_with("seg_") || f.id.starts_with("link_"))
+        .cloned()
+        .collect();
+    let tracks_len = tracks.len();
+    if tracks.len() < 2 {
+        return FateLinkOutcome {
+            fragments_in: tracks_len,
+            fragments_out: tracks_len,
+            ..Default::default()
+        };
+    }
+
+    let mut sorted = tracks;
+    sorted.sort_by_key(|f| (f.line_start, f.signal_tick_start));
+
+    let threshold = link_threshold();
+    let max_group = fate_link_max_group_size();
+    let mut groups: Vec<Vec<SnapshotFragment>> = Vec::new();
+    let mut current = vec![sorted[0].clone()];
+    for next in sorted.into_iter().skip(1) {
+        let prev = current.last().unwrap();
+        let score = fragment_link_score(prev, &next);
+        if score >= threshold && current.len() < max_group {
+            current.push(next);
+        } else if score >= threshold && current.len() >= max_group {
+            groups.push(current);
+            current = vec![next];
+        } else {
+            groups.push(current);
+            current = vec![next];
+        }
+    }
+    groups.push(current);
+
+    let budget = IngressBudget::experiment();
+    let body = session.body;
+    let mut merged_tracks: Vec<SnapshotFragment> = Vec::new();
+    let mut links_merged = 0usize;
+    for (i, group) in groups.iter().enumerate() {
+        if group.len() == 1 {
+            merged_tracks.push(group[0].clone());
+            continue;
+        }
+        links_merged += group.len().saturating_sub(1);
+        let linked = merge_fragments(group, budget.clone(), body);
+        let line_start = group.first().map(|f| f.line_start).unwrap_or(0);
+        let line_end = group.last().map(|f| f.line_end).unwrap_or(line_start);
+        let meta = FragmentCloseMeta {
+            line_start,
+            line_end,
+            close_reason: "fate_link_chain".into(),
+            marginal_density: group.iter().map(|f| f.marginal_density).sum::<f64>() / group.len() as f64,
+            ..Default::default()
+        };
+        merged_tracks.push(export_fragment(
+            &linked,
+            &format!("link_{i}"),
+            &format!("fate_link:{line_start}..{line_end}"),
+            meta,
+        ));
+    }
+
+    let preserved: Vec<SnapshotFragment> = session
+        .fragment_tracks
+        .iter()
+        .filter(|f| !is_mergeable_fragment(&f.id) && !f.id.starts_with("seg_") && !f.id.starts_with("link_"))
+        .cloned()
+        .collect();
+    merged_tracks.extend(preserved);
+    session.fragment_tracks = merged_tracks;
+
+    let adapt = run_fate_adapt(session, cfg);
+    FateLinkOutcome {
+        fragments_in: tracks_len,
+        fragments_out: session.fragment_tracks.len(),
+        links_merged,
+        adapt_cycles: adapt.cycles_executed,
+        aggregate_score: adapt.aggregate_score,
+    }
+}
+
+/// Rebuild session from snapshot fragments, link chains, adapt — long-chain finalize.
+pub fn fate_link_snapshot(
+    snap: &TriadIncubationSnapshot,
+    cfg: &FateOrchestratorConfig,
+    body: BodyTarget,
+) -> (TriadIncubationSnapshot, FateLinkOutcome) {
+    let frags = stored_fragments(snap);
+    if frags.len() < 2 {
+        return (snap.clone(), FateLinkOutcome::default());
+    }
+    let budget = IngressBudget::experiment();
+    let mut session = session_from_stored_fragments(&frags, &snap.corpus_line_affinity, budget, body);
+    TriadSession::apply_snapshot_fate_policy(&mut session, snap);
+    let outcome = fate_link_fragments(&mut session, cfg);
+    (export_session_after_ingest(&session), outcome)
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct FatePretrainPassOutcome {
+    pub pass: usize,
+    pub knowledge_lines: usize,
+    pub warmup: FateWarmupOutcome,
+    pub link: FateLinkOutcome,
+    pub adapt: FateAdaptOutcome,
+}
+
+pub fn default_pretrain_passes() -> usize {
+    env_usize("VALHALLA_FATE_PRETRAIN_PASSES", 3).clamp(1, 8)
+}
+
+/// Pulse prior knowledge + optional explore routing, warmup, link, adapt (one pretrain pass).
+pub fn fate_pretrain_pass(
+    session: &mut TriadSession,
+    knowledge_lines: &[String],
+    cfg: &FateOrchestratorConfig,
+    explore_routing: bool,
+    pass_idx: usize,
+) -> FatePretrainPassOutcome {
+    let cap = crate::grinder::default_port_cap();
+    if explore_routing {
+        session.hub.set_fate_policy(
+            FateWeightMode::Evaluated,
+            true,
+            IngressRoutingMode::RoundRobin,
+        );
+    }
+    for line in knowledge_lines {
+        let ports = grind_text_hash(line, cap);
+        pulse_ingest_line(session, &ports, Some(line.as_str()), cfg);
+    }
+    let warmup = run_fate_warmup(session, cfg, knowledge_lines.len());
+    let link = fate_link_fragments(session, cfg);
+    let adapt = run_fate_adapt(session, cfg);
+    FatePretrainPassOutcome {
+        pass: pass_idx,
+        knowledge_lines: knowledge_lines.len(),
+        warmup,
+        link,
+        adapt,
+    }
+}
+
+/// Extra Fate warmup+adapt on persisted session (no new corpus lines).
+pub fn fate_pretrain_adapt_snapshot(
+    snap: &TriadIncubationSnapshot,
+    cfg: &FateOrchestratorConfig,
+    body: BodyTarget,
+    explore_routing: bool,
+) -> (TriadIncubationSnapshot, FateWarmupOutcome, FateLinkOutcome) {
+    let frags = stored_fragments(snap);
+    let budget = IngressBudget::experiment();
+    let mut session = if frags.is_empty() {
+        TriadSession::with_body(budget, body)
+    } else {
+        session_from_stored_fragments(&frags, &snap.corpus_line_affinity, budget, body)
+    };
+    TriadSession::apply_snapshot_fate_policy(&mut session, snap);
+    if explore_routing {
+        session.hub.set_fate_policy(
+            FateWeightMode::Evaluated,
+            true,
+            IngressRoutingMode::RoundRobin,
+        );
+    }
+    let warmup = run_fate_warmup(&mut session, cfg, 0);
+    let link = fate_link_fragments(&mut session, cfg);
+    let _adapt = run_fate_adapt(&mut session, cfg);
+    (export_session_after_ingest(&session), warmup, link)
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct FateAdaptOutcome {
     pub cycles_executed: usize,
     pub stopped_reason: String,
@@ -271,8 +513,43 @@ pub fn corpus_ingest_skip(len: usize, explicit_ingest_all: bool) -> usize {
     if explicit_ingest_all || dynamic_corpus_fragments_enabled() {
         return 0;
     }
-    let max_ingest = env_usize("VALHALLA_NATIVE_MAX_CORPUS_LINES", 32);
+    let max_ingest = env_usize("VALHALLA_NATIVE_MAX_CORPUS_LINES", 0);
+    if max_ingest == 0 {
+        return 0;
+    }
     len.saturating_sub(max_ingest)
+}
+
+/// Eval corpora line cap: `0` = unlimited (dynamic fragment full ingest).
+/// Non-zero explicit only for ablation; legacy cap applies only when dynamic fragments off.
+pub fn eval_corpus_line_cap(explicit: usize) -> usize {
+    if explicit > 0 {
+        return explicit;
+    }
+    if dynamic_corpus_fragments_enabled() {
+        return 0;
+    }
+    env_usize("VALHALLA_NATIVE_MAX_CORPUS_LINES", 0)
+}
+
+/// Apply eval corpus cap — no-op when cap is 0 (algebra full-line ingest).
+pub fn apply_eval_corpus_cap(corpus: Vec<String>, explicit: usize) -> Vec<String> {
+    let cap = eval_corpus_line_cap(explicit);
+    if cap == 0 || corpus.len() <= cap {
+        corpus
+    } else {
+        corpus.into_iter().take(cap).collect()
+    }
+}
+
+/// Chunk size for long-chain ingest: `explicit=0` derives from ingress budget + corpus length.
+pub fn eval_chunk_size(corpus_len: usize, explicit: usize) -> usize {
+    if explicit > 0 {
+        return explicit.max(1).min(corpus_len.max(1));
+    }
+    let rp = env_usize("VALHALLA_INGRESS_RESOURCE_PERCENT", 70).clamp(1, 100);
+    let base = (rp / 2).clamp(8, 128);
+    base.min(corpus_len.max(1))
 }
 
 pub fn explicit_ingest_all_corpus(request_flag: Option<bool>) -> bool {
@@ -380,6 +657,10 @@ impl FateDensitySegmenter {
 
     fn max_lines(&self) -> usize {
         env_usize("VALHALLA_FRAGMENT_MAX_LINES", 48).clamp(2, 512)
+    }
+
+    fn chunk_stride(&self) -> usize {
+        env_usize("VALHALLA_FRAGMENT_CHUNK_STRIDE", 8).clamp(2, 64)
     }
 
     pub fn start_next_segment(&mut self, next_line: usize) {
@@ -494,15 +775,22 @@ impl FateDensitySegmenter {
 
         let min_lines = self.min_lines();
         let pref_rate_floor = env_f64("VALHALLA_FRAGMENT_PREF_RATE_FLOOR", 1e-4);
+        let stride = self.chunk_stride();
+        let stride_close = lines_in_seg >= min_lines
+            && stride > 0
+            && lines_in_seg % stride == 0;
 
         let should_close = lines_in_seg >= min_lines
             && ((density_dropped && self.low_density_streak >= 1)
                 || self.low_pref_streak >= 2
                 || (pref_output_rate < pref_rate_floor && lines_in_seg >= min_lines)
-                || lines_in_seg >= max_lines);
+                || lines_in_seg >= max_lines
+                || stride_close);
 
         if should_close {
-            let reason = if lines_in_seg >= max_lines {
+            let reason = if stride_close && lines_in_seg < max_lines && !density_dropped {
+                "chunk_stride"
+            } else if lines_in_seg >= max_lines {
                 "max_lines"
             } else if density_dropped {
                 "density_drop"
@@ -694,6 +982,49 @@ pub fn ingest_corpus_with_fragments_mode_full(
     (adapt, warmup_outcome)
 }
 
+/// Incremental corpus append on live session — dynamic density fragments, no prelearn/warmup.
+pub fn append_corpus_with_fragments_mode(
+    session: &mut TriadSession,
+    lines: &[String],
+    ports: &[BodyFrontPorts],
+    cfg: &FateOrchestratorConfig,
+    start_idx: usize,
+    mode: FragmentMode,
+) -> FateAdaptOutcome {
+    let n = lines.len().min(ports.len());
+    let mut segmenter = FateDensitySegmenter::new();
+    if mode == FragmentMode::Density && n > 0 {
+        segmenter.start_next_segment(start_idx);
+    }
+    for i in 0..n {
+        let line = lines[i].trim();
+        let line_ref = if line.is_empty() { None } else { Some(line) };
+        let idx = start_idx + i;
+        match mode {
+            FragmentMode::Density => {
+                ingest_line_density_fragment(session, &mut segmenter, &ports[i], line_ref, idx, cfg);
+            }
+            FragmentMode::Line => {
+                ingest_line_record_fragment(session, &ports[i], line_ref, idx, cfg);
+            }
+            FragmentMode::Off => {
+                pulse_ingest_line(session, &ports[i], line_ref, cfg);
+            }
+        }
+    }
+    if mode == FragmentMode::Density && n > 0 {
+        if let Some((id, label, meta)) = segmenter.flush(session, start_idx + n - 1) {
+            session.record_fragment_with_meta(&id, &label, meta);
+        }
+    }
+    run_fate_adapt(session, cfg)
+}
+
+/// Production fragment mode — density dynamic segments unless explicitly disabled via env.
+pub fn production_fragment_mode() -> FragmentMode {
+    fragment_mode()
+}
+
 /// Live QA pulse — question on persistent session (no fork).
 pub fn pulse_question_live(
     session: &mut TriadSession,
@@ -716,7 +1047,7 @@ pub fn pretrain_corpus_to_library(
     lines: &[String],
     cfg: &FateOrchestratorConfig,
 ) -> ManifoldFragmentLibrary {
-    let budget = IngressBudget::incubation();
+    let budget = crate::signal_ingress::IngressBudget::incubation_with_env();
     let mut session = TriadSession::with_body(budget, body);
     let cap = crate::grinder::default_port_cap();
     let ports: Vec<BodyFrontPorts> = lines
@@ -1017,10 +1348,86 @@ pub fn query_fragment_merge_enabled() -> bool {
     env_bool("VALHALLA_QUERY_FRAGMENT_MERGE", false)
 }
 
+/// Session persistence uses dynamic fragments only — no monolithic Tile/Stem snapshot blob.
+pub fn fragment_only_session_enabled() -> bool {
+    match std::env::var("VALHALLA_FRAGMENT_ONLY") {
+        Ok(v) => {
+            let v = v.trim().to_ascii_lowercase();
+            !(v == "0" || v == "false" || v == "off")
+        }
+        Err(_) => dynamic_corpus_fragments_enabled(),
+    }
+}
+
+pub fn mergeable_session_fragments(session: &TriadSession) -> Vec<SnapshotFragment> {
+    if session.fragment_tracks.is_empty() {
+        return vec![export_fragment(
+            session,
+            "density_default",
+            "default",
+            FragmentCloseMeta::default(),
+        )];
+    }
+    session
+        .fragment_tracks
+        .iter()
+        .filter(|f| is_mergeable_fragment(&f.id))
+        .cloned()
+        .collect()
+}
+
+/// Compact session export — fragments + Fate metadata; no monolithic tile/stem freeze.
+pub fn compact_manifold_snapshot(session: &TriadSession) -> TriadIncubationSnapshot {
+    let mut snap = session.manifold_snapshot();
+    snap.completed_tiles = Vec::new();
+    snap.stem_cells = Vec::new();
+    snap.tile_total_operations = 0;
+    snap.patch_vector = Vec::new();
+    snap.fragments = mergeable_session_fragments(session);
+    snap
+}
+
+pub fn stored_fragments(snap: &TriadIncubationSnapshot) -> Vec<SnapshotFragment> {
+    snap.fragments
+        .iter()
+        .filter(|f| is_mergeable_fragment(&f.id))
+        .cloned()
+        .collect()
+}
+
+/// Rebuild live session from persisted dynamic fragments (no monolithic snapshot restore).
+pub fn session_from_stored_fragments(
+    fragments: &[SnapshotFragment],
+    corpus_line_affinity: &[f64],
+    budget: IngressBudget,
+    body: BodyTarget,
+) -> TriadSession {
+    let mut session = if fragments.is_empty() {
+        TriadSession::with_body(budget, body)
+    } else {
+        merge_fragments(fragments, budget, body)
+    };
+    session.restore_corpus_line_affinity(corpus_line_affinity.to_vec());
+    session.fragment_tracks = fragments.to_vec();
+    session
+}
+
+pub fn export_session_after_ingest(session: &TriadSession) -> TriadIncubationSnapshot {
+    if fragment_only_session_enabled() {
+        compact_manifold_snapshot(session)
+    } else {
+        session.manifold_snapshot()
+    }
+}
+
 pub fn query_fragment_top_k(corpus_lines: usize) -> usize {
     let base = env_usize("VALHALLA_QUERY_FRAGMENT_TOP_K", 3).clamp(1, 32);
     if !dynamic_corpus_fragments_enabled() {
         return base;
+    }
+    // Small corpora: keep every fragment so multi-hop evidence is not truncated to seg_1.
+    if corpus_lines <= 16 {
+        return 32;
     }
     if corpus_lines <= 32 {
         return base;
@@ -1389,6 +1796,129 @@ mod tests {
         let outcome = run_fate_adapt(&mut session, &cfg);
         assert!(outcome.cycles_executed >= cfg.min_cycles);
         assert!(!outcome.stopped_reason.is_empty());
+    }
+
+    #[test]
+    fn fate_link_max_group_preserves_multiple_tracks() {
+        std::env::set_var("VALHALLA_FATE_LINK_MAX_GROUP", "2");
+        let mut s1 = smoke_session();
+        s1.run_optimize_cycles(2);
+        let mut s2 = smoke_session();
+        s2.run_optimize_cycles(2);
+        let mut s3 = smoke_session();
+        s3.run_optimize_cycles(2);
+        let mut f1 = export_fragment(&s1, "seg_0", "a", FragmentCloseMeta {
+            line_start: 0,
+            line_end: 3,
+            marginal_density: 0.8,
+            ..Default::default()
+        });
+        let mut f2 = export_fragment(&s2, "seg_1", "b", FragmentCloseMeta {
+            line_start: 4,
+            line_end: 7,
+            marginal_density: 0.75,
+            ..Default::default()
+        });
+        let mut f3 = export_fragment(&s3, "seg_2", "c", FragmentCloseMeta {
+            line_start: 8,
+            line_end: 11,
+            marginal_density: 0.7,
+            ..Default::default()
+        });
+        f1.line_end = 3;
+        f2.line_start = 4;
+        f2.line_end = 7;
+        f3.line_start = 8;
+        f3.line_end = 11;
+        let budget = IngressBudget::experiment();
+        let mut session = TriadSession::with_body(budget, BodyTarget::Triad);
+        session.fragment_tracks = vec![f1, f2, f3];
+        let cfg = FateOrchestratorConfig {
+            min_cycles: 1,
+            soft_max_cycles: 4,
+            hard_max_cycles: 8,
+            ..Default::default()
+        };
+        let out = fate_link_fragments(&mut session, &cfg);
+        assert!(out.fragments_out >= 2, "max_group=2 should keep ≥2 tracks: {:?}", out);
+    }
+
+    #[test]
+    fn fate_link_merges_contiguous_segments() {
+        std::env::set_var("VALHALLA_FATE_LINK_FRAGMENTS", "1");
+        let mut s1 = smoke_session();
+        let mut s2 = smoke_session();
+        s2.emit_body_ports_with_line(
+            &crate::grinder::grind_text_hash("Earth is the third planet.", default_port_cap()),
+            Some("Earth is the third planet."),
+        );
+        let mut f1 = export_fragment(
+            &s1,
+            "seg_0",
+            "lines:0..0",
+            FragmentCloseMeta {
+                line_start: 0,
+                line_end: 0,
+                signal_tick_start: 1,
+                signal_tick_end: 5,
+                marginal_density: 0.8,
+                ..Default::default()
+            },
+        );
+        let mut f2 = export_fragment(
+            &s2,
+            "seg_1",
+            "lines:1..1",
+            FragmentCloseMeta {
+                line_start: 1,
+                line_end: 1,
+                signal_tick_start: 6,
+                signal_tick_end: 10,
+                marginal_density: 0.75,
+                ..Default::default()
+            },
+        );
+        f1.line_start = 0;
+        f1.line_end = 0;
+        f2.line_start = 1;
+        f2.line_end = 1;
+        let budget = IngressBudget::experiment();
+        let mut session = TriadSession::with_body(budget, BodyTarget::Triad);
+        session.fragment_tracks = vec![f1, f2];
+        let cfg = FateOrchestratorConfig {
+            min_cycles: 1,
+            soft_max_cycles: 4,
+            hard_max_cycles: 8,
+            ..Default::default()
+        };
+        let out = fate_link_fragments(&mut session, &cfg);
+        assert!(out.links_merged >= 1, "expected link merge: {:?}", out);
+        assert!(
+            session.fragment_tracks.iter().any(|f| f.id.starts_with("link_")),
+            "expected link_* fragment"
+        );
+    }
+
+    #[test]
+    fn compact_snapshot_strips_tiles_keeps_fragments() {
+        std::env::set_var("VALHALLA_FRAGMENT_ONLY", "1");
+        std::env::set_var("VALHALLA_DYNAMIC_CORPUS_FRAGMENTS", "1");
+        let mut session = smoke_session();
+        session.run_optimize_cycles(2);
+        let full = session.manifold_snapshot();
+        assert!(!full.completed_tiles.is_empty() || !full.stem_cells.is_empty());
+        let compact = compact_manifold_snapshot(&session);
+        assert!(compact.completed_tiles.is_empty());
+        assert!(compact.stem_cells.is_empty());
+        assert!(!compact.fragments.is_empty());
+        let restored = session_from_stored_fragments(
+            &stored_fragments(&compact),
+            &compact.corpus_line_affinity,
+            IngressBudget::experiment(),
+            BodyTarget::Triad,
+        );
+        assert!(!stored_fragments(&compact).is_empty());
+        assert!(restored.hub.fate_system().get_logical_time() >= 0);
     }
 
     #[test]

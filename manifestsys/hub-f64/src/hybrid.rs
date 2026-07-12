@@ -291,8 +291,10 @@ pub fn run_memory_track(
         mcq_fate,
         pipeline_v4: cfg.pipeline_v4,
         multihop_v2: false,
-        multihop_fate: false,
+        open_fate: true,
+        multihop_fate: true,
         incubation_snapshot: None,
+        corpus_fragments: None,
     };
 
     let resp = run_native_qa_batch(&req);

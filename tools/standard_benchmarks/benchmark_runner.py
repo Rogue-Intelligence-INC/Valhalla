@@ -35,12 +35,15 @@ def _ensure_rust_bin() -> Path:
 
 def _run_rust_demo(name: str, *extra: str) -> dict[str, Any]:
     bin_path = _ensure_rust_bin()
+    env = {**os.environ, "RUSTFLAGS": os.environ.get("RUSTFLAGS", "-L /opt/cuda/lib64")}
+    if name in ("locomo", "longchain-fate", "multihop-hybrid"):
+        env.setdefault("VALHALLA_FATE_PARALLEL_LCHAIN", "1")
     proc = subprocess.run(
         [str(bin_path), "demo", name, *extra],
         capture_output=True,
         text=True,
         cwd=REPO,
-        env={**os.environ, "RUSTFLAGS": os.environ.get("RUSTFLAGS", "-L /opt/cuda/lib64")},
+        env=env,
     )
     if proc.stderr:
         print(proc.stderr, end="", flush=True)
@@ -121,7 +124,7 @@ def run_open_session_append(
     question: str,
     lines: list[str],
     production: bool = False,
-    chunk_size: int = 32,
+    chunk_size: int = 0,
     fast: bool = False,
 ) -> str:
     if production:
@@ -133,12 +136,40 @@ def run_open_session_append(
     return str((out.get("rows") or [{}])[0].get("answer") or "")
 
 
+def run_longbench_rust(
+    *,
+    fast: bool = False,
+    limit: int = 0,
+    max_corpus_lines: int = 0,
+    low_resource: bool = True,
+    mcq_light: bool = True,
+) -> dict[str, Any]:
+    """Rust LongBench with fragmentwithfate prelearn (not legacy 4-line warmup)."""
+    extra = rust_demo_flags(fast=fast, limit=limit)
+    extra.extend(["--max-corpus-lines", str(max_corpus_lines)])
+    if low_resource:
+        extra.append("--low-resource")
+    if not mcq_light:
+        extra.append("--no-mcq-light")
+    return _run_rust_demo("longbench", *extra)
+
+
+def run_lara_fatewithv2_rust(
+    *,
+    fast: bool = False,
+    limit: int = 0,
+) -> dict[str, Any]:
+    """LaRA RAG arm via fatewithv2 compose (multihop_v2 + multihop_fate)."""
+    extra = rust_demo_flags(fast=fast, limit=limit)
+    return _run_rust_demo("lara-fatewithv2", *extra)
+
+
 def run_locomo_rust(
     *,
     fast: bool = False,
     limit: int = 0,
     max_lines: int = 128,
-    chunk_size: int = 32,
+    chunk_size: int = 0,
     verbose: bool = False,
     checkpoint: Path | str | None = None,
     checkpoint_every: int = 1,
@@ -163,7 +194,7 @@ def run_frames_rust(
     *,
     fast: bool = False,
     limit: int = 0,
-    max_corpus_lines: int = 32,
+    max_corpus_lines: int = 0,
     offline_wiki: bool = False,
     verbose: bool = False,
     checkpoint: Path | str | None = None,

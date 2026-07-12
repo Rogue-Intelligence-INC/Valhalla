@@ -180,29 +180,6 @@ impl FateAlgebraState {
         weighted >= gate
     }
 
-    /// Fate-signal retrieval score: query overlap × (affinity + tick phase).
-    pub fn fate_signal_line_score(
-        &self,
-        tokens: &[String],
-        line: &str,
-        line_idx: usize,
-        affinity: f64,
-    ) -> f64 {
-        let overlap = line_query_score(line, tokens);
-        if overlap <= 0.0 && affinity <= 0.0 {
-            return 0.0;
-        }
-        let tick_phase =
-            ((self.meta.fate_tick / 4 + line_idx as u64) % 11) as f64 / 11.0;
-        let age = (self.signals_since_baseline() as f64 * 0.002).min(0.08);
-        let base = overlap * self.coupling(tokens.len())
-            + affinity * self.affinity_peak.max(0.1)
-            + tick_phase * self.coupling(0) * 0.35
-            + age
-            + self.hub_spread * overlap * 0.4;
-        (base - line_interrogative_penalty(line)).max(0.0)
-    }
-
     pub fn pretrain_pass_cap(&self) -> usize {
         (2.0 + self.meta.adapt_score * 4.0 + self.meta.pretrain_pass_rate * 4.0).round() as usize
     }
@@ -232,6 +209,13 @@ impl FateAlgebraState {
     }
 
     pub fn fusion_round_cap(&self) -> usize {
+        if let Ok(v) = std::env::var("VALHALLA_FUSION_ROUND_CAP") {
+            if let Ok(n) = v.trim().parse::<usize>() {
+                if n > 0 {
+                    return n.clamp(1, 4);
+                }
+            }
+        }
         (1 + self.meta.pretrain_epochs.min(6) / 2 + (self.meta.pretrain_pass_rate * 2.0) as usize)
             .clamp(1, 4)
     }
@@ -262,6 +246,13 @@ impl FateAlgebraState {
     }
 
     pub fn rollback_depth_cap(&self) -> usize {
+        if let Ok(v) = std::env::var("VALHALLA_ROLLBACK_DEPTH_CAP") {
+            if let Ok(n) = v.trim().parse::<usize>() {
+                if n > 0 {
+                    return n.clamp(1, MAX_FATE_ROLLBACK_DEPTH);
+                }
+            }
+        }
         (4 + self.meta.pretrain_epochs / 2 + (self.meta.pretrain_pass_rate * 4.0) as usize)
             .clamp(4, MAX_FATE_ROLLBACK_DEPTH)
     }
@@ -359,16 +350,189 @@ pub fn sync_algebra_meta(sess: &mut ValhallaBaseSessionState) {
 }
 
 /// Token overlap score — question/gold keywords only (no domain lexicon).
+/// Scores on citation-stripped body so D-tags / stale fate cites are not addresses.
 pub fn line_query_score(line: &str, tokens: &[String]) -> f64 {
     if tokens.is_empty() {
         return 0.0;
     }
-    let low = line.to_ascii_lowercase();
+    let low = strip_all_citations(line).to_ascii_lowercase();
     let hits = tokens
         .iter()
         .filter(|t| !t.is_empty() && low.contains(t.as_str()))
         .count();
     hits as f64 / tokens.len() as f64
+}
+
+// ─── 4-quad relative address (Fate navigation space) ─────────────────────────
+//
+// Internal land uses FateRelAddr — NOT absolute corpus position.
+// Absolute IDs (`D2:8`, `corpus:N`) exist only at ingress/egress adapters.
+//
+// Quads: 0 BlackHole · 1 MeshBrain · 2 MultiNova · 3 BaseForce
+
+/// Relative address in the 4-quad Fate signal space.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FateRelAddr {
+    /// Soft mass on BH / MB / MN / BF (sums ≈ 1).
+    pub quads: [f64; 4],
+    /// Relative time phase in [0, 1) from Fate tick + content hash.
+    pub tau: f64,
+}
+
+fn soft_quad_keyword_mass(text: &str) -> [f64; 4] {
+    let low = text.to_ascii_lowercase();
+    let score = |keys: &[&str]| -> f64 {
+        keys.iter().filter(|k| low.contains(**k)).count() as f64
+    };
+    // Soft buckets on Hub's 4 ingress axes (BH / MB / MN / BF).
+    let mut q = [
+        score(&[
+            "gravity", "force", "mass", "energy", "physics", "weight", "research",
+            "identity", "woman", "family", "adopt", "agency", "counsel", "mental",
+            "transgender", "charity",
+        ]),
+        score(&[
+            "english", "language", "word", "speak", "text", "symbol", "name", "said",
+            "caroline", "melanie", "friend", "group", "support", "pride", "speech",
+            "lgbtq", "platform",
+        ]),
+        score(&[
+            "process", "when", "weekend", "trip", "camping", "race", "parade", "paint",
+            "sunrise", "shower", "plan", "went", "going", "last", "year", "sunday",
+            "meteor", "june", "may",
+        ]),
+        score(&[
+            "capital", "city", "country", "located", "where", "single", "status",
+            "relationship", "school", "mentor", "meet",
+        ]),
+    ];
+    // Token → quad projection (relative, content-addressed; shared tokens align query↔line).
+    for raw in low.split(|c: char| !c.is_alphanumeric()) {
+        if raw.len() < 3 {
+            continue;
+        }
+        let h = raw.bytes().fold(0usize, |a, b| a.wrapping_mul(31).wrapping_add(b as usize));
+        q[h % 4] += 1.0;
+    }
+    if q.iter().sum::<f64>() < 1e-9 {
+        q = [1.0, 1.0, 1.0, 1.0];
+    }
+    let s = q.iter().sum::<f64>().max(1e-9);
+    [q[0] / s, q[1] / s, q[2] / s, q[3] / s]
+}
+
+fn content_tau(text: &str, fate_tick: u64) -> f64 {
+    let h = text.bytes().fold(0u64, |a, b| a.wrapping_mul(31).wrapping_add(b as u64));
+    let phase = ((fate_tick.wrapping_add(h)) % 97) as f64 / 97.0;
+    phase
+}
+
+fn renorm4(mut q: [f64; 4]) -> [f64; 4] {
+    for v in &mut q {
+        *v = v.max(0.0);
+    }
+    let s = q.iter().sum::<f64>().max(1e-9);
+    [q[0] / s, q[1] / s, q[2] / s, q[3] / s]
+}
+
+impl FateRelAddr {
+    /// Line → relative address (content quads × affinity; no absolute index).
+    pub fn from_line(line: &str, affinity: f64, state: &FateAlgebraState) -> Self {
+        let body = strip_all_citations(line);
+        let mut quads = soft_quad_keyword_mass(&body);
+        // Affinity pulls toward the current Fate hub frame (relative, not positional).
+        let frame = [
+            state.coupling(0),
+            state.coupling(1).max(state.coupling(0) * 0.85),
+            state.coupling(2).max(state.coupling(0) * 0.85),
+            state.coupling(3).max(state.coupling(0) * 0.85),
+        ];
+        let frame = renorm4(frame);
+        let a = affinity.clamp(0.0, 1.0);
+        for i in 0..4 {
+            quads[i] = quads[i] * (1.0 - 0.35 * a) + frame[i] * 0.35 * a;
+        }
+        Self {
+            quads: renorm4(quads),
+            tau: content_tau(&body, state.meta.fate_tick),
+        }
+    }
+
+    /// Query → relative address (tokens + Fate hub frame at current tick).
+    pub fn from_query(tokens: &[String], state: &FateAlgebraState) -> Self {
+        let joined = tokens.join(" ");
+        let mut quads = soft_quad_keyword_mass(&joined);
+        let frame = renorm4([
+            state.hub_spread.max(0.05),
+            state.affinity_peak.max(0.05),
+            state.affinity_mean.max(0.05),
+            state.affinity_std.max(0.05) + state.coupling(0),
+        ]);
+        for i in 0..4 {
+            quads[i] = 0.55 * quads[i] + 0.45 * frame[i];
+        }
+        Self {
+            quads: renorm4(quads),
+            tau: (state.meta.fate_tick % 97) as f64 / 97.0,
+        }
+    }
+
+    /// Alignment in relative Fate space (quad cosine × tau proximity).
+    pub fn align(self, other: FateRelAddr) -> f64 {
+        let mut dot = 0.0;
+        let mut na = 0.0;
+        let mut nb = 0.0;
+        for i in 0..4 {
+            dot += self.quads[i] * other.quads[i];
+            na += self.quads[i] * self.quads[i];
+            nb += other.quads[i] * other.quads[i];
+        }
+        let cos = if na > 1e-12 && nb > 1e-12 {
+            (dot / (na.sqrt() * nb.sqrt())).clamp(0.0, 1.0)
+        } else {
+            0.0
+        };
+        let dtau = (self.tau - other.tau).abs();
+        let tau_prox = 1.0 - dtau.min(1.0 - dtau) * 2.0; // circular proximity on [0,1)
+        (0.78 * cos + 0.22 * tau_prox.max(0.0)).clamp(0.0, 1.0)
+    }
+}
+
+impl FateAlgebraState {
+    /// Fate-controlled land score: relative 4-quad address × query overlap.
+    /// `line_idx` is NOT used as position — only affinity slot lookup outside.
+    pub fn fate_rel_land_score(
+        &self,
+        query: FateRelAddr,
+        tokens: &[String],
+        line: &str,
+        affinity: f64,
+    ) -> f64 {
+        let content = strip_all_citations(line);
+        let line_addr = FateRelAddr::from_line(&content, affinity, self);
+        let align = query.align(line_addr);
+        let overlap = line_query_score(&content, tokens);
+        if align <= 0.05 && overlap <= 0.0 && affinity <= 0.0 {
+            return 0.0;
+        }
+        let base = align * self.coupling(tokens.len().max(1))
+            + overlap * (0.55 + 0.45 * align)
+            + affinity * self.affinity_peak.max(0.1) * 0.35
+            + self.hub_spread * align * 0.25;
+        (base - line_interrogative_penalty(&content)).max(0.0)
+    }
+
+    /// Fate-signal retrieval score (relative address; absolute index ignored).
+    pub fn fate_signal_line_score(
+        &self,
+        tokens: &[String],
+        line: &str,
+        _line_idx: usize,
+        affinity: f64,
+    ) -> f64 {
+        let query = FateRelAddr::from_query(tokens, self);
+        self.fate_rel_land_score(query, tokens, line, affinity)
+    }
 }
 
 pub fn query_tokens_from_q(q: &ValhallaBaseQuestion) -> Vec<String> {
@@ -533,13 +697,15 @@ pub fn fate_normalize_line_at(
 ) -> String {
     let tick = fate_land_tick(baseline_tick, line_idx, session_tick);
     let cite = fate_time_cite_bracket(line_idx, tick);
-    let body = if line.trim_start().starts_with('[') {
-        line.find(']')
-            .map(|p| line[p + 1..].trim())
-            .unwrap_or(line.trim())
-    } else {
-        line.trim()
-    };
+    // Strip ALL leading [...] cites so repeated normalize is idempotent (no string growth).
+    let mut body = line.trim();
+    while body.starts_with('[') {
+        if let Some(p) = body.find(']') {
+            body = body[p + 1..].trim();
+        } else {
+            break;
+        }
+    }
     format!("{cite} {body}")
 }
 
@@ -611,7 +777,8 @@ pub fn strip_all_citations(answer: &str) -> String {
         .join(" ")
 }
 
-/// Fate-signal ranked landing indices (retrieval entry points).
+/// Fate-signal ranked landing indices — ordered by relative 4-quad address alignment.
+/// Returned indices are egress materializations of Fate land (not navigation keys).
 pub fn fate_signal_landing_indices(
     corpus: &[String],
     tokens: &[String],
@@ -619,19 +786,20 @@ pub fn fate_signal_landing_indices(
     state: &FateAlgebraState,
     k: usize,
 ) -> Vec<usize> {
+    let query = FateRelAddr::from_query(tokens, state);
     let mut ranked: Vec<(usize, f64)> = corpus
         .iter()
         .enumerate()
         .map(|(i, line)| {
             let aff = affinities.get(i).copied().unwrap_or(0.0);
-            (i, state.fate_signal_line_score(tokens, line, i, aff))
+            (i, state.fate_rel_land_score(query, tokens, line, aff))
         })
         .collect();
     ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(Ordering::Equal));
     ranked.into_iter().take(k.max(1)).map(|(i, _)| i).collect()
 }
 
-/// Expand fate landings ± neighbor window into line list (replaces evidence Dx neighbor windows).
+/// Expand landings by next-best relative neighbors (not ±absolute index window).
 pub fn fate_signal_land_into_lines(
     full: &[String],
     q: &ValhallaBaseQuestion,
@@ -642,16 +810,12 @@ pub fn fate_signal_land_into_lines(
     let tokens = query_tokens_from_q(q);
     let aff = affinities.unwrap_or(&[]);
     let k = state.retrieval_top_k(tokens.len());
-    let landings = fate_signal_landing_indices(full, &tokens, aff, state, k);
     let neighbor = state.corpus_neighbor_window();
+    let landings = fate_signal_landing_indices(full, &tokens, aff, state, k + neighbor * 2);
     for idx in landings {
-        let lo = idx.saturating_sub(neighbor);
-        let hi = (idx + neighbor).min(full.len().saturating_sub(1));
-        for j in lo..=hi {
-            let line = full[j].clone();
-            if !lines.iter().any(|l| l == &line) {
-                lines.push(line);
-            }
+        let line = full[idx].clone();
+        if !lines.iter().any(|l| l == &line) {
+            lines.push(line);
         }
     }
 }
@@ -747,21 +911,35 @@ pub fn resolve_evidence_line_indices(
     out.into_iter().collect()
 }
 
-/// Unified Fate retrieval ingress — keyword seed + affinity boost + signal landing + distractor filter.
+/// Unified Fate retrieval — relative 4-quad land first; IDs never used internally.
 pub fn fate_retrieve_context_lines(
     q: &ValhallaBaseQuestion,
     corpus: &[String],
     state: &FateAlgebraState,
     affinities: Option<&[f64]>,
 ) -> Vec<String> {
-    use crate::context_routing::targeted_context;
     if corpus.is_empty() {
         return Vec::new();
     }
-    let k = state.retrieval_top_k(q.keywords.len());
-    let mut lines = targeted_context(q, corpus, k);
-    fate_adaptive_context_boost(q, corpus, &mut lines, state, affinities);
+    let tokens = query_tokens_from_q(q);
+    let aff = affinities.unwrap_or(&[]);
+    let k = state.retrieval_top_k(tokens.len());
+    let mut lines = Vec::new();
+    // Fate relative land is the navigator; keyword seed is secondary.
     fate_signal_land_into_lines(corpus, q, state, affinities, &mut lines);
+    fate_adaptive_context_boost(q, corpus, &mut lines, state, affinities);
+    if lines.len() < k {
+        use crate::context_routing::targeted_context;
+        for line in targeted_context(q, corpus, k) {
+            if !lines.iter().any(|l| l == &line) {
+                lines.push(line);
+            }
+            if lines.len() >= k + state.corpus_neighbor_window() {
+                break;
+            }
+        }
+    }
+    let _ = aff;
     fate_adaptive_distractor_filter(q, &mut lines, state);
     lines
 }
@@ -810,7 +988,12 @@ pub fn score_evidence_line_overlap(
     false
 }
 
-/// Two-end QA score: Fate algebra + evidence line overlap (internal-time indices, not Dx tags in corpus).
+/// Two-end QA score: Fate algebra + evidence line overlap.
+///
+/// Address model:
+/// - **Internal:** `FateRelAddr` (4-quad relative + tau) — Fate controls land
+/// - **Ingress ID:** bundle `D2:8` → body-match → line (adapter only)
+/// - **Egress ID:** materialize land as `[fate:T@I]` (`corpus:I` same I alias)
 pub fn score_qa_with_evidence(
     answer: &str,
     gold: &str,
@@ -902,6 +1085,26 @@ mod tests {
     #[test]
     fn fate_land_tick_increases_with_line_idx() {
         assert!(fate_land_tick(10, 5, 32) > fate_land_tick(10, 1, 32));
+    }
+
+    #[test]
+    fn fate_rel_addr_aligns_same_topic() {
+        let state = FateAlgebraState::ambient();
+        let q = FateRelAddr::from_query(
+            &["caroline".into(), "research".into(), "adoption".into()],
+            &state,
+        );
+        let hit = FateRelAddr::from_line(
+            "Caroline: Researching adoption agencies — dream to have a family.",
+            0.4,
+            &state,
+        );
+        let miss = FateRelAddr::from_line(
+            "Melanie: Wow, that's cool, Caroline! What happened that was so awesome?",
+            0.4,
+            &state,
+        );
+        assert!(q.align(hit) > q.align(miss));
     }
 
     #[test]

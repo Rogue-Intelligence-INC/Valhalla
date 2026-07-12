@@ -4,19 +4,22 @@ use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
-use serde::Deserialize;
 
-use crate::grinder::{default_port_cap, grind_text_hash};
-use crate::native_qa::{
-    run_native_qa_batch, NativeQaBatchItem, NativeQaBatchRequest, NativeQaQuestionSpec,
-};
 use crate::valhalla_base::{ValhallaBaseQuestion, ValhallaContextItem};
-use crate::valhalla_base_client::{RunOptions, ValhallaBaseClient};
+use crate::valhalla_base_client::{
+    FatePretrainOptions, LongChainOptions, RunOptions, ValhallaBaseClient,
+};
 use crate::valhalla_base_protocol::ValhallaBaseErrorBody;
 
 const NEEDLE: &str = "The magic registration code for Project Valhalla is XK-7742.";
 const NEEDLE_Q: &str = "What is the magic registration code for Project Valhalla?";
 const NEEDLE_HINT: &str = "xk-7742";
+
+const NEEDLE_PRIOR_KNOWLEDGE: &[&str] = &[
+    "Project Valhalla embeds registration codes inside long session dialogue logs.",
+    "Fate pretrain links density fragments across chunks before needle retrieval.",
+    "Rare factual needles remain retrievable when cross-fragment affinity is high.",
+];
 
 static FILLER: &[&str] = &[
     "Paris is the capital of France and lies on the River Seine.",
@@ -204,9 +207,9 @@ struct NeedleRow {
     answer: String,
 }
 
-fn run_needle_depth(depth: usize, fast: bool) -> Result<NeedleRow, ValhallaBaseErrorBody> {
+fn run_needle_depth(depth: usize, fast: bool, production: bool) -> Result<NeedleRow, ValhallaBaseErrorBody> {
     let mut base = ValhallaBaseClient::production();
-    base.config.fate_qa_feedback = false;
+    base.config.fate_qa_feedback = !production;
     base.config.incubation_cycles = if fast { 1 } else { 2 };
     base.config.max_new = 64;
 
@@ -217,21 +220,45 @@ fn run_needle_depth(depth: usize, fast: bool) -> Result<NeedleRow, ValhallaBaseE
         .map(|i| FILLER[(i + depth) % FILLER.len()].to_string())
         .collect();
 
-    if let Some(first) = before.first() {
-        base.set_context([first.as_str()]);
-    } else {
-        base.clear_context();
-    }
-    for line in before.iter().skip(1) {
-        base.append_context(line);
-    }
-    base.append_context(NEEDLE);
-    for line in &after {
-        base.append_context(line);
-    }
+    let mut lines: Vec<String> = before.clone();
+    lines.push(NEEDLE.to_string());
+    lines.extend(after.iter().cloned());
 
-    let out = base.run(
-        vec![ValhallaBaseQuestion {
+    let question = ValhallaBaseQuestion {
+        id: format!("needle_d{depth}"),
+        text: NEEDLE_Q.into(),
+        score_type: "open".into(),
+        reference_answer: NEEDLE_HINT.into(),
+        keywords: vec!["7742".into()],
+        audio_features: None,
+        image_features: None,
+    };
+
+    let out = if production {
+        let mut pretrain = FatePretrainOptions::default();
+        pretrain.prior_knowledge = NEEDLE_PRIOR_KNOWLEDGE.iter().map(|s| s.to_string()).collect();
+        pretrain.passes = crate::fate_orchestrator::default_pretrain_passes();
+        pretrain.warmup_cycles = if fast { 2 } else { 4 };
+        base.run_long_chain_open_with_options(
+            &lines,
+            question,
+            LongChainOptions {
+                chunk_size: 32,
+                pretrain: Some(pretrain),
+            },
+        )?
+    } else {
+        if let Some(first) = before.first() {
+            base.set_context([first.as_str()]);
+        }
+        for line in before.iter().skip(1) {
+            base.append_context(line);
+        }
+        base.append_context(NEEDLE);
+        for line in &after {
+            base.append_context(line);
+        }
+        let q = ValhallaBaseQuestion {
             id: format!("needle_d{depth}"),
             text: NEEDLE_Q.into(),
             score_type: "open".into(),
@@ -239,23 +266,27 @@ fn run_needle_depth(depth: usize, fast: bool) -> Result<NeedleRow, ValhallaBaseE
             keywords: vec!["7742".into()],
             audio_features: None,
             image_features: None,
-        }],
-        RunOptions::default(),
-    )?;
+        };
+        base.run(vec![q], RunOptions::default())?
+    };
     let ans = out.rows.first().map(|r| r.answer.as_str()).unwrap_or("");
     Ok(NeedleRow {
         depth,
-        session_lines: 1 + before.len() + 1 + after.len(),
+        session_lines: lines.len(),
         correct: recall_ok(ans),
         answer: ans.chars().take(160).collect(),
     })
 }
 
 /// `test_needle_session_v1.py`
-pub fn run_needle_session(depths: &[usize], fast: bool) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
+pub fn run_needle_session(
+    depths: &[usize],
+    fast: bool,
+    production: bool,
+) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
     let rows: Vec<NeedleRow> = depths
         .iter()
-        .map(|&d| run_needle_depth(d, fast))
+        .map(|&d| run_needle_depth(d, fast, production))
         .collect::<Result<_, _>>()?;
     let correct = rows.iter().filter(|r| r.correct).count();
     let n = rows.len().max(1);
@@ -274,10 +305,83 @@ pub fn run_needle_session(depths: &[usize], fast: bool) -> Result<serde_json::Va
         "needle": NEEDLE,
         "question": NEEDLE_Q,
         "depths": depths,
+        "production_stack": production,
+        "long_chain_rust": production,
+        "fate_pretrain_passes": if production { crate::fate_orchestrator::default_pretrain_passes() } else { 0 },
+        "prior_knowledge_lines": if production { NEEDLE_PRIOR_KNOWLEDGE.len() } else { 0 },
         "n": rows.len(),
         "correct": correct,
         "recall": (recall * 10000.0).round() / 10000.0,
         "rows": rows,
+        "verdict": verdict,
+    }))
+}
+
+/// Multi-pass Fate pretrain (prior knowledge) then needle recall — final integration test.
+pub fn run_longchain_fate_final_test(
+    pretrain_passes: usize,
+    depth: usize,
+    fast: bool,
+) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
+    let mut base = ValhallaBaseClient::production();
+    base.config.fate_qa_feedback = false;
+    base.config.incubation_cycles = if fast { 1 } else { 2 };
+    base.config.max_new = 64;
+
+    let before: Vec<String> = (0..depth)
+        .map(|i| FILLER[i % FILLER.len()].to_string())
+        .collect();
+    let after: Vec<String> = (0..depth)
+        .map(|i| FILLER[(i + depth) % FILLER.len()].to_string())
+        .collect();
+    let mut lines: Vec<String> = before.clone();
+    lines.push(NEEDLE.to_string());
+    lines.extend(after.iter().cloned());
+
+    let mut pretrain = FatePretrainOptions::default();
+    pretrain.passes = pretrain_passes.max(1);
+    pretrain.prior_knowledge = NEEDLE_PRIOR_KNOWLEDGE.iter().map(|s| s.to_string()).collect();
+    pretrain.warmup_cycles = if fast { 2 } else { 4 };
+
+    let pretrain_summaries = base.run_fate_pretrain_passes(&lines, &pretrain)?;
+
+    let question = ValhallaBaseQuestion {
+        id: format!("longchain_fate_d{depth}"),
+        text: NEEDLE_Q.into(),
+        score_type: "open".into(),
+        reference_answer: NEEDLE_HINT.into(),
+        keywords: vec!["7742".into()],
+        audio_features: None,
+        image_features: None,
+    };
+
+    let out = base.run_long_chain_open_with_options(
+        &lines,
+        question,
+        LongChainOptions {
+            chunk_size: 32,
+            pretrain: None,
+        },
+    )?;
+    let ans = out.rows.first().map(|r| r.answer.as_str()).unwrap_or("");
+    let correct = recall_ok(ans);
+    let verdict = if correct {
+        "LONGCHAIN_FATE_PASS"
+    } else {
+        "LONGCHAIN_FATE_FAIL"
+    };
+
+    Ok(serde_json::json!({
+        "timestamp": now_iso(),
+        "protocol": "longchain-fate-final-v1",
+        "benchmark": "Fate multi-pretrain + long-chain needle",
+        "depth": depth,
+        "session_lines": lines.len(),
+        "pretrain_passes": pretrain.passes,
+        "prior_knowledge": NEEDLE_PRIOR_KNOWLEDGE,
+        "pretrain_warmup_runs": pretrain_summaries.len(),
+        "correct": correct,
+        "answer": ans.chars().take(200).collect::<String>(),
         "verdict": verdict,
     }))
 }
@@ -410,350 +514,10 @@ pub fn default_corpus_dirs(repo_root: &Path) -> Vec<PathBuf> {
     ]
 }
 
-fn score_short_answer(answer: &str, gold: &str) -> bool {
-    let ref_s = gold.trim();
-    if ref_s.is_empty() {
-        return false;
-    }
-    let low = answer.to_lowercase();
-    if low.contains(&ref_s.to_lowercase()) {
-        return true;
-    }
-    let ref_tokens: Vec<String> = ref_s
-        .split_whitespace()
-        .filter_map(|w| {
-            let t: String = w
-                .chars()
-                .filter(|c| c.is_ascii_alphanumeric())
-                .collect::<String>()
-                .to_lowercase();
-            if t.len() >= 2 {
-                Some(t)
-            } else {
-                None
-            }
-        })
-        .collect();
-    if ref_tokens.is_empty() {
-        return false;
-    }
-    let hit = ref_tokens.iter().filter(|t| low.contains(t.as_str())).count();
-    hit >= (ref_tokens.len() + 1) / 2
-}
-
-fn verdict_open_qa(acc: f64) -> &'static str {
-    if acc >= 0.65 {
-        "OPEN_QA_STRONG"
-    } else if acc >= 0.40 {
-        "OPEN_QA_VIABLE"
-    } else {
-        "OPEN_QA_DEVELOPING"
-    }
-}
-
-#[derive(Deserialize)]
-struct MultihopBundle {
-    items: Vec<MultihopItem>,
-}
-
-#[derive(Deserialize)]
-struct MultihopItem {
-    id: String,
-    question: String,
-    answer: String,
-    #[serde(default)]
-    corpus: Vec<String>,
-}
-
-#[derive(Clone, Copy)]
-struct MultihopNativeFlags {
-    multihop_v2: bool,
-    multihop_fate: bool,
-}
-
-fn grind_ports_line(line: &str) -> crate::dl_front::BodyFrontPorts {
-    grind_text_hash(line, default_port_cap())
-}
-
-fn run_multihop_native_batch(
-    item: &MultihopItem,
-    corpus: &[String],
-    fast: bool,
-    flags: MultihopNativeFlags,
-) -> NativeQaBatchItem {
-    let corpus_ports: Vec<_> = corpus.iter().map(|l| grind_ports_line(l)).collect();
-    let q_ports = grind_ports_line(&item.question);
-    let batch = NativeQaBatchRequest {
-        body: "triad".into(),
-        corpus: corpus.to_vec(),
-        corpus_ports,
-        questions: vec![NativeQaQuestionSpec {
-            id: Some(item.id.clone()),
-            question: item.question.clone(),
-            score_type: "open".into(),
-            question_ports: Some(q_ports),
-            audio_features: None,
-            prior_questions: None,
-        }],
-        incubation_cycles: if fast { 1 } else { 2 },
-        qa_cycles: 1,
-        ingress_mode: Some("grinder".into()),
-        mcq_fate: false,
-        pipeline_v4: true,
-        multihop_v2: flags.multihop_v2,
-        open_fate: flags.multihop_fate,
-        multihop_fate: flags.multihop_fate,
-        incubation_snapshot: None,
-    };
-    let resp = run_native_qa_batch(&batch);
-    resp.results
-        .into_iter()
-        .next()
-        .unwrap_or(NativeQaBatchItem {
-            id: item.id.clone(),
-            answer: String::new(),
-            score_type: "open".into(),
-            decode_path: "empty".into(),
-            tile_count: 0,
-            stem_cells: 0,
-            tile_connections: 0,
-            tile_avg_activation: 0.0,
-            stem_organ_clusters: 0,
-            correct: false,
-            mcq_fate_cycles: 0,
-            mcq_fate_stopped: String::new(),
-            mcq_decompose_score: 0.0,
-            mcq_aggregate_score: 0.0,
-            fog_evidence: None,
-            fog_decision: None,
-            retrieval_corpus_idx: None,
-            query_fragments: None,
-            query_fragment_scores: None,
-        })
-}
-
-fn multihop_result_row(item: &MultihopItem, row: &NativeQaBatchItem) -> (bool, serde_json::Value) {
-    let ans = row.answer.as_str();
-    let ok = score_short_answer(ans, &item.answer);
-    (
-        ok,
-        serde_json::json!({
-            "id": item.id,
-            "correct": ok,
-            "answer": ans.chars().take(200).collect::<String>(),
-            "decode_path": row.decode_path,
-            "query_fragments": row.query_fragments,
-            "query_fragment_scores": row.query_fragment_scores,
-        }),
-    )
-}
-
-fn multihop_corpus(item: &MultihopItem, max_corpus_lines: usize) -> Vec<String> {
-    let mut corpus = item.corpus.clone();
-    if corpus.len() > max_corpus_lines {
-        corpus.truncate(max_corpus_lines);
-    }
-    corpus
-}
-
-/// MultiHop-RAG slice25 — structure composition decode (multihop_v2).
-pub fn run_multihop_rag(
-    bundle_path: &Path,
-    limit: usize,
-    fast: bool,
-    max_corpus_lines: usize,
-) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
-    let raw = std::fs::read_to_string(bundle_path).map_err(|e| {
-        ValhallaBaseErrorBody::new(
-            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Io,
-            format!("read {}: {e}", bundle_path.display()),
-        )
-    })?;
-    let doc: MultihopBundle = serde_json::from_str(&raw).map_err(|e| {
-        ValhallaBaseErrorBody::new(
-            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Parse,
-            format!("parse multihop bundle: {e}"),
-        )
-    })?;
-
-    let mut items: Vec<_> = doc
-        .items
-        .into_iter()
-        .filter(|i| !i.corpus.is_empty())
-        .collect();
-    if limit > 0 {
-        items.truncate(limit);
-    }
-
-    let mut rows = Vec::new();
-    let mut correct = 0usize;
-    for item in &items {
-        let corpus = multihop_corpus(item, max_corpus_lines);
-        let row = run_multihop_native_batch(
-            item,
-            &corpus,
-            fast,
-            MultihopNativeFlags {
-                multihop_v2: true,
-                multihop_fate: false,
-            },
-        );
-        let (ok, json_row) = multihop_result_row(item, &row);
-        if ok {
-            correct += 1;
-        }
-        rows.push(json_row);
-    }
-
-    let n = items.len().max(1);
-    let acc = correct as f64 / n as f64;
-    Ok(serde_json::json!({
-        "timestamp": now_iso(),
-        "protocol": "multihop-rag-v2",
-        "benchmark": "MultiHop-RAG",
-        "bundle": bundle_path.file_name().and_then(|s| s.to_str()).unwrap_or(""),
-        "multihop_v2": true,
-        "native_qa_batch": true,
-        "dynamic_corpus_fragments": crate::fate_orchestrator::dynamic_corpus_fragments_enabled(),
-        "n": items.len(),
-        "correct": correct,
-        "accuracy": (acc * 10000.0).round() / 10000.0,
-        "verdict": verdict_open_qa(acc),
-        "rows": rows,
-    }))
-}
-
-/// MultiHop-RAG — Fate hop-wise adaptation (E7-φ, no answer lexicon).
-pub fn run_multihop_fate_rag(
-    bundle_path: &Path,
-    limit: usize,
-    fast: bool,
-    max_corpus_lines: usize,
-) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
-    std::env::set_var("VALHALLA_CORPUS_LINE_AFFINITY_WEIGHT", "algebra");
-    let raw = std::fs::read_to_string(bundle_path).map_err(|e| {
-        ValhallaBaseErrorBody::new(
-            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Io,
-            format!("read {}: {e}", bundle_path.display()),
-        )
-    })?;
-    let doc: MultihopBundle = serde_json::from_str(&raw).map_err(|e| {
-        ValhallaBaseErrorBody::new(
-            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Parse,
-            format!("parse multihop bundle: {e}"),
-        )
-    })?;
-
-    let mut items: Vec<_> = doc
-        .items
-        .into_iter()
-        .filter(|i| !i.corpus.is_empty())
-        .collect();
-    if limit > 0 {
-        items.truncate(limit);
-    }
-
-    let mut rows = Vec::new();
-    let mut correct = 0usize;
-    for item in &items {
-        let corpus = multihop_corpus(item, max_corpus_lines);
-        let row = run_multihop_native_batch(
-            item,
-            &corpus,
-            fast,
-            MultihopNativeFlags {
-                multihop_v2: false,
-                multihop_fate: true,
-            },
-        );
-        let (ok, json_row) = multihop_result_row(item, &row);
-        if ok {
-            correct += 1;
-        }
-        rows.push(json_row);
-    }
-
-    let n = items.len().max(1);
-    let acc = correct as f64 / n as f64;
-    Ok(serde_json::json!({
-        "timestamp": now_iso(),
-        "protocol": "multihop-rag-fate",
-        "benchmark": "MultiHop-RAG",
-        "bundle": bundle_path.file_name().and_then(|s| s.to_str()).unwrap_or(""),
-        "multihop_fate": true,
-        "native_qa_batch": true,
-        "dynamic_corpus_fragments": crate::fate_orchestrator::dynamic_corpus_fragments_enabled(),
-        "n": items.len(),
-        "correct": correct,
-        "accuracy": (acc * 10000.0).round() / 10000.0,
-        "verdict": verdict_open_qa(acc),
-        "rows": rows,
-    }))
-}
-
-/// MultiHop-RAG — Fate adapt + optional v2 compose (hybrid).
-pub fn run_multihop_hybrid_rag(
-    bundle_path: &Path,
-    limit: usize,
-    fast: bool,
-    max_corpus_lines: usize,
-) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
-    std::env::set_var("VALHALLA_CORPUS_LINE_AFFINITY_WEIGHT", "algebra");
-    let raw = std::fs::read_to_string(bundle_path).map_err(|e| {
-        ValhallaBaseErrorBody::new(
-            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Io,
-            format!("read {}: {e}", bundle_path.display()),
-        )
-    })?;
-    let doc: MultihopBundle = serde_json::from_str(&raw).map_err(|e| {
-        ValhallaBaseErrorBody::new(
-            crate::valhalla_base_protocol::ValhallaBaseErrorKind::Parse,
-            format!("parse multihop bundle: {e}"),
-        )
-    })?;
-    let mut items: Vec<_> = doc
-        .items
-        .into_iter()
-        .filter(|i| !i.corpus.is_empty())
-        .collect();
-    if limit > 0 {
-        items.truncate(limit);
-    }
-    let mut rows = Vec::new();
-    let mut correct = 0usize;
-    for item in &items {
-        let corpus = multihop_corpus(item, max_corpus_lines);
-        let row = run_multihop_native_batch(
-            item,
-            &corpus,
-            fast,
-            MultihopNativeFlags {
-                multihop_v2: true,
-                multihop_fate: true,
-            },
-        );
-        let (ok, json_row) = multihop_result_row(item, &row);
-        if ok {
-            correct += 1;
-        }
-        rows.push(json_row);
-    }
-    let n = items.len().max(1);
-    let acc = correct as f64 / n as f64;
-    Ok(serde_json::json!({
-        "timestamp": now_iso(),
-        "protocol": "multihop-rag-fate-v2-hybrid",
-        "multihop_fate": true,
-        "multihop_v2": true,
-        "native_qa_batch": true,
-        "dynamic_corpus_fragments": crate::fate_orchestrator::dynamic_corpus_fragments_enabled(),
-        "n": items.len(),
-        "correct": correct,
-        "accuracy": (acc * 10000.0).round() / 10000.0,
-        "verdict": verdict_open_qa(acc),
-        "rows": rows,
-    }))
-}
+pub use crate::multihop_bench::{
+    run_lara_fatewithv2, run_multihop_fate_rag, run_multihop_hybrid_rag, run_multihop_rag,
+    verdict_open_qa,
+};
 
 pub fn write_report(path: &Path, doc: &serde_json::Value) -> Result<(), ValhallaBaseErrorBody> {
     if let Some(parent) = path.parent() {

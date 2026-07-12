@@ -56,11 +56,21 @@ fn truncate_extract(s: &str) -> String {
 }
 
 fn curl_fetch(url: &str, timeout_sec: u64) -> Option<String> {
+    let ua = std::env::var("VALHALLA_WIKI_USER_AGENT").unwrap_or_else(|_| {
+        "ValhallaBenchmark/1.0 (benchmark bundle; +https://github.com/Rogue-Intelligence-INC)"
+            .into()
+    });
     let out = Command::new("curl")
         .args([
             "-fsSL",
+            "--connect-timeout",
+            "15",
             "--max-time",
             &timeout_sec.to_string(),
+            "-H",
+            &format!("User-Agent: {ua}"),
+            "-H",
+            "Accept: application/json",
             url,
         ])
         .output()
@@ -69,6 +79,83 @@ fn curl_fetch(url: &str, timeout_sec: u64) -> Option<String> {
         return None;
     }
     String::from_utf8(out.stdout).ok()
+}
+
+fn python_wiki_fetch(repo_root: &Path, title: &str, offline: bool) -> Option<String> {
+    let script = repo_root.join("tools/standard_benchmarks/wiki_fetch_one.py");
+    if !script.is_file() {
+        return None;
+    }
+    let py = if repo_root.join(".venv-llm/bin/python3").is_file() {
+        repo_root.join(".venv-llm/bin/python3")
+    } else {
+        PathBuf::from("python3")
+    };
+    let mut cmd = Command::new(py);
+    cmd.arg(&script).arg(title).arg("--timeout").arg("25");
+    if offline {
+        cmd.arg("--offline");
+    }
+    let out = cmd.output().ok()?;
+    if !out.status.success() {
+        return None;
+    }
+    let text = String::from_utf8(out.stdout).ok()?;
+    let t = text.trim();
+    if t.is_empty() {
+        None
+    } else {
+        Some(truncate_extract(t))
+    }
+}
+
+fn strip_html_tags(s: &str) -> String {
+    let mut out = String::new();
+    let mut in_tag = false;
+    for c in s.chars() {
+        match c {
+            '<' => in_tag = true,
+            '>' => in_tag = false,
+            _ if !in_tag => out.push(c),
+            _ => {}
+        }
+    }
+    out.trim().to_string()
+}
+
+fn dbpedia_lookup_fetch(title: &str) -> Option<String> {
+    let name = title.replace('_', " ");
+    let url = format!(
+        "https://lookup.dbpedia.org/api/search?query={}&format=json",
+        pct_encode(&name)
+    );
+    let raw = curl_fetch(&url, 20)?;
+    let data: Value = serde_json::from_str(&raw).ok()?;
+    let docs = data.get("docs")?.as_array()?;
+    let doc = docs.first()?;
+    let comment = doc.get("comment");
+    let mut text = String::new();
+    if let Some(arr) = comment.and_then(|v| v.as_array()) {
+        for v in arr {
+            if let Some(s) = v.as_str() {
+                text.push_str(s);
+            }
+        }
+    } else if let Some(s) = comment.and_then(|v| v.as_str()) {
+        text = s.to_string();
+    }
+    text = strip_html_tags(&text);
+    if text.is_empty() {
+        if let Some(arr) = doc.get("label").and_then(|v| v.as_array()) {
+            if let Some(s) = arr.first().and_then(|v| v.as_str()) {
+                text = strip_html_tags(s);
+            }
+        }
+    }
+    if text.is_empty() {
+        return None;
+    }
+    Some(truncate_extract(&text))
 }
 
 fn parse_wiki_json(raw: &str) -> Option<String> {
@@ -82,13 +169,23 @@ fn parse_wiki_json(raw: &str) -> Option<String> {
     if let Some(pages) = data
         .get("query")
         .and_then(|q| q.get("pages"))
-        .and_then(|p| p.as_object())
     {
-        for page in pages.values() {
-            if let Some(extract) = page.get("extract").and_then(|v| v.as_str()) {
-                let t = extract.trim();
-                if !t.is_empty() {
-                    return Some(truncate_extract(t));
+        if let Some(arr) = pages.as_array() {
+            for page in arr {
+                if let Some(extract) = page.get("extract").and_then(|v| v.as_str()) {
+                    let t = extract.trim();
+                    if !t.is_empty() {
+                        return Some(truncate_extract(t));
+                    }
+                }
+            }
+        } else if let Some(obj) = pages.as_object() {
+            for page in obj.values() {
+                if let Some(extract) = page.get("extract").and_then(|v| v.as_str()) {
+                    let t = extract.trim();
+                    if !t.is_empty() {
+                        return Some(truncate_extract(t));
+                    }
                 }
             }
         }
@@ -117,20 +214,33 @@ pub fn wiki_summary_fetch(
         return None;
     }
     let enc = pct_encode(title);
+    let title_sp = title.replace('_', " ");
     let urls = [
         format!("https://en.wikipedia.org/api/rest_v1/page/summary/{enc}"),
+        format!("https://en.m.wikipedia.org/api/rest_v1/page/summary/{enc}"),
+        format!(
+            "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&format=json&formatversion=2&titles={}",
+            pct_encode(&title_sp)
+        ),
         format!(
             "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&format=json&titles={}",
-            pct_encode(&title.replace('_', " "))
+            pct_encode(&title_sp)
         ),
     ];
-    for url in urls {
-        if let Some(raw) = curl_fetch(&url, 12) {
+    for url in &urls {
+        if let Some(raw) = curl_fetch(url, 20) {
             if let Some(extract) = parse_wiki_json(&raw) {
                 write_cache(repo_root, title, &extract);
                 return Some(extract);
             }
         }
+    }
+    if let Some(extract) = python_wiki_fetch(repo_root, title, offline) {
+        return Some(extract);
+    }
+    if let Some(extract) = dbpedia_lookup_fetch(title) {
+        write_cache(repo_root, title, &extract);
+        return Some(extract);
     }
     None
 }

@@ -9,6 +9,7 @@ use crate::{
     pipeline, BodyFrontPorts, BodyTarget, DlFrontConfig, EncodingMode, IngressBudget,
     IngressPayload, ModalityInput, TriadFeedReport, TriadSession, DL_EMBED_DIM,
 };
+use crate::fate_adaptive_algebra::{line_query_score, FateAlgebraState};
 use crate::signal_ingress::TriadIncubationSnapshot;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -69,6 +70,9 @@ pub struct NativeQaBatchRequest {
     /// Pre-built incubation snapshot (skip corpus incubation; use for context+core fusion).
     #[serde(default)]
     pub incubation_snapshot: Option<TriadIncubationSnapshot>,
+    /// Dynamic fragments — primary session memory under fragment-only mode.
+    #[serde(default)]
+    pub corpus_fragments: Option<Vec<crate::fate_orchestrator::SnapshotFragment>>,
 }
 
 fn default_open_fate() -> bool {
@@ -199,7 +203,7 @@ pub struct FogEvidence {
     pub keyword_count: usize,
 }
 
-/// Algebraic FOG decision (E7-derived rationals, no fitted floats).
+/// FOG decision gates from Fate adaptive algebra (session/pretrain-driven).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FogDecision {
     pub decision: String,
@@ -210,19 +214,22 @@ pub struct FogDecision {
     pub reason: String,
 }
 
-/// E7 parameters (algebraic integers): r=7, δ=5, dim=133 → base (dim+δ)=138.
-const FOG_R: usize = crate::e7_algebra::R;
-const FOG_DELTA: usize = crate::e7_algebra::DELTA;
-const FOG_DIM: usize = crate::e7_algebra::DIM;
-
-/// τ(k) = (r + δ) / (dim + δ + k)
-pub fn fog_tau_algebraic(keyword_count: usize) -> f64 {
-    crate::e7_algebra::tau(keyword_count)
+pub fn fog_tau_adaptive(keyword_count: usize) -> f64 {
+    crate::fate_adaptive_algebra::FateAlgebraState::ambient().coupling(keyword_count)
 }
 
-/// Δ ≥ s₁ · δ / (dim + r)  — adjoint over rank+adjoint scale
+/// Back-compat alias.
+pub fn fog_tau_algebraic(keyword_count: usize) -> f64 {
+    fog_tau_adaptive(keyword_count)
+}
+
+pub fn fog_delta_required_adaptive(top_score: f64) -> f64 {
+    crate::fate_adaptive_algebra::FateAlgebraState::ambient().delta_required(top_score)
+}
+
+/// Back-compat alias.
 pub fn fog_delta_required_algebraic(top_score: f64) -> f64 {
-    crate::e7_algebra::delta_required(top_score)
+    fog_delta_required_adaptive(top_score)
 }
 
 pub fn fog_evidence_from_matches(top: &[NativeMatch], question: &str) -> FogEvidence {
@@ -308,11 +315,11 @@ pub fn fog_decide_algebraic(
 }
 
 #[derive(Debug, Clone)]
-struct MemoryEntry {
-    text: String,
-    signals: Vec<f64>,
-    source: String,
-    corpus_idx: Option<usize>,
+pub(crate) struct MemoryEntry {
+    pub(crate) text: String,
+    pub(crate) signals: Vec<f64>,
+    pub(crate) source: String,
+    pub(crate) corpus_idx: Option<usize>,
 }
 
 const HASH_SEED_TEXT: u64 = 0x544558545F464E54;
@@ -372,66 +379,50 @@ fn keyword_overlap_count(question: &str, text: &str) -> usize {
         .count()
 }
 
-/// Definitional overlap when question asks what a symbol/fact represents.
-fn open_definition_overlap(question: &str, text: &str) -> usize {
-    let qlow = question.to_lowercase();
-    let mlow = text.to_lowercase();
-    if qlow.contains("represent") {
-        if (qlow.contains(" m represent") || qlow.contains("what does m"))
-            && (mlow.starts_with("mass ") || mlow.contains("mass is"))
-        {
-            return 2;
-        }
-        if (qlow.contains(" a represent") || qlow.contains("what does a"))
-            && (mlow.starts_with("acceleration ") || mlow.contains("acceleration is"))
-        {
-            return 2;
-        }
+/// Fate algebra retrieval boost from question-token overlap (no domain phrase tables).
+fn fate_algebra_retrieval_boost(
+    question: &str,
+    text: &str,
+    hub_prefs: &[f64],
+    session_tick: u64,
+    baseline_tick: u64,
+    affinity: f64,
+) -> f64 {
+    use crate::fate_adaptive_algebra::{FateAlgebraMeta, FateAlgebraState, FateRelAddr};
+    let tokens: Vec<String> = question_keywords(question);
+    if tokens.is_empty() {
+        return 0.0;
     }
-    if qlow.contains("what energy") && mlow.contains("kinetic energy") {
-        return 2;
-    }
-    if qlow.contains("mass times velocity") && mlow.contains("momentum") {
-        return 2;
-    }
-    if qlow.contains("force times distance") && mlow.contains("work") {
-        return 2;
-    }
-    0
+    let mut meta = FateAlgebraMeta::default();
+    meta.fate_tick = session_tick;
+    meta.fate_baseline_tick = baseline_tick;
+    let state = if hub_prefs.len() >= 4 {
+        FateAlgebraState::from_hub_prefs(hub_prefs, &meta)
+    } else {
+        FateAlgebraState::from_meta(&meta, None)
+    };
+    let query = FateRelAddr::from_query(&tokens, &state);
+    // Fate relative address is the land controller (not absolute corpus position).
+    let land = state.fate_rel_land_score(query, &tokens, text, affinity);
+    land * state.corpus_rerank_weight(tokens.len()) * 1.75
 }
 
-fn open_symbol_retrieval_bias(question: &str, text: &str) -> f64 {
-    let qlow = question.to_lowercase();
-    let mlow = text.to_lowercase();
-    let mut bias = 0.0;
-    if qlow.contains("f=ma") || qlow.contains("in f=ma") {
-        if qlow.contains("m represent") {
-            if mlow.contains("mass is") || mlow.starts_with("mass ") {
-                bias += 0.52;
-            }
-            if mlow.contains("si unit of force") || mlow.contains("newton's second law") {
-                bias -= 0.48;
-            }
-            if mlow.contains("f equals m times a") {
-                bias -= 0.42;
-            }
-        }
-        if qlow.contains("a represent") {
-            if mlow.contains("acceleration is") || mlow.starts_with("acceleration ") {
-                bias += 0.52;
-            }
-            if mlow.contains("si unit of force")
-                || mlow.contains("newton's second law")
-                || mlow.contains("f equals m times a")
-            {
-                bias -= 0.48;
-            }
-        }
-    }
-    if qlow.contains("what energy") && qlow.contains("velocity") && mlow.contains("kinetic energy") {
-        bias += 0.45;
-    }
-    bias
+fn format_open_retrieval_answer(
+    _cite: &str,
+    memory_text: &str,
+    body: &str,
+    corpus_idx: Option<usize>,
+    session_tick: u64,
+    baseline_tick: u64,
+) -> String {
+    // Generic egress adapter — absolute IDs only here.
+    crate::fate_io::fate_egress(
+        body,
+        Some(memory_text),
+        corpus_idx,
+        session_tick,
+        baseline_tick,
+    )
 }
 
 fn extract_open_short_answer(question: &str, memory_text: &str) -> Option<String> {
@@ -575,7 +566,8 @@ fn corpus_line_affinity_boost(
 ) -> f64 {
     let w = match std::env::var("VALHALLA_CORPUS_LINE_AFFINITY_WEIGHT") {
         Ok(v) if v.eq_ignore_ascii_case("algebra") || v.eq_ignore_ascii_case("tau") => {
-            crate::e7_algebra::corpus_rerank_weight(keyword_count)
+            crate::fate_adaptive_algebra::FateAlgebraState::ambient()
+                .corpus_rerank_weight(keyword_count)
         }
         Ok(v) if v.eq_ignore_ascii_case("0")
             || v.eq_ignore_ascii_case("off")
@@ -584,7 +576,7 @@ fn corpus_line_affinity_boost(
             0.0
         }
         Ok(v) => v.parse().unwrap_or(0.0),
-        Err(_) => crate::e7_algebra::tau(0) * 0.4,
+        Err(_) => crate::fate_adaptive_algebra::FateAlgebraState::ambient().coupling(0) * 0.4,
     };
     let aff = corpus_idx
         .and_then(|i| affinities.get(i))
@@ -620,6 +612,10 @@ pub fn apply_open_fog_gate(
     }
     // Corpus/session citation from native retrieval — structural match, not hallucination.
     if answer.starts_with('[') && answer.contains("] ") {
+        return (answer, decode_path);
+    }
+    // Fate / multihop structure shorts are grounded compose, not free generation.
+    if decode_path.contains("multihop_fate") || decode_path.contains("multihop_v2") {
         return (answer, decode_path);
     }
     if let Some(f) = fog {
@@ -1495,6 +1491,8 @@ fn decode_open(
     prior_questions: &[String],
     corpus_line_affinity: &[f64],
     multihop_v2: bool,
+    session_tick: u64,
+    baseline_tick: u64,
 ) -> (String, Vec<NativeMatch>, String, Option<usize>) {
     let min_score = min_retrieval_score();
     let min_kw = min_open_keyword_overlap();
@@ -1523,7 +1521,7 @@ fn decode_open(
         if m.text.to_lowercase() == q_low {
             continue;
         }
-        let kw = keyword_overlap_count(question, &m.text) + open_definition_overlap(question, &m.text);
+        let kw = keyword_overlap_count(question, &m.text);
         if kw < min_kw {
             continue;
         }
@@ -1539,15 +1537,18 @@ fn decode_open(
         score += session_idf_term_boost(question, &m.text, memories);
         score += follow_up_retrieval_boost(question, prior_questions, &m.text, m.corpus_idx);
         score += corpus_duplicate_penalty(&m.text, m.corpus_idx, memories);
-        score += open_symbol_retrieval_bias(question, &m.text);
-        let qlow = question.to_lowercase();
-        let mlow = m.text.to_lowercase();
-        if qlow.contains("largest") && !qlow.contains("second") && mlow.contains("second largest") {
-            score -= 0.28;
-        }
-        if qlow.contains("second largest") && !mlow.contains("second") {
-            score -= 0.2;
-        }
+        let aff = m
+            .corpus_idx
+            .and_then(|i| corpus_line_affinity.get(i).copied())
+            .unwrap_or(0.0);
+        score += fate_algebra_retrieval_boost(
+            question,
+            &m.text,
+            hub_prefs,
+            session_tick,
+            baseline_tick,
+            aff,
+        );
         if let Some(cidx) = m.corpus_idx {
             if cidx <= 1 {
                 let better_newer = memories.iter().any(|other| {
@@ -1610,7 +1611,18 @@ fn decode_open(
                         .iter()
                         .max_by(|a, b| a.score.partial_cmp(&b.score).unwrap_or(std::cmp::Ordering::Equal))
                         .and_then(|c| c.corpus_idx);
-                    return (ans, top, path, picked_idx);
+                    let mem = picked_idx
+                        .and_then(|i| mh.iter().find(|c| c.corpus_idx == Some(i)))
+                        .map(|c| c.text.as_str());
+                    let egress = format_open_retrieval_answer(
+                        "",
+                        mem.unwrap_or(""),
+                        &ans,
+                        picked_idx,
+                        session_tick,
+                        baseline_tick,
+                    );
+                    return (egress, top, path, picked_idx);
                 }
             }
         }
@@ -1627,7 +1639,9 @@ fn decode_open(
         };
         if let Some(short) = extract_open_short_answer(question, &m.text) {
             return (
-                format!("[{}] {}", cite, short),
+                format_open_retrieval_answer(
+                    &cite, &m.text, &short, picked_idx, session_tick, baseline_tick,
+                ),
                 top,
                 format!("{decode_path}_short"),
                 picked_idx,
@@ -1635,14 +1649,18 @@ fn decode_open(
         }
         if let Some(span) = best_span(question, &m.text) {
             return (
-                format!("[{}] {}", cite, span),
+                format_open_retrieval_answer(
+                    &cite, &m.text, &span, picked_idx, session_tick, baseline_tick,
+                ),
                 top,
                 format!("{decode_path}_span"),
                 picked_idx,
             );
         }
         return (
-            format!("[{}] {}", cite, m.text),
+            format_open_retrieval_answer(
+                &cite, &m.text, &m.text, picked_idx, session_tick, baseline_tick,
+            ),
             top,
             decode_path.into(),
             picked_idx,
@@ -1923,6 +1941,8 @@ pub fn run_native_qa(req: &NativeQaRequest) -> NativeQaResponse {
             &[],
             &[],
             false,
+            report.hub_signals,
+            0,
         ),
     };
 
@@ -1955,7 +1975,13 @@ fn corpus_memories_from_ports(corpus: &[String], shards: &[BodyFrontPorts]) -> V
             .get(i)
             .map(|s| s.trim())
             .filter(|s| !s.is_empty())
-            .map(|s| s.to_string())
+            .map(|s| {
+                // Memory body is content-only; land address is corpus_idx + fate tick at egress.
+                crate::fate_adaptive_algebra::strip_all_citations(s)
+                    .trim()
+                    .to_string()
+            })
+            .filter(|s| !s.is_empty())
             .unwrap_or_else(|| format!("grinder_corpus_{}", i));
         memories.push(MemoryEntry {
             text: t,
@@ -2084,7 +2110,7 @@ fn apply_multihop_post_compose(
     None
 }
 
-fn decode_from_report(
+pub(crate) fn decode_from_report(
     question: &str,
     score_type: &str,
     memories: &[MemoryEntry],
@@ -2188,6 +2214,8 @@ fn decode_from_report(
             prior_questions,
             corpus_line_affinity,
             multihop_v2,
+            report.hub_signals,
+            0,
         ),
     }
 }
@@ -2227,7 +2255,8 @@ fn response_from_report(
 /// Full training corpus → Tile/Stem incubation, then QA without re-feeding corpus.
 pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse {
     let body = BodyTarget::parse(&req.body);
-    let budget = IngressBudget::incubation();
+    // Elastic: incubation baseline + VALHALLA_INGRESS_* suite overrides.
+    let budget = crate::signal_ingress::IngressBudget::incubation_with_env();
     let use_live = crate::fate_orchestrator::live_session_enabled();
     let mode = req
         .ingress_mode
@@ -2243,12 +2272,100 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
         .unwrap_or(128);
 
     let (corpus_memories, _dl_encoder, mut live_session, mut snap, incubation_report, fate_warmup) =
-        if let Some(pre) = req.incubation_snapshot.clone() {
-            let memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
-            let mut session =
-                TriadSession::from_incubation_snapshot(budget.clone(), body, pre.clone());
-            let report = session.build_feed_report("native_batch_prebuilt_snap", 0);
-            (memories, "grinder".into(), session, pre, report, None)
+        if let Some(ref frags) = req.corpus_fragments {
+            if !frags.is_empty() && crate::fate_orchestrator::fragment_only_session_enabled() {
+                let aff = req
+                    .incubation_snapshot
+                    .as_ref()
+                    .map(|s| s.corpus_line_affinity.clone())
+                    .unwrap_or_default();
+                let mut session = crate::fate_orchestrator::session_from_stored_fragments(
+                    frags,
+                    &aff,
+                    budget.clone(),
+                    body,
+                );
+                if let Some(ref pre) = req.incubation_snapshot {
+                    TriadSession::apply_snapshot_fate_policy(&mut session, pre);
+                }
+                let memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
+                let report = session.build_feed_report("native_batch_fragment_only", 0);
+                let snap = crate::fate_orchestrator::compact_manifold_snapshot(&session);
+                (
+                    memories,
+                    "grinder".into(),
+                    session,
+                    snap,
+                    report,
+                    None,
+                )
+            } else if let Some(pre) = req.incubation_snapshot.clone() {
+                let memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
+                let mut session =
+                    TriadSession::from_incubation_snapshot(budget.clone(), body, pre.clone());
+                let report = session.build_feed_report("native_batch_prebuilt_snap", 0);
+                (memories, "grinder".into(), session, pre, report, None)
+            } else {
+                let mut session = TriadSession::with_body(budget.clone(), body);
+                let corpus_memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
+                let fate_warmup = if use_live || crate::fate_orchestrator::multi_fragment_enabled() {
+                    let orch = crate::fate_orchestrator::FateOrchestratorConfig::default();
+                    let (_, warmup) = crate::fate_orchestrator::ingest_corpus_with_fragments_mode_full(
+                        &mut session,
+                        &req.corpus,
+                        &req.corpus_ports,
+                        &orch,
+                        crate::fate_orchestrator::production_fragment_mode(),
+                    );
+                    warmup
+                } else {
+                    feed_grinder_corpus(
+                        &mut session,
+                        &req.corpus,
+                        &req.corpus_ports,
+                        true,
+                    );
+                    session.run_optimize_cycles(req.incubation_cycles);
+                    None
+                };
+                let incubation_report = session.build_feed_report("native_batch_incubation", 0);
+                let snap = crate::fate_orchestrator::export_session_after_ingest(&session);
+                (
+                    corpus_memories,
+                    "grinder".into(),
+                    session,
+                    snap,
+                    incubation_report,
+                    fate_warmup,
+                )
+            }
+        } else if let Some(pre) = req.incubation_snapshot.clone() {
+            if crate::fate_orchestrator::fragment_only_session_enabled() && !pre.fragments.is_empty() {
+                let mut session = crate::fate_orchestrator::session_from_stored_fragments(
+                    &crate::fate_orchestrator::stored_fragments(&pre),
+                    &pre.corpus_line_affinity,
+                    budget.clone(),
+                    body,
+                );
+                TriadSession::apply_snapshot_fate_policy(&mut session, &pre);
+                let memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
+                let report = session.build_feed_report("native_batch_fragment_only", 0);
+                let snap = crate::fate_orchestrator::compact_manifold_snapshot(&session);
+                (
+                    memories,
+                    "grinder".into(),
+                    session,
+                    snap,
+                    report,
+                    None,
+                )
+            } else {
+                let memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
+                let mut session =
+                    TriadSession::from_incubation_snapshot(budget.clone(), body, pre.clone());
+                let report = session.build_feed_report("native_batch_prebuilt_snap", 0);
+                (memories, "grinder".into(), session, pre, report, None)
+            }
         } else {
             let mut session = TriadSession::with_body(budget.clone(), body);
             let corpus_memories = corpus_memories_from_ports(&req.corpus, &req.corpus_ports);
@@ -2264,7 +2381,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                     &req.corpus,
                     &req.corpus_ports,
                     &orch,
-                    crate::fate_orchestrator::fragment_mode(),
+                    crate::fate_orchestrator::production_fragment_mode(),
                 );
                 warmup
             } else {
@@ -2278,7 +2395,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                 None
             };
             let incubation_report = session.build_feed_report("native_batch_incubation", 0);
-            let snap = session.manifold_snapshot();
+            let snap = crate::fate_orchestrator::export_session_after_ingest(&session);
             (
                 corpus_memories,
                 dl_encoder,
@@ -2320,12 +2437,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             .as_ref()
             .expect("batch QA requires question_ports per item (grinder ingress)");
 
-        let fragment_source: Vec<_> = snap
-            .fragments
-            .iter()
-            .filter(|f| f.id != "merged" && f.id != "main")
-            .cloned()
-            .collect();
+        let fragment_source = crate::fate_orchestrator::stored_fragments(&snap);
         let query_merge = crate::fate_orchestrator::query_fragment_merge_enabled()
             && !fragment_source.is_empty();
 
@@ -2361,32 +2473,71 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                 snap.clone(),
             ))
         };
+        let use_natural = crate::natural_channels::natural_channels_enabled();
         let qa_session: &mut TriadSession = if let Some(ref mut merged) = query_merged_session {
-            crate::fate_orchestrator::pulse_question_live(
-                merged,
-                question_ports,
-                req.qa_cycles,
-                q.audio_features.as_deref(),
-                &front,
-            );
+            if use_natural {
+                crate::natural_channels::pulse_question_natural(
+                    merged,
+                    question_ports,
+                    req.qa_cycles,
+                    q.audio_features.as_deref(),
+                    &front,
+                );
+            } else {
+                crate::fate_orchestrator::pulse_question_live(
+                    merged,
+                    question_ports,
+                    req.qa_cycles,
+                    q.audio_features.as_deref(),
+                    &front,
+                );
+            }
             merged
         } else if use_live {
-            crate::fate_orchestrator::pulse_question_live(
-                &mut live_session,
-                question_ports,
-                req.qa_cycles,
-                q.audio_features.as_deref(),
-                &front,
-            );
+            if use_natural {
+                crate::natural_channels::pulse_question_natural(
+                    &mut live_session,
+                    question_ports,
+                    req.qa_cycles,
+                    q.audio_features.as_deref(),
+                    &front,
+                );
+            } else {
+                crate::fate_orchestrator::pulse_question_live(
+                    &mut live_session,
+                    question_ports,
+                    req.qa_cycles,
+                    q.audio_features.as_deref(),
+                    &front,
+                );
+            }
             &mut live_session
         } else {
             let s = fork_holder.as_mut().unwrap();
-            s.emit_body_ports(question_ports);
-            crate::multimodal::feed_audio(s, q.audio_features.as_deref(), &front);
+            if use_natural {
+                crate::natural_channels::pulse_question_natural(
+                    s,
+                    question_ports,
+                    req.qa_cycles,
+                    q.audio_features.as_deref(),
+                    &front,
+                );
+            } else {
+                s.emit_body_ports(question_ports);
+                crate::multimodal::feed_audio(s, q.audio_features.as_deref(), &front);
+            }
             s
         };
 
-        let mut memories = if let Some(ref sel) = query_selection {
+        // Fragment merge still shapes the session substrate; Fate/open decode need the
+        // full evidence set on small / multi-hop corpora (else only seg_1 is fed).
+        let fate_full_feed = crate::multihop_fate::fate_full_corpus_feed(
+            &q.question,
+            req.corpus.len(),
+        );
+        let mut memories = if fate_full_feed {
+            corpus_memories.clone()
+        } else if let Some(ref sel) = query_selection {
             let allowed: std::collections::HashSet<_> =
                 sel.corpus_line_indices.iter().copied().collect();
             if allowed.is_empty() {
@@ -2414,7 +2565,14 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
 
         let mut fate_line_aff = snap.corpus_line_affinity.clone();
         if open_fate && q.score_type == "open" {
-            let corpus_refs: Vec<crate::multihop_fate::CorpusLineRef> = memories
+            // Always build Fate refs from full corpus when full-feed; never fragment-truncate.
+            let fate_src = if fate_full_feed {
+                corpus_memories.as_slice()
+            } else {
+                // memories without trailing question entry
+                &memories[..memories.len().saturating_sub(1)]
+            };
+            let corpus_refs: Vec<crate::multihop_fate::CorpusLineRef> = fate_src
                 .iter()
                 .filter_map(|m| {
                     m.corpus_idx.map(|idx| crate::multihop_fate::CorpusLineRef {
@@ -2438,112 +2596,171 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
         }
 
         let use_mcq_fate = req.mcq_fate || mcq_fate::mcq_fate_cycles_enabled();
-
-        let (report, mcq_fate_meta, pipeline_outcome) = if use_pipeline_v4 {
-            let outcome = if use_live || query_selection.is_some() {
-                pipeline::run_question_pipeline_on_session(
-                    qa_session,
-                    &q.question,
-                    &q.score_type,
-                    question_ports,
-                    &pipe_cfg,
-                    &front,
-                    &mode_label,
-                    q.audio_features.as_deref(),
-                )
-            } else {
-                pipeline::run_question_pipeline(
-                    &snap,
-                    &q.question,
-                    &q.score_type,
-                    question_ports,
-                    &pipe_cfg,
-                    &front,
-                    &mode_label,
-                    q.audio_features.as_deref(),
-                )
-            };
-            let report = outcome.report.clone();
-            let meta = outcome.mcq_fate.as_ref().map(|o| {
-                (
-                    o.cycles_executed,
-                    o.stopped_reason.clone(),
-                    o.decompose_score,
-                    o.aggregate_score,
-                )
-            });
-            (report, meta, Some(outcome))
-        } else if q.score_type == "mcq" && use_mcq_fate {
-            let outcome = mcq_fate::run_mcq_fate_pipeline(
-                qa_session,
-                &q.question,
-                question_ports,
-                &mode_label,
-                &front,
-            );
-            (
-                outcome.report,
-                Some((
-                    outcome.cycles_executed,
-                    outcome.stopped_reason,
-                    outcome.decompose_score,
-                    outcome.aggregate_score,
-                )),
-                None,
-            )
-        } else {
-            (
-                qa_session.build_feed_report(&mode_label, req.qa_cycles),
-                None,
-                None,
-            )
-        };
-
-        let line_aff = if open_fate && q.score_type == "open" {
+        let line_aff_slice: &[f64] = if open_fate && q.score_type == "open" {
             &fate_line_aff
         } else {
             &snap.corpus_line_affinity
         };
-        let (mut answer, top, mut decode_path, retrieval_corpus_idx) =
-            if let Some(ref po) = pipeline_outcome {
-                if q.score_type == "mcq" {
-                    let (dec_ans, _, dec_path, _) = decode_from_report(
+
+        let (report, mcq_fate_meta, pipeline_outcome, mut answer, top, mut decode_path, retrieval_corpus_idx) =
+            if use_natural {
+                let nc = crate::natural_channels::resolve_natural_channels(
+                    qa_session,
+                    &snap,
+                    &q.question,
+                    &q.score_type,
+                    question_ports,
+                    &memories,
+                    line_aff_slice,
+                    &mode_label,
+                    req.qa_cycles,
+                    &mode,
+                    dl,
+                    &front,
+                    prior,
+                    multihop_v2,
+                    open_fate,
+                    use_pipeline_v4,
+                    use_mcq_fate,
+                    use_live,
+                    query_selection.is_some(),
+                    budget.clone(),
+                );
+                let (_, top, _, ridx) = decode_from_report(
+                    &q.question,
+                    &q.score_type,
+                    &memories,
+                    &nc.report,
+                    &budget,
+                    &mode,
+                    dl,
+                    &front,
+                    prior,
+                    line_aff_slice,
+                    multihop_v2,
+                );
+                (
+                    nc.report,
+                    nc.mcq_fate_meta,
+                    nc.pipeline_outcome,
+                    nc.answer,
+                    top,
+                    nc.decode_path,
+                    ridx,
+                )
+            } else if use_pipeline_v4 {
+                let outcome = if use_live || query_selection.is_some() {
+                    pipeline::run_question_pipeline_on_session(
+                        qa_session,
                         &q.question,
                         &q.score_type,
-                        &memories,
-                        &report,
-                        &budget,
-                        &mode,
-                        dl,
+                        question_ports,
+                        &pipe_cfg,
                         &front,
-                        prior,
-                        line_aff,
-                        multihop_v2,
-                    );
-                    let (ans, path) = pipeline::merge_mcq_pipeline_decode(
-                        &dec_ans,
-                        &dec_path,
-                        &po.recompose.mcq_option_affinity,
-                    );
-                    (ans, Vec::new(), path, None)
+                        &mode_label,
+                        q.audio_features.as_deref(),
+                    )
                 } else {
-                    let (a, t, _dp, ridx) = decode_from_report(
+                    pipeline::run_question_pipeline(
+                        &snap,
                         &q.question,
                         &q.score_type,
-                        &memories,
-                        &report,
-                        &budget,
-                        &mode,
-                        dl,
+                        question_ports,
+                        &pipe_cfg,
                         &front,
-                        prior,
-                        line_aff,
-                        multihop_v2,
-                    );
-                    (a, t, format!("pipeline_v4_{}", q.score_type), ridx)
+                        &mode_label,
+                        q.audio_features.as_deref(),
+                    )
+                };
+                let report = outcome.report.clone();
+                let meta = outcome.mcq_fate.as_ref().map(|o| {
+                    (
+                        o.cycles_executed,
+                        o.stopped_reason.clone(),
+                        o.decompose_score,
+                        o.aggregate_score,
+                    )
+                });
+                let (mut answer, top, mut decode_path, retrieval_corpus_idx) =
+                    if q.score_type == "mcq" {
+                        let (dec_ans, _, dec_path, _) = decode_from_report(
+                            &q.question,
+                            &q.score_type,
+                            &memories,
+                            &report,
+                            &budget,
+                            &mode,
+                            dl,
+                            &front,
+                            prior,
+                            line_aff_slice,
+                            multihop_v2,
+                        );
+                        let (ans, path) = pipeline::merge_mcq_pipeline_decode(
+                            &dec_ans,
+                            &dec_path,
+                            &outcome.recompose.mcq_option_affinity,
+                        );
+                        (ans, Vec::new(), path, None)
+                    } else {
+                        let (a, t, _dp, ridx) = decode_from_report(
+                            &q.question,
+                            &q.score_type,
+                            &memories,
+                            &report,
+                            &budget,
+                            &mode,
+                            dl,
+                            &front,
+                            prior,
+                            line_aff_slice,
+                            multihop_v2,
+                        );
+                        (a, t, format!("pipeline_v4_{}", q.score_type), ridx)
+                    };
+                if q.score_type != "mcq" {
+                    decode_path = outcome.decode_hint.clone();
                 }
+                (report, meta, Some(outcome), answer, top, decode_path, retrieval_corpus_idx)
+            } else if q.score_type == "mcq" && use_mcq_fate {
+                let outcome = mcq_fate::run_mcq_fate_pipeline(
+                    qa_session,
+                    &q.question,
+                    question_ports,
+                    &mode_label,
+                    &front,
+                );
+                let meta = Some((
+                    outcome.cycles_executed,
+                    outcome.stopped_reason.clone(),
+                    outcome.decompose_score,
+                    outcome.aggregate_score,
+                ));
+                let (answer, top, _, retrieval_corpus_idx) = decode_from_report(
+                    &q.question,
+                    &q.score_type,
+                    &memories,
+                    &outcome.report,
+                    &budget,
+                    &mode,
+                    dl,
+                    &front,
+                    prior,
+                    line_aff_slice,
+                    multihop_v2,
+                );
+                (
+                    outcome.report,
+                    meta,
+                    None,
+                    answer,
+                    top,
+                    "mcq_fate_cycle".into(),
+                    retrieval_corpus_idx,
+                )
             } else {
-                decode_from_report(
+                let report = qa_session.build_feed_report(&mode_label, req.qa_cycles);
+                let (answer, top, decode_path, retrieval_corpus_idx) = decode_from_report(
                     &q.question,
                     &q.score_type,
                     &memories,
@@ -2553,18 +2770,21 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                     dl,
                     &front,
                     prior,
-                    line_aff,
+                    line_aff_slice,
                     multihop_v2,
-                )
+                );
+                (report, None, None, answer, top, decode_path, retrieval_corpus_idx)
             };
 
-        if mcq_fate_meta.is_some() && pipeline_outcome.is_none() {
-            decode_path = "mcq_fate_cycle".to_string();
-        } else if let Some(ref po) = pipeline_outcome {
-            if q.score_type != "mcq" {
-                decode_path = po.decode_hint.clone();
-            } else if !decode_path.starts_with("pipeline_v4_") && !decode_path.starts_with("mcq_") {
-                decode_path = po.decode_hint.clone();
+        if !use_natural {
+            if mcq_fate_meta.is_some() && pipeline_outcome.is_none() {
+                decode_path = "mcq_fate_cycle".to_string();
+            } else if let Some(ref po) = pipeline_outcome {
+                if q.score_type != "mcq" {
+                    decode_path = po.decode_hint.clone();
+                } else if !decode_path.starts_with("pipeline_v4_") && !decode_path.starts_with("mcq_") {
+                    decode_path = po.decode_hint.clone();
+                }
             }
         }
         if let Some(ref sel) = query_selection {
@@ -2589,7 +2809,7 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
             (answer, decode_path) = apply_open_fog_gate(answer, decode_path, Some(&fog_decision));
         }
 
-        if open_fate && q.score_type == "open" {
+        if !use_natural && open_fate && q.score_type == "open" {
             let corpus_refs: Vec<crate::multihop_fate::CorpusLineRef> = memories
                 .iter()
                 .filter_map(|m| {
@@ -2615,19 +2835,60 @@ pub fn run_native_qa_batch(req: &NativeQaBatchRequest) -> NativeQaBatchResponse 
                     &q_sig,
                     multihop_v2,
                 ) {
-                    answer = fate_ans;
+                    let picked = retrieval_corpus_idx.or_else(|| {
+                        corpus_refs
+                            .iter()
+                            .max_by(|a, b| {
+                                let aa = fate_line_aff.get(a.idx).copied().unwrap_or(0.0);
+                                let bb = fate_line_aff.get(b.idx).copied().unwrap_or(0.0);
+                                aa.partial_cmp(&bb).unwrap_or(std::cmp::Ordering::Equal)
+                            })
+                            .map(|l| l.idx)
+                    });
+                    let mem = picked
+                        .and_then(|i| corpus_refs.iter().find(|l| l.idx == i))
+                        .map(|l| l.text.as_str());
+                    answer = crate::fate_io::fate_egress(
+                        &fate_ans,
+                        mem,
+                        picked,
+                        report.hub_signals,
+                        0,
+                    );
                     decode_path = fate_path;
                 }
             }
         }
 
-        // Legacy benchmark ablation only (`VALHALLA_MULTIHOP_V2=1`).
+        // Unified solution: multihop v2 post-compose + generic Fate egress cites.
         if multihop_v2 && q.score_type == "open" {
             if let Some((mh_ans, mh_path)) =
                 apply_multihop_post_compose(&q.question, &memories, &answer)
             {
-                answer = mh_ans;
-                decode_path = format!("{decode_path}+{mh_path}");
+                let picked = retrieval_corpus_idx.or_else(|| {
+                    memories
+                        .iter()
+                        .filter_map(|m| m.corpus_idx)
+                        .next()
+                });
+                let mem = picked
+                    .and_then(|i| memories.iter().find(|m| m.corpus_idx == Some(i)))
+                    .map(|m| m.text.as_str());
+                answer = crate::fate_io::fate_egress(&mh_ans, mem, picked, report.hub_signals, 0);
+                if !decode_path.contains(&mh_path) {
+                    decode_path = format!("{decode_path}+{mh_path}");
+                }
+            } else if decode_path.contains("multihop_fate")
+                && !answer.contains("[corpus:")
+                && !answer.contains("[fate:")
+            {
+                let picked = retrieval_corpus_idx.or_else(|| {
+                    memories.iter().filter_map(|m| m.corpus_idx).next()
+                });
+                let mem = picked
+                    .and_then(|i| memories.iter().find(|m| m.corpus_idx == Some(i)))
+                    .map(|m| m.text.as_str());
+                answer = crate::fate_io::fate_egress(&answer, mem, picked, report.hub_signals, 0);
             }
         }
 

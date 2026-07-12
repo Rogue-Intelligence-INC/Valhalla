@@ -1,15 +1,15 @@
-//! Multi-hop open QA via Fate hop-wise adaptation — E7-φ signals only, no answer lexicon.
+//! Multi-hop open QA via Fate hop-wise adaptation — Fate adaptive algebra, no answer lexicon.
 //!
-//! Flow: structural hop split → per-hop Fate pulses → corpus_line_affinity discovery → algebraic decode.
+//! Flow: structural hop split → per-hop Fate pulses → corpus_line_affinity discovery → adaptive decode.
 
 use crate::dl_front::{build_body_ports, hash_embed, BodyFrontPorts, DlFrontConfig, DL_EMBED_DIM};
-use crate::e7_algebra;
+use crate::fate_adaptive_algebra::{FateAlgebraState, FateRelAddr};
 use crate::signal_ingress::TriadSession;
 
 const HASH_SEED_HOP: u64 = 0x484F505F46415445;
 const FATE_RULES: &[&str] = &[
-    "multihop_fate: structural hop shards → corpus affinity discovery",
-    "multihop_fate_adapt: E7 τ/δ coupling until hub marginal stable",
+    "open_fate: global hop/structure shards → corpus affinity discovery",
+    "open_fate_adapt: adaptive τ/δ coupling until hub marginal stable",
 ];
 
 pub struct CorpusLineRef {
@@ -25,13 +25,26 @@ pub struct MultihopFateAdaptOutcome {
     pub stopped: String,
 }
 
+/// Global open-QA Fate (pre-QA adapt + structure decode). Default ON; opt out with `VALHALLA_OPEN_FATE=0`.
+pub fn open_fate_enabled() -> bool {
+    if let Ok(v) = std::env::var("VALHALLA_OPEN_FATE") {
+        let v = v.trim().to_ascii_lowercase();
+        return !(v == "0" || v == "false" || v == "off");
+    }
+    true
+}
+
 pub fn multihop_fate_enabled() -> bool {
-    std::env::var("VALHALLA_MULTIHOP_FATE")
-        .map(|v| {
-            let v = v.trim().to_ascii_lowercase();
-            v == "1" || v == "true" || v == "on"
-        })
-        .unwrap_or(false)
+    if let Ok(v) = std::env::var("VALHALLA_MULTIHOP_FATE") {
+        let v = v.trim().to_ascii_lowercase();
+        if v == "1" || v == "true" || v == "on" {
+            return true;
+        }
+        if v == "0" || v == "false" || v == "off" {
+            return false;
+        }
+    }
+    open_fate_enabled()
 }
 
 pub fn multihop_fate_compose_enabled() -> bool {
@@ -41,6 +54,39 @@ pub fn multihop_fate_compose_enabled() -> bool {
             v != "0" && v != "false" && v != "off"
         })
         .unwrap_or(true)
+}
+
+/// Full Fate structure decode (entity + relation) vs comparison-only fallback.
+pub fn open_fate_structure_compose(question: &str, multihop_v2: bool) -> bool {
+    if multihop_v2 {
+        return true;
+    }
+    if let Ok(v) = std::env::var("VALHALLA_OPEN_FATE_COMPOSE") {
+        let v = v.trim().to_ascii_lowercase();
+        if v == "1" || v == "true" || v == "on" {
+            return true;
+        }
+        if v == "0" || v == "false" || v == "off" {
+            return false;
+        }
+    }
+    compose_hop_clauses(question).len() >= 2
+}
+
+/// Global open Fate decode: full structure on multi-hop questions; comparison/yes-no only on simple recall.
+pub fn decode_open_fate(
+    question: &str,
+    corpus: &[CorpusLineRef],
+    affinities: &[f64],
+    hub_prefs: &[f64],
+    q_sig: &[f64],
+    multihop_v2: bool,
+) -> Option<(String, String)> {
+    if open_fate_structure_compose(question, multihop_v2) {
+        decode_from_fate_structure(question, corpus, affinities, hub_prefs, q_sig)
+    } else {
+        decode_fate_comparison_only(question, corpus, affinities, hub_prefs, q_sig)
+    }
 }
 
 fn build_multihop_compose_plan(question: &str) -> crate::task_decompose::DecomposePlan {
@@ -85,6 +131,34 @@ fn build_multihop_compose_plan(question: &str) -> crate::task_decompose::Decompo
     }
 }
 
+/// Whether Fate adapt/decode must see the full corpus (not fragment-filtered memories).
+///
+/// MultiHop-RAG and other small multi-evidence items lose a hop when query-fragment
+/// top-1 keeps only `seg_1` — Fate then never sees the evidence line on `seg_0`.
+pub fn fate_full_corpus_feed(question: &str, corpus_n: usize) -> bool {
+    if corpus_n == 0 {
+        return false;
+    }
+    // Tiny corpora: fragment top-k is lossy; always feed every line to Fate.
+    if corpus_n <= 16 {
+        return true;
+    }
+    if structural_hop_clauses(question).len() >= 2 {
+        return true;
+    }
+    let q = question.to_ascii_lowercase();
+    q.starts_with("between ")
+        || q.starts_with("does ")
+        || q.starts_with("do ")
+        || q.starts_with("after ")
+        || q.contains(" while ")
+        || q.contains(" both ")
+        || q.contains(" compared ")
+        || q.contains("agree or disagree")
+        || q.contains("similar way")
+        || q.contains("similar reason")
+}
+
 /// Structural hop clauses — contrast connectors only, no answer presets.
 pub fn structural_hop_clauses(question: &str) -> Vec<String> {
     let q = question.trim_end_matches('?').trim();
@@ -102,6 +176,36 @@ pub fn structural_hop_clauses(question: &str) -> Vec<String> {
     } else {
         vec![]
     }
+}
+
+/// Multi-evidence separators only — avoids treating "mass and velocity" as compose hops.
+fn compose_hop_clauses(question: &str) -> Vec<String> {
+    let q = question.trim_end_matches('?').trim();
+    let qlow = q.to_lowercase();
+    for sep in [" while ", " whereas ", "; "] {
+        if qlow.contains(sep) {
+            return q
+                .split(sep)
+                .map(|s| s.trim().to_string())
+                .filter(|s| s.len() > 12)
+                .collect();
+        }
+    }
+    let multi_doc = qlow.starts_with("between ")
+        || qlow.contains(" compared to ")
+        || qlow.contains(" compared with ")
+        || (qlow.starts_with("does ")
+            && (qlow.contains(" compared ")
+                || qlow.contains("different perspective")
+                || qlow.contains(" while ")));
+    if multi_doc && qlow.contains(" and ") {
+        return q
+            .split(" and ")
+            .map(|s| s.trim().to_string())
+            .filter(|s| s.len() > 12)
+            .collect();
+    }
+    vec![]
 }
 
 fn cosine(a: &[f64], b: &[f64]) -> f64 {
@@ -147,7 +251,7 @@ fn pulse(session: &mut TriadSession, phase: &str, score: f64) {
     session.stem.triple_fate.receive_passive(s * 0.5);
 }
 
-/// Hop-wise Fate adaptation: reinforce corpus lines that structurally align with each hop.
+/// Hop-wise Fate adaptation: RelAddr land + embedding cosine → affinity by egress idx.
 pub fn run_multihop_fate_adapt(
     session: &mut TriadSession,
     question: &str,
@@ -158,7 +262,8 @@ pub fn run_multihop_fate_adapt(
 ) -> MultihopFateAdaptOutcome {
     install_rules(session);
     let hops = structural_hop_clauses(question);
-    if multihop_fate_compose_enabled() && hops.len() >= 2 {
+    let state = FateAlgebraState::ambient();
+    if multihop_fate_compose_enabled() && compose_hop_clauses(question).len() >= 2 {
         let plan = build_multihop_compose_plan(question);
         let _ = crate::compose_fate::run_compose_fate_pipeline(
             session,
@@ -169,7 +274,8 @@ pub fn run_multihop_fate_adapt(
             1,
         );
     }
-    let align_gate = e7_algebra::tau(0) * e7_algebra::neg_coupling();
+    let align_gate = state.coupling(0) * state.neg_coupling();
+    let land_gate = state.coupling(0) * 0.35;
     let rounds = max_rounds.clamp(1, 8);
     let mut stable = 0usize;
 
@@ -178,9 +284,19 @@ pub fn run_multihop_fate_adapt(
             let ports = hop_ports(hop, front);
             session.emit_body_ports(&ports);
             session.run_optimize_cycles(1);
+            let hop_tokens = hop_query_tokens(hop);
+            let query = FateRelAddr::from_query(&hop_tokens, &state);
             for line in corpus {
+                let aff = session
+                    .manifold_snapshot()
+                    .corpus_line_affinity
+                    .get(line.idx)
+                    .copied()
+                    .unwrap_or(0.0);
                 let align = cosine(&ports.embedding, &line.signals);
-                if align >= align_gate {
+                let land = state.fate_rel_land_score(query, &hop_tokens, &line.text, aff);
+                // RelAddr land OR embedding cosine — absolute idx only for affinity slot.
+                if align >= align_gate || land >= land_gate {
                     session.apply_corpus_retrieval_feedback(
                         line.idx,
                         &ports.embedding,
@@ -193,7 +309,7 @@ pub fn run_multihop_fate_adapt(
         }
         session.emit_body_ports(whole_ports);
         session.run_optimize_cycles(1);
-        pulse(session, "adapt", e7_algebra::tau(0));
+        pulse(session, "adapt", state.coupling(0));
 
         let hub = session.hub.get_fate_preferences().affinities.clone();
         let spread: f64 = hub
@@ -201,7 +317,7 @@ pub fn run_multihop_fate_adapt(
             .take(4)
             .map(|&v| (v - hub.first().copied().unwrap_or(0.0)).abs())
             .sum();
-        if spread < e7_algebra::delta_required(1.0) {
+        if spread < state.delta_required(1.0) {
             stable += 1;
         } else {
             stable = 0;
@@ -220,6 +336,28 @@ pub fn run_multihop_fate_adapt(
         hops: hops.len(),
         stopped: "hop_rounds_exhausted".into(),
     }
+}
+
+fn hop_query_tokens(hop: &str) -> Vec<String> {
+    hop.split_whitespace()
+        .map(|w| {
+            w.trim_matches(|c: char| !c.is_alphanumeric())
+                .to_ascii_lowercase()
+        })
+        .filter(|t| t.len() > 2)
+        .take(12)
+        .collect()
+}
+
+fn yesno_interrogative(question: &str) -> bool {
+    let q = question.to_lowercase();
+    q.starts_with("does ")
+        || q.starts_with("is ")
+        || q.starts_with("are ")
+        || q.starts_with("do ")
+        || q.starts_with("between ")
+        || q.starts_with("after ")
+        || q.contains(" agree or disagree")
 }
 
 fn interrogative_structure(question: &str) -> bool {
@@ -253,17 +391,26 @@ fn hop_line_scores(
     affinities: &[f64],
     q_sig: &[f64],
 ) -> Vec<Vec<f64>> {
-    let tau_w = e7_algebra::corpus_rerank_weight(hops.len().max(1));
+    let state = FateAlgebraState::ambient();
+    let tau_w = state.corpus_rerank_weight(hops.len().max(1));
     hops.iter()
         .map(|hop| {
             let hop_emb = hash_embed(hop, DL_EMBED_DIM, HASH_SEED_HOP);
+            let hop_tokens = hop_query_tokens(hop);
+            let query = FateRelAddr::from_query(&hop_tokens, &state);
             corpus
                 .iter()
                 .map(|line| {
                     let aff = affinities.get(line.idx).copied().unwrap_or(0.0);
                     let align = cosine(&hop_emb, &line.signals);
                     let q_align = cosine(q_sig, &line.signals);
-                    (aff * tau_w + align * e7_algebra::tau(0) + q_align * 0.05).max(0.0)
+                    let land = state.fate_rel_land_score(query, &hop_tokens, &line.text, aff);
+                    // RelAddr land primary; cosine / affinity secondary; idx = egress slot only.
+                    (aff * tau_w
+                        + align * state.coupling(0)
+                        + q_align * 0.05
+                        + land * 0.65)
+                        .max(0.0)
                 })
                 .collect()
         })
@@ -271,7 +418,7 @@ fn hop_line_scores(
 }
 
 fn dominant_proper_span(text: &str) -> Option<String> {
-    let mut best = String::new();
+    let mut spans = Vec::new();
     let mut buf = String::new();
     for word in text.split_whitespace() {
         let clean: String = word
@@ -289,20 +436,83 @@ fn dominant_proper_span(text: &str) -> Option<String> {
             }
             buf.push_str(&clean);
         } else if !buf.is_empty() {
-            if buf.len() > best.len() {
-                best = buf.clone();
-            }
-            buf.clear();
+            spans.push(std::mem::take(&mut buf));
         }
     }
-    if buf.len() > best.len() {
-        best = buf;
+    if !buf.is_empty() {
+        spans.push(buf);
     }
-    if best.len() >= 3 {
-        Some(best)
-    } else {
-        None
+    spans
+        .into_iter()
+        .filter(|s| s.len() >= 3)
+        .max_by_key(|s| s.len())
+}
+
+/// Prefer entity spans that align with the question (player/name cues), not longest alone.
+fn question_aligned_entity_span(question: &str, text: &str) -> Option<String> {
+    let qlow = question.to_ascii_lowercase();
+    let mut spans = Vec::new();
+    let mut buf = String::new();
+    for word in text.split_whitespace() {
+        let clean: String = word
+            .chars()
+            .filter(|c| c.is_ascii_alphabetic() || *c == '-')
+            .collect();
+        if clean.len() >= 3
+            && word
+                .chars()
+                .next()
+                .is_some_and(|c| c.is_ascii_uppercase())
+        {
+            if !buf.is_empty() {
+                buf.push(' ');
+            }
+            buf.push_str(&clean);
+        } else if !buf.is_empty() {
+            spans.push(std::mem::take(&mut buf));
+        }
     }
+    if !buf.is_empty() {
+        spans.push(buf);
+    }
+    if spans.is_empty() {
+        return dominant_proper_span(text);
+    }
+    let q_tokens: Vec<&str> = qlow
+        .split_whitespace()
+        .filter(|w| w.len() > 3)
+        .collect();
+    let wants_player = qlow.contains("player") || qlow.contains("who ");
+    let mut best: Option<(f64, String)> = None;
+    for span in spans {
+        if span.len() < 3 {
+            continue;
+        }
+        let slow = span.to_ascii_lowercase();
+        let mut score = span.split_whitespace().count() as f64 * 0.15;
+        for t in &q_tokens {
+            if slow.contains(t) {
+                score += 1.0;
+            }
+        }
+        // Prefer person-like 2-token names for "who/player" over org/team titles.
+        let n_tok = span.split_whitespace().count();
+        if wants_player && n_tok == 2 {
+            score += 0.8;
+        }
+        if wants_player
+            && (slow.contains("commanders")
+                || slow.contains("nfl")
+                || slow.contains("odds")
+                || slow.contains("roundup"))
+        {
+            score -= 1.2;
+        }
+        if best.as_ref().map(|(s, _)| score > *s).unwrap_or(true) {
+            best = Some((score, span));
+        }
+    }
+    best.map(|(_, s)| s).or_else(|| dominant_proper_span(text))
 }
 
 fn decode_fate_relation_and_yesno(
@@ -361,7 +571,7 @@ fn decode_fate_relation_and_yesno(
         }
     }
 
-    if interrogative_structure(question) && !hops.is_empty() && !asks_entity {
+    if yesno_interrogative(question) && !hops.is_empty() && !asks_entity {
         let mut distinct_lines = std::collections::HashSet::new();
         let mut supported = 0usize;
         for row in hop_scores {
@@ -382,7 +592,7 @@ fn decode_fate_relation_and_yesno(
         if supported == hops.len() && (!need_distinct || distinct_lines.len() >= 2) {
             return Some(("Yes".into(), "multihop_fate_yesno".into()));
         }
-        if supported == 0 || spread < e7_algebra::delta_required(0.5) {
+        if supported == 0 || spread < FateAlgebraState::ambient().delta_required(0.5) {
             return Some(("no".into(), "multihop_fate_yesno".into()));
         }
         if question.to_lowercase().contains(" while ") {
@@ -406,7 +616,8 @@ pub fn decode_fate_comparison_only(
     }
     let hops = structural_hop_clauses(question);
     let hop_scores = hop_line_scores(&hops, corpus, affinities, q_sig);
-    let support_gate = e7_algebra::tau(0) * 0.5;
+    let state = FateAlgebraState::ambient();
+    let support_gate = state.coupling(0) * 0.5;
     decode_fate_relation_and_yesno(
         question,
         corpus,
@@ -431,7 +642,8 @@ pub fn decode_from_fate_structure(
     }
     let hops = structural_hop_clauses(question);
     let hop_scores = hop_line_scores(&hops, corpus, affinities, q_sig);
-    let support_gate = e7_algebra::tau(0) * 0.5;
+    let state = FateAlgebraState::ambient();
+    let support_gate = state.coupling(0) * 0.5;
     let qlow = question.to_lowercase();
 
     let asks_entity = qlow.starts_with("which ")
@@ -441,10 +653,14 @@ pub fn decode_from_fate_structure(
     if asks_entity {
         let mut best_line: Option<&CorpusLineRef> = None;
         let mut best_score = 0.0f64;
+        let q_tokens = hop_query_tokens(question);
+        let query = FateRelAddr::from_query(&q_tokens, &state);
         for line in corpus {
             let aff = affinities.get(line.idx).copied().unwrap_or(0.0);
             let align = cosine(q_sig, &line.signals);
-            let score = aff * e7_algebra::corpus_rerank_weight(4) + align * e7_algebra::tau(0);
+            let land = state.fate_rel_land_score(query, &q_tokens, &line.text, aff);
+            let score =
+                aff * state.corpus_rerank_weight(4) + align * state.coupling(0) + land * 0.65;
             if score > best_score {
                 best_score = score;
                 best_line = Some(line);
@@ -452,7 +668,7 @@ pub fn decode_from_fate_structure(
         }
         if best_score >= support_gate {
             if let Some(line) = best_line {
-                if let Some(span) = dominant_proper_span(&line.text) {
+                if let Some(span) = question_aligned_entity_span(question, &line.text) {
                     return Some((span, "multihop_fate_entity".into()));
                 }
             }
@@ -476,7 +692,7 @@ pub fn decode_from_fate_structure(
     for line in corpus {
         let aff = affinities.get(line.idx).copied().unwrap_or(0.0);
         let align = cosine(q_sig, &line.signals);
-        let score = aff * e7_algebra::corpus_rerank_weight(4) + align * e7_algebra::tau(0);
+        let score = aff * state.corpus_rerank_weight(4) + align * state.coupling(0);
         if score > best_score {
             best_score = score;
             best_line = Some(line);
@@ -486,7 +702,7 @@ pub fn decode_from_fate_structure(
         return None;
     }
     let line = best_line?;
-    if let Some(span) = dominant_proper_span(&line.text) {
+    if let Some(span) = question_aligned_entity_span(question, &line.text) {
         return Some((span, "multihop_fate_entity".into()));
     }
     None
@@ -503,7 +719,15 @@ mod tests {
     }
 
     #[test]
+    fn fate_full_corpus_feed_for_tiny_multihop() {
+        assert!(fate_full_corpus_feed("Does A while B?", 2));
+        assert!(fate_full_corpus_feed("Who scored?", 4));
+        assert!(!fate_full_corpus_feed("Who scored?", 64));
+    }
+
+    #[test]
     fn tau_gate_positive() {
-        assert!(e7_algebra::tau(0) * e7_algebra::neg_coupling() > 0.0);
+        let state = FateAlgebraState::ambient();
+        assert!(state.coupling(0) * state.neg_coupling() > 0.0);
     }
 }

@@ -9,13 +9,14 @@ use std::process;
 
 use hub_f64::valhalla_base::VALHALLA_BASE_PROTOCOL;
 use hub_f64::valhalla_base_bench::{
-    default_corpus_dirs, run_local_corpus_demo, run_multihop_fate_rag, run_multihop_hybrid_rag,
-    run_multihop_rag, run_needle_session, run_longchain_fate_final_test, run_v1_extensions, write_report,
+    default_corpus_dirs, run_local_corpus_demo, run_lara_fatewithv2, run_multihop_fate_rag,
+    run_multihop_hybrid_rag, run_multihop_rag, run_needle_session, run_longchain_fate_final_test,
+    run_v1_extensions, write_report,
 };
 use hub_f64::fate_parallel_longchain::{run_fate_parallel_longchain_smoke, run_locomo_routing_ab};
-use hub_f64::fate_longchain_unified::{run_fate_longchain_unified, UnifiedRouting};
+use hub_f64::fate_longchain_unified::{run_fate_longchain_unified, CorpusBuildMode, UnifiedRouting};
 use hub_f64::fate_pretrain_holdout::run_fate_pretrain_holdout;
-use hub_f64::valhalla_base_eval::{run_frames_slice, run_locomo_slice, EvalControl};
+use hub_f64::valhalla_base_eval::{run_frames_slice, run_locomo_slice, run_longbench_slice, EvalControl};
 use hub_f64::valhalla_base_client::ValhallaBaseClient;
 use hub_f64::valhalla_base_http;
 use hub_f64::valhalla_base_protocol::{
@@ -262,7 +263,7 @@ fn cmd_demo(args: &[String]) {
                 .windows(2)
                 .find(|w| w[0] == "--chunk-size")
                 .and_then(|w| w[1].parse().ok())
-                .unwrap_or(32);
+                .unwrap_or(0);
             let passes = args
                 .windows(2)
                 .find(|w| w[0] == "--pretrain-passes")
@@ -309,7 +310,7 @@ fn cmd_demo(args: &[String]) {
                 .windows(2)
                 .find(|w| w[0] == "--chunk-size")
                 .and_then(|w| w[1].parse().ok())
-                .unwrap_or(32);
+                .unwrap_or(0);
             let max_epochs = args
                 .windows(2)
                 .find(|w| w[0] == "--max-epochs")
@@ -376,12 +377,19 @@ fn cmd_demo(args: &[String]) {
                 .and_then(|w| w[1].parse().ok())
                 .unwrap_or(0);
             let low_resource = args.iter().any(|a| a == "--low-resource");
+            let hybrid = args.iter().any(|a| a == "--hybrid");
             let parallel = args.iter().any(|a| a == "--parallel");
-            let routing = if parallel {
+            let minimal_corpus = args.iter().any(|a| a == "--minimal-corpus");
+            let fragment_full = args.iter().any(|a| a == "--fragment-full");
+            let routing = if hybrid {
+                UnifiedRouting::Hybrid
+            } else if parallel {
                 UnifiedRouting::Parallel
             } else {
                 UnifiedRouting::Targeted
             };
+            let corpus_build =
+                CorpusBuildMode::resolve(minimal_corpus, fragment_full);
             let bundle = repo.join("tools/standard_benchmarks/bundled/locomo_qa_slice30.json");
             let spec = args
                 .windows(2)
@@ -400,11 +408,13 @@ fn cmd_demo(args: &[String]) {
                 routing,
                 pretrain_passes,
                 max_epochs,
+                corpus_build,
             )
             .map(|rep| {
                 let doc = serde_json::json!({
                     "protocol": rep.protocol,
                     "corpus_mode": rep.corpus_mode,
+                    "corpus_build": rep.corpus_build,
                     "routing": rep.routing,
                     "low_resource": rep.low_resource,
                     "corpus_lines": rep.corpus_lines,
@@ -442,12 +452,12 @@ fn cmd_demo(args: &[String]) {
                 .windows(2)
                 .find(|w| w[0] == "--max-lines")
                 .and_then(|w| w[1].parse().ok())
-                .unwrap_or(128);
+                .unwrap_or(64);
             let chunk = args
                 .windows(2)
                 .find(|w| w[0] == "--chunk-size")
                 .and_then(|w| w[1].parse().ok())
-                .unwrap_or(32);
+                .unwrap_or(0);
             let bundle = repo.join("tools/standard_benchmarks/bundled/locomo_qa_slice30.json");
             run_locomo_slice(&bundle, limit, max_lines, chunk, fast, &eval_ctrl).map(|rep| {
                 let doc = serde_json::json!({
@@ -475,6 +485,45 @@ fn cmd_demo(args: &[String]) {
                 doc
             })
         }
+        "longbench" => {
+            let limit = args
+                .windows(2)
+                .find(|w| w[0] == "--limit")
+                .and_then(|w| w[1].parse().ok())
+                .unwrap_or(0);
+            let max_corpus = args
+                .windows(2)
+                .find(|w| w[0] == "--max-corpus-lines")
+                .and_then(|w| w[1].parse().ok())
+                .unwrap_or(0);
+            let low_resource = args.iter().any(|a| a == "--low-resource");
+            let mcq_light = !args.iter().any(|a| a == "--no-mcq-light");
+            let bundle =
+                repo.join("tools/standard_benchmarks/bundled/longbench_v2_mcq_short20.json");
+            run_longbench_slice(&bundle, limit, max_corpus, fast, low_resource, mcq_light).map(|rep| {
+                let doc = serde_json::json!({
+                    "protocol": rep.protocol,
+                    "warmup_mode": rep.warmup_mode,
+                    "n": rep.n,
+                    "correct": rep.correct,
+                    "accuracy": rep.accuracy,
+                    "dynamic_fragments": rep.dynamic_fragments,
+                    "fragment_mode": rep.fragment_mode,
+                    "max_corpus_lines": max_corpus,
+                    "mcq_light": mcq_light,
+                    "rows": rep.rows.iter().map(|r| serde_json::json!({
+                        "id": r.id,
+                        "correct": r.correct,
+                        "answer": r.answer,
+                        "domain": r.domain,
+                        "difficulty": r.difficulty,
+                        "context_truncated": r.context_truncated,
+                    })).collect::<Vec<_>>(),
+                });
+                write_report(&reports.join("longbench_v2_v1_test.json"), &doc).ok();
+                doc
+            })
+        }
         "frames" => {
             let limit = args
                 .windows(2)
@@ -485,7 +534,7 @@ fn cmd_demo(args: &[String]) {
                 .windows(2)
                 .find(|w| w[0] == "--max-corpus-lines")
                 .and_then(|w| w[1].parse().ok())
-                .unwrap_or(32);
+                .unwrap_or(0);
             let offline_wiki = args.iter().any(|a| a == "--offline-wiki");
             let bundle = if fast && limit > 0 && limit <= 3 {
                 repo.join("tools/standard_benchmarks/bundled/frames_slice_smoke3.json")
@@ -536,7 +585,7 @@ fn cmd_demo(args: &[String]) {
                 .and_then(|w| w[1].parse().ok())
                 .unwrap_or(if fast { 5 } else { 0 });
             let bundle = repo.join("tools/standard_benchmarks/bundled/multihop_rag_slice25.json");
-            run_multihop_rag(&bundle, limit, fast, 32).map(|doc| {
+            run_multihop_rag(&bundle, limit, fast, 0).map(|doc| {
                 write_report(&reports.join("multihop_rag_v2_test.json"), &doc).ok();
                 doc
             })
@@ -548,7 +597,7 @@ fn cmd_demo(args: &[String]) {
                 .and_then(|w| w[1].parse().ok())
                 .unwrap_or(if fast { 5 } else { 0 });
             let bundle = repo.join("tools/standard_benchmarks/bundled/multihop_rag_slice25.json");
-            run_multihop_fate_rag(&bundle, limit, fast, 32).map(|doc| {
+            run_multihop_fate_rag(&bundle, limit, fast, 0).map(|doc| {
                 write_report(&reports.join("multihop_rag_fate_test.json"), &doc).ok();
                 doc
             })
@@ -560,13 +609,25 @@ fn cmd_demo(args: &[String]) {
                 .and_then(|w| w[1].parse().ok())
                 .unwrap_or(if fast { 5 } else { 0 });
             let bundle = repo.join("tools/standard_benchmarks/bundled/multihop_rag_slice25.json");
-            run_multihop_hybrid_rag(&bundle, limit, fast, 32).map(|doc| {
+            run_multihop_hybrid_rag(&bundle, limit, fast, 0).map(|doc| {
                 write_report(&reports.join("multihop_rag_hybrid_test.json"), &doc).ok();
                 doc
             })
         }
+        "lara" | "lara-fatewithv2" => {
+            let limit = args
+                .windows(2)
+                .find(|w| w[0] == "--limit")
+                .and_then(|w| w[1].parse().ok())
+                .unwrap_or(if fast { 5 } else { 0 });
+            let bundle = repo.join("tools/standard_benchmarks/bundled/lara_rag_vs_lc_slice20.json");
+            run_lara_fatewithv2(&bundle, limit, fast).map(|doc| {
+                write_report(&reports.join("lara_fatewithv2_test.json"), &doc).ok();
+                doc
+            })
+        }
         "" | "help" | "--help" | "-h" => {
-            eprintln!("usage: valhalla_base demo v1|needle|needle-prod|longchain-fate|corpus|locomo|frames|multihop|multihop-fate|multihop-hybrid [--fast] [--production] [--repo ROOT] [--limit N] [--max-lines N] [--max-corpus-lines N] [--chunk-size N] [--pretrain-passes N] [--depth N] [--offline-wiki] [--verbose|-v] [--checkpoint PATH] [--checkpoint-every N] [--resume PATH] [--pause-file PATH]");
+            eprintln!("usage: valhalla_base demo v1|needle|needle-prod|longchain-fate|corpus|locomo|frames|longbench|lara|multihop|multihop-fate|multihop-hybrid [--fast] [--production] [--repo ROOT] [--limit N] [--max-lines N] [--max-corpus-lines N] [--mcq-light|--no-mcq-light] [--chunk-size N] [--pretrain-passes N] [--depth N] [--offline-wiki] [--verbose|-v] [--checkpoint PATH] [--checkpoint-every N] [--resume PATH] [--pause-file PATH]");
             return;
         }
         other => Err(ValhallaBaseErrorBody::new(

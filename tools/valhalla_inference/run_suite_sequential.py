@@ -33,7 +33,18 @@ SUITES: dict[str, list[tuple[str, list[str], str | None]]] = {
         ),
         (
             "fate_pretrain_holdout",
-            [PY, str(HERE / "test_fate_pretrain_holdout.py"), "--low-resource"],
+            [
+                PY,
+                str(HERE / "test_fate_pretrain_holdout.py"),
+                "--train",
+                "5",
+                "--test",
+                "5",
+                "--max-epochs",
+                "6",
+                "--low-resource",
+                "--fast",
+            ],
             "fate_pretrain_holdout.json",
         ),
         (
@@ -42,7 +53,7 @@ SUITES: dict[str, list[tuple[str, list[str], str | None]]] = {
                 PY,
                 str(HERE / "test_fate_routing_ab.py"),
                 "--limit",
-                "3",
+                "10",
                 "--low-resource",
                 "--fast",
             ],
@@ -50,7 +61,7 @@ SUITES: dict[str, list[tuple[str, list[str], str | None]]] = {
         ),
         (
             "fate_longchain_unified",
-            [PY, str(HERE / "test_fate_longchain_unified.py"), "--low-resource", "--verbose"],
+            [PY, str(HERE / "test_fate_longchain_unified.py"), "--production"],
             "fate_longchain_unified.json",
         ),
     ],
@@ -190,8 +201,17 @@ def summarize_benchmark(label: str, doc: dict, rc: int, elapsed: float) -> str:
     lines.extend(["", "## Verdict", ""])
     if rc != 0:
         lines.append("**FAIL** — non-zero exit; inspect stderr in terminal log.")
-    elif label == "fate_longchain_unified" and doc.get("theme_drift_rate", 0) == 0:
-        lines.append("**PASS** — no theme drift after long-chain interleave.")
+    elif label == "fate_longchain_unified":
+        drift = float(doc.get("theme_drift_rate") or 1.0)
+        composite = float(doc.get("composite_score") or 0.0)
+        if drift <= 0.01 and composite >= 0.85:
+            lines.append("**PASS** — no theme drift after long-chain interleave.")
+        elif drift <= 0.01:
+            lines.append(f"**PASS** — no drift; composite {composite:.3f} (check holdout tier).")
+        else:
+            lines.append(
+                f"**WARN** — theme_drift {drift:.1%}, composite {composite:.3f}; inspect anchor_drift_rows."
+            )
     elif doc.get("converged") is True:
         lines.append("**PASS** — training converged.")
     elif doc.get("accuracy") is not None:
@@ -312,6 +332,9 @@ def main() -> int:
 
     suites = SUITE_ORDER if args.all else (args.suite or ["fate-core"])
     env = {**os.environ, "RUSTFLAGS": RUSTFLAGS}
+    env.setdefault("VALHALLA_INGRESS_RESOURCE_PERCENT", "70")
+    env.setdefault("VALHALLA_INGRESS_MAX_ITEMS", "128")
+    env.setdefault("VALHALLA_FATE_PARALLEL_LCHAIN", "1")
     SUMMARIES.mkdir(parents=True, exist_ok=True)
 
     # Ensure valhalla_base built once

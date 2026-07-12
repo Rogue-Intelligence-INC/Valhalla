@@ -1,0 +1,19 @@
+{
+  "context": [
+    "The capital of France is Paris.",
+    "Paris is on the Seine river.",
+    "France is in Western Europe.",
+    "The Eiffel Tower is in Paris."
+  ],
+  "questions": [],
+  "fate_warmup_only": true,
+  "config": {
+    "decode": "hybrid",
+    "fate_warmup_enabled": true,
+    "fate_warmup_cycles": 4,
+    "fate_orchestrate": true,
+    "incubation_cycles": 2,
+    "lm_model": "Qwen/Qwen2.5-0.5B-Instruct",
+    "patch_body": "triad"
+  }
+}

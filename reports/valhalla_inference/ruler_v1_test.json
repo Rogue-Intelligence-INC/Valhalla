@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-07-10T05:14:07.989716+00:00",
+  "timestamp": "2026-07-12T23:10:40.332119+00:00",
   "protocol": "ruler-v1",
   "benchmark": "RULER-style synthetic",
   "bundle": "ruler_v1_slice20.json",
   "n": 20,
-  "correct": 20,
-  "recall": 1.0,
-  "verdict": "NEEDLE_STRONG",
+  "correct": 15,
+  "recall": 0.75,
+  "verdict": "NEEDLE_VIABLE",
   "rows": [
     {
       "id": "RULER_0",
@@ -26,8 +26,8 @@
       "id": "RULER_2",
       "task": "multi_needle",
       "depth": 10,
-      "correct": true,
-      "answer": "[corpus:3] [fate:22@3] Registration token for Site 7: KAPPA-18"
+      "correct": false,
+      "answer": "[corpus:3] [fate:22@3] The Nile"
     },
     {
       "id": "RULER_3",
@@ -47,8 +47,8 @@
       "id": "RULER_5",
       "task": "multi_needle",
       "depth": 10,
-      "correct": true,
-      "answer": "[corpus:3] [fate:22@3] Project Nebula launch key: ZETA-4402"
+      "correct": false,
+      "answer": "[corpus:3] [fate:22@3] DNA"
     },
     {
       "id": "RULER_6",
@@ -89,8 +89,8 @@
       "id": "RULER_11",
       "task": "multi_needle",
       "depth": 40,
-      "correct": true,
-      "answer": "[corpus:13] [fate:62@13] Emergency override PIN: 7734-OMEGA"
+      "correct": false,
+      "answer": "[corpus:13] [fate:62@13] Oxygen"
     },
     {
       "id": "RULER_12",
@@ -110,8 +110,8 @@
       "id": "RULER_14",
       "task": "multi_needle",
       "depth": 40,
-      "correct": true,
-      "answer": "[corpus:13] [fate:62@13] Registration token for Site 7: KAPPA-18"
+      "correct": false,
+      "answer": "[corpus:13] [fate:62@13] The Nile"
     },
     {
       "id": "RULER_15",
@@ -131,8 +131,8 @@
       "id": "RULER_17",
       "task": "multi_needle",
       "depth": 30,
-      "correct": true,
-      "answer": "[corpus:10] [fate:50@10] Project Nebula launch key: ZETA-4402"
+      "correct": false,
+      "answer": "[corpus:10] [fate:50@10] DNA"
     },
     {
       "id": "RULER_18",

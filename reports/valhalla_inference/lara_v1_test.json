@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-07-11T07:38:44.914947+00:00",
-  "protocol": "lara-fatewithv2-v1",
+  "timestamp": "2026-07-12T23:11:56.874160+00:00",
+  "protocol": "lara-v1",
   "benchmark": "LaRA-style RAG vs LC",
   "bundle": "lara_rag_vs_lc_slice20.json",
   "n": 20,
@@ -9,248 +9,212 @@
     "accuracy": 0.55,
     "rows": [
       {
-        "answer": "Yes",
-        "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_1694",
-        "query_fragment_scores": [
-          0.261155152256104
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": false,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno",
         "id": "LARA_772",
-        "query_fragment_scores": [
-          0.09045572915378586
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": false,
+        "answer": "[corpus:0] [fate:38@0] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": false,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_yesno",
         "id": "LARA_1413",
-        "query_fragment_scores": [
-          0.27300483010645016
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": false,
+        "answer": "[corpus:2] [fate:22@2] Yes"
       },
       {
-        "answer": "Sam Bankman-Fried",
-        "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_entity",
         "id": "LARA_1008",
-        "query_fragment_scores": [
-          0.23972483760081187
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:0] [fate:14@0] Sam Altman"
       },
       {
-        "answer": "Yes",
-        "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_1582",
-        "query_fragment_scores": [
-          0.08282671662723937
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_485",
-        "query_fragment_scores": [
-          0.10468746820333688
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": false,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_1092",
-        "query_fragment_scores": [
-          0.07406980066678498
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": false,
+        "answer": "[corpus:0] [fate:38@0] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": false,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno",
         "id": "LARA_384",
-        "query_fragment_scores": [
-          0.09212631180044924
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": false,
+        "answer": "[corpus:0] [fate:14@0] The"
       },
       {
-        "answer": "Yes",
-        "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_333",
-        "query_fragment_scores": [
-          0.2722314558521883
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:2] [fate:46@2] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_917",
-        "query_fragment_scores": [
-          0.07543549468964883
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/hub/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_1452",
-        "query_fragment_scores": [
-          0.07380201501244896
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:0] [fate:10@0] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": false,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_2031",
-        "query_fragment_scores": [
-          0.07796176340352019
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": false,
+        "answer": "[corpus:1] [fate:42@1] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_402",
-        "query_fragment_scores": [
-          0.255230129801565
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": false,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/hub/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_19",
-        "query_fragment_scores": [
-          0.08418989695394015
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": false,
+        "answer": "[corpus:0] [fate:10@0] Yes"
       },
       {
-        "answer": "Yes",
-        "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_1553",
-        "query_fragment_scores": [
-          0.09375595227950853
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:1] [fate:42@1] Yes"
       },
       {
-        "answer": "[corpus:1] [fate:14@1] Watch Argentina vs Paraguay live stream, TV channel, lineups, betting odds for World Cup qualifying match: He is helping to usher in a youth movement up front for Argentina, wit",
-        "correct": false,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/open_retrieval_span",
         "id": "LARA_2147",
-        "query_fragment_scores": [
-          0.09247604180419186
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": false,
+        "answer": "[corpus:0] [fate:10@0] World Cup"
       },
       {
-        "answer": "Yes",
-        "correct": false,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_yesno+multihop_v2_yesno",
         "id": "LARA_2344",
-        "query_fragment_scores": [
-          0.10341653366253249
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
-      },
-      {
-        "answer": "Yes",
-        "correct": true,
-        "decode_path": "open_fog_abstain+multihop_v2_yesno",
-        "id": "LARA_2425",
-        "query_fragment_scores": [
-          0.23915629278573036
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
-      },
-      {
-        "answer": "Yes",
         "correct": false,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_yesno",
-        "id": "LARA_1198",
-        "query_fragment_scores": [
-          0.08176235003941106
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "answer": "[corpus:1] [fate:18@1] Yes"
       },
       {
-        "answer": "Sam Bankman-Fried",
+        "id": "LARA_2425",
         "correct": true,
-        "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_v2_entity",
+        "answer": "[corpus:0] [fate:38@0] Yes"
+      },
+      {
+        "id": "LARA_1198",
+        "correct": false,
+        "answer": "[corpus:0] [fate:14@0] Yes"
+      },
+      {
         "id": "LARA_2050",
-        "query_fragment_scores": [
-          0.3920199880714586
-        ],
-        "query_fragments": [
-          "seg_1"
-        ]
+        "correct": true,
+        "answer": "[corpus:1] [fate:18@1] Sam Altman"
       }
     ]
   },
-  "fatewithv2": true,
-  "verdict": "COMPETITIVE",
-  "runtime": "rust"
+  "trad_long_context": {
+    "correct": 13,
+    "accuracy": 0.65,
+    "rows": [
+      {
+        "id": "LARA_1694",
+        "correct": false,
+        "answer": "Based on the information provided, it seems that the 'Fortune' article is focusing on the perspective that the ultimate "
+      },
+      {
+        "id": "LARA_772",
+        "correct": true,
+        "answer": "Based on the reference facts provided, the discount on Sony WF-1000XM5 earbuds was reported as a first-time occurrence. "
+      },
+      {
+        "id": "LARA_1413",
+        "correct": true,
+        "answer": "Based on the reference facts provided, there is no specific information given about the consistency or inconsistency of "
+      },
+      {
+        "id": "LARA_1008",
+        "correct": true,
+        "answer": "Based on the reference facts provided and the details mentioned in the news articles, the individual you are referring t"
+      },
+      {
+        "id": "LARA_1582",
+        "correct": false,
+        "answer": "Based on the information provided, the Sporting News article suggests that bettors earn a fixed profit when betting on t"
+      },
+      {
+        "id": "LARA_485",
+        "correct": false,
+        "answer": "Based on the reference facts provided, the TechCrunch article does not explicitly claim that Google's anticompetitive be"
+      },
+      {
+        "id": "LARA_1092",
+        "correct": true,
+        "answer": "Based on the reference texts provided, there is no mention of Tyler Mitchell or his career being described as unsuccessf"
+      },
+      {
+        "id": "LARA_384",
+        "correct": true,
+        "answer": "Based on the reference facts provided, there is no specific information about a change in TechCrunch's portrayal of Scot"
+      },
+      {
+        "id": "LARA_333",
+        "correct": false,
+        "answer": "Based on the reference facts provided, there is no direct information about the portrayal of Google's involvement in ant"
+      },
+      {
+        "id": "LARA_917",
+        "correct": true,
+        "answer": "Yes, you are correct. The reference articles do not directly mention the Supporters' Shield win by FC Cincinnati or Ratc"
+      },
+      {
+        "id": "LARA_1452",
+        "correct": false,
+        "answer": "Based on the information provided, there is no direct mention of the Chicago Bears' defense being reported as improved b"
+      },
+      {
+        "id": "LARA_2031",
+        "correct": true,
+        "answer": "Based on the provided references, neither article directly suggests that either Portfolio Management Services (PMS) or m"
+      },
+      {
+        "id": "LARA_402",
+        "correct": true,
+        "answer": "Yes, according to the reports from TechCrunch, there was a notable shift in OpenAI's strategic focus between the two dat"
+      },
+      {
+        "id": "LARA_19",
+        "correct": true,
+        "answer": "Based on the information provided, it appears there might be some confusion. The reference fact states that \"Fans can al"
+      },
+      {
+        "id": "LARA_1553",
+        "correct": false,
+        "answer": "Based on the reference facts provided, the TechCrunch article does not mention any layoffs at Starz. The Engadget articl"
+      },
+      {
+        "id": "LARA_2147",
+        "correct": true,
+        "answer": "Based on the reference facts provided, Lionel Messi is recognized for both his influence on integrating emerging talents"
+      },
+      {
+        "id": "LARA_2344",
+        "correct": false,
+        "answer": "The two TechCrunch articles you've referenced provide different perspectives on ChatGPT's capabilities. The first articl"
+      },
+      {
+        "id": "LARA_2425",
+        "correct": true,
+        "answer": "Yes, you are correct. The TechCrunch article mentions that Google's Gemini Pro was compared to OpenAI's GPT-3.5 in terms"
+      },
+      {
+        "id": "LARA_1198",
+        "correct": true,
+        "answer": "Based on the reference facts provided, there does not appear to be an inconsistency regarding the adaptation sequences f"
+      },
+      {
+        "id": "LARA_2050",
+        "correct": true,
+        "answer": "The individual facing a criminal trial as reported by TechCrunch, who persuaded a former colleague from Jane Street to j"
+      }
+    ]
+  },
+  "verdict": "STRUCTURE_RAG_BELOW_LC"
 }

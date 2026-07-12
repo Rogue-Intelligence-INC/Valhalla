@@ -1,6 +1,6 @@
 # Valhalla — Integrated Status
 
-**Generated:** 2026-07-11T08:02:04.075843+00:00
+**Generated:** 2026-07-12T23:25:29.015078+00:00
 
 ## Resource budget
 
@@ -12,7 +12,7 @@
 
 | Pillar | Result | Verdict |
 |--------|--------|---------|
-| ragtruth | 40/40 | RAGTRUTH_STRONG |
+| ragtruth | 34/40 | RAGTRUTH_STRONG |
 | needle | 4/4 | NEEDLE_STRONG |
 | proactive | PPI 0.35 | ['PROACTIVE_FATE_V2_WEAK', 'NO_HALLUCINATION_ON_MISMATCH', 'GATES_OK'] |
 
@@ -28,20 +28,20 @@
 
 | Benchmark | Result | Verdict |
 |-----------|--------|---------|
-| RAGTruth | 40/40 (100%) | RAGTRUTH_STRONG |
-| RAGTruth-100 | 10/10 (100%) | RAGTRUTH_STRONG |
+| RAGTruth | 34/40 (85%) | RAGTRUTH_STRONG |
+| RAGTruth-100 | 88/100 (88%) | RAGTRUTH_STRONG |
 | Needle session | 4/4 (100%) | NEEDLE_STRONG |
-| LongBench-v2 | 7/20 (35%) | LONGBENCH_V2_VIABLE |
+| LongBench-v2 | 4/20 (20%) | LONGBENCH_V2_DEVELOPING |
 | FRAMES | 1/25 (4%) · Tier C (no wiki extracts) | TIER_C_INVALID |
 | MultiHop-RAG | 9/25 (36%) | OPEN_QA_DEVELOPING |
 | MultiHop-RAG v2 | 15/25 (60%) | OPEN_QA_VIABLE |
-| MultiHop-RAG Fate | 13/25 (52%) | OPEN_QA_VIABLE |
-| MultiHop-RAG fatewithv2 | 14/25 (56%) | OPEN_QA_VIABLE |
-| LoCoMo | 20/30 (67%) | OPEN_QA_STRONG |
-| RULER-style | 4/4 (100%) | NEEDLE_STRONG |
-| LaRA RAG vs LC | RAG 11/20 | COMPETITIVE |
+| MultiHop-RAG Fate | 15/25 (60%) | OPEN_QA_VIABLE |
+| MultiHop-RAG fatewithv2 | 15/25 (60%) | OPEN_QA_VIABLE |
+| LoCoMo | 17/30 (57%) | OPEN_QA_VIABLE |
+| RULER-style | 15/20 (75%) | NEEDLE_VIABLE |
+| LaRA RAG vs LC | RAG 11/20 · LC 13/20 | STRUCTURE_RAG_BELOW_LC |
 | MCQ ladder | 3.0B 98% | MCQ_LADDER_FLAT |
-| External holdout | 5/5 (100%) | EXTERNAL_HOLDOUT_STRONG |
+| External holdout | 10/15 (67%) | EXTERNAL_HOLDOUT_VIABLE |
 | TPI-v2 | TPI 0.755 | ['STRONG_INFERENCE_TIME_LEARNING', 'FATE_TRANSFER_RESCUES_SESSION'] |
 
 ## External Pareto matrix

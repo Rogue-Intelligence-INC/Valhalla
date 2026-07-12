@@ -1,35 +1,29 @@
 //! Unified long-chain + long-term memory benchmark.
 //!
-//! Protocol `fate-longchain-unified-v4` (qa_adaptive + hybrid routing): one persistent session:
-//!   A) anchor baseline — targeted + reanchor (stable landing)
-//!   B) interleave — parallel pipes (long-chain pollution)
-//!   C) anchor reprobe — targeted + reanchor (drift probe)
-//!   D) holdout — isolated fresh worker per item (inherits pretrain affinity)
-//!
-//! Combines: LoCoMo QA scoring (holdout), targeted/parallel routing (longchain),
-//! persistent session (context-topic-drift interleave/recency concepts).
+//! Protocol `fate-longchain-unified-v5`: one persistent session, single QA pipeline
+//! (`run_fate_unified_qa`: retrieve → session-append → decode).
+//!   A) anchor baseline   B) interleave   C) anchor reprobe   D) holdout (isolated worker)
 
 use std::collections::HashMap;
 use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
-use crate::context_routing::ContextIngestMode;
 use crate::fate_parallel_longchain::{
-    keywords_from_gold, run_parallel_pipes, spread_from_client,
+    keywords_from_gold, spread_from_client,
 };
 use crate::fate_adaptive_algebra::{
     fate_context_pollution, fate_landing_drift, fate_landing_fingerprints,
-    fate_retrieve_context_lines, fate_signal_landing_indices, score_qa_with_evidence,
-    FateAlgebraState,
+    fate_signal_landing_indices, score_qa_with_evidence, FateAlgebraState,
 };
+use crate::fate_unified_qa::{run_fate_unified_qa, FateUnifiedQaOpts};
 use crate::fate_pretrain_holdout::{
     adaptive_corpus_for_pretrain, run_fate_pretrain_epochs, FatePretrainItem, HoldoutItemResult,
     PretrainSessionOutcome, PRETRAIN_MODE,
 };
 use crate::fate_parallel_longchain::resolve_pretrain_passes;
 use crate::valhalla_base::ValhallaBaseQuestion;
-use crate::valhalla_base_client::{RunOptions, ValhallaBaseClient};
+use crate::valhalla_base_client::ValhallaBaseClient;
 use crate::valhalla_base_protocol::ValhallaBaseErrorBody;
 
 pub const PROTOCOL: &str = "fate-longchain-unified-v5";
@@ -62,11 +56,6 @@ impl CorpusBuildMode {
         }
         Self::QaAdaptiveMinimal
     }
-}
-
-fn fragment_qa_enabled() -> bool {
-    crate::fate_orchestrator::dynamic_corpus_fragments_enabled()
-        && crate::fate_orchestrator::query_fragment_merge_enabled()
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -264,72 +253,9 @@ fn make_question(item: &BundleItem) -> ValhallaBaseQuestion {
     }
 }
 
-fn routing_for_phase(phase: &str, routing: UnifiedRouting) -> UnifiedRouting {
-    match routing {
-        // Session phases: parallel pipes (v3 — stable reprobe landing after interleave).
-        UnifiedRouting::Hybrid if phase != "holdout" => UnifiedRouting::Parallel,
-        // Holdout persistent path: targeted + reanchor (v1 — avoids parallel recency on fresh probes).
-        UnifiedRouting::Hybrid if phase == "holdout" => UnifiedRouting::Targeted,
-        other => other,
-    }
-}
-
-fn ask_fragment_qa(
-    client: &mut ValhallaBaseClient,
-    corpus: &[String],
-    item: &BundleItem,
-) -> Result<String, ValhallaBaseErrorBody> {
-    let q = make_question(item);
-    let state = client.algebra_state();
-    let aff = client
-        .session()
-        .map(|s| s.snapshot.corpus_line_affinity.clone())
-        .unwrap_or_default();
-    let lines = fate_retrieve_context_lines(&q, corpus, &state, Some(&aff));
-    client.reanchor_affinity = false;
-    let resp = client.run(
-        vec![q],
-        RunOptions {
-            context: if lines.is_empty() { None } else { Some(lines) },
-            ..Default::default()
-        },
-    )?;
-    Ok(resp
-        .rows
-        .first()
-        .map(|r| r.answer.clone())
-        .unwrap_or_default())
-}
-
-fn ask_holdout_fresh(
-    client: &ValhallaBaseClient,
-    corpus: &[String],
-    item: &BundleItem,
-) -> Result<String, ValhallaBaseErrorBody> {
-    let q = make_question(item);
-    let state = client.algebra_state();
-    let aff = client
-        .session()
-        .map(|s| s.snapshot.corpus_line_affinity.clone())
-        .unwrap_or_default();
-    let lines = fate_retrieve_context_lines(&q, corpus, &state, Some(&aff));
-    let mut worker = client.spawn_fragment_qa_worker();
-    worker.config.fate_qa_feedback = false;
-    if lines.is_empty() {
-        let result = run_parallel_pipes(corpus, &q, &mut worker);
-        worker.teardown();
-        let (answer, _, _, _) = result?;
-        return Ok(answer);
-    }
-    worker.reanchor_affinity = true;
-    worker.ingest_for_prompt(&q, &lines, lines.len().max(4), ContextIngestMode::Targeted);
-    let resp = worker.run(vec![q], RunOptions::default())?;
-    worker.teardown();
-    Ok(resp
-        .rows
-        .first()
-        .map(|r| r.answer.clone())
-        .unwrap_or_default())
+fn routing_for_phase(_phase: &str, routing: UnifiedRouting) -> UnifiedRouting {
+    // All phases use the single unified QA pipeline; routing label is report-only.
+    routing
 }
 
 fn ask_phase(
@@ -337,47 +263,15 @@ fn ask_phase(
     corpus: &[String],
     item: &BundleItem,
     phase: &str,
-    routing: UnifiedRouting,
-) -> Result<String, ValhallaBaseErrorBody> {
-    if phase == "holdout" {
-        return ask_holdout_fresh(client, corpus, item);
-    }
-    ask_persistent(client, corpus, item, phase, routing_for_phase(phase, routing))
-}
-
-fn ask_persistent(
-    client: &mut ValhallaBaseClient,
-    corpus: &[String],
-    item: &BundleItem,
-    phase: &str,
-    routing: UnifiedRouting,
+    _routing: UnifiedRouting,
 ) -> Result<String, ValhallaBaseErrorBody> {
     let q = make_question(item);
-    match routing {
-        UnifiedRouting::Parallel => {
-            let (ans, _, _, _) = run_parallel_pipes(corpus, &q, client)?;
-            Ok(ans)
-        }
-        UnifiedRouting::Targeted | UnifiedRouting::Hybrid => {
-            if fragment_qa_enabled() {
-                return ask_fragment_qa(client, corpus, item);
-            }
-            let state = client.algebra_state();
-            let aff = client
-                .session()
-                .map(|s| s.snapshot.corpus_line_affinity.clone())
-                .unwrap_or_default();
-            let lines = fate_retrieve_context_lines(&q, corpus, &state, Some(&aff));
-            client.reanchor_affinity = true;
-            client.ingest_for_prompt(&q, &lines, lines.len().max(4), ContextIngestMode::Targeted);
-            let resp = client.run(vec![q], RunOptions::default())?;
-            Ok(resp
-                .rows
-                .first()
-                .map(|r| r.answer.clone())
-                .unwrap_or_default())
-        }
-    }
+    let opts = if phase == "holdout" {
+        FateUnifiedQaOpts::holdout_isolated()
+    } else {
+        FateUnifiedQaOpts::persistent()
+    };
+    run_fate_unified_qa(client, corpus, &q, opts)
 }
 
 /// Fate algebra + evidence line overlap (eval output adapter).
@@ -821,7 +715,7 @@ pub fn run_fate_longchain_unified(
         scoring: format!("score_qa_algebra ({PRETRAIN_MODE})"),
     });
 
-    Ok(FateLongchainUnifiedReport {
+    let report = FateLongchainUnifiedReport {
         protocol: PROTOCOL.into(),
         corpus_mode: PRETRAIN_MODE.into(),
         corpus_build: corpus_build.as_str().into(),
@@ -851,7 +745,11 @@ pub fn run_fate_longchain_unified(
         anchor_drift_rows,
         phase_rows,
         fairness,
-    })
+    };
+    client.teardown();
+    client.shrink_ingress_buffers();
+    crate::patch_lm::clear_lm_caches();
+    Ok(report)
 }
 
 #[cfg(test)]
@@ -877,15 +775,11 @@ mod tests {
     fn hybrid_routing_phase_map() {
         assert_eq!(
             routing_for_phase("anchor_baseline", UnifiedRouting::Hybrid),
-            UnifiedRouting::Parallel
+            UnifiedRouting::Hybrid
         );
         assert_eq!(
-            routing_for_phase("interleave", UnifiedRouting::Hybrid),
+            routing_for_phase("interleave", UnifiedRouting::Parallel),
             UnifiedRouting::Parallel
-        );
-        assert_eq!(
-            routing_for_phase("holdout", UnifiedRouting::Hybrid),
-            UnifiedRouting::Targeted
         );
     }
 

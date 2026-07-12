@@ -125,8 +125,17 @@ pub fn score_answer(text: &str, prompt: &FairPrompt) -> ScoreResult {
             }
         }
         _ => {
+            // Empty reference + no keywords: unscored open (Fate uses structural on_topic).
+            if ref_ans.is_empty() && prompt.keywords.iter().all(|k| k.trim().is_empty()) {
+                return ScoreResult {
+                    score_type: "open".into(),
+                    correct: false,
+                    extracted: None,
+                    reference: String::new(),
+                };
+            }
             let ref_low = ref_ans.to_lowercase();
-            let mut hit = low.contains(&ref_low);
+            let mut hit = !ref_low.is_empty() && low.contains(&ref_low);
             if !hit {
                 let kw_ok = prompt
                     .keywords
@@ -136,7 +145,7 @@ pub fn score_answer(text: &str, prompt: &FairPrompt) -> ScoreResult {
                 let need = (prompt.keywords.len() / 2).max(1);
                 hit = kw_ok >= need;
             }
-            if !hit {
+            if !hit && !ref_ans.is_empty() {
                 hit = ref_ans
                     .split_whitespace()
                     .filter(|w| w.len() > 2)

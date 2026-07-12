@@ -5,14 +5,12 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
-use crate::context_routing::{corpus_for_prompt, targeted_context, ContextIngestMode};
+use crate::context_routing::{corpus_for_prompt, ContextIngestMode};
 use crate::fate_adaptive_algebra::{
-    fate_retrieve_context_lines, fate_signal_landing_indices, query_tokens_from_q,
-    FateAlgebraState, score_qa_algebra,
+    fate_signal_landing_indices, query_tokens_from_q, FateAlgebraState, score_qa_algebra,
 };
-use crate::fate_parallel_longchain::{
-    keywords_from_gold, run_parallel_pipes, score_short_answer, spread_from_client,
-};
+use crate::fate_parallel_longchain::{keywords_from_gold, spread_from_client};
+use crate::fate_unified_qa::{run_fate_unified_qa, FateUnifiedQaOpts};
 use crate::valhalla_base::ValhallaBaseQuestion;
 use crate::valhalla_base_client::{RunOptions, ValhallaBaseClient};
 use crate::valhalla_base_protocol::ValhallaBaseErrorBody;
@@ -127,24 +125,34 @@ fn build_holdout_substrate(
 fn probe_walk_steps(
     client: &mut ValhallaBaseClient,
     corpus: &[String],
-    probe: &FatePretrainItem,
+    _probe: &FatePretrainItem,
 ) -> usize {
+    // Cheap walk readiness probe — no LM / parallel-pipe QA.
     let state = client.algebra_state();
-    if !state.walk_ready() {
+    if !state.walk_ready() || corpus.is_empty() {
         return 0;
     }
-    let q = make_question(probe);
-    let mut worker = client.spawn_fragment_qa_worker();
-    let result = run_parallel_pipes(corpus, &q, &mut worker);
-    worker.teardown();
-    match result {
-        Ok((_, traces, _, _)) => traces.iter().map(|t| t.steps.len()).sum(),
-        Err(_) => 0,
+    let spread = spread_from_client(client);
+    let gate = state.delta_required(1.0);
+    if spread < gate * 0.35 {
+        return 0;
     }
+    let steps = ((spread / gate.max(1e-9)) * corpus.len() as f64 * 0.25)
+        .round()
+        .clamp(1.0, corpus.len() as f64) as usize;
+    steps
 }
 
 fn fate_round_before_epoch(client: &mut ValhallaBaseClient, corpus: &[String], epoch: usize, light: bool) {
-    if light && epoch % 2 == 0 {
+    // low_resource: skip link/adapt every epoch (RAM/CPU bomb); light prime only.
+    if light {
+        if epoch == 0 {
+            let _ = client.fate_link_session();
+        }
+        client.prime_fate_walk_signals(corpus);
+        return;
+    }
+    if epoch % 2 == 0 {
         let _ = client.fate_link_session();
     } else {
         let _ = client.fate_round_adapt_link();
@@ -291,34 +299,15 @@ fn ask_qa_pretrain(
     low_resource: bool,
 ) -> Result<String, ValhallaBaseErrorBody> {
     let q = make_question(item);
-    let state = client.algebra_state();
-    if !low_resource || state.walk_ready() {
-        let (answer, _, _, _) = run_parallel_pipes(corpus, &q, client)?;
-        return Ok(answer);
-    }
-
-    let aff = client
-        .session()
-        .map(|s| s.snapshot.corpus_line_affinity.clone())
-        .unwrap_or_default();
-    let lines = fate_retrieve_context_lines(&q, corpus, &state, Some(&aff));
-    if lines.is_empty() {
-        let mut worker = client.spawn_fragment_qa_worker();
-        let result = run_parallel_pipes(corpus, &q, &mut worker);
-        worker.teardown();
-        let (answer, _, _, _) = result?;
-        return Ok(answer);
-    }
-    let mut worker = client.spawn_fragment_qa_worker();
-    worker.reanchor_affinity = true;
-    worker.ingest_for_prompt(&q, &lines, lines.len().max(4), ContextIngestMode::Targeted);
-    let resp = worker.run(vec![q], RunOptions::default())?;
-    worker.teardown();
-    Ok(resp
-        .rows
-        .first()
-        .map(|r| r.answer.clone())
-        .unwrap_or_default())
+    let opts = if low_resource {
+        FateUnifiedQaOpts::pretrain_low_resource()
+    } else {
+        FateUnifiedQaOpts::persistent()
+    };
+    let answer = run_fate_unified_qa(client, corpus, &q, opts)?;
+    client.trim_fate_rollbacks();
+    client.shrink_ingress_buffers();
+    Ok(answer)
 }
 
 fn reinforce_qa_miss(
@@ -422,7 +411,9 @@ pub fn run_fate_pretrain_epochs(
 
     for epoch in 0..max_epochs.max(1) {
         client.sync_algebra_meta();
-        client.push_fate_checkpoint();
+        if !low_resource {
+            client.push_fate_checkpoint();
+        }
         fate_round_before_epoch(client, corpus, epoch, low_resource);
         epochs_run = epoch + 1;
         let mut train_correct = 0usize;
@@ -433,6 +424,8 @@ pub fn run_fate_pretrain_epochs(
             } else {
                 reinforce_qa_miss(client, corpus, item, &row.answer, epoch)?;
             }
+            client.trim_fate_rollbacks();
+            client.shrink_ingress_buffers();
         }
         if epoch > 0 && train_correct < prev_train_correct {
             let _ = client.rollback_fate();
@@ -446,6 +439,7 @@ pub fn run_fate_pretrain_epochs(
         } else {
             prev_train_correct = train_correct;
         }
+        client.trim_fate_rollbacks();
         let partial_pass = train_correct as f64 / items.len().max(1) as f64;
         client.update_fate_algebra_from_pretrain(partial_pass, epochs_run);
         let walk_steps = probe_walk_steps(client, corpus, probe);
@@ -488,6 +482,8 @@ pub fn run_fate_pretrain_epochs(
     let pass = ok as f64 / items.len().max(1) as f64;
 
     client.update_fate_algebra_from_pretrain(pass, epochs_run);
+    client.trim_fate_rollbacks();
+    client.clear_ingress_pending();
 
     Ok(PretrainSessionOutcome {
         pretrain_epochs: epochs_run,

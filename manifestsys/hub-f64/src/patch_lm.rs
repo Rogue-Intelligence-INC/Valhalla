@@ -320,12 +320,20 @@ pub fn clear_lm_caches() {
     if let Some(cache) = LM_WEIGHT_CACHE.get() {
         if let Ok(mut guard) = cache.lock() {
             guard.clear();
+            guard.shrink_to_fit();
         }
     }
     if let Some(cache) = TOKENIZER_CACHE.get() {
         if let Ok(mut guard) = cache.lock() {
             guard.clear();
+            guard.shrink_to_fit();
         }
+    }
+}
+
+fn release_gpu_workspace(device: &Device) {
+    if device.is_cuda() {
+        let _ = device.synchronize();
     }
 }
 
@@ -1227,6 +1235,8 @@ pub fn run_patch_track_v4_with_snap(
             mcq_fate_letter: fate_letter,
             mcq_affinity_spread: aff_spread,
         });
+        drop(model);
+        release_gpu_workspace(&base.device);
     }
 
     Ok(rows)

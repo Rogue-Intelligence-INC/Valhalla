@@ -68,8 +68,8 @@ def frames_bundle_preflight(bundle_name: str = "frames_slice25.json") -> dict[st
     }
 
 
-def split_context_to_corpus(context: str, *, max_lines: int = 32) -> list[str]:
-    """Split long context into corpus lines (paragraph-first, then sentence chunks)."""
+def split_context_to_corpus(context: str, *, max_lines: int = 0) -> list[str]:
+    """Split long context into corpus lines. max_lines=0 → no artificial cap (algebra full ingest)."""
     text = context.strip()
     if not text:
         return []
@@ -87,7 +87,9 @@ def split_context_to_corpus(context: str, *, max_lines: int = 32) -> list[str]:
                     parts.append(sent)
     if not parts:
         parts = [text[:480]]
-    return parts[:max_lines]
+    if max_lines > 0:
+        return parts[:max_lines]
+    return parts
 
 
 def is_abstain(answer: str) -> bool:

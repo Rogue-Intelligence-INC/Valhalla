@@ -202,18 +202,39 @@ def _subprocess_smoke(
     }
 
 
+_LONGCHAIN_PROTOCOL_MIN = "fate-longchain-unified-v5"
+
+
+def _protocol_ok(protocol: str | None) -> bool:
+    if not protocol:
+        return False
+    if protocol == _LONGCHAIN_PROTOCOL_MIN:
+        return True
+    # Accept v5+ only (older cached reports must not mask regressions).
+    if protocol.startswith("fate-longchain-unified-v"):
+        try:
+            ver = int(protocol.rsplit("-v", 1)[-1])
+            return ver >= 5
+        except ValueError:
+            return False
+    return False
+
+
 def _longchain_cache_ok() -> dict[str, Any] | None:
     path = REPORTS / "fate_longchain_unified.json"
     if not path.is_file():
         return None
     doc = json.loads(path.read_text(encoding="utf-8"))
+    protocol = doc.get("protocol")
+    if not _protocol_ok(str(protocol or "")):
+        return None
     drift_v = doc.get("theme_drift_rate")
     composite_v = doc.get("composite_score")
     drift = float(drift_v if drift_v is not None else 1.0)
     composite = float(composite_v if composite_v is not None else 0.0)
-    if drift <= 0.01 and composite >= 0.5:
+    if drift <= 0.01 and composite >= 0.85:
         return {
-            "protocol": doc.get("protocol"),
+            "protocol": protocol,
             "composite_score": composite,
             "theme_drift_rate": drift,
             "holdout_pass": doc.get("holdout_pass"),
@@ -225,9 +246,9 @@ def _longchain_cache_ok() -> dict[str, Any] | None:
 def _longchain_smoke(*, fast: bool) -> dict[str, Any]:
     row = _subprocess_smoke(
         "test_fate_longchain_unified.py",
-        ["--smoke", "--pretrain-passes", "0", "--max-epochs", "0"],
+        ["--production"] if not fast else ["--smoke", "--parallel", "--enhanced"],
         label="longchain-smoke",
-        timeout_s=120 if fast else 300,
+        timeout_s=600 if not fast else 300,
         smoke=True,
     )
     if not row["ok"]:

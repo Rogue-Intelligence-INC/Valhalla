@@ -45,7 +45,20 @@ valhalla_base demo corpus [--repo /path/to/Valhalla]
 
 # HTTP JSON API
 valhalla_base serve --port 8787
+valhalla_base serve --with-dashboard   # + Tile/Stem viz at /dashboard/
+
+# Reproduction (third-party)
+make repro
+python3 tools/valhalla_inference/vb.py repro
+# See REPRODUCTION.md
+
 curl -s http://127.0.0.1:8787/health
+curl -s http://127.0.0.1:8787/v1/repro
+curl -s http://127.0.0.1:8787/dashboard/api/state   # triad viz JSON
+
+# Standalone triad dashboard (Tile heatmap + Stem organ clusters)
+valhalla_dashboard   # or: make dashboard  →  http://127.0.0.1:8765/
+
 curl -s -X POST http://127.0.0.1:8787/v1/infer -H 'content-type: application/json' \
   -d @manifestsys/hub-f64/examples/valhalla_base/open_qa.json
 ```

@@ -1,65 +1,71 @@
 {
   "protocol": "industry-suite-checkpoint-v1",
-  "model": "Qwen/Qwen2.5-0.5B-Instruct",
-  "started_at": "2026-07-10T21:00:27.408742+00:00",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "started_at": "2026-07-12T22:58:48.462566+00:00",
   "completed": [
     {
       "label": "needle",
       "exit_code": 0,
-      "timestamp": "2026-07-10T21:00:27.646367+00:00",
+      "timestamp": "2026-07-12T22:59:02.571879+00:00",
       "report": "needle_session_v1_test.json"
     },
     {
       "label": "ragtruth",
       "exit_code": 0,
-      "timestamp": "2026-07-10T21:00:37.518554+00:00",
+      "timestamp": "2026-07-12T22:59:16.969602+00:00",
       "report": "ragtruth_v1_test.json"
     },
     {
       "label": "ragtruth-full",
       "exit_code": 0,
-      "timestamp": "2026-07-10T21:00:42.339848+00:00",
+      "timestamp": "2026-07-12T22:59:47.845885+00:00",
       "report": "ragtruth_full_v1_test.json"
     },
     {
       "label": "longbench",
       "exit_code": 0,
-      "timestamp": "2026-07-10T21:02:43.615680+00:00",
+      "timestamp": "2026-07-12T23:09:59.749858+00:00",
       "report": "longbench_v2_v1_test.json"
     },
     {
       "label": "multihop",
       "exit_code": 0,
-      "timestamp": "2026-07-10T21:02:46.423232+00:00",
+      "timestamp": "2026-07-12T23:10:05.393346+00:00",
       "report": "multihop_rag_hybrid_test.json"
     },
     {
       "label": "locomo",
       "exit_code": 0,
-      "timestamp": "2026-07-10T21:02:48.954751+00:00",
+      "timestamp": "2026-07-12T23:10:15.294714+00:00",
       "report": "locomo_v1_test.json"
     },
     {
       "label": "ruler",
       "exit_code": 0,
-      "timestamp": "2026-07-10T21:03:06.357772+00:00",
+      "timestamp": "2026-07-12T23:10:40.339537+00:00",
       "report": "ruler_v1_test.json"
     },
     {
       "label": "lara",
       "exit_code": 0,
-      "timestamp": "2026-07-10T21:03:18.603579+00:00",
+      "timestamp": "2026-07-12T23:11:57.340621+00:00",
       "report": "lara_v1_test.json"
     },
     {
       "label": "external-holdout",
       "exit_code": 0,
-      "timestamp": "2026-07-10T21:03:21.528843+00:00",
+      "timestamp": "2026-07-12T23:12:03.073952+00:00",
       "report": "external_holdout_test.json"
+    },
+    {
+      "label": "mcq-ladder",
+      "exit_code": 0,
+      "timestamp": "2026-07-12T23:24:59.916524+00:00",
+      "report": "mcq_ladder_v1_test.json"
     }
   ],
   "failed": [],
   "pending": [],
   "paused": false,
-  "last_updated": "2026-07-10T21:03:21.528892+00:00"
+  "last_updated": "2026-07-12T23:24:59.916573+00:00"
 }

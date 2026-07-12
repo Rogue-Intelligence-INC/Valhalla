@@ -55,6 +55,14 @@ pub mod multimodal;
 pub mod compose_fate;
 pub mod model_fate;
 pub mod fate_adaptive_algebra;
+#[cfg(feature = "patch-lm")]
+pub mod fate_io;
+#[cfg(feature = "patch-lm")]
+pub mod elastic_resources;
+#[cfg(feature = "patch-lm")]
+pub mod open_qa_interface;
+#[cfg(feature = "patch-lm")]
+pub mod multihop_bench;
 pub use fate_adaptive_algebra::{
     fate_adaptive_context_boost, fate_adaptive_distractor_filter, fate_context_pollution,
     fate_land_tick, fate_landing_drift, fate_landing_fingerprints, fate_retrieve_context_lines,
@@ -63,6 +71,21 @@ pub use fate_adaptive_algebra::{
     score_qa_algebra, score_qa_with_evidence, strip_all_citations, sync_algebra_meta,
     FateAlgebraMeta, FateAlgebraState,
 };
+#[cfg(feature = "patch-lm")]
+pub use fate_io::{
+    apply_unified_solution, ensure_unified_runtime, fate_egress, fate_egress_body,
+    fate_ingress, fate_score_short_answer, unified_solution_config, FateIngressBundle,
+};
+#[cfg(feature = "patch-lm")]
+pub use open_qa_interface::{
+    run_open_qa, run_open_qa_scored, OpenQaFlags, OpenQaRequest, OpenQaResult,
+};
+#[cfg(feature = "patch-lm")]
+pub use elastic_resources::{
+    cuda_runtime_ready, elastic_parallel_workers, par_map_items, ElasticResourcePlan,
+};
+#[cfg(feature = "patch-lm")]
+pub use fate_unified_qa::{run_fate_unified_qa, FateUnifiedQaOpts};
 pub mod free_multimodal_fate;
 pub mod multimodal_compose;
 pub mod valhalla_adapter;
@@ -75,6 +98,8 @@ pub mod fate_parallel_longchain;
 pub mod fate_pretrain_holdout;
 #[cfg(feature = "patch-lm")]
 pub mod fate_longchain_unified;
+#[cfg(feature = "patch-lm")]
+pub mod fate_unified_qa;
 pub mod smoke_report;
 pub mod triad_dashboard;
 pub mod triad_viz_types;
@@ -145,7 +170,7 @@ pub use natural_channels::{natural_channels_enabled, pulse_question_natural, Cha
 #[cfg(feature = "patch-lm")]
 pub use fate_orchestrator::{
     apply_eval_corpus_cap, compact_manifold_snapshot, eval_chunk_size, eval_corpus_line_cap,
-    export_session_after_ingest, fate_link_fragments_enabled, fragment_only_session_enabled,
+    export_session_after_ingest, fate_link_each_extend_enabled, fate_link_fragments_enabled, fragment_only_session_enabled,
     production_prelearn_count, stored_fragments, FateLinkOutcome,
 };
 #[cfg(feature = "patch-lm")]

@@ -57,9 +57,9 @@ class ValhallaBaseSession:
 class ValhallaBase:
     """Valhalla is the base; LM is decode head.
 
-    Production stack (default):
-      hybrid decode · targeted context ingest · session affinity reanchor
-      fate_qa_feedback · native_follow_up_aware · quad_cycle ingress
+    Production stack (default / unified solution):
+      hybrid decode · native_follow_up_aware · quad_cycle ingress
+      open_fate + multihop_v2 (fatewithv2) · RelAddr land · fate_qa_feedback
     """
 
     lm_model: str = field(default_factory=default_lm_model)
@@ -79,6 +79,9 @@ class ValhallaBase:
     proactive_min_fate_signals: int = 64
     proactive_min_turns: int = 2  # legacy alias → min_fate_signals = turns * 32
     proactive_min_spread: float = 12 / 138 * 5 / 140  # τ(0)·δ/(dim+r)
+    open_fate: bool = True
+    multihop_fate: bool = True
+    multihop_v2: bool = True
     context_ingest: ContextIngestMode = "targeted"
     reanchor_affinity: bool = True
     fate_warmup_enabled: bool = True
@@ -204,6 +207,9 @@ class ValhallaBase:
             "proactive_min_fate_signals": self.proactive_min_fate_signals,
             "proactive_min_turns": self.proactive_min_turns,
             "proactive_min_spread": self.proactive_min_spread,
+            "open_fate": self.open_fate,
+            "multihop_fate": self.multihop_fate,
+            "multihop_v2": self.multihop_v2,
         }
 
     def _pause_requested(self, pause_file: str | None = None) -> bool:
@@ -463,6 +469,47 @@ class ValhallaBase:
         )
         rows = doc.get("rows") or []
         return rows[0]["answer"] if rows else ""
+
+    def enable_unified_solution(self) -> "ValhallaBase":
+        """Programmable: RelAddr land + Fate adapt + multihop v2 (fatewithv2)."""
+        self.open_fate = True
+        self.multihop_fate = True
+        self.multihop_v2 = True
+        self.decode = "hybrid"
+        self.follow_up_decode = "native_follow_up_aware"
+        self.fate_ingress_routing = "quad_cycle"
+        self.fate_qa_feedback = True
+        return self
+
+    def fate_ingress_for(
+        self,
+        prompt: dict[str, Any],
+        corpus: list[str],
+        *,
+        k: int = 8,
+    ) -> list[str]:
+        """Generic RelAddr-style ingress via targeted routing (Python adapter).
+
+        Rust `fate_ingress` is the canonical adapter; this mirrors the entry for
+        programmable ValhallaBase scripts without spawning a second binary RPC.
+        """
+        return self.ingest_for_prompt(prompt, corpus, k=k, mode="targeted")
+
+    def ask_unified(
+        self,
+        text: str,
+        corpus: list[str] | None = None,
+        *,
+        use_ingress: bool = True,
+        qid: str = "q0",
+    ) -> str:
+        """Unified solution ask: enable fatewithv2 flags, optional ingress, then ask."""
+        self.enable_unified_solution()
+        if corpus is not None and use_ingress:
+            self.fate_ingress_for({"id": qid, "text": text, "score_type": "open"}, corpus)
+        elif corpus is not None and not self.session.session_state and not self.context_items:
+            self.set_context(corpus)
+        return self.ask(text, qid=qid)
 
     def proactive_idle(self) -> dict[str, Any]:
         """No user question — self-probe + FOG-gated nudge after dialogue warmup."""

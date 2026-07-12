@@ -506,32 +506,68 @@ fn merge_context(req: &ValhallaBaseRequest) -> (Vec<String>, Vec<ValhallaContext
         }
     }
 
+    // Only keep append lines that are truly new — re-appending known corpus lines
+    // forces extend_snapshot / fragment orchestration every QA (runtime hang).
+    let mut new_append_lines: Vec<String> = Vec::new();
     for l in &req.append_lines {
         let t = l.trim();
         if t.is_empty() || line_already_present(&lines, t) {
             continue;
         }
+        new_append_lines.push(t.to_string());
         lines.push(t.to_string());
         items.push(ValhallaContextItem {
             text: Some(t.to_string()),
             ..Default::default()
         });
     }
-    items.extend(req.append_items.clone());
+    for item in &req.append_items {
+        if let Some(t) = item.text.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
+            if line_already_present(&lines, t) {
+                continue;
+            }
+        } else if item.audio_features.as_ref().is_none_or(|v| v.is_empty())
+            && item.image_features.as_ref().is_none_or(|v| v.is_empty())
+        {
+            continue;
+        }
+        items.push(item.clone());
+        if let Some(l) = item_to_corpus_line(item) {
+            if !line_already_present(&lines, &l) {
+                lines.push(l);
+            }
+        }
+    }
 
     for item in &req.context_items {
         if let Some(l) = item_to_corpus_line(item) {
-            if !lines.contains(&l) {
+            if !line_already_present(&lines, &l) {
                 lines.push(l);
             }
         }
     }
 
     let incremental = req.session.is_some()
-        && (!req.append_lines.is_empty() || !req.append_items.is_empty())
+        && (!new_append_lines.is_empty()
+            || req.append_items.iter().any(|it| {
+                it.text
+                    .as_ref()
+                    .map(|s| {
+                        let t = s.trim();
+                        !t.is_empty() && !line_already_present(
+                            req.session.as_ref().map(|s| s.corpus.as_slice()).unwrap_or(&[]),
+                            t,
+                        )
+                    })
+                    .unwrap_or(false)
+                    || it.audio_features.as_ref().is_some_and(|v| !v.is_empty())
+                    || it.image_features.as_ref().is_some_and(|v| !v.is_empty())
+            }))
         && req.context.is_empty()
         && req.context_items.is_empty();
 
+    // When all appends were duplicates, continue session without extend_snapshot.
+    let _ = new_append_lines;
     (lines, items, incremental)
 }
 
@@ -781,7 +817,9 @@ fn extend_snapshot(
             corpus_base_idx,
             mode,
         );
-        if crate::fate_orchestrator::fate_link_fragments_enabled() {
+        if crate::fate_orchestrator::fate_link_fragments_enabled()
+            && crate::fate_orchestrator::fate_link_each_extend_enabled()
+        {
             let _ = crate::fate_orchestrator::fate_link_fragments(&mut session, &orch);
         }
     } else {
@@ -847,14 +885,61 @@ fn resolve_snapshot(
 ) -> (TriadIncubationSnapshot, Option<crate::fate_orchestrator::FateWarmupOutcome>) {
     let cycles = req.config.incubation_cycles.max(1);
     let body = &req.config.patch_body;
+    if let Some(sess) = &req.session {
+        if req.context.is_empty() && req.context_items.is_empty() {
+            let has_new_append = req.append_lines.iter().any(|l| {
+                let t = l.trim();
+                !t.is_empty() && !line_already_present(&sess.corpus, t)
+            }) || req.append_items.iter().any(|it| {
+                it.text
+                    .as_ref()
+                    .map(|s| {
+                        let t = s.trim();
+                        !t.is_empty() && !line_already_present(&sess.corpus, t)
+                    })
+                    .unwrap_or(false)
+                    || it.audio_features.as_ref().is_some_and(|v| !v.is_empty())
+                    || it.image_features.as_ref().is_some_and(|v| !v.is_empty())
+            });
+            // Duplicate retrieve→append on an already-ingested long-chain: reuse snapshot.
+            if !has_new_append {
+                return (sess.snapshot.clone(), None);
+            }
+        }
+    }
     if incremental {
         if let Some(sess) = &req.session {
+            let fresh_lines: Vec<String> = req
+                .append_lines
+                .iter()
+                .map(|s| s.trim().to_string())
+                .filter(|t| !t.is_empty() && !line_already_present(&sess.corpus, t))
+                .collect();
+            let fresh_items: Vec<ValhallaContextItem> = req
+                .append_items
+                .iter()
+                .filter(|it| {
+                    it.text
+                        .as_ref()
+                        .map(|s| {
+                            let t = s.trim();
+                            !t.is_empty() && !line_already_present(&sess.corpus, t)
+                        })
+                        .unwrap_or(false)
+                        || it.audio_features.as_ref().is_some_and(|v| !v.is_empty())
+                        || it.image_features.as_ref().is_some_and(|v| !v.is_empty())
+                })
+                .cloned()
+                .collect();
+            if fresh_lines.is_empty() && fresh_items.is_empty() {
+                return (sess.snapshot.clone(), None);
+            }
             return (
                 extend_snapshot(
                     body,
                     sess.snapshot.clone(),
-                    &req.append_lines,
-                    &req.append_items,
+                    &fresh_lines,
+                    &fresh_items,
                     cycles,
                     &req.config,
                     sess.corpus.len(),
@@ -1252,7 +1337,14 @@ fn hybrid_open_lm_fallback_enabled() -> bool {
             let v = v.trim().to_ascii_lowercase();
             !(v == "0" || v == "false" || v == "off")
         })
-        .unwrap_or(true)
+        // Default off under low-resource budget (avoids CUDA reload hang).
+        .unwrap_or_else(|_| {
+            std::env::var("VALHALLA_INGRESS_RESOURCE_PERCENT")
+                .ok()
+                .and_then(|v| v.parse::<u32>().ok())
+                .map(|p| p > 60)
+                .unwrap_or(false)
+        })
 }
 
 /// Hybrid open path: native retrieval first; LM decode when native abstains.

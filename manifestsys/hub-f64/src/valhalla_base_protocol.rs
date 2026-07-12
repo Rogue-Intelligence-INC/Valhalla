@@ -12,9 +12,39 @@ use crate::valhalla_base::{
     ValhallaMcqDecode, VALHALLA_BASE_PROTOCOL,
 };
 
+/// Set production runtime env defaults once (dynamic density fragments, full corpus ingest).
+pub fn ensure_production_runtime() {
+    use std::sync::Once;
+    static INIT: Once = Once::new();
+    INIT.call_once(|| {
+        set_env_default("VALHALLA_FRAGMENT_MODE", "density");
+        set_env_default("VALHALLA_DYNAMIC_CORPUS_FRAGMENTS", "1");
+        set_env_default("VALHALLA_FRAGMENT_ONLY", "1");
+        set_env_default("VALHALLA_LIVE_SESSION", "1");
+        set_env_default("VALHALLA_NATURAL_CHANNELS", "1");
+        set_env_default("VALHALLA_FATE_LINK_FRAGMENTS", "1");
+        set_env_default("VALHALLA_FRAGMENT_CHUNK_STRIDE", "8");
+        set_env_default("VALHALLA_FATE_LINK_MAX_GROUP", "2");
+        // Unified solution = RelAddr land + Fate adapt + multihop v2 compose (fatewithv2).
+        set_env_default("VALHALLA_OPEN_FATE", "1");
+        set_env_default("VALHALLA_MULTIHOP_FATE", "1");
+        set_env_default("VALHALLA_MULTIHOP_V2", "1");
+        set_env_default("VALHALLA_CORPUS_LINE_AFFINITY_WEIGHT", "algebra");
+        crate::elastic_resources::ElasticResourcePlan::ensure_cuda_runtime_env();
+    });
+}
+
+fn set_env_default(key: &str, value: &str) {
+    if std::env::var(key).is_err() {
+        std::env::set_var(key, value);
+    }
+}
+
 /// Production defaults (matches Python `ValhallaBase` wrapper).
+/// Unified solution: hybrid + quad_cycle + open_fate + multihop_v2 (fatewithv2).
 pub fn production_config() -> ValhallaBaseConfig {
-    ValhallaBaseConfig {
+    ensure_production_runtime();
+    let mut cfg = ValhallaBaseConfig {
         decode: ValhallaBaseDecode::Hybrid,
         follow_up_decode: ValhallaFollowUpDecode::NativeFollowUpAware,
         fate_ingress_routing: ValhallaFateIngressRouting::QuadCycle,
@@ -24,8 +54,11 @@ pub fn production_config() -> ValhallaBaseConfig {
         fate_orchestrate: true,
         open_fate: true,
         multihop_fate: true,
+        multihop_v2: true,
         ..ValhallaBaseConfig::default()
-    }
+    };
+    crate::fate_io::apply_unified_solution(&mut cfg);
+    cfg
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -79,10 +112,16 @@ pub fn validate_request(req: &ValhallaBaseRequest) -> Result<(), ValhallaBaseErr
             "context must contain lines/items, append payload, or session",
         ));
     }
-    if req.questions.is_empty() && !req.proactive_idle {
+    if req.questions.is_empty()
+        && !req.proactive_idle
+        && !req.fate_warmup_only
+        && !req.session_extend_only
+        && !req.fate_link_only
+        && !req.fate_pretrain_adapt_only
+    {
         return Err(ValhallaBaseErrorBody::new(
             ValhallaBaseErrorKind::Validate,
-            "questions must be non-empty (or set proactive_idle=true)",
+            "questions must be non-empty (or set proactive_idle / fate_warmup_only / session_extend_only / fate_link_only / fate_pretrain_adapt_only)",
         ));
     }
     Ok(())
@@ -92,6 +131,7 @@ pub fn validate_request(req: &ValhallaBaseRequest) -> Result<(), ValhallaBaseErr
 pub fn execute_request(
     req: &ValhallaBaseRequest,
 ) -> Result<ValhallaBaseResponse, ValhallaBaseErrorBody> {
+    ensure_production_runtime();
     validate_request(req)?;
     run_valhalla_base(req).map_err(|e| ValhallaBaseErrorBody::new(ValhallaBaseErrorKind::Runtime, e))
 }
@@ -130,6 +170,7 @@ const EXAMPLES: &[(&str, &str)] = &[
     ("proactive", "examples/valhalla_base/proactive_idle.json"),
     ("multimodal", "examples/valhalla_base/multimodal_context.json"),
     ("production", "examples/valhalla_base/production_stack.json"),
+    ("fate_warmup", "examples/valhalla_base/fate_warmup.json"),
 ];
 
 /// Load bundled example request by name (`open`, `session`, `mcq`, `proactive`, `multimodal`, `production`).
@@ -177,11 +218,20 @@ mod tests {
         assert_eq!(cfg.follow_up_decode, ValhallaFollowUpDecode::NativeFollowUpAware);
         assert_eq!(cfg.fate_ingress_routing, ValhallaFateIngressRouting::QuadCycle);
         assert_eq!(cfg.mcq_decode, ValhallaMcqDecode::LmPatch);
+        assert!(cfg.open_fate && cfg.multihop_fate && cfg.multihop_v2);
     }
 
     #[test]
     fn example_open_parses() {
         let req = example_request("open").expect("open example");
         assert!(!req.questions.is_empty());
+    }
+
+    #[test]
+    fn fate_warmup_only_validates() {
+        let req = example_request("fate_warmup").expect("fate_warmup example");
+        assert!(req.fate_warmup_only);
+        assert!(req.questions.is_empty());
+        validate_request(&req).expect("fate_warmup_only should validate");
     }
 }

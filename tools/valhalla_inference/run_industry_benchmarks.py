@@ -66,7 +66,7 @@ INDUSTRY_TESTS = [
     ("ragtruth-full", "test_ragtruth_full_v1.py", []),
     ("longbench", "test_longbench_v2_v1.py", []),
     ("frames", "test_frames_v1.py", ["--production"]),
-    ("multihop", "test_multihop_rag_v1.py", ["--hybrid", "--limit", "25"]),
+    ("multihop", "test_multihop_rag_v1.py", ["--fatewithv2", "--limit", "25"]),
     ("locomo", "test_locomo_v1.py", ["--production"]),
     ("ruler", "test_ruler_v1.py", []),
     ("lara", "test_lara_v1.py", ["--with-trad"]),
@@ -258,7 +258,7 @@ def aggregate() -> dict:
         ("multihop_rag_v1_test.json", "MultiHop-RAG", "accuracy", "correct", "n", "verdict"),
         ("multihop_rag_v2_test.json", "MultiHop-RAG v2", "accuracy", "correct", "n", "verdict"),
         ("multihop_rag_fate_test.json", "MultiHop-RAG Fate", "accuracy", "correct", "n", "verdict"),
-        ("multihop_rag_hybrid_test.json", "MultiHop-RAG hybrid", "accuracy", "correct", "n", "verdict"),
+        ("multihop_rag_hybrid_test.json", "MultiHop-RAG fatewithv2", "accuracy", "correct", "n", "verdict"),
         ("locomo_v1_test.json", "LoCoMo", "accuracy", "correct", "n", "verdict"),
         ("ruler_v1_test.json", "RULER-style", "recall", "correct", "n", "verdict"),
         ("lara_v1_test.json", "LaRA RAG vs LC", None, None, "n", "verdict"),
@@ -272,17 +272,26 @@ def aggregate() -> dict:
         if not doc:
             continue
         if fname == "frames_v1_test.json" and not frames_bundle_ok():
+            n = doc.get("n", "?")
+            num = doc.get("correct", "?")
+            rate = doc.get("accuracy")
+            result = (
+                f"{num}/{n} ({100 * float(rate or 0):.0f}%) · Tier C (no wiki extracts)"
+                if rate is not None
+                else "SKIPPED (Tier C — no wiki corpus)"
+            )
             entries.append(
                 {
                     "name": name,
                     "protocol": doc.get("protocol"),
-                    "result": "SKIPPED (Tier C — no wiki corpus)",
+                    "result": result,
                     "verdict": "TIER_C_INVALID",
                     "file": fname,
                     "citeable": False,
                 }
             )
             continue
+        elif fname == "lara_v1_test.json":
             rag = doc.get("valhalla_rag") or {}
             result = f"RAG {rag.get('correct', '?')}/{doc.get('n', '?')}"
             lc = doc.get("trad_long_context")
