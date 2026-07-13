@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-29T20:09:55.790758+00:00",
+  "timestamp": "2026-07-13T01:58:57.247860+00:00",
   "protocol": "token-efficiency-v1",
   "model_tokenizer": "Qwen/Qwen2.5-0.5B-Instruct",
   "turns": 30,
@@ -30,21 +30,202 @@
     "prefill_tokens_vs_history": 0.095
   },
   "thread_accuracy": {
-    "on_topic_hits": 30,
+    "on_topic_hits": 0,
     "n": 30,
-    "on_topic_rate": 1.0,
-    "source": "context_flexibility_max_goal.json (follow_up_aware)"
+    "on_topic_rate": 0.0,
+    "rows": [
+      {
+        "topic": "australia",
+        "turn": 1,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "australia",
+        "turn": 2,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "australia",
+        "turn": 3,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "australia",
+        "turn": 4,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "australia",
+        "turn": 5,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "australia",
+        "turn": 6,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "australia",
+        "turn": 7,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "australia",
+        "turn": 8,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "australia",
+        "turn": 9,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "australia",
+        "turn": 10,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 1,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 2,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 3,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 4,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 5,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 6,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 7,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 8,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 9,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "chemistry",
+        "turn": 10,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 1,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 2,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 3,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 4,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 5,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 6,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 7,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 8,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 9,
+        "on_topic": false,
+        "answer": ""
+      },
+      {
+        "topic": "physics",
+        "turn": 10,
+        "on_topic": false,
+        "answer": ""
+      }
+    ]
   },
   "holdout_accuracy": {
     "valhalla_hybrid_cold_rag": {
-      "correct": 30,
+      "correct": 27,
       "n": 31,
-      "accuracy": 0.967741935483871
+      "accuracy": 0.8709677419354839
     },
     "traditional_lm_rag": {
-      "correct": 30,
+      "correct": 31,
       "n": 31,
-      "accuracy": 0.967741935483871
+      "accuracy": 1.0
     },
     "source": "valhalla_base_training_potential_test_v2.json"
   },
@@ -54,8 +235,8 @@
       "wire_chars_cumulative": 2319,
       "prefill_tokens_cumulative": 1126,
       "decode_tokens_total": 0,
-      "thread_on_topic_rate": 1.0,
-      "holdout_accuracy": 0.967741935483871
+      "thread_on_topic_rate": 0.0,
+      "holdout_accuracy": 0.8709677419354839
     },
     {
       "architecture": "rag_full_resend",
@@ -63,7 +244,7 @@
       "prefill_tokens_cumulative": 3868,
       "decode_tokens_total": 3840,
       "thread_on_topic_rate": null,
-      "holdout_accuracy": 0.967741935483871
+      "holdout_accuracy": 1.0
     },
     {
       "architecture": "rag_with_history",
@@ -71,7 +252,7 @@
       "prefill_tokens_cumulative": 11845,
       "decode_tokens_total": 3840,
       "thread_on_topic_rate": null,
-      "holdout_accuracy": 0.967741935483871
+      "holdout_accuracy": 1.0
     }
   ],
   "interpretation": "Valhalla wire cost scales with incremental append (~64 chars/step avg on growth curve); LM prefill stays question-only on native path. RAG resends full corpus each turn — prefill tokens grow super-linearly with history variant."

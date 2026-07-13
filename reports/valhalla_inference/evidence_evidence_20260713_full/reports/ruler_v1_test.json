@@ -1,0 +1,152 @@
+{
+  "timestamp": "2026-07-12T23:10:40.332119+00:00",
+  "protocol": "ruler-v1",
+  "benchmark": "RULER-style synthetic",
+  "bundle": "ruler_v1_slice20.json",
+  "n": 20,
+  "correct": 15,
+  "recall": 0.75,
+  "verdict": "NEEDLE_VIABLE",
+  "rows": [
+    {
+      "id": "RULER_0",
+      "task": "single_needle",
+      "depth": 30,
+      "correct": true,
+      "answer": "[corpus:15] [fate:70@15] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_1",
+      "task": "single_needle",
+      "depth": 30,
+      "correct": true,
+      "answer": "[corpus:15] [fate:70@15] Project Nebula launch key: ZETA-4402"
+    },
+    {
+      "id": "RULER_2",
+      "task": "multi_needle",
+      "depth": 10,
+      "correct": false,
+      "answer": "[corpus:3] [fate:22@3] The Nile"
+    },
+    {
+      "id": "RULER_3",
+      "task": "single_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:20] [fate:90@20] Emergency override PIN: 7734-OMEGA"
+    },
+    {
+      "id": "RULER_4",
+      "task": "single_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:5] [fate:30@5] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_5",
+      "task": "multi_needle",
+      "depth": 10,
+      "correct": false,
+      "answer": "[corpus:3] [fate:22@3] DNA"
+    },
+    {
+      "id": "RULER_6",
+      "task": "single_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:5] [fate:30@5] Registration token for Site 7: KAPPA-18"
+    },
+    {
+      "id": "RULER_7",
+      "task": "single_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:5] [fate:30@5] Emergency override PIN: 7734-OMEGA"
+    },
+    {
+      "id": "RULER_8",
+      "task": "single_needle",
+      "depth": 5,
+      "correct": true,
+      "answer": "[corpus:2] [fate:18@2] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_9",
+      "task": "single_needle",
+      "depth": 20,
+      "correct": true,
+      "answer": "[corpus:10] [fate:50@10] Project Nebula launch key: ZETA-4402"
+    },
+    {
+      "id": "RULER_10",
+      "task": "single_needle",
+      "depth": 30,
+      "correct": true,
+      "answer": "[corpus:15] [fate:70@15] Registration token for Site 7: KAPPA-18"
+    },
+    {
+      "id": "RULER_11",
+      "task": "multi_needle",
+      "depth": 40,
+      "correct": false,
+      "answer": "[corpus:13] [fate:62@13] Oxygen"
+    },
+    {
+      "id": "RULER_12",
+      "task": "single_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:20] [fate:90@20] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_13",
+      "task": "single_needle",
+      "depth": 5,
+      "correct": true,
+      "answer": "[corpus:2] [fate:18@2] Project Nebula launch key: ZETA-4402"
+    },
+    {
+      "id": "RULER_14",
+      "task": "multi_needle",
+      "depth": 40,
+      "correct": false,
+      "answer": "[corpus:13] [fate:62@13] The Nile"
+    },
+    {
+      "id": "RULER_15",
+      "task": "single_needle",
+      "depth": 30,
+      "correct": true,
+      "answer": "[corpus:15] [fate:70@15] Emergency override PIN: 7734-OMEGA"
+    },
+    {
+      "id": "RULER_16",
+      "task": "single_needle",
+      "depth": 10,
+      "correct": true,
+      "answer": "[corpus:5] [fate:30@5] The secret vault code is ALPHA-991"
+    },
+    {
+      "id": "RULER_17",
+      "task": "multi_needle",
+      "depth": 30,
+      "correct": false,
+      "answer": "[corpus:10] [fate:50@10] DNA"
+    },
+    {
+      "id": "RULER_18",
+      "task": "single_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:20] [fate:90@20] Registration token for Site 7: KAPPA-18"
+    },
+    {
+      "id": "RULER_19",
+      "task": "single_needle",
+      "depth": 40,
+      "correct": true,
+      "answer": "[corpus:20] [fate:90@20] Emergency override PIN: 7734-OMEGA"
+    }
+  ]
+}

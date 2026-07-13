@@ -1,0 +1,525 @@
+{
+  "timestamp": "2026-07-13T08:04:09.763328+00:00",
+  "resource_budget": {
+    "ingress_percent": 50,
+    "ingress_max_items": 48,
+    "lm_cache_max": 1,
+    "serve_mode": "subprocess_default"
+  },
+  "pillars": {
+    "ragtruth": {
+      "faithful": 34,
+      "n": 40,
+      "verdict": "RAGTRUTH_STRONG"
+    },
+    "needle": {
+      "correct": 4,
+      "n": 4,
+      "verdict": "NEEDLE_STRONG"
+    },
+    "proactive": {
+      "pass_rate": 3,
+      "ppi_v2": 0.35,
+      "verdict": [
+        "PROACTIVE_FATE_V2_WEAK",
+        "NO_HALLUCINATION_ON_MISMATCH",
+        "GATES_OK"
+      ]
+    }
+  },
+  "independence": {
+    "protocol": "valhalla-independence-v1",
+    "panel": "practical",
+    "verdict": "VALHALLA_BASE_INDEPENDENT",
+    "causal_tested": 3,
+    "appendix_count": 1,
+    "memory_verdict": "MEMORY_INDEPENDENT"
+  },
+  "industry": [
+    {
+      "name": "RAGTruth",
+      "protocol": "ragtruth-v1",
+      "result": "34/40 (85%)",
+      "verdict": "RAGTRUTH_STRONG",
+      "file": "ragtruth_v1_test.json"
+    },
+    {
+      "name": "RAGTruth-100",
+      "protocol": "ragtruth-full-v1",
+      "result": "88/100 (88%)",
+      "verdict": "RAGTRUTH_STRONG",
+      "file": "ragtruth_full_v1_test.json"
+    },
+    {
+      "name": "Needle session",
+      "protocol": "needle-session-v1",
+      "result": "4/4 (100%)",
+      "verdict": "NEEDLE_STRONG",
+      "file": "needle_session_v1_test.json"
+    },
+    {
+      "name": "LongBench-v2",
+      "protocol": "longbench-v2-fragmentwithfate-light-v1",
+      "result": "4/20 (20%)",
+      "verdict": "LONGBENCH_V2_DEVELOPING",
+      "file": "longbench_v2_v1_test.json"
+    },
+    {
+      "name": "FRAMES",
+      "protocol": "frames-v1-rust",
+      "result": "1/25 (4%) · Tier C (no wiki extracts)",
+      "verdict": "TIER_C_INVALID",
+      "file": "frames_v1_test.json",
+      "citeable": false
+    },
+    {
+      "name": "MultiHop-RAG",
+      "protocol": "multihop-rag-v1",
+      "result": "9/25 (36%)",
+      "verdict": "OPEN_QA_DEVELOPING",
+      "file": "multihop_rag_v1_test.json"
+    },
+    {
+      "name": "MultiHop-RAG v2",
+      "protocol": "multihop-rag-v2",
+      "result": "15/25 (60%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "multihop_rag_v2_test.json"
+    },
+    {
+      "name": "MultiHop-RAG Fate",
+      "protocol": "multihop-rag-fate",
+      "result": "15/25 (60%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "multihop_rag_fate_test.json"
+    },
+    {
+      "name": "MultiHop-RAG fatewithv2",
+      "protocol": "multihop-rag-fatewithv2",
+      "result": "15/25 (60%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "multihop_rag_hybrid_test.json"
+    },
+    {
+      "name": "LoCoMo",
+      "protocol": "locomo-v1-rust",
+      "result": "17/30 (57%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "locomo_v1_test.json"
+    },
+    {
+      "name": "RULER-style",
+      "protocol": "ruler-v1",
+      "result": "15/20 (75%)",
+      "verdict": "NEEDLE_VIABLE",
+      "file": "ruler_v1_test.json"
+    },
+    {
+      "name": "LaRA RAG vs LC",
+      "protocol": "lara-v1",
+      "result": "RAG 11/20 · LC 13/20",
+      "verdict": "STRUCTURE_RAG_BELOW_LC",
+      "file": "lara_v1_test.json"
+    },
+    {
+      "name": "MCQ ladder",
+      "protocol": "mcq-ladder-v1",
+      "result": "3.0B 98%",
+      "verdict": "MCQ_LADDER_FLAT",
+      "file": "mcq_ladder_v1_test.json"
+    },
+    {
+      "name": "External holdout",
+      "protocol": "external-holdout-v1",
+      "result": "10/15 (67%)",
+      "verdict": "EXTERNAL_HOLDOUT_VIABLE",
+      "file": "external_holdout_test.json"
+    },
+    {
+      "name": "TPI-v2",
+      "protocol": "valhalla-base-training-potential-v2",
+      "result": "TPI 0.755",
+      "verdict": [
+        "STRONG_INFERENCE_TIME_LEARNING",
+        "FATE_TRANSFER_RESCUES_SESSION"
+      ],
+      "file": "valhalla_base_training_potential_test_v2.json"
+    }
+  ],
+  "pareto_matrix": {
+    "protocol": "external-pareto-matrix-v1",
+    "verdict": [
+      "TOKEN_EFFICIENCY_PARETO",
+      "ACC_TRADEOFF_HONEST"
+    ],
+    "backbone": "Qwen/Qwen2.5-3B-Instruct",
+    "matrix": [
+      {
+        "system": "full_context_lm",
+        "LoCoMo": "1/3",
+        "LongBench": "0/3",
+        "Token_cost_avg": 17386.0,
+        "Latency_ms_avg": 2801.3,
+        "Session_reload_bytes": 199299,
+        "Proactive": "N/A",
+        "locomo_accuracy": 0.3333,
+        "longbench_accuracy": 0.0
+      },
+      {
+        "system": "vanilla_rag",
+        "LoCoMo": "1/3",
+        "LongBench": "0/3",
+        "Token_cost_avg": 17386.0,
+        "Latency_ms_avg": 2699.1,
+        "Session_reload_bytes": 199299,
+        "Proactive": "N/A",
+        "locomo_accuracy": 0.3333,
+        "longbench_accuracy": 0.0
+      },
+      {
+        "system": "mem0",
+        "LoCoMo": "?/?",
+        "LongBench": "?/?",
+        "Token_cost_avg": null,
+        "Latency_ms_avg": null,
+        "Session_reload_bytes": null,
+        "Proactive": "N/A",
+        "locomo_accuracy": null,
+        "longbench_accuracy": null
+      },
+      {
+        "system": "letta",
+        "LoCoMo": "?/?",
+        "LongBench": "?/?",
+        "Token_cost_avg": null,
+        "Latency_ms_avg": null,
+        "Session_reload_bytes": null,
+        "Proactive": "N/A",
+        "locomo_accuracy": null,
+        "longbench_accuracy": null
+      },
+      {
+        "system": "valhalla_base",
+        "LoCoMo": "0/3",
+        "LongBench": "0/3",
+        "Token_cost_avg": 98.7,
+        "Latency_ms_avg": 276208.3,
+        "Session_reload_bytes": 200463,
+        "Proactive": 0,
+        "locomo_accuracy": 0.0,
+        "longbench_accuracy": 0.0
+      }
+    ]
+  },
+  "fundraise_ablation": {
+    "protocol": "fundraise-ablation-matrix-v1",
+    "scale": "moderate",
+    "matrix": [
+      {
+        "arm": "full_context_lm",
+        "label": "LM full-context",
+        "LoCoMo": "9/15",
+        "LoCoMo_acc": 0.6,
+        "MultiHop": "8/15",
+        "MultiHop_acc": 0.5333,
+        "RAGTruth": "0/40",
+        "RAGTruth_acc": 0.0,
+        "LongBench": "2/10",
+        "LongBench_acc": 0.2
+      },
+      {
+        "arm": "vanilla_rag",
+        "label": "Vanilla RAG",
+        "LoCoMo": "9/15",
+        "LoCoMo_acc": 0.6,
+        "MultiHop": "8/15",
+        "MultiHop_acc": 0.5333,
+        "RAGTruth": "0/40",
+        "RAGTruth_acc": 0.0,
+        "LongBench": "2/10",
+        "LongBench_acc": 0.2
+      },
+      {
+        "arm": "lm_patch",
+        "label": "Valhalla lm_patch",
+        "LoCoMo": "1/15",
+        "LoCoMo_acc": 0.0667,
+        "MultiHop": "8/15",
+        "MultiHop_acc": 0.5333,
+        "RAGTruth": "4/40",
+        "RAGTruth_acc": 0.1,
+        "LongBench": "1/10",
+        "LongBench_acc": 0.1
+      },
+      {
+        "arm": "native",
+        "label": "Valhalla native",
+        "LoCoMo": "0/15",
+        "LoCoMo_acc": 0.0,
+        "MultiHop": "9/15",
+        "MultiHop_acc": 0.6,
+        "RAGTruth": "34/40",
+        "RAGTruth_acc": 0.85,
+        "LongBench": "3/10",
+        "LongBench_acc": 0.3
+      },
+      {
+        "arm": "hybrid_full",
+        "label": "Valhalla hybrid (full)",
+        "LoCoMo": "0/15",
+        "LoCoMo_acc": 0.0,
+        "MultiHop": "9/15",
+        "MultiHop_acc": 0.6,
+        "RAGTruth": "34/40",
+        "RAGTruth_acc": 0.85,
+        "LongBench": "1/10",
+        "LongBench_acc": 0.1
+      },
+      {
+        "arm": "hybrid_no_fate",
+        "label": "Hybrid − Fate",
+        "LoCoMo": "0/15",
+        "LoCoMo_acc": 0.0,
+        "MultiHop": "9/15",
+        "MultiHop_acc": 0.6,
+        "RAGTruth": "34/40",
+        "RAGTruth_acc": 0.85,
+        "LongBench": "1/10",
+        "LongBench_acc": 0.1
+      },
+      {
+        "arm": "hybrid_tile",
+        "label": "Hybrid − Triad (tile)",
+        "LoCoMo": "0/15",
+        "LoCoMo_acc": 0.0,
+        "MultiHop": "9/15",
+        "MultiHop_acc": 0.6,
+        "RAGTruth": "37/40",
+        "RAGTruth_acc": 0.925,
+        "LongBench": "1/10",
+        "LongBench_acc": 0.1
+      }
+    ],
+    "component_notes": [
+      "Fate lift on LoCoMo: +0.0pp (full vs −Fate)",
+      "Triad lift on LoCoMo: +0.0pp (triad vs tile)",
+      "Structure premium on LoCoMo: -60.0pp (hybrid vs vanilla RAG)",
+      "Fate lift on MultiHop: +0.0pp (full vs −Fate)",
+      "Triad lift on MultiHop: +0.0pp (triad vs tile)",
+      "Structure premium on MultiHop: +6.7pp (hybrid vs vanilla RAG)"
+    ]
+  },
+  "legitimacy": {
+    "timestamp": "2026-07-13T08:04:09.796126+00:00",
+    "bundles": {
+      "ragtruth": {
+        "file": "ragtruth_qa_test40.json",
+        "ok": true,
+        "n": 40,
+        "tier": "A",
+        "note": "bundle present"
+      },
+      "needle": {
+        "file": "ruler_v1_slice20.json",
+        "ok": true,
+        "n": 20,
+        "tier": "A",
+        "note": "bundle present"
+      },
+      "locomo": {
+        "file": "locomo_qa_slice30.json",
+        "ok": true,
+        "n": 30,
+        "tier": "A",
+        "note": "bundle present"
+      },
+      "multihop": {
+        "file": "multihop_rag_slice25.json",
+        "ok": true,
+        "n": 25,
+        "tier": "A",
+        "note": "bundle present"
+      },
+      "frames": {
+        "benchmark": "FRAMES",
+        "protocol": "frames-v1",
+        "bundle_viable": true,
+        "tier": "A",
+        "preflight": {
+          "bundle": "frames_slice25.json",
+          "n": 25,
+          "wiki_items_with_extract_meta": 25,
+          "items_with_real_corpus": 25,
+          "viable": true,
+          "tier": "A",
+          "fix": "./scripts/prefetch_frames_wiki.sh  # or: python3 tools/standard_benchmarks/enrich_frames_wiki.py"
+        },
+        "report": {
+          "exists": true,
+          "correct": 0,
+          "n": 5,
+          "wiki_items_fetched": 0
+        },
+        "citeable": true,
+        "note": "Tier A/B — wiki corpus present; score citeable after re-run"
+      }
+    },
+    "reports": [
+      {
+        "benchmark": "ragtruth",
+        "protocol": "ragtruth-v1",
+        "report_exists": true,
+        "correct": 34,
+        "n": 40,
+        "verdict": "RAGTRUTH_STRONG",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      },
+      {
+        "benchmark": "ragtruth_full",
+        "protocol": "ragtruth-full-v1",
+        "report_exists": true,
+        "correct": 88,
+        "n": 100,
+        "verdict": "RAGTRUTH_STRONG",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      },
+      {
+        "benchmark": "needle_session",
+        "protocol": "needle-session-v1",
+        "report_exists": true,
+        "correct": 4,
+        "n": 4,
+        "verdict": "NEEDLE_STRONG",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      },
+      {
+        "benchmark": "longbench_v2",
+        "protocol": "longbench-v2-v1",
+        "report_exists": true,
+        "correct": 4,
+        "n": 20,
+        "verdict": "LONGBENCH_V2_DEVELOPING",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      },
+      {
+        "benchmark": "frames",
+        "protocol": "frames-v1",
+        "report_exists": true,
+        "correct": 0,
+        "n": 5,
+        "verdict": "OPEN_QA_DEVELOPING",
+        "tier": "B",
+        "citeable": true,
+        "fast_slice": true,
+        "missing_keys": [],
+        "note": "fast slice (n=5); cite with --fast label; full n≥10 preferred"
+      },
+      {
+        "benchmark": "multihop_rag_hybrid",
+        "protocol": "multihop-rag-v1",
+        "report_exists": true,
+        "correct": 15,
+        "n": 25,
+        "verdict": "OPEN_QA_VIABLE",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      },
+      {
+        "benchmark": "locomo",
+        "protocol": "locomo-v1",
+        "report_exists": true,
+        "correct": 17,
+        "n": 30,
+        "verdict": "OPEN_QA_VIABLE",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      },
+      {
+        "benchmark": "ruler",
+        "protocol": "ruler-v1",
+        "report_exists": true,
+        "correct": 15,
+        "n": 20,
+        "verdict": "NEEDLE_VIABLE",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      },
+      {
+        "benchmark": "lara",
+        "protocol": "lara-v1",
+        "report_exists": true,
+        "correct": 11,
+        "n": 20,
+        "verdict": "STRUCTURE_RAG_BELOW_LC",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      },
+      {
+        "benchmark": "external_holdout",
+        "protocol": "external-holdout-v1",
+        "report_exists": true,
+        "correct": 10,
+        "n": 15,
+        "verdict": "EXTERNAL_HOLDOUT_VIABLE",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      },
+      {
+        "benchmark": "valhalla_independence",
+        "protocol": "valhalla-independence-v1",
+        "report_exists": true,
+        "correct": 3,
+        "n": 4,
+        "verdict": "VALHALLA_BASE_INDEPENDENT",
+        "tier": "A",
+        "citeable": true,
+        "fast_slice": false,
+        "missing_keys": [],
+        "note": "valid report"
+      }
+    ],
+    "summary": {
+      "reports_citeable": 11,
+      "reports_total": 11,
+      "frames_bundle_viable": true
+    }
+  },
+  "summary": {
+    "independence": "VALHALLA_BASE_INDEPENDENT",
+    "industry_rows": 15,
+    "reports_citeable": 11,
+    "reports_total": 11,
+    "frames_viable": true
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "timestamp": "2026-07-13T08:04:09.870188+00:00",
+  "bundles": {
+    "ragtruth": {
+      "file": "ragtruth_qa_test40.json",
+      "ok": true,
+      "n": 40,
+      "tier": "A",
+      "note": "bundle present"
+    },
+    "needle": {
+      "file": "ruler_v1_slice20.json",
+      "ok": true,
+      "n": 20,
+      "tier": "A",
+      "note": "bundle present"
+    },
+    "locomo": {
+      "file": "locomo_qa_slice30.json",
+      "ok": true,
+      "n": 30,
+      "tier": "A",
+      "note": "bundle present"
+    },
+    "multihop": {
+      "file": "multihop_rag_slice25.json",
+      "ok": true,
+      "n": 25,
+      "tier": "A",
+      "note": "bundle present"
+    },
+    "frames": {
+      "benchmark": "FRAMES",
+      "protocol": "frames-v1",
+      "bundle_viable": true,
+      "tier": "A",
+      "preflight": {
+        "bundle": "frames_slice25.json",
+        "n": 25,
+        "wiki_items_with_extract_meta": 25,
+        "items_with_real_corpus": 25,
+        "viable": true,
+        "tier": "A",
+        "fix": "./scripts/prefetch_frames_wiki.sh  # or: python3 tools/standard_benchmarks/enrich_frames_wiki.py"
+      },
+      "report": {
+        "exists": true,
+        "correct": 0,
+        "n": 5,
+        "wiki_items_fetched": 0
+      },
+      "citeable": true,
+      "note": "Tier A/B — wiki corpus present; score citeable after re-run"
+    }
+  },
+  "reports": [
+    {
+      "benchmark": "ragtruth",
+      "protocol": "ragtruth-v1",
+      "report_exists": true,
+      "correct": 34,
+      "n": 40,
+      "verdict": "RAGTRUTH_STRONG",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    },
+    {
+      "benchmark": "ragtruth_full",
+      "protocol": "ragtruth-full-v1",
+      "report_exists": true,
+      "correct": 88,
+      "n": 100,
+      "verdict": "RAGTRUTH_STRONG",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    },
+    {
+      "benchmark": "needle_session",
+      "protocol": "needle-session-v1",
+      "report_exists": true,
+      "correct": 4,
+      "n": 4,
+      "verdict": "NEEDLE_STRONG",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    },
+    {
+      "benchmark": "longbench_v2",
+      "protocol": "longbench-v2-v1",
+      "report_exists": true,
+      "correct": 4,
+      "n": 20,
+      "verdict": "LONGBENCH_V2_DEVELOPING",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    },
+    {
+      "benchmark": "frames",
+      "protocol": "frames-v1",
+      "report_exists": true,
+      "correct": 0,
+      "n": 5,
+      "verdict": "OPEN_QA_DEVELOPING",
+      "tier": "B",
+      "citeable": true,
+      "fast_slice": true,
+      "missing_keys": [],
+      "note": "fast slice (n=5); cite with --fast label; full n≥10 preferred"
+    },
+    {
+      "benchmark": "multihop_rag_hybrid",
+      "protocol": "multihop-rag-v1",
+      "report_exists": true,
+      "correct": 15,
+      "n": 25,
+      "verdict": "OPEN_QA_VIABLE",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    },
+    {
+      "benchmark": "locomo",
+      "protocol": "locomo-v1",
+      "report_exists": true,
+      "correct": 17,
+      "n": 30,
+      "verdict": "OPEN_QA_VIABLE",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    },
+    {
+      "benchmark": "ruler",
+      "protocol": "ruler-v1",
+      "report_exists": true,
+      "correct": 15,
+      "n": 20,
+      "verdict": "NEEDLE_VIABLE",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    },
+    {
+      "benchmark": "lara",
+      "protocol": "lara-v1",
+      "report_exists": true,
+      "correct": 11,
+      "n": 20,
+      "verdict": "STRUCTURE_RAG_BELOW_LC",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    },
+    {
+      "benchmark": "external_holdout",
+      "protocol": "external-holdout-v1",
+      "report_exists": true,
+      "correct": 10,
+      "n": 15,
+      "verdict": "EXTERNAL_HOLDOUT_VIABLE",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    },
+    {
+      "benchmark": "valhalla_independence",
+      "protocol": "valhalla-independence-v1",
+      "report_exists": true,
+      "correct": 3,
+      "n": 4,
+      "verdict": "VALHALLA_BASE_INDEPENDENT",
+      "tier": "A",
+      "citeable": true,
+      "fast_slice": false,
+      "missing_keys": [],
+      "note": "valid report"
+    }
+  ],
+  "summary": {
+    "reports_citeable": 11,
+    "reports_total": 11,
+    "frames_bundle_viable": true
+  }
+}

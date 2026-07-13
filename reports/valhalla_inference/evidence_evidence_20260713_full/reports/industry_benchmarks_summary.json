@@ -1,0 +1,129 @@
+{
+  "timestamp": "2026-07-13T11:38:01.288898+00:00",
+  "benchmarks": [
+    {
+      "name": "RAGTruth",
+      "protocol": "ragtruth-v1",
+      "result": "34/40 (85%)",
+      "verdict": "RAGTRUTH_STRONG",
+      "file": "ragtruth_v1_test.json"
+    },
+    {
+      "name": "RAGTruth-100",
+      "protocol": "ragtruth-full-v1",
+      "result": "88/100 (88%)",
+      "verdict": "RAGTRUTH_STRONG",
+      "file": "ragtruth_full_v1_test.json"
+    },
+    {
+      "name": "Needle session",
+      "protocol": "needle-session-v1",
+      "result": "4/4 (100%)",
+      "verdict": "NEEDLE_STRONG",
+      "file": "needle_session_v1_test.json"
+    },
+    {
+      "name": "LongBench-v2",
+      "protocol": "longbench-v2-fragmentwithfate-light-v1",
+      "result": "4/20 (20%)",
+      "verdict": "LONGBENCH_V2_DEVELOPING",
+      "file": "longbench_v2_v1_test.json"
+    },
+    {
+      "name": "FRAMES",
+      "protocol": "frames-v1-rust",
+      "result": "0/5 (0%) · wiki enriched · Tier B smoke",
+      "verdict": "OPEN_QA_DEVELOPING",
+      "file": "frames_v1_test.json",
+      "citeable": true,
+      "note": "parasail wiki dump; full n≥10 preferred for homepage"
+    },
+    {
+      "name": "MultiHop-RAG",
+      "protocol": "multihop-rag-v1",
+      "result": "9/25 (36%)",
+      "verdict": "OPEN_QA_DEVELOPING",
+      "file": "multihop_rag_v1_test.json"
+    },
+    {
+      "name": "MultiHop-RAG v2",
+      "protocol": "multihop-rag-v2",
+      "result": "15/25 (60%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "multihop_rag_v2_test.json"
+    },
+    {
+      "name": "MultiHop-RAG Fate",
+      "protocol": "multihop-rag-fate",
+      "result": "15/25 (60%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "multihop_rag_fate_test.json"
+    },
+    {
+      "name": "MultiHop-RAG fatewithv2",
+      "protocol": "multihop-rag-fatewithv2",
+      "result": "15/25 (60%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "multihop_rag_hybrid_test.json"
+    },
+    {
+      "name": "LoCoMo",
+      "protocol": "locomo-v1-rust",
+      "result": "17/30 (57%)",
+      "verdict": "OPEN_QA_VIABLE",
+      "file": "locomo_v1_test.json"
+    },
+    {
+      "name": "RULER-style",
+      "protocol": "ruler-v1",
+      "result": "15/20 (75%)",
+      "verdict": "NEEDLE_VIABLE",
+      "file": "ruler_v1_test.json"
+    },
+    {
+      "name": "LaRA RAG vs LC",
+      "protocol": "lara-v1",
+      "result": "RAG 11/20 · LC 13/20",
+      "verdict": "STRUCTURE_RAG_BELOW_LC",
+      "file": "lara_v1_test.json"
+    },
+    {
+      "name": "MCQ ladder",
+      "protocol": "mcq-ladder-v1",
+      "result": "3.0B 98%",
+      "verdict": "MCQ_LADDER_FLAT",
+      "file": "mcq_ladder_v1_test.json"
+    },
+    {
+      "name": "External holdout",
+      "protocol": "external-holdout-v1",
+      "result": "10/15 (67%)",
+      "verdict": "EXTERNAL_HOLDOUT_VIABLE",
+      "file": "external_holdout_test.json"
+    },
+    {
+      "name": "TPI-v2",
+      "protocol": "valhalla-base-training-potential-v2",
+      "result": "TPI 0.755",
+      "verdict": [
+        "STRONG_INFERENCE_TIME_LEARNING",
+        "FATE_TRANSFER_RESCUES_SESSION"
+      ],
+      "file": "valhalla_base_training_potential_test_v2.json"
+    }
+  ],
+  "pending": [
+    "U-NIAH multi-needle (extend ruler-v2)",
+    "RAGBench end-to-end (galileo-ai/ragbench)",
+    "FRAMES full 824Q + wiki fetch",
+    "LoCoMo full 10 conversations all QA",
+    "Qwen 7B MCQ ladder measured",
+    "RAGAS reference-free on production traces"
+  ],
+  "report_dir": "/home/jouly/AI/Valhalla/reports/valhalla_inference",
+  "legitimacy_summary": {
+    "reports_citeable": 11,
+    "reports_total": 11,
+    "frames_bundle_viable": true
+  }
+}

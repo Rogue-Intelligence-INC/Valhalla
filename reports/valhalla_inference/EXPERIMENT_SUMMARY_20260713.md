@@ -104,9 +104,11 @@ let out = run_open_qa_scored(&req, gold);
 | LaRA RAG vs LC | 20 | **RAG 11/20 · LC 13/20** | STRUCTURE_RAG_BELOW_LC |
 | External holdout | 15 | **10/15 (67%)** | EXTERNAL_HOLDOUT_VIABLE |
 | MCQ ladder @3B | 46 | **45/46 (98%)** | MCQ_LADDER_FLAT |
-| FRAMES | — | **跳过** | Tier C（无 wiki extract） |
+| FRAMES | 5 smoke | **0/5 · wiki enriched (Tier B)** | OPEN_QA_DEVELOPING |
 
-**Legitimacy:** citeable **10/11** · FRAMES bundle viable: **False**
+**Legitimacy:** citeable **11/11** · FRAMES bundle viable: **True**
+
+**Evidence suite `--full` (同日):** competitor · ablation · token · pack — [`EVIDENCE_SUITE_SUMMARY_20260713.md`](./EVIDENCE_SUITE_SUMMARY_20260713.md)
 
 ---
 
@@ -119,6 +121,8 @@ let out = run_open_qa_scored(&req, gold);
 | LoCoMo | 14/30 | 1/3 | **17/30** |
 | MultiHop hybrid | 14/25 | 17/25* | **15/25** |
 | LongBench | 7/20 | 1/5 | **4/20** |
+| FRAMES | — | Tier C | **wiki OK · 0/5 smoke** |
+| Competitor LoCoMo | — | — | full/vanilla 9/15 · valhalla 0/15 · mem0 5/15 |
 
 \* fast run 与并行/评分口径不同；**15/25** 为三臂一致、诚实 `fate_score_short_answer` 下的稳定读数。
 
@@ -131,6 +135,9 @@ let out = run_open_qa_scored(&req, gold);
 ```bash
 export RUSTFLAGS="-L /opt/cuda/lib64" LIBRARY_PATH=/opt/cuda/lib64
 cargo build -p hub-f64 --release --features patch-lm --bin valhalla_base
+
+./scripts/prefetch_frames_wiki.sh
+./scripts/run_evidence_suite.sh --full
 
 # 全量 industry（含 MCQ ladder @3B）
 python3 tools/valhalla_inference/run_industry_benchmarks.py --all --fresh --verbose
@@ -150,7 +157,8 @@ python3 tools/valhalla_inference/sync_valhalla_unified_core.py
 ## 7. 诚实边界（Tier B/C）
 
 - **LongBench / MultiHop entity**：部分 MH 项 decode 正确文本但 gold 不匹配（如 MH_2275/2328）— 评分已收紧。
-- **FRAMES**：需 Wikipedia extract prefetch；离线环境不可 cite。
+- **FRAMES**：wiki 已由 parasail dump 补齐（Tier A bundle）；当前分数为 `--fast` smoke，首页宜等 full n≥10。
+- **Competitor LoCoMo**：valhalla 0/15 vs full/vanilla 9/15 — 诚实缺口，勿当 SOTA。
 - **Pareto matrix** 中 LoCoMo/LongBench 对照行仍为 fast slice — 与全量 industry 分开引用。
 
 ---

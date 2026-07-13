@@ -1,0 +1,12 @@
+{
+  "bundle": "multihop_rag_slice25.json",
+  "upstream": "https://huggingface.co/datasets/yixuantt/MultiHopRAG",
+  "hf_or_paper": "COLM 2024 MultiHop-RAG",
+  "source_field_in_bundle": "yixuantt/MultiHopRAG",
+  "license": "See MultiHopRAG dataset card",
+  "selection_rule": "25 items with non-empty corpus from MultiHopRAG; questions/answers unchanged",
+  "human_authored": true,
+  "synthetic": false,
+  "used_as_dev_loop_primary": true,
+  "note": "Open multi-hop RAG calibration; protocol multihop-rag-v1 / fatewithv2"
+}

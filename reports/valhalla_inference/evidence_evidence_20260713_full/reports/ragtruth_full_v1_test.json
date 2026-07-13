@@ -1,0 +1,613 @@
+{
+  "timestamp": "2026-07-12T22:59:47.836665+00:00",
+  "protocol": "ragtruth-full-v1",
+  "benchmark": "RAGTruth expanded",
+  "bundle": "ragtruth_qa_test100.json",
+  "n": 100,
+  "faithful": 88,
+  "faithful_rate": 0.88,
+  "abstain": 0,
+  "verdict": "RAGTRUTH_STRONG",
+  "rows": [
+    {
+      "id": "17059",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] Mix cloves with basil, mint and cardamom in water to make a flavoured tea"
+    },
+    {
+      "id": "12601",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:6] [fate:30@6] In Italian the meaning of the name Teresa is: Harvester"
+    },
+    {
+      "id": "12103",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:4] [fate:26@4] For helpful do-it-yourself repair techniques for fixing common lock and latch problems, please se"
+    },
+    {
+      "id": "14054",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:25] [fate:110@25] Put the frozen pork loin in a shallow baking pan on top of a roasting rack with the fat of the"
+    },
+    {
+      "id": "13719",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:15] [fate:70@15] 2 While cleaning the vents, you may also want to remove the bottom front panel of the dryer and"
+    },
+    {
+      "id": "13466",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] The highest monthly average temperature in Sausalito for September is 58 degrees"
+    },
+    {
+      "id": "12901",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] 2 To test whether an egg is hard-boiled without breaking it, whirl it on a table"
+    },
+    {
+      "id": "12525",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:22@2] Caribbean Sea The Windward Islands"
+    },
+    {
+      "id": "17514",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] PoachPod"
+    },
+    {
+      "id": "16148",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] Pick"
+    },
+    {
+      "id": "12448",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:14@0] Nine out of the 20 amino acids are essential, but adults only need to obtain eight of them: valin"
+    },
+    {
+      "id": "16687",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] Other people are tall compared to non-basketball players, but undersized for their positions"
+    },
+    {
+      "id": "15196",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] One (1) copy, along with a copy of the lien fee receipt, will be sent to OTC in the agents semi-m"
+    },
+    {
+      "id": "12134",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:6@0] 1 Spray a baking sheet with butter flavored cooking spray"
+    },
+    {
+      "id": "12132",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:6@0] 1 Spray a baking sheet with butter flavored cooking spray"
+    },
+    {
+      "id": "12472",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:10] [fate:50@10] After the sync is complete, the audiobook will be on your iPhone"
+    },
+    {
+      "id": "13443",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:6] [fate:34@6] No matter how hard you try, oil stains on your concrete driveway are nearly impossible to avoid"
+    },
+    {
+      "id": "13531",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] One difference between the FEHA (the Fair Employment and Housing Act) and the ADA (Americans with"
+    },
+    {
+      "id": "15779",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:12] [fate:58@12] Here are 12 uses for safety pins that you may never have thought of"
+    },
+    {
+      "id": "16796",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] Cardiovascular Health Benefits of Jalapeno Peppers Cardiovascular health concerns like heart atta"
+    },
+    {
+      "id": "12105",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:4] [fate:26@4] For helpful do-it-yourself repair techniques for fixing common lock and latch problems, please se"
+    },
+    {
+      "id": "16453",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] Share Dove"
+    },
+    {
+      "id": "13338",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] Another difference between compounds and mixtures of elements is the ease with which the elements"
+    },
+    {
+      "id": "17196",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:3] [fate:22@3] Yes"
+    },
+    {
+      "id": "15177",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:7] [fate:38@7] In the Canadian boreal forest, aspen and jack pine are the most important ‘pioneer species’, obse"
+    },
+    {
+      "id": "13445",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:6] [fate:34@6] No matter how hard you try, oil stains on your concrete driveway are nearly impossible to avoid"
+    },
+    {
+      "id": "15461",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:22@2] One of the distinguishing differences between refined and unrefined coconut oil is the taste"
+    },
+    {
+      "id": "16686",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] Other people are tall compared to non-basketball players, but undersized for their positions"
+    },
+    {
+      "id": "14057",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:25] [fate:110@25] Put the frozen pork loin in a shallow baking pan on top of a roasting rack with the fat of the"
+    },
+    {
+      "id": "12014",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:8] [fate:42@8] The key difference between tartrate and succinate is that succinate is derived from the succinic "
+    },
+    {
+      "id": "13128",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:11] [fate:50@11] How to keep it soft"
+    },
+    {
+      "id": "17759",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:6] [fate:34@6] MMS: MMS stands for Multimedia Messaging Service and this type of text messaging is an evolution "
+    },
+    {
+      "id": "14508",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:22@2] Well Fallacy Poisoning"
+    },
+    {
+      "id": "13073",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:7] [fate:38@7] 2 These conditions are more common in the elderly, as is a general increase in PSA levels"
+    },
+    {
+      "id": "13433",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] The"
+    },
+    {
+      "id": "14504",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:14@0] There are many reasons why goodwill is important in business"
+    },
+    {
+      "id": "12470",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:10] [fate:50@10] After the sync is complete, the audiobook will be on your iPhone"
+    },
+    {
+      "id": "14805",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] CLIMATE: AVERAGE MONTHLY WEATHER IN Bucharest, Romania"
+    },
+    {
+      "id": "12519",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] Several systems in the human body work together to help keep it functioning normally"
+    },
+    {
+      "id": "14743",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] DMSO"
+    },
+    {
+      "id": "14513",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:22@2] Well Fallacy Poisoning"
+    },
+    {
+      "id": "16848",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:12] [fate:62@12] Both red blood cells and white blood cells can be carried by blood from one part to other part "
+    },
+    {
+      "id": "13940",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:12] [fate:58@12] Osteoporosis is a condition that has virtually no symptoms until severe bone damage has already"
+    },
+    {
+      "id": "12220",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:6@0] Begin Sewing Binding to the Quilt Use my step-by-step instructions to learn how to sew mitered bin"
+    },
+    {
+      "id": "15553",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] Germany"
+    },
+    {
+      "id": "16059",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] FIFA 16 Xbox & PC Skill Moves: These button combinations work to execute skill moves on the Xbox "
+    },
+    {
+      "id": "12703",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:6] [fate:34@6] Using a sharp knife, cut 1/4 to a 1/2 inch from the top of cloves, exposing the individual cloves"
+    },
+    {
+      "id": "14802",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] CLIMATE: AVERAGE MONTHLY WEATHER IN Bucharest, Romania"
+    },
+    {
+      "id": "12439",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] If you'd like to see red blood cells, you'll need to learn how to do a Blood Smear"
+    },
+    {
+      "id": "16156",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] Sen John McCain"
+    },
+    {
+      "id": "14323",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] In fact, homemade texture or decorative paint rollers can work better than the commercial variety"
+    },
+    {
+      "id": "17255",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:10] [fate:50@10] Water is for children to enjoy and learn from! 25 Great Ideas for Promoting Discovery Learning "
+    },
+    {
+      "id": "14846",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] 2 Push torn pieces of bread through the shredding disk of a food processor to make coarse crumbs"
+    },
+    {
+      "id": "16852",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:12] [fate:62@12] Both red blood cells and white blood cells can be carried by blood from one part to other part "
+    },
+    {
+      "id": "13340",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] Another difference between compounds and mixtures of elements is the ease with which the elements"
+    },
+    {
+      "id": "12471",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:10] [fate:50@10] After the sync is complete, the audiobook will be on your iPhone"
+    },
+    {
+      "id": "12435",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:5] [fate:30@5] People with IBS have symptoms that can include: 1 Diarrhea (often described as violent episodes o"
+    },
+    {
+      "id": "13564",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] Oven-Fried Pork Chops The"
+    },
+    {
+      "id": "14297",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] That's the concept behind your carbon footprint, which is one method of measuring the environment"
+    },
+    {
+      "id": "12602",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:6] [fate:30@6] In Italian the meaning of the name Teresa is: Harvester"
+    },
+    {
+      "id": "13910",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:14@0] Visual Merchandising The"
+    },
+    {
+      "id": "12765",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] In case an asset is discarded by the business but not sold, section 43(6) permits the scrap value"
+    },
+    {
+      "id": "15011",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:4] [fate:22@4] In fraternal twins, each twin is fertilized by its own sperm cell"
+    },
+    {
+      "id": "14290",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:7] [fate:38@7] If you are due money back on your federal or state taxes, you'll want to know when you can expect"
+    },
+    {
+      "id": "15688",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] In a tropical rainforest biome, there are several characteristics that have been identified"
+    },
+    {
+      "id": "14859",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] My Singing Monsters: Shugabeats Monster breeding guide"
+    },
+    {
+      "id": "13161",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] 2 Season the roast with only a small amount of salt but lots of fresh ground black pepper pepper "
+    },
+    {
+      "id": "14860",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] My Singing Monsters: Shugabeats Monster breeding guide"
+    },
+    {
+      "id": "14765",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:7] [fate:38@7] The B-type Natriuretic Peptide"
+    },
+    {
+      "id": "13367",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:7] [fate:38@7] Wash one wine glass at a time to avoid damage"
+    },
+    {
+      "id": "14135",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:18@1] Examples of Potential Energy and Kinetic Energy"
+    },
+    {
+      "id": "12518",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] Several systems in the human body work together to help keep it functioning normally"
+    },
+    {
+      "id": "13163",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] 2 Season the roast with only a small amount of salt but lots of fresh ground black pepper pepper "
+    },
+    {
+      "id": "16420",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] The truncated cone is a lot like a lampshade"
+    },
+    {
+      "id": "14007",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:18@1] Parts of the Sentence - Adjective, Adverb, and Noun Clauses"
+    },
+    {
+      "id": "16775",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:14@0] Endocrine System"
+    },
+    {
+      "id": "15713",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:14@0] The difference between the two is that Porterhouse steaks are cut from further back on the sirloi"
+    },
+    {
+      "id": "17105",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:8] [fate:42@8] This video will show you how you can get a free Virtual Phone Number (VOIP)"
+    },
+    {
+      "id": "14283",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] uilding a second floor (also called a second story) can added much-needed space, but costs at lea"
+    },
+    {
+      "id": "13469",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] The highest monthly average temperature in Sausalito for September is 58 degrees"
+    },
+    {
+      "id": "14690",
+      "faithful": false,
+      "abstain": false,
+      "answer": "[corpus:3] [fate:22@3] You"
+    },
+    {
+      "id": "12459",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] Average Weather in Indianapolis Indiana, United States"
+    },
+    {
+      "id": "16898",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:4] [fate:26@4] 2) While in the shower, make sure your water is warm, but not too hot"
+    },
+    {
+      "id": "15345",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:6] [fate:34@6] Outdoor Hiking Promotes Mental Health"
+    },
+    {
+      "id": "12219",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:6@0] Begin Sewing Binding to the Quilt Use my step-by-step instructions to learn how to sew mitered bin"
+    },
+    {
+      "id": "15201",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:13] [fate:62@13] The main difference between craters and calderas is how they are formed"
+    },
+    {
+      "id": "13160",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] 2 Season the roast with only a small amount of salt but lots of fresh ground black pepper pepper "
+    },
+    {
+      "id": "13363",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:7] [fate:38@7] Wash one wine glass at a time to avoid damage"
+    },
+    {
+      "id": "13108",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:7] [fate:38@7] If you want, you may use graph paper to help you make a great graph you can be proud of"
+    },
+    {
+      "id": "12262",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:9] [fate:46@9] To set Mozilla Firefox as your default Windows browser, take the following steps"
+    },
+    {
+      "id": "12902",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] 2 To test whether an egg is hard-boiled without breaking it, whirl it on a table"
+    },
+    {
+      "id": "16798",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] Cardiovascular Health Benefits of Jalapeno Peppers Cardiovascular health concerns like heart atta"
+    },
+    {
+      "id": "14293",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] That's the concept behind your carbon footprint, which is one method of measuring the environment"
+    },
+    {
+      "id": "15651",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] Salary exchange is a way of making pension contributions that could allow both employers and empl"
+    },
+    {
+      "id": "14806",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] CLIMATE: AVERAGE MONTHLY WEATHER IN Bucharest, Romania"
+    },
+    {
+      "id": "15755",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:2] [fate:18@2] How does E-ZPass® work? As your vehicle enters the toll lane, the toll tag (1) that is mounted on"
+    },
+    {
+      "id": "15716",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] Gemini Mythology The Story Behind"
+    },
+    {
+      "id": "16060",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] FIFA 16 Xbox & PC Skill Moves: These button combinations work to execute skill moves on the Xbox "
+    },
+    {
+      "id": "14097",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:1] [fate:14@1] The type of grass you have will determine what type of fertilizer you need to use, and how often "
+    },
+    {
+      "id": "13342",
+      "faithful": true,
+      "abstain": false,
+      "answer": "[corpus:0] [fate:10@0] Another difference between compounds and mixtures of elements is the ease with which the elements"
+    }
+  ]
+}

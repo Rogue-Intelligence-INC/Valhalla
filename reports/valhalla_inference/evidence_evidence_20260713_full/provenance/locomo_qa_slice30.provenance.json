@@ -1,0 +1,12 @@
+{
+  "bundle": "locomo_qa_slice30.json",
+  "upstream": "https://github.com/snap-research/locomo",
+  "hf_or_paper": "ACL 2024 LoCoMo — Long Conversational Memory",
+  "source_field_in_bundle": "snap-research/locomo locomo10.json",
+  "license": "See upstream LoCoMo repository",
+  "selection_rule": "First 30 QA items from locomo10 with session_lines retained; no Valhalla-specific rewriting of questions/answers",
+  "human_authored": true,
+  "synthetic": false,
+  "used_as_dev_loop_primary": true,
+  "note": "Industry session-memory calibration; cite as LoCoMo slice-30 under protocol locomo-v1"
+}

@@ -1,0 +1,9 @@
+{
+  "bundle": "ruler_v1_slice20.json",
+  "upstream": "RULER-style needle / retrieval stress (NVIDIA RULER inspired)",
+  "selection_rule": "20 synthetic-but-standard needle-style probes for session retrieval",
+  "human_authored": false,
+  "synthetic": true,
+  "synthetic_kind": "needle_retrieval_probe",
+  "note": "Synthetic retrieval stress — label as synthetic; still industry-comparable needle protocol"
+}

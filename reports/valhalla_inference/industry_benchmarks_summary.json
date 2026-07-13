@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-12T23:25:28.969688+00:00",
+  "timestamp": "2026-07-13T11:38:01.288898+00:00",
   "benchmarks": [
     {
       "name": "RAGTruth",
@@ -32,10 +32,11 @@
     {
       "name": "FRAMES",
       "protocol": "frames-v1-rust",
-      "result": "1/25 (4%) · Tier C (no wiki extracts)",
-      "verdict": "TIER_C_INVALID",
+      "result": "0/5 (0%) · wiki enriched · Tier B smoke",
+      "verdict": "OPEN_QA_DEVELOPING",
       "file": "frames_v1_test.json",
-      "citeable": false
+      "citeable": true,
+      "note": "parasail wiki dump; full n≥10 preferred for homepage"
     },
     {
       "name": "MultiHop-RAG",
@@ -119,5 +120,10 @@
     "Qwen 7B MCQ ladder measured",
     "RAGAS reference-free on production traces"
   ],
-  "report_dir": "/home/jouly/AI/Valhalla/reports/valhalla_inference"
+  "report_dir": "/home/jouly/AI/Valhalla/reports/valhalla_inference",
+  "legitimacy_summary": {
+    "reports_citeable": 11,
+    "reports_total": 11,
+    "frames_bundle_viable": true
+  }
 }

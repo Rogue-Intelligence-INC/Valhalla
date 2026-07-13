@@ -1,0 +1,61 @@
+{
+  "bundled_dir": "tools/standard_benchmarks/bundled",
+  "n_files": 11,
+  "files": [
+    {
+      "path": "tools/standard_benchmarks/bundled/fate_longchain_unified_locomo.json",
+      "sha256": "e7b733043cfb6c2ce59377ac28237c0d2a77cbe363724c6f9537d509701edd9e",
+      "bytes": 894
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/frames_slice25.json",
+      "sha256": "95a98c1b7e2d6b3c0d38c1f9ced2e14a1acf23c593a8e839cef2da14eb4f7364",
+      "bytes": 273714
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/frames_slice_smoke3.json",
+      "sha256": "e3699a2edbc0d9b47fc80c97dce9344b2f4ae2053b6cecf4b4ae0ae42cd14033",
+      "bytes": 2255
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/lara_rag_vs_lc_slice20.json",
+      "sha256": "9c44c9414897b7800673a21cb2f6f1bde440a7e5f243375b287eef22f2933a42",
+      "bytes": 86867
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/locomo_qa_slice30.json",
+      "sha256": "9740a3f5db3684520237dc5381c15002a5ec1a0493fbe64b8a9425e5ea22854f",
+      "bytes": 2112491
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/longbench_v2_mcq_short20.json",
+      "sha256": "e657fcdb0718056c44bf210777420d0732d2aa09e0ec766f59ded528227d87b3",
+      "bytes": 271641
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/multihop_rag_slice25.json",
+      "sha256": "79813356aeb75ec3f735b5f230b2835df3689b16a8fe8cc7ffe1a44742d2f043",
+      "bytes": 29324
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/proactive_agency_scenarios.json",
+      "sha256": "5e83beb148adb01d1197618ac050af22e841d19f5cd3846331f253da46b25e87",
+      "bytes": 12518
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/ragtruth_qa_test100.json",
+      "sha256": "801cfdca02791d2dbb5a607e03b714cbc38a368fd6c45d89bb0f353ee83ab20f",
+      "bytes": 231010
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/ragtruth_qa_test40.json",
+      "sha256": "062513676fe3ae25f160662696d4db78f9c89ab7d391d0f8c485e08d117e8553",
+      "bytes": 93667
+    },
+    {
+      "path": "tools/standard_benchmarks/bundled/ruler_v1_slice20.json",
+      "sha256": "87dbe5c5bcec27accaab1620b4bc708badebc199532b32a5e5237a1896afa1f5",
+      "bytes": 36660
+    }
+  ]
+}

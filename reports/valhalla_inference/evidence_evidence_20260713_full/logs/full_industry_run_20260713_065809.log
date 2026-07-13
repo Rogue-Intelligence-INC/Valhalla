@@ -1,0 +1,889 @@
+FRAMES bundle lacks wiki extracts; Wikipedia unreachable or offline — skipping frames-v1 (Tier C; run ./scripts/prefetch_frames_wiki.sh when online).
+Calibration LM: Qwen/Qwen2.5-3B-Instruct  (product runtime default: Qwen/Qwen2.5-0.5B-Instruct)  GPU: VALHALLA_USE_CPU=0  serve=subprocess
+Checkpoints → /home/jouly/AI/Valhalla/reports/valhalla_inference/checkpoints
+[Industry suite] [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0/10 (0%) 0s ETA —   
+================================================================
+[needle]
+$ /home/jouly/AI/Valhalla/target/release/valhalla_base demo needle --checkpoint /home/jouly/AI/Valhalla/reports/valhalla_inference/checkpoints/needle.checkpoint.json --checkpoint-every 1 --verbose
+
+{
+  "benchmark": "Needle-in-a-haystack (session append)",
+  "correct": 4,
+  "depths": [
+    5,
+    10,
+    20,
+    30
+  ],
+  "fate_pretrain_passes": 0,
+  "long_chain_rust": false,
+  "n": 4,
+  "needle": "The magic registration code for Project Valhalla is XK-7742.",
+  "prior_knowledge_lines": 0,
+  "production_stack": false,
+  "protocol": "needle-session-v1",
+  "question": "What is the magic registration code for Project Valhalla?",
+  "recall": 1.0,
+  "rows": [
+    {
+      "answer": "[corpus:5] [fate:30@5] The magic registration code for Project Valhalla is XK-7742",
+      "correct": true,
+      "depth": 5,
+      "session_lines": 11
+    },
+    {
+      "answer": "[corpus:10] [fate:50@10] The magic registration code for Project Valhalla is XK-7742",
+      "correct": true,
+      "depth": 10,
+      "session_lines": 21
+    },
+    {
+      "answer": "[corpus:20] [fate:90@20] The magic registration code for Project Valhalla is XK-7742",
+      "correct": true,
+      "depth": 20,
+      "session_lines": 41
+    },
+    {
+      "answer": "[corpus:30] [fate:130@30] The magic registration code for Project Valhalla is XK-7742",
+      "correct": true,
+      "depth": 30,
+      "session_lines": 61
+    }
+  ],
+  "timestamp": "1783897142",
+  "verdict": "NEEDLE_STRONG"
+}
+verdict=NEEDLE_STRONG
+score=4/4
+[Industry suite] [███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1/10 (10%) 14s ETA —   
+================================================================
+[ragtruth]
+$ /home/jouly/AI/Valhalla/.venv-llm/bin/python3 /home/jouly/AI/Valhalla/tools/valhalla_inference/test_ragtruth_v1.py
+
+=== ragtruth-v1 n=40 source=wandb/RAGTruth-processed ===
+
+  ✓ 17059  support=0.80 overlap=0.05
+  ✓ 12601  support=0.71 overlap=0.19
+  ✓ 12103  support=0.86 overlap=0.07
+  ✓ 14054  support=0.83 overlap=0.27
+  ✓ 13719  support=0.86 overlap=0.16
+  ✓ 13466  support=0.78 overlap=0.17
+  ✓ 12901  support=0.78 overlap=0.08
+  ✓ 12525  support=0.60 overlap=0.05
+  ✗ 17514  support=0.33 overlap=0.04
+  ✗ 16148  support=0.33 overlap=0.00
+  ✓ 12448  support=0.90 overlap=0.18
+  ✓ 16687  support=0.82 overlap=0.13
+  ✓ 15196  support=0.83 overlap=0.10
+  ✓ 12134  support=0.78 overlap=0.11
+  ✓ 12132  support=0.78 overlap=0.18
+  ✓ 12472  support=0.78 overlap=0.08
+  ✓ 13443  support=0.82 overlap=0.07
+  ✓ 13531  support=0.93 overlap=0.90
+  ✓ 15779  support=0.80 overlap=0.04
+  ✓ 16796  support=0.90 overlap=0.18
+  ✓ 12260  support=0.82 overlap=0.25
+  ✗ 16775  support=0.50 overlap=0.05
+  ✓ 13342  support=0.83 overlap=0.11
+  ✗ 16469  support=0.33 overlap=0.03
+  ✓ 15466  support=0.78 overlap=0.12
+  ✓ 13469  support=0.78 overlap=0.09
+  ✓ 15677  support=0.85 overlap=0.06
+  ✓ 16883  support=0.82 overlap=0.15
+  ✓ 14290  support=0.89 overlap=0.06
+  ✓ 12044  support=0.67 overlap=0.04
+  ✓ 13160  support=0.93 overlap=0.13
+  ✓ 15485  support=0.78 overlap=0.05
+  ✓ 14717  support=0.71 overlap=0.09
+  ✗ 13157  support=0.50 overlap=0.02
+  ✓ 13442  support=0.82 overlap=0.13
+  ✓ 14715  support=0.71 overlap=0.07
+  ✗ 12842  support=0.00 overlap=0.00
+  ✓ 12694  support=0.82 overlap=0.10
+  ✓ 15011  support=0.78 overlap=0.06
+  ✓ 12695  support=0.82 overlap=0.06
+
+Faithful: 34/40 (85.0%)  abstain=0  verdict=RAGTRUTH_STRONG
+→ /home/jouly/AI/Valhalla/reports/valhalla_inference/ragtruth_v1_test.json
+[Industry suite] [██████░░░░░░░░░░░░░░░░░░░░░░░░░░] 2/10 (20%) 29s ETA —   
+================================================================
+[ragtruth-full]
+$ /home/jouly/AI/Valhalla/.venv-llm/bin/python3 /home/jouly/AI/Valhalla/tools/valhalla_inference/test_ragtruth_full_v1.py
+
+=== ragtruth-full-v1 n=100 ===
+
+  ✓ 17059
+  ✓ 12601
+  ✓ 12103
+  ✓ 14054
+  ✓ 13719
+  ✓ 13466
+  ✓ 12901
+  ✓ 12525
+  ✗ 17514
+  ✗ 16148
+  ✓ 12448
+  ✓ 16687
+  ✓ 15196
+  ✓ 12134
+  ✓ 12132
+  ✓ 12472
+  ✓ 13443
+  ✓ 13531
+  ✓ 15779
+  ✓ 16796
+  ✓ 12105
+  ✗ 16453
+  ✓ 13338
+  ✗ 17196
+  ✓ 15177
+  ✓ 13445
+  ✓ 15461
+  ✓ 16686
+  ✓ 14057
+  ✓ 12014
+  ✗ 13128
+  ✓ 17759
+  ✓ 14508
+  ✓ 13073
+  ✗ 13433
+  ✓ 14504
+  ✓ 12470
+  ✓ 14805
+  ✓ 12519
+  ✗ 14743
+  ✓ 14513
+  ✓ 16848
+  ✓ 13940
+  ✓ 12220
+  ✗ 15553
+  ✓ 16059
+  ✓ 12703
+  ✓ 14802
+  ✓ 12439
+  ✗ 16156
+  ✓ 14323
+  ✓ 17255
+  ✓ 14846
+  ✓ 16852
+  ✓ 13340
+  ✓ 12471
+  ✓ 12435
+  ✓ 13564
+  ✓ 14297
+  ✓ 12602
+  ✗ 13910
+  ✓ 12765
+  ✓ 15011
+  ✓ 14290
+  ✓ 15688
+  ✓ 14859
+  ✓ 13161
+  ✓ 14860
+  ✓ 14765
+  ✓ 13367
+  ✓ 14135
+  ✓ 12518
+  ✓ 13163
+  ✓ 16420
+  ✓ 14007
+  ✗ 16775
+  ✓ 15713
+  ✓ 17105
+  ✓ 14283
+  ✓ 13469
+  ✗ 14690
+  ✓ 12459
+  ✓ 16898
+  ✓ 15345
+  ✓ 12219
+  ✓ 15201
+  ✓ 13160
+  ✓ 13363
+  ✓ 13108
+  ✓ 12262
+  ✓ 12902
+  ✓ 16798
+  ✓ 14293
+  ✓ 15651
+  ✓ 14806
+  ✓ 15755
+  ✓ 15716
+  ✓ 16060
+  ✓ 14097
+  ✓ 13342
+
+88/100 faithful (88.0%) → /home/jouly/AI/Valhalla/reports/valhalla_inference/ragtruth_full_v1_test.json
+[Industry suite] [██████████░░░░░░░░░░░░░░░░░░░░░░] 3/10 (30%) 59s ETA —   
+================================================================
+[longbench]
+$ /home/jouly/AI/Valhalla/.venv-llm/bin/python3 /home/jouly/AI/Valhalla/tools/valhalla_inference/test_longbench_v2_v1.py
+
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] 66ebc7445a08c7b9b35df155
+patch_v4 [1/1] 66fb6d71bb02136c067c7c34
+patch_v4 [1/1] 66f3c1ab821e116aacb2ead1
+patch_v4 [1/1] 6719bce5bb02136c067d4447
+patch_v4 [1/1] 6713066fbb02136c067d3214
+patch_v4 [1/1] 66f91f2cbb02136c067c4b1e
+patch_v4 [1/1] 66ed1556821e116aacb1ea14
+patch_v4 [1/1] 66fe8eb3bb02136c067ca35f
+patch_v4 [1/1] 66f58d6c821e116aacb33e76
+patch_v4 [1/1] 66fc0152bb02136c067c8826
+patch_v4 [1/1] 66fa7f1dbb02136c067c6e6b
+patch_v4 [1/1] 671b080abb02136c067d4dde
+patch_v4 [1/1] 671b2c05bb02136c067d50c8
+patch_v4 [1/1] 66fcf2f2bb02136c067c9169
+patch_v4 [1/1] 66f618f1bb02136c067c16f9
+patch_v4 [1/1] 66ec3d1d821e116aacb1c622
+patch_v4 [1/1] 66ebc0c95a08c7b9b35de7f3
+patch_v4 [1/1] 66fab090bb02136c067c74e7
+patch_v4 [1/1] 66f3de02821e116aacb2f73b
+patch_v4 [1/1] 671b170cbb02136c067d4f4a
+score=4/20
+
+Accuracy: 4/20 (20.0%)  warmup=fragmentwithfate-light  verdict=LONGBENCH_V2_DEVELOPING
+→ /home/jouly/AI/Valhalla/reports/valhalla_inference/longbench_v2_v1_test.json
+[Industry suite] [█████████████░░░░░░░░░░░░░░░░░░░] 4/10 (40%) 671s ETA —   
+================================================================
+[multihop]
+$ /home/jouly/AI/Valhalla/.venv-llm/bin/python3 /home/jouly/AI/Valhalla/tools/valhalla_inference/test_multihop_rag_v1.py --fatewithv2 --limit 25
+
+{
+  "accuracy": 0.6,
+  "correct": 15,
+  "dynamic_corpus_fragments": true,
+  "elastic": {
+    "cuda_ready": true,
+    "lm_cache_max": 1,
+    "max_items": 48,
+    "parallel_workers": 2,
+    "resource_percent": 50,
+    "use_cpu": false
+  },
+  "multihop_fate": true,
+  "multihop_v2": true,
+  "n": 25,
+  "native_qa_batch": true,
+  "protocol": "multihop-rag-fatewithv2",
+  "rows": [
+    {
+      "answer": "[corpus:0] [fate:38@0] Yes",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1454",
+      "query_fragment_scores": [
+        0.25451719557035274
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:46@1] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_921",
+      "query_fragment_scores": [
+        0.07740983799543874
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:22@1] Google",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_774",
+      "query_fragment_scores": [
+        0.4063340478295094
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:42@1] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1514",
+      "query_fragment_scores": [
+        0.11033736879832977
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:0] [fate:38@0] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1762",
+      "query_fragment_scores": [
+        0.08112153072655574
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:46@1] Sydney",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_entity",
+      "id": "MH_537",
+      "query_fragment_scores": [
+        0.10831052840007847
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:42@1] Yes",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_2223",
+      "query_fragment_scores": [
+        0.07695697326423233
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:0] [fate:22@0] Sam Altman",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_2275",
+      "query_fragment_scores": [
+        0.2604177951978743
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:0] [fate:18@0] Tyreek Hill",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_575",
+      "query_fragment_scores": [
+        0.08696979696319711
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:2] [fate:22@2] Google",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_entity",
+      "id": "MH_1089",
+      "query_fragment_scores": [
+        0.276033071782566
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:42@1] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1526",
+      "query_fragment_scores": [
+        0.09240826521217482
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:3] [fate:30@3] Google",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_331",
+      "query_fragment_scores": [
+        0.41437535614497634
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:2] [fate:26@2] Google",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_9",
+      "query_fragment_scores": [
+        0.2422102484226018
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:22@1] Yes",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1591",
+      "query_fragment_scores": [
+        0.09681455106397104
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:14@1] Yes",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_relation+multihop_v2_yesno",
+      "id": "MH_886",
+      "query_fragment_scores": [
+        0.26276763553241533
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:22@1] Point Spread Betting",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_1395",
+      "query_fragment_scores": [
+        0.2566387936090692
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:0] [fate:14@0] Agree",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_relation",
+      "id": "MH_1710",
+      "query_fragment_scores": [
+        0.0987854062159035
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:0] [fate:18@0] Sam Altman",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_2328",
+      "query_fragment_scores": [
+        0.4297878337330668
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:3] [fate:30@3] Google",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_1121",
+      "query_fragment_scores": [
+        0.40362703624146
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:0] [fate:14@0] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno",
+      "id": "MH_1065",
+      "query_fragment_scores": [
+        0.08659828130676857
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:2] [fate:46@2] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_1088",
+      "query_fragment_scores": [
+        0.2524626231425653
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:22@1] Yes",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno",
+      "id": "MH_3",
+      "query_fragment_scores": [
+        0.11259678828446801
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:0] [fate:38@0] Google",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+      "id": "MH_2064",
+      "query_fragment_scores": [
+        0.41024655557301026
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:1] [fate:42@1] Yes",
+      "correct": false,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_yesno+multihop_v2_yesno",
+      "id": "MH_168",
+      "query_fragment_scores": [
+        0.10380610791949335
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    },
+    {
+      "answer": "[corpus:2] [fate:26@2] Google",
+      "correct": true,
+      "decode_path": "query_frag/k1/ids=seg_1/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity+multihop_v2_entity",
+      "id": "MH_2106",
+      "query_fragment_scores": [
+        0.41921016505981906
+      ],
+      "query_fragments": [
+        "seg_1"
+      ]
+    }
+  ],
+  "timestamp": "1783897802",
+  "unified_solution": true,
+  "verdict": "OPEN_QA_VIABLE"
+}
+verdict=OPEN_QA_VIABLE
+score=15/25
+[Industry suite] [████████████████░░░░░░░░░░░░░░░░] 5/10 (50%) 677s ETA —   
+================================================================
+[locomo]
+$ /home/jouly/AI/Valhalla/.venv-llm/bin/python3 /home/jouly/AI/Valhalla/tools/valhalla_inference/test_locomo_v1.py --production
+
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0771 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0796 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=11 spread=1.2506 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0727 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1343 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0750 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=12 spread=1.2452 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0672 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0678 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0785 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=12 spread=1.2487 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0774 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0776 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=12 spread=1.2597 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0757 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=12 spread=1.2488 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0735 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1202 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1353 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0718 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1228 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1372 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0745 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=12 spread=1.2539 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0785 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=11 spread=1.2438 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0789 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0812 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=11 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=11 spread=1.1334 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0725 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=11 spread=1.2411 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0770 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=12 spread=1.2587 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0804 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0790 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0774 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=11 spread=1.2421 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0721 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=12 spread=1.2493 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0730 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0801 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0742 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=12 spread=1.2533 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0778 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=11 spread=1.2482 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0730 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0719 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=12 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=12 spread=1.1318 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0802 fragments=1
+[fate-pretrain] epoch 1: 1/1 correct  walk_steps=12 spread=1.2559 fragments=1
+[fate-pipe] resource_percent=50% dynamic_fragments=on mode=qa_adaptive_fragment
+[fate-pipe] ingest done spread=1.0785 fragments=1
+[fate-pretrain] epoch 1: 0/1 correct  walk_steps=11 spread=1.1197 fragments=1
+[fate-pretrain] epoch 2: 0/1 correct  walk_steps=11 spread=1.1318 fragments=1
+score=17/30
+
+17/30 (56.7%) → /home/jouly/AI/Valhalla/reports/valhalla_inference/locomo_v1_test.json
+[Industry suite] [███████████████████░░░░░░░░░░░░░] 6/10 (60%) 687s ETA —   
+================================================================
+[ruler]
+$ /home/jouly/AI/Valhalla/.venv-llm/bin/python3 /home/jouly/AI/Valhalla/tools/valhalla_inference/test_ruler_v1.py
+
+=== ruler-v1 n=20 production=False ===
+
+  ✓ RULER_0 depth=30 single_needle
+  ✓ RULER_1 depth=30 single_needle
+  ✗ RULER_2 depth=10 multi_needle
+  ✓ RULER_3 depth=40 single_needle
+  ✓ RULER_4 depth=10 single_needle
+  ✗ RULER_5 depth=10 multi_needle
+  ✓ RULER_6 depth=10 single_needle
+  ✓ RULER_7 depth=10 single_needle
+  ✓ RULER_8 depth=5 single_needle
+  ✓ RULER_9 depth=20 single_needle
+  ✓ RULER_10 depth=30 single_needle
+  ✗ RULER_11 depth=40 multi_needle
+  ✓ RULER_12 depth=40 single_needle
+  ✓ RULER_13 depth=5 single_needle
+  ✗ RULER_14 depth=40 multi_needle
+  ✓ RULER_15 depth=30 single_needle
+  ✓ RULER_16 depth=10 single_needle
+  ✗ RULER_17 depth=30 multi_needle
+  ✓ RULER_18 depth=40 single_needle
+  ✓ RULER_19 depth=40 single_needle
+
+15/20 (75.0%) → /home/jouly/AI/Valhalla/reports/valhalla_inference/ruler_v1_test.json
+[Industry suite] [██████████████████████░░░░░░░░░░] 7/10 (70%) 712s ETA —   
+================================================================
+[lara]
+$ /home/jouly/AI/Valhalla/.venv-llm/bin/python3 /home/jouly/AI/Valhalla/tools/valhalla_inference/test_lara_v1.py --with-trad
+
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+/home/jouly/AI/Valhalla/.venv-llm/lib/python3.14/site-packages/torch/cuda/__init__.py:1074: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+=== lara-v1 n=20 ===
+
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:  15%|█▍        | 63/434 [00:00<00:00, 550.11it/s]Loading weights:  28%|██▊       | 123/434 [00:00<00:00, 571.96it/s]Loading weights:  42%|████▏     | 181/434 [00:00<00:00, 523.26it/s]Loading weights:  54%|█████▍    | 234/434 [00:00<00:00, 514.60it/s]Loading weights:  67%|██████▋   | 289/434 [00:00<00:00, 516.52it/s]Loading weights:  79%|███████▊  | 341/434 [00:00<00:00, 503.39it/s]Loading weights:  92%|█████████▏| 399/434 [00:00<00:00, 518.50it/s]Loading weights: 100%|██████████| 434/434 [00:00<00:00, 536.12it/s]
+  rag=✓ lc=- LARA_1694
+  rag=✗ lc=✓ LARA_772
+  rag=✗ lc=✓ LARA_1413
+  rag=✓ lc=✓ LARA_1008
+  rag=✓ lc=- LARA_1582
+  rag=✓ lc=- LARA_485
+  rag=✗ lc=✓ LARA_1092
+  rag=✗ lc=✓ LARA_384
+  rag=✓ lc=- LARA_333
+  rag=✓ lc=✓ LARA_917
+  rag=✓ lc=- LARA_1452
+  rag=✗ lc=✓ LARA_2031
+  rag=✓ lc=✓ LARA_402
+  rag=✗ lc=✓ LARA_19
+  rag=✓ lc=- LARA_1553
+  rag=✗ lc=✓ LARA_2147
+  rag=✗ lc=- LARA_2344
+  rag=✓ lc=✓ LARA_2425
+  rag=✗ lc=✓ LARA_1198
+  rag=✓ lc=✓ LARA_2050
+
+RAG 11/20 (55.0%) · LC 13/20 (65.0%)
+→ /home/jouly/AI/Valhalla/reports/valhalla_inference/lara_v1_test.json
+[Industry suite] [██████████████████████████░░░░░░] 8/10 (80%) 789s ETA —   
+================================================================
+[external-holdout]
+$ /home/jouly/AI/Valhalla/.venv-llm/bin/python3 /home/jouly/AI/Valhalla/tools/valhalla_inference/test_external_holdout.py
+
+=== external-holdout-v1 n=15 corpus=27 ===
+
+  ✓ GSM8K_01         math_word_problem
+  ✗ GSM8K_02         math_word_problem
+  ✓ MMLU_PHYSICS     physics
+  ✗ MMLU_BIO         biology
+  ✓ MMLU_CHEM        chemistry
+  ✓ TRIVIA_GEO       geography
+  ✗ TRIVIA_HIST      history
+  ✗ MMLU_CS          computer_science
+  ✓ MMLU_ECON        economics
+  ✗ TRIVIA_LIT       literature
+  ✓ MMLU_MED         medicine
+  ✓ ZH_GEO           chinese_geography
+  ✓ ZH_HIST          chinese_history
+  ✓ MMLU_ASTRONOMY   astronomy
+  ✓ MMLU_MATH        math
+
+Accuracy: 10/15 (66.7%)  verdict=EXTERNAL_HOLDOUT_VIABLE
+→ /home/jouly/AI/Valhalla/reports/valhalla_inference/external_holdout_test.json
+[Industry suite] [█████████████████████████████░░░] 9/10 (90%) 795s ETA —   [mcq-ladder] restarting serve on :8787 …
+
+================================================================
+[mcq-ladder]
+$ /home/jouly/AI/Valhalla/.venv-llm/bin/python3 /home/jouly/AI/Valhalla/tools/valhalla_inference/test_mcq_ladder_v1.py --model qwen_3b --memory-safe
+
+=== mcq-ladder-v1 n=46 models=['qwen_3b'] ===
+
+[hybrid lm_patch] Qwen/Qwen2.5-3B-Instruct (3.0B) …
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_BIO_01
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_GEO_01
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_ECON_01
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_PHIL_01
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_MED_01
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_HIST_02
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_GEO_02
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F02
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F03
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F06
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F07
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F08
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F09
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F10
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F11
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F12
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F13
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F14
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F18
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F19
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F20
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F21
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F22
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F23
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F24
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F25
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F26
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F27
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F28
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F29
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F30
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F31
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F32
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F34
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F35
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F38
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F41
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F42
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F43
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F44
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F45
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F46
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F47
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F48
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F49
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] MCQ_F50
+    45/46 (97.8%)
+
+Verdict: MCQ_LADDER_FLAT
+→ /home/jouly/AI/Valhalla/reports/valhalla_inference/mcq_ladder_v1_test.json
+[Industry suite] [████████████████████████████████] 10/10 (100%) 1571s ETA —   [Industry suite] [████████████████████████████████] 10/10 (100%) 1574s ETA —    done (1574s)
+
+================================================================
+Summary → /home/jouly/AI/Valhalla/reports/valhalla_inference/INDUSTRY_BENCHMARKS_20260630.md
+Suite checkpoint → /home/jouly/AI/Valhalla/reports/valhalla_inference/checkpoints/industry_suite_checkpoint.json
+Industry benchmark suite completed.

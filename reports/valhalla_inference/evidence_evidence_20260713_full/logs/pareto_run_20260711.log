@@ -1,0 +1,33 @@
+=== external-pareto-matrix-v1 backbone=Qwen/Qwen2.5-3B-Instruct ===
+
+[LoCoMo] 3 items
+  [LoCoMo] full_context_lm n=3 …
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   9%|▉         | 39/434 [00:00<00:01, 364.22it/s]Loading weights:  23%|██▎       | 99/434 [00:00<00:00, 479.00it/s]Loading weights:  34%|███▍      | 148/434 [00:00<00:00, 472.39it/s]Loading weights:  48%|████▊     | 208/434 [00:00<00:00, 508.99it/s]Loading weights:  62%|██████▏   | 267/434 [00:00<00:00, 534.55it/s]Loading weights:  75%|███████▌  | 327/434 [00:00<00:00, 534.75it/s]Loading weights:  89%|████████▉ | 387/434 [00:00<00:00, 542.53it/s]Loading weights: 100%|██████████| 434/434 [00:00<00:00, 532.84it/s]
+    acc=33.3% tok/q=17386 lat=2801ms reload=199299 proactive=0
+  [LoCoMo] vanilla_rag n=3 …
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   7%|▋         | 29/434 [00:00<00:01, 289.98it/s]Loading weights:  20%|██        | 87/434 [00:00<00:00, 450.28it/s]Loading weights:  34%|███▍      | 149/434 [00:00<00:00, 520.59it/s]Loading weights:  50%|█████     | 217/434 [00:00<00:00, 580.78it/s]Loading weights:  64%|██████▍   | 279/434 [00:00<00:00, 593.50it/s]Loading weights:  78%|███████▊  | 339/434 [00:00<00:00, 590.18it/s]Loading weights:  92%|█████████▏| 399/434 [00:00<00:00, 547.60it/s]Loading weights: 100%|██████████| 434/434 [00:00<00:00, 556.39it/s]
+    acc=33.3% tok/q=17386 lat=2699ms reload=199299 proactive=0
+  [LoCoMo] valhalla_base n=3 …
+    acc=0.0% tok/q=99 lat=276208ms reload=200463 proactive=0
+
+[LongBench-v2] 3 items
+  [LongBench] full_context_lm n=3 …
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   6%|▌         | 24/434 [00:00<00:01, 238.98it/s]Loading weights:  17%|█▋        | 75/434 [00:00<00:00, 375.80it/s]Loading weights:  28%|██▊       | 123/434 [00:00<00:00, 406.70it/s]Loading weights:  42%|████▏     | 181/434 [00:00<00:00, 472.19it/s]Loading weights:  53%|█████▎    | 231/434 [00:00<00:00, 452.99it/s]Loading weights:  67%|██████▋   | 291/434 [00:00<00:00, 494.03it/s]Loading weights:  81%|████████  | 352/434 [00:00<00:00, 516.61it/s]Loading weights:  97%|█████████▋| 421/434 [00:00<00:00, 557.86it/s]Loading weights: 100%|██████████| 434/434 [00:00<00:00, 499.77it/s]
+    acc=0.0% tok/q=1418 lat=451ms reload=17787 proactive=0
+  [LongBench] vanilla_rag n=3 …
+Loading weights:   0%|          | 0/434 [00:00<?, ?it/s]Loading weights:   6%|▋         | 28/434 [00:00<00:01, 270.38it/s]Loading weights:  21%|██        | 89/434 [00:00<00:00, 465.53it/s]Loading weights:  34%|███▍      | 147/434 [00:00<00:00, 495.96it/s]Loading weights:  48%|████▊     | 207/434 [00:00<00:00, 532.14it/s]Loading weights:  62%|██████▏   | 267/434 [00:00<00:00, 548.00it/s]Loading weights:  75%|███████▌  | 327/434 [00:00<00:00, 554.11it/s]Loading weights:  91%|█████████▏| 397/434 [00:00<00:00, 583.56it/s]Loading weights: 100%|██████████| 434/434 [00:00<00:00, 546.76it/s]
+    acc=0.0% tok/q=1418 lat=424ms reload=17787 proactive=0
+  [LongBench] valhalla_base n=3 …
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] 66ebc7445a08c7b9b35df155
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] 66fb6d71bb02136c067c7c34
+patch_lm: loading weights /home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1 (cpu=false dtype=F32)
+patch_v4 [1/1] 66f3c1ab821e116aacb2ead1
+    acc=0.0% tok/q=972 lat=29980ms reload=13226 proactive=0
+→ /home/jouly/AI/Valhalla/reports/valhalla_inference/valhalla_integrated_status.json
+→ /home/jouly/AI/Valhalla/reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md
+integrated: independence=VALHALLA_BASE_INDEPENDENT citeable=10/11 frames_viable=False
+
+→ /home/jouly/AI/Valhalla/reports/valhalla_inference/EXTERNAL_PARETO_MATRIX.md

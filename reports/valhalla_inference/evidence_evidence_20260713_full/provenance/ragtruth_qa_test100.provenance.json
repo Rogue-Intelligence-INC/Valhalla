@@ -1,0 +1,9 @@
+{
+  "bundle": "ragtruth_qa_test100.json",
+  "upstream": "https://huggingface.co/datasets/wandb/RAGTruth-processed",
+  "hf_or_paper": "ACL 2024 RAGTruth",
+  "selection_rule": "QA test split slice n=100",
+  "human_authored": true,
+  "synthetic": false,
+  "note": "Extended faithfulness slice; protocol ragtruth-full-v1"
+}

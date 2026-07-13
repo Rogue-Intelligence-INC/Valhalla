@@ -78,6 +78,18 @@ $PY tools/valhalla_inference/pack_evidence_run.py --tag competitor --zip
 
 ---
 
+## Latest results — 2026-07-13 moderate
+
+| Bench | full_context | vanilla_rag | valhalla | mem0 local ST |
+|-------|--------------|-------------|----------|---------------|
+| LoCoMo-15 | 9/15 | 9/15 | 0/15 | 5/15 |
+| MultiHop-10 | 6/10 | 6/10 | 6/10 | 6/10 |
+| LongBench-10 | 2/10 | 2/10 | 1/10 | 2/10 |
+
+Full write-up: [`EVIDENCE_SUITE_SUMMARY_20260713.md`](../../reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md) · [`COMPETITOR_COMPARE_RESULTS.md`](../../reports/valhalla_inference/COMPETITOR_COMPARE_RESULTS.md)
+
+---
+
 ## How to report (honest)
 
 | Say | Don’t say |
@@ -86,13 +98,14 @@ $PY tools/valhalla_inference/pack_evidence_run.py --tag competitor --zip
 | Mem0 arm SKIPPED if no key — listed in matrix | Hide skipped competitors |
 | Token efficiency: append vs full resend curve | “60–90% cheaper” without this run |
 | Ablation Fate/Triad lifts in pp | Structure always wins MultiHop |
+| LoCoMo competitor gap is honest (0/15 vs 9/15) | Structure wins session QA today |
 
 ---
 
 ## Mapping to fundraising narrative
 
-- **Wedge page:** LoCoMo + token efficiency + RAGTruth  
-- **Diligence appendix:** ablation matrix + competitor Pareto JSON  
+- **Wedge page:** RAGTruth + token efficiency + ablation faithfulness  
+- **Diligence appendix:** ablation matrix + competitor Pareto JSON (incl. LoCoMo gap)  
 - **Incubation page:** TPI/NPPI (secondary; not competitor SOTA)
 
 ---

@@ -1,0 +1,537 @@
+{
+  "protocol": "valhalla-independence-v1",
+  "backbone_protocol": "valhalla-backbone-v1",
+  "timestamp": "2026-07-10T20:56:26.054237+00:00",
+  "n_questions": 4,
+  "reference": {
+    "arm": "native",
+    "correct": 4,
+    "n": 4,
+    "accuracy": 1.0
+  },
+  "backbones": {
+    "qwen_3b": {
+      "id": "qwen_3b",
+      "hf_id": "Qwen/Qwen2.5-3B-Instruct",
+      "kind": "causal_lm",
+      "category": "dense",
+      "arms": {
+        "native": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "hybrid": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        }
+      },
+      "model_path": "/home/jouly/.cache/huggingface/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/aa8e72537993ba99e69dfaafa59ed015b17504d1"
+    },
+    "mamba2-2_7b": {
+      "id": "mamba2-2_7b",
+      "hf_id": "state-spaces/mamba2-2.7b",
+      "kind": "causal_lm",
+      "category": "ssm",
+      "arms": {},
+      "model_path": null,
+      "skipped": true,
+      "error": "No HF weights for state-spaces/mamba2-2.7b (try models/hf/ or huggingface-cli download)"
+    },
+    "rwkv7-0_1b-g1": {
+      "id": "rwkv7-0_1b-g1",
+      "hf_id": "fla-hub/rwkv7-0.1B-g1",
+      "kind": "causal_lm",
+      "category": "rwkv",
+      "arms": {
+        "native": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "hybrid": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        }
+      },
+      "model_path": "/home/jouly/.cache/modelscope/hub/models/fla-hub/rwkv7-0.1B-g1"
+    },
+    "phi-tiny-moe-instruct": {
+      "id": "phi-tiny-moe-instruct",
+      "hf_id": "microsoft/Phi-tiny-MoE-instruct",
+      "kind": "causal_lm",
+      "category": "moe",
+      "arms": {
+        "native": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "hybrid": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        }
+      },
+      "model_path": "/home/jouly/.cache/huggingface/hub/models--microsoft--Phi-tiny-MoE-instruct/snapshots/2fe50e88d0e2a5a132563815686ea0dcc8e252b5"
+    },
+    "modernbert-base": {
+      "id": "modernbert-base",
+      "hf_id": "answerdotai/ModernBERT-base",
+      "kind": "encoder",
+      "category": "encoder",
+      "arms": {
+        "native": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Mitochondria produce ATP through cellular respiration in eukaryotes",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] World War Two ended in 1945 with Germany's unconditional surrender",
+              "decode_path": "valhalla_base/native/query_frag/k1/ids=seg_0/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        },
+        "encoder": {
+          "n": 4,
+          "correct": 1,
+          "accuracy": 0.25,
+          "rows": [
+            {
+              "id": "OPEN_PHYS_01",
+              "correct": false,
+              "answer": "[corpus:7] [fate:42@7] Euler's formula e to the i pi plus one equals zero links five constants",
+              "decode_path": "valhalla_base/native/query_frag/k2/ids=seg_1+seg_2/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_CHEM_01",
+              "correct": true,
+              "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+              "decode_path": "valhalla_base/native/query_frag/k2/ids=seg_2+seg_1/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_BIO_01",
+              "correct": false,
+              "answer": "[corpus:5] [fate:30@5] CPU memory and storage are core hardware components of computers",
+              "decode_path": "valhalla_base/native/query_frag/k2/ids=seg_2+seg_1/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            },
+            {
+              "id": "OPEN_HIST_01",
+              "correct": false,
+              "answer": "[corpus:3] [fate:22@3] Thomas Jefferson was primary author of the US Declaration of Independence",
+              "decode_path": "valhalla_base/native/query_frag/k2/ids=seg_2+seg_1/natural/triad_memory+hub_routing+pipeline_v4+stem_span/open_retrieval_span"
+            }
+          ]
+        }
+      },
+      "model_path": "/home/jouly/.cache/huggingface/hub/models--answerdotai--ModernBERT-base/snapshots/8949b909ec900327062f0ebf497f51aef5e6f0c8"
+    },
+    "qwen2_5-vl-3b-instruct": {
+      "id": "qwen2_5-vl-3b-instruct",
+      "hf_id": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "kind": "vision",
+      "category": "vision",
+      "arms": {},
+      "model_path": null,
+      "skipped": true,
+      "error": "No HF weights for Qwen/Qwen2.5-VL-3B-Instruct (try models/hf/ or huggingface-cli download)"
+    }
+  },
+  "comparisons": [
+    {
+      "arm": "native",
+      "backbone": "qwen_3b",
+      "match": true,
+      "n": 4,
+      "mismatches": []
+    },
+    {
+      "arm": "hybrid",
+      "backbone": "qwen_3b",
+      "match": true,
+      "n": 4,
+      "mismatches": []
+    },
+    {
+      "backbone": "mamba2-2_7b",
+      "skipped": true,
+      "error": "No HF weights for state-spaces/mamba2-2.7b (try models/hf/ or huggingface-cli download)"
+    },
+    {
+      "arm": "native",
+      "backbone": "rwkv7-0_1b-g1",
+      "match": true,
+      "n": 4,
+      "mismatches": []
+    },
+    {
+      "arm": "hybrid",
+      "backbone": "rwkv7-0_1b-g1",
+      "match": true,
+      "n": 4,
+      "mismatches": []
+    },
+    {
+      "arm": "native",
+      "backbone": "phi-tiny-moe-instruct",
+      "match": true,
+      "n": 4,
+      "mismatches": []
+    },
+    {
+      "arm": "hybrid",
+      "backbone": "phi-tiny-moe-instruct",
+      "match": true,
+      "n": 4,
+      "mismatches": []
+    },
+    {
+      "backbone": "modernbert-base",
+      "kind": "encoder",
+      "category": "encoder",
+      "appendix": true,
+      "arms": [
+        "native",
+        "encoder"
+      ],
+      "note": "encoder/vision — not open-path orthogonality vs causal ref"
+    },
+    {
+      "backbone": "qwen2_5-vl-3b-instruct",
+      "skipped": true,
+      "error": "No HF weights for Qwen/Qwen2.5-VL-3B-Instruct (try models/hf/ or huggingface-cli download)"
+    }
+  ],
+  "notes": [
+    "reference = single ValhallaBase(decode=native); backbone-agnostic baseline.",
+    "native/hybrid per backbone must match reference (open-path orthogonality).",
+    "trad = optional control arm; may differ per backbone checkpoint."
+  ],
+  "summary": {
+    "verdict": "VALHALLA_BASE_INDEPENDENT",
+    "backbones_tested": 3,
+    "backbones_total": 6,
+    "causal_tested": 3,
+    "causal_total": 4,
+    "appendix_count": 1,
+    "reference_accuracy": 1.0,
+    "independent": true,
+    "panel": "practical"
+  },
+  "memory": {
+    "tier": "memory",
+    "protocol": "needle-session-smoke",
+    "depths": [
+      5,
+      10
+    ],
+    "reference": {
+      "n": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "rows": [
+        {
+          "depth": 5,
+          "correct": true,
+          "answer": "[corpus:5] [fate:30@5] The magic registration code for Project Valhalla is XK-7742"
+        },
+        {
+          "depth": 10,
+          "correct": true,
+          "answer": "[corpus:10] [fate:50@10] The magic registration code for Project Valhalla is XK-7742"
+        }
+      ],
+      "lm_model": "native"
+    },
+    "backbones": {
+      "qwen_3b": {
+        "n": 2,
+        "correct": 2,
+        "accuracy": 1.0,
+        "rows": [
+          {
+            "depth": 5,
+            "correct": true,
+            "answer": "[corpus:5] [fate:30@5] The magic registration code for Project Valhalla is XK-7742"
+          },
+          {
+            "depth": 10,
+            "correct": true,
+            "answer": "[corpus:10] [fate:50@10] The magic registration code for Project Valhalla is XK-7742"
+          }
+        ],
+        "lm_model": "Qwen/Qwen2.5-3B-Instruct"
+      },
+      "mamba2-2_7b": {
+        "n": 2,
+        "correct": 2,
+        "accuracy": 1.0,
+        "rows": [
+          {
+            "depth": 5,
+            "correct": true,
+            "answer": "[corpus:5] [fate:30@5] The magic registration code for Project Valhalla is XK-7742"
+          },
+          {
+            "depth": 10,
+            "correct": true,
+            "answer": "[corpus:10] [fate:50@10] The magic registration code for Project Valhalla is XK-7742"
+          }
+        ],
+        "lm_model": "state-spaces/mamba2-2.7b"
+      },
+      "rwkv7-0_1b-g1": {
+        "n": 2,
+        "correct": 2,
+        "accuracy": 1.0,
+        "rows": [
+          {
+            "depth": 5,
+            "correct": true,
+            "answer": "[corpus:5] [fate:30@5] The magic registration code for Project Valhalla is XK-7742"
+          },
+          {
+            "depth": 10,
+            "correct": true,
+            "answer": "[corpus:10] [fate:50@10] The magic registration code for Project Valhalla is XK-7742"
+          }
+        ],
+        "lm_model": "fla-hub/rwkv7-0.1B-g1"
+      },
+      "phi-tiny-moe-instruct": {
+        "n": 2,
+        "correct": 2,
+        "accuracy": 1.0,
+        "rows": [
+          {
+            "depth": 5,
+            "correct": true,
+            "answer": "[corpus:5] [fate:30@5] The magic registration code for Project Valhalla is XK-7742"
+          },
+          {
+            "depth": 10,
+            "correct": true,
+            "answer": "[corpus:10] [fate:50@10] The magic registration code for Project Valhalla is XK-7742"
+          }
+        ],
+        "lm_model": "microsoft/Phi-tiny-MoE-instruct"
+      }
+    },
+    "comparisons": [
+      {
+        "backbone": "qwen_3b",
+        "match_ref_native": true,
+        "ref_correct": 2,
+        "test_correct": 2
+      },
+      {
+        "backbone": "mamba2-2_7b",
+        "match_ref_native": true,
+        "ref_correct": 2,
+        "test_correct": 2
+      },
+      {
+        "backbone": "rwkv7-0_1b-g1",
+        "match_ref_native": true,
+        "ref_correct": 2,
+        "test_correct": 2
+      },
+      {
+        "backbone": "phi-tiny-moe-instruct",
+        "match_ref_native": true,
+        "ref_correct": 2,
+        "test_correct": 2
+      }
+    ],
+    "skipped_non_causal": [
+      "modernbert-base",
+      "qwen2_5-vl-3b-instruct"
+    ],
+    "verdict": "MEMORY_INDEPENDENT"
+  },
+  "test_layers": {
+    "open_path_orthogonality": "VALHALLA_BASE_INDEPENDENT",
+    "session_memory_orthogonality": "MEMORY_INDEPENDENT",
+    "core_fusion_smoke": null,
+    "proactive_gate_smoke": null,
+    "longchain_memory_smoke": null
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "timestamp": "2026-07-12T23:11:56.874160+00:00",
+  "protocol": "lara-v1",
+  "benchmark": "LaRA-style RAG vs LC",
+  "bundle": "lara_rag_vs_lc_slice20.json",
+  "n": 20,
+  "valhalla_rag": {
+    "correct": 11,
+    "accuracy": 0.55,
+    "rows": [
+      {
+        "id": "LARA_1694",
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
+      },
+      {
+        "id": "LARA_772",
+        "correct": false,
+        "answer": "[corpus:0] [fate:38@0] Yes"
+      },
+      {
+        "id": "LARA_1413",
+        "correct": false,
+        "answer": "[corpus:2] [fate:22@2] Yes"
+      },
+      {
+        "id": "LARA_1008",
+        "correct": true,
+        "answer": "[corpus:0] [fate:14@0] Sam Altman"
+      },
+      {
+        "id": "LARA_1582",
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
+      },
+      {
+        "id": "LARA_485",
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
+      },
+      {
+        "id": "LARA_1092",
+        "correct": false,
+        "answer": "[corpus:0] [fate:38@0] Yes"
+      },
+      {
+        "id": "LARA_384",
+        "correct": false,
+        "answer": "[corpus:0] [fate:14@0] The"
+      },
+      {
+        "id": "LARA_333",
+        "correct": true,
+        "answer": "[corpus:2] [fate:46@2] Yes"
+      },
+      {
+        "id": "LARA_917",
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
+      },
+      {
+        "id": "LARA_1452",
+        "correct": true,
+        "answer": "[corpus:0] [fate:10@0] Yes"
+      },
+      {
+        "id": "LARA_2031",
+        "correct": false,
+        "answer": "[corpus:1] [fate:42@1] Yes"
+      },
+      {
+        "id": "LARA_402",
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
+      },
+      {
+        "id": "LARA_19",
+        "correct": false,
+        "answer": "[corpus:0] [fate:10@0] Yes"
+      },
+      {
+        "id": "LARA_1553",
+        "correct": true,
+        "answer": "[corpus:1] [fate:42@1] Yes"
+      },
+      {
+        "id": "LARA_2147",
+        "correct": false,
+        "answer": "[corpus:0] [fate:10@0] World Cup"
+      },
+      {
+        "id": "LARA_2344",
+        "correct": false,
+        "answer": "[corpus:1] [fate:18@1] Yes"
+      },
+      {
+        "id": "LARA_2425",
+        "correct": true,
+        "answer": "[corpus:0] [fate:38@0] Yes"
+      },
+      {
+        "id": "LARA_1198",
+        "correct": false,
+        "answer": "[corpus:0] [fate:14@0] Yes"
+      },
+      {
+        "id": "LARA_2050",
+        "correct": true,
+        "answer": "[corpus:1] [fate:18@1] Sam Altman"
+      }
+    ]
+  },
+  "trad_long_context": {
+    "correct": 13,
+    "accuracy": 0.65,
+    "rows": [
+      {
+        "id": "LARA_1694",
+        "correct": false,
+        "answer": "Based on the information provided, it seems that the 'Fortune' article is focusing on the perspective that the ultimate "
+      },
+      {
+        "id": "LARA_772",
+        "correct": true,
+        "answer": "Based on the reference facts provided, the discount on Sony WF-1000XM5 earbuds was reported as a first-time occurrence. "
+      },
+      {
+        "id": "LARA_1413",
+        "correct": true,
+        "answer": "Based on the reference facts provided, there is no specific information given about the consistency or inconsistency of "
+      },
+      {
+        "id": "LARA_1008",
+        "correct": true,
+        "answer": "Based on the reference facts provided and the details mentioned in the news articles, the individual you are referring t"
+      },
+      {
+        "id": "LARA_1582",
+        "correct": false,
+        "answer": "Based on the information provided, the Sporting News article suggests that bettors earn a fixed profit when betting on t"
+      },
+      {
+        "id": "LARA_485",
+        "correct": false,
+        "answer": "Based on the reference facts provided, the TechCrunch article does not explicitly claim that Google's anticompetitive be"
+      },
+      {
+        "id": "LARA_1092",
+        "correct": true,
+        "answer": "Based on the reference texts provided, there is no mention of Tyler Mitchell or his career being described as unsuccessf"
+      },
+      {
+        "id": "LARA_384",
+        "correct": true,
+        "answer": "Based on the reference facts provided, there is no specific information about a change in TechCrunch's portrayal of Scot"
+      },
+      {
+        "id": "LARA_333",
+        "correct": false,
+        "answer": "Based on the reference facts provided, there is no direct information about the portrayal of Google's involvement in ant"
+      },
+      {
+        "id": "LARA_917",
+        "correct": true,
+        "answer": "Yes, you are correct. The reference articles do not directly mention the Supporters' Shield win by FC Cincinnati or Ratc"
+      },
+      {
+        "id": "LARA_1452",
+        "correct": false,
+        "answer": "Based on the information provided, there is no direct mention of the Chicago Bears' defense being reported as improved b"
+      },
+      {
+        "id": "LARA_2031",
+        "correct": true,
+        "answer": "Based on the provided references, neither article directly suggests that either Portfolio Management Services (PMS) or m"
+      },
+      {
+        "id": "LARA_402",
+        "correct": true,
+        "answer": "Yes, according to the reports from TechCrunch, there was a notable shift in OpenAI's strategic focus between the two dat"
+      },
+      {
+        "id": "LARA_19",
+        "correct": true,
+        "answer": "Based on the information provided, it appears there might be some confusion. The reference fact states that \"Fans can al"
+      },
+      {
+        "id": "LARA_1553",
+        "correct": false,
+        "answer": "Based on the reference facts provided, the TechCrunch article does not mention any layoffs at Starz. The Engadget articl"
+      },
+      {
+        "id": "LARA_2147",
+        "correct": true,
+        "answer": "Based on the reference facts provided, Lionel Messi is recognized for both his influence on integrating emerging talents"
+      },
+      {
+        "id": "LARA_2344",
+        "correct": false,
+        "answer": "The two TechCrunch articles you've referenced provide different perspectives on ChatGPT's capabilities. The first articl"
+      },
+      {
+        "id": "LARA_2425",
+        "correct": true,
+        "answer": "Yes, you are correct. The TechCrunch article mentions that Google's Gemini Pro was compared to OpenAI's GPT-3.5 in terms"
+      },
+      {
+        "id": "LARA_1198",
+        "correct": true,
+        "answer": "Based on the reference facts provided, there does not appear to be an inconsistency regarding the adaptation sequences f"
+      },
+      {
+        "id": "LARA_2050",
+        "correct": true,
+        "answer": "The individual facing a criminal trial as reported by TechCrunch, who persuaded a former colleague from Jane Street to j"
+      }
+    ]
+  },
+  "verdict": "STRUCTURE_RAG_BELOW_LC"
+}

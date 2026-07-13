@@ -1,0 +1,13 @@
+{
+  "bundle": "ragtruth_qa_test40.json",
+  "upstream": "https://huggingface.co/datasets/wandb/RAGTruth-processed",
+  "hf_or_paper": "ACL 2024 RAGTruth",
+  "source_field_in_bundle": "wandb/RAGTruth-processed",
+  "license": "See RAGTruth / wandb dataset card",
+  "selection_rule": "QA test split slice n=40; faithfulness scoring via context_support gate",
+  "human_authored": true,
+  "synthetic": false,
+  "used_as_dev_loop_primary": true,
+  "related_bundle": "ragtruth_qa_test100.json",
+  "note": "Primary faithfulness industry benchmark; protocol ragtruth-v1"
+}

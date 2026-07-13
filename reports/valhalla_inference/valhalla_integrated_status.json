@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-12T23:25:29.015078+00:00",
+  "timestamp": "2026-07-13T11:38:01.323282+00:00",
   "resource_budget": {
     "ingress_percent": 50,
     "ingress_max_items": 48,
@@ -67,10 +67,11 @@
     {
       "name": "FRAMES",
       "protocol": "frames-v1-rust",
-      "result": "1/25 (4%) · Tier C (no wiki extracts)",
-      "verdict": "TIER_C_INVALID",
+      "result": "0/5 (0%) · wiki enriched · Tier B smoke",
+      "verdict": "OPEN_QA_DEVELOPING",
       "file": "frames_v1_test.json",
-      "citeable": false
+      "citeable": true,
+      "note": "parasail wiki dump; full n≥10 preferred for homepage"
     },
     {
       "name": "MultiHop-RAG",
@@ -211,8 +212,106 @@
       }
     ]
   },
+  "fundraise_ablation": {
+    "protocol": "fundraise-ablation-matrix-v1",
+    "scale": "moderate",
+    "matrix": [
+      {
+        "arm": "full_context_lm",
+        "label": "LM full-context",
+        "LoCoMo": "9/15",
+        "LoCoMo_acc": 0.6,
+        "MultiHop": "8/15",
+        "MultiHop_acc": 0.5333,
+        "RAGTruth": "0/40",
+        "RAGTruth_acc": 0.0,
+        "LongBench": "2/10",
+        "LongBench_acc": 0.2
+      },
+      {
+        "arm": "vanilla_rag",
+        "label": "Vanilla RAG",
+        "LoCoMo": "9/15",
+        "LoCoMo_acc": 0.6,
+        "MultiHop": "8/15",
+        "MultiHop_acc": 0.5333,
+        "RAGTruth": "0/40",
+        "RAGTruth_acc": 0.0,
+        "LongBench": "2/10",
+        "LongBench_acc": 0.2
+      },
+      {
+        "arm": "lm_patch",
+        "label": "Valhalla lm_patch",
+        "LoCoMo": "1/15",
+        "LoCoMo_acc": 0.0667,
+        "MultiHop": "8/15",
+        "MultiHop_acc": 0.5333,
+        "RAGTruth": "4/40",
+        "RAGTruth_acc": 0.1,
+        "LongBench": "1/10",
+        "LongBench_acc": 0.1
+      },
+      {
+        "arm": "native",
+        "label": "Valhalla native",
+        "LoCoMo": "0/15",
+        "LoCoMo_acc": 0.0,
+        "MultiHop": "9/15",
+        "MultiHop_acc": 0.6,
+        "RAGTruth": "34/40",
+        "RAGTruth_acc": 0.85,
+        "LongBench": "3/10",
+        "LongBench_acc": 0.3
+      },
+      {
+        "arm": "hybrid_full",
+        "label": "Valhalla hybrid (full)",
+        "LoCoMo": "0/15",
+        "LoCoMo_acc": 0.0,
+        "MultiHop": "9/15",
+        "MultiHop_acc": 0.6,
+        "RAGTruth": "34/40",
+        "RAGTruth_acc": 0.85,
+        "LongBench": "1/10",
+        "LongBench_acc": 0.1
+      },
+      {
+        "arm": "hybrid_no_fate",
+        "label": "Hybrid − Fate",
+        "LoCoMo": "0/15",
+        "LoCoMo_acc": 0.0,
+        "MultiHop": "9/15",
+        "MultiHop_acc": 0.6,
+        "RAGTruth": "34/40",
+        "RAGTruth_acc": 0.85,
+        "LongBench": "1/10",
+        "LongBench_acc": 0.1
+      },
+      {
+        "arm": "hybrid_tile",
+        "label": "Hybrid − Triad (tile)",
+        "LoCoMo": "0/15",
+        "LoCoMo_acc": 0.0,
+        "MultiHop": "9/15",
+        "MultiHop_acc": 0.6,
+        "RAGTruth": "37/40",
+        "RAGTruth_acc": 0.925,
+        "LongBench": "1/10",
+        "LongBench_acc": 0.1
+      }
+    ],
+    "component_notes": [
+      "Fate lift on LoCoMo: +0.0pp (full vs −Fate)",
+      "Triad lift on LoCoMo: +0.0pp (triad vs tile)",
+      "Structure premium on LoCoMo: -60.0pp (hybrid vs vanilla RAG)",
+      "Fate lift on MultiHop: +0.0pp (full vs −Fate)",
+      "Triad lift on MultiHop: +0.0pp (triad vs tile)",
+      "Structure premium on MultiHop: +6.7pp (hybrid vs vanilla RAG)"
+    ]
+  },
   "legitimacy": {
-    "timestamp": "2026-07-12T23:25:29.047272+00:00",
+    "timestamp": "2026-07-13T11:38:01.349921+00:00",
     "bundles": {
       "ragtruth": {
         "file": "ragtruth_qa_test40.json",
@@ -245,25 +344,25 @@
       "frames": {
         "benchmark": "FRAMES",
         "protocol": "frames-v1",
-        "bundle_viable": false,
-        "tier": "C",
+        "bundle_viable": true,
+        "tier": "A",
         "preflight": {
           "bundle": "frames_slice25.json",
           "n": 25,
-          "wiki_items_with_extract_meta": 0,
-          "items_with_real_corpus": 0,
-          "viable": false,
-          "tier": "C",
-          "fix": "python3 tools/standard_benchmarks/download_standard_benchmarks.py --frames-n 25"
+          "wiki_items_with_extract_meta": 25,
+          "items_with_real_corpus": 25,
+          "viable": true,
+          "tier": "A",
+          "fix": "./scripts/prefetch_frames_wiki.sh  # or: python3 tools/standard_benchmarks/enrich_frames_wiki.py"
         },
         "report": {
           "exists": true,
-          "correct": 1,
-          "n": 25,
+          "correct": 0,
+          "n": 5,
           "wiki_items_fetched": 0
         },
-        "citeable": false,
-        "note": "Tier C — no Wikipedia extracts; score NOT citeable; stale report shows 1/25 — discard"
+        "citeable": true,
+        "note": "Tier A/B — wiki corpus present; score citeable after re-run"
       }
     },
     "reports": [
@@ -323,14 +422,14 @@
         "benchmark": "frames",
         "protocol": "frames-v1",
         "report_exists": true,
-        "correct": 1,
-        "n": 25,
+        "correct": 0,
+        "n": 5,
         "verdict": "OPEN_QA_DEVELOPING",
-        "tier": "C",
-        "citeable": false,
-        "fast_slice": false,
+        "tier": "B",
+        "citeable": true,
+        "fast_slice": true,
         "missing_keys": [],
-        "note": "Tier C — no wiki corpus; discard stale scores"
+        "note": "fast slice (n=5); cite with --fast label; full n≥10 preferred"
       },
       {
         "benchmark": "multihop_rag_hybrid",
@@ -412,16 +511,16 @@
       }
     ],
     "summary": {
-      "reports_citeable": 10,
+      "reports_citeable": 11,
       "reports_total": 11,
-      "frames_bundle_viable": false
+      "frames_bundle_viable": true
     }
   },
   "summary": {
     "independence": "VALHALLA_BASE_INDEPENDENT",
     "industry_rows": 15,
-    "reports_citeable": 10,
+    "reports_citeable": 11,
     "reports_total": 11,
-    "frames_viable": false
+    "frames_viable": true
   }
 }

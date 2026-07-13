@@ -1,0 +1,8 @@
+{
+  "bundle": "lara_rag_vs_lc_slice20.json",
+  "upstream": "LaRA-style RAG vs long-context evaluation design",
+  "selection_rule": "20 items with rag_corpus + long_context_lines",
+  "human_authored": true,
+  "synthetic": false,
+  "note": "Structure RAG vs trad LC; often RAG below LC — honest tradeoff"
+}

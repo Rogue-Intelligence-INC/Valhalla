@@ -27,11 +27,15 @@
 | **B** | MultiHop fatewithv2 | **15/25 (60%)** | OPEN_QA_VIABLE |
 | **B** | LongBench-v2 | **4/20 (20%)** | LONGBENCH_V2_DEVELOPING |
 | **B** | LaRA | RAG **11/20** · LC **13/20** | STRUCTURE_RAG_BELOW_LC |
-| **C** | FRAMES | SKIPPED | TIER_C_INVALID (no wiki) |
+| **B** | FRAMES | **0/5 smoke** · wiki enriched (parasail) | OPEN_QA_DEVELOPING (Tier B; full n≥10 pending) |
+
+**Evidence suite `--full` (same day):** competitor + 7-arm ablation + token pack — see [`EVIDENCE_SUITE_SUMMARY_20260713.md`](./EVIDENCE_SUITE_SUMMARY_20260713.md) · pack `evidence_evidence_20260713/`
+
+**Legitimacy:** **11/11 citeable** · FRAMES bundle viable=True
 
 **Elastic runtime:** ingress 50% · max_items 48 · parallel_workers 2 · cuda_ready true
 
-**Docs:** [`EXPERIMENT_SUMMARY_20260713.md`](./EXPERIMENT_SUMMARY_20260713.md) · [`VALHALLA_INTEGRATED_STATUS.md`](./VALHALLA_INTEGRATED_STATUS.md) · [`industry_benchmarks_summary.json`](./industry_benchmarks_summary.json)
+**Docs:** [`EXPERIMENT_SUMMARY_20260713.md`](./EXPERIMENT_SUMMARY_20260713.md) · [`VALHALLA_INTEGRATED_STATUS.md`](./VALHALLA_INTEGRATED_STATUS.md) · [`industry_benchmarks_summary.json`](./industry_benchmarks_summary.json) · [`COMPETITOR_COMPARE_RESULTS.md`](./COMPETITOR_COMPARE_RESULTS.md) · [`FUNDRAISE_ABLATION_MATRIX.md`](./FUNDRAISE_ABLATION_MATRIX.md)
 
 ---
 
@@ -39,6 +43,8 @@
 
 ```bash
 export RUSTFLAGS="-L /opt/cuda/lib64" LIBRARY_PATH=/opt/cuda/lib64
+./scripts/prefetch_frames_wiki.sh
+./scripts/run_evidence_suite.sh --full
 python3 tools/valhalla_inference/run_industry_benchmarks.py --all --fresh --verbose
 python3 tools/valhalla_inference/integrate_valhalla_reports.py
 ```

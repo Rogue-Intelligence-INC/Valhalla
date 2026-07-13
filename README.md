@@ -83,9 +83,20 @@ cd Valhalla
 | B | RULER-style | **15/20** | Yes |
 | B | LongBench-v2 | **4/20 (20%)** | Boundary |
 | B | LaRA | RAG 11/20 · LC 13/20 | Honest tradeoff |
-| A | FRAMES | enrich via `./scripts/prefetch_frames_wiki.sh` (parasail wiki dump) then `test_frames_v1.py` | **Yes** (after prefetch) |
+| B | FRAMES | **0/5 smoke** · wiki OK (parasail) | Yes (fast label; full pending) |
 
-Summaries: [`BENCHMARK_SUMMARY_20260713.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md)
+**Evidence suite `--full` DONE 2026-07-13 16:04** — independent write-up:  
+[`EVIDENCE_SUITE_SUMMARY_20260713.md`](reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md)
+
+| Competitor (moderate) | LoCoMo-15 | MultiHop-10 | LongBench-10 |
+|-----------------------|-----------|-------------|--------------|
+| full_context / vanilla_rag | **9/15** | 6/10 | **2/10** |
+| valhalla_base | 0/15 | **6/10** | 1/10 |
+| mem0 (local ST) | 5/15 | 6/10 | 2/10 |
+
+Ablation RAGTruth: native/hybrid **34–37/40** vs LM/RAG **0/40**. Token prefill ≈ **0.29×** RAG full / **0.10×** RAG+history.
+
+Summaries: [`BENCHMARK_SUMMARY_20260713.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) · [`COMPETITOR_COMPARE_RESULTS.md`](reports/valhalla_inference/COMPETITOR_COMPARE_RESULTS.md) · [`FUNDRAISE_ABLATION_MATRIX.md`](reports/valhalla_inference/FUNDRAISE_ABLATION_MATRIX.md)
 
 ### Mechanism (secondary — not industry SOTA)
 
@@ -125,6 +136,8 @@ export RUSTFLAGS="-L /opt/cuda/lib64" LIBRARY_PATH=/opt/cuda/lib64
 ```
 
 We do **not** claim Mem0’s published LongMemEval numbers; we report **same-slice, same-backbone** scores (and SKIP when deps/API missing).
+
+**Latest moderate run (2026-07-13):** LoCoMo full/vanilla **9/15** · valhalla **0/15** · mem0 **5/15**; MultiHop all **6/10**; LongBench **2/10 / 2/10 / 1/10 / 2/10**. Details: [`COMPETITOR_COMPARE_RESULTS.md`](reports/valhalla_inference/COMPETITOR_COMPARE_RESULTS.md) · [`EVIDENCE_SUITE_SUMMARY_20260713.md`](reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md).
 
 ---
 

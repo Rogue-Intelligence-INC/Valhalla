@@ -1,6 +1,6 @@
 # Valhalla — Integrated Status
 
-**Generated:** 2026-07-12T23:25:29.015078+00:00
+**Generated:** 2026-07-13T11:38:01.323282+00:00
 
 ## Resource budget
 
@@ -32,7 +32,7 @@
 | RAGTruth-100 | 88/100 (88%) | RAGTRUTH_STRONG |
 | Needle session | 4/4 (100%) | NEEDLE_STRONG |
 | LongBench-v2 | 4/20 (20%) | LONGBENCH_V2_DEVELOPING |
-| FRAMES | 1/25 (4%) · Tier C (no wiki extracts) | TIER_C_INVALID |
+| FRAMES | 0/5 (0%) · wiki enriched · Tier B smoke | OPEN_QA_DEVELOPING |
 | MultiHop-RAG | 9/25 (36%) | OPEN_QA_DEVELOPING |
 | MultiHop-RAG v2 | 15/25 (60%) | OPEN_QA_VIABLE |
 | MultiHop-RAG Fate | 15/25 (60%) | OPEN_QA_VIABLE |
@@ -57,10 +57,30 @@
 | letta | ?/? | ?/? | N/A |
 | valhalla_base | 0/3 | 0/3 | 0 |
 
+## Fundraise ablation matrix
+
+- Scale: **moderate**
+
+| Arm | LoCoMo | MultiHop | RAGTruth | LongBench |
+|-----|--------|----------|----------|-----------|
+| LM full-context | 9/15 | 8/15 | 0/40 | 2/10 |
+| Vanilla RAG | 9/15 | 8/15 | 0/40 | 2/10 |
+| Valhalla lm_patch | 1/15 | 8/15 | 4/40 | 1/10 |
+| Valhalla native | 0/15 | 9/15 | 34/40 | 3/10 |
+| Valhalla hybrid (full) | 0/15 | 9/15 | 34/40 | 1/10 |
+| Hybrid − Fate | 0/15 | 9/15 | 34/40 | 1/10 |
+| Hybrid − Triad (tile) | 0/15 | 9/15 | 37/40 | 1/10 |
+- Fate lift on LoCoMo: +0.0pp (full vs −Fate)
+- Triad lift on LoCoMo: +0.0pp (triad vs tile)
+- Structure premium on LoCoMo: -60.0pp (hybrid vs vanilla RAG)
+- Fate lift on MultiHop: +0.0pp (full vs −Fate)
+- Triad lift on MultiHop: +0.0pp (triad vs tile)
+- Structure premium on MultiHop: +6.7pp (hybrid vs vanilla RAG)
+
 ## Legitimacy
 
-- Citeable reports: **10/11**
-- FRAMES bundle viable: **False**
+- Citeable reports: **11/11**
+- FRAMES bundle viable: **True**
 
 ---
 

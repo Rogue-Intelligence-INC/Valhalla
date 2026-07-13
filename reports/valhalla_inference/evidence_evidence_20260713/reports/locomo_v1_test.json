@@ -1,0 +1,197 @@
+{
+  "timestamp": "2026-07-12T23:10:12.328458+00:00",
+  "protocol": "locomo-v1-rust",
+  "benchmark": "LoCoMo",
+  "bundle": "locomo_qa_slice30.json",
+  "n": 30,
+  "correct": 17,
+  "accuracy": 0.5667,
+  "dynamic_fragments": true,
+  "fragment_mode": "Density",
+  "max_lines": 64,
+  "chunk_size": 0,
+  "rows": [
+    {
+      "answer": "[corpus:6] [fate:34@6] Caroline: Thanks, Melanie! It's awesome to have our own platform to be ourselves and support others' rights",
+      "correct": false,
+      "id": "LOCO_0_0",
+      "session_lines_used": 11
+    },
+    {
+      "answer": "[corpus:5] [fate:30@5] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
+      "correct": true,
+      "id": "LOCO_0_1",
+      "session_lines_used": 10
+    },
+    {
+      "answer": "[corpus:2] [fate:18@2] What motivated you to pursue counseling?",
+      "correct": false,
+      "id": "LOCO_0_2",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Guess what I did this week? I took the first step towards becoming a mom - I applied to adoption agencies! It's a big decision, but I think I'm ready to give all my love to a ch",
+      "correct": true,
+      "id": "LOCO_0_3",
+      "session_lines_used": 11
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Caroline: Thanks! It was made for a local church and shows time changing our lives",
+      "correct": false,
+      "id": "LOCO_0_4",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Melanie: Yeah, a buddy of mine adopted last year",
+      "correct": true,
+      "id": "LOCO_0_5",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:2] [fate:18@2] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
+      "correct": true,
+      "id": "LOCO_0_6",
+      "session_lines_used": 11
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Caroline: I'm thrilled to make a family for kids who need one",
+      "correct": false,
+      "id": "LOCO_0_7",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Caroline: Last weekend our city held a pride parade! So many people marched through the streets waving flags, holding signs and celebrating love and diversity",
+      "correct": true,
+      "id": "LOCO_0_8",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Caroline: Last weekend our city held a pride parade! So many people marched through the streets waving flags, holding signs and celebrating love and diversity",
+      "correct": true,
+      "id": "LOCO_0_9",
+      "session_lines_used": 11
+    },
+    {
+      "answer": "[corpus:4] [fate:26@4] Caroline: The support group has made me feel accepted and given me courage to embrace myself",
+      "correct": false,
+      "id": "LOCO_0_10",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Caroline: Thanks, Melanie! This necklace is super special to me - a gift from my grandma in my home country, Sweden",
+      "correct": true,
+      "id": "LOCO_0_11",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Caroline: I started playing acoustic guitar about five years ago",
+      "correct": true,
+      "id": "LOCO_0_12",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Caroline: I'm still figuring out the details, but I'm thinking of working with trans people, helping them accept themselves and supporting their mental health",
+      "correct": true,
+      "id": "LOCO_0_13",
+      "session_lines_used": 10
+    },
+    {
+      "answer": "[corpus:5] [fate:30@5] Talking to the community made me want to use my story to help others too - I'm still thinking that counseling and mental health is the way to go",
+      "correct": false,
+      "id": "LOCO_0_14",
+      "session_lines_used": 11
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Melanie: Seven years now, and I've finally found my real muses: painting and pottery",
+      "correct": true,
+      "id": "LOCO_0_15",
+      "session_lines_used": 10
+    },
+    {
+      "answer": "[corpus:2] [fate:18@2] Caroline: Sure thing, Melanie! Can't wait to see your pottery project",
+      "correct": false,
+      "id": "LOCO_0_16",
+      "session_lines_used": 10
+    },
+    {
+      "answer": "[corpus:4] [fate:26@4] Caroline: Definitely, Mel! Finding those happy moments and clinging to them is key",
+      "correct": false,
+      "id": "LOCO_0_17",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Melanie: We enjoy hiking in the mountains and exploring forests",
+      "correct": true,
+      "id": "LOCO_0_18",
+      "session_lines_used": 11
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Melanie: Hey Caroline! It's so good to hear from you! That pic is so beautiful, the colors really pop",
+      "correct": false,
+      "id": "LOCO_0_19",
+      "session_lines_used": 11
+    },
+    {
+      "answer": "[corpus:1] [fate:14@1] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
+      "correct": true,
+      "id": "LOCO_0_20",
+      "session_lines_used": 10
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Caroline: Thanks so much, Melanie! It's beautiful! It really brings home how much love's in families - both blood and the ones we choose",
+      "correct": true,
+      "id": "LOCO_0_21",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Melanie: I feel the same way! Art is so cool like that - it connects us and helps us understand each other",
+      "correct": false,
+      "id": "LOCO_0_22",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Melanie: I loved reading \"Charlotte's Web\" as a kid",
+      "correct": true,
+      "id": "LOCO_0_23",
+      "session_lines_used": 11
+    },
+    {
+      "answer": "[corpus:4] [fate:26@4] Melanie: Thanks, Caroline! These are for running",
+      "correct": true,
+      "id": "LOCO_0_24",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:6] [fate:34@6] Caroline: Definitely, Mel! Finding those happy moments and clinging to them is key",
+      "correct": false,
+      "id": "LOCO_0_25",
+      "session_lines_used": 10
+    },
+    {
+      "answer": "[corpus:5] [fate:30@5] Been reading that book you recommended a while ago and painting to keep busy",
+      "correct": false,
+      "id": "LOCO_0_26",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Melanie: Yeah, it's tough",
+      "correct": false,
+      "id": "LOCO_0_27",
+      "session_lines_used": 12
+    },
+    {
+      "answer": "[corpus:0] [fate:10@0] Caroline: Thanks so much, Melanie! It's beautiful! It really brings home how much love's in families - both blood and the ones we choose",
+      "correct": true,
+      "id": "LOCO_0_28",
+      "session_lines_used": 11
+    },
+    {
+      "answer": "[corpus:3] [fate:22@3] Caroline: Melanie, those bowls are amazing! They each have such cool designs",
+      "correct": true,
+      "id": "LOCO_0_29",
+      "session_lines_used": 10
+    }
+  ],
+  "verdict": "OPEN_QA_VIABLE",
+  "runtime": "rust"
+}

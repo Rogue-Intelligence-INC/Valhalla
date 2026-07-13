@@ -1,0 +1,517 @@
+{
+  "timestamp": "2026-07-13T01:58:57.802589+00:00",
+  "protocol": "fundraise-ablation-matrix-v1",
+  "constraints": {
+    "backbone": "Qwen/Qwen2.5-3B-Instruct",
+    "locomo_n": 15,
+    "multihop_n": 15,
+    "ragtruth_n": 40,
+    "longbench_n": 10,
+    "arms": [
+      "full_context_lm",
+      "vanilla_rag",
+      "lm_patch",
+      "native",
+      "hybrid_full",
+      "hybrid_no_fate",
+      "hybrid_tile"
+    ],
+    "scale": "moderate",
+    "stop_on_error": true,
+    "cuda_device": "0"
+  },
+  "arms_run": [
+    "full_context_lm",
+    "vanilla_rag",
+    "lm_patch",
+    "native",
+    "hybrid_full",
+    "hybrid_no_fate",
+    "hybrid_tile"
+  ],
+  "benchmarks": {
+    "locomo": {
+      "n": 15,
+      "arms": {
+        "full_context_lm": {
+          "n": 15,
+          "correct": 9,
+          "accuracy": 0.6,
+          "tokens_prompt_cum": 259831,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 17386.1,
+          "avg_latency_ms": 2678.1,
+          "session_reload_bytes_cum": 996490,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "vanilla_rag": {
+          "n": 15,
+          "correct": 9,
+          "accuracy": 0.6,
+          "tokens_prompt_cum": 259831,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 17386.1,
+          "avg_latency_ms": 2646.4,
+          "session_reload_bytes_cum": 996490,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "lm_patch": {
+          "n": 15,
+          "correct": 1,
+          "accuracy": 0.0667,
+          "tokens_prompt_cum": 496,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 97.1,
+          "avg_latency_ms": 299069.1,
+          "session_reload_bytes_cum": 1002315,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "native": {
+          "n": 15,
+          "correct": 0,
+          "accuracy": 0.0,
+          "tokens_prompt_cum": 496,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 97.1,
+          "avg_latency_ms": 261542.7,
+          "session_reload_bytes_cum": 1002315,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_full": {
+          "n": 15,
+          "correct": 0,
+          "accuracy": 0.0,
+          "tokens_prompt_cum": 496,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 97.1,
+          "avg_latency_ms": 259478.4,
+          "session_reload_bytes_cum": 1002315,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_no_fate": {
+          "n": 15,
+          "correct": 0,
+          "accuracy": 0.0,
+          "tokens_prompt_cum": 496,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 97.1,
+          "avg_latency_ms": 261064.1,
+          "session_reload_bytes_cum": 1002315,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_tile": {
+          "n": 15,
+          "correct": 0,
+          "accuracy": 0.0,
+          "tokens_prompt_cum": 496,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 97.1,
+          "avg_latency_ms": 438.3,
+          "session_reload_bytes_cum": 1002315,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        }
+      }
+    },
+    "multihop": {
+      "n": 15,
+      "arms": {
+        "full_context_lm": {
+          "n": 15,
+          "correct": 8,
+          "accuracy": 0.5333,
+          "tokens_prompt_cum": 3650,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 307.3,
+          "avg_latency_ms": 1500.0,
+          "session_reload_bytes_cum": 15412,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "vanilla_rag": {
+          "n": 15,
+          "correct": 8,
+          "accuracy": 0.5333,
+          "tokens_prompt_cum": 3650,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 307.3,
+          "avg_latency_ms": 1504.3,
+          "session_reload_bytes_cum": 15412,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "lm_patch": {
+          "n": 15,
+          "correct": 8,
+          "accuracy": 0.5333,
+          "tokens_prompt_cum": 2680,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 242.7,
+          "avg_latency_ms": 64421.4,
+          "session_reload_bytes_cum": 10856,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "native": {
+          "n": 15,
+          "correct": 9,
+          "accuracy": 0.6,
+          "tokens_prompt_cum": 2680,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 242.7,
+          "avg_latency_ms": 167.6,
+          "session_reload_bytes_cum": 10856,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_full": {
+          "n": 15,
+          "correct": 9,
+          "accuracy": 0.6,
+          "tokens_prompt_cum": 2680,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 242.7,
+          "avg_latency_ms": 164.9,
+          "session_reload_bytes_cum": 10856,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_no_fate": {
+          "n": 15,
+          "correct": 9,
+          "accuracy": 0.6,
+          "tokens_prompt_cum": 2680,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 242.7,
+          "avg_latency_ms": 168.5,
+          "session_reload_bytes_cum": 10856,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_tile": {
+          "n": 15,
+          "correct": 9,
+          "accuracy": 0.6,
+          "tokens_prompt_cum": 2680,
+          "tokens_decode_cum": 960,
+          "avg_tokens_per_query": 242.7,
+          "avg_latency_ms": 142.8,
+          "session_reload_bytes_cum": 10856,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        }
+      }
+    },
+    "ragtruth": {
+      "n": 40,
+      "arms": {
+        "full_context_lm": {
+          "n": 40,
+          "correct": 0,
+          "accuracy": 0.0,
+          "tokens_prompt_cum": 1160,
+          "tokens_decode_cum": 2560,
+          "avg_tokens_per_query": 93.0,
+          "avg_latency_ms": 753.8,
+          "session_reload_bytes_cum": 0,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "vanilla_rag": {
+          "n": 40,
+          "correct": 0,
+          "accuracy": 0.0,
+          "tokens_prompt_cum": 1160,
+          "tokens_decode_cum": 2560,
+          "avg_tokens_per_query": 93.0,
+          "avg_latency_ms": 773.2,
+          "session_reload_bytes_cum": 0,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "lm_patch": {
+          "n": 40,
+          "correct": 4,
+          "accuracy": 0.1,
+          "tokens_prompt_cum": 1016,
+          "tokens_decode_cum": 2560,
+          "avg_tokens_per_query": 89.4,
+          "avg_latency_ms": 67775.6,
+          "session_reload_bytes_cum": 58145,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "native": {
+          "n": 40,
+          "correct": 34,
+          "accuracy": 0.85,
+          "tokens_prompt_cum": 1016,
+          "tokens_decode_cum": 2560,
+          "avg_tokens_per_query": 89.4,
+          "avg_latency_ms": 205.2,
+          "session_reload_bytes_cum": 58145,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_full": {
+          "n": 40,
+          "correct": 34,
+          "accuracy": 0.85,
+          "tokens_prompt_cum": 1016,
+          "tokens_decode_cum": 2560,
+          "avg_tokens_per_query": 89.4,
+          "avg_latency_ms": 203.3,
+          "session_reload_bytes_cum": 58145,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_no_fate": {
+          "n": 40,
+          "correct": 34,
+          "accuracy": 0.85,
+          "tokens_prompt_cum": 1016,
+          "tokens_decode_cum": 2560,
+          "avg_tokens_per_query": 89.4,
+          "avg_latency_ms": 204.6,
+          "session_reload_bytes_cum": 58145,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_tile": {
+          "n": 40,
+          "correct": 37,
+          "accuracy": 0.925,
+          "tokens_prompt_cum": 1016,
+          "tokens_decode_cum": 2560,
+          "avg_tokens_per_query": 89.4,
+          "avg_latency_ms": 145.4,
+          "session_reload_bytes_cum": 58145,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        }
+      }
+    },
+    "longbench": {
+      "n": 10,
+      "arms": {
+        "full_context_lm": {
+          "n": 10,
+          "correct": 2,
+          "accuracy": 0.2,
+          "tokens_prompt_cum": 29798,
+          "tokens_decode_cum": 640,
+          "avg_tokens_per_query": 3043.8,
+          "avg_latency_ms": 407.4,
+          "session_reload_bytes_cum": 120257,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "vanilla_rag": {
+          "n": 10,
+          "correct": 2,
+          "accuracy": 0.2,
+          "tokens_prompt_cum": 29798,
+          "tokens_decode_cum": 640,
+          "avg_tokens_per_query": 3043.8,
+          "avg_latency_ms": 394.3,
+          "session_reload_bytes_cum": 120257,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "lm_patch": {
+          "n": 10,
+          "correct": 1,
+          "accuracy": 0.1,
+          "tokens_prompt_cum": 5040,
+          "tokens_decode_cum": 640,
+          "avg_tokens_per_query": 568.0,
+          "avg_latency_ms": 42011.0,
+          "session_reload_bytes_cum": 115336,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "native": {
+          "n": 10,
+          "correct": 3,
+          "accuracy": 0.3,
+          "tokens_prompt_cum": 5040,
+          "tokens_decode_cum": 640,
+          "avg_tokens_per_query": 568.0,
+          "avg_latency_ms": 19660.0,
+          "session_reload_bytes_cum": 115336,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_full": {
+          "n": 10,
+          "correct": 1,
+          "accuracy": 0.1,
+          "tokens_prompt_cum": 5040,
+          "tokens_decode_cum": 640,
+          "avg_tokens_per_query": 568.0,
+          "avg_latency_ms": 42150.8,
+          "session_reload_bytes_cum": 115336,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_no_fate": {
+          "n": 10,
+          "correct": 1,
+          "accuracy": 0.1,
+          "tokens_prompt_cum": 5040,
+          "tokens_decode_cum": 640,
+          "avg_tokens_per_query": 568.0,
+          "avg_latency_ms": 42177.8,
+          "session_reload_bytes_cum": 115336,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        },
+        "hybrid_tile": {
+          "n": 10,
+          "correct": 1,
+          "accuracy": 0.1,
+          "tokens_prompt_cum": 5040,
+          "tokens_decode_cum": 640,
+          "avg_tokens_per_query": 568.0,
+          "avg_latency_ms": 22379.8,
+          "session_reload_bytes_cum": 115336,
+          "proactive_emitted": 0,
+          "skipped": false,
+          "skip_reason": null
+        }
+      }
+    }
+  },
+  "control": {
+    "state": "ok",
+    "pause_file": "/home/jouly/AI/Valhalla/reports/valhalla_inference/ablation.pause",
+    "checkpoint": "/home/jouly/AI/Valhalla/reports/valhalla_inference/ablation_ckpt/fundraise_ablation_checkpoint.json"
+  },
+  "matrix": [
+    {
+      "arm": "full_context_lm",
+      "label": "LM full-context",
+      "LoCoMo": "9/15",
+      "LoCoMo_acc": 0.6,
+      "MultiHop": "8/15",
+      "MultiHop_acc": 0.5333,
+      "RAGTruth": "0/40",
+      "RAGTruth_acc": 0.0,
+      "LongBench": "2/10",
+      "LongBench_acc": 0.2
+    },
+    {
+      "arm": "vanilla_rag",
+      "label": "Vanilla RAG",
+      "LoCoMo": "9/15",
+      "LoCoMo_acc": 0.6,
+      "MultiHop": "8/15",
+      "MultiHop_acc": 0.5333,
+      "RAGTruth": "0/40",
+      "RAGTruth_acc": 0.0,
+      "LongBench": "2/10",
+      "LongBench_acc": 0.2
+    },
+    {
+      "arm": "lm_patch",
+      "label": "Valhalla lm_patch",
+      "LoCoMo": "1/15",
+      "LoCoMo_acc": 0.0667,
+      "MultiHop": "8/15",
+      "MultiHop_acc": 0.5333,
+      "RAGTruth": "4/40",
+      "RAGTruth_acc": 0.1,
+      "LongBench": "1/10",
+      "LongBench_acc": 0.1
+    },
+    {
+      "arm": "native",
+      "label": "Valhalla native",
+      "LoCoMo": "0/15",
+      "LoCoMo_acc": 0.0,
+      "MultiHop": "9/15",
+      "MultiHop_acc": 0.6,
+      "RAGTruth": "34/40",
+      "RAGTruth_acc": 0.85,
+      "LongBench": "3/10",
+      "LongBench_acc": 0.3
+    },
+    {
+      "arm": "hybrid_full",
+      "label": "Valhalla hybrid (full)",
+      "LoCoMo": "0/15",
+      "LoCoMo_acc": 0.0,
+      "MultiHop": "9/15",
+      "MultiHop_acc": 0.6,
+      "RAGTruth": "34/40",
+      "RAGTruth_acc": 0.85,
+      "LongBench": "1/10",
+      "LongBench_acc": 0.1
+    },
+    {
+      "arm": "hybrid_no_fate",
+      "label": "Hybrid − Fate",
+      "LoCoMo": "0/15",
+      "LoCoMo_acc": 0.0,
+      "MultiHop": "9/15",
+      "MultiHop_acc": 0.6,
+      "RAGTruth": "34/40",
+      "RAGTruth_acc": 0.85,
+      "LongBench": "1/10",
+      "LongBench_acc": 0.1
+    },
+    {
+      "arm": "hybrid_tile",
+      "label": "Hybrid − Triad (tile)",
+      "LoCoMo": "0/15",
+      "LoCoMo_acc": 0.0,
+      "MultiHop": "9/15",
+      "MultiHop_acc": 0.6,
+      "RAGTruth": "37/40",
+      "RAGTruth_acc": 0.925,
+      "LongBench": "1/10",
+      "LongBench_acc": 0.1
+    }
+  ],
+  "component_notes": [
+    "Fate lift on LoCoMo: +0.0pp (full vs −Fate)",
+    "Triad lift on LoCoMo: +0.0pp (triad vs tile)",
+    "Structure premium on LoCoMo: -60.0pp (hybrid vs vanilla RAG)",
+    "Fate lift on MultiHop: +0.0pp (full vs −Fate)",
+    "Triad lift on MultiHop: +0.0pp (triad vs tile)",
+    "Structure premium on MultiHop: +6.7pp (hybrid vs vanilla RAG)"
+  ]
+}
