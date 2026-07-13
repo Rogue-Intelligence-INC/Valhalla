@@ -50,7 +50,27 @@ class ValhallaBaseSession:
         sess = doc.get("session") or {}
         self.corpus = list(sess.get("corpus") or [])
         self.fingerprint = str(sess.get("fingerprint") or "")
-        self.session_state = sess
+        # Never keep fate_rollback_stack across Python↔subprocess JSON round-trips:
+        # each entry is a full TriadIncubationSnapshot and would grow to OOM under
+        # curriculum / multi-turn (subprocess architecture cannot use in-proc rollback).
+        if isinstance(sess, dict):
+            sess = dict(sess)
+            sess.pop("fate_rollback_stack", None)
+            qh = sess.get("question_history")
+            if isinstance(qh, list) and len(qh) > 32:
+                sess["question_history"] = qh[-32:]
+        self.session_state = sess if sess else None
+
+    def slim_session_for_wire(self) -> dict[str, Any] | None:
+        """Copy of session_state safe to pass to a fresh valhalla_base process."""
+        if not self.session_state:
+            return None
+        sess = copy.deepcopy(self.session_state)
+        sess.pop("fate_rollback_stack", None)
+        qh = sess.get("question_history")
+        if isinstance(qh, list) and len(qh) > 32:
+            sess["question_history"] = qh[-32:]
+        return sess
 
 
 @dataclass
@@ -169,7 +189,7 @@ class ValhallaBase:
         payload: dict[str, Any] = {
             "questions": [],
             "session_extend_only": True,
-            "session": self.session.session_state,
+            "session": self.session.slim_session_for_wire(),
             "append_items": pending,
             "append_lines": [str(it["text"]) for it in pending if it.get("text")],
             "config": self._config_payload(),
@@ -258,7 +278,7 @@ class ValhallaBase:
             "config": self._config_payload(),
         }
         if self.session.session_state:
-            payload["session"] = self.session.session_state
+            payload["session"] = self.session.slim_session_for_wire()
         doc = self._run_bin(payload)
         self.session.apply_response(doc)
         return doc
@@ -431,7 +451,7 @@ class ValhallaBase:
         }
 
         if append_only and self.session.session_state:
-            payload["session"] = self.session.session_state
+            payload["session"] = self.session.slim_session_for_wire()
             pending = context_items if context_items is not None else self._pending_append
             payload["append_items"] = pending
             payload["append_lines"] = [
@@ -442,7 +462,7 @@ class ValhallaBase:
             has_fresh_context = context is not None or context_items is not None
             continuing = self.session.session_state is not None and not has_fresh_context
             if continuing:
-                payload["session"] = self.session.session_state
+                payload["session"] = self.session.slim_session_for_wire()
             else:
                 items = context_items if context_items is not None else self.context_items
                 if context is not None:
@@ -454,7 +474,7 @@ class ValhallaBase:
                 if items:
                     payload["context_items"] = items
                 if self.session.session_state and not has_fresh_context:
-                    payload["session"] = self.session.session_state
+                    payload["session"] = self.session.slim_session_for_wire()
 
         proc = self._run_bin(payload)
         doc = proc
@@ -519,7 +539,7 @@ class ValhallaBase:
         payload: dict[str, Any] = {
             "questions": [],
             "proactive_idle": True,
-            "session": self.session.session_state,
+            "session": self.session.slim_session_for_wire(),
             "config": self._config_payload(),
         }
         doc = self._run_bin(payload)

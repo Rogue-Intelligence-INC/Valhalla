@@ -173,41 +173,57 @@ def simulate_costs(tokenizer, turns: list[dict]) -> dict[str, dict]:
     }
 
 
-def run_valhalla_accuracy(turns: list[dict]) -> dict:
+def run_valhalla_accuracy(turns: list[dict], *, max_turns: int = 0) -> dict:
+    from benchmark_env import apply_resource_budget, production_valhalla_base_kwargs  # noqa: E402
     from valhalla_base import ValhallaBase  # noqa: E402
 
-    base = ValhallaBase(
-        decode="hybrid",
-        follow_up_decode="native_follow_up_aware",
-        fate_ingress_routing="quad_cycle",
-        fate_qa_feedback=False,
-    )
+    apply_resource_budget()
+    base = ValhallaBase(**production_valhalla_base_kwargs(decode="hybrid", max_new=64))
     hits = 0
     rows: list[dict] = []
-    corpus: list[str] = []
     current_topic = ""
+    selected = turns[: max_turns] if max_turns and max_turns > 0 else turns
 
-    for t in turns:
+    for t in selected:
         if t["topic"] != current_topic:
             current_topic = t["topic"]
             base.clear_context()
             corpus = list(SEEDS.get(current_topic, []))
             base.set_context(corpus)
         base.append_context(t["append"])
-        corpus = t["corpus_after"]
-        doc = base.run(
-            [{"id": f"{t['topic']}_{t['turn']}", "text": t["question"], "score_type": "open"}],
-            append_only=True,
-        )
-        ans = ""
-        for r in doc.get("results") or []:
-            ans = str(r.get("answer") or r.get("text") or "")
+        # Prefer ask() which reads `rows`; fall back to run()+rows/results for older bins.
+        try:
+            ans = base.ask(t["question"], qid=f"{t['topic']}_{t['turn']}")
+        except Exception:
+            doc = base.run(
+                [{"id": f"{t['topic']}_{t['turn']}", "text": t["question"], "score_type": "open"}],
+                append_only=True,
+            )
+            ans = ""
+            for r in doc.get("rows") or doc.get("results") or []:
+                if isinstance(r, dict):
+                    ans = str(r.get("answer") or r.get("text") or "")
+                    if ans:
+                        break
         ok = topic_ok(ans, t["hint"], t["forbidden"])
         hits += int(ok)
-        rows.append({"topic": t["topic"], "turn": t["turn"], "on_topic": ok, "answer": ans[:120]})
+        rows.append(
+            {
+                "topic": t["topic"],
+                "turn": t["turn"],
+                "on_topic": ok,
+                "answer": (ans or "")[:160],
+            }
+        )
 
-    n = len(turns)
-    return {"on_topic_hits": hits, "n": n, "on_topic_rate": round(hits / n, 4), "rows": rows}
+    n = len(selected)
+    return {
+        "on_topic_hits": hits,
+        "n": n,
+        "on_topic_rate": round(hits / max(n, 1), 4),
+        "rows": rows,
+    }
+
 
 
 def load_holdout_accuracy() -> dict:
@@ -270,7 +286,13 @@ def build_summary_table(costs: dict, holdout: dict, thread_acc: dict | None) -> 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Token efficiency v1 — wire + prefill vs RAG")
     ap.add_argument("--lm", default="Qwen/Qwen2.5-0.5B-Instruct")
-    ap.add_argument("--run-valhalla", action="store_true", help="Run live 30-turn Valhalla accuracy")
+    ap.add_argument("--run-valhalla", action="store_true", help="Run live Valhalla accuracy")
+    ap.add_argument(
+        "--max-turns",
+        type=int,
+        default=0,
+        help="Limit live accuracy turns (0 = all 30); use 10 for unique-proof --fast",
+    )
     ap.add_argument("--out", type=Path, default=REPORTS / "token_efficiency_test.json")
     args = ap.parse_args()
 
@@ -279,13 +301,15 @@ def main() -> None:
     print(f"  turns: {len(turns)}")
 
     tokenizer = load_tokenizer(args.lm)
+    # Cost curve always on full 30 turns for stable ratios; accuracy may be subset.
     costs = simulate_costs(tokenizer, turns)
     holdout = load_holdout_accuracy()
 
     thread_acc = None
     if args.run_valhalla:
-        print("  running ValhallaBase 30-turn thread eval…")
-        thread_acc = run_valhalla_accuracy(turns)
+        n_live = args.max_turns if args.max_turns > 0 else len(turns)
+        print(f"  running ValhallaBase thread eval (n={n_live})…")
+        thread_acc = run_valhalla_accuracy(turns, max_turns=args.max_turns)
     else:
         # Pull cached extended continuity from context-flexibility-max-goal if present
         cached = REPORTS / "context_flexibility_max_goal.json"
@@ -302,11 +326,16 @@ def main() -> None:
 
     summary_table = build_summary_table(costs, holdout, thread_acc)
 
+    on_topic = float((thread_acc or {}).get("on_topic_rate") or 0.0)
+    prefill_ratio = float((costs.get("ratios_vs_rag_full") or {}).get("prefill_tokens") or 1.0)
+    floor_ok = on_topic >= 0.80 and prefill_ratio <= 0.35
+
     report = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "protocol": PROTOCOL,
         "model_tokenizer": args.lm,
         "turns": len(turns),
+        "accuracy_turns": (thread_acc or {}).get("n") or len(turns),
         "architectures": {
             "valhalla_append": costs["valhalla_append"],
             "rag_full_resend": costs["rag_full_resend"],
@@ -316,10 +345,17 @@ def main() -> None:
         "thread_accuracy": thread_acc,
         "holdout_accuracy": holdout,
         "summary_table": summary_table,
+        "cost_at_floor": {
+            "on_topic_rate": on_topic,
+            "prefill_ratio_vs_rag_full": prefill_ratio,
+            "floor_on_topic": 0.80,
+            "floor_prefill_ratio": 0.35,
+            "pass": floor_ok,
+        },
         "interpretation": (
-            "Valhalla wire cost scales with incremental append (~64 chars/step avg on growth curve); "
-            "LM prefill stays question-only on native path. RAG resends full corpus each turn — "
-            "prefill tokens grow super-linearly with history variant."
+            "Valhalla wire cost scales with incremental append; "
+            "LM prefill stays question-only on native path. "
+            "Cite cost advantage only when cost_at_floor.pass (on-topic ≥0.80 and prefill ratio ≤0.35)."
         ),
     }
 
@@ -340,6 +376,7 @@ def main() -> None:
     )
     if thread_acc:
         print(f"Thread on-topic: {thread_acc.get('on_topic_rate', 0):.1%}")
+    print(f"Cost@floor pass: {floor_ok}")
     if holdout.get("valhalla_hybrid_cold_rag"):
         h = holdout["valhalla_hybrid_cold_rag"]
         t = holdout.get("traditional_lm_rag") or {}

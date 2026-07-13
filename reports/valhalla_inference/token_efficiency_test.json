@@ -1,8 +1,9 @@
 {
-  "timestamp": "2026-07-13T01:58:57.247860+00:00",
+  "timestamp": "2026-07-13T20:26:23.370582+00:00",
   "protocol": "token-efficiency-v1",
   "model_tokenizer": "Qwen/Qwen2.5-0.5B-Instruct",
   "turns": 30,
+  "accuracy_turns": 10,
   "architectures": {
     "valhalla_append": {
       "wire_chars_cumulative": 2319,
@@ -30,189 +31,69 @@
     "prefill_tokens_vs_history": 0.095
   },
   "thread_accuracy": {
-    "on_topic_hits": 0,
-    "n": 30,
-    "on_topic_rate": 0.0,
+    "on_topic_hits": 6,
+    "n": 10,
+    "on_topic_rate": 0.6,
     "rows": [
       {
         "topic": "australia",
         "turn": 1,
         "on_topic": false,
-        "answer": ""
+        "answer": "[corpus:0] [fate:10@0] The"
       },
       {
         "topic": "australia",
         "turn": 2,
         "on_topic": false,
-        "answer": ""
+        "answer": "[corpus:1] [fate:14@1] Australia"
       },
       {
         "topic": "australia",
         "turn": 3,
-        "on_topic": false,
-        "answer": ""
+        "on_topic": true,
+        "answer": "[corpus:2] [fate:18@2] Sydney is the largest city in Australia but not the capital"
       },
       {
         "topic": "australia",
         "turn": 4,
-        "on_topic": false,
-        "answer": ""
+        "on_topic": true,
+        "answer": "[corpus:3] [fate:22@3] English"
       },
       {
         "topic": "australia",
         "turn": 5,
-        "on_topic": false,
-        "answer": ""
+        "on_topic": true,
+        "answer": "[corpus:6] [fate:34@6] Melbourne is the second largest city in Australia"
       },
       {
         "topic": "australia",
         "turn": 6,
         "on_topic": false,
-        "answer": ""
+        "answer": "[corpus:7] [fate:38@7] The Australian"
       },
       {
         "topic": "australia",
         "turn": 7,
         "on_topic": false,
-        "answer": ""
+        "answer": "[corpus:8] [fate:42@8] The Australian"
       },
       {
         "topic": "australia",
         "turn": 8,
-        "on_topic": false,
-        "answer": ""
+        "on_topic": true,
+        "answer": "[corpus:9] [fate:46@9] Kangaroos are native marsupials found across Australia"
       },
       {
         "topic": "australia",
         "turn": 9,
-        "on_topic": false,
-        "answer": ""
+        "on_topic": true,
+        "answer": "[corpus:10] [fate:50@10] The Outback refers to remote arid interior regions of Australia"
       },
       {
         "topic": "australia",
         "turn": 10,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 1,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 2,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 3,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 4,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 5,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 6,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 7,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 8,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 9,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "chemistry",
-        "turn": 10,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 1,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 2,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 3,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 4,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 5,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 6,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 7,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 8,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 9,
-        "on_topic": false,
-        "answer": ""
-      },
-      {
-        "topic": "physics",
-        "turn": 10,
-        "on_topic": false,
-        "answer": ""
+        "on_topic": true,
+        "answer": "[corpus:11] [fate:54@11] Canberra was selected as capital as a compromise between Sydney and Melbourne"
       }
     ]
   },
@@ -235,7 +116,7 @@
       "wire_chars_cumulative": 2319,
       "prefill_tokens_cumulative": 1126,
       "decode_tokens_total": 0,
-      "thread_on_topic_rate": 0.0,
+      "thread_on_topic_rate": 0.6,
       "holdout_accuracy": 0.8709677419354839
     },
     {
@@ -255,5 +136,12 @@
       "holdout_accuracy": 1.0
     }
   ],
-  "interpretation": "Valhalla wire cost scales with incremental append (~64 chars/step avg on growth curve); LM prefill stays question-only on native path. RAG resends full corpus each turn — prefill tokens grow super-linearly with history variant."
+  "cost_at_floor": {
+    "on_topic_rate": 0.6,
+    "prefill_ratio_vs_rag_full": 0.291,
+    "floor_on_topic": 0.8,
+    "floor_prefill_ratio": 0.35,
+    "pass": false
+  },
+  "interpretation": "Valhalla wire cost scales with incremental append; LM prefill stays question-only on native path. Cite cost advantage only when cost_at_floor.pass (on-topic ≥0.80 and prefill ratio ≤0.35)."
 }

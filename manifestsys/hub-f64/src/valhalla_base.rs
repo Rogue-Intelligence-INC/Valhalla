@@ -99,7 +99,7 @@ pub struct ValhallaBaseSessionState {
     /// Fate adaptive algebra counters + rollback stack for long-run sessions.
     #[serde(default)]
     pub fate_algebra_meta: crate::fate_adaptive_algebra::FateAlgebraMeta,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing)]
     pub fate_rollback_stack: Vec<crate::signal_ingress::TriadIncubationSnapshot>,
     /// Prior user questions in this session (for follow-up routing / retrieval).
     #[serde(default)]

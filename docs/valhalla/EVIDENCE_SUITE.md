@@ -29,3 +29,24 @@ Outputs under `reports/valhalla_inference/`:
 - Pack: `evidence_evidence_20260713/` (+ zip)
 
 See [`EVIDENCE_SUITE_SUMMARY_20260713.md`](../../reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md) · parent [`README.md`](../../README.md) § Prove it.
+
+---
+
+## Unique-proof suite (separate from industry same-Q)
+
+Prove capabilities memory APIs lack — not LoCoMo:
+
+```bash
+./scripts/run_unique_proofs.sh --fast
+```
+
+| ID | Claim |
+|----|-------|
+| U1 | Non-isolated multimodal |
+| U2 | Proactive + FOG abstain |
+| U3 | Pollution rescue (TPI) |
+| U4 | Backbone orthogonality |
+| U5 | Cost @ on-topic floor |
+
+Docs: [`UNIQUE_VS_MEMORY_APIS.md`](./UNIQUE_VS_MEMORY_APIS.md) · [`UNIQUE_PROOF_MICROBENCH.md`](./UNIQUE_PROOF_MICROBENCH.md)  
+Report: `reports/valhalla_inference/UNIQUE_PROOF_SUITE.md`

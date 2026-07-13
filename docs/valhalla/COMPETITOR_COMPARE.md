@@ -28,10 +28,17 @@ Do **not** frame as “replace Mem0 API.” Frame as:
 
 | Benchmark | n | Systems | Why |
 |-----------|---|---------|-----|
-| **LoCoMo** | 15 moderate / 30 full | full_context · vanilla_rag · valhalla · mem0? | Peers’ headline memory bench |
-| **Token / multi-turn** | 30 turns | valhalla_append · rag_full_resend · rag_with_history | Cost wedge Mem0 buyers care about |
+| **Unique-proof U1–U5** | micro | valhalla (+ peer SKIP) | **Primary wedge** — multimodal · proactive · TPI · backbone · cost@floor |
+| **Token / multi-turn** | 30 turns | valhalla_append · rag_full_resend · rag_with_history | Cost wedge (requires U5 on-topic floor) |
 | **RAGTruth-40** | 40 | valhalla · vanilla_rag (subset) | Faithfulness — our Tier A strength |
 | **Ablation** | LoCoMo15×… | −Fate · −Triad · lm_patch · native | Prove structure ≠ “more tokens” |
+| **LoCoMo** | 15 moderate / 30 full | full_context · vanilla_rag · valhalla · mem0? | Peers’ headline — **honest boundary**, not the lead claim |
+
+```bash
+./scripts/run_unique_proofs.sh --fast
+```
+
+See [`UNIQUE_VS_MEMORY_APIS.md`](./UNIQUE_VS_MEMORY_APIS.md) · [`UNIQUE_PROOF_MICROBENCH.md`](./UNIQUE_PROOF_MICROBENCH.md).
 
 ## Should-run (P1)
 
@@ -104,8 +111,8 @@ Full write-up: [`EVIDENCE_SUITE_SUMMARY_20260713.md`](../../reports/valhalla_inf
 
 ## Mapping to fundraising narrative
 
-- **Wedge page:** RAGTruth + token efficiency + ablation faithfulness  
-- **Diligence appendix:** ablation matrix + competitor Pareto JSON (incl. LoCoMo gap)  
+- **Wedge page:** Unique capabilities (non-iso MM · proactive FOG · TPI rescue · backbone ortho · cost@floor)  
+- **Diligence appendix:** unique-proof suite JSON + ablation + competitor same-Q (incl. LoCoMo gap)  
 - **Incubation page:** TPI/NPPI (secondary; not competitor SOTA)
 
 ---

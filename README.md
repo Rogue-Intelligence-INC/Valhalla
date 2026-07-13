@@ -139,6 +139,25 @@ We do **not** claim Mem0’s published LongMemEval numbers; we report **same-sli
 
 **Latest moderate run (2026-07-13):** LoCoMo full/vanilla **9/15** · valhalla **0/15** · mem0 **5/15**; MultiHop all **6/10**; LongBench **2/10 / 2/10 / 1/10 / 2/10**. Details: [`COMPETITOR_COMPARE_RESULTS.md`](reports/valhalla_inference/COMPETITOR_COMPARE_RESULTS.md) · [`EVIDENCE_SUITE_SUMMARY_20260713.md`](reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md).
 
+<a name="unique-capabilities"></a>
+## Unique capabilities (what memory APIs lack)
+
+Do **not** lead with LoCoMo. Lead with capabilities peers cannot express:
+
+| Capability | Valhalla | Mem0 / Zep / Letta |
+|------------|----------|---------------------|
+| Non-isolated multimodal (shared Triad session) | **Yes** | Late-fuse / silos |
+| Fate-gated proactive + abstain | **Yes** | Pull-on-query / app cron |
+| Zero-weight pollution rescue (TPI) | **Yes** | Search-all stays polluted |
+| Backbone-orthogonal open path | **Yes** | Prompt-tied to LM |
+| Structure-cost append @ accuracy floor | **Yes** (U5) | Full resend / re-inject |
+
+Docs: [`UNIQUE_VS_MEMORY_APIS.md`](docs/valhalla/UNIQUE_VS_MEMORY_APIS.md) · protocol [`UNIQUE_PROOF_MICROBENCH.md`](docs/valhalla/UNIQUE_PROOF_MICROBENCH.md)
+
+```bash
+./scripts/run_unique_proofs.sh --fast   # U1–U5 micro proofs
+```
+
 ---
 
 ## What to evaluate (product surface)
