@@ -1,24 +1,31 @@
 # ValhallaBase — Product Docs Hub
 
-**Updated:** 2026-07-13
+**Updated:** 2026-07-14 · **Narrative:** unique capabilities first.
 
 Canonical product documentation lives in the **[valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)** repository (git submodule at `valhalla-unified-core/`). GitHub does **not** serve submodule files at paths under the main Valhalla tree — use the links below.
 
-**ValhallaBase is not a 3B LM product** — see [Product positioning](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md).
+**ValhallaBase is not a memory-API clone and not a 3B LM product** — see [Product positioning](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md).
 
 ---
 
-## Start here
+## Start here (unique-first)
 
 | Doc | Link |
 |-----|------|
-| **Product positioning** (pillars · LM orthogonality) | [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) |
-| **Incubation capability** (TPI / NPPI · zero-weight learning) | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) |
-| **Platform reference** (runtime · Fate ingress · hybrid decode) | [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) |
+| **Unique vs memory APIs** | [UNIQUE_VS_MEMORY_APIS.md](./UNIQUE_VS_MEMORY_APIS.md) |
+| **Unique-proof protocol** | [UNIQUE_PROOF_MICROBENCH.md](./UNIQUE_PROOF_MICROBENCH.md) |
+| **Unique-proof results** | [`UNIQUE_PROOF_SUITE.md`](../../reports/valhalla_inference/UNIQUE_PROOF_SUITE.md) |
+| **Product positioning** | [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) |
 | **Investor one-pager** | [INVESTOR_ONE_PAGER.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INVESTOR_ONE_PAGER.md) |
 | **VUC landing page** | [page/index.html](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/page/index.html) |
-| **3-minute demo script** | [DEMO_SCRIPT_3MIN_EN.md](./DEMO_SCRIPT_3MIN_EN.md) · [DEMO.md](./DEMO.md) |
+| **Incubation capability** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) |
+| **Platform reference** | [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) |
+| **3-minute demo** | [DEMO_SCRIPT_3MIN_EN.md](./DEMO_SCRIPT_3MIN_EN.md) · [DEMO.md](./DEMO.md) |
 | **Live web console** | [`scripts/demo_valhalla_chat.sh`](../../scripts/demo_valhalla_chat.sh) |
+
+```bash
+./scripts/run_unique_proofs.sh --fast
+```
 
 ---
 
@@ -26,16 +33,11 @@ Canonical product documentation lives in the **[valhalla-unified-core](https://g
 
 | Doc | Path |
 |-----|------|
-| **Integrated status (latest)** | [`reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md`](../../reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md) |
-| **Experiment summary (2026-07-13)** | [`reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md`](../../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) |
-| **Benchmark summary (2026-07-13)** | [`reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md`](../../reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) |
-| Valid benchmark interpretation | [`reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
-| **Industry 3B summary (2026-07-06)** | [`reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md`](../../reports/valhalla_inference/INDUSTRY_3B_BENCHMARK_SUMMARY_20260706.md) |
-| **MCQ ladder full 0.5B/3B/7B (2026-07-07)** | [`reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md`](../../reports/valhalla_inference/MCQ_LADDER_FULL_20260707.md) |
-| **Release 2026-07-06** | [RELEASE_20260706.md](./RELEASE_20260706.md) |
-| **Manifold fragments v1** | [MANIFOLD_FRAGMENT_V1.md](./MANIFOLD_FRAGMENT_V1.md) |
-| Full suite summary (2026-07-02) | [`reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md`](../../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md) |
-| MCQ scaling (0.5B→3B) | [`reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md`](../../reports/valhalla_inference/MCQ_SCALING_POTENTIAL_20260706.md) |
+| **Unique proofs (latest)** | [`UNIQUE_PROOF_SUITE.md`](../../reports/valhalla_inference/UNIQUE_PROOF_SUITE.md) |
+| **Evidence suite summary** | [`EVIDENCE_SUITE_SUMMARY_20260713.md`](../../reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md) |
+| **Fundraise pointer** | [`FUNDRAISE_BENCHMARK_LATEST.md`](../../reports/valhalla_inference/FUNDRAISE_BENCHMARK_LATEST.md) |
+| **Integrated status** | [`VALHALLA_INTEGRATED_STATUS.md`](../../reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md) |
+| Industry / experiment summaries | [`BENCHMARK_SUMMARY_20260713.md`](../../reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](../../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) |
 | Doc index | [`docs/README.md`](../README.md) |
 
 ---

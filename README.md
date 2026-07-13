@@ -1,55 +1,83 @@
 # ValhallaBase
 
-**Structure-trainable memory substrate for persistent AI agents.**  
-The LM is a **swappable decode head** — not the product.
+**Not another memory API.**  
+A **structure-trainable body** for persistent agents — Triad incubation + Fate gate — with the LM as an optional decode head.
 
 <p align="center">
+  <a href="#unique">What peers lack</a> ·
+  <a href="#prove-unique">Unique proofs</a> ·
   <a href="#prove-it">Evidence pack</a> ·
-  <a href="#one-click">One-click test</a> ·
-  <a href="#benchmarks">Benchmarks</a> ·
-  <a href="#competitor-compare">Competitor compare</a> ·
+  <a href="#industry">Industry (honest)</a> ·
   <a href="https://github.com/Rogue-Intelligence-INC/valhalla-unified-core">Product docs (VUC)</a>
 </p>
 
 ```text
-session / corpus
-    → Triad incubation (Hub · Tile · StemCell · Fate)
-    → persistent structure snapshot
-    → native / hybrid decode · proactive Fate
+multimodal ingress (text · TTS · image)
+    → one Triad session (Hub · Tile · StemCell · Fate)
+    → structure snapshot
+    → FOG proactive / abstain · native or hybrid decode
     → optional LM head (0.5B default · 3B = calibration only)
 ```
 
-> **Investor one-liner:** Persistent structure memory + incubation (L1/L2/L3) for private agents — faithfulness and session state without resending full history.  
-> **Not claimed:** Transformer replacement · open-domain QA SOTA · AGI.
+> **Investor one-liner:** Structure substrate that Mem0 / Zep / Letta cannot express — non-isolated multimodal, Fate-gated proactive+abstain, zero-weight pollution rescue, backbone-orthogonal open path, append-cost memory.  
+> **Not claimed:** LoCoMo SOTA · Transformer replacement · AGI · “drop-in Mem0 clone.”
 
 ---
 
-## Prove it (logs · suite · legitimacy)
+<a name="unique"></a>
+## What we have that memory APIs don’t
 
-Every formal run can be packed into an **uploadable Evidence Pack**:
+Mem0 · Zep/Graphiti · Letta optimize **extract → store → search → inject**.  
+ValhallaBase is a **body**: incubate structure once, then gate, retrieve, and optionally decode.
+
+| Capability | ValhallaBase | Mem0 / Zep / Letta |
+|------------|--------------|---------------------|
+| **Non-isolated multimodal** — one session, shared Fate patch across text/TTS/image | **Yes** · shared **0.9999** vs iso **0.968** | Late-fuse / separate memories |
+| **Fate-gated proactive + abstain** — `proactive_idle` · FOG emit/refuse | **Yes** · MAR **1.0** · FIR **0.0** | Pull-on-query / app cron / no algebraic gate |
+| **Zero-weight pollution rescue** — TPI transfer vs polluted dump | **Yes** · **+38.7pp** | Search-all stays polluted |
+| **Backbone-orthogonal open path** — swap LM, structure holds | **Yes** · `VALHALLA_BASE_INDEPENDENT` | Prompt/runtime tied to LM |
+| **Structure-cost append** — wire/prefill ≪ full resend | **Yes** · prefill **0.29×** RAG | Full resend / re-inject retrieved text |
+
+Full matrix: [`docs/valhalla/UNIQUE_VS_MEMORY_APIS.md`](docs/valhalla/UNIQUE_VS_MEMORY_APIS.md)
+
+<a name="prove-unique"></a>
+### Prove unique capabilities (lead suite)
+
+```bash
+./scripts/run_unique_proofs.sh --fast   # U1–U5 · ~minutes
+```
+
+**Latest `--fast` (2026-07-14): 5/5 pass · 5/5 citeable** — [`UNIQUE_PROOF_SUITE.md`](reports/valhalla_inference/UNIQUE_PROOF_SUITE.md)
+
+| ID | Claim | Verdict |
+|----|-------|---------|
+| U1 | Non-isolated multimodal | `NON_ISOLATED_BETTER` |
+| U2 | FOG proactive / abstain | `PROACTIVE_ABSTAIN_PASS` |
+| U3 | Pollution rescue (TPI) | `POLLUTION_RESCUE_PASS` (+38.7pp) |
+| U4 | Backbone orthogonality | `VALHALLA_BASE_INDEPENDENT` |
+| U5 | Cost @ floor | `COST_RATIO_PASS_ACC_DEVELOPING` (0.29× · on-topic 60% fast) |
+
+Protocol: [`UNIQUE_PROOF_MICROBENCH.md`](docs/valhalla/UNIQUE_PROOF_MICROBENCH.md)
+
+---
+
+<a name="prove-it"></a>
+## Evidence pack (legitimacy · logs · zip)
 
 | Artifact | Role |
 |----------|------|
-| `tools/valhalla_inference/` + `tools/standard_benchmarks/bundled/` | Runnable suite |
-| `tools/standard_benchmarks/provenance/` | Upstream citations (LoCoMo · RAGTruth · MultiHop …) |
-| `reports/**/*.log` | Timestamped execution logs |
+| `./scripts/run_unique_proofs.sh` | **Primary** — unique vs memory APIs |
+| `./scripts/run_evidence_suite.sh` | Legitimacy · same-Q competitor · ablation · zip |
 | `audit_benchmark_legitimacy.py` | Citeable vs Tier-C gate |
-| `pack_evidence_run.py` | MANIFEST · HASHES · REPRODUCE.md · zip |
+| `pack_evidence_run.py` | MANIFEST · HASHES · REPRODUCE.md |
 
 ```bash
-# Install bench deps (Mem0-style local ST · transformers · …)
 python3 -m venv .venv-llm && .venv-llm/bin/pip install -r requirements-benchmark.txt
-
-# Full evidence suite: legitimacy → competitor compare → token → pack zip
-./scripts/run_evidence_suite.sh              # moderate
-./scripts/run_evidence_suite.sh --fast       # smoke
-./scripts/run_evidence_suite.sh --full       # + structure ablation
+./scripts/run_unique_proofs.sh --fast
+./scripts/run_evidence_suite.sh --full   # optional diligence pack
 ```
 
-Output: `reports/valhalla_inference/evidence_<tag>/` + `.zip`  
-Share **REPRODUCE.md + legitimacy_audit.json + HASHES.sha256** first.
-
-Policy: [`docs/valhalla/COMPETITOR_COMPARE.md`](docs/valhalla/COMPETITOR_COMPARE.md) · [`docs/valhalla/FUNDRAISE_ABLATION_PROTOCOL.md`](docs/valhalla/FUNDRAISE_ABLATION_PROTOCOL.md)
+Share first: **UNIQUE_PROOF_SUITE.md** · legitimacy_audit.json · HASHES.sha256.
 
 ---
 
@@ -59,133 +87,59 @@ Policy: [`docs/valhalla/COMPETITOR_COMPARE.md`](docs/valhalla/COMPETITOR_COMPARE
 ```bash
 git clone --recurse-submodules https://github.com/Rogue-Intelligence-INC/Valhalla.git
 cd Valhalla
-./scripts/run_highlight_test.sh          # pillars ~8–15 min GPU
+./scripts/run_highlight_test.sh          # pillars
 ./scripts/demo_valhalla_chat.sh          # web console
 ```
 
 ---
 
-<a name="benchmarks"></a>
-## Benchmarks (honest · locked protocols)
+<a name="industry"></a>
+## Industry same-Q (secondary · honest)
 
-**Calibration LM for industry tables:** `Qwen2.5-3B-Instruct` (comparability only).  
-**Product default:** `Qwen2.5-0.5B-Instruct`.
+Same-backbone compare is **not** our wedge — we publish it so diligence isn’t surprising.
 
-### Industry full suite — 2026-07-13
+**Calibration LM:** `Qwen2.5-3B-Instruct` · **Product default:** `Qwen2.5-0.5B-Instruct`
 
-| Tier | Benchmark | Result | Cite? |
-|------|-----------|--------|-------|
-| A | RAGTruth-40 / 100 | **34/40 · 88/100** | Yes |
-| A | Needle | **4/4** | Yes |
-| A | MCQ @ 3B | **45/46** | Yes |
-| B | LoCoMo | **17/30 (57%)** | Yes |
-| B | MultiHop | **15/25 (60%)** | Yes |
-| B | RULER-style | **15/20** | Yes |
-| B | LongBench-v2 | **4/20 (20%)** | Boundary |
-| B | LaRA | RAG 11/20 · LC 13/20 | Honest tradeoff |
-| B | FRAMES | **0/5 smoke** · wiki OK (parasail) | Yes (fast label; full pending) |
+### Tier A faithfulness / needle (cite)
 
-**Evidence suite `--full` DONE 2026-07-13 16:04** — independent write-up:  
-[`EVIDENCE_SUITE_SUMMARY_20260713.md`](reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md)
+| Benchmark | Result |
+|-----------|--------|
+| RAGTruth-40 / 100 | **34/40 · 88/100** |
+| Needle | **4/4** |
+| Ablation RAGTruth | native/hybrid **34–37/40** vs LM/RAG **0/40** |
 
-| Competitor (moderate) | LoCoMo-15 | MultiHop-10 | LongBench-10 |
-|-----------------------|-----------|-------------|--------------|
-| full_context / vanilla_rag | **9/15** | 6/10 | **2/10** |
-| valhalla_base | 0/15 | **6/10** | 1/10 |
-| mem0 (local ST) | 5/15 | 6/10 | 2/10 |
+### Tier B open-QA / long context (boundary)
 
-Ablation RAGTruth: native/hybrid **34–37/40** vs LM/RAG **0/40**. Token prefill ≈ **0.29×** RAG full / **0.10×** RAG+history.
+| Benchmark | Result |
+|-----------|--------|
+| LoCoMo | **17/30** industry · competitor moderate **0/15** vs RAG **9/15** (honest gap) |
+| MultiHop | **15/25** · competitor **6/10** (tie) |
+| LongBench / LaRA / FRAMES | Developing / wiki-enriched smoke |
 
-Summaries: [`BENCHMARK_SUMMARY_20260713.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) · [`COMPETITOR_COMPARE_RESULTS.md`](reports/valhalla_inference/COMPETITOR_COMPARE_RESULTS.md) · [`FUNDRAISE_ABLATION_MATRIX.md`](reports/valhalla_inference/FUNDRAISE_ABLATION_MATRIX.md)
-
-### Mechanism (secondary — not industry SOTA)
-
-| Metric | Result | Meaning |
-|--------|--------|---------|
-| TPI-v2 | **0.755** | Zero-weight session structure learning |
-| Transfer vs polluted | **+38.7pp** | Snapshot rescue — not “RAG +38pp” |
-| NPPI | **0.848** | Synthetic novel ingest (labeled synthetic) |
-| Agency / PPI | **0.778 / 0.650** | Fate-gated proactive |
-
-### Reproduce industry
-
-```bash
-export RUSTFLAGS="-L /opt/cuda/lib64" LIBRARY_PATH=/opt/cuda/lib64
-.venv-llm/bin/python3 tools/valhalla_inference/run_industry_benchmarks.py --all --fresh --verbose
-.venv-llm/bin/python3 tools/valhalla_inference/audit_benchmark_legitimacy.py
-.venv-llm/bin/python3 tools/valhalla_inference/pack_evidence_run.py --tag industry --zip
-```
+Details: [`EVIDENCE_SUITE_SUMMARY_20260713.md`](reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md) · [`COMPETITOR_COMPARE_RESULTS.md`](reports/valhalla_inference/COMPETITOR_COMPARE_RESULTS.md)
 
 ---
 
-<a name="competitor-compare"></a>
-## Competitor compare (same questions · same backbone)
+## Architecture
 
-| System | Role |
-|--------|------|
-| `full_context_lm` | Entire corpus in prompt |
-| `vanilla_rag` | Traditional RAG block |
-| `mem0` | Mem0 cloud if `OPENAI_API_KEY`; else **local ST top-k + same LM** |
-| `valhalla_base` | Structure snapshot runtime |
-| Ablation −Fate / −Triad | Causal contribution |
+| | Memory API (Mem0/Zep/Letta) | ValhallaBase |
+|--|-----------------------------|--------------|
+| Product unit | Records / graph / blocks | **Triad structure snapshot** |
+| Multimodal | Separate stores → late fuse | **One session · non-isolated** |
+| Initiative | Query-time retrieve | **FOG proactive + abstain** |
+| Learning | Extract facts / optional FT | **L1 session · L2 Fate · L3 bake** |
+| Cost | Re-inject retrieved text | **Append wire · question-only prefill** |
 
-```bash
-.venv-llm/bin/pip install -r requirements-benchmark.txt
-.venv-llm/bin/python3 tools/valhalla_inference/run_competitor_compare.py --moderate
-./tools/valhalla_inference/run_fundraise_ablation.sh --industry-only   # 7-arm ablation
-```
+Positioning: [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
 
-We do **not** claim Mem0’s published LongMemEval numbers; we report **same-slice, same-backbone** scores (and SKIP when deps/API missing).
-
-**Latest moderate run (2026-07-13):** LoCoMo full/vanilla **9/15** · valhalla **0/15** · mem0 **5/15**; MultiHop all **6/10**; LongBench **2/10 / 2/10 / 1/10 / 2/10**. Details: [`COMPETITOR_COMPARE_RESULTS.md`](reports/valhalla_inference/COMPETITOR_COMPARE_RESULTS.md) · [`EVIDENCE_SUITE_SUMMARY_20260713.md`](reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md).
-
-<a name="unique-capabilities"></a>
-## Unique capabilities (what memory APIs lack)
-
-Do **not** lead with LoCoMo. Lead with capabilities peers cannot express:
-
-| Capability | Valhalla | Mem0 / Zep / Letta |
-|------------|----------|---------------------|
-| Non-isolated multimodal (shared Triad session) | **Yes** | Late-fuse / silos |
-| Fate-gated proactive + abstain | **Yes** | Pull-on-query / app cron |
-| Zero-weight pollution rescue (TPI) | **Yes** | Search-all stays polluted |
-| Backbone-orthogonal open path | **Yes** | Prompt-tied to LM |
-| Structure-cost append @ accuracy floor | **Yes** (U5) | Full resend / re-inject |
-
-Docs: [`UNIQUE_VS_MEMORY_APIS.md`](docs/valhalla/UNIQUE_VS_MEMORY_APIS.md) · protocol [`UNIQUE_PROOF_MICROBENCH.md`](docs/valhalla/UNIQUE_PROOF_MICROBENCH.md)
-
-```bash
-./scripts/run_unique_proofs.sh --fast   # U1–U5 micro proofs
-```
-
----
-
-## What to evaluate (product surface)
+### Surfaces
 
 | Path | Role |
 |------|------|
 | [`manifestsys/`](manifestsys/) | Runtime — `valhalla_base` |
-| [`tools/valhalla_inference/`](tools/valhalla_inference/) | Benchmarks · evidence pack |
-| [`tools/standard_benchmarks/`](tools/standard_benchmarks/) | Bundled industry slices + provenance |
-| [`reports/valhalla_inference/`](reports/valhalla_inference/) | JSON · logs · evidence_* |
+| [`tools/valhalla_inference/`](tools/valhalla_inference/) | Unique proofs · industry benches · evidence |
 | [`apps/valhalla_chat/`](apps/valhalla_chat/) | Web console |
 | [`valhalla-unified-core/`](valhalla-unified-core/) | Product docs submodule |
-
-Archive / backups / historical experiments are **not** the product path.
-
----
-
-## Architecture (vs prompt RAG)
-
-| | Typical RAG / memory API | ValhallaBase |
-|--|--------------------------|--------------|
-| State | Records / vectors / prompts | **Triad structure snapshot** |
-| Multi-turn | Resend or re-retrieve | **Session append + incubate** |
-| Learning | Optional fine-tune | **L1 session · L2 Fate pretrain · L3 bake** |
-| Proactive | Rare | **Fate-gated** `proactive_idle` |
-| Backbone | Often fixed | **Orthogonal** decode head |
-
-Positioning: [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
 
 ---
 
@@ -193,12 +147,11 @@ Positioning: [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Int
 
 - Rust 1.70+ · CUDA optional (`RUSTFLAGS='-L /opt/cuda/lib64'`)
 - Python 3.10+ · `.venv-llm` + [`requirements-benchmark.txt`](requirements-benchmark.txt)
-- Flutter (web demo only)
 
 ## License
 
-Runtime components: see [valhalla-unified-core/NON_OPEN_SOURCE.md](valhalla-unified-core/NON_OPEN_SOURCE.md).  
-Benchmark harness & reports under this tree follow repository license notices.
+Runtime: [valhalla-unified-core/NON_OPEN_SOURCE.md](valhalla-unified-core/NON_OPEN_SOURCE.md).  
+Benchmark harness & reports follow repository notices.
 
 ---
 

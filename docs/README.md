@@ -1,9 +1,9 @@
 # Valhalla AI — Documentation Index
 
 **Scope:** ValhallaBase inference, memory, benchmarks, and product docs only.  
-**Updated:** 2026-07-13
+**Updated:** 2026-07-14 · **Narrative:** unique capabilities first (not LoCoMo-first).
 
-> **Product definition:** ValhallaBase is **backbone-agnostic structure memory** — not a 3B LM product.  
+> **Product definition:** ValhallaBase is a **structure-trainable body** — not a memory-API clone, not a 3B LM product.  
 > See [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md).
 
 > **Canonical docs:** [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) (submodule).  
@@ -11,27 +11,42 @@
 
 ---
 
-## Product pillars
+## Unique capabilities (lead)
+
+| Capability | Result | Doc |
+|------------|--------|-----|
+| **U1 Non-isolated multimodal** | shared **0.9999** vs iso **0.968** | [`UNIQUE_PROOF_SUITE.md`](../reports/valhalla_inference/UNIQUE_PROOF_SUITE.md) |
+| **U2 FOG proactive + abstain** | MAR **1.0** · FIR **0.0** · PPI **0.65** | same |
+| **U3 Pollution rescue** | **+38.7pp** · TPI **0.755** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) |
+| **U4 Backbone orthogonality** | `VALHALLA_BASE_INDEPENDENT` | [`VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md`](../reports/valhalla_inference/VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md) |
+| **U5 Structure-cost** | prefill **0.29×** | [`UNIQUE_PROOF_SUITE.md`](../reports/valhalla_inference/UNIQUE_PROOF_SUITE.md) |
+
+**Matrix:** [`UNIQUE_VS_MEMORY_APIS.md`](valhalla/UNIQUE_VS_MEMORY_APIS.md) · **Protocol:** [`UNIQUE_PROOF_MICROBENCH.md`](valhalla/UNIQUE_PROOF_MICROBENCH.md)
+
+```bash
+./scripts/run_unique_proofs.sh --fast   # 5/5 citeable (2026-07-14)
+```
+
+---
+
+## Supporting pillars
 
 | Pillar | Result | Doc |
 |--------|--------|-----|
-| **Backbone independence** | `VALHALLA_BASE_INDEPENDENT` | [`VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md`](../reports/valhalla_inference/VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md) |
-| **Proactive agency** | Agency **0.778** · PPI **0.650** | [`PROACTIVE_AGENCY_BENCHMARK.md`](../reports/valhalla_inference/PROACTIVE_AGENCY_BENCHMARK.md) |
-| **Faithfulness** | RAGTruth **34/40 · 88/100** · MAR **100%** (gates) | [`VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) |
+| **Faithfulness** | RAGTruth **34/40 · 88/100** | [`EVIDENCE_SUITE_SUMMARY_20260713.md`](../reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md) |
 | **Session context** | Needle **4/4** · long mem **94.7%** | `long_memory_test_full.json` |
-| **Incubation** | TPI **0.755** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) |
+| **Trainability L2/L3** | holdout **6/6** · bake Δ≈298 | [TRAINABILITY_PROOF.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/TRAINABILITY_PROOF.md) |
 
-### Industry calibration @ 3B (2026-07-13 full suite)
+### Industry calibration @ 3B (secondary · 2026-07-13)
 
 | Highlight | Result | Doc |
 |-----------|--------|-----|
 | Needle | **4/4** | [`BENCHMARK_SUMMARY_20260713.md`](../reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) |
-| LoCoMo | **17/30 (57%)** | same |
+| LoCoMo | **17/30 (57%)** — Tier B, not lead | same |
 | MultiHop fatewithv2 | **15/25 (60%)** | [`EXPERIMENT_SUMMARY_20260713.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) |
 | MCQ ladder 46Q | **45/46 (98%)** | same |
-| Integrated status | live | [`VALHALLA_INTEGRATED_STATUS.md`](../reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md) |
 
-**Runtime default LM:** `Qwen2.5-0.5B-Instruct` (`benchmark_env.py`). Industry suite sets 3B explicitly.
+**Runtime default LM:** `Qwen2.5-0.5B-Instruct`. Industry suite sets 3B explicitly.
 
 ---
 
@@ -39,84 +54,46 @@
 
 | Pack | Path | Use |
 |------|------|-----|
-| **One-click test** | [`scripts/run_highlight_test.sh`](../scripts/run_highlight_test.sh) | Pillar smoke on any Linux host |
-| **Web demo** | [`scripts/demo_valhalla_chat.sh`](../scripts/demo_valhalla_chat.sh) | Backend + release Flutter web UI |
-| **Flutter chat UI** | [`apps/valhalla_chat/`](../apps/valhalla_chat/) · [`run_valhalla_chat_web.sh`](../scripts/run_valhalla_chat_web.sh) | Dev web UI → `POST /v1/infer` |
-| **Product positioning** | [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) | **What ValhallaBase is / is not** |
-| **Release 2026-07-06** | [`valhalla/RELEASE_20260706.md`](valhalla/RELEASE_20260706.md) | Dynamic fragments · Fate convergence |
-| **3-minute demo** | [`valhalla/DEMO.md`](valhalla/DEMO.md) | Corpus → ask → session → proactive |
-| **ValhallaBase CLI & API** | [`valhalla/VALHALLA_BASE_CLI.md`](valhalla/VALHALLA_BASE_CLI.md) | **Protocol header · schemas · complete commands** |
-| **Product doc hub** | [`valhalla/README.md`](valhalla/README.md) | VUC links that work on GitHub |
-| **Incubation capability** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) | **Triad incubation · TPI/NPPI · zero-weight learning** |
-| **Valhalla Unified Core (VUC)** | [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) | Canonical product doc, protocols, landing page |
+| **Unique proofs** | [`scripts/run_unique_proofs.sh`](../scripts/run_unique_proofs.sh) | **Lead diligence** U1–U5 |
+| **One-click pillars** | [`scripts/run_highlight_test.sh`](../scripts/run_highlight_test.sh) | Pillar smoke |
+| **Evidence pack** | [`scripts/run_evidence_suite.sh`](../scripts/run_evidence_suite.sh) | Legitimacy · competitor · zip |
+| **Web demo** | [`scripts/demo_valhalla_chat.sh`](../scripts/demo_valhalla_chat.sh) | Backend + Flutter web |
+| **Product positioning** | [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) | Unique-first |
 | **Investor one-pager** | [INVESTOR_ONE_PAGER.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INVESTOR_ONE_PAGER.md) | Confidential memo |
-| **Valid benchmark interpretation** | [`../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`](../reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md) | Runs · meaning · because |
-| **Platform reference** | [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) | Architecture & production config |
-| **Fair benchmark** | [`../tools/fair_benchmark/`](../tools/fair_benchmark/) | Reproduce hybrid / memory runs |
-| **Industry benchmarks** | [`../tools/standard_benchmarks/`](../tools/standard_benchmarks/) | Download + third-party harness |
-| **Inference reports** | [`../reports/valhalla_inference/`](../reports/valhalla_inference/) | Full JSON + summaries |
+| **Landing page** | [page/index.html](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/page/index.html) | GitHub Pages intro |
+| **Product doc hub** | [`valhalla/README.md`](valhalla/README.md) | VUC links |
+| **Incubation** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) | TPI / NPPI |
+| **Platform reference** | [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) | Architecture |
 
 ---
 
-## Benchmarks (2026-06-30)
+## Benchmarks archive
 
-| Benchmark | Tier | Runs | Result |
-|-----------|------|------|--------|
-| RAGTruth 40Q | A | ×2 | **40/40** |
-| RAGTruth 100Q | A | ×1 | **100/100** |
-| Needle session | A | ×2 | **4/4** |
-| RULER-style | A | ×1 | **20/20** |
-| MCQ ladder | A | ×1 (46Q) | **61% → 98%** (0.5B→3B) |
-| External holdout | A | ×1 | **15/15** |
-| LongBench-v2 | B | ×1 | 35% (0.5B + trunc) |
-| MultiHop-RAG | B | ×1 | 36% |
-| LaRA RAG vs LC | B | ×1 | 25% vs 70% |
+| Benchmark | Tier | Result (latest honest) |
+|-----------|------|------------------------|
+| Unique proofs U1–U5 | A (capability) | **5/5** (2026-07-14) |
+| RAGTruth 40/100 | A | **34/40 · 88/100** (2026-07-13) |
+| Needle | A | **4/4** |
+| MCQ ladder @ 3B | A (scaling) | **45/46** |
+| LoCoMo / MultiHop / LongBench | B | See evidence summary |
 
-**Tier B positioning:** strong on **grounded retrieval & session memory**; weak on **multi-hop composition** today — next: structure-level multi-hop, not CoT in prompt window.
-
-| LoCoMo | B† | ×1 | 3% (64-line cap) |
-| FRAMES | A (after prefetch) | `./scripts/prefetch_frames_wiki.sh` | citeable when wiki extracts present |
-
-**Master summary:** [`EVIDENCE_SUITE_SUMMARY_20260713.md`](../reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md) · [`BENCHMARK_SUMMARY_20260713.md`](../reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) · [`FULL_BENCHMARK_SUMMARY_20260702.md`](../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md)
-
-**Runner (2026-07-06):**
-
-```bash
-export LIBRARY_PATH=/opt/cuda/targets/x86_64-linux/lib:$LIBRARY_PATH
-export VALHALLA_LM_MODEL=Qwen/Qwen2.5-3B-Instruct
-python3 tools/valhalla_inference/run_industry_benchmarks.py --all          # industry + MCQ ladder
-python3 tools/valhalla_inference/run_industry_benchmarks.py --agi-only     # TPI · fair-bench · incubation
-```
-
-Defaults: `benchmark_env.py` · see [`docs/valhalla/RELEASE_20260706.md`](../../docs/valhalla/RELEASE_20260706.md)
-
-Legacy Hybrid 2.0 fair-145 (**80%**) is historical — **ValhallaBase** line uses protocols above.
+**Master:** [`EVIDENCE_SUITE_SUMMARY_20260713.md`](../reports/valhalla_inference/EVIDENCE_SUITE_SUMMARY_20260713.md) · [`UNIQUE_PROOF_SUITE.md`](../reports/valhalla_inference/UNIQUE_PROOF_SUITE.md)
 
 ---
 
 ## Run
 
 ```bash
+./scripts/run_unique_proofs.sh --fast
+./scripts/run_evidence_suite.sh --full   # optional
 RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_base
-HF_ENDPOINT=https://hf-mirror.com .venv-llm/bin/python3 tools/standard_benchmarks/download_standard_benchmarks.py --all --no-wiki-fetch
-RUSTFLAGS='-L /opt/cuda/lib64' python3 tools/valhalla_inference/run_industry_benchmarks.py --all
 ```
-
----
-
-## External comparison
-
-| Report | Command |
-|--------|---------|
-| **Pareto matrix** | `python3 tools/valhalla_inference/run_external_pareto_matrix.py --fast` |
-| Incubation / trainable LLM | `python3 tools/valhalla_inference/run_incubation_llm_benchmarks.py --fast` |
-| Integrated status | `reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md` |
 
 ---
 
 ## Further reading
 
-- **Product docs:** [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) · hub [`valhalla/README.md`](valhalla/README.md)
+- **Product docs:** [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core)
+- **Unique vs memory APIs:** [`valhalla/UNIQUE_VS_MEMORY_APIS.md`](valhalla/UNIQUE_VS_MEMORY_APIS.md)
 - **3-minute demo:** [`valhalla/DEMO.md`](valhalla/DEMO.md)
-- **Valid benchmark interpretation:** `reports/valhalla_inference/VALID_BENCHMARKS_INTERPRETATION_20260630.md`
 - **Experiment JSON:** `reports/valhalla_inference/`
