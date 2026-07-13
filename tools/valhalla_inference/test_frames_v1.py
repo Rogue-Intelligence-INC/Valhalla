@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,6 +23,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(REPO / "tools/standard_benchmarks"))
 
+from benchmark_env import apply_resource_budget, release_resources  # noqa: E402
 from benchmark_cli import add_benchmark_args  # noqa: E402
 from benchmark_runner import make_base, run_frames_rust, run_open_item  # noqa: E402
 from common import (
@@ -37,6 +39,20 @@ REPORTS = REPO / "reports/valhalla_inference"
 BUNDLE = "frames_slice25.json"
 
 
+def wiki_reachable_quick(*, timeout_sec: float = 4.0) -> bool:
+    import urllib.error
+    import urllib.request
+
+    try:
+        urllib.request.urlopen(
+            "https://en.wikipedia.org/w/api.php?action=query&format=json&titles=Main_Page",
+            timeout=timeout_sec,
+        )
+        return True
+    except (urllib.error.URLError, TimeoutError, OSError):
+        return False
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
@@ -44,7 +60,7 @@ def main() -> None:
     ap.add_argument("--rust", action="store_true", help="Rust ValhallaBaseClient + wiki fetch (default)")
     ap.add_argument("--legacy", action="store_true", help="legacy Python subprocess path")
     ap.add_argument("--production", action="store_true", help="alias for --rust")
-    ap.add_argument("--max-corpus-lines", type=int, default=32)
+    ap.add_argument("--max-corpus-lines", type=int, default=0, help="0 = unlimited (algebra full ingest)")
     ap.add_argument("--offline-wiki", action="store_true")
     ap.add_argument(
         "--skip-preflight",
@@ -53,8 +69,24 @@ def main() -> None:
     )
     add_benchmark_args(ap)
     args = ap.parse_args()
+    apply_resource_budget()
 
     preflight = frames_bundle_preflight(BUNDLE)
+    # Prefer already-enriched bundle (parasail/HF dump). Only hit network if not viable.
+    if not preflight["viable"] and not args.offline_wiki and not wiki_reachable_quick():
+        print("Wikipedia unreachable and bundle not enriched — trying prefetch …", flush=True)
+        prefetch = subprocess.run(
+            ["bash", str(REPO / "scripts/prefetch_frames_wiki.sh")],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+        )
+        preflight = frames_bundle_preflight(BUNDLE)
+        if prefetch.returncode != 0 and not preflight["viable"]:
+            print("Prefetch failed — enabling --offline-wiki (Tier C until wiki cache populated)", flush=True)
+            args.offline_wiki = True
+    elif preflight["viable"] and not wiki_reachable_quick():
+        print("FRAMES bundle already enriched (Tier A) — skipping live Wikipedia check", flush=True)
     if not args.skip_preflight and not preflight["viable"] and not args.offline_wiki:
         print(
             f"FRAMES preflight FAIL: {preflight['items_with_real_corpus']}/{preflight['n']} "
@@ -110,7 +142,7 @@ def main() -> None:
         for item in items:
             base = make_base(fast=args.fast)
             corpus = item.get("corpus") or []
-            if len(corpus) > args.max_corpus_lines:
+            if args.max_corpus_lines > 0 and len(corpus) > args.max_corpus_lines:
                 corpus = split_context_to_corpus("\n\n".join(corpus), max_lines=args.max_corpus_lines)
             ans = run_open_item(base, item_id=item["id"], question=item["question"], corpus=corpus)
             ok = score_short_answer(ans, item["answer"])
@@ -139,6 +171,7 @@ def main() -> None:
     out = REPORTS / "frames_v1_test.json"
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"\n{report['correct']}/{report['n']} ({float(report['accuracy']):.1%}) → {out}")
+    release_resources()
 
 
 if __name__ == "__main__":

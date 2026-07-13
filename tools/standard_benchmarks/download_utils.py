@@ -219,8 +219,63 @@ def _wiki_cache_file(title: str) -> Path:
     return WIKI_CACHE / f"{safe}.json"
 
 
+def _strip_html_tags(text: str) -> str:
+    import re
+
+    return re.sub(r"<[^>]+>", "", text).strip()
+
+
+def dbpedia_lookup_extract(title: str, *, timeout_sec: int = 15, offline: bool = False) -> str | None:
+    """DBpedia lookup fallback when Wikipedia is unreachable."""
+    if offline:
+        return None
+    cache = _wiki_cache_file(f"dbpedia:{title}")
+    if cache.is_file():
+        try:
+            v = json.loads(cache.read_text(encoding="utf-8"))
+            if v.get("extract"):
+                return str(v["extract"])[:1200]
+        except Exception:
+            pass
+
+    name = title.replace("_", " ")
+    url = (
+        "https://lookup.dbpedia.org/api/search?"
+        + urllib.parse.urlencode({"query": name, "format": "json"})
+    )
+    try:
+        if shutil.which("curl"):
+            raw = curl_fetch(url, timeout_sec=timeout_sec, retries=2).decode("utf-8", errors="replace")
+        else:
+            raw = urllib_fetch(url, timeout=float(timeout_sec), retries=2).decode("utf-8", errors="replace")
+        data = json.loads(raw)
+        docs = data.get("docs") or []
+        if not docs:
+            return None
+        doc = docs[0]
+        comment = doc.get("comment")
+        if isinstance(comment, list):
+            text = "".join(str(x) for x in comment)
+        else:
+            text = str(comment or "")
+        text = _strip_html_tags(text)
+        if not text:
+            label = doc.get("label")
+            if isinstance(label, list) and label:
+                text = _strip_html_tags(str(label[0]))
+        if not text:
+            return None
+        cache.write_text(
+            json.dumps({"title": title, "source": "dbpedia", "extract": text}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        return text[:1200]
+    except Exception:
+        return None
+
+
 def wiki_summary_fetch(title: str, *, timeout_sec: int = 12, offline: bool = False) -> str | None:
-    """Fetch Wikipedia extract; returns None if unavailable."""
+    """Fetch Wikipedia extract; DBpedia lookup fallback when Wikipedia fails."""
     cache = _wiki_cache_file(title)
     if cache.is_file():
         try:
@@ -272,7 +327,7 @@ def wiki_summary_fetch(title: str, *, timeout_sec: int = 12, offline: bool = Fal
                 return extract[:1200]
         except Exception:
             continue
-    return None
+    return dbpedia_lookup_extract(title, timeout_sec=timeout_sec, offline=offline)
 
 
 def wiki_summaries_parallel(

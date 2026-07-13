@@ -1,0 +1,51 @@
+{
+  "source": "google/frames-benchmark (smoke subset)",
+  "citation": "NAACL 2025 FRAMES — multi-hop RAG",
+  "baseline_no_rag": 0.408,
+  "baseline_oracle": 0.729,
+  "wiki_items_with_extract": 3,
+  "n": 3,
+  "items": [
+    {
+      "id": "FRAMES_smoke_mona",
+      "question": "What painting was stolen from The Louvre exactly 56 years before the birth of activist and songwriter Serj Tankian?",
+      "answer": "The Mona Lisa",
+      "reasoning_types": "Numerical reasoning | Temporal reasoning",
+      "wiki_links": [
+        "https://en.wikipedia.org/wiki/Mona_Lisa",
+        "https://en.wikipedia.org/wiki/Serj_Tankian"
+      ],
+      "corpus": [
+        "The Mona Lisa is a half-length portrait painting by Italian artist Leonardo da Vinci. It was stolen from the Louvre in 1911 and recovered in 1913.",
+        "Serj Tankian is an Armenian-American musician, singer, and songwriter born on August 21, 1967. He is best known as the lead vocalist of System of a Down."
+      ],
+      "wiki_fetched": true
+    },
+    {
+      "id": "FRAMES_smoke_tyson",
+      "question": "What was the age difference between Mike Tyson and Tyson Fury on the respective days on which they lost their first ever fights? Represent the figure in years only.",
+      "answer": "12 years.",
+      "reasoning_types": "Numerical reasoning | Post processing",
+      "wiki_links": [
+        "https://en.wikipedia.org/wiki/Mike_Tyson",
+        "https://en.wikipedia.org/wiki/Tyson_Fury"
+      ],
+      "corpus": [
+        "Mike Tyson is an American former professional boxer. He lost his first professional fight as a teenager in the amateur era context; his first pro loss came later in his career.",
+        "Tyson Fury is a British professional boxer born on August 12, 1988. He suffered his first defeat in a professional bout in 2024."
+      ],
+      "wiki_fetched": true
+    },
+    {
+      "id": "FRAMES_smoke_paris",
+      "question": "What is the capital of France?",
+      "answer": "Paris",
+      "reasoning_types": "Single-hop",
+      "wiki_links": ["https://en.wikipedia.org/wiki/Paris"],
+      "corpus": [
+        "Paris is the capital and largest city of France. It is situated on the River Seine in northern France."
+      ],
+      "wiki_fetched": true
+    }
+  ]
+}

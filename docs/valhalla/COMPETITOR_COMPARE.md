@@ -48,7 +48,7 @@ Do **not** frame as “replace Mem0 API.” Frame as:
 | Full Mem0 LongMemEval 94% replay | Needs their stack + disputed independent numbers |
 | Zep full DMR | Needs Neo4j + API; cite paper until wired |
 | Beat LongBench SOTA | Not our wedge |
-| FRAMES without wiki | Tier C — non-citeable |
+| FRAMES without wiki | Tier C — run `./scripts/prefetch_frames_wiki.sh` (parasail dump) first |
 
 ---
 

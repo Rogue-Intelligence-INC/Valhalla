@@ -83,7 +83,7 @@ cd Valhalla
 | B | RULER-style | **15/20** | Yes |
 | B | LongBench-v2 | **4/20 (20%)** | Boundary |
 | B | LaRA | RAG 11/20 · LC 13/20 | Honest tradeoff |
-| C | FRAMES | skipped (no wiki) | **No** |
+| A | FRAMES | enrich via `./scripts/prefetch_frames_wiki.sh` (parasail wiki dump) then `test_frames_v1.py` | **Yes** (after prefetch) |
 
 Summaries: [`BENCHMARK_SUMMARY_20260713.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md)
 

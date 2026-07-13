@@ -116,13 +116,29 @@ def check_report_legit(
         tier = "C"
     # protocol-specific invalidation
     if name == "frames_v1_test.json":
+        pre = frames_bundle_preflight("frames_slice25.json")
+        rows = rep.get("rows") or []
+        row_wiki = sum(
+            1
+            for r in rows
+            if isinstance(r, dict)
+            and (
+                r.get("wiki_fetched")
+                or int(r.get("corpus_lines") or 0) > 0
+            )
+        )
         wf = int(rep.get("wiki_items_fetched") or 0)
-        if wf == 0 or not frames_bundle_preflight("frames_slice25.json")["viable"]:
+        # Enriched parasail/offline corpus often has wiki_items_fetched=0
+        # while rows still carry real wiki text.
+        has_wiki = bool(pre.get("viable")) and (wf > 0 or row_wiki > 0)
+        if not has_wiki:
             valid = False
             tier = "C"
             note = "Tier C — no wiki corpus; discard stale scores"
         else:
             note = "valid report" if valid else f"invalid: missing={missing} n={n}"
+            if tier == "B":
+                note = f"fast slice (n={n}); cite with --fast label; full n≥{min_n} preferred"
     elif name == "valhalla_independence_test.json":
         summary = rep.get("summary") or {}
         valid = bool(summary.get("verdict")) and n >= min_n
@@ -167,7 +183,7 @@ def main() -> int:
             check_report_legit("ragtruth_full_v1_test.json", protocol="ragtruth-full-v1", min_n=50, min_n_fast=10, score_key="faithful"),
             check_report_legit("needle_session_v1_test.json", protocol="needle-session-v1", min_n=1),
             check_report_legit("longbench_v2_v1_test.json", protocol="longbench-v2-v1", min_n=5),
-            check_report_legit("frames_v1_test.json", protocol="frames-v1", min_n=5),
+            check_report_legit("frames_v1_test.json", protocol="frames-v1", min_n=10, min_n_fast=5),
             check_report_legit("multihop_rag_hybrid_test.json", protocol="multihop-rag-v1", min_n=5),
             check_report_legit("locomo_v1_test.json", protocol="locomo-v1", min_n=5, min_n_fast=3),
             check_report_legit("ruler_v1_test.json", protocol="ruler-v1", min_n=5, min_n_fast=4),

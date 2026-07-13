@@ -1,9 +1,12 @@
 {
   "bundle": "frames_slice25.json",
-  "upstream": "FRAMES (factual retrieval)",
-  "selection_rule": "25 items; citeable ONLY when Wikipedia extracts present in bundle",
+  "upstream": "https://huggingface.co/datasets/google/frames-benchmark",
+  "wiki_fulltext": "https://huggingface.co/datasets/parasail-ai/frames-benchmark-wikipedia",
+  "hf_or_paper": "NAACL 2025 FRAMES (arXiv:2409.12941)",
+  "selection_rule": "25 items from google/frames-benchmark; wiki text from parasail dump (Oct 2024) or live Wikipedia",
   "human_authored": true,
   "synthetic": false,
   "citeable_gate": "wiki_extracts_present",
-  "note": "Tier C when no wiki — legitimacy audit marks non-citeable"
+  "enrich_command": "./scripts/prefetch_frames_wiki.sh",
+  "note": "Enriched via parasail-ai/frames-benchmark-wikipedia; Tier A when wiki_items_with_extract == n"
 }

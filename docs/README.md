@@ -75,7 +75,7 @@
 **Tier B positioning:** strong on **grounded retrieval & session memory**; weak on **multi-hop composition** today — next: structure-level multi-hop, not CoT in prompt window.
 
 | LoCoMo | B† | ×1 | 3% (64-line cap) |
-| FRAMES | C | — | **invalid** (no wiki) |
+| FRAMES | A (after prefetch) | `./scripts/prefetch_frames_wiki.sh` | citeable when wiki extracts present |
 
 **Master summary:** [`BENCHMARK_SUMMARY_20260713.md`](../reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](../reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md) · [`FULL_BENCHMARK_SUMMARY_20260702.md`](../reports/valhalla_inference/FULL_BENCHMARK_SUMMARY_20260702.md)
 

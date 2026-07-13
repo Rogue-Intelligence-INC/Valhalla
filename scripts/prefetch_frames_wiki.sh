@@ -1,42 +1,33 @@
 #!/usr/bin/env bash
-# Prefetch Wikipedia extracts for FRAMES bundle (NAACL 2025 multi-hop RAG).
+# Prefetch Wikipedia for FRAMES — prefer parasail HF dump, else live Wikipedia.
 #
 # Usage:
 #   ./scripts/prefetch_frames_wiki.sh
-#   ./scripts/prefetch_frames_wiki.sh --offline   # use cache only
+#   ./scripts/prefetch_frames_wiki.sh --offline   # parasail/cache only
+#   ./scripts/prefetch_frames_wiki.sh --live      # try Wikipedia API first
 #
-# Requires outbound HTTPS to en.wikipedia.org (or pre-populated cache).
-
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO"
 
 OFFLINE=0
+PREFER=parasail
 for arg in "$@"; do
   case "$arg" in
     --offline) OFFLINE=1 ;;
+    --live) PREFER=live ;;
   esac
 done
 
 PY="${REPO}/.venv-llm/bin/python3"
 [[ -x "$PY" ]] || PY=python3
-
-CMD=("$PY" tools/standard_benchmarks/download_standard_benchmarks.py --frames-n 25)
-if [[ "$OFFLINE" -eq 1 ]]; then
-  CMD+=(--offline)
-fi
-
 export HF_ENDPOINT="${HF_ENDPOINT:-https://hf-mirror.com}"
-echo "[prefetch] FRAMES bundle + Wikipedia extracts …"
+
+echo "[prefetch] enrich FRAMES via parasail-ai/frames-benchmark-wikipedia (prefer=$PREFER) …"
+CMD=("$PY" tools/standard_benchmarks/enrich_frames_wiki.py --prefer "$PREFER")
+[[ "$OFFLINE" -eq 1 ]] && CMD+=(--offline)
 "${CMD[@]}"
 
-"$PY" -c "
-from tools.standard_benchmarks.common import frames_bundle_preflight
-import json
-p = frames_bundle_preflight('frames_slice25.json')
-print(json.dumps(p, indent=2))
-if not p['viable']:
-    raise SystemExit('FRAMES preflight still not viable — check Wikipedia network')
-"
-
-echo "[prefetch] OK — run: python3 tools/valhalla_inference/test_frames_v1.py --rust --fast"
+echo "[prefetch] OK — run:"
+echo "  $PY tools/valhalla_inference/test_frames_v1.py --rust --fast"
+echo "  # or full: $PY tools/valhalla_inference/test_frames_v1.py --rust"

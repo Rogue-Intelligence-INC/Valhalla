@@ -64,7 +64,7 @@ def frames_bundle_preflight(bundle_name: str = "frames_slice25.json") -> dict[st
         "items_with_real_corpus": ok_items,
         "viable": viable,
         "tier": "A" if viable else "C",
-        "fix": "python3 tools/standard_benchmarks/download_standard_benchmarks.py --frames-n 25",
+        "fix": "./scripts/prefetch_frames_wiki.sh  # or: python3 tools/standard_benchmarks/enrich_frames_wiki.py",
     }
 
 

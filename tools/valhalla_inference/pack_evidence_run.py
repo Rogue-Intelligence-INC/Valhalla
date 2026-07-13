@@ -245,7 +245,7 @@ cargo build -p hub-f64 --release --bin valhalla_base
 ## Citeability rule
 
 - Only reports with `citeable=true` in `legitimacy_audit.json` should appear on pitch homepage.
-- FRAMES without Wikipedia extracts is Tier C — do not cite.
+- FRAMES: run `./scripts/prefetch_frames_wiki.sh` (parasail HF wiki dump) before citing; without extracts = Tier C.
 - TPI / NPPI are **mechanism** metrics (secondary), not industry SOTA claims.
 
 ## Competitor compare policy
