@@ -338,37 +338,40 @@ fn release_gpu_workspace(device: &Device) {
 }
 
 fn load_base_weights(model_dir: &Path, use_cpu: bool) -> Result<Arc<BaseWeights>, String> {
-    let key = LmCacheKey {
-        model_dir: model_dir.to_path_buf(),
-        use_cpu,
-        force_f32: !env_bool("VALHALLA_LM_F16", false) && !env_bool("VALHALLA_LM_BF16", false),
-    };
-    let cache = LM_WEIGHT_CACHE.get_or_init(|| Mutex::new(HashMap::new()));
-    let mut guard = cache.lock().map_err(|e| e.to_string())?;
-    if let Some(hit) = guard.get(&key) {
-        return Ok(Arc::clone(hit));
-    }
-    let max = lm_cache_max_entries();
-    if max <= 1 {
-        guard.clear();
-    } else {
-        while guard.len() >= max {
-            if let Some(old) = guard.keys().next().cloned() {
-                guard.remove(&old);
-            } else {
-                break;
+    // Serialize CUDA weight load across rayon workers (VRAM / driver safety).
+    crate::elastic_resources::with_cuda_infer_lock(|| {
+        let key = LmCacheKey {
+            model_dir: model_dir.to_path_buf(),
+            use_cpu,
+            force_f32: !env_bool("VALHALLA_LM_F16", false) && !env_bool("VALHALLA_LM_BF16", false),
+        };
+        let cache = LM_WEIGHT_CACHE.get_or_init(|| Mutex::new(HashMap::new()));
+        let mut guard = cache.lock().map_err(|e| e.to_string())?;
+        if let Some(hit) = guard.get(&key) {
+            return Ok(Arc::clone(hit));
+        }
+        let max = lm_cache_max_entries();
+        if max <= 1 {
+            guard.clear();
+        } else {
+            while guard.len() >= max {
+                if let Some(old) = guard.keys().next().cloned() {
+                    guard.remove(&old);
+                } else {
+                    break;
+                }
             }
         }
-    }
-    eprintln!(
-        "patch_lm: loading weights {} (cpu={} dtype={:?})",
-        model_dir.display(),
-        use_cpu,
-        lm_inference_dtype(use_cpu)
-    );
-    let base = Arc::new(BaseWeights::load(model_dir, use_cpu)?);
-    guard.insert(key, Arc::clone(&base));
-    Ok(base)
+        eprintln!(
+            "patch_lm: loading weights {} (cpu={} dtype={:?})",
+            model_dir.display(),
+            use_cpu,
+            lm_inference_dtype(use_cpu)
+        );
+        let base = Arc::new(BaseWeights::load(model_dir, use_cpu)?);
+        guard.insert(key, Arc::clone(&base));
+        Ok(base)
+    })
 }
 
 fn load_tokenizer(model_dir: &Path) -> Result<Arc<Tokenizer>, String> {
@@ -387,16 +390,28 @@ fn load_tokenizer(model_dir: &Path) -> Result<Arc<Tokenizer>, String> {
 
 impl BaseWeights {
     fn load(model_dir: &Path, use_cpu: bool) -> Result<Self, String> {
+        crate::elastic_resources::ElasticResourcePlan::ensure_cuda_runtime_env();
         let device = if use_cpu {
             Device::Cpu
         } else if candle_core::utils::cuda_is_available() {
-            Device::new_cuda(0).map_err(|e| e.to_string())?
+            let idx = crate::elastic_resources::cuda_device_index();
+            Device::new_cuda(idx).map_err(|e| {
+                format!("CUDA device {idx} unavailable ({e}); set VALHALLA_USE_CPU=1 or VALHALLA_CUDA_DEVICE")
+            })?
         } else {
             Device::Cpu
         };
-        let dtype = lm_inference_dtype(use_cpu);
+        let dtype = lm_inference_dtype(use_cpu || !device.is_cuda());
         let tensors = load_safetensors_from_dir(model_dir, &device, dtype)?;
         let cfg = load_hf_config(model_dir)?;
+        if device.is_cuda() {
+            eprintln!(
+                "patch_lm: CUDA device={} dtype={:?} model={}",
+                crate::elastic_resources::cuda_device_index(),
+                dtype,
+                model_dir.display()
+            );
+        }
         Ok(Self {
             cfg,
             tensors,

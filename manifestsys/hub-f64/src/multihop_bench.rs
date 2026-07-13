@@ -2,6 +2,7 @@
 //!
 //! Inference API: [`crate::open_qa_interface`]; ingress/egress: [`crate::fate_io`].
 
+use std::io::{self, Write};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -45,6 +46,7 @@ fn elastic_json(plan: &ElasticResourcePlan) -> serde_json::Value {
     serde_json::json!({
         "parallel_workers": plan.parallel_workers,
         "cuda_ready": plan.cuda_ready,
+        "cuda_device": plan.cuda_device,
         "use_cpu": plan.use_cpu,
         "resource_percent": plan.budget.resource_percent,
         "max_items": plan.budget.max_items,
@@ -123,13 +125,56 @@ fn run_multihop_items_parallel(
     fast: bool,
     max_corpus_lines: usize,
     flags: MultihopNativeFlags,
-) -> (usize, Vec<serde_json::Value>, ElasticResourcePlan) {
+    ctrl: Option<&crate::valhalla_base_eval::EvalControl>,
+) -> (usize, Vec<serde_json::Value>, ElasticResourcePlan, bool) {
     let plan = ElasticResourcePlan::for_workload(items.len());
-    let results = crate::elastic_resources::par_map_items(items, plan.parallel_workers, |item| {
-        let corpus = multihop_corpus(item, max_corpus_lines);
-        let row = run_multihop_native_batch(item, &corpus, fast, flags);
-        multihop_result_row(item, &row)
-    });
+    let verbose = ctrl.map(|c| c.verbose).unwrap_or(false);
+    let pause_path = ctrl.and_then(|c| c.pause_file.as_deref());
+    let use_pause_path = pause_path.is_some()
+        || std::env::var("VALHALLA_PAUSE_FILE")
+            .map(|s| !s.trim().is_empty())
+            .unwrap_or(false);
+
+    if verbose {
+        let _ = writeln!(
+            io::stderr(),
+            "[multihop] n={} workers={} cuda={} device={}",
+            items.len(),
+            plan.parallel_workers,
+            plan.cuda_ready,
+            plan.cuda_device
+        );
+    }
+
+    // Pause / verbose progress ⇒ serial with pause checks; else elastic parallel.
+    let (results, paused) = if use_pause_path || verbose {
+        let (partial, paused) = crate::elastic_resources::map_items_with_pause(
+            items,
+            pause_path,
+            |item| {
+                if verbose {
+                    let _ = write!(io::stderr(), "\r[multihop] {} …", item.id);
+                    let _ = io::stderr().flush();
+                }
+                let corpus = multihop_corpus(item, max_corpus_lines);
+                let row = run_multihop_native_batch(item, &corpus, fast, flags);
+                multihop_result_row(item, &row)
+            },
+        );
+        if verbose {
+            let _ = writeln!(io::stderr());
+        }
+        (partial, paused)
+    } else {
+        let results =
+            crate::elastic_resources::par_map_items(items, plan.parallel_workers, |item| {
+                let corpus = multihop_corpus(item, max_corpus_lines);
+                let row = run_multihop_native_batch(item, &corpus, fast, flags);
+                multihop_result_row(item, &row)
+            });
+        (results, false)
+    };
+
     let mut correct = 0usize;
     let mut rows = Vec::with_capacity(results.len());
     for (ok, json_row) in results {
@@ -138,7 +183,7 @@ fn run_multihop_items_parallel(
         }
         rows.push(json_row);
     }
-    (correct, rows, plan)
+    (correct, rows, plan, paused)
 }
 
 fn load_multihop_bundle(
@@ -175,9 +220,19 @@ pub fn run_multihop_rag(
     fast: bool,
     max_corpus_lines: usize,
 ) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
+    run_multihop_rag_ctrl(bundle_path, limit, fast, max_corpus_lines, None)
+}
+
+pub fn run_multihop_rag_ctrl(
+    bundle_path: &Path,
+    limit: usize,
+    fast: bool,
+    max_corpus_lines: usize,
+    ctrl: Option<&crate::valhalla_base_eval::EvalControl>,
+) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
     ElasticResourcePlan::ensure_cuda_runtime_env();
     let items = load_multihop_bundle(bundle_path, limit)?;
-    let (correct, rows, plan) = run_multihop_items_parallel(
+    let (correct, rows, plan, paused) = run_multihop_items_parallel(
         &items,
         fast,
         max_corpus_lines,
@@ -185,6 +240,7 @@ pub fn run_multihop_rag(
             multihop_v2: true,
             multihop_fate: false,
         },
+        ctrl,
     );
     let n = items.len().max(1);
     let acc = correct as f64 / n as f64;
@@ -197,6 +253,7 @@ pub fn run_multihop_rag(
         "native_qa_batch": true,
         "dynamic_corpus_fragments": dynamic_corpus_fragments_enabled(),
         "elastic": elastic_json(&plan),
+        "paused": paused,
         "n": items.len(),
         "correct": correct,
         "accuracy": (acc * 10000.0).round() / 10000.0,
@@ -212,10 +269,20 @@ pub fn run_multihop_fate_rag(
     fast: bool,
     max_corpus_lines: usize,
 ) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
+    run_multihop_fate_rag_ctrl(bundle_path, limit, fast, max_corpus_lines, None)
+}
+
+pub fn run_multihop_fate_rag_ctrl(
+    bundle_path: &Path,
+    limit: usize,
+    fast: bool,
+    max_corpus_lines: usize,
+    ctrl: Option<&crate::valhalla_base_eval::EvalControl>,
+) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
     ElasticResourcePlan::ensure_cuda_runtime_env();
     std::env::set_var("VALHALLA_CORPUS_LINE_AFFINITY_WEIGHT", "algebra");
     let items = load_multihop_bundle(bundle_path, limit)?;
-    let (correct, rows, plan) = run_multihop_items_parallel(
+    let (correct, rows, plan, paused) = run_multihop_items_parallel(
         &items,
         fast,
         max_corpus_lines,
@@ -223,6 +290,7 @@ pub fn run_multihop_fate_rag(
             multihop_v2: false,
             multihop_fate: true,
         },
+        ctrl,
     );
     let n = items.len().max(1);
     let acc = correct as f64 / n as f64;
@@ -235,6 +303,7 @@ pub fn run_multihop_fate_rag(
         "native_qa_batch": true,
         "dynamic_corpus_fragments": dynamic_corpus_fragments_enabled(),
         "elastic": elastic_json(&plan),
+        "paused": paused,
         "n": items.len(),
         "correct": correct,
         "accuracy": (acc * 10000.0).round() / 10000.0,
@@ -250,10 +319,20 @@ pub fn run_multihop_hybrid_rag(
     fast: bool,
     max_corpus_lines: usize,
 ) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
+    run_multihop_hybrid_rag_ctrl(bundle_path, limit, fast, max_corpus_lines, None)
+}
+
+pub fn run_multihop_hybrid_rag_ctrl(
+    bundle_path: &Path,
+    limit: usize,
+    fast: bool,
+    max_corpus_lines: usize,
+    ctrl: Option<&crate::valhalla_base_eval::EvalControl>,
+) -> Result<serde_json::Value, ValhallaBaseErrorBody> {
     ensure_unified_runtime();
     std::env::set_var("VALHALLA_CORPUS_LINE_AFFINITY_WEIGHT", "algebra");
     let items = load_multihop_bundle(bundle_path, limit)?;
-    let (correct, rows, plan) = run_multihop_items_parallel(
+    let (correct, rows, plan, paused) = run_multihop_items_parallel(
         &items,
         fast,
         max_corpus_lines,
@@ -261,6 +340,7 @@ pub fn run_multihop_hybrid_rag(
             multihop_v2: true,
             multihop_fate: true,
         },
+        ctrl,
     );
     let n = items.len().max(1);
     let acc = correct as f64 / n as f64;
@@ -273,6 +353,7 @@ pub fn run_multihop_hybrid_rag(
         "native_qa_batch": true,
         "dynamic_corpus_fragments": dynamic_corpus_fragments_enabled(),
         "elastic": elastic_json(&plan),
+        "paused": paused,
         "n": items.len(),
         "correct": correct,
         "accuracy": (acc * 10000.0).round() / 10000.0,

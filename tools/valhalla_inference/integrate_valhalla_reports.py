@@ -51,6 +51,7 @@ def build_integration() -> dict[str, Any]:
     ragtruth = _load("ragtruth_v1_test.json")
     needle = _load("needle_session_v1_test.json")
     pareto = _load("external_pareto_matrix.json")
+    ablation = _load("fundraise_ablation_matrix.json")
 
     doc: dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -91,6 +92,12 @@ def build_integration() -> dict[str, Any]:
             "verdict": pareto.get("verdict") if pareto else None,
             "backbone": (pareto.get("constraints") or {}).get("backbone") if pareto else None,
             "matrix": pareto.get("matrix") if pareto else None,
+        },
+        "fundraise_ablation": {
+            "protocol": ablation.get("protocol") if ablation else None,
+            "scale": (ablation.get("constraints") or {}).get("scale") if ablation else None,
+            "matrix": ablation.get("matrix") if ablation else None,
+            "component_notes": ablation.get("component_notes") if ablation else None,
         },
         "legitimacy": _audit(),
     }
@@ -177,6 +184,27 @@ def write_md(doc: dict[str, Any]) -> Path:
             lines.append(
                 f"| {row.get('system')} | {row.get('LoCoMo')} | {row.get('LongBench')} | {row.get('Proactive', 'N/A')} |"
             )
+
+    ab = doc.get("fundraise_ablation") or {}
+    if ab.get("matrix"):
+        lines.extend(
+            [
+                "",
+                "## Fundraise ablation matrix",
+                "",
+                f"- Scale: **{ab.get('scale', '—')}**",
+                "",
+                "| Arm | LoCoMo | MultiHop | RAGTruth | LongBench |",
+                "|-----|--------|----------|----------|-----------|",
+            ]
+        )
+        for row in ab.get("matrix") or []:
+            lines.append(
+                f"| {row.get('label', row.get('arm'))} | {row.get('LoCoMo', '—')} | "
+                f"{row.get('MultiHop', '—')} | {row.get('RAGTruth', '—')} | {row.get('LongBench', '—')} |"
+            )
+        for note in ab.get("component_notes") or []:
+            lines.append(f"- {note}")
 
     s = doc.get("summary") or {}
     lines.extend(

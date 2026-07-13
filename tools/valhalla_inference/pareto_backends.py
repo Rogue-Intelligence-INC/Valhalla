@@ -12,6 +12,7 @@ Systems:
 from __future__ import annotations
 
 import json
+import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -186,39 +187,136 @@ def run_valhalla_base(
     return m
 
 
+def _mem0_local_memory(persist_dir: str):
+    """Offline Mem0-style store: HuggingFace embeddings + Qdrant local (no OpenAI)."""
+    from mem0 import Memory  # type: ignore
+
+    # Dummy OpenAI key only to satisfy providers that still validate; we override embedder+llm.
+    # Fact extraction LLM is disabled by using a no-op path: we add raw text via infer=False when available.
+    config = {
+        "embedder": {
+            "provider": "huggingface",
+            "config": {"model": "sentence-transformers/all-MiniLM-L6-v2"},
+        },
+        "vector_store": {
+            "provider": "qdrant",
+            "config": {
+                "collection_name": "valhalla_competitor",
+                "path": persist_dir,
+                "embedding_model_dims": 384,
+            },
+        },
+        "version": "v1.1",
+    }
+    # Prefer no remote LLM: mem0 still requires an llm block — use openai with unreachable key
+    # only if infer is disabled on add. Fallback: pure ST retrieval without mem0 LLM.
+    try:
+        config["llm"] = {
+            "provider": "openai",
+            "config": {"model": "gpt-4o-mini", "api_key": "local-offline-unused", "temperature": 0.0},
+        }
+        return Memory.from_config(config), "mem0_hf_qdrant"
+    except Exception:
+        return None, "unavailable"
+
+
+def _st_retrieve(corpus: list[str], query: str, *, k: int = 8) -> list[str]:
+    """Local dense retrieval — Mem0-like search without cloud."""
+    from sentence_transformers import SentenceTransformer, util  # type: ignore
+
+    model = _st_retrieve._model  # type: ignore[attr-defined]
+    if model is None:
+        model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+        _st_retrieve._model = model  # type: ignore[attr-defined]
+    if not corpus:
+        return []
+    emb_c = model.encode(corpus, convert_to_tensor=True, show_progress_bar=False)
+    emb_q = model.encode(query, convert_to_tensor=True, show_progress_bar=False)
+    scores = util.cos_sim(emb_q, emb_c)[0]
+    top = scores.topk(min(k, len(corpus)))
+    idxs = top.indices.tolist()
+    return [corpus[i] for i in idxs]
+
+
+_st_retrieve._model = None  # type: ignore[attr-defined]
+
+
 def run_mem0_proxy(
     items: list[dict],
     *,
     backbone: str,
     score_fn: Callable[[str, dict], bool],
 ) -> RunMetrics:
-    """Mem0-style: add session to memory store, search, then LM answer."""
+    """Mem0-style memory: prefer mem0ai; else local ST retrieval + same backbone LM.
+
+    Modes (recorded in rows):
+      - mem0_cloud: Memory() with OPENAI_API_KEY
+      - mem0_local_st: sentence-transformers top-k + ValhallaLLM (offline, fair backbone)
+    """
+    import tempfile
+
     m = RunMetrics()
     try:
-        from mem0 import Memory  # type: ignore
-    except ImportError:
-        m.skipped = True
-        m.skip_reason = "mem0ai not installed (pip install mem0ai)"
-        return m
-
-    try:
         lm, tok = _load_lm_and_tokenizer(backbone)
-        memory = Memory()
-        user_id = "pareto_bench_user"
     except Exception as exc:  # noqa: BLE001
         m.skipped = True
-        m.skip_reason = str(exc)[:200]
+        m.skip_reason = f"backbone LM load failed: {exc}"[:200]
         return m
+
+    mode = "mem0_local_st"
+    memory = None
+    user_id = "pareto_bench_user"
+    persist = tempfile.mkdtemp(prefix="mem0_valhalla_")
+
+    if os.environ.get("OPENAI_API_KEY", "").strip():
+        try:
+            from mem0 import Memory  # type: ignore
+
+            memory = Memory()
+            mode = "mem0_cloud"
+        except Exception as exc:  # noqa: BLE001
+            memory = None
+            mode = f"mem0_local_st (cloud init failed: {exc})"[:80]
+
+    if memory is None:
+        try:
+            import sentence_transformers  # noqa: F401
+        except ImportError:
+            m.skipped = True
+            m.skip_reason = (
+                "mem0 cloud needs OPENAI_API_KEY; offline mode needs "
+                "pip install sentence-transformers mem0ai"
+            )
+            return m
 
     for item in items:
         corpus = list(item.get("corpus") or item.get("session_lines") or [])
         q = str(item.get("question") or item.get("prompt") or "")
-        for i, ln in enumerate(corpus):
-            memory.add(ln, user_id=user_id, metadata={"line": i})
         t0 = time.monotonic()
-        hits = memory.search(q, user_id=user_id, limit=8)
-        ctx = "\n".join(str(h.get("memory", h)) for h in (hits or [])[:8])
-        prompt = _context_block(ctx.split("\n") if ctx else []) + q
+        retrieved: list[str] = []
+        if memory is not None and mode == "mem0_cloud":
+            for i, ln in enumerate(corpus):
+                try:
+                    memory.add(ln, user_id=user_id, metadata={"line": i}, infer=False)
+                except TypeError:
+                    memory.add(ln, user_id=user_id, metadata={"line": i})
+            hits = memory.search(q, user_id=user_id, limit=8)
+            if isinstance(hits, dict):
+                hits = hits.get("results") or hits.get("memories") or []
+            for h in (hits or [])[:8]:
+                if isinstance(h, dict):
+                    retrieved.append(str(h.get("memory") or h.get("text") or h))
+                else:
+                    retrieved.append(str(h))
+            try:
+                memory.delete_all(user_id=user_id)
+            except Exception:
+                pass
+        else:
+            retrieved = _st_retrieve(corpus, q, k=8)
+            mode = "mem0_local_st"
+
+        prompt = _context_block(retrieved if retrieved else corpus[:8]) + q
         prefill = _count_prefill(tok, prompt)
         ans = lm.generate([prompt], max_tokens=128)[0].text.strip()
         dt = (time.monotonic() - t0) * 1000.0
@@ -229,10 +327,8 @@ def run_mem0_proxy(
         m.tokens_decode_cum += 64
         m.latency_ms_cum += dt
         m.session_reload_bytes_cum += len(prompt.encode("utf-8"))
-        try:
-            memory.delete_all(user_id=user_id)
-        except Exception:
-            pass
+        m.rows.append({"id": item.get("id"), "correct": ok, "mem0_mode": mode, "retrieved_n": len(retrieved)})
+    # annotate skip_reason field unused; stash mode on summary via first row
     return m
 
 

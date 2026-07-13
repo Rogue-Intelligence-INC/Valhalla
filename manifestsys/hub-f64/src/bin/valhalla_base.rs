@@ -9,9 +9,9 @@ use std::process;
 
 use hub_f64::valhalla_base::VALHALLA_BASE_PROTOCOL;
 use hub_f64::valhalla_base_bench::{
-    default_corpus_dirs, run_local_corpus_demo, run_lara_fatewithv2, run_multihop_fate_rag,
-    run_multihop_hybrid_rag, run_multihop_rag, run_needle_session, run_longchain_fate_final_test,
-    run_v1_extensions, write_report,
+    default_corpus_dirs, run_local_corpus_demo, run_lara_fatewithv2, run_multihop_fate_rag_ctrl,
+    run_multihop_hybrid_rag_ctrl, run_multihop_rag_ctrl, run_needle_session,
+    run_longchain_fate_final_test, run_v1_extensions, write_report,
 };
 use hub_f64::fate_parallel_longchain::{run_fate_parallel_longchain_smoke, run_locomo_routing_ab};
 use hub_f64::fate_longchain_unified::{run_fate_longchain_unified, CorpusBuildMode, UnifiedRouting};
@@ -585,7 +585,7 @@ fn cmd_demo(args: &[String]) {
                 .and_then(|w| w[1].parse().ok())
                 .unwrap_or(if fast { 5 } else { 0 });
             let bundle = repo.join("tools/standard_benchmarks/bundled/multihop_rag_slice25.json");
-            run_multihop_rag(&bundle, limit, fast, 0).map(|doc| {
+            run_multihop_rag_ctrl(&bundle, limit, fast, 0, Some(&eval_ctrl)).map(|doc| {
                 write_report(&reports.join("multihop_rag_v2_test.json"), &doc).ok();
                 doc
             })
@@ -597,7 +597,7 @@ fn cmd_demo(args: &[String]) {
                 .and_then(|w| w[1].parse().ok())
                 .unwrap_or(if fast { 5 } else { 0 });
             let bundle = repo.join("tools/standard_benchmarks/bundled/multihop_rag_slice25.json");
-            run_multihop_fate_rag(&bundle, limit, fast, 0).map(|doc| {
+            run_multihop_fate_rag_ctrl(&bundle, limit, fast, 0, Some(&eval_ctrl)).map(|doc| {
                 write_report(&reports.join("multihop_rag_fate_test.json"), &doc).ok();
                 doc
             })
@@ -609,7 +609,7 @@ fn cmd_demo(args: &[String]) {
                 .and_then(|w| w[1].parse().ok())
                 .unwrap_or(if fast { 5 } else { 0 });
             let bundle = repo.join("tools/standard_benchmarks/bundled/multihop_rag_slice25.json");
-            run_multihop_hybrid_rag(&bundle, limit, fast, 0).map(|doc| {
+            run_multihop_hybrid_rag_ctrl(&bundle, limit, fast, 0, Some(&eval_ctrl)).map(|doc| {
                 write_report(&reports.join("multihop_rag_hybrid_test.json"), &doc).ok();
                 doc
             })

@@ -1,263 +1,173 @@
-# Valhalla — AI Memory & Hybrid Inference Platform
+# ValhallaBase
+
+**Structure-trainable memory substrate for persistent AI agents.**  
+The LM is a **swappable decode head** — not the product.
 
 <p align="center">
-  <strong>ValhallaBase</strong> · structure-trainable memory · proactive agency · grounded context<br>
-  L1/L2/L3 training stack · faithful retrieval · non-fixed-size LM product
+  <a href="#prove-it">Evidence pack</a> ·
+  <a href="#one-click">One-click test</a> ·
+  <a href="#benchmarks">Benchmarks</a> ·
+  <a href="#competitor-compare">Competitor compare</a> ·
+  <a href="https://github.com/Rogue-Intelligence-INC/valhalla-unified-core">Product docs (VUC)</a>
 </p>
 
-<p align="center">
-  <a href="#one-click-test">One-click test</a> ·
-  <a href="#highlights">Highlights</a> ·
-  <a href="#web-demo">Web demo</a> ·
-  <a href="docs/README.md">Docs</a> ·
-  <a href="https://github.com/Rogue-Intelligence-INC/valhalla-unified-core">VUC</a>
-</p>
+```text
+session / corpus
+    → Triad incubation (Hub · Tile · StemCell · Fate)
+    → persistent structure snapshot
+    → native / hybrid decode · proactive Fate
+    → optional LM head (0.5B default · 3B = calibration only)
+```
+
+> **Investor one-liner:** Persistent structure memory + incubation (L1/L2/L3) for private agents — faithfulness and session state without resending full history.  
+> **Not claimed:** Transformer replacement · open-domain QA SOTA · AGI.
 
 ---
 
-## Repository layout
+## Prove it (logs · suite · legitimacy)
 
-**ValhallaBase product surface** — evaluate only these paths:
+Every formal run can be packed into an **uploadable Evidence Pack**:
 
-| Path | Role |
-|------|------|
-| [`manifestsys/`](manifestsys/) | Runtime — Hub · Tile · StemCell · Fate · `valhalla_base` |
-| [`systems/`](systems/) | Triad metasystems |
-| [`valhalla-unified-core/`](valhalla-unified-core/) | Product docs (submodule) |
-| [`apps/valhalla_chat/`](apps/valhalla_chat/) | Web console |
-| [`tools/valhalla_inference/`](tools/valhalla_inference/) | Benchmarks · Pareto matrix |
-| [`scripts/run_highlight_test.sh`](scripts/run_highlight_test.sh) | One-click pillar smoke |
-| [`scripts/demo_valhalla_chat.sh`](scripts/demo_valhalla_chat.sh) | One-click web demo |
-| [`reports/valhalla_inference/`](reports/valhalla_inference/) | Citeable JSON + summaries |
+| Artifact | Role |
+|----------|------|
+| `tools/valhalla_inference/` + `tools/standard_benchmarks/bundled/` | Runnable suite |
+| `tools/standard_benchmarks/provenance/` | Upstream citations (LoCoMo · RAGTruth · MultiHop …) |
+| `reports/**/*.log` | Timestamped execution logs |
+| `audit_benchmark_legitimacy.py` | Citeable vs Tier-C gate |
+| `pack_evidence_run.py` | MANIFEST · HASHES · REPRODUCE.md · zip |
 
-Engineering checkout (NDA): full tree under license — product eval uses paths above only.
+```bash
+# Install bench deps (Mem0-style local ST · transformers · …)
+python3 -m venv .venv-llm && .venv-llm/bin/pip install -r requirements-benchmark.txt
+
+# Full evidence suite: legitimacy → competitor compare → token → pack zip
+./scripts/run_evidence_suite.sh              # moderate
+./scripts/run_evidence_suite.sh --fast       # smoke
+./scripts/run_evidence_suite.sh --full       # + structure ablation
+```
+
+Output: `reports/valhalla_inference/evidence_<tag>/` + `.zip`  
+Share **REPRODUCE.md + legitimacy_audit.json + HASHES.sha256** first.
+
+Policy: [`docs/valhalla/COMPETITOR_COMPARE.md`](docs/valhalla/COMPETITOR_COMPARE.md) · [`docs/valhalla/FUNDRAISE_ABLATION_PROTOCOL.md`](docs/valhalla/FUNDRAISE_ABLATION_PROTOCOL.md)
 
 ---
 
-## Headline numbers
-
-| Pillar | Metric | Verdict |
-|--------|--------|---------|
-| **Trainability (L1/L2/L3)** | TPI **0.755** · holdout **80%** (4/5 smoke) | `run_incubation_llm_benchmarks.py --fast` |
-| **Faithfulness** | RAGTruth **34/40 · 88/100** · theme drift **0%** (longchain v5) | Industry faithfulness |
-| **Session context** | Needle **4/4** · RULER **15/20** · long mem **94.7%** | Append protocol |
-| **Backbone orthogonality** | Qwen3B · RWKV · Phi-MoE open **4/4** · `MEMORY_INDEPENDENT` | `VALHALLA_BASE_INDEPENDENT` |
-| **External Pareto matrix** | LoCoMo · LongBench · token · latency · proactive | `run_external_pareto_matrix.py --fast` |
-| **Incubation / trainable LLM** | TPI **0.755** · holdout **80%** | `run_incubation_llm_benchmarks.py` |
-| **Proactive agency** | Agency **0.778** · PPI **0.650** · MAR **100%** | Fate-gated reaction |
-
-> **Not a 3B LM product.** Runtime default **0.5B**; **3B** = industry benchmark calibration only.
-
-<a name="one-click-test"></a>
-## One-click test (any machine)
-
-Auto-detects **GPU/CPU**, **CUDA paths**, **Python venv**, and runs pillar smoke (~8–15 min GPU):
+<a name="one-click"></a>
+## One-click smoke
 
 ```bash
 git clone --recurse-submodules https://github.com/Rogue-Intelligence-INC/Valhalla.git
 cd Valhalla
-./scripts/run_highlight_test.sh
+./scripts/run_highlight_test.sh          # pillars ~8–15 min GPU
+./scripts/demo_valhalla_chat.sh          # web console
 ```
-
-| Flag | Effect |
-|------|--------|
-| `--train-proof` | + L2 Fate pretrain holdout · L1 TPI transfer · L3 bake artifact |
-| `--full` | + backbone practical panel + fate-core smoke + industry aggregate |
-| `--cpu-only` | Force CPU (no NVIDIA driver); train-proof skips L1 TPI |
-| `--skip-build` | Reuse existing `target/release/valhalla_base` |
-
-```bash
-make full-test              # pillars + independence + industry + audit
-make highlight-full         # --full pillars only
-```
-
-**Incubation / continual-learning LLM benchmarks** (MemoryBench · CL-Bench · TiC-LM proxies):
-
-```bash
-python3 tools/valhalla_inference/run_incubation_llm_benchmarks.py --fast
-```
-
-**External Pareto matrix** (full-context · vanilla RAG · ValhallaBase — same backbone):
-
-```bash
-python3 tools/valhalla_inference/run_external_pareto_matrix.py --fast
-make pareto-matrix
-```
-
-**Integrated report:** `reports/valhalla_inference/VALHALLA_INTEGRATED_STATUS.md`  
-**Experiment summary:** `reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md`  
-**Benchmark summary:** `reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md`
-
-**Checks:** Triad smoke · RAGTruth · Needle · Proactive gates · Fate holdout unit  
-**Train-proof:** [TRAINABILITY_PROOF.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/TRAINABILITY_PROOF.md)  
-**Reports:** `reports/valhalla_inference/` · Guide: [`REPRODUCTION.md`](REPRODUCTION.md)
 
 ---
 
-Valhalla is an **AI memory & hybrid inference platform** built around **ValhallaBase**: context is **incubated** into a **Triad structure snapshot** (Hub / Tile / StemCell / Fate); structure is **trainable** via session learning (L1), Fate pretrain (L2), and HF bake (L3). A companion LM acts as the **swappable decode head** — not a standalone foundation model.
+<a name="benchmarks"></a>
+## Benchmarks (honest · locked protocols)
 
-> **Valhalla is the base. The LM is the decode head.** · **Structure is trainable; LM SGD is optional.**
+**Calibration LM for industry tables:** `Qwen2.5-3B-Instruct` (comparability only).  
+**Product default:** `Qwen2.5-0.5B-Instruct`.
 
-**Investor one-liner:** ValhallaBase is a **structure-trainable memory substrate** — session learning, Fate pretrain, and HF bake — with **industry-grade RAG faithfulness**, **proactive Fate agency**, and **backbone-orthogonal** decode. **3B is benchmark calibration only, not the product.**
+### Industry full suite — 2026-07-13
 
-**Organization:** [Rogue Intelligence Inc.](https://github.com/Rogue-Intelligence-INC)
+| Tier | Benchmark | Result | Cite? |
+|------|-----------|--------|-------|
+| A | RAGTruth-40 / 100 | **34/40 · 88/100** | Yes |
+| A | Needle | **4/4** | Yes |
+| A | MCQ @ 3B | **45/46** | Yes |
+| B | LoCoMo | **17/30 (57%)** | Yes |
+| B | MultiHop | **15/25 (60%)** | Yes |
+| B | RULER-style | **15/20** | Yes |
+| B | LongBench-v2 | **4/20 (20%)** | Boundary |
+| B | LaRA | RAG 11/20 · LC 13/20 | Honest tradeoff |
+| C | FRAMES | skipped (no wiki) | **No** |
 
-**Canonical positioning:** [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
+Summaries: [`BENCHMARK_SUMMARY_20260713.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md)
 
-> **Product docs:** [valhalla-unified-core](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core) · [`docs/valhalla/README.md`](docs/valhalla/README.md)
+### Mechanism (secondary — not industry SOTA)
+
+| Metric | Result | Meaning |
+|--------|--------|---------|
+| TPI-v2 | **0.755** | Zero-weight session structure learning |
+| Transfer vs polluted | **+38.7pp** | Snapshot rescue — not “RAG +38pp” |
+| NPPI | **0.848** | Synthetic novel ingest (labeled synthetic) |
+| Agency / PPI | **0.778 / 0.650** | Fate-gated proactive |
+
+### Reproduce industry
+
+```bash
+export RUSTFLAGS="-L /opt/cuda/lib64" LIBRARY_PATH=/opt/cuda/lib64
+.venv-llm/bin/python3 tools/valhalla_inference/run_industry_benchmarks.py --all --fresh --verbose
+.venv-llm/bin/python3 tools/valhalla_inference/audit_benchmark_legitimacy.py
+.venv-llm/bin/python3 tools/valhalla_inference/pack_evidence_run.py --tag industry --zip
+```
 
 ---
 
-<a name="web-demo"></a>
-## Web demo (interactive console)
+<a name="competitor-compare"></a>
+## Competitor compare (same questions · same backbone)
 
-One-click: backend + release Flutter web (HTML renderer, no CanvasKit CDN):
-
-```bash
-./scripts/demo_valhalla_chat.sh
-```
-
-| URL | Purpose |
-|-----|---------|
-| http://127.0.0.1:8888/ | Chat UI — session warmup · hybrid QA · multimodal ingress |
-| http://127.0.0.1:8787/dashboard/ | Triad visualization dashboard |
-
-**What to verify:** connected status · Fate warmup · grounded hybrid answer · multimodal badge on user bubble · protocol log panel.
-
-Validate demo questions (API smoke):
+| System | Role |
+|--------|------|
+| `full_context_lm` | Entire corpus in prompt |
+| `vanilla_rag` | Traditional RAG block |
+| `mem0` | Mem0 cloud if `OPENAI_API_KEY`; else **local ST top-k + same LM** |
+| `valhalla_base` | Structure snapshot runtime |
+| Ablation −Fate / −Triad | Causal contribution |
 
 ```bash
-python3 scripts/run_demo_showcase.py
+.venv-llm/bin/pip install -r requirements-benchmark.txt
+.venv-llm/bin/python3 tools/valhalla_inference/run_competitor_compare.py --moderate
+./tools/valhalla_inference/run_fundraise_ablation.sh --industry-only   # 7-arm ablation
 ```
 
-See also: [`docs/valhalla/DEMO_SCRIPT_3MIN_EN.md`](docs/valhalla/DEMO_SCRIPT_3MIN_EN.md)
-
-Dev mode: `./scripts/run_valhalla_chat_web.sh` · release: `./scripts/run_valhalla_chat_web.sh --release`
+We do **not** claim Mem0’s published LongMemEval numbers; we report **same-slice, same-backbone** scores (and SKIP when deps/API missing).
 
 ---
 
-### Automatic reaction (proactive agency)
+## What to evaluate (product surface)
 
-| Capability | Result | Notes |
-|------------|--------|-------|
-| **Agency Index** | **0.778** | Four-track proactive AI |
-| **PPI-v2** | **0.650** | Fate-gated nudge · no mismatch spam |
-| **MAR** | **100%** | Cross-domain sessions abstain |
-| **FIR** | **0%** | No hallucinated interruptions |
-| **Crosslang CCU** | **100%** | EN/ZH/FR share one Triad core |
+| Path | Role |
+|------|------|
+| [`manifestsys/`](manifestsys/) | Runtime — `valhalla_base` |
+| [`tools/valhalla_inference/`](tools/valhalla_inference/) | Benchmarks · evidence pack |
+| [`tools/standard_benchmarks/`](tools/standard_benchmarks/) | Bundled industry slices + provenance |
+| [`reports/valhalla_inference/`](reports/valhalla_inference/) | JSON · logs · evidence_* |
+| [`apps/valhalla_chat/`](apps/valhalla_chat/) | Web console |
+| [`valhalla-unified-core/`](valhalla-unified-core/) | Product docs submodule |
 
-See [`PROACTIVE_AGENCY_BENCHMARK.md`](reports/valhalla_inference/PROACTIVE_AGENCY_BENCHMARK.md) · [`VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md`](reports/valhalla_inference/VALHALLA_INDEPENDENCE_EXPERIMENT_20260710.md)
-
----
-
-<a name="highlights"></a>
-## Highlights
-
-### Product pillars (what we sell)
-
-| Pillar | Result | What it proves |
-|--------|--------|----------------|
-| **Backbone independence** | `VALHALLA_BASE_INDEPENDENT` | RWKV · Phi-MoE · Dense — open path 4/4 match |
-| **Session memory** | `MEMORY_INDEPENDENT` | Needle hybrid = native @ d=5,10 |
-| **Proactive agency** | Agency **0.778** · PPI **0.650** | Fate-gated automatic reaction |
-| **Anti-hallucination** | RAGTruth **34/40 · 88/100** | Industry faithfulness · MAR 100% (gates) |
-| **Context / memory** | Needle **4/4** · RULER **15/20** · long mem **94.7%** | Session append, not prompt window |
-| **Incubation** | TPI **0.755** · transfer **+38.7pp** | Zero-weight session learning |
-
-### Industry calibration @ 3B (2026-07-13 full suite)
-
-| Benchmark | Result | Note |
-|-----------|--------|------|
-| RAGTruth-100 | **88/100** | Tier A |
-| MCQ ladder 46Q | **45/46 (98%)** | lm_patch @ calibration size |
-| LoCoMo | **17/30 (57%)** | OPEN_QA_VIABLE |
-| MultiHop fatewithv2 | **15/25 (60%)** | unified I/O + honest scoring |
-| LongBench | **4/20 (20%)** | Honest boundary |
-
-[`BENCHMARK_SUMMARY_20260713.md`](reports/valhalla_inference/BENCHMARK_SUMMARY_20260713.md) · [`EXPERIMENT_SUMMARY_20260713.md`](reports/valhalla_inference/EXPERIMENT_SUMMARY_20260713.md)
-
-Runtime default LM: **Qwen2.5-0.5B** when `VALHALLA_LM_MODEL` unset. Industry suite sets **3B** explicitly.
-
-### Incubation (zero-weight learning)
-
-| Metric | Result | Notes |
-|--------|--------|-------|
-| **TPI-v2** | **0.755** | Inference-time structure learning (no LM gradients) |
-| **NPPI** | **0.848** | Novel paradigm potential · novel **6/6** |
-| Transfer vs polluted | **+38.7pp** | Fate snapshot rescues session pollution |
-
-See [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md)
-
-### Native capabilities (ValhallaBase, 2026-07)
-
-| Capability | Result |
-|------------|--------|
-| **Long memory** (append-then-ask) | **72/76 (94.7%)** |
-| **Follow-up native** (30-turn) | **96.7%** |
-| **Proactive Fate v2** | **68/72 · PPI 0.650** |
-| **Open retrieval** (targeted) | **31/31 (100%)** |
-| **Zero cross-topic drift** | **0/48** probes |
-
-### Architecture edge
-
-| | Transformer prompt stack | **ValhallaBase** |
-|--|--------------------------|------------------|
-| Context | Tokens in window | Corpus → **structure snapshot** |
-| Backbone | Fixed checkpoint product | **Orthogonal** — RWKV / MoE / Dense |
-| Multi-turn | Resend full history | **Session append** (~64 chars/step) |
-| Proactive | N/A | **Fate-gated** `proactive_idle` |
-| Faithfulness | Generate from weights | **Grounded retrieval** + RAGTruth-strong |
+Archive / backups / historical experiments are **not** the product path.
 
 ---
 
-## Quick start
+## Architecture (vs prompt RAG)
 
-```bash
-git submodule update --init valhalla-unified-core
-./scripts/run_highlight_test.sh    # one-click pillar test
-./scripts/demo_valhalla_chat.sh    # web console demo
-```
+| | Typical RAG / memory API | ValhallaBase |
+|--|--------------------------|--------------|
+| State | Records / vectors / prompts | **Triad structure snapshot** |
+| Multi-turn | Resend or re-retrieve | **Session append + incubate** |
+| Learning | Optional fine-tune | **L1 session · L2 Fate pretrain · L3 bake** |
+| Proactive | Rare | **Fate-gated** `proactive_idle` |
+| Backbone | Often fixed | **Orthogonal** decode head |
 
-Build + CLI demo:
-
-```bash
-export LIBRARY_PATH=/opt/cuda/targets/x86_64-linux/lib:$LIBRARY_PATH
-RUSTFLAGS='-L /opt/cuda/lib64' cargo build -p hub-f64 --release --bin valhalla_base
-./tools/valhalla_inference/valhalla_base_cli.sh open
-```
-
-Industry benchmarks (3B **calibration**):
-
-```bash
-python3 tools/valhalla_inference/run_industry_benchmarks.py --all
-```
-
-Full API: [`docs/valhalla/VALHALLA_BASE_CLI.md`](docs/valhalla/VALHALLA_BASE_CLI.md)
-
-### Documentation
-
-| Doc | Purpose |
-|-----|---------|
-| [**Product positioning**](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md) | **What ValhallaBase is / is not** |
-| [`docs/README.md`](docs/README.md) | Documentation index |
-| [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) | Platform reference (VUC) |
-| [`docs/valhalla/DEMO.md`](docs/valhalla/DEMO.md) | 3-minute demo |
-
-### Honest boundaries (Tier B)
-
-LongBench **7/20** · MultiHop **14/25** · FRAMES **1/25** (wiki pending) · LaRA RAG **8/20** — documented with protocol caveats.
-
-**Positioning:** Strong on **independence, proactive agency, faithfulness, session memory** — not a fixed-size LM SKU.
+Positioning: [VALHALLA_BASE_PRODUCT_POSITIONING.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PRODUCT_POSITIONING.md)
 
 ---
 
 ## Requirements
 
 - Rust 1.70+ · CUDA optional (`RUSTFLAGS='-L /opt/cuda/lib64'`)
-- Python 3.10+ · `.venv-llm` for trad LM / HF datasets
-- Flutter 3.24+ (web demo only) · `FLUTTER_ROOT` or `~/flutter`
-- **Runtime default LM:** `Qwen2.5-0.5B-Instruct` · override via `VALHALLA_LM_MODEL`
+- Python 3.10+ · `.venv-llm` + [`requirements-benchmark.txt`](requirements-benchmark.txt)
+- Flutter (web demo only)
 
 ## License
 
-MIT — see [valhalla-unified-core/NON_OPEN_SOURCE.md](valhalla-unified-core/NON_OPEN_SOURCE.md) for proprietary runtime components.
+Runtime components: see [valhalla-unified-core/NON_OPEN_SOURCE.md](valhalla-unified-core/NON_OPEN_SOURCE.md).  
+Benchmark harness & reports under this tree follow repository license notices.
+
+---
+
+*Rogue Intelligence LNC · [Organization](https://github.com/Rogue-Intelligence-INC)*

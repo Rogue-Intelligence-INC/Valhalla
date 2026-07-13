@@ -157,8 +157,9 @@ pub use valhalla_base_client::{
 };
 #[cfg(feature = "patch-lm")]
 pub use valhalla_base_bench::{
-    default_corpus_dirs, run_local_corpus_demo, run_multihop_fate_rag, run_multihop_hybrid_rag,
-    run_multihop_rag, run_needle_session, run_longchain_fate_final_test, run_v1_extensions, write_report,
+    default_corpus_dirs, run_local_corpus_demo, run_multihop_fate_rag, run_multihop_fate_rag_ctrl,
+    run_multihop_hybrid_rag, run_multihop_hybrid_rag_ctrl, run_multihop_rag, run_multihop_rag_ctrl,
+    run_needle_session, run_longchain_fate_final_test, run_v1_extensions, write_report,
 };
 #[cfg(feature = "patch-lm")]
 pub use valhalla_base_eval::{

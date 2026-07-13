@@ -1,0 +1,9 @@
+{
+  "bundle": "frames_slice25.json",
+  "upstream": "FRAMES (factual retrieval)",
+  "selection_rule": "25 items; citeable ONLY when Wikipedia extracts present in bundle",
+  "human_authored": true,
+  "synthetic": false,
+  "citeable_gate": "wiki_extracts_present",
+  "note": "Tier C when no wiki — legitimacy audit marks non-citeable"
+}

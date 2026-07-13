@@ -515,8 +515,8 @@ pub fn default_corpus_dirs(repo_root: &Path) -> Vec<PathBuf> {
 }
 
 pub use crate::multihop_bench::{
-    run_lara_fatewithv2, run_multihop_fate_rag, run_multihop_hybrid_rag, run_multihop_rag,
-    verdict_open_qa,
+    run_lara_fatewithv2, run_multihop_fate_rag, run_multihop_fate_rag_ctrl, run_multihop_hybrid_rag,
+    run_multihop_hybrid_rag_ctrl, run_multihop_rag, run_multihop_rag_ctrl, verdict_open_qa,
 };
 
 pub fn write_report(path: &Path, doc: &serde_json::Value) -> Result<(), ValhallaBaseErrorBody> {

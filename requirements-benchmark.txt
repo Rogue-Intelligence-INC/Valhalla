@@ -1,5 +1,10 @@
-# Python dependencies for Valhalla Base benchmark harness (minimal)
-# pip install -r requirements-benchmark.txt
+# Valhalla benchmark / competitor-compare dependencies
+# Install:  .venv-llm/bin/pip install -r requirements-benchmark.txt
 
-# Stdlib-only runners work without install; these enhance HTTP/LM paths:
 requests>=2.28.0
+transformers>=4.40.0
+accelerate>=0.27.0
+sentence-transformers>=3.0.0
+mem0ai>=0.1.0
+qdrant-client>=1.9.0
+torch>=2.1.0

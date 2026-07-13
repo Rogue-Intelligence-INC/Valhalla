@@ -1,0 +1,9 @@
+{
+  "bundle": "longbench_v2_mcq_short20.json",
+  "upstream": "LongBench-v2 (THUDM)",
+  "hf_or_paper": "LongBench v2 MCQ short context slice",
+  "selection_rule": "20 MCQ items; context split to corpus lines",
+  "human_authored": true,
+  "synthetic": false,
+  "note": "Honest long-context boundary; often DEVELOPING — cite as boundary not SOTA"
+}
