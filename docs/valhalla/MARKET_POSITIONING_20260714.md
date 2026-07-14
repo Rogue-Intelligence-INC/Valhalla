@@ -24,6 +24,14 @@ Sources informing this map (external): production memory framework surveys 2026 
 **Not another extract→store→search→inject memory API.**  
 **A structure-trainable body** — one Triad session incubates Hub / Tile / StemCell under Fate; LM is an optional decode head.
 
+**Technical highlights (2026-07-14) — technical core:**
+1. Fate `quad_cycle` + live Tile/Stem formation (`TRIAD_STRUCTURE_CYCLE_PASS`)
+2. Natural-network topology vs ER (`NATURAL_NN_TOPOLOGY_PASS`, Stem σ≈9.27)
+3. Organ coalescence without preset catalog (`ORGAN_COALESCENCE_RUNTIME_PASS` — same-type merge = maturation continuing)
+4. Three-layer structure train (L1 zero-weight · L2 Fate pretrain · L3 HF bake)
+
+See `TECH_HIGHLIGHTS_TRIAD_TRAIN_20260714.md` · `NATURAL_NN_ORGAN_RUNTIME_20260714.md`.
+
 | Peer frame | Valhalla response |
 |----------|-------------------|
 | “Beat Mem0 on LoCoMo / LongMemEval” | **Do not compete.** Publish honest Tier B. Lead Unique Proofs. |

@@ -1,0 +1,465 @@
+{
+  "protocol": "natural-nn-organ-runtime-v1",
+  "timestamp": "2026-07-14T02:03:46.776702+00:00",
+  "doctrine": {
+    "preset_organs": false,
+    "cell_identity": "data_signature",
+    "same_type_CC": "organ differentiation continuing (maturation)",
+    "heterogeneous_CC": "not yet typed / mix — not counted as matured organ"
+  },
+  "growth": {
+    "cells_delta": 0,
+    "tiles_delta": 5,
+    "types_delta": 0,
+    "tick_delta": 768,
+    "largest_organ_delta": 0,
+    "purity_last": 0.7812,
+    "same_type_organs_last": 1,
+    "multi_type_bodies_last": false
+  },
+  "timeline": [
+    {
+      "fate_signal_tick": 293,
+      "hub_routed": [
+        72,
+        72,
+        72,
+        72
+      ],
+      "fragment_count": 3,
+      "lines_ingested": 8,
+      "n_tiles": 5,
+      "tile_edge_pairs": 0,
+      "tile_mean_activation": 0.0093,
+      "stem": {
+        "n_cells": 100,
+        "n_typed_signatures": 2,
+        "n_proto_empty_signature": 98,
+        "n_emergent_types": 7,
+        "type_histogram_top": [
+          [
+            "proto:e5_v4_d7",
+            50
+          ],
+          [
+            "proto:e5_v4_d0",
+            36
+          ],
+          [
+            "proto:e5_v4_d6",
+            8
+          ],
+          [
+            "sig:3_4",
+            2
+          ],
+          [
+            "proto:e5_v4_d5",
+            2
+          ],
+          [
+            "proto:e5_v4_d4",
+            1
+          ],
+          [
+            "proto:e5_v4_d3",
+            1
+          ]
+        ],
+        "n_cc_ge2": 1,
+        "organs": [
+          {
+            "organ_id": "emergent_0",
+            "cell_count": 64,
+            "frac_of_population": 0.64,
+            "dominant_type_label": "proto:e5_v4_d7",
+            "type_purity": 0.7812,
+            "mean_pairwise_cosine": 0.0013,
+            "same_type_coalescence": true,
+            "reading": "organ_maturation_continuing",
+            "avg_energy": 0.4891,
+            "max_generation": 0,
+            "n_type_labels_inside": 6
+          }
+        ],
+        "n_same_type_organs": 1,
+        "n_heterogeneous_cc": 0,
+        "organ_differentiation_continuing": true,
+        "multi_type_organ_bodies": false,
+        "largest_organ": {
+          "organ_id": "emergent_0",
+          "cell_count": 64,
+          "frac_of_population": 0.64,
+          "dominant_type_label": "proto:e5_v4_d7",
+          "type_purity": 0.7812,
+          "mean_pairwise_cosine": 0.0013,
+          "same_type_coalescence": true,
+          "reading": "organ_maturation_continuing",
+          "avg_energy": 0.4891,
+          "max_generation": 0,
+          "n_type_labels_inside": 6
+        }
+      },
+      "pulse": "p0_seed",
+      "incubation_cycles": 2,
+      "fate_warmup_cycles": 4,
+      "corpus_lines_target": 8
+    },
+    {
+      "fate_signal_tick": 549,
+      "hub_routed": [
+        136,
+        136,
+        136,
+        136
+      ],
+      "fragment_count": 6,
+      "lines_ingested": 16,
+      "n_tiles": 5,
+      "tile_edge_pairs": 0,
+      "tile_mean_activation": 0.0093,
+      "stem": {
+        "n_cells": 100,
+        "n_typed_signatures": 2,
+        "n_proto_empty_signature": 98,
+        "n_emergent_types": 7,
+        "type_histogram_top": [
+          [
+            "proto:e5_v4_d7",
+            50
+          ],
+          [
+            "proto:e5_v4_d0",
+            36
+          ],
+          [
+            "proto:e5_v4_d6",
+            8
+          ],
+          [
+            "sig:3_4",
+            2
+          ],
+          [
+            "proto:e5_v4_d5",
+            2
+          ],
+          [
+            "proto:e5_v4_d4",
+            1
+          ],
+          [
+            "proto:e5_v4_d3",
+            1
+          ]
+        ],
+        "n_cc_ge2": 1,
+        "organs": [
+          {
+            "organ_id": "emergent_0",
+            "cell_count": 64,
+            "frac_of_population": 0.64,
+            "dominant_type_label": "proto:e5_v4_d7",
+            "type_purity": 0.7812,
+            "mean_pairwise_cosine": 0.0013,
+            "same_type_coalescence": true,
+            "reading": "organ_maturation_continuing",
+            "avg_energy": 0.4891,
+            "max_generation": 0,
+            "n_type_labels_inside": 6
+          }
+        ],
+        "n_same_type_organs": 1,
+        "n_heterogeneous_cc": 0,
+        "organ_differentiation_continuing": true,
+        "multi_type_organ_bodies": false,
+        "largest_organ": {
+          "organ_id": "emergent_0",
+          "cell_count": 64,
+          "frac_of_population": 0.64,
+          "dominant_type_label": "proto:e5_v4_d7",
+          "type_purity": 0.7812,
+          "mean_pairwise_cosine": 0.0013,
+          "same_type_coalescence": true,
+          "reading": "organ_maturation_continuing",
+          "avg_energy": 0.4891,
+          "max_generation": 0,
+          "n_type_labels_inside": 6
+        }
+      },
+      "pulse": "p1_append",
+      "incubation_cycles": 4,
+      "fate_warmup_cycles": 6,
+      "corpus_lines_target": 16
+    },
+    {
+      "fate_signal_tick": 805,
+      "hub_routed": [
+        200,
+        200,
+        200,
+        200
+      ],
+      "fragment_count": 9,
+      "lines_ingested": 24,
+      "n_tiles": 6,
+      "tile_edge_pairs": 0,
+      "tile_mean_activation": 0.0094,
+      "stem": {
+        "n_cells": 100,
+        "n_typed_signatures": 2,
+        "n_proto_empty_signature": 98,
+        "n_emergent_types": 7,
+        "type_histogram_top": [
+          [
+            "proto:e5_v4_d7",
+            50
+          ],
+          [
+            "proto:e5_v4_d0",
+            36
+          ],
+          [
+            "proto:e5_v4_d6",
+            8
+          ],
+          [
+            "sig:3_4",
+            2
+          ],
+          [
+            "proto:e5_v4_d5",
+            2
+          ],
+          [
+            "proto:e5_v4_d4",
+            1
+          ],
+          [
+            "proto:e5_v4_d3",
+            1
+          ]
+        ],
+        "n_cc_ge2": 1,
+        "organs": [
+          {
+            "organ_id": "emergent_0",
+            "cell_count": 64,
+            "frac_of_population": 0.64,
+            "dominant_type_label": "proto:e5_v4_d7",
+            "type_purity": 0.7812,
+            "mean_pairwise_cosine": 0.0013,
+            "same_type_coalescence": true,
+            "reading": "organ_maturation_continuing",
+            "avg_energy": 0.4891,
+            "max_generation": 0,
+            "n_type_labels_inside": 6
+          }
+        ],
+        "n_same_type_organs": 1,
+        "n_heterogeneous_cc": 0,
+        "organ_differentiation_continuing": true,
+        "multi_type_organ_bodies": false,
+        "largest_organ": {
+          "organ_id": "emergent_0",
+          "cell_count": 64,
+          "frac_of_population": 0.64,
+          "dominant_type_label": "proto:e5_v4_d7",
+          "type_purity": 0.7812,
+          "mean_pairwise_cosine": 0.0013,
+          "same_type_coalescence": true,
+          "reading": "organ_maturation_continuing",
+          "avg_energy": 0.4891,
+          "max_generation": 0,
+          "n_type_labels_inside": 6
+        }
+      },
+      "pulse": "p2_deep",
+      "incubation_cycles": 8,
+      "fate_warmup_cycles": 8,
+      "corpus_lines_target": 24
+    },
+    {
+      "fate_signal_tick": 1061,
+      "hub_routed": [
+        264,
+        264,
+        264,
+        264
+      ],
+      "fragment_count": 13,
+      "lines_ingested": 32,
+      "n_tiles": 10,
+      "tile_edge_pairs": 0,
+      "tile_mean_activation": 0.0097,
+      "stem": {
+        "n_cells": 100,
+        "n_typed_signatures": 2,
+        "n_proto_empty_signature": 98,
+        "n_emergent_types": 7,
+        "type_histogram_top": [
+          [
+            "proto:e5_v4_d7",
+            50
+          ],
+          [
+            "proto:e5_v4_d0",
+            36
+          ],
+          [
+            "proto:e5_v4_d6",
+            8
+          ],
+          [
+            "sig:3_4",
+            2
+          ],
+          [
+            "proto:e5_v4_d5",
+            2
+          ],
+          [
+            "proto:e5_v4_d4",
+            1
+          ],
+          [
+            "proto:e5_v4_d3",
+            1
+          ]
+        ],
+        "n_cc_ge2": 1,
+        "organs": [
+          {
+            "organ_id": "emergent_0",
+            "cell_count": 64,
+            "frac_of_population": 0.64,
+            "dominant_type_label": "proto:e5_v4_d7",
+            "type_purity": 0.7812,
+            "mean_pairwise_cosine": 0.0013,
+            "same_type_coalescence": true,
+            "reading": "organ_maturation_continuing",
+            "avg_energy": 0.4891,
+            "max_generation": 0,
+            "n_type_labels_inside": 6
+          }
+        ],
+        "n_same_type_organs": 1,
+        "n_heterogeneous_cc": 0,
+        "organ_differentiation_continuing": true,
+        "multi_type_organ_bodies": false,
+        "largest_organ": {
+          "organ_id": "emergent_0",
+          "cell_count": 64,
+          "frac_of_population": 0.64,
+          "dominant_type_label": "proto:e5_v4_d7",
+          "type_purity": 0.7812,
+          "mean_pairwise_cosine": 0.0013,
+          "same_type_coalescence": true,
+          "reading": "organ_maturation_continuing",
+          "avg_energy": 0.4891,
+          "max_generation": 0,
+          "n_type_labels_inside": 6
+        }
+      },
+      "pulse": "p3_longer",
+      "incubation_cycles": 12,
+      "fate_warmup_cycles": 10,
+      "corpus_lines_target": 32
+    },
+    {
+      "fate_signal_tick": 1061,
+      "hub_routed": [
+        264,
+        264,
+        264,
+        264
+      ],
+      "fragment_count": 13,
+      "lines_ingested": 32,
+      "n_tiles": 10,
+      "tile_edge_pairs": 0,
+      "tile_mean_activation": 0.0097,
+      "stem": {
+        "n_cells": 100,
+        "n_typed_signatures": 2,
+        "n_proto_empty_signature": 98,
+        "n_emergent_types": 7,
+        "type_histogram_top": [
+          [
+            "proto:e5_v4_d7",
+            50
+          ],
+          [
+            "proto:e5_v4_d0",
+            36
+          ],
+          [
+            "proto:e5_v4_d6",
+            8
+          ],
+          [
+            "sig:3_4",
+            2
+          ],
+          [
+            "proto:e5_v4_d5",
+            2
+          ],
+          [
+            "proto:e5_v4_d4",
+            1
+          ],
+          [
+            "proto:e5_v4_d3",
+            1
+          ]
+        ],
+        "n_cc_ge2": 1,
+        "organs": [
+          {
+            "organ_id": "emergent_0",
+            "cell_count": 64,
+            "frac_of_population": 0.64,
+            "dominant_type_label": "proto:e5_v4_d7",
+            "type_purity": 0.7812,
+            "mean_pairwise_cosine": 0.0013,
+            "same_type_coalescence": true,
+            "reading": "organ_maturation_continuing",
+            "avg_energy": 0.4891,
+            "max_generation": 0,
+            "n_type_labels_inside": 6
+          }
+        ],
+        "n_same_type_organs": 1,
+        "n_heterogeneous_cc": 0,
+        "organ_differentiation_continuing": true,
+        "multi_type_organ_bodies": false,
+        "largest_organ": {
+          "organ_id": "emergent_0",
+          "cell_count": 64,
+          "frac_of_population": 0.64,
+          "dominant_type_label": "proto:e5_v4_d7",
+          "type_purity": 0.7812,
+          "mean_pairwise_cosine": 0.0013,
+          "same_type_coalescence": true,
+          "reading": "organ_maturation_continuing",
+          "avg_energy": 0.4891,
+          "max_generation": 0,
+          "n_type_labels_inside": 6
+        }
+      },
+      "pulse": "p4_extra_cycles_only",
+      "incubation_cycles": 16,
+      "fate_warmup_cycles": 12,
+      "corpus_lines_target": 32
+    }
+  ],
+  "checks": {
+    "organ_defined_as": "connected component of cells with similar data_signature (emergent, not preset)",
+    "same_type_merge_is": "organ_differentiation_continuing / maturation",
+    "organ_differentiation_continuing": true,
+    "more_structure_with_runtime": true,
+    "multi_type_organ_bodies": false
+  },
+  "verdict": "ORGAN_COALESCENCE_RUNTIME_PASS"
+}

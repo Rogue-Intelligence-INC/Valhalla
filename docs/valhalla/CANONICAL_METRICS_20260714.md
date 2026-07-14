@@ -16,6 +16,20 @@ Dated archive reports may show higher historical numbers under *different protoc
 | Longchain retention | **100%** | same |
 | RAGTruth (live industry) | **38/40** · full cache **88/100** | ragtruth-v1 |
 
+## Technical highlights (mechanism — publish with Unique Proofs)
+
+| Claim | Value | Protocol / artifact |
+|-------|--------|---------------------|
+| Fate cycle + Tile/Stem formation | **TRIAD_STRUCTURE_CYCLE_PASS** · 16 tiles · 108 stems · hub 104×4 | `triad-structure-highlight-v1` |
+| Natural NN topology (vs ER null) | **NATURAL_NN_TOPOLOGY_PASS** · Stem σ≈9.27 · growth 6→24 lines | `natural-nn-topology-v1` |
+| Organ coalescence (no preset catalog) | **ORGAN_COALESCENCE_RUNTIME_PASS** · body 64 @ ~0.78 · tiles 5→10 · tick +768 | `natural-nn-organ-runtime-v1` |
+| Manifold Fate adapt | **PASS** · fixed_point · 3 adapt cycles | `manifold_orchestrator_smoke` |
+| Structure train L1 | **+38.7pp** pollution rescue · TPI **0.755** | U3 / TPI-v2 |
+| Structure train L2/L3 | hub_spread tightens · bake **Δw≈298** | `valhalla-train-proof-smoke-v1` |
+
+Narrative: `docs/valhalla/TECH_HIGHLIGHTS_TRIAD_TRAIN_20260714.md`  
+Honest bound: Tile/Stem are **structure substrate**, not differentiated cortical organs.
+
 ## Secondary / Tier B (publish, do not lead)
 
 | Claim | Value | Note |
@@ -37,6 +51,10 @@ Dated archive reports may show higher historical numbers under *different protoc
 
 ```bash
 ./scripts/run_unique_proofs.sh --fast --only U1,U2,U3,U4
+python3 tools/valhalla_inference/test_triad_structure_highlight.py
+python3 tools/valhalla_inference/test_natural_nn_topology.py
+python3 tools/valhalla_inference/test_natural_nn_organ_runtime.py --long
+python3 tools/valhalla_inference/test_train_proof_smoke.py --skip-tpi
 python3 tools/valhalla_inference/test_fate_longchain_unified.py --production
 python3 tools/valhalla_inference/audit_benchmark_legitimacy.py
 ```
