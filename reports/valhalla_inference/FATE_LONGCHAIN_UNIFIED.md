@@ -1,8 +1,9 @@
 # Fate 长链统合 Benchmark — 主旨偏移与长期记忆
 
 **协议**: `fate-longchain-unified-v5`  
-**状态**: FateRelAddr 四元相对地址落地 · ID 仅进出口 · 2026-07-13  
-**主模块**: `manifestsys/hub-f64/src/fate_longchain_unified.rs`
+**状态**: FateRelAddr 四元相对地址落地 · ID 仅进出口 · 2026-07-14  
+**主模块**: `manifestsys/hub-f64/src/fate_longchain_unified.rs`  
+**Metrics SSOT:** `docs/CANONICAL_METRICS_20260714.md`（含 holdout 33%→100% 合法性说明）
 
 ### 最新 production（fragment_full · 2026-07-14 live）
 
@@ -10,14 +11,18 @@
 |------|-----|
 | theme_drift | **0%** |
 | retention | **100%** |
-| holdout QA | **33.3%**（Tier B） |
-| interleave | **25%** |
-| composite | **~0.589** |
-| pretrain | **37.5%** |
-| ingest fragments | **~31** |
+| holdout QA | **100%** (3/3) |
+| interleave | **75%** (3/4) |
+| composite | **~0.882** |
+| pretrain | **25%** (4 epochs) |
+| corpus | **128** lines（证据 pin；含 D2:8 @ idx 104） |
 
-> Ablation：`qa_adaptive_minimal` 曾報 composite **~0.68** · holdout 仍 ~33% — **勿與 fragment_full 混引。**  
-> 對外主叙事：**drift/retention**，不是 holdout QA 满分。
+**本轮修复（合法性必须披露）：** (1) 禁止在 `fragment_full_capped` 前 truncate session（否则丢掉 ~253 的证据）；  
+(2) holdout 走 content RelAddr affinity + 直接 egress，避免 `worker.run` 内 address-schedule 粘在早期 Caroline name 行。
+
+> **历史行**（下文 §6 / 旧表里的 33% / 0.589 / 0.627 / 0.677）= **pre-fix 快照**，勿与本表混引为 current。  
+> Ablation：`qa_adaptive_minimal` 曾報 composite **~0.68** · holdout 曾 ~33% — **勿與 fragment_full live 混引。**  
+> 对外：continuity + labeled holdout 可并列；industry LoCoMo / U5 full floor 仍 boundary。
 
 ### 地址模型
 
@@ -174,15 +179,17 @@ fate_longchain_unified.rs  ──►  fate_longchain_unified.json
 python3 tools/valhalla_inference/test_fate_longchain_unified.py --production --minimal-corpus
 ```
 
-期望（文档基线）：theme_drift **0%** · holdout **~33%** · composite **~0.68** · ~9s
+期望（**2026-07-14 live**）：theme_drift **0%** · holdout 视 ablation（minimal 曾 ~33%；**勿**替代 fragment_full live 100%）· 详见文首 live 表
 
-### 5.2 Fragment 压力路径
+### 5.2 Fragment 压力路径（**当前主 cite**）
 
 ```bash
 python3 tools/valhalla_inference/test_fate_longchain_unified.py --production
 ```
 
-期望：drift **0%** · holdout **~33%** · composite **~0.63** · ~47s · RSS 更高
+期望（**2026-07-14 live · 128L pin-evidence**）：drift **0%** · retention **100%** · holdout **100%** · composite **~0.822** · 合法性见文首 / canonical
+
+> **§5.3 起以下表格若仍写 33% / 0.62x = HISTORICAL pre-fix** — 保留作变迁记录，禁止当 current 引用。
 
 ### 5.3 Rust CLI
 

@@ -35,7 +35,8 @@ python3 tools/valhalla_inference/audit_benchmark_legitimacy.py
 | Proactive + abstain | U2 MAR 1.0 · FIR 0.0 | “Never hallucinates” |
 | Pollution rescue | U3 +38.7pp | Claiming forever beats clean RAG |
 | Backbone-orthogonal | U4 independent | Claiming lm_patch is universal |
-| Continuity after long chain | drift **0%** · retention **100%** | Equating to holdout QA 100% |
+| Continuity after long chain | drift **0%** · retention **100%** | Citing without protocol; conflating with industry LoCoMo |
+| Longchain holdout (protocol) | **100%** · fragment_full · n=3 | Omitting legitimacy box / claiming LoCoMo SOTA |
 | Faithfulness | RAGTruth **38/40** (2026-07-14 fast) | Stale “100/100” repo blurbs |
 
 ---
@@ -45,10 +46,11 @@ python3 tools/valhalla_inference/audit_benchmark_legitimacy.py
 | Topic | Live reality | Investor framing |
 |-------|--------------|------------------|
 | LoCoMo / MultiHop absolute | Tier B / developing | Competitive context, not wedge |
-| Longchain holdout QA | **33%** (fragment_full) | Continuity metrics lead; QA is roadmap |
-| Interleave QA | **25%** | Same |
-| U5 cost@floor | Not lead | “Append cheaper when floor met” only after pass |
+| Longchain holdout QA | **100%** (fragment_full · n=3 · labeled) | Cite with [canonical legitimacy](./CANONICAL_METRICS_20260714.md); ≠ industry LoCoMo |
+| Interleave QA | **25%** | Boundary — still developing |
+| U5 cost@floor | Citeable developing; full floor open | “Append cheaper when floor met” only after ≥0.80 |
 | “5/5 Unique Proofs” | Live lead suite is **U1–U4 = 4/4** | Fix all public pages |
+| Stale “holdout 33%” blurbs | Pre-fix snapshot | Must not be quoted as current |
 
 Capital comps: Engram’s ~$98M is a **token-economics / learned memory** story — useful TAM signal for “memory infra,” **not** a claim we share their SKU.
 
@@ -77,12 +79,29 @@ Capital comps: Engram’s ~$98M is a **token-economics / learned memory** story 
 ## 5. BP narrative (recommended slide order)
 
 1. **Problem:** Memory APIs store/retrieve text; persistent agents need a **body** + **gates**.  
-2. **Product:** ValhallaBase — Triad + Fate; LM optional.  
-3. **Proof:** U1–U4 board + live four beats.  
-4. **Continuity:** drift 0% / retention 100%.  
-5. **Honest boundary:** industry same-Q Tier B · holdout QA Tier B.  
-6. **GTM:** licensed on-prem structure runtime · bake optional.  
-7. **Ask:** evaluation license + design partner track.
+2. **Architecture:** one visual — ingress → Fate → Triad fragments → optional LM (`assets/architecture.svg`).  
+3. **Product:** ValhallaBase — Triad + Fate; LM optional.  
+4. **Proof:** U1–U4 board + live four beats.  
+5. **Continuity:** drift 0% / retention 100% · holdout **100%** (labeled protocol · n=3).  
+6. **Honest boundary:** industry same-Q Tier B · interleave 25% · U5 full floor footnote.  
+7. **GTM:** licensed on-prem structure runtime · bake optional.  
+8. **Ask:** evaluation license + design partner track.
+
+---
+
+## Soft raise (filled — do not pause these)
+
+Full memo: [`SOFT_RAISE_POSTURE_20260714.md`](./SOFT_RAISE_POSTURE_20260714.md)
+
+| Keep running | Deferred (not blocking soft contact) |
+|--------------|--------------------------------------|
+| U1–U4 Unique-first narrative | Hard process scored as LoCoMo/SaaS |
+| Design-partner / eval ask | Interleave QA perfection / LoCoMo SOTA |
+| Architecture figure on Pages | U5 cost@floor as lead |
+| Metric-layer hygiene (protocol holdout ≠ industry LoCoMo) | FRAMES / LongMemEval harnesses |
+| Demo 3-min beats | Paying customers requirement for first intro |
+
+Pages: `#architecture` · `#raise` · SVG `valhalla-unified-core/assets/architecture.svg`
 
 ---
 
@@ -96,11 +115,11 @@ Capital comps: Engram’s ~$98M is a **token-economics / learned memory** story 
 | Proactive + abstain | MAR 1.0 · FIR 0.0 · PPI 0.65 | U2 / proactive-agency | unique + proactive reports |
 | Pollution rescue | +38.7pp | U3 / TPI | training_potential / unique |
 | Backbone orthogonality | VALHALLA_BASE_INDEPENDENT | U4 | `valhalla_independence_test.json` |
-| Theme continuity | drift 0% · retention 100% | fate-longchain-unified-v5 | `fate_longchain_unified.json` |
+| Theme continuity | drift 0% · retention 100% · holdout 100% (n=3) | fate-longchain-unified-v5 · fragment_full | `fate_longchain_unified.json` + canonical legitimacy |
 | Faithfulness | 38/40 · 88/100 | ragtruth-v1 | industry reports |
 | Legitimacy gate | 13/13 citeable (live audit) | audit_benchmark_legitimacy | run locally |
 
-**Pre-registered non-claims:** LoCoMo SOTA vs Mem0 · LongMemEval win · U5 lead · holdout QA 100% on fragment_full.
+**Pre-registered non-claims:** LoCoMo SOTA vs Mem0 · LongMemEval win · U5 lead · holdout 100% **as industry LoCoMo** · unlabeled remix of pre-fix **33%** as current.
 
 ---
 

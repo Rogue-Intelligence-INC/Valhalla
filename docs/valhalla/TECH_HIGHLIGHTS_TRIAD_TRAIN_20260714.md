@@ -5,7 +5,9 @@
 **Not claimed:** cortical organ nameplate · LM SGD as the default product path
 
 > **Read first:** many cited properties are **consequences of design**, then measured.  
-> See [`DESIGN_TO_PROPERTIES_20260714.md`](./DESIGN_TO_PROPERTIES_20260714.md) — **D**esigned / **E**mergent / **P**roof layers.
+> See [`DESIGN_TO_PROPERTIES_20260714.md`](./DESIGN_TO_PROPERTIES_20260714.md) — **D**esigned / **E**mergent / **P**roof layers.  
+> **Unified scorecard:** `reports/valhalla_inference/PROOF_SCORECARD.md` · **17/17 PROVEN** · `TECHNICAL_CORE_FULLY_PROVEN`  
+> Reproduce: `./scripts/run_technical_core_proof_suite.sh --fast`
 
 ---
 

@@ -1,114 +1,33 @@
 {
-  "timestamp": "2026-07-13T23:52:16.700548+00:00",
+  "timestamp": "2026-07-14T03:12:55.442745+00:00",
   "protocol": "unique-proof-suite-v1",
   "scale": "fast",
   "experiments": [
     {
-      "id": "U1",
-      "name": "non_isolated_multimodal",
+      "id": "U5",
+      "name": "cost_at_floor",
       "pass": true,
       "citeable": true,
       "peer_status": {
-        "mem0": "SKIP_NO_SHARED_BODY",
-        "letta": "SKIP_NO_SHARED_BODY",
-        "zep": "SKIP_NO_SHARED_BODY",
-        "note": "Peers store modalities as separate memories / late-fuse in prompt; no Triad shared body."
+        "rag_full_resend": "FULL_CORPUS_EACH_TURN",
+        "mem0": "REINJECT_RETRIEVED_TEXT",
+        "note": "Cite cost only when on-topic floor holds."
       },
-      "verdict": "NON_ISOLATED_BETTER",
+      "verdict": "COST_RATIO_PASS_ACC_DEVELOPING",
       "metrics": {
-        "avg_shared_patch_isolated": 0.9684721809432261,
-        "avg_shared_patch_non_isolated": 0.9999484330112433,
-        "delta": 0.0315,
-        "non_isolated_wins": 12,
-        "sample_count": 12
+        "on_topic_rate": 0.55,
+        "prefill_ratio_vs_rag_full": 0.291,
+        "wire_ratio": 0.163,
+        "floor_full": false,
+        "floor_fast": true
       },
-      "source": "valhalla-unified-core/reports/cross_modal_test_summary.json",
-      "cached": true
-    },
-    {
-      "id": "U2",
-      "name": "proactive_gate",
-      "pass": true,
-      "citeable": true,
-      "peer_status": {
-        "mem0": "SKIP_NO_FOG",
-        "letta": "SKIP_NO_FOG",
-        "zep": "SKIP_NO_FOG",
-        "note": "Peers are pull-on-query or app cron; no algebraic emit/abstain gate."
-      },
-      "verdict": "PROACTIVE_ABSTAIN_PASS",
-      "metrics": {
-        "UP_on_topic": 0.0,
-        "MAR": 1.0,
-        "FIR": 0.0,
-        "PPI_v2": 0.65,
-        "gates_ok": true,
-        "emit_ok": false,
-        "abstain_ok": true
-      },
-      "source": "reports/valhalla_inference/proactive_fate_v2_test.json",
-      "raw_verdict": [
-        "PROACTIVE_FATE_V2_VIABLE",
-        "LOW_MISMATCH_INTERRUPT",
-        "NO_HALLUCINATION_ON_MISMATCH",
-        "GATES_OK"
-      ]
-    },
-    {
-      "id": "U3",
-      "name": "pollution_rescue_tpi",
-      "pass": true,
-      "citeable": true,
-      "peer_status": {
-        "mem0": "SKIP_NO_TRANSFER_PROTOCOL",
-        "letta": "SKIP_NO_TRANSFER_PROTOCOL",
-        "zep": "SKIP_NO_TRANSFER_PROTOCOL",
-        "note": "Search-all / block dump has no targeted transfer-vs-polluted curriculum protocol."
-      },
-      "verdict": "POLLUTION_RESCUE_PASS",
-      "metrics": {
-        "transfer_vs_polluted_pp": 38.70967741935484,
-        "transfer_accuracy": 0.8709677419354839,
-        "polluted_accuracy": 0.4838709677419355,
-        "reused": true
-      },
-      "source": "reports/valhalla_inference/valhalla_base_training_potential_test_v2.json",
-      "cached": true
-    },
-    {
-      "id": "U4",
-      "name": "backbone_orthogonality",
-      "pass": true,
-      "citeable": true,
-      "peer_status": {
-        "mem0": "PROMPT_TIED_TO_LM",
-        "letta": "RUNTIME_TIED_TO_LM",
-        "zep": "ANSWER_VIA_LM",
-        "note": "Peer answers drift when the chat LM changes; Valhalla open path is structure-first."
-      },
-      "verdict": "VALHALLA_BASE_INDEPENDENT",
-      "metrics": {
-        "summary": {
-          "verdict": "VALHALLA_BASE_INDEPENDENT",
-          "backbones_tested": 3,
-          "backbones_total": 6,
-          "causal_tested": 3,
-          "causal_total": 4,
-          "appendix_count": 1,
-          "reference_accuracy": 1.0,
-          "independent": true,
-          "panel": "practical"
-        },
-        "reused": true
-      },
-      "source": "reports/valhalla_inference/valhalla_independence_test.json",
-      "cached": true
+      "source": "reports/valhalla_inference/token_efficiency_test.json"
     }
   ],
   "summary": {
-    "total": 4,
-    "passed": 4,
-    "citeable": 4
+    "total": 1,
+    "passed": 1,
+    "citeable": 1
   },
   "positioning": "unique-proof vs memory APIs — separate from industry LoCoMo same-Q"
 }

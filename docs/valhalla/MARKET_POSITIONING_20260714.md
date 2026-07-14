@@ -24,14 +24,18 @@ Sources informing this map (external): production memory framework surveys 2026 
 **Not another extract→store→search→inject memory API.**  
 **A structure-trainable body** — one Triad session incubates Hub / Tile / StemCell under Fate; LM is an optional decode head.
 
-**Technical highlights (2026-07-14) — technical core:**
-0. **Design → properties** map (`DESIGN_TO_PROPERTIES_20260714.md`) — D / E / P vocabulary  
-1. Fate `quad_cycle` + live Tile/Stem formation (`TRIAD_STRUCTURE_CYCLE_PASS`) — **D→E**  
-2. Natural-network topology vs ER / causal lesion (`NATURAL_NN_TOPOLOGY_PASS` · `NATURAL_NN_CAUSAL_PASS`) — **E**  
-3. Organ coalescence without preset catalog (`ORGAN_COALESCENCE_RUNTIME_PASS`) — **D→E**  
-4. Three-layer structure train (L1 zero-weight · L2 Fate pretrain · L3 HF bake) — **D**
+**Soft raise:** continue relationship / design-partner contact — `SOFT_RAISE_POSTURE_20260714.md`.  
+**Architecture figure:** `valhalla-unified-core/assets/architecture.svg` (Pages `#architecture`).
 
-See `TECH_HIGHLIGHTS_TRIAD_TRAIN_20260714.md` · `DESIGN_TO_PROPERTIES_20260714.md` · `NATURAL_NN_ORGAN_RUNTIME_20260714.md`.
+**Technical highlights (2026-07-14) — technical core:**
+0. **Proof scorecard** — 17 claims D/E/T/P/C · `TECHNICAL_CORE_FULLY_PROVEN` (`PROOF_SCORECARD.md`)  
+1. **Design → properties** map (`DESIGN_TO_PROPERTIES_20260714.md`) — D / E / P vocabulary  
+2. Fate `quad_cycle` + live Tile/Stem formation (`TRIAD_STRUCTURE_CYCLE_PASS`) — **D→E**  
+3. Natural-network topology vs ER / causal lesion (`NATURAL_NN_TOPOLOGY_PASS` · `NATURAL_NN_CAUSAL_PASS`) — **E**  
+4. Organ coalescence without preset catalog (`ORGAN_COALESCENCE_RUNTIME_PASS`) — **D→E**  
+5. Three-layer structure train (L1 zero-weight · L2 Fate pretrain · L3 HF bake) — **D**
+
+See `TECH_HIGHLIGHTS_TRIAD_TRAIN_20260714.md` · `DESIGN_TO_PROPERTIES_20260714.md` · `PROOF_SCORECARD.md`.
 
 | Peer frame | Valhalla response |
 |----------|-------------------|
@@ -50,7 +54,8 @@ See `TECH_HIGHLIGHTS_TRIAD_TRAIN_20260714.md` · `DESIGN_TO_PROPERTIES_20260714.
 | theme_drift / retention | **0% / 100%** (`fragment_full` production) | **Lead** (continuity) |
 | RAGTruth | **38/40** (fast industry) · **88/100** full slice in reports | Secondary |
 | Needle | Strong on session append | Secondary |
-| Holdout QA / LoCoMo absolute | **~33%** holdout · Tier B | Boundary only |
+| Holdout QA (protocol) | **100%** · fragment_full production · n=3 · [legitimacy](./CANONICAL_METRICS_20260714.md) | Cite with label |
+| Industry LoCoMo absolute | Tier B | Boundary — ≠ protocol holdout |
 | U5 cost@floor | Developing — **do not lead** | Boundary |
 
 Protocol inventory: [`BENCHMARK_STRATEGY_20260714.md`](./BENCHMARK_STRATEGY_20260714.md) · [`UNIQUE_VS_MEMORY_APIS.md`](./UNIQUE_VS_MEMORY_APIS.md)

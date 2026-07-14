@@ -67,6 +67,8 @@ Each experiment records: `verdict` · `citeable` · `peer_status` · metrics · 
 | Peer | RAG full-resend / Mem0 re-inject |
 | Pass | `on_topic_rate ≥ 0.80` **and** `prefill_tokens` ratio vs RAG full ≤ `0.35` |
 
+**Status (2026-07-14 fast):** citeable developing — `COST_RATIO_PASS_ACC_DEVELOPING` (on-topic ~0.55, prefill ratio ~0.29). Full floor (≥0.80) still open. Suite `--fast` uses `--max-turns 20` so the cost claim is reproducible without a full floor.
+
 ---
 
 ## Peer policy (honest)

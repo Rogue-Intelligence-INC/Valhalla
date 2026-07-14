@@ -72,6 +72,11 @@ curl -s -X POST http://127.0.0.1:8787/v1/infer \
 
 ## 6. Python-only batteries (still require Python harness)
 
+```bash
+pip install -e tools/valhalla_inference   # preferred import path
+# Multimodal / U1-style: ValhallaBase(**production_multimodal_kwargs())
+```
+
 | Test | Command |
 |------|---------|
 | RAGTruth 40Q | `python3 tools/valhalla_inference/test_ragtruth_v1.py` |

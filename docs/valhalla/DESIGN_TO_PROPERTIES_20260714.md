@@ -82,7 +82,7 @@ Clarify confusions that appear in reviews:
 2. **“Organ”** — not a catalog of named organs in code. Design refuses presets; coalescence is **allowed** and then **measured**.  
 3. **Empty top-level snapshot** — intentional compact export, not failure to form structure.  
 4. **Unique Proofs** — proof that the **design differs from memory APIs**, not that topology σ is higher than Mem0’s text graph.  
-5. **Holdout QA 33%** — not a design goal for the substrate wedge; continuity (drift/retention) is the designed longchain claim.
+5. **Holdout QA (historical 33% → live 100%)** — score moved after corpus-pin + content RelAddr holdout land; continuity (drift/retention) remains the designed longchain spine. Cite current numbers only from `CANONICAL_METRICS_20260714.md` (legitimacy box).
 
 ---
 
@@ -96,9 +96,44 @@ Clarify confusions that appear in reviews:
 Order of claims in docs/landing should stay:
 
 1. Design map (this file)  
-2. Technical core measurements (topology / organ / causal / train)  
-3. Unique Proofs U1–U4  
-4. Continuity secondary metrics  
+2. **Proof scorecard** (`reports/.../PROOF_SCORECARD.md`) — D/E/T/P/C grades  
+3. Technical core measurements (topology / organ / causal / train)  
+4. Unique Proofs U1–U4  
+5. Continuity secondary metrics  
+
+### Strengthened proof (2026-07-14)
+
+Unified harness:
+
+```bash
+python3 tools/valhalla_inference/run_technical_core_proof_suite.py --fast
+```
+
+Live: **17/17 PROVEN** · `TECHNICAL_CORE_FULLY_PROVEN`  
+Adds **design ablations** (quad vs semantic Hub balance; fragment layout) so D-properties are proven by knob contrast, not rhetoric.
+
+**Heavy investment** (more time · methods · information — not a checklist regrade):
+
+```bash
+./scripts/run_heavy_proof_invest.sh
+```
+
+| Knob | Fast / prior | Heavy investment |
+|------|--------------|------------------|
+| Corpus | ~24 lines | **~56** (mechanism + rich narrative + multimodal anchors) |
+| Organ pulses | 3–5 | **~18** age batches + recovery deepen series |
+| Topology ages | 4 | **~14** DIV-like stages · 48 ER nulls |
+| Causal | 2–3 seeds | **8** seeds · live-ask · post-lesion recovery timepoints |
+
+Report: `reports/valhalla_inference/PROOF_INVESTMENT_HEAVY.md`
+
+| Block | IDs | Method |
+|-------|-----|--------|
+| Design | D1–D5 | `design-ablation-v1` + manifold smoke |
+| Emergence | E1–E5 | topology · causal · organ runtime |
+| Train | T1–T2 | train proof smoke |
+| Unique | P1–P4 | Unique Proof suite U1–U4 |
+| Continuity | C1 | longchain drift/retention |
 
 ---
 

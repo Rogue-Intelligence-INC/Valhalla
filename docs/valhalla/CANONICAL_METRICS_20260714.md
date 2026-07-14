@@ -13,7 +13,14 @@ Many capabilities people notice are **designed first**, then **measured**. Vocab
 | **E** | Emergent under that design (measured, not hardcoded outcome) |
 | **P** | Product proof vs memory-API peers |
 
-Full map: [`DESIGN_TO_PROPERTIES_20260714.md`](./DESIGN_TO_PROPERTIES_20260714.md)
+Full map: [`DESIGN_TO_PROPERTIES_20260714.md`](./DESIGN_TO_PROPERTIES_20260714.md)  
+**Unified proof scorecard (17 claims):** `reports/valhalla_inference/PROOF_SCORECARD.md` · `TECHNICAL_CORE_FULLY_PROVEN`
+**Heavy investment (time+methods+info):** `reports/valhalla_inference/PROOF_INVESTMENT_HEAVY.md` · wall ~11min · 56-line corpus · 14 topology ages · 8 causal seeds + recovery
+
+
+```bash
+python3 tools/valhalla_inference/run_technical_core_proof_suite.py --fast
+```
 
 ## Lead (cite)
 
@@ -26,7 +33,36 @@ Full map: [`DESIGN_TO_PROPERTIES_20260714.md`](./DESIGN_TO_PROPERTIES_20260714.m
 | U4 orthogonality | `VALHALLA_BASE_INDEPENDENT` | U4 |
 | Longchain theme_drift | **0%** | `fate-longchain-unified-v5` · `fragment_full` |
 | Longchain retention | **100%** | same |
+| Longchain holdout QA | **100%** (3/3) | same · production **128L** pin-evidence · see **Legitimacy** |
+| Longchain interleave QA | **75%** (3/4) | same · content land egress (was 25%) |
+| Longchain composite | **≈0.882** | continuity-weighted |
 | RAGTruth (live industry) | **38/40** · full cache **88/100** | ragtruth-v1 |
+
+## Legitimacy (why numbers moved · how to cite)
+
+**SSOT:** this file. Landing / diligence / paper pages must match these rows. Archive reports that still say holdout **33%** / composite **≈0.589** / interleave **25%** are **pre-opt snapshots** — label them historical, do not remix as “current.”
+
+| Snapshot | Cite | What changed (must disclose if asked) |
+|----------|------|----------------------------------------|
+| ≤ morning 2026-07-14 | holdout 33% · interleave 25% · composite ≈0.589 | Truncate-before-cap starved evidence; sticky address-schedule |
+| mid-day (pin + holdout egress) | holdout 100% · interleave 25% · composite ≈0.822 | Pin-evidence corpus + holdout content RelAddr egress |
+| **now (opt)** | holdout **100%** · interleave **75%** · composite **≈0.882** | + content-gate schedule · interleave content land · tighter temporal scoring (camping ≠ charity-race) |
+
+**Still true / still separate:**
+
+| Claim | Status |
+|-------|--------|
+| theme_drift **0%** · retention **100%** | Unchanged lead continuity |
+| Interleave residual (1/4) | `LOCO_0_6` June camping plan still miss — developing |
+| Industry LoCoMo / MultiHop vs Mem0 | Still Tier B — **≠** protocol holdout |
+| U5 full on-topic floor (≥0.80) | Still open (fast citeable developing only) |
+| Holdout **n=3** / interleave **n=4** | Small slices — protocol passes, not market SOTA |
+| Soft scorer edges | Some interleave True without gold substring (evidence path) — keep auditing |
+
+**Land-opt audit (same logic elsewhere):** [`LAND_OPT_AUDIT_20260714.md`](./LAND_OPT_AUDIT_20260714.md)
+
+**Reproduce:** `python3 tools/valhalla_inference/test_fate_longchain_unified.py --production`  
+**Artifact:** `reports/valhalla_inference/fate_longchain_unified.json` + `FATE_LONGCHAIN_UNIFIED.md` (top table = current).
 
 ## Technical highlights (mechanism — publish with Unique Proofs)
 
@@ -46,19 +82,18 @@ Honest bound: Tile/Stem are **structure substrate**, not differentiated cortical
 ## Secondary / Tier B (publish, do not lead)
 
 | Claim | Value | Note |
-|-------|--------|------|
-| Longchain holdout QA | **33%** | fragment_full production |
-| Longchain interleave | **25%** | same |
-| Longchain composite | **≈0.589** | continuity-weighted |
-| U5 cost@floor | **Developing** | prefill ~0.29× exists; accuracy floor not met — **not Unique Proof lead** |
-| LoCoMo / MultiHop absolute | Tier B | Not vs-Mem0 SOTA |
+|-------|-------|------|
+| U5 cost@floor | **Citeable developing** | prefill ~0.29× · on-topic ~0.55 (fast); full floor ≥0.80 open — **not Unique Proof lead** |
+| LoCoMo / MultiHop absolute | Tier B | Industry same-Q vs Mem0 — not Unique Proof |
 
 ## Forbidden public phrasing
 
 - “Unique Proofs **5/5**” (lead suite is U1–U4)
 - “RAGTruth **100/100**” as *current* headline (superseded; use 38/40 · 88/100)
-- “Longchain composite **0.95** / holdout **100%**” without saying **v1 minimal historical**
+- “Longchain composite **0.95**” as current (that was **v1 minimal historical**)
 - “Beat Mem0 on LoCoMo / LongMemEval”
+- “Holdout 100%” **without** saying `fate-longchain-unified-v5` · `fragment_full` production (and without separating industry LoCoMo)
+- Remixing **pre-fix 33%** tables as if they were the current live result
 
 ## Reproduction
 
