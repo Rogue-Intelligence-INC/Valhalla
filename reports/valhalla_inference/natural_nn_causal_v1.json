@@ -1,0 +1,243 @@
+{
+  "protocol": "natural-nn-causal-v1",
+  "timestamp": "2026-07-14T02:17:04.521248+00:00",
+  "references": [
+    {
+      "id": "Muldoon2016",
+      "metric": "Small-World Propensity φ"
+    },
+    {
+      "id": "Downes2012",
+      "metric": "development + significance vs null"
+    },
+    {
+      "id": "Soligo2025",
+      "metric": "module detection + intervention/ablation"
+    },
+    {
+      "id": "config_model",
+      "metric": "degree-preserving edge-swap surrogate"
+    }
+  ],
+  "seeds": [
+    {
+      "seed": 0,
+      "organ": {
+        "cell_count": 64,
+        "dominant_type": "proto:e5_v4_d7",
+        "purity": 0.6562,
+        "mean_cosine": 0.0,
+        "same_type_coalescence": true
+      },
+      "organ_n_members": 64,
+      "topology": {
+        "n": 102,
+        "e": 224,
+        "avg_degree": 4.3922,
+        "C": 0.4085,
+        "L": 6.1558,
+        "C_er": 0.0416,
+        "L_er": 3.2282,
+        "C_cfg": 0.0544,
+        "L_cfg": 2.3115,
+        "C_lattice": 0.5,
+        "sigma_vs_ER": 5.1548,
+        "sigma_vs_config": 2.8171,
+        "phi_SWP": 0.3458,
+        "p_clustering_ge_obs_under_config": 0.0,
+        "nonrandom_vs_config": true,
+        "phi_ge_0_6": false
+      },
+      "arms": {
+        "intact": {
+          "mean_alignment": 1.0726,
+          "mean_organ_channel": 0.0081,
+          "mean_gold_rank": 5.0,
+          "n_edges": 224,
+          "n_clusters": 1,
+          "structure_mass": 234.4952,
+          "organ_present": true
+        },
+        "organ_lesion": {
+          "mean_alignment": 1.0873,
+          "mean_organ_channel": 0.0,
+          "mean_gold_rank": 5.0,
+          "n_edges": 0,
+          "n_clusters": 0,
+          "structure_mass": 0.0,
+          "organ_present": false
+        },
+        "degree_rewire": {
+          "mean_alignment": 1.0726,
+          "mean_organ_channel": 0.0081,
+          "mean_gold_rank": 5.0,
+          "n_edges": 224,
+          "n_clusters": 1,
+          "structure_mass": 234.4952,
+          "organ_present": true
+        }
+      },
+      "causal": {
+        "drop_organ_channel_lesion": 0.0081,
+        "drop_organ_channel_rewire": 0.0,
+        "mass_drop_lesion": 234.4952,
+        "mass_drop_rewire": 0.0,
+        "lesion_hurts_more_than_rewire": true,
+        "intact_better_gold_rank": true
+      }
+    },
+    {
+      "seed": 1,
+      "organ": {
+        "cell_count": 64,
+        "dominant_type": "proto:e5_v4_d7",
+        "purity": 0.6562,
+        "mean_cosine": 0.0,
+        "same_type_coalescence": true
+      },
+      "organ_n_members": 64,
+      "topology": {
+        "n": 100,
+        "e": 224,
+        "avg_degree": 4.48,
+        "C": 0.4167,
+        "L": 6.1558,
+        "C_er": 0.0394,
+        "L_er": 3.193,
+        "C_cfg": 0.0564,
+        "L_cfg": 2.3136,
+        "C_lattice": 0.5,
+        "sigma_vs_ER": 5.4858,
+        "sigma_vs_config": 2.7779,
+        "phi_SWP": 0.3334,
+        "p_clustering_ge_obs_under_config": 0.0,
+        "nonrandom_vs_config": true,
+        "phi_ge_0_6": false
+      },
+      "arms": {
+        "intact": {
+          "mean_alignment": 1.0903,
+          "mean_organ_channel": 0.0081,
+          "mean_gold_rank": 5.0,
+          "n_edges": 224,
+          "n_clusters": 1,
+          "structure_mass": 234.4952,
+          "organ_present": true
+        },
+        "organ_lesion": {
+          "mean_alignment": 1.1051,
+          "mean_organ_channel": 0.0,
+          "mean_gold_rank": 5.0,
+          "n_edges": 0,
+          "n_clusters": 0,
+          "structure_mass": 0.0,
+          "organ_present": false
+        },
+        "degree_rewire": {
+          "mean_alignment": 1.0903,
+          "mean_organ_channel": 0.0081,
+          "mean_gold_rank": 5.0,
+          "n_edges": 224,
+          "n_clusters": 1,
+          "structure_mass": 234.4952,
+          "organ_present": true
+        }
+      },
+      "causal": {
+        "drop_organ_channel_lesion": 0.0081,
+        "drop_organ_channel_rewire": 0.0,
+        "mass_drop_lesion": 234.4952,
+        "mass_drop_rewire": 0.0,
+        "lesion_hurts_more_than_rewire": true,
+        "intact_better_gold_rank": true
+      }
+    },
+    {
+      "seed": 2,
+      "organ": {
+        "cell_count": 64,
+        "dominant_type": "proto:e5_v4_d7",
+        "purity": 0.6562,
+        "mean_cosine": 0.0,
+        "same_type_coalescence": true
+      },
+      "organ_n_members": 64,
+      "topology": {
+        "n": 100,
+        "e": 224,
+        "avg_degree": 4.48,
+        "C": 0.4167,
+        "L": 6.1558,
+        "C_er": 0.039,
+        "L_er": 3.1783,
+        "C_cfg": 0.0591,
+        "L_cfg": 2.3161,
+        "C_lattice": 0.5,
+        "sigma_vs_ER": 5.516,
+        "sigma_vs_config": 2.6548,
+        "phi_SWP": 0.3272,
+        "p_clustering_ge_obs_under_config": 0.0,
+        "nonrandom_vs_config": true,
+        "phi_ge_0_6": false
+      },
+      "arms": {
+        "intact": {
+          "mean_alignment": 1.0738,
+          "mean_organ_channel": 0.0081,
+          "mean_gold_rank": 5.0,
+          "n_edges": 224,
+          "n_clusters": 1,
+          "structure_mass": 234.4952,
+          "organ_present": true
+        },
+        "organ_lesion": {
+          "mean_alignment": 1.0885,
+          "mean_organ_channel": 0.0,
+          "mean_gold_rank": 5.0,
+          "n_edges": 0,
+          "n_clusters": 0,
+          "structure_mass": 0.0,
+          "organ_present": false
+        },
+        "degree_rewire": {
+          "mean_alignment": 1.0738,
+          "mean_organ_channel": 0.0081,
+          "mean_gold_rank": 5.0,
+          "n_edges": 224,
+          "n_clusters": 1,
+          "structure_mass": 234.4952,
+          "organ_present": true
+        }
+      },
+      "causal": {
+        "drop_organ_channel_lesion": 0.0081,
+        "drop_organ_channel_rewire": 0.0,
+        "mass_drop_lesion": 234.4952,
+        "mass_drop_rewire": 0.0,
+        "lesion_hurts_more_than_rewire": true,
+        "intact_better_gold_rank": true
+      }
+    }
+  ],
+  "summary": {
+    "n_seeds": 3,
+    "phi_SWP_mean": 0.3355,
+    "phi_note": "supporting (Muldoon φ≳0.6 is literature convention; not sole gate)",
+    "p_config_mean": 0.0,
+    "fraction_nonrandom_vs_config": 1.0,
+    "fraction_causal_lesion_gt_rewire": 1.0,
+    "mean_drop_organ_channel_lesion": 0.0081,
+    "mean_drop_organ_channel_rewire": 0.0,
+    "mean_mass_drop_lesion": 234.4952,
+    "mean_mass_drop_rewire": 0.0,
+    "morphology_ok": true,
+    "causal_ok": true,
+    "verdict": "NATURAL_NN_CAUSAL_PASS",
+    "honest_bounds": {
+      "nulls": "config edge-swap + ER + lattice for SWP φ (Muldoon-inspired)",
+      "causal": "organ-channel (native weight 0.12) lesion vs degree-matched rewire + structure mass",
+      "not_claimed": "named cortical organs; live Mem0 API σ bake-off"
+    }
+  },
+  "verdict": "NATURAL_NN_CAUSAL_PASS"
+}
