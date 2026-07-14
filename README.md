@@ -36,18 +36,18 @@ ValhallaBase is a **body**: incubate structure once, then gate, retrieve, and op
 | **Fate-gated proactive + abstain** — `proactive_idle` · FOG emit/refuse | **Yes** · MAR **1.0** · FIR **0.0** | Pull-on-query / app cron / no algebraic gate |
 | **Zero-weight pollution rescue** — TPI transfer vs polluted dump | **Yes** · **+38.7pp** | Search-all stays polluted |
 | **Backbone-orthogonal open path** — swap LM, structure holds | **Yes** · `VALHALLA_BASE_INDEPENDENT` | Prompt/runtime tied to LM |
-| **Structure-cost append** — wire/prefill ≪ full resend | **Yes** · prefill **0.29×** RAG | Full resend / re-inject retrieved text |
+| **Structure-cost append** — wire/prefill ≪ full resend | **Secondary** · ~0.29× when floor met (U5 developing) | Full resend / re-inject retrieved text |
 
-Full matrix: [`docs/valhalla/UNIQUE_VS_MEMORY_APIS.md`](docs/valhalla/UNIQUE_VS_MEMORY_APIS.md)
+Full matrix: [`docs/valhalla/UNIQUE_VS_MEMORY_APIS.md`](docs/valhalla/UNIQUE_VS_MEMORY_APIS.md) · Canonical numbers: [`docs/valhalla/CANONICAL_METRICS_20260714.md`](docs/valhalla/CANONICAL_METRICS_20260714.md)
 
 <a name="prove-unique"></a>
 ### Prove unique capabilities (lead suite)
 
 ```bash
-./scripts/run_unique_proofs.sh --fast   # U1–U5 · ~minutes
+./scripts/run_unique_proofs.sh --fast --only U1,U2,U3,U4
 ```
 
-**Latest `--fast` (2026-07-14): 5/5 pass · 5/5 citeable** — [`UNIQUE_PROOF_SUITE.md`](reports/valhalla_inference/UNIQUE_PROOF_SUITE.md)
+**Latest `--fast` (2026-07-14): U1–U4 = 4/4 pass · 4/4 citeable** — [`UNIQUE_PROOF_SUITE.md`](reports/valhalla_inference/UNIQUE_PROOF_SUITE.md)
 
 | ID | Claim | Verdict |
 |----|-------|---------|
@@ -55,7 +55,7 @@ Full matrix: [`docs/valhalla/UNIQUE_VS_MEMORY_APIS.md`](docs/valhalla/UNIQUE_VS_
 | U2 | FOG proactive / abstain | `PROACTIVE_ABSTAIN_PASS` |
 | U3 | Pollution rescue (TPI) | `POLLUTION_RESCUE_PASS` (+38.7pp) |
 | U4 | Backbone orthogonality | `VALHALLA_BASE_INDEPENDENT` |
-| U5 | Cost @ floor | `COST_RATIO_PASS_ACC_DEVELOPING` (0.29× · on-topic 60% fast) |
+| U5 | Cost @ floor | **Secondary / developing** — do not lead |
 
 Protocol: [`UNIQUE_PROOF_MICROBENCH.md`](docs/valhalla/UNIQUE_PROOF_MICROBENCH.md)
 
@@ -104,9 +104,10 @@ Same-backbone compare is **not** our wedge — we publish it so diligence isn’
 
 | Benchmark | Result |
 |-----------|--------|
-| RAGTruth-40 / 100 | **34/40 · 88/100** |
-| Needle | **4/4** |
-| Ablation RAGTruth | native/hybrid **34–37/40** vs LM/RAG **0/40** |
+| RAGTruth-40 / 100 | **38/40 · 88/100** |
+| Needle | Strong (session append; 4/4 on prior full needle suite) |
+| Ablation RAGTruth | native/hybrid **34–37/40** vs LM/RAG **0/40** (2026-07-13 evidence) |
+| Longchain continuity | theme_drift **0%** · retention **100%** (`fragment_full`) |
 
 ### Tier B open-QA / long context (boundary)
 

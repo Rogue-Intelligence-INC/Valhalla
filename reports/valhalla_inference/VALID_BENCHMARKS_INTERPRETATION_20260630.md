@@ -1,3 +1,5 @@
+> **HISTORICAL SNAPSHOT — not current diligence headline.** Canonical: [`../../docs/valhalla/CANONICAL_METRICS_20260714.md`](../../docs/valhalla/CANONICAL_METRICS_20260714.md). Lead: U1–U4 **4/4** · drift **0%** · retention **100%** · RAGTruth **38/40 · 88/100**.
+
 # 有效 Benchmark 解读 — 测了几次 · 对应什么 · 意味着什么 · 因为什么
 
 **Date:** 2026-06-30  

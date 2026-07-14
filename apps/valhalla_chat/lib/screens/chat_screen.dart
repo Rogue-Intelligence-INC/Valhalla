@@ -19,7 +19,11 @@ class _ChatScreenState extends State<ChatScreen> {
   final _contextInput = TextEditingController(
     text: 'ValhallaBase primary protocol is valhalla-base-v1.\n'
         'Production decode mode is hybrid with native retrieval for open QA.\n'
-        'Tier A RAGTruth score is 100 out of 100 grounded answers.',
+        'Unique Proofs U1–U4 are the lead citeable suite (4 of 4 on 2026-07-14).\n'
+        'RAGTruth industry faithfulness is 38 out of 40 on the latest fast slice.\n'
+        'Longchain continuity: theme drift 0 percent and anchor retention 100 percent.\n'
+        'Proactive agency uses Fate signal_tick gating with MAR cross-domain abstain.\n'
+        'Session append sends ~64 bytes per turn instead of full prompt replay.',
   );
   final _scroll = ScrollController();
   final _urlInput = TextEditingController(text: 'http://127.0.0.1:8787');
@@ -318,6 +322,11 @@ class _TriadSidebar extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
+          StrengthsHudPanel(
+            state: ctrl.strengthsHud,
+            coreFusionEnabled: ctrl.coreFusion,
+          ),
+          const SizedBox(height: 10),
           ModelStatusPanel(state: ms),
           const SizedBox(height: 10),
           HubQuadPanel(prefs: ms.hubPrefs, routed: ms.hubRouted),

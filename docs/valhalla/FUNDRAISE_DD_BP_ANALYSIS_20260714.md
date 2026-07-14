@@ -54,7 +54,17 @@ Capital comps: Engram’s ~$98M is a **token-economics / learned memory** story 
 
 ---
 
-## 4. DD pack gaps to close (engineering)
+## 4. DD pack gaps (status 2026-07-14 scrub)
+
+1. Living docs scrubbed for “5/5” / “RAGTruth 100/100” / mislabeled 0.95.  
+2. Historical summaries bannered.  
+3. `--production --minimal-corpus` ablation restored.  
+4. Paper abstract Unique-first.  
+5. FRAMES full / LongMemEval harnesses still pending.
+
+### Prior engineering checklist
+
+
 
 1. Refresh `EN_ENGINEERING_DUE_DILIGENCE.md` claims table with Unique Proof protocols (done via §A).  
 2. Keep FRAMES offline unless wiki prefetched.  

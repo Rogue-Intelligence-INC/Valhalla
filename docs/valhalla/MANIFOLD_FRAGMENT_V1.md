@@ -70,7 +70,7 @@ question → rank fragments (affinity) → merge top-k → QA pulse → decode
 
 | Benchmark | 结果 |
 |-----------|------|
-| RAGTruth / RAGTruth-100 | 40/40 · 100/100 |
+| RAGTruth / RAGTruth-100 | 38/40 · 88/100 (canonical 2026-07-14; older 100/100 was prior suite) |
 | Needle / RULER | 4/4 · 20/20 |
 | External holdout | 15/15 |
 | MultiHop hybrid | **16/25 (64%)** |

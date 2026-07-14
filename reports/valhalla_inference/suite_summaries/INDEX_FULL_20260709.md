@@ -1,3 +1,5 @@
+> **HISTORICAL SNAPSHOT — not current diligence headline.** Canonical: [`../../docs/valhalla/CANONICAL_METRICS_20260714.md`](../../docs/valhalla/CANONICAL_METRICS_20260714.md).
+
 # Valhalla Inference — 全套件运行汇总（2026-07-09 最终）
 
 - **Runner:** `run_suite_sequential.py --all` + `run_industry_benchmarks.py --all` + `run_proactive_agency_full.sh`

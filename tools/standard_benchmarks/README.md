@@ -105,7 +105,7 @@ Full write-up: [`INDUSTRY_BENCHMARKS_20260630.md`](../../reports/valhalla_infere
 
 | Benchmark | Tier | Result | Verdict |
 |-----------|------|--------|---------|
-| RAGTruth 40Q (×2) / 100Q | A | **40/40 · 100/100** | RAGTRUTH_STRONG |
+| RAGTruth 40Q / 100Q | A | **38/40 · 88/100** (canonical 2026-07-14) | RAGTRUTH_STRONG |
 | Needle (×2) + RULER | A | **4/4 · 20/20** | NEEDLE_STRONG |
 | MCQ ladder 46Q | A | **65%→98%** | MCQ_LADDER_SCALES |
 | External holdout | A | **15/15** | EXTERNAL_HOLDOUT_STRONG |

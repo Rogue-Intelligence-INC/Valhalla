@@ -1,3 +1,5 @@
+> **HISTORICAL SNAPSHOT — not current diligence headline.** Canonical: [`../../docs/valhalla/CANONICAL_METRICS_20260714.md`](../../docs/valhalla/CANONICAL_METRICS_20260714.md). Lead: U1–U4 **4/4** · drift **0%** · retention **100%** · RAGTruth **38/40 · 88/100**.
+
 # ValhallaBase Benchmark Summary — 2026-07-10
 
 **Product:** Backbone-agnostic structure memory · LM = decode head only  

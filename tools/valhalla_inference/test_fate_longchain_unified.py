@@ -25,6 +25,41 @@ REPORTS = REPO / "reports" / "valhalla_inference"
 BIN = REPO / "target" / "release" / "valhalla_base"
 SPEC = REPO / "tools/standard_benchmarks/bundled/fate_longchain_unified_locomo.json"
 
+sys.path.insert(0, str(REPO / "tools" / "valhalla_inference"))
+from benchmark_env import apply_gpu_env, apply_resource_budget, release_resources  # noqa: E402
+
+LOCK = REPO / "reports" / "valhalla_inference" / ".fate_longchain_unified.lock"
+
+
+def _acquire_lock() -> int:
+    """Exclusive flock — refuse concurrent longchain runs (VRAM / RAM contention)."""
+    import fcntl
+
+    LOCK.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(str(LOCK), os.O_CREAT | os.O_RDWR, 0o644)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        os.close(fd)
+        raise SystemExit(
+            f"another fate-longchain-unified run holds {LOCK}; refuse concurrent execution"
+        )
+    os.write(fd, f"{os.getpid()}\n".encode())
+    return fd
+
+
+def _release_lock(fd: int) -> None:
+    import fcntl
+
+    try:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+    finally:
+        os.close(fd)
+        try:
+            LOCK.unlink(missing_ok=True)
+        except OSError:
+            pass
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -71,9 +106,18 @@ def main() -> int:
         args.low_resource = True
         args.enhanced = True
         args.hybrid = True
-        args.fragment_full = True
+        # Default substrate = fragment_full; allow --minimal-corpus as ablation.
+        if args.minimal_corpus:
+            args.fragment_full = False
+            print(
+                "[info] --production --minimal-corpus: qa_adaptive_minimal ablation",
+                flush=True,
+            )
+        else:
+            args.fragment_full = True
+            args.minimal_corpus = False
         if args.max_lines == 0:
-            args.max_lines = 64
+            args.max_lines = 64 if args.fragment_full else 42
         if args.chunk_size == 64:
             args.chunk_size = 32
         if args.max_epochs is None:
@@ -128,22 +172,60 @@ def main() -> int:
         cmd.append("--fragment-full")
 
     print(" ".join(cmd), flush=True)
-    env = {**os.environ, "RUSTFLAGS": "-L /opt/cuda/lib64"}
+    # Kill any stale valhalla_base demos before starting (single occupant).
+    subprocess.run(
+        ["pkill", "-f", "valhalla_base demo fate-longchain-unified"],
+        capture_output=True,
+        check=False,
+    )
+    lock_fd = _acquire_lock()
+    apply_gpu_env()
+    env = apply_resource_budget()
     env.setdefault("VALHALLA_INGRESS_RESOURCE_PERCENT", "50" if args.production else "70")
-    if args.low_resource or args.smoke:
+    if args.production or args.fragment_full:
+        # Dynamic-fragment primary: keep density segs; do not fate_link mega-merge.
+        env.setdefault("VALHALLA_FATE_LINK_FRAGMENTS", "0")
+        env.setdefault("VALHALLA_FRAGMENT_CHUNK_STRIDE", "8")
+        env.setdefault("VALHALLA_FRAGMENT_MAX_LINES", "24")
+        # Clear prior ablation overrides from this shell if any.
+        env.pop("VALHALLA_FRAGMENT_MIN_LINES", None)
+        env.pop("VALHALLA_FRAGMENT_DENSITY_DROP", None)
+        env["VALHALLA_FRAGMENT_FLOW_DEBUG"] = env.get(
+            "VALHALLA_FRAGMENT_FLOW_DEBUG", "1"
+        )
+    if args.low_resource or args.smoke or args.production:
         env.setdefault("VALHALLA_INGRESS_MAX_ITEMS", "48")
+        env.setdefault("VALHALLA_FUSION_ROUND_CAP", "1")
+        env.setdefault("VALHALLA_ROLLBACK_DEPTH_CAP", "2")
+        env.setdefault("VALHALLA_LM_CACHE_MAX", "1")
+        env.setdefault("VALHALLA_HYBRID_OPEN_LM_FALLBACK", "0")
+    stream = args.production or args.verbose
     try:
-        proc = subprocess.run(cmd, cwd=REPO, capture_output=True, text=True, env=env, timeout=600)
+        proc = subprocess.run(
+            cmd,
+            cwd=REPO,
+            env=env,
+            timeout=900,
+            **({} if stream else {"capture_output": True, "text": True}),
+        )
     except subprocess.TimeoutExpired:
-        print("fate-longchain-unified timed out (600s)", file=sys.stderr)
+        print("fate-longchain-unified timed out (900s)", file=sys.stderr)
+        release_resources()
+        _release_lock(lock_fd)
         return 1
-    if args.verbose or args.low_resource or args.enhanced:
+    except Exception:
+        _release_lock(lock_fd)
+        raise
+    if not stream and (args.verbose or args.low_resource or args.enhanced):
         if proc.stdout:
             print(proc.stdout)
         if proc.stderr:
             print(proc.stderr, file=sys.stderr)
     if proc.returncode != 0:
-        print(proc.stderr or proc.stdout, file=sys.stderr)
+        if not stream:
+            print(proc.stderr or proc.stdout, file=sys.stderr)
+        release_resources()
+        _release_lock(lock_fd)
         return proc.returncode
 
     out = REPORTS / "fate_longchain_unified.json"
@@ -169,6 +251,8 @@ def main() -> int:
             f"base={row.get('baseline_tags')} → reprobe={row.get('reprobe_tags')}"
         )
     print(f"→ {out}")
+    release_resources()
+    _release_lock(lock_fd)
     return 0
 
 

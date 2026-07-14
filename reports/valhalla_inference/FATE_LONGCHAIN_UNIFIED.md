@@ -252,7 +252,7 @@ python3 tools/valhalla_inference/test_fate_longchain_unified.py --production
 
 ---
 
-## 6b. 历史结果（v1 low-resource targeted · 勿与 production 混引）
+## 6b. 历史结果（v1 low-resource targeted · **HISTORICAL ONLY** · 勿与 fragment_full production 混引）
 
 | 指标 | 值 | 解读 |
 |------|-----|------|
@@ -263,7 +263,7 @@ python3 tools/valhalla_inference/test_fate_longchain_unified.py --production
 | context_pollution_rate | **0%** | 无 D10+ recency 污染 |
 | interleave_pass | **100%** | 中间长链 4 题全对 |
 | holdout_pass | **100%** | Phase D 全对（charity-race 用 isolated holdout） |
-| **composite_score** | **0.950** | 综合优秀 |
+| **composite_score** | **0.950** | **历史 v1 minimal** — 非 2026-07-14 production |
 
 ### Phase D Holdout 策略（2026-07-09 修复）
 

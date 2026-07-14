@@ -26,7 +26,9 @@
 ```text
 ValhallaBase primary protocol is valhalla-base-v1.
 Production decode mode is hybrid with native retrieval for open QA.
-Tier A RAGTruth score is 100 out of 100 grounded answers.
+Unique Proofs U1–U4 are the lead citeable suite (4/4 on 2026-07-14).
+RAGTruth industry faithfulness is 38 out of 40 on the latest fast slice (88/100 on the full cache).
+Longchain continuity: theme drift 0 percent and anchor retention 100 percent.
 Proactive agency uses Fate signal_tick gating with MAR cross-domain abstain.
 Session append sends ~64 bytes per turn instead of full prompt replay.
 ```
@@ -41,8 +43,8 @@ Session append sends ~64 bytes per turn instead of full prompt replay.
 | **0:12–0:28** | Settings (gear) → verify context → **Fate warmup** | "Corpus incubates into Triad snapshot — watch lines ingested and fate tick." |
 | **0:28–0:48** | Send Q1 | `What decode mode does ValhallaBase use?` |
 | | *Expect* | Answer cites corpus · path contains `open_retrieval` or `native` |
-| **0:48–1:05** | Send Q2 (session follow-up) | `What RAGTruth score was mentioned in our context?` |
-| | *Expect* | `100` or `100/100` · session append in protocol log |
+| **0:48–1:05** | Send Q2 (session follow-up) | `What Unique Proof lead count was mentioned in our context?` |
+| | *Expect* | `4/4` or `U1–U4` · session append in protocol log |
 | **1:05–1:25** | Enable **MULTIMODAL INGRESS** → **Load demo vectors** → Send Q3 | `Summarize the scene for the ingress pipeline.` |
 | | *Expect* | User bubble multimodal badge · `context_items` in protocol log |
 | **1:25–1:45** | Enable **Proactive** toggle · **Auto after turn** ON → Send Q4 | `Tell me more about session append.` |
