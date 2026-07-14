@@ -65,6 +65,25 @@ def apply_resource_budget() -> dict[str, str]:
     return env
 
 
+def apply_structure_parallel_policy(*, cuda: bool | None = None) -> dict[str, str]:
+    """Prefer CPU structure parallelism; keep CUDA LM outer-loop serial by default.
+
+    Sets VALHALLA_BENCH_PARALLEL only when unset and CUDA is unavailable (or
+    VALHALLA_USE_CPU=1). Never flips BENCH_PARALLEL_CUDA (VRAM-safe).
+    """
+    env = apply_resource_budget()
+    use_cpu = str(env.get("VALHALLA_USE_CPU", "")).strip() in ("1", "true", "TRUE", "yes")
+    if cuda is None:
+        cuda = not use_cpu and Path("/opt/cuda/lib64/libcudart.so").is_file()
+    if use_cpu or not cuda:
+        env.setdefault("VALHALLA_BENCH_PARALLEL", "4")
+        os.environ.setdefault("VALHALLA_BENCH_PARALLEL", "4")
+    else:
+        # Explicit serial unless operator opts in.
+        env.setdefault("VALHALLA_BENCH_SERIAL", env.get("VALHALLA_BENCH_SERIAL", "0"))
+    return env
+
+
 def release_lm_via_http(url: str | None = None) -> None:
     """POST /v1/release — drop serve-side LM weight cache."""
     base = (url or os.environ.get("VALHALLA_BASE_URL", "")).strip().rstrip("/")
@@ -95,6 +114,17 @@ def release_resources(*, port: int | None = None) -> None:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
             torch.cuda.synchronize()
+    except Exception:
+        pass
+
+
+def release_suite_resources(base_url: str | None = None) -> None:
+    """End-of-suite cleanup: LM cache release + GC hint for Python parents."""
+    release_lm_via_http(base_url)
+    try:
+        import gc
+
+        gc.collect()
     except Exception:
         pass
 

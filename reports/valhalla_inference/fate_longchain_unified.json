@@ -1,13 +1,12 @@
 {
-  "anchor_baseline_pass": 1.0,
+  "anchor_baseline_pass": 0.6666666666666666,
   "anchor_drift_rows": [
     {
-      "baseline_answer": "[corpus:0] [fate:10@0] [fate:168@2] Caroline: I went to a LGBTQ support group yesterday and it was so powerful",
+      "baseline_answer": "[corpus:6] [fate:34@6] Caroline: The support group has made me feel accepted and given me courage to embrace myself",
       "baseline_correct": true,
       "baseline_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:168@2"
+        "fate:@6",
+        "fate:34@6"
       ],
       "context_pollution": false,
       "evidence": [
@@ -15,24 +14,22 @@
       ],
       "id": "LOCO_0_0",
       "question": "When did Caroline go to the LGBTQ support group?",
-      "reprobe_answer": "[corpus:0] [fate:10@0] [fate:168@2] Caroline: I went to a LGBTQ support group yesterday and it was so powerful",
+      "reprobe_answer": "[corpus:6] [fate:34@6] Caroline: The support group has made me feel accepted and given me courage to embrace myself",
       "reprobe_correct": true,
       "reprobe_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:168@2"
+        "fate:@6",
+        "fate:34@6"
       ],
       "retained": true,
       "tag_drift": false,
       "theme_drift": false
     },
     {
-      "baseline_answer": "[corpus:0] [fate:10@0] [fate:208@12] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
+      "baseline_answer": "[corpus:13] [fate:62@13] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
       "baseline_correct": true,
       "baseline_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:208@12"
+        "fate:@13",
+        "fate:62@13"
       ],
       "context_pollution": false,
       "evidence": [
@@ -40,50 +37,47 @@
       ],
       "id": "LOCO_0_1",
       "question": "When did Melanie paint a sunrise?",
-      "reprobe_answer": "[corpus:0] [fate:10@0] [fate:208@12] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
+      "reprobe_answer": "[corpus:13] [fate:62@13] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
       "reprobe_correct": true,
       "reprobe_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:208@12"
+        "fate:@13",
+        "fate:62@13"
       ],
       "retained": true,
       "tag_drift": false,
       "theme_drift": false
     },
     {
-      "baseline_answer": "[corpus:0] [fate:10@0] [fate:196@9] Caroline: I'm keen on counseling or working in mental health - I'd love to support those with similar issues",
-      "baseline_correct": true,
+      "baseline_answer": "[corpus:63] [fate:262@63] Caroline: That bowl is awesome, Mel! What gave you the idea for all the colors and patterns?",
+      "baseline_correct": false,
       "baseline_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:196@9"
+        "fate:@63",
+        "fate:262@63"
       ],
-      "context_pollution": false,
+      "context_pollution": true,
       "evidence": [
         "D1:9",
         "D1:11"
       ],
       "id": "LOCO_0_2",
       "question": "What fields would Caroline be likely to pursue in her educaton?",
-      "reprobe_answer": "[corpus:0] [fate:10@0] [fate:196@9] Caroline: I'm keen on counseling or working in mental health - I'd love to support those with similar issues",
-      "reprobe_correct": true,
+      "reprobe_answer": "[corpus:63] [fate:262@63] Caroline: That bowl is awesome, Mel! What gave you the idea for all the colors and patterns?",
+      "reprobe_correct": false,
       "reprobe_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:196@9"
+        "fate:@63",
+        "fate:262@63"
       ],
-      "retained": true,
+      "retained": false,
       "tag_drift": false,
       "theme_drift": false
     }
   ],
-  "anchor_reprobe_pass": 1.0,
+  "anchor_reprobe_pass": 0.6666666666666666,
   "anchor_retention_rate": 1.0,
-  "composite_score": 0.6766666666666665,
+  "composite_score": 0.5891666666666666,
   "context_pollution_rate": 0.1,
-  "corpus_build": "qa_adaptive_minimal",
-  "corpus_lines": 42,
+  "corpus_build": "fragment_full",
+  "corpus_lines": 64,
   "corpus_mode": "qa_adaptive_fragment",
   "fairness": {
     "anchor_text_identical_reprobe": true,
@@ -92,19 +86,18 @@
     "scoring": "score_with_evidence (fate-pretrain-holdout-v1)",
     "single_session_no_reset": true
   },
-  "final_hub_spread": 1.5305359355216102,
+  "final_hub_spread": 1.4519475764411338,
   "holdout_pass": 0.3333333333333333,
-  "interleave_pass": 0.5,
+  "interleave_pass": 0.25,
   "low_resource": true,
   "phase_rows": [
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:168@2] Caroline: I went to a LGBTQ support group yesterday and it was so powerful",
+      "answer": "[corpus:6] [fate:34@6] Caroline: The support group has made me feel accepted and given me courage to embrace myself",
       "context_pollution": false,
       "correct": true,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:168@2"
+        "fate:@6",
+        "fate:34@6"
       ],
       "evidence": [
         "D1:3"
@@ -115,13 +108,12 @@
       "question": "When did Caroline go to the LGBTQ support group?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:208@12] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
+      "answer": "[corpus:13] [fate:62@13] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
       "context_pollution": false,
       "correct": true,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:208@12"
+        "fate:@13",
+        "fate:62@13"
       ],
       "evidence": [
         "D1:12"
@@ -132,13 +124,12 @@
       "question": "When did Melanie paint a sunrise?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:196@9] Caroline: I'm keen on counseling or working in mental health - I'd love to support those with similar issues",
-      "context_pollution": false,
-      "correct": true,
+      "answer": "[corpus:63] [fate:262@63] Caroline: That bowl is awesome, Mel! What gave you the idea for all the colors and patterns?",
+      "context_pollution": true,
+      "correct": false,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:196@9"
+        "fate:@63",
+        "fate:262@63"
       ],
       "evidence": [
         "D1:9",
@@ -150,13 +141,12 @@
       "question": "What fields would Caroline be likely to pursue in her educaton?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:268@27] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
+      "answer": "[corpus:13] [fate:62@13] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
       "context_pollution": false,
       "correct": true,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:268@27"
+        "fate:@13",
+        "fate:62@13"
       ],
       "evidence": [
         "D2:7"
@@ -167,13 +157,12 @@
       "question": "When is Melanie planning on going camping?"
     },
     {
-      "answer": "[corpus:7] [fate:38@7] [fate:288@32] Caroline: Wow, sounds wonderful! Your love for your kids is so awesome",
+      "answer": "[corpus:19] [fate:86@19] Melanie: Hey Caroline! Good to talk to you again",
       "context_pollution": false,
       "correct": false,
       "dialogue_tags": [
-        "fate:@7",
-        "fate:38@7",
-        "fate:288@32"
+        "fate:@19",
+        "fate:86@19"
       ],
       "evidence": [
         "D3:13",
@@ -185,13 +174,12 @@
       "question": "What is Caroline's relationship status?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:248@22] Caroline: Last weekend our city held a pride parade! So many people marched through the streets waving flags, holding signs and celebrating love and diversity",
+      "answer": "[corpus:16] [fate:74@16] Caroline: Totally agree, Mel",
       "context_pollution": false,
-      "correct": true,
+      "correct": false,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:248@22"
+        "fate:@16",
+        "fate:74@16"
       ],
       "evidence": [
         "D3:1"
@@ -202,13 +190,12 @@
       "question": "When did Caroline give a speech at a school?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:240@20] Caroline: Thanks, Melanie! It's awesome to have our own platform to be ourselves and support others' rights",
+      "answer": "[corpus:11] [fate:54@11] Melanie: You'd be a great counselor! Your empathy and understanding will really help the people you work with",
       "context_pollution": false,
       "correct": false,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:240@20"
+        "fate:@11",
+        "fate:54@11"
       ],
       "evidence": [
         "D3:11"
@@ -219,13 +206,12 @@
       "question": "When did Caroline meet up with her friends, family, and mentors?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:168@2] Caroline: I went to a LGBTQ support group yesterday and it was so powerful",
+      "answer": "[corpus:6] [fate:34@6] Caroline: The support group has made me feel accepted and given me courage to embrace myself",
       "context_pollution": false,
       "correct": true,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:168@2"
+        "fate:@6",
+        "fate:34@6"
       ],
       "evidence": [
         "D1:3"
@@ -236,13 +222,12 @@
       "question": "When did Caroline go to the LGBTQ support group?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:208@12] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
+      "answer": "[corpus:13] [fate:62@13] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
       "context_pollution": false,
       "correct": true,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:208@12"
+        "fate:@13",
+        "fate:62@13"
       ],
       "evidence": [
         "D1:12"
@@ -253,13 +238,12 @@
       "question": "When did Melanie paint a sunrise?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:196@9] Caroline: I'm keen on counseling or working in mental health - I'd love to support those with similar issues",
-      "context_pollution": false,
-      "correct": true,
+      "answer": "[corpus:63] [fate:262@63] Caroline: That bowl is awesome, Mel! What gave you the idea for all the colors and patterns?",
+      "context_pollution": true,
+      "correct": false,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:196@9"
+        "fate:@63",
+        "fate:262@63"
       ],
       "evidence": [
         "D1:9",
@@ -271,13 +255,12 @@
       "question": "What fields would Caroline be likely to pursue in her educaton?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:280@30] Caroline: Wow, Melanie, what a beautiful moment! Lucky you to have such an awesome family!",
+      "answer": "[corpus:16] [fate:74@16] Caroline: Totally agree, Mel",
       "context_pollution": false,
       "correct": false,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:280@30"
+        "fate:@16",
+        "fate:74@16"
       ],
       "evidence": [
         "D2:8"
@@ -288,13 +271,12 @@
       "question": "What did Caroline research?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:304@36] Caroline: Thanks, Melanie",
+      "answer": "[corpus:19] [fate:86@19] Melanie: Hey Caroline! Good to talk to you again",
       "context_pollution": false,
       "correct": false,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:304@36"
+        "fate:@19",
+        "fate:86@19"
       ],
       "evidence": [
         "D1:5"
@@ -305,13 +287,12 @@
       "question": "What is Caroline's identity?"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:268@27] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
-      "context_pollution": true,
+      "answer": "[corpus:13] [fate:62@13] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
+      "context_pollution": false,
       "correct": true,
       "dialogue_tags": [
-        "fate:@0",
-        "fate:10@0",
-        "fate:268@27"
+        "fate:@13",
+        "fate:62@13"
       ],
       "evidence": [
         "D2:1"
@@ -326,45 +307,45 @@
   "pretrain_epoch_log": [
     {
       "epoch": 1,
-      "fragment_count": 1,
-      "hub_spread": 1.1020322545058303,
-      "train_correct": 4,
+      "fragment_count": 31,
+      "hub_spread": 1.3614399486570277,
+      "train_correct": 3,
       "train_n": 8,
-      "walk_steps": 42
+      "walk_steps": 64
     },
     {
       "epoch": 2,
-      "fragment_count": 1,
-      "hub_spread": 1.12314444246201,
-      "train_correct": 4,
+      "fragment_count": 31,
+      "hub_spread": 1.3532657053715722,
+      "train_correct": 3,
       "train_n": 8,
-      "walk_steps": 87
+      "walk_steps": 64
     },
     {
       "epoch": 3,
-      "fragment_count": 1,
-      "hub_spread": 2.7062466014295823,
-      "train_correct": 5,
+      "fragment_count": 31,
+      "hub_spread": 1.3602186743939875,
+      "train_correct": 3,
       "train_n": 8,
-      "walk_steps": 87
+      "walk_steps": 64
     },
     {
       "epoch": 4,
-      "fragment_count": 1,
-      "hub_spread": 1.5293809355216104,
-      "train_correct": 5,
+      "fragment_count": 31,
+      "hub_spread": 1.3719605646891346,
+      "train_correct": 3,
       "train_n": 8,
-      "walk_steps": 87
+      "walk_steps": 64
     }
   ],
   "pretrain_epochs": 4,
   "pretrain_max_epochs": 4,
-  "pretrain_pass": 0.625,
-  "pretrain_passes": 1,
+  "pretrain_pass": 0.375,
+  "pretrain_passes": 2,
   "pretrain_rows": [
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:168@2] Caroline: I went to a LGBTQ support group yesterday and it was so powerful",
-      "correct": true,
+      "answer": "[corpus:60] [fate:250@60] Melanie: Hey Caroline, sorry about the hike",
+      "correct": false,
       "evidence": [
         "D1:3"
       ],
@@ -374,7 +355,7 @@
       "split": "pretrain"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:208@12] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
+      "answer": "[corpus:13] [fate:62@13] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
       "correct": true,
       "evidence": [
         "D1:12"
@@ -385,8 +366,8 @@
       "split": "pretrain"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:196@9] Caroline: I'm keen on counseling or working in mental health - I'd love to support those with similar issues",
-      "correct": true,
+      "answer": "[corpus:19] [fate:86@19] Melanie: Hey Caroline! Good to talk to you again",
+      "correct": false,
       "evidence": [
         "D1:9",
         "D1:11"
@@ -397,7 +378,7 @@
       "split": "pretrain"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:220@15] Caroline: Totally agree, Mel",
+      "answer": "[corpus:3] [fate:22@3] Melanie: Wow, that's cool, Caroline! What happened that was so awesome? Did you hear any inspiring stories?",
       "correct": false,
       "evidence": [
         "D2:8"
@@ -408,7 +389,7 @@
       "split": "pretrain"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:304@36] Caroline: Thanks, Melanie",
+      "answer": "[corpus:19] [fate:86@19] Melanie: Hey Caroline! Good to talk to you again",
       "correct": false,
       "evidence": [
         "D1:5"
@@ -419,7 +400,7 @@
       "split": "pretrain"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:268@27] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
+      "answer": "[corpus:13] [fate:62@13] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
       "correct": true,
       "evidence": [
         "D2:1"
@@ -430,7 +411,7 @@
       "split": "pretrain"
     },
     {
-      "answer": "[corpus:0] [fate:10@0] [fate:268@27] Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower",
+      "answer": "[corpus:13] [fate:62@13] Melanie: Yeah, I painted that lake sunrise last year! It's special to me",
       "correct": true,
       "evidence": [
         "D2:7"
@@ -441,7 +422,7 @@
       "split": "pretrain"
     },
     {
-      "answer": "[corpus:7] [fate:38@7] [fate:288@32] Caroline: Wow, sounds wonderful! Your love for your kids is so awesome",
+      "answer": "[corpus:19] [fate:86@19] Melanie: Hey Caroline! Good to talk to you again",
       "correct": false,
       "evidence": [
         "D3:13",

@@ -46,6 +46,7 @@ from benchmark_env import (  # noqa: E402
     DEFAULT_LM_MODEL,
     apply_gpu_env,
     apply_resource_budget,
+    apply_structure_parallel_policy,
     benchmark_calibration_lm,
     benchmark_runtime,
     default_lm_model,
@@ -416,7 +417,7 @@ def main() -> None:
     args = ap.parse_args()
 
     apply_gpu_env()
-    apply_resource_budget()
+    apply_structure_parallel_policy()
     release_resources()
 
     if args.checkpoint_dir is None and (args.resume or args.verbose):

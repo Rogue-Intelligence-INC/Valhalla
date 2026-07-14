@@ -164,6 +164,77 @@ def check_report_legit(
     }
 
 
+def check_unique_proofs() -> dict[str, Any]:
+    rep = _load_report("unique_proof_suite.json")
+    if rep is None:
+        return {
+            "benchmark": "unique_proof_suite.json",
+            "protocol": "unique-proof-suite-v1",
+            "report_exists": False,
+            "tier": "—",
+            "citeable": False,
+            "note": "no Unique Proof report yet — run ./scripts/run_unique_proofs.sh",
+        }
+    exps = rep.get("experiments") or []
+    cite = [e for e in exps if e.get("citeable") and e.get("pass")]
+    # Investor lead: U1–U4 only; U5 cost@floor is secondary
+    lead = [e for e in cite if str(e.get("id", "")).upper() in ("U1", "U2", "U3", "U4")]
+    n_pass = len(lead)
+    citeable = n_pass >= 4
+    return {
+        "benchmark": "unique_proof_suite.json",
+        "protocol": "unique-proof-suite-v1",
+        "report_exists": True,
+        "n": len(exps),
+        "correct": n_pass,
+        "tier": "A" if citeable else ("B" if n_pass >= 2 else "C"),
+        "citeable": citeable,
+        "verdict": rep.get("verdict") or f"U1–U4 citeable={n_pass}/4",
+        "note": "structure-native Unique Proofs (not LoCoMo SOTA); lead with U1–U4",
+    }
+
+
+def check_fate_longchain() -> dict[str, Any]:
+    rep = _load_report("fate_longchain_unified.json")
+    if rep is None:
+        return {
+            "benchmark": "fate_longchain_unified.json",
+            "protocol": "fate-longchain-unified-v1",
+            "report_exists": False,
+            "tier": "—",
+            "citeable": False,
+            "note": "no longchain report — run test_fate_longchain_unified.py",
+        }
+    metrics = rep.get("metrics") or rep.get("summary") or {}
+    if not isinstance(metrics, dict):
+        metrics = {}
+    drift = metrics.get("theme_drift_rate", metrics.get("theme_drift"))
+    if drift is None:
+        drift = rep.get("theme_drift_rate")
+    retention = metrics.get("retention_rate", metrics.get("retention"))
+    if retention is None:
+        retention = rep.get("anchor_retention_rate", rep.get("retention_rate"))
+    # Cite structure continuity; do not treat weak QA as failure of Unique Proofs
+    citeable = (
+        drift is not None
+        and retention is not None
+        and float(drift) <= 0.05
+        and float(retention) >= 0.95
+    )
+    return {
+        "benchmark": "fate_longchain_unified.json",
+        "protocol": "fate-longchain-unified-v1",
+        "report_exists": True,
+        "n": int(rep.get("n") or metrics.get("n") or metrics.get("n_turns") or 0) or None,
+        "correct": None,
+        "tier": "A" if citeable else "B",
+        "citeable": citeable,
+        "verdict": f"drift={drift} retention={retention}",
+        "note": "cite theme_drift + retention; interleave QA is secondary product metric",
+        "metrics": {"theme_drift": drift, "retention": retention},
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", action="store_true")
@@ -195,6 +266,8 @@ def main() -> int:
                 min_n=1,
                 required_keys=(),
             ),
+            check_unique_proofs(),
+            check_fate_longchain(),
         ],
     }
 

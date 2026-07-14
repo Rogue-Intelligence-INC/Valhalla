@@ -1,8 +1,30 @@
 # Fate 长链统合 Benchmark — 主旨偏移与长期记忆
 
 **协议**: `fate-longchain-unified-v5`  
-**状态**: hybrid + fragment QA · 内存受控 production · 2026-07-11  
+**状态**: FateRelAddr 四元相对地址落地 · ID 仅进出口 · 2026-07-13  
 **主模块**: `manifestsys/hub-f64/src/fate_longchain_unified.rs`
+
+### 最新 production（fragment_full · 2026-07-14 live）
+
+| 指標 | 值 |
+|------|-----|
+| theme_drift | **0%** |
+| retention | **100%** |
+| holdout QA | **33.3%**（Tier B） |
+| interleave | **25%** |
+| composite | **~0.589** |
+| pretrain | **37.5%** |
+| ingest fragments | **~31** |
+
+> Ablation：`qa_adaptive_minimal` 曾報 composite **~0.68** · holdout 仍 ~33% — **勿與 fragment_full 混引。**  
+> 對外主叙事：**drift/retention**，不是 holdout QA 满分。
+
+### 地址模型
+
+- **内部导航**: `FateRelAddr` = 4-quad（BH/MB/MN/BF）相对质量 + τ（Fate tick 相位）
+- **Fate 控落点**: `fate_rel_land_score` / native open boost
+- **进口 ID**: bundle `D2:8` → body 映射（仅评分）
+- **出口 ID**: 物化为 `[fate:T@I]`（`corpus:I` 同 idx 别名）
 
 ---
 
@@ -143,37 +165,54 @@ fate_longchain_unified.rs  ──►  fate_longchain_unified.json
 
 ## 5. 运行方式
 
-### 5.1 资源受控（推荐）
+> **跳转 / jump 不是算法死结** — 多半是跑法：必须 `--production`（hybrid + enhanced + fragment）或  
+> `--production --minimal-corpus`；**不要**只跑 `--smoke --parallel`（independence 旧 fast 路径会造假差）。
+
+### 5.1 推荐（评分优先 · 低内存）
 
 ```bash
-python3 tools/valhalla_inference/test_fate_longchain_unified.py --low-resource --verbose
+python3 tools/valhalla_inference/test_fate_longchain_unified.py --production --minimal-corpus
 ```
 
-- Corpus ≈ 29 行（anchor+interleave+holdout evidence 邻域）
-- Routing: **targeted**（继承预训练 session affinity）
-- 耗时 ~1s
+期望（文档基线）：theme_drift **0%** · holdout **~33%** · composite **~0.68** · ~9s
 
-### 5.2 Full + Parallel（高资源）
+### 5.2 Fragment 压力路径
 
 ```bash
-python3 tools/valhalla_inference/test_fate_longchain_unified.py \
-  --max-lines 280 --parallel --fast
+python3 tools/valhalla_inference/test_fate_longchain_unified.py --production
 ```
+
+期望：drift **0%** · holdout **~33%** · composite **~0.63** · ~47s · RSS 更高
 
 ### 5.3 Rust CLI
 
 ```bash
 ./target/release/valhalla_base demo fate-longchain-unified \
-  --low-resource --fast
+  --low-resource --fast --hybrid --fragment-full \
+  --max-lines 64 --chunk-size 32 --max-epochs 4 \
+  --spec tools/standard_benchmarks/bundled/fate_longchain_unified_locomo.json
 
-# 或
+# 或评分优先
 ./target/release/valhalla_base demo fate-longchain-unified \
-  --max-lines 280 --parallel --chunk-size 64 --fast
+  --low-resource --fast --hybrid --minimal-corpus \
+  --max-lines 64 --chunk-size 32 --max-epochs 4 \
+  --spec tools/standard_benchmarks/bundled/fate_longchain_unified_locomo.json
 ```
 
 ### 5.4 报告路径
 
 `reports/valhalla_inference/fate_longchain_unified.json`
+
+**工程注意（2026-07-14）：**
+- **地址协议 `valhalla-address-v1`**：接口绝对 ID（`D*` / `corpus:I`）在进入 ValhallaBase 时转换为 Hub(FateRelAddr) / Tile(signature) / Stem(signature+position)；Fate 按容器地址调度 affinity；出口再还原 ID。调试：`VALHALLA_ADDRESS_DEBUG=1`。
+- holdout 的 `FateUnifiedQaOpts::isolated` 必须强制 land（不可因继承 session 跳过跳转）。
+- **interleave 信息流**：Phase B 走 `interleave_flow()`（`force_parallel` + `query_fragment_rebind` + `writeback` + `fate_qa_feedback`）。调试：`VALHALLA_INTERLEAVE_FLOW_DEBUG=1`。
+- **动态碎片为第一导航器（取消 corpus 子集）**：`--production` → `fragment_full`；`corpus` 字段只作边缘文本表。merge 保 `fragment_tracks`；query merge = **全量结构 ∪ selected 聚焦**；关 `FATE_LINK` 防 `link_*` mega。调试：`VALHALLA_FRAGMENT_FLOW_DEBUG=1`。
+- **Fate 分裂 + 回调步数（2026-07-14）**：接口已接通（`fate_split_callback_session` / query rebind / 局部 regroup），默认 **关**（`VALHALLA_FATE_SPLIT_FRAGMENTS=0`）。开后仅 question-conditioned 分裂；实测 production 上 pretrain 37.5%→12.5%、holdout→0（cliff 仍过粗），需再调 `SPLIT_CLIFF` / max_per_pass 后再默认开。回调：`VALHALLA_FATE_CALLBACK_STEPS=2`。
+- **投资人详解**：[`docs/valhalla/INVESTOR_STRENGTHS_SHOWCASE.md`](../../docs/valhalla/INVESTOR_STRENGTHS_SHOWCASE.md)（U1–U4 + live 四拍 + drift/retention + Demo Day 流程）。
+- 最新 `--production`（fragment_full, 64L）：ingest **~31 segs** · pretrain **37.5%** · anchor **66.7%** · interleave **50%** · holdout **33%** · composite **~0.64**。
+- Pretrain 对齐：`pretrain_fragment_flow`；warmup → `warm_0`。
+- **轮次保持 / 重复加载（2026-07-14）**：每题 `spawn` 曾全量 remesh 碎片且丢掉 parent 的 hub/affinity/history；现 remesh 后 `overlay_session_continuity`，writeback 保留 hub/algebra/history；anchor 不 blend affinity（防污染），reinforce 直接写 parent。`anchor_retention=100%` · `theme_drift=0`。
 
 ---
 
@@ -299,4 +338,4 @@ python3 tools/valhalla_inference/test_fate_longchain_unified.py --production
 
 ---
 
-*文档版本 2026-07-11 · 协议 `fate-longchain-unified-v3` · production = `--parallel --enhanced --max-lines 64`*
+*文档版本 2026-07-14 · 协议 `fate-longchain-unified-v5` · production = `--production` / `--production --minimal-corpus`*

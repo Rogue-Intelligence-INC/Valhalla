@@ -11,19 +11,21 @@ Industry same-Q (LoCoMo etc.) remains an **honest boundary** — see [`EVIDENCE_
 
 Detailed capability catalog: [`DISTINCTIVE_CAPABILITIES_CN.md`](../../valhalla-unified-core/docs/DISTINCTIVE_CAPABILITIES_CN.md)
 
+**Investor deep-dive (tests + demo script + honest bounds):** [`INVESTOR_STRENGTHS_SHOWCASE.md`](./INVESTOR_STRENGTHS_SHOWCASE.md)
+
 ---
 
 ## Capability matrix
 
-| Capability | ValhallaBase | Mem0 | Zep / Graphiti | Letta |
-|------------|--------------|------|----------------|-------|
-| **Non-isolated multimodal** (one Triad session · shared Fate patch across text/TTS/image) | **Yes** | Partial (store image/PDF as extra memories; late fuse in prompt) | No shared body | Text/block tiers; no Triad pulse |
-| **Proactive idle + FOG abstain** (`proactive_idle`, UP/MAR/FIR) | **Yes** | No (pull on query) | No (app schedules tips) | Agent loop can tip; **no algebraic emit/abstain gate** |
-| **Zero-weight session learning / pollution rescue** (TPI transfer vs polluted dump) | **Yes** | Search-all still polluted | Graph may retain contradictions with validity windows — different problem | Agent edits blocks; no TPI protocol |
-| **Backbone-orthogonal open path** (swap LM head; structure stable) | **Yes** (native/open) | Memory tied to extraction/chat LM | Server + LM for answers | Runtime + model coupled |
-| **Structure-cost append** (wire/prefill ≪ full resend **at accuracy floor**) | **Yes** (when U5 passes) | Compact facts help; still re-inject retrieved text | Graph retrieve → prompt | Tool paging still grows context |
-| Extract → vector/graph → inject | Secondary (optional LM head) | **Core product** | **Core product** | Self-managed tiers |
-| Temporal fact validity windows | Not the wedge | Optional Pro graph | **Core product** | Limited |
+| Capability | ValhallaBase | Mem0 | Zep / Graphiti | Letta | Engram (adjacent) |
+|------------|--------------|------|----------------|-------|-------------------|
+| **Non-isolated multimodal** (one Triad session · shared Fate patch across text/TTS/image) | **Yes** | Partial (store image/PDF as extra memories; late fuse in prompt) | No shared body | Text/block tiers; no Triad pulse | Org-knowledge compression (different bet) |
+| **Proactive idle + FOG abstain** (`proactive_idle`, UP/MAR/FIR) | **Yes** | No (pull on query) | No (app schedules tips) | Agent loop can tip; **no algebraic emit/abstain gate** | N/A (learned memory layer) |
+| **Zero-weight session learning / pollution rescue** (TPI transfer vs polluted dump) | **Yes** | Search-all still polluted | Graph may retain contradictions with validity windows — different problem | Agent edits blocks; no TPI protocol | Continual retention via trained engram |
+| **Backbone-orthogonal open path** (swap LM head; structure stable) | **Yes** (native/open) | Memory tied to extraction/chat LM | Server + LM for answers | Runtime + model coupled | Typically model-training coupled |
+| **Structure-cost append** (wire/prefill ≪ full resend **at accuracy floor**) | **Yes** (when U5 passes) | Compact facts help; still re-inject retrieved text | Graph retrieve → prompt | Tool paging still grows context | **Core marketing** (1–10% tokens) |
+| Extract → vector/graph → inject | Secondary (optional LM head) | **Core product** | **Core product** | Self-managed tiers | Secondary |
+| Temporal fact validity windows | Not the wedge | Optional Pro graph | **Core product** | Limited | Point-in-time via trained memory |
 
 ---
 
@@ -34,6 +36,7 @@ Detailed capability catalog: [`DISTINCTIVE_CAPABILITIES_CN.md`](../../valhalla-u
 | **Mem0** | Fastest personalization layer on any stack | We are not a drop-in memory API; compare **unique-proof suite**, not LongMemEval marketing numbers |
 | **Zep** | Temporal KG / “what was true when” | Cite Graphiti when temporal CRM is the job; Valhalla wedge is **body + gate + multimodal** |
 | **Letta** | Agent-as-OS, self-editing memory blocks | Closest philosophically on “stateful agent”; still **text blocks + tools**, not Triad incubation |
+| **Engram** | Learned enterprise memory → fewer tokens | Capital-category peer for “AI memory infra”; Valhalla is **runtime structure body**, not a trained engram SKU |
 
 ---
 

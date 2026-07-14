@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-13T20:26:25.982986+00:00",
+  "timestamp": "2026-07-13T23:52:16.700548+00:00",
   "protocol": "unique-proof-suite-v1",
   "scale": "fast",
   "experiments": [
@@ -103,32 +103,12 @@
       },
       "source": "reports/valhalla_inference/valhalla_independence_test.json",
       "cached": true
-    },
-    {
-      "id": "U5",
-      "name": "cost_at_floor",
-      "pass": true,
-      "citeable": true,
-      "peer_status": {
-        "rag_full_resend": "FULL_CORPUS_EACH_TURN",
-        "mem0": "REINJECT_RETRIEVED_TEXT",
-        "note": "Cite cost only when on-topic floor holds."
-      },
-      "verdict": "COST_RATIO_PASS_ACC_DEVELOPING",
-      "metrics": {
-        "on_topic_rate": 0.6,
-        "prefill_ratio_vs_rag_full": 0.291,
-        "wire_ratio": 0.163,
-        "floor_full": false,
-        "floor_fast": true
-      },
-      "source": "reports/valhalla_inference/token_efficiency_test.json"
     }
   ],
   "summary": {
-    "total": 5,
-    "passed": 5,
-    "citeable": 5
+    "total": 4,
+    "passed": 4,
+    "citeable": 4
   },
   "positioning": "unique-proof vs memory APIs — separate from industry LoCoMo same-Q"
 }

@@ -25,6 +25,10 @@
 
 | Benchmark | Why | Effort |
 |-----------|-----|--------|
+| **LongMemEval** (cleaned) | Session-incremental chat memory (ICLR 2025) | Fate ingress adapter |
+| **LongMemEval-V2** Small | Agentic trajectories + accuracy–latency frontier | Start Small tier only |
+| **MemoryAgentBench** | AR / TTL / LRU / Conflict Resolution (ICLR 2026) | Incremental multi-turn harness |
+| **HaluMem / memory faithfulness** | Pair with RAGTruth for memory-side hallucination | Trace metric overlay |
 | **FRAMES full 824** | NAACL gold standard | wiki fetch ~2h |
 | **U-NIAH** | unified RAG vs LC needle | extend `ruler-v2` |
 | **RAGBench** | 100K end-to-end pipeline | HF download + adapter |
@@ -32,6 +36,13 @@
 | **LaRA official** | Alibaba 2326 cases | GitHub clone |
 | **Qwen 7B ladder** | complete scaling curve | ~15GB download |
 | **MMLU-with-context** | fair RAG variant only | lm-eval harness |
+
+### Citeability / positioning (2026-07-14)
+
+- **Tier A lead:** Unique Proofs U1–U4 + Fate longchain `theme_drift`/`retention` + RAGTruth (viable bundle).
+- **Do not cite as SOTA:** LoCoMo absolute % vs Mem0; FRAMES without wiki; Unique Proof U5 until cost@floor passes.
+- **Runtime:** CUDA LM outer serial; CPU structure fan-out via `apply_structure_parallel_policy()`; rayon pools cached in `par_map_items`.
+- Full write-up: [`../../docs/valhalla/BENCHMARK_STRATEGY_20260714.md`](../../docs/valhalla/BENCHMARK_STRATEGY_20260714.md)
 
 ## Quick start
 
