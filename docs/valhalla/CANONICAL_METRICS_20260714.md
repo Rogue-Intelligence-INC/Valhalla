@@ -3,6 +3,18 @@
 **Single source of truth for public / diligence claims.**  
 Dated archive reports may show higher historical numbers under *different protocols* — do not remix without labeling.
 
+## Design → properties (read before the metric table)
+
+Many capabilities people notice are **designed first**, then **measured**. Vocabulary:
+
+| Tag | Meaning |
+|-----|---------|
+| **D** | Intentional architecture / default |
+| **E** | Emergent under that design (measured, not hardcoded outcome) |
+| **P** | Product proof vs memory-API peers |
+
+Full map: [`DESIGN_TO_PROPERTIES_20260714.md`](./DESIGN_TO_PROPERTIES_20260714.md)
+
 ## Lead (cite)
 
 | Claim | Value | Protocol / artifact |

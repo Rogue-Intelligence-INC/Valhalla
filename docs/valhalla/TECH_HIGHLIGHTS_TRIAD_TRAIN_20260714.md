@@ -4,17 +4,20 @@
 **Audience:** diligence, paper page, product landing, investor one-pager  
 **Not claimed:** cortical organ nameplate · LM SGD as the default product path
 
+> **Read first:** many cited properties are **consequences of design**, then measured.  
+> See [`DESIGN_TO_PROPERTIES_20260714.md`](./DESIGN_TO_PROPERTIES_20260714.md) — **D**esigned / **E**mergent / **P**roof layers.
+
 ---
 
 ## Verdict (one screen)
 
-| Core | Evidence | Bound |
-|------|----------|--------|
-| **C1 — Fate cycle + Tile/Stem formation** | `TRIAD_STRUCTURE_CYCLE_PASS` · manifold PASS | Fragments hold structure |
-| **C2 — Natural NN topology vs ER** | `NATURAL_NN_TOPOLOGY_PASS` · Stem σ≈9.27 | Not Mem0 API bake-off |
-| **C3 — Organ coalescence** | `ORGAN_COALESCENCE_RUNTIME_PASS` · body 64 @ ~0.78 · tiles 5→10 | No preset organ catalog; same-type merge = maturation continuing |
-| **C3b — Causal lesion (strengthened)** | `NATURAL_NN_CAUSAL_PASS` · config-null p=0 · organ-channel lesion ≻ rewire | Hash-sig proxy; massΔ 234 vs 0 |
-| **C4 — Structure-first train (L1–L3)** | L1 U3 **+38.7pp** · L3 bake **Δw≈298** | Not LoCoMo SOTA |
+| Core | Class | Evidence | Bound |
+|------|-------|----------|--------|
+| **C1 — Fate cycle + Tile/Stem formation** | **D→E** | `TRIAD_STRUCTURE_CYCLE_PASS` · manifold PASS | Fragments hold structure |
+| **C2 — Natural NN topology vs ER** | **E** | `NATURAL_NN_TOPOLOGY_PASS` · Stem σ≈9.27 | Not Mem0 API bake-off |
+| **C3 — Organ coalescence** | **D→E** | `ORGAN_COALESCENCE_RUNTIME_PASS` · body 64 @ ~0.78 · tiles 5→10 | No preset organ catalog; same-type merge = maturation continuing |
+| **C3b — Causal lesion (strengthened)** | **D+E** | `NATURAL_NN_CAUSAL_PASS` · config-null p=0 · organ-channel lesion ≻ rewire | Hash-sig proxy; massΔ 234 vs 0 |
+| **C4 — Structure-first train (L1–L3)** | **D** (P via U3) | L1 U3 **+38.7pp** · L3 bake **Δw≈298** | Not LoCoMo SOTA |
 
 These four form the **technical core**, beside Unique Proofs U1–U4.
 

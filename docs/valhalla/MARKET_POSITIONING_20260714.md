@@ -25,12 +25,13 @@ Sources informing this map (external): production memory framework surveys 2026 
 **A structure-trainable body** — one Triad session incubates Hub / Tile / StemCell under Fate; LM is an optional decode head.
 
 **Technical highlights (2026-07-14) — technical core:**
-1. Fate `quad_cycle` + live Tile/Stem formation (`TRIAD_STRUCTURE_CYCLE_PASS`)
-2. Natural-network topology vs ER (`NATURAL_NN_TOPOLOGY_PASS`, Stem σ≈9.27)
-3. Organ coalescence without preset catalog (`ORGAN_COALESCENCE_RUNTIME_PASS` — same-type merge = maturation continuing)
-4. Three-layer structure train (L1 zero-weight · L2 Fate pretrain · L3 HF bake)
+0. **Design → properties** map (`DESIGN_TO_PROPERTIES_20260714.md`) — D / E / P vocabulary  
+1. Fate `quad_cycle` + live Tile/Stem formation (`TRIAD_STRUCTURE_CYCLE_PASS`) — **D→E**  
+2. Natural-network topology vs ER / causal lesion (`NATURAL_NN_TOPOLOGY_PASS` · `NATURAL_NN_CAUSAL_PASS`) — **E**  
+3. Organ coalescence without preset catalog (`ORGAN_COALESCENCE_RUNTIME_PASS`) — **D→E**  
+4. Three-layer structure train (L1 zero-weight · L2 Fate pretrain · L3 HF bake) — **D**
 
-See `TECH_HIGHLIGHTS_TRIAD_TRAIN_20260714.md` · `NATURAL_NN_ORGAN_RUNTIME_20260714.md`.
+See `TECH_HIGHLIGHTS_TRIAD_TRAIN_20260714.md` · `DESIGN_TO_PROPERTIES_20260714.md` · `NATURAL_NN_ORGAN_RUNTIME_20260714.md`.
 
 | Peer frame | Valhalla response |
 |----------|-------------------|
