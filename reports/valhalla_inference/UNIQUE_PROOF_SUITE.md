@@ -1,7 +1,7 @@
 # Unique Proof Suite
 
 **Protocol:** `unique-proof-suite-v1`  
-**Generated:** 2026-07-14T03:12:55.442745+00:00  
+**Generated:** 2026-07-14T04:55:34.899906+00:00  
 **Scale:** fast  
 
 > Mechanism differentiation vs Mem0/Zep/Letta — **not** industry LoCoMo SOTA.
@@ -13,19 +13,19 @@
 
 | ID | Claim | Pass | Citeable | Verdict | Peer |
 |----|-------|------|----------|---------|------|
-| U5 | cost_at_floor | YES | YES | `COST_RATIO_PASS_ACC_DEVELOPING` | `REINJECT_RETRIEVED_TEXT` |
+| U1 | non_isolated_multimodal | YES | YES | `NON_ISOLATED_BETTER` | `SKIP_NO_SHARED_BODY` |
 
 ## Metrics
 
-### U5 — cost_at_floor
+### U1 — non_isolated_multimodal
 
 ```json
 {
-  "on_topic_rate": 0.55,
-  "prefill_ratio_vs_rag_full": 0.291,
-  "wire_ratio": 0.163,
-  "floor_full": false,
-  "floor_fast": true
+  "avg_shared_patch_isolated": 0.9684721809432261,
+  "avg_shared_patch_non_isolated": 0.9999484330112433,
+  "delta": 0.0315,
+  "non_isolated_wins": 12,
+  "sample_count": 12
 }
 ```
 

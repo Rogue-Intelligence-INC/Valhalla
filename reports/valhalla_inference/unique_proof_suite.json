@@ -1,27 +1,29 @@
 {
-  "timestamp": "2026-07-14T03:12:55.442745+00:00",
+  "timestamp": "2026-07-14T04:55:34.899906+00:00",
   "protocol": "unique-proof-suite-v1",
   "scale": "fast",
   "experiments": [
     {
-      "id": "U5",
-      "name": "cost_at_floor",
+      "id": "U1",
+      "name": "non_isolated_multimodal",
       "pass": true,
       "citeable": true,
       "peer_status": {
-        "rag_full_resend": "FULL_CORPUS_EACH_TURN",
-        "mem0": "REINJECT_RETRIEVED_TEXT",
-        "note": "Cite cost only when on-topic floor holds."
+        "mem0": "SKIP_NO_SHARED_BODY",
+        "letta": "SKIP_NO_SHARED_BODY",
+        "zep": "SKIP_NO_SHARED_BODY",
+        "note": "Peers store modalities as separate memories / late-fuse in prompt; no Triad shared body."
       },
-      "verdict": "COST_RATIO_PASS_ACC_DEVELOPING",
+      "verdict": "NON_ISOLATED_BETTER",
       "metrics": {
-        "on_topic_rate": 0.55,
-        "prefill_ratio_vs_rag_full": 0.291,
-        "wire_ratio": 0.163,
-        "floor_full": false,
-        "floor_fast": true
+        "avg_shared_patch_isolated": 0.9684721809432261,
+        "avg_shared_patch_non_isolated": 0.9999484330112433,
+        "delta": 0.0315,
+        "non_isolated_wins": 12,
+        "sample_count": 12
       },
-      "source": "reports/valhalla_inference/token_efficiency_test.json"
+      "source": "valhalla-unified-core/reports/cross_modal_test_summary.json",
+      "cached": false
     }
   ],
   "summary": {

@@ -37,6 +37,7 @@ python3 tools/valhalla_inference/run_technical_core_proof_suite.py --fast
 | Longchain interleave QA | **75%** (3/4) | same · content land egress (was 25%) |
 | Longchain composite | **≈0.882** | continuity-weighted |
 | RAGTruth (live industry) | **38/40** · full cache **88/100** | ragtruth-v1 |
+| Multimodal mixed answer | **PASS** · default `answer_mix=mixed` · text/audio/image options | `multimodal-mixed-answer-v1` · non-isolated Triad |
 
 ## Legitimacy (why numbers moved · how to cite)
 
@@ -59,10 +60,12 @@ python3 tools/valhalla_inference/run_technical_core_proof_suite.py --fast
 | Holdout **n=3** / interleave **n=4** | Small slices — protocol passes, not market SOTA |
 | Soft scorer edges | Some interleave True without gold substring (evidence path) — keep auditing |
 
-**Land-opt audit (same logic elsewhere):** [`LAND_OPT_AUDIT_20260714.md`](./LAND_OPT_AUDIT_20260714.md)
+**Land-opt audit (same logic elsewhere):** [`LAND_OPT_AUDIT_20260714.md`](./LAND_OPT_AUDIT_20260714.md)  
+**Multimodal (non-isolated · mixed answer):** [`MULTIMODAL_MIXED_ANSWER_20260714.md`](./MULTIMODAL_MIXED_ANSWER_20260714.md)
 
 **Reproduce:** `python3 tools/valhalla_inference/test_fate_longchain_unified.py --production`  
-**Artifact:** `reports/valhalla_inference/fate_longchain_unified.json` + `FATE_LONGCHAIN_UNIFIED.md` (top table = current).
+**Artifact:** `reports/valhalla_inference/fate_longchain_unified.json` + `FATE_LONGCHAIN_UNIFIED.md` (top table = current).  
+**Multimodal reproduce:** `PYTHONPATH=tools/valhalla_inference python3 tools/valhalla_inference/test_multimodal_mixed_answer.py`
 
 ## Technical highlights (mechanism — publish with Unique Proofs)
 

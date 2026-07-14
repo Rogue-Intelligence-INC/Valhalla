@@ -48,14 +48,14 @@ flowchart TB
 
 | Layer | What it is | Proof / bound |
 |-------|------------|---------------|
-| Ingress | Multimodal into one session | U1 |
+| Ingress | Multimodal into one session | U1 · mixed answer default |
 | Fate | Scheduling + FOG | U2 · D1 quad vs semantic |
 | Hub / Tile / Stem | Body under fragments | technical core · organ · topology |
-| Native path | Structure answer | continuity drift/retention |
+| Native path | Structure answer (**answer_mix=mixed** by default) | continuity · mixed-answer proof |
 | LM head | Optional, swappable | U4 · default 0.5B |
 | U5 | Economics @ accuracy floor | Footnote until floor ≥0.80 |
 | Longchain holdout QA | Absolute QA on protocol slice (n=3) | Cite with canonical legitimacy — ≠ industry LoCoMo |
-| Interleave QA | Absolute QA under pollution | Boundary (25%) |
+| Interleave QA | Absolute QA under pollution | Boundary (75% developing; 1/4 residual) |
 
 ---
 

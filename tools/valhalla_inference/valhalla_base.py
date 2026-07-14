@@ -95,6 +95,8 @@ class ValhallaBase:
     fate_ingress_routing: str = "quad_cycle"
     fate_qa_feedback: bool = True
     core_fusion: bool = False
+    # Default mixed: non-isolated Triad answering across modality-tagged lines.
+    answer_mix: str = "mixed"
     proactive_enabled: bool = True
     proactive_min_fate_signals: int = 64
     proactive_min_turns: int = 2  # legacy alias → min_fate_signals = turns * 32
@@ -223,6 +225,7 @@ class ValhallaBase:
             "fate_warmup_cycles": self.fate_warmup_cycles,
             "fate_warmup_prelearn_lines": self.fate_warmup_prelearn_lines,
             "core_fusion": self.core_fusion,
+            "answer_mix": self.answer_mix,
             "proactive_enabled": self.proactive_enabled,
             "proactive_min_fate_signals": self.proactive_min_fate_signals,
             "proactive_min_turns": self.proactive_min_turns,

@@ -76,6 +76,27 @@ pub enum ValhallaFateIngressRouting {
     HybridQuadSemantic,
 }
 
+/// Open-answer evidence filter across non-isolated multimodal session lines.
+///
+/// Default **mixed**: all modality-tagged corpus lines can land (product claim).
+/// Optional single-channel modes exist for ablation / user preference.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum ValhallaAnswerMix {
+    #[default]
+    Mixed,
+    /// Pure text items only (no audio/image tags on the line).
+    Text,
+    /// Lines that carried audio_features (often caption + audio).
+    Audio,
+    /// Lines that carried image_features.
+    Image,
+}
+
+pub const MOD_TEXT: u8 = 1;
+pub const MOD_AUDIO: u8 = 2;
+pub const MOD_IMAGE: u8 = 4;
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ValhallaContextItem {
     #[serde(default)]
@@ -107,6 +128,12 @@ pub struct ValhallaBaseSessionState {
     /// Fate tick after context ingest — proactive gate counts signals since this baseline.
     #[serde(default)]
     pub fate_baseline_tick: u64,
+    /// Interface→container address book (absolute IDs only at edges; Fate schedules inside).
+    #[serde(default)]
+    pub address_book: Option<crate::valhalla_address::AddressBook>,
+    /// Parallel to `corpus`: modality bits (TEXT|AUDIO|IMAGE). Empty ⇒ treat as all-mixed.
+    #[serde(default)]
+    pub corpus_modality_mask: Vec<u8>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -161,6 +188,9 @@ pub struct ValhallaBaseConfig {
     /// Fuse task text/TTS/image into context snapshot before decode (structure→LM).
     #[serde(default)]
     pub core_fusion: bool,
+    /// Answer-time modality mix (default mixed — non-isolated Triad answering).
+    #[serde(default)]
+    pub answer_mix: ValhallaAnswerMix,
     /// When decode=Hybrid, how to answer MCQ (default: LM logprob).
     #[serde(default)]
     pub mcq_decode: ValhallaMcqDecode,
@@ -298,6 +328,7 @@ impl Default for ValhallaBaseConfig {
             use_cpu: default_use_cpu(),
             decode: ValhallaBaseDecode::Hybrid,
             core_fusion: false,
+            answer_mix: ValhallaAnswerMix::Mixed,
             mcq_decode: ValhallaMcqDecode::LmPatch,
             follow_up_decode: ValhallaFollowUpDecode::NativeFollowUpAware,
             fate_weight_mode: ValhallaFateWeightMode::Fixed,
@@ -347,6 +378,9 @@ pub struct ValhallaBaseRequest {
     /// When true with session, Fate-link dynamic fragments + adapt (long-chain finalize).
     #[serde(default)]
     pub fate_link_only: bool,
+    /// When true with session, Fate-split + callback steps (refine fragment grasp).
+    #[serde(default)]
+    pub fate_split_callback_only: bool,
     /// When true with session, extra Fate warmup+link+adapt (multi-pass pretrain).
     #[serde(default)]
     pub fate_pretrain_adapt_only: bool,
@@ -394,6 +428,12 @@ pub struct ValhallaBaseRow {
     pub mcq_patch_confidence: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub retrieval_corpus_idx: Option<usize>,
+    /// Echo of config answer_mix for this row.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub answer_mix: Option<String>,
+    /// Corpus lines eligible under answer_mix (after gate).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub answer_mix_eligible: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -487,35 +527,164 @@ pub fn item_to_corpus_line(item: &ValhallaContextItem) -> Option<String> {
     None
 }
 
+pub fn item_modality_mask(item: &ValhallaContextItem) -> u8 {
+    let mut m = 0u8;
+    if item
+        .text
+        .as_ref()
+        .map(|s| !s.trim().is_empty())
+        .unwrap_or(false)
+    {
+        m |= MOD_TEXT;
+    }
+    if item.audio_features.as_ref().is_some_and(|v| !v.is_empty()) {
+        m |= MOD_AUDIO;
+    }
+    if item.image_features.as_ref().is_some_and(|v| !v.is_empty()) {
+        m |= MOD_IMAGE;
+    }
+    m
+}
+
+pub fn answer_mix_label(mode: ValhallaAnswerMix) -> &'static str {
+    match mode {
+        ValhallaAnswerMix::Mixed => "mixed",
+        ValhallaAnswerMix::Text => "text",
+        ValhallaAnswerMix::Audio => "audio",
+        ValhallaAnswerMix::Image => "image",
+    }
+}
+
+fn answer_mix_allows(mask: u8, mode: ValhallaAnswerMix) -> bool {
+    match mode {
+        ValhallaAnswerMix::Mixed => true,
+        // Pure text channel preference: no audio/image tags on the line.
+        ValhallaAnswerMix::Text => {
+            mask & MOD_TEXT != 0 && (mask & (MOD_AUDIO | MOD_IMAGE)) == 0
+        }
+        ValhallaAnswerMix::Audio => mask & MOD_AUDIO != 0,
+        ValhallaAnswerMix::Image => mask & MOD_IMAGE != 0,
+    }
+}
+
+/// Build per-line modality masks aligned with `lines`.
+fn build_corpus_modality_masks(
+    lines: &[String],
+    items: &[ValhallaContextItem],
+    prev: Option<&ValhallaBaseSessionState>,
+) -> Vec<u8> {
+    if let Some(sess) = prev {
+        if sess.corpus_modality_mask.len() == lines.len()
+            && sess.corpus.len() == lines.len()
+            && sess
+                .corpus
+                .iter()
+                .zip(lines.iter())
+                .all(|(a, b)| normalize_line_key(a) == normalize_line_key(b))
+        {
+            return sess.corpus_modality_mask.clone();
+        }
+    }
+    let mut masks = vec![MOD_TEXT; lines.len()];
+    for item in items {
+        let Some(line) = item_to_corpus_line(item) else {
+            continue;
+        };
+        let key = normalize_line_key(&line);
+        let mask = item_modality_mask(item);
+        if mask == 0 {
+            continue;
+        }
+        for (i, existing) in lines.iter().enumerate() {
+            if normalize_line_key(existing) == key {
+                masks[i] = mask;
+                break;
+            }
+        }
+    }
+    masks
+}
+
+/// Zero affinity on lines outside the selected answer_mix (non-isolated session remains intact).
+fn gate_affinity_by_answer_mix(
+    snap: &mut TriadIncubationSnapshot,
+    masks: &[u8],
+    mode: ValhallaAnswerMix,
+) -> usize {
+    if mode == ValhallaAnswerMix::Mixed || masks.is_empty() {
+        return masks.len().max(snap.corpus_line_affinity.len());
+    }
+    if snap.corpus_line_affinity.len() < masks.len() {
+        snap.corpus_line_affinity
+            .resize(masks.len(), 0.0);
+    }
+    let mut eligible = 0usize;
+    for (i, &mask) in masks.iter().enumerate() {
+        if answer_mix_allows(mask, mode) {
+            eligible += 1;
+        } else if let Some(v) = snap.corpus_line_affinity.get_mut(i) {
+            *v = 0.0;
+        }
+    }
+    eligible
+}
+
 fn corpus_from_items(items: &[ValhallaContextItem]) -> Vec<String> {
     items.iter().filter_map(item_to_corpus_line).collect()
 }
 
-fn merge_context(req: &ValhallaBaseRequest) -> (Vec<String>, Vec<ValhallaContextItem>, bool) {
-    let mut lines: Vec<String> = req
-        .context
-        .iter()
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
-        .collect();
+fn merge_context(
+    req: &ValhallaBaseRequest,
+) -> (Vec<String>, Vec<ValhallaContextItem>, bool, Vec<u8>) {
+    let mut lines: Vec<String> = Vec::new();
+    let mut masks: Vec<u8> = Vec::new();
     let mut items = req.context_items.clone();
+
+    let push_line = |lines: &mut Vec<String>, masks: &mut Vec<u8>, line: String, mask: u8| {
+        if line_already_present(lines, &line) {
+            // Orphan duplicate: keep existing mask (stronger bits win).
+            if let Some(i) = lines
+                .iter()
+                .position(|l| normalize_line_key(l) == normalize_line_key(&line))
+            {
+                masks[i] |= mask;
+            }
+            return;
+        }
+        lines.push(line);
+        masks.push(mask);
+    };
+
+    for s in &req.context {
+        let t = s.trim();
+        if t.is_empty() {
+            continue;
+        }
+        push_line(&mut lines, &mut masks, t.to_string(), MOD_TEXT);
+    }
 
     if let Some(sess) = &req.session {
         if req.context.is_empty() && req.context_items.is_empty() {
             lines = sess.corpus.clone();
+            masks = if sess.corpus_modality_mask.len() == lines.len() {
+                sess.corpus_modality_mask.clone()
+            } else {
+                vec![MOD_TEXT | MOD_AUDIO | MOD_IMAGE; lines.len()]
+            };
         }
     }
 
-    // Only keep append lines that are truly new — re-appending known corpus lines
-    // forces extend_snapshot / fragment orchestration every QA (runtime hang).
     let mut new_append_lines: Vec<String> = Vec::new();
     for l in &req.append_lines {
         let t = l.trim();
-        if t.is_empty() || line_already_present(&lines, t) {
+        if t.is_empty() {
+            continue;
+        }
+        if line_already_present(&lines, t) {
             continue;
         }
         new_append_lines.push(t.to_string());
-        lines.push(t.to_string());
+        push_line(&mut lines, &mut masks, t.to_string(), MOD_TEXT);
         items.push(ValhallaContextItem {
             text: Some(t.to_string()),
             ..Default::default()
@@ -533,17 +702,23 @@ fn merge_context(req: &ValhallaBaseRequest) -> (Vec<String>, Vec<ValhallaContext
         }
         items.push(item.clone());
         if let Some(l) = item_to_corpus_line(item) {
-            if !line_already_present(&lines, &l) {
-                lines.push(l);
-            }
+            push_line(
+                &mut lines,
+                &mut masks,
+                l,
+                item_modality_mask(item).max(MOD_TEXT),
+            );
         }
     }
 
     for item in &req.context_items {
         if let Some(l) = item_to_corpus_line(item) {
-            if !line_already_present(&lines, &l) {
-                lines.push(l);
-            }
+            push_line(
+                &mut lines,
+                &mut masks,
+                l,
+                item_modality_mask(item).max(MOD_TEXT),
+            );
         }
     }
 
@@ -554,10 +729,14 @@ fn merge_context(req: &ValhallaBaseRequest) -> (Vec<String>, Vec<ValhallaContext
                     .as_ref()
                     .map(|s| {
                         let t = s.trim();
-                        !t.is_empty() && !line_already_present(
-                            req.session.as_ref().map(|s| s.corpus.as_slice()).unwrap_or(&[]),
-                            t,
-                        )
+                        !t.is_empty()
+                            && !line_already_present(
+                                req.session
+                                    .as_ref()
+                                    .map(|s| s.corpus.as_slice())
+                                    .unwrap_or(&[]),
+                                t,
+                            )
                     })
                     .unwrap_or(false)
                     || it.audio_features.as_ref().is_some_and(|v| !v.is_empty())
@@ -566,9 +745,30 @@ fn merge_context(req: &ValhallaBaseRequest) -> (Vec<String>, Vec<ValhallaContext
         && req.context.is_empty()
         && req.context_items.is_empty();
 
-    // When all appends were duplicates, continue session without extend_snapshot.
     let _ = new_append_lines;
-    (lines, items, incremental)
+    if masks.len() != lines.len() {
+        masks.resize(lines.len(), MOD_TEXT);
+    }
+    (lines, items, incremental, masks)
+}
+
+/// Redact corpus lines outside answer_mix so keyword land cannot leak gated modalities.
+fn corpus_view_for_answer_mix(lines: &[String], masks: &[u8], mode: ValhallaAnswerMix) -> Vec<String> {
+    if mode == ValhallaAnswerMix::Mixed || masks.is_empty() {
+        return lines.to_vec();
+    }
+    lines
+        .iter()
+        .enumerate()
+        .map(|(i, line)| {
+            let mask = masks.get(i).copied().unwrap_or(MOD_TEXT);
+            if answer_mix_allows(mask, mode) {
+                line.clone()
+            } else {
+                String::new()
+            }
+        })
+        .collect()
 }
 
 fn feed_context_item(session: &mut TriadSession, item: &ValhallaContextItem, front: &DlFrontConfig) {
@@ -1126,16 +1326,39 @@ fn session_state_from_snap(
     question_history: Vec<String>,
     fate_baseline_tick: u64,
 ) -> ValhallaBaseSessionState {
+    session_state_from_snap_with_book(
+        corpus,
+        snap,
+        question_history,
+        fate_baseline_tick,
+        None,
+        None,
+        Vec::new(),
+    )
+}
+
+fn session_state_from_snap_with_book(
+    corpus: &[String],
+    snap: TriadIncubationSnapshot,
+    question_history: Vec<String>,
+    fate_baseline_tick: u64,
+    address_book: Option<crate::valhalla_address::AddressBook>,
+    algebra_meta: Option<crate::fate_adaptive_algebra::FateAlgebraMeta>,
+    corpus_modality_mask: Vec<u8>,
+) -> ValhallaBaseSessionState {
     ValhallaBaseSessionState {
         corpus: corpus.to_vec(),
         fingerprint: context_fingerprint(corpus),
         lines_ingested: corpus.len(),
         fragments: crate::fate_orchestrator::stored_fragments(&snap),
         snapshot: snap,
-        fate_algebra_meta: Default::default(),
+        // Preserve RelAddr / pretrain algebra — do not Default-wipe each round-trip.
+        fate_algebra_meta: algebra_meta.unwrap_or_default(),
         fate_rollback_stack: Vec::new(),
         question_history,
         fate_baseline_tick,
+        address_book,
+        corpus_modality_mask,
     }
 }
 
@@ -1225,6 +1448,8 @@ fn run_native_one(
         },
         mcq_patch_confidence: None,
         retrieval_corpus_idx: row.retrieval_corpus_idx,
+        answer_mix: None,
+        answer_mix_eligible: None,
     })
 }
 
@@ -1321,6 +1546,8 @@ fn run_lm_one(
             None
         },
         retrieval_corpus_idx: None,
+        answer_mix: None,
+        answer_mix_eligible: None,
     })
 }
 
@@ -1481,6 +1708,8 @@ fn run_legacy_native_track(
             mcq_native_aggregate: None,
             mcq_patch_confidence: None,
             retrieval_corpus_idx: None,
+            answer_mix: None,
+            answer_mix_eligible: None,
         });
     }
     Ok(rows)
@@ -1773,8 +2002,8 @@ fn run_proactive_idle(
 
 /// Run Valhalla-as-base with hybrid / session / multimodal context.
 pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseResponse, String> {
-    let (lines, items, incremental) = merge_context(req);
-    if lines.is_empty() && items.is_empty() && !req.fate_link_only && !req.fate_pretrain_adapt_only {
+    let (raw_lines, items, incremental, merge_masks) = merge_context(req);
+    if raw_lines.is_empty() && items.is_empty() && !req.fate_link_only && !req.fate_pretrain_adapt_only && !req.fate_split_callback_only {
         return Err("valhalla_base: context must contain at least one item or line".into());
     }
     if req.questions.is_empty()
@@ -1782,13 +2011,51 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         && !req.fate_warmup_only
         && !req.session_extend_only
         && !req.fate_link_only
+        && !req.fate_split_callback_only
         && !req.fate_pretrain_adapt_only
     {
         return Err(
-            "valhalla_base: questions must be non-empty (or set proactive_idle / fate_warmup_only / session_extend_only / fate_link_only / fate_pretrain_adapt_only)"
+            "valhalla_base: questions must be non-empty (or set proactive_idle / fate_warmup_only / session_extend_only / fate_link_only / fate_split_callback_only / fate_pretrain_adapt_only)"
                 .into(),
         );
     }
+
+    // Interface absolute IDs → container address modes (Fate schedules inside).
+    let algebra0 = req
+        .session
+        .as_ref()
+        .map(crate::fate_adaptive_algebra::FateAlgebraState::from_session)
+        .unwrap_or_else(crate::fate_adaptive_algebra::FateAlgebraState::ambient);
+    let address_book = match &req.session {
+        Some(s)
+            if s.address_book
+                .as_ref()
+                .is_some_and(|b| b.len() == raw_lines.len() && !incremental) =>
+        {
+            s.address_book.clone().unwrap()
+        }
+        Some(s) if incremental && s.address_book.as_ref().is_some_and(|b| b.len() <= raw_lines.len()) => {
+            let prev = s.address_book.as_ref().unwrap();
+            let new_raw: Vec<String> = raw_lines.iter().skip(prev.len()).cloned().collect();
+            if new_raw.is_empty() {
+                prev.clone()
+            } else {
+                crate::valhalla_address::extend_address_book(prev, &new_raw, &algebra0)
+            }
+        }
+        _ => crate::valhalla_address::convert_interface_corpus(&raw_lines, &algebra0),
+    };
+    // Containers ingest scrubbed bodies; absolute IDs live only in the address book.
+    let lines = if address_book.len() == raw_lines.len() && !address_book.is_empty() {
+        address_book.scrubbed_corpus()
+    } else {
+        raw_lines.clone()
+    };
+    let corpus_modality_mask = if merge_masks.len() == raw_lines.len() {
+        merge_masks
+    } else {
+        build_corpus_modality_masks(&raw_lines, &items, req.session.as_ref())
+    };
 
     if req.fate_pretrain_adapt_only {
         let prev = req
@@ -1809,11 +2076,14 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
             target,
             explore,
         );
-        let session = session_state_from_snap(
+        let session = session_state_from_snap_with_book(
             &prev.corpus,
             linked_snap.clone(),
             prev.question_history.clone(),
             prev.fate_baseline_tick,
+            prev.address_book.clone(),
+            Some(prev.fate_algebra_meta.clone()),
+            prev.corpus_modality_mask.clone(),
         );
         return Ok(ValhallaBaseResponse {
             protocol: VALHALLA_BASE_PROTOCOL.to_string(),
@@ -1843,11 +2113,14 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         let target = BodyTarget::parse(&req.config.patch_body);
         let (linked_snap, link_out) =
             crate::fate_orchestrator::fate_link_snapshot(&prev.snapshot, &orch, target);
-        let session = session_state_from_snap(
+        let session = session_state_from_snap_with_book(
             &prev.corpus,
             linked_snap.clone(),
             prev.question_history.clone(),
             prev.fate_baseline_tick,
+            prev.address_book.clone().or_else(|| Some(address_book.clone())),
+            Some(prev.fate_algebra_meta.clone()),
+            prev.corpus_modality_mask.clone(),
         );
         return Ok(ValhallaBaseResponse {
             protocol: VALHALLA_BASE_PROTOCOL.to_string(),
@@ -1867,6 +2140,50 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
         });
     }
 
+    if req.fate_split_callback_only {
+        let prev = req
+            .session
+            .as_ref()
+            .ok_or("valhalla_base: fate_split_callback_only requires session")?;
+        let orch = fate_orchestrator_config(&req.config);
+        let target = BodyTarget::parse(&req.config.patch_body);
+        let q = req.questions.first().map(|q| q.text.as_str());
+        let (split_snap, split_out) = crate::fate_orchestrator::fate_split_snapshot(
+            &prev.snapshot,
+            &orch,
+            target,
+            &prev.corpus,
+            q,
+        );
+        let session = session_state_from_snap_with_book(
+            &prev.corpus,
+            split_snap.clone(),
+            prev.question_history.clone(),
+            prev.fate_baseline_tick,
+            prev.address_book.clone().or_else(|| Some(address_book.clone())),
+            Some(prev.fate_algebra_meta.clone()),
+            prev.corpus_modality_mask.clone(),
+        );
+        return Ok(ValhallaBaseResponse {
+            protocol: VALHALLA_BASE_PROTOCOL.to_string(),
+            context_lines: prev.corpus.len(),
+            context_fingerprint: session.fingerprint.clone(),
+            decode: req.config.decode,
+            session,
+            features: vec![
+                "fate_split_callback_only".into(),
+                "fate_fragment_split".into(),
+                format!("splits_done:{}", split_out.splits_done),
+                format!("callback_steps:{}", split_out.callback_steps),
+                format!("rolled_back:{}", split_out.rolled_back),
+            ],
+            rows: vec![],
+            fate_telemetry: Some(fate_telemetry_from_snap(&split_snap, &req.config)),
+            fate_warmup: None,
+            proactive: None,
+        });
+    }
+
     let (mut context_snap, fate_warmup) = resolve_snapshot(req, &lines, &items, incremental);
     let cfg = &req.config;
 
@@ -1877,7 +2194,7 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
                     .into(),
             );
         }
-        let session = session_state_from_snap(
+        let session = session_state_from_snap_with_book(
             &lines,
             context_snap.clone(),
             req.session
@@ -1888,6 +2205,9 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
                 .as_ref()
                 .map(|s| s.fate_baseline_tick)
                 .unwrap_or(context_snap.fate_signal_tick),
+            Some(address_book.clone()),
+            req.session.as_ref().map(|s| s.fate_algebra_meta.clone()),
+            corpus_modality_mask.clone(),
         );
         return Ok(ValhallaBaseResponse {
             protocol: VALHALLA_BASE_PROTOCOL.to_string(),
@@ -1904,7 +2224,7 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
     }
 
     if req.fate_warmup_only {
-        let session = session_state_from_snap(
+        let session = session_state_from_snap_with_book(
             &lines,
             context_snap.clone(),
             req.session
@@ -1912,6 +2232,9 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
                 .map(|s| s.question_history.clone())
                 .unwrap_or_default(),
             context_snap.fate_signal_tick,
+            Some(address_book.clone()),
+            req.session.as_ref().map(|s| s.fate_algebra_meta.clone()),
+            corpus_modality_mask.clone(),
         );
         let mut features = vec!["context_flex".into(), "fate_warmup_only".into()];
         if fate_warmup.is_some() {
@@ -1944,7 +2267,7 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
     if !continuing_session_only || fate_baseline == 0 {
         fate_baseline = context_snap.fate_signal_tick;
     }
-    let mut features = vec!["context_flex".into()];
+    let mut features = vec!["context_flex".into(), "address_container_v1".into()];
     if cfg.decode == ValhallaBaseDecode::Hybrid {
         features.push("hybrid_routing".into());
     }
@@ -1956,6 +2279,13 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
     }
     if cfg.core_fusion {
         features.push("core_fusion".into());
+    }
+    features.push(format!(
+        "answer_mix_{}",
+        answer_mix_label(cfg.answer_mix)
+    ));
+    if cfg.answer_mix == ValhallaAnswerMix::Mixed {
+        features.push("answer_mix_default_mixed".into());
     }
     if incremental {
         features.push("session_append".into());
@@ -2036,17 +2366,55 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
     } else {
         rows = Vec::with_capacity(req.questions.len());
         for q in &req.questions {
+            // Question → container probes; Fate schedules Hub∩Tile∩Stem land into affinity.
+            {
+                let state = crate::fate_adaptive_algebra::FateAlgebraState::from_meta(
+                    &crate::fate_adaptive_algebra::FateAlgebraMeta::default(),
+                    Some(&context_snap),
+                );
+                let probe = crate::valhalla_address::convert_interface_question(q, &state);
+                let frags = crate::fate_orchestrator::stored_fragments(&context_snap);
+                let mut schedule = crate::valhalla_address::fate_schedule_affinity(
+                    &address_book,
+                    &probe,
+                    &frags,
+                    &state,
+                );
+                // Open QA: crush sticky schedule peaks that ignore query content.
+                if q.score_type.eq_ignore_ascii_case("open") {
+                    let tokens = crate::fate_adaptive_algebra::query_tokens_from_q(q);
+                    let gated_lines = corpus_view_for_answer_mix(
+                        &lines,
+                        &corpus_modality_mask,
+                        cfg.answer_mix,
+                    );
+                    schedule = crate::valhalla_address::content_gate_schedule(
+                        &schedule, &gated_lines, &tokens,
+                    );
+                }
+                crate::valhalla_address::apply_fate_schedule_to_affinity(
+                    &mut context_snap.corpus_line_affinity,
+                    &schedule,
+                );
+            }
+            let mix_eligible = gate_affinity_by_answer_mix(
+                &mut context_snap,
+                &corpus_modality_mask,
+                cfg.answer_mix,
+            );
+            let answer_lines =
+                corpus_view_for_answer_mix(&lines, &corpus_modality_mask, cfg.answer_mix);
             let p: FairPrompt = q.clone().into();
             let is_follow_up = !prior.is_empty();
-            let row = if p.score_type == "mcq" && cfg.mcq_decode == ValhallaMcqDecode::MaxPick {
-                run_mcq_max_pick(&lines, &p, q, cfg, context_snap.clone(), &prior)?
+            let mut row = if p.score_type == "mcq" && cfg.mcq_decode == ValhallaMcqDecode::MaxPick {
+                run_mcq_max_pick(&answer_lines, &p, q, cfg, context_snap.clone(), &prior)?
             } else {
                 let mode = effective_decode_for_question(cfg, &p.score_type, is_follow_up);
                 match mode {
                     ValhallaBaseDecode::Native => {
                         if cfg.decode == ValhallaBaseDecode::Hybrid && p.score_type == "open" {
                             run_open_decode_row(
-                                &lines,
+                                &answer_lines,
                                 &p,
                                 q,
                                 cfg,
@@ -2055,7 +2423,7 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
                             )?
                         } else {
                             run_native_one(
-                                &lines,
+                                &answer_lines,
                                 &p,
                                 q,
                                 cfg,
@@ -2065,11 +2433,13 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
                         }
                     }
                     ValhallaBaseDecode::LmPatch => {
-                        run_lm_one(&lines, &p, q, cfg, context_snap.clone())?
+                        run_lm_one(&answer_lines, &p, q, cfg, context_snap.clone())?
                     }
                     ValhallaBaseDecode::Hybrid => unreachable!(),
                 }
             };
+            row.answer_mix = Some(answer_mix_label(cfg.answer_mix).into());
+            row.answer_mix_eligible = Some(mix_eligible);
             prior.push(q.text.clone());
             rows.push(row.clone());
             let q_ports = grind_ports_for_line(&format_prompt_text(&p));
@@ -2092,11 +2462,14 @@ pub fn run_valhalla_base(req: &ValhallaBaseRequest) -> Result<ValhallaBaseRespon
 
     let snap = context_snap;
     let fate_tel = fate_telemetry_from_snap(&snap, cfg);
-    let session = session_state_from_snap(
+    let session = session_state_from_snap_with_book(
         &lines,
         snap,
         cap_question_history(prior),
         fate_baseline,
+        Some(address_book),
+        req.session.as_ref().map(|s| s.fate_algebra_meta.clone()),
+        corpus_modality_mask,
     );
 
     Ok(ValhallaBaseResponse {
@@ -2176,7 +2549,7 @@ mod tests {
             append_lines: vec!["Alpha   line".into(), "Beta".into()],
             ..Default::default()
         };
-        let (lines, _, _) = merge_context(&req);
+        let (lines, _, _, _) = merge_context(&req);
         assert_eq!(lines.len(), 2);
         assert!(lines.iter().any(|l| l.starts_with("Beta")));
     }
@@ -2210,6 +2583,8 @@ mod tests {
             fate_rollback_stack: Vec::new(),
             question_history: vec![],
             fate_baseline_tick: 0,
+            address_book: None,
+            corpus_modality_mask: vec![],
         };
         let snap = TriadIncubationSnapshot {
             completed_tiles: vec![],
@@ -2231,5 +2606,20 @@ mod tests {
         };
         let out = reanchor_snapshot_affinity(&prev, &["Other.".into()], snap);
         assert!((out.corpus_line_affinity[0] - 0.42).abs() < 1e-9);
+    }
+
+    #[test]
+    fn answer_mix_gates_modality_bits() {
+        let text = MOD_TEXT;
+        let audio = MOD_TEXT | MOD_AUDIO;
+        let image = MOD_TEXT | MOD_IMAGE;
+        assert!(answer_mix_allows(text, ValhallaAnswerMix::Mixed));
+        assert!(answer_mix_allows(audio, ValhallaAnswerMix::Mixed));
+        assert!(answer_mix_allows(text, ValhallaAnswerMix::Text));
+        assert!(!answer_mix_allows(audio, ValhallaAnswerMix::Text));
+        assert!(answer_mix_allows(audio, ValhallaAnswerMix::Audio));
+        assert!(!answer_mix_allows(text, ValhallaAnswerMix::Audio));
+        assert!(answer_mix_allows(image, ValhallaAnswerMix::Image));
+        assert!(!answer_mix_allows(audio, ValhallaAnswerMix::Image));
     }
 }

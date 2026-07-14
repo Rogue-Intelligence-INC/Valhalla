@@ -160,7 +160,17 @@ def production_valhalla_base_kwargs(**overrides):
         "fate_warmup_cycles": int(os.environ.get("VALHALLA_FATE_WARMUP_CYCLES", "4")),
         "incubation_cycles": 2,
         "max_new": 128,
+        # Default off: structure path works without fusion; U1 / multimodal demos
+        # must opt in via production_multimodal_kwargs() or core_fusion=True.
+        "core_fusion": False,
     }
+    base.update(overrides)
+    return base
+
+
+def production_multimodal_kwargs(**overrides):
+    """Production multimodal stack: non-isolated core_fusion + default mixed answering."""
+    base = production_valhalla_base_kwargs(core_fusion=True, answer_mix="mixed")
     base.update(overrides)
     return base
 

@@ -33,8 +33,9 @@
 | **`fragment_full` starved late evidence** | Do **not** truncate session before `fragment_full_capped`; pin evidence (e.g. D2:8 @~253); production cap **128** |
 | Holdout land: schedule ≻ content | Holdout uses content RelAddr affinity + direct egress (skip sticky address-schedule in `worker.run`) |
 | **U5 unique-proof citeability** | Fast path max-turns **20** → pass/citeable (acc developing) |
-| Multimodal / U1 default | `production_multimodal_kwargs()` · `core_fusion=True` (base default stays off) |
+| Multimodal / U1 default | `production_multimodal_kwargs()` · `core_fusion=True` · **`answer_mix=mixed`** |
 | Fused loader stub message | Points to real binary path |
+| **Mixed non-isolated answering** | `ValhallaAnswerMix` + `test_multimodal_mixed_answer.py` · PASS |
 
 ---
 

@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-07-10T02:21:33.625545+00:00",
+  "timestamp": "2026-07-14T04:55:03.518353+00:00",
   "protocol": "context-core-fusion-v2",
-  "task_count": 2,
+  "task_count": 12,
   "core_formation_rate": 1.0,
-  "baseline_qa_accuracy": 1.0,
-  "core_fusion_qa_accuracy": 1.0,
+  "baseline_qa_accuracy": 0.5833333333333334,
+  "core_fusion_qa_accuracy": 0.5833333333333334,
   "fusion_improved_count": 0,
   "fusion_regressed_count": 0,
-  "avg_universal_score": 0.880698209664518,
+  "avg_universal_score": 0.8772252163804257,
   "context_swap_ablation": {
     "question": "What is the capital of Australia?",
     "with_canberra_context": "[corpus:1] [fate:14@1] The capital of Australia is Canberra",
@@ -27,13 +27,14 @@
         "tts_image": 0.9999823037102032
       },
       "baseline": {
-        "correct": true,
+        "correct": false,
         "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
-        "answer": "ANSWER: C",
+        "answer": "ANSWER: A",
         "core_fusion": null,
         "context_fingerprint": "eac8425b03a147f8",
         "features": [
           "context_flex",
+          "address_container_v1",
           "hybrid_routing",
           "follow_up_aware_retrieval",
           "fate_weight_fixed",
@@ -42,16 +43,15 @@
           "fate_warmup",
           "fragment_only",
           "dynamic_fragments",
-          "fate_fragment_link",
           "natural_channels",
           "proactive_idle",
           "multimodal_context"
         ]
       },
       "core_fusion_path": {
-        "correct": true,
+        "correct": false,
         "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
-        "answer": "ANSWER: C",
+        "answer": "ANSWER: A",
         "core_fusion": {
           "universal_score": 0.8830282293170146,
           "universal_formed": true,
@@ -61,6 +61,7 @@
         "context_fingerprint": "eac8425b03a147f8",
         "features": [
           "context_flex",
+          "address_container_v1",
           "hybrid_routing",
           "core_fusion",
           "follow_up_aware_retrieval",
@@ -70,7 +71,6 @@
           "fate_warmup",
           "fragment_only",
           "dynamic_fragments",
-          "fate_fragment_link",
           "natural_channels",
           "proactive_idle",
           "multimodal_context"
@@ -99,6 +99,7 @@
         "context_fingerprint": "e96e0a83b7c1ae2f",
         "features": [
           "context_flex",
+          "address_container_v1",
           "hybrid_routing",
           "follow_up_aware_retrieval",
           "fate_weight_fixed",
@@ -107,7 +108,6 @@
           "fate_warmup",
           "fragment_only",
           "dynamic_fragments",
-          "fate_fragment_link",
           "natural_channels",
           "proactive_idle",
           "multimodal_context"
@@ -126,6 +126,7 @@
         "context_fingerprint": "e96e0a83b7c1ae2f",
         "features": [
           "context_flex",
+          "address_container_v1",
           "hybrid_routing",
           "core_fusion",
           "follow_up_aware_retrieval",
@@ -135,7 +136,656 @@
           "fate_warmup",
           "fragment_only",
           "dynamic_fragments",
-          "fate_fragment_link",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "MCQ_ECON_01",
+      "score_type": "mcq",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.9999556571045932,
+        "universal_score": 0.876329456026582,
+        "universal_formed": true,
+        "text_tts": 0.9999999999202708,
+        "text_image": 0.9999335185722269,
+        "tts_image": 0.9999334528212818
+      },
+      "baseline": {
+        "correct": false,
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "answer": "ANSWER: A",
+        "core_fusion": null,
+        "context_fingerprint": "dd172a3f3700b66c",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": false,
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "answer": "ANSWER: A",
+        "core_fusion": {
+          "universal_score": 0.8760387357607616,
+          "universal_formed": true,
+          "shared_patch": 0.9994018242846731,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "dd172a3f3700b66c",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "MCQ_PHIL_01",
+      "score_type": "mcq",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.9999778835484859,
+        "universal_score": 0.8769275579544541,
+        "universal_formed": true,
+        "text_tts": 0.9999999998821401,
+        "text_image": 0.9999668763615118,
+        "tts_image": 0.9999667744018057
+      },
+      "baseline": {
+        "correct": true,
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "answer": "ANSWER: B",
+        "core_fusion": null,
+        "context_fingerprint": "36de881a1c8293d3",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": true,
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "answer": "ANSWER: B",
+        "core_fusion": {
+          "universal_score": 0.8773371997225358,
+          "universal_formed": true,
+          "shared_patch": 0.9999191373934773,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "36de881a1c8293d3",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "MCQ_MED_01",
+      "score_type": "mcq",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.9999841231538342,
+        "universal_score": 0.8770684961116832,
+        "universal_formed": true,
+        "text_tts": 0.9999999999273378,
+        "text_image": 0.9999761875971788,
+        "tts_image": 0.9999761819369863
+      },
+      "baseline": {
+        "correct": false,
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "answer": "ANSWER: A",
+        "core_fusion": null,
+        "context_fingerprint": "90937f0b3934d879",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": false,
+        "decode_path": "valhalla_base/lm_patch/patch_pipeline_v4_mcq/fused_mcq_logprob",
+        "answer": "ANSWER: A",
+        "core_fusion": {
+          "universal_score": 0.8776573693778491,
+          "universal_formed": true,
+          "shared_patch": 0.9999228110372752,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "90937f0b3934d879",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "OPEN_PHYS_01",
+      "score_type": "open",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.9999720762394961,
+        "universal_score": 0.8758073680666336,
+        "universal_formed": true,
+        "text_tts": 0.9999999940489974,
+        "text_image": 0.9999581147791659,
+        "tts_image": 0.9999581198903251
+      },
+      "baseline": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/open_retrieval_span",
+        "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+        "core_fusion": null,
+        "context_fingerprint": "0dbf7cb49aa95b6e",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/open_retrieval_span",
+        "answer": "[corpus:0] [fate:14@0] Newton's second law states force equals mass times acceleration F equals m a",
+        "core_fusion": {
+          "universal_score": 0.8756523985114366,
+          "universal_formed": true,
+          "shared_patch": 0.9999789608450887,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "0dbf7cb49aa95b6e",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "OPEN_CHEM_01",
+      "score_type": "open",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.999952428073798,
+        "universal_score": 0.8786561331436058,
+        "universal_formed": true,
+        "text_tts": 0.9999907514197216,
+        "text_image": 0.9999286688168063,
+        "tts_image": 0.999937863984866
+      },
+      "baseline": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/open_retrieval_span",
+        "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+        "core_fusion": null,
+        "context_fingerprint": "1cd21a2552498cef",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/open_retrieval_span",
+        "answer": "[corpus:0] [fate:10@0] Water boils at 100 degrees Celsius at standard atmospheric pressure",
+        "core_fusion": {
+          "universal_score": 0.8787732237880898,
+          "universal_formed": true,
+          "shared_patch": 0.9998880322467748,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "1cd21a2552498cef",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "OPEN_BIO_01",
+      "score_type": "open",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.9999749174393249,
+        "universal_score": 0.8785315703927797,
+        "universal_formed": true,
+        "text_tts": 0.9999999999642911,
+        "text_image": 0.9999623779593397,
+        "tts_image": 0.9999623743943438
+      },
+      "baseline": {
+        "correct": false,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+        "answer": "[corpus:4] [fate:26@4] Mitochondria",
+        "core_fusion": null,
+        "context_fingerprint": "7f011d68681671d5",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": false,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+        "answer": "[corpus:4] [fate:26@4] Mitochondria",
+        "core_fusion": {
+          "universal_score": 0.8784247379403556,
+          "universal_formed": true,
+          "shared_patch": 0.9997755942699662,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "7f011d68681671d5",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "OPEN_HIST_01",
+      "score_type": "open",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.9948050424320019,
+        "universal_score": 0.8776250232857511,
+        "universal_formed": true,
+        "text_tts": 0.9928436248438732,
+        "text_image": 0.9993661809265513,
+        "tts_image": 0.9922053215255812
+      },
+      "baseline": {
+        "correct": false,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+        "answer": "[corpus:2] [fate:18@2] World War Two",
+        "core_fusion": null,
+        "context_fingerprint": "a6de940eda6aeb3e",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": false,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+        "answer": "[corpus:2] [fate:18@2] World War Two",
+        "core_fusion": {
+          "universal_score": 0.874616430147962,
+          "universal_formed": true,
+          "shared_patch": 0.9932833566194067,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "a6de940eda6aeb3e",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "OPEN_GEO_01",
+      "score_type": "open",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.9999933478900038,
+        "universal_score": 0.8720682440451889,
+        "universal_formed": true,
+        "text_tts": 0.9999999999556599,
+        "text_image": 0.9999900335634592,
+        "tts_image": 0.9999900101508926
+      },
+      "baseline": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/open_retrieval_span",
+        "answer": "[corpus:0] [fate:10@0] The capital city of Australia is Canberra not Sydney or Melbourne",
+        "core_fusion": null,
+        "context_fingerprint": "c639b32e228f5014",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/open_retrieval_span",
+        "answer": "[corpus:0] [fate:10@0] The capital city of Australia is Canberra not Sydney or Melbourne",
+        "core_fusion": {
+          "universal_score": 0.8720157724514671,
+          "universal_formed": true,
+          "shared_patch": 0.9999950610697957,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "c639b32e228f5014",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "OPEN_ECON_01",
+      "score_type": "open",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.9999787415493847,
+        "universal_score": 0.8761207142746814,
+        "universal_formed": true,
+        "text_tts": 0.9999999998698389,
+        "text_image": 0.9999681430876596,
+        "tts_image": 0.999968081690656
+      },
+      "baseline": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+        "answer": "[corpus:4] [fate:26@4] Gross Domestic Product",
+        "core_fusion": null,
+        "context_fingerprint": "1d9d04d34a02be2b",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/multihop_fate_entity",
+        "answer": "[corpus:4] [fate:26@4] Gross Domestic Product",
+        "core_fusion": {
+          "universal_score": 0.8699143704617235,
+          "universal_formed": true,
+          "shared_patch": 0.9951752029272742,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "1d9d04d34a02be2b",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "fusion_improved": false,
+      "fusion_regressed": false
+    },
+    {
+      "id": "OPEN_ECON_02",
+      "score_type": "open",
+      "corpus_supported": true,
+      "core_reference": {
+        "shared_patch": 0.9999803397127801,
+        "universal_score": 0.8761716139347128,
+        "universal_formed": true,
+        "text_tts": 0.9999999998864659,
+        "text_image": 0.999970535060174,
+        "tts_image": 0.9999704841917008
+      },
+      "baseline": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/open_retrieval_span",
+        "answer": "[corpus:0] [fate:10@0] Inflation means a sustained increase in the general price level of goods",
+        "core_fusion": null,
+        "context_fingerprint": "dba9cb9989358ec2",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
+          "natural_channels",
+          "proactive_idle",
+          "multimodal_context"
+        ]
+      },
+      "core_fusion_path": {
+        "correct": true,
+        "decode_path": "valhalla_base/native/query_frag/k1/ids=density_default/natural/triad_memory+hub_routing+pipeline_v4+open_fate+stem_span/open_retrieval_span",
+        "answer": "[corpus:0] [fate:10@0] Inflation means a sustained increase in the general price level of goods",
+        "core_fusion": {
+          "universal_score": 0.8761766510832764,
+          "universal_formed": true,
+          "shared_patch": 0.9999858187870916,
+          "decode_snap": "context+task_non_isolated"
+        },
+        "context_fingerprint": "dba9cb9989358ec2",
+        "features": [
+          "context_flex",
+          "address_container_v1",
+          "hybrid_routing",
+          "core_fusion",
+          "follow_up_aware_retrieval",
+          "fate_weight_fixed",
+          "fate_ingress_quad_cycle",
+          "fate_qa_feedback",
+          "fate_warmup",
+          "fragment_only",
+          "dynamic_fragments",
           "natural_channels",
           "proactive_idle",
           "multimodal_context"
