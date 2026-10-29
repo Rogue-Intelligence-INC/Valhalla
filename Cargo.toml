@@ -2,12 +2,12 @@
 resolver = "2"
 members = [
     # S-wind - Exact Algebraic Computation Framework
+    # (embedded repo, gitignored: run scripts/setup-embedded-repos.ps1 or .sh)
     "s-wind-sim",
     
     # ═══════════════════════════════════════════════════════════════
     # Rational (精确) 版本 - i128/i128 有理数
     # ═══════════════════════════════════════════════════════════════
-    "valhalla-rational",
     "systems/metasystems/fate",        # Fate Rational 版
     
     # ═══════════════════════════════════════════════════════════════
@@ -49,3 +49,4 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Jouly"]
 description = "Valhalla - 统一物理场形变信号处理系统"
+
