@@ -30,15 +30,23 @@ The bottleneck in conjecture-driven research is not generating ideas — it is *
 
 ---
 
-## How It Runs (three modes, honestly separated)
+## How It Runs (one entry point)
 
-| Mode | Entry point | What happens |
-|---|---|---|
-| **Exploration** | `Fate::explore` | Structure extraction → known-sequence check → algebraic search → pattern classes with a DoF ≥ 2 non-triviality gate → signal-pool comparison (cross-domain isomorphism, generalization) |
-| **Verified exploration** | `Fate::explore_with_verification` | Adds fit analysis, extrapolation verification, six-way discovery grading, and auto-archiving of candidates with DoF-based confidence (0.7–0.9) |
-| **Self-loop** | `Fate::explore_with_self_loop` | Keeps working unsettled signals: a 12-transform chain (Δ, Δ², Σ, \|·\|, n·f(n), ratio, f², sgn, MA(3), Δ³, pairwise product, mod 10) with signature-based closure detection — up to 1,000 rounds or true exhaustion, declared **MYSTERY** |
+```bash
+swind explore "10,17,24"                                   # continued exploration
+swind explore "12,21,34,51,72,97,126,159" --mode verified --save-pending
+```
 
-A second, independent runtime (**Voyager**) turns signals into equations with complete step-by-step derivation traces and emits audit-ready LaTeX/Markdown reports.
+One command, four depths (`--mode fast | verified | loop | full`):
+
+| Stage | What happens |
+|---|---|
+| Recognize | Structure extraction, then known-sequence check against the OEIS knowledge base — known results are labelled, never discoveries |
+| Fit | Fixed-order six-method algebraic search (recurrences → closed forms → identities → equation solving → rational functions → multiplicative), then pattern classes behind a DoF ≥ 2 non-triviality gate, then signal-pool comparison (cross-domain isomorphism, generalization) |
+| Grade | Fit analysis + extrapolation verification → six-way candidate grading with negative evidence; only this verified path may call anything a candidate |
+| Persist | Unsettled signals keep circulating through a 12-transform chain (Δ, Δ², Σ, \|·\|, n·f(n), ratio, f², sgn, MA(3), Δ³, pairwise product, mod 10) until closure or declared **MYSTERY**; surviving candidates queue into the human pending-review pool (`--save-pending`) |
+
+Across calls, Fate **remembers**: every processed signal joins a cross-domain pool, and per-pattern success statistics re-order future trials. A Voyager runtime additionally emits equations with complete derivation traces as audit-ready LaTeX/Markdown. S-Wind is a standalone product — not part of the Valhalla workspace (separated 2026-10-30); full specification in `ARCHITECTURE.md`.
 
 Across calls, Fate **remembers**: every processed signal joins a cross-domain pool, and per-pattern success statistics re-order future trials — the engine's search strategy adapts to what has worked.
 
@@ -52,7 +60,7 @@ Across calls, Fate **remembers**: every processed signal joins a cross-domain po
 | Algebraic pattern fitting | Six-method algebraic search + pattern classes fit correctly across the probe suite (arithmetic / geometric / recurrence / polynomial / reciprocal / periodic) |
 | Known-sequence recognition | 130 built-in sequences recognized instantly, never counted as discoveries |
 | Continued exploration | Prime-gap signal: 16 rounds / 15 transforms before settling; exhausted signals are declared MYSTERY with the tested hypothesis space reported |
-| Candidate & review tracks | Fate candidate pool (auto-archived, promotable at confidence ≥ 0.8 with support ≥ 3) plus a KnowledgeBase `PendingReview` queue (human verify → JSON persistence) — connecting them end-to-end is milestone M1 |
+| Candidate & review tracks | Fate candidate pool (auto-archived, promotable at confidence ≥ 0.8 with support ≥ 3); through the single entry point, surviving candidates now land in the KnowledgeBase `PendingReview` queue (`swind explore --save-pending`, verified end-to-end) — in-engine automatic wiring remains milestone M1 |
 | Deterministic & self-contained | 56/56 unit tests pass from a clean clone; fixed-seed evaluation is bit-reproducible |
 
 ---
@@ -117,7 +125,7 @@ S-wind is closed-source, licensed commercially:
 
 | Milestone | Deliverable | Why it matters |
 |---|---|---|
-| M1 | Connect Fate candidate pool → pending-review queue (persistence + dedup) | Closes the propose→review loop end-to-end |
+| M1 | Automatic in-engine candidate → pending-review wiring (persistence + dedup); CLI path already works via `--save-pending` | Removes the last manual step in the propose→review loop |
 | M2 | Rewrite verification gates on structured formulas (Expr), hold-out validation | Candidates become trustworthy enough to price |
 | M3 | Fix disclosed arithmetic boundary bug; property-based fuzz in CI | "Exact" becomes an audited claim |
 | M4 | Independent replication package (pinned commit, one-command build, public benchmark) | Third parties can check every number in this deck |
