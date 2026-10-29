@@ -1,147 +1,162 @@
-# S-wind: The Digital Scientist
+# S-Wind
 
-> **Automated Symbolic Exact Scientific Discovery Framework**
+**An exact-arithmetic engine that proposes, tests, and falsifies mathematical conjectures — with a human in the loop.**
+
+Rogue Intelligence LNC — Proprietary & Confidential
 
 ---
 
 ## One-Liner
 
-**S-wind is a framework that discovers scientific laws automatically—using exact mathematics, not statistical approximation.**
+Give S-wind a sequence of numbers. It tells you — exactly, over ℚ, no floating point in the core engine:
+
+1. **Known?** It is matched against 130 built-in OEIS sequences (183 OEIS b-files loadable). Known results are labelled and **never counted as discoveries**.
+2. **Fittable?** A fixed-order algebraic search (recurrences → closed forms → identities → equation solving → rational functions → multiplicative structure), then knowledge-base pattern classes, produces a candidate closed form.
+3. **Survivable?** Candidates pass through fit-quality gates (degrees of freedom, extrapolation consistency, novelty) and are graded — never asserted. Survivors are queued for **human review**.
+
+S-wind proposes; humans dispose. Full runtime specification: `ARCHITECTURE.md`.
 
 ---
 
 ## The Problem
 
-Scientific discovery is slow. It took Kepler 15 years to discover his Third Law. Rydberg spent 3 years on his formula. Newton needed 20 years for the inverse square law.
+Automated science has a credibility gap:
 
-Meanwhile, AI systems like AlphaFold have shown that computation can accelerate discovery—but they work through **statistical approximation**, not **exact reasoning**. They can predict, but they can't prove.
+- Pattern miners produce correlations that collapse out-of-sample.
+- Generative AI produces plausible-but-unverifiable claims at scale.
+- Almost no tooling is built to **kill its own hypotheses cheaply** and keep an audit trail.
 
-**What if a system could discover AND prove—automatically?**
-
----
-
-## The Solution
-
-S-wind is an **automated symbolic exact scientific research framework**:
-
-| Traditional AI | S-wind |
-|---------------|--------|
-| Statistical approximation | **Exact algebra** |
-| Predicts results | **Proves results** |
-| Needs training data | **Works from first principles** |
-| Black box | **Fully auditable** |
-| Finds patterns | **Creates new mathematics** |
-
-### Core Innovation: Triple-Fate Architecture
-
-S-wind doesn't just find patterns—it **creates new rule systems**:
-
-1. **Fate-in-Fate**: Hierarchical observation (watches how it discovers)
-2. **Fate Loop**: Self-referential feedback (learns from its own output)
-3. **Combined**: Enables "Level-Up"—spontaneous creation of new meta-systems
+The bottleneck in conjecture-driven research is not generating ideas — it is **triaging** them: exact checking, known-result matching, and falsification, before a human spends an hour.
 
 ---
 
-## Proof of Concept
+## How It Runs (three modes, honestly separated)
 
-### Blind Re-discovery Test
+| Mode | Entry point | What happens |
+|---|---|---|
+| **Exploration** | `Fate::explore` | Structure extraction → known-sequence check → algebraic search → pattern classes with a DoF ≥ 2 non-triviality gate → signal-pool comparison (cross-domain isomorphism, generalization) |
+| **Verified exploration** | `Fate::explore_with_verification` | Adds fit analysis, extrapolation verification, six-way discovery grading, and auto-archiving of candidates with DoF-based confidence (0.7–0.9) |
+| **Self-loop** | `Fate::explore_with_self_loop` | Keeps working unsettled signals: a 12-transform chain (Δ, Δ², Σ, \|·\|, n·f(n), ratio, f², sgn, MA(3), Δ³, pairwise product, mod 10) with signature-based closure detection — up to 1,000 rounds or true exhaustion, declared **MYSTERY** |
 
-We stripped S-wind of all physics knowledge and gave it only raw observational data:
+A second, independent runtime (**Voyager**) turns signals into equations with complete step-by-step derivation traces and emits audit-ready LaTeX/Markdown reports.
 
-| Law | Human Discovery | S-wind | Speedup |
-|-----|----------------|--------|---------|
-| Kepler's Third Law | 15 years | 0.168 ms | 10¹¹× |
-| Rydberg Formula | 3 years | 0.116 ms | 10¹⁰× |
-| Newton's Inverse Square | 20 years | 0.108 ms | 10¹¹× |
-
-**S-wind independently re-discovered three fundamental physical laws in 0.4 milliseconds.**
-
-### New Discoveries
-
-In 2 days, S-wind discovered:
-
-- **Planck Closure Functional**: $\mathcal{C}(n) = 1 - \sqrt{1 - 2/n}$
-  - First exact algebraic formula for GR-QM incompatibility
-  - Complete boundary theorems proved
-  
-- **15 Level-Up Events**: The system created qualitatively new rule systems that weren't programmed
+Across calls, Fate **remembers**: every processed signal joins a cross-domain pool, and per-pattern success statistics re-order future trials — the engine's search strategy adapts to what has worked.
 
 ---
 
-## Market Opportunity
+## What S-Wind Does (verified 2026-10-30)
 
-| Sector | Application | Value |
-|--------|-------------|-------|
-| Pharmaceutical | Drug discovery acceleration | $1.5T market |
-| Materials Science | New material prediction | $5B+ annually |
-| Theoretical Physics | Automated theory verification | Academic impact |
-| Mathematics | Conjecture verification | Research acceleration |
-
----
-
-## Business Model
-
-1. **Research Licenses**: Academic institutions
-2. **Enterprise API**: Pharmaceutical/materials companies
-3. **Discovery Royalties**: Share in IP from discoveries
-4. **Consulting**: Custom scientific exploration projects
+| Capability | Status |
+|---|---|
+| Exact rational arithmetic (EPR) | Fuzz-tested against a Python big-integer oracle: 2,675 cases, zero failures (one boundary bug at 2¹²⁷ disclosed in appendix; fix designed) |
+| Algebraic pattern fitting | Six-method algebraic search + pattern classes fit correctly across the probe suite (arithmetic / geometric / recurrence / polynomial / reciprocal / periodic) |
+| Known-sequence recognition | 130 built-in sequences recognized instantly, never counted as discoveries |
+| Continued exploration | Prime-gap signal: 16 rounds / 15 transforms before settling; exhausted signals are declared MYSTERY with the tested hypothesis space reported |
+| Candidate & review tracks | Fate candidate pool (auto-archived, promotable at confidence ≥ 0.8 with support ≥ 3) plus a KnowledgeBase `PendingReview` queue (human verify → JSON persistence) — connecting them end-to-end is milestone M1 |
+| Deterministic & self-contained | 56/56 unit tests pass from a clean clone; fixed-seed evaluation is bit-reproducible |
 
 ---
 
-## Competitive Advantage
+## The Falsification Engine
 
-| Competitor | Approach | Limitation |
-|-----------|----------|------------|
-| Wolfram Alpha | Query-response | No autonomous discovery |
-| AlphaFold | Deep learning | Prediction only, no proof |
-| Mathematica | Symbolic computation | No self-directed exploration |
-| **S-wind** | **Autonomous exact discovery** | **Creates new mathematics** |
+We pointed S-wind at our own favourite conjecture — "a unique quartic polynomial explains α⁻¹ ≈ 137":
 
-**S-wind is the only system that can both discover AND prove—and create new rule systems in the process.**
+- **146,410** candidate polynomials tested
+- **146,317 falsified** by the system's own exhaustive search
+- The tool's own printed conclusion: *uniqueness fails; the pattern is not special*
+
+Blind tests and negative controls (Möbius, random sequences) ship in the repository and **reject** over-claims.
+
+**We sell the referee, not the oracle.** A conjecture engine whose first job is to disprove is the one researchers can trust to pre-screen at scale.
+
+---
+
+## What S-Wind Is Not (disclosed up front)
+
+- It has **not** discovered a validated physical law. Earlier "discovery" claims did not survive our own falsification runs and are withdrawn.
+- The fast exploration path labels algebraic hits optimistically; only the **verified path** grades candidates. Verification itself has known bugs (appendix) — hence human review, always.
+- Earlier generated paper catalogues contained simulated optima; they are **not** research output and are excluded from this deck.
+
+We would rather show you the list of what it killed than a list of what it "found".
+
+---
+
+## Market
+
+**Beachhead: conjecture triage for research & engineering teams**
+
+- Mathematics / physics groups: sequence mining, identity hunting, pre-screening before human proof effort
+- Engineering R&D: exact parameter-space screening with reproducible, auditable runs
+- Verification-adjacent tooling: deterministic symbolic checking where f64 pipelines are unacceptable
+
+Expansion: symbolic regression as a service; curated candidate feeds with human-verified labels (data asset).
+
+---
+
+## Business Model (proprietary licensing)
+
+S-wind is closed-source, licensed commercially:
+
+1. **Research licenses** — academic groups (evaluation terms in `LICENSE.md`)
+2. **Enterprise licenses & API** — industrial R&D screening pipelines
+3. **Custom exploration engagements** — bespoke conjecture-mining runs with audit trails
+4. **Verified-candidate data products** — human-reviewed candidate feeds (post-M1)
+
+---
+
+## Traction (engineering, honestly stated)
+
+- 64k-line Rust codebase; 87 runnable binaries; development continuous since 2026-01
+- Core engine test-verified (56/56); candidate workflow demonstrated end-to-end
+- Self-falsification suite ships in-repo (`swind_unified_proof`)
+- Hardening completed 2026-10-30: zero machine-specific paths, all reported counts computed at runtime, deterministic CLI evaluation, self-contained build; main Valhalla workspace reproducibility restored (embedded-repo setup script, `cargo test -p s-wind-sim` = 56/56 from a fresh clone)
+
+---
+
+## Roadmap (what funding buys)
+
+| Milestone | Deliverable | Why it matters |
+|---|---|---|
+| M1 | Connect Fate candidate pool → pending-review queue (persistence + dedup) | Closes the propose→review loop end-to-end |
+| M2 | Rewrite verification gates on structured formulas (Expr), hold-out validation | Candidates become trustworthy enough to price |
+| M3 | Fix disclosed arithmetic boundary bug; property-based fuzz in CI | "Exact" becomes an audited claim |
+| M4 | Independent replication package (pinned commit, one-command build, public benchmark) | Third parties can check every number in this deck |
 
 ---
 
 ## Team
 
-**Rogue Intelligence Inc.**
+**Rogue Intelligence LNC**
 
-- 9+ months of architecture development
-- Fully working prototype
-- Open source core (MIT License)
-
----
-
-## Traction
-
-- Framework complete and tested
-- 3 papers ready for arXiv/Nature submission
-- Multiple verified discoveries
-- 15 documented Level-Up events (meta-system creation)
+- Research lab behind the Valhalla programme (S-wind, Wave, Valhalla Unified Core)
+- Working style: negative controls first, claims second — this deck is an example
 
 ---
 
 ## The Ask
 
-**Seed Round: $2M**
+**Seed: $2M, milestone-tranched against M1–M4.**
 
-Use of funds:
-- 40% Engineering (expand Triple-Fate capabilities)
-- 30% Science partnerships (validate discoveries)
-- 20% Infrastructure (cloud deployment)
+- 40% Engineering (verification rewrite, pipeline closure)
+- 30% Independent validation partnerships
+- 20% Infrastructure (benchmark & replication hosting)
 - 10% Operations
 
----
-
-## Vision
-
-> "The framework is more valuable than any single discovery—the telescope is more valuable than any single star Galileo observed."
-
-S-wind is a **new category of scientific instrument**. Not a tool that helps humans discover—a system that discovers autonomously.
-
-**We're not building a better calculator. We're building a digital scientist.**
+**Contact**: licensing@rogue-intelligence.com
 
 ---
 
-*S-wind: Where exactness meets discovery.*
+## Appendix — Known Limitations (full disclosure)
 
-**Contact**: Rogue Intelligence Inc.
+1. `ExtendedInt` division/display bug for values in [2¹²⁷, 2¹²⁸) (affects EPR factorials ≥ 34!); root-caused, fix designed (M3).
+2. Cross-domain verification branches on formula strings and extrapolates self-generated points; structured rewrite with true holdout is M2.
+3. Known-sequence matching lacks a minimum-length guard (empty/short signals can match vacuously); fix queued with M2.
+4. Self-loop explores by transformation only; formula-based signal extension described in a 2026-01 internal experiment is not wired in current code, and that experiment's results are not reproducible on HEAD — not claimed here.
+5. Space "containers" are per-discovery metadata records, not persistent contexts (persistence is M1); the integrated `full_exploration` path converts EPR → i128 for Voyager/Space and degrades silently beyond i128.
+
+*Reproducibility: clone this repository, run `cargo test --release` (56/56). Runtime specification: `ARCHITECTURE.md`. Every number in this deck traces to a test, a probe, or a shipped binary.*
+
+---
+
+**S-wind: the conjecture refinery.**
+© 2026 Rogue Intelligence LNC. All Rights Reserved. Proprietary and confidential — do not redistribute.
