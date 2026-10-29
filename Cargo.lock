@@ -2577,17 +2577,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a50f4cf475b65d88e057964e0e9bb1f0aa9bbb2036dc65c64596b42932536984"
 
 [[package]]
-name = "s-wind-sim"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "rayon",
- "serde",
- "serde_json",
- "voyager",
-]
-
-[[package]]
 name = "safetensors"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"

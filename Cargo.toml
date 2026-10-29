@@ -1,9 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    # S-wind - Exact Algebraic Computation Framework
-    # (embedded repo, gitignored: run scripts/setup-embedded-repos.ps1 or .sh)
-    "s-wind-sim",
+    # NOTE: S-Wind is a separate product (Rogue-Intelligence-INC/s-wind);
+    # it is NOT part of this workspace. Only yaksha-cipher-gpu remains embedded.
     
     # ═══════════════════════════════════════════════════════════════
     # Rational (精确) 版本 - i128/i128 有理数
