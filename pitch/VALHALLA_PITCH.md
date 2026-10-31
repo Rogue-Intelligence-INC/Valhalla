@@ -67,15 +67,16 @@ Valhalla:    Deploy → Observe → Evolve → Better → Evolve → Better...
 
 | Metric | Traditional | Valhalla |
 |--------|-------------|----------|
-| Self-improvement | ❌ | ✅ Continuous |
-| New capability creation | ❌ | ✅ Level-Up events |
+| Self-improvement | ❌ | ✅ Structural — merge/split dynamics measured across training cycles |
+| New capability creation | ❌ | ⚠️ "Level-Up" — hypothesized, under measurement, not yet demonstrated |
 | Requires retraining | ✅ | ❌ |
-| Adapts to new domains | Manual | Automatic |
+| Adapts to new domains | Manual | Without weight updates (structure-level adaptation) |
 
-**Experimental Results (10 cycles)**:
-- 68,421 self-discovered patterns
-- 15 Level-Up events (new capabilities created)
-- 220× improvement over baseline
+**Measured Results (2026-11-01; 5-seed structural battery + causal ablation, self-generated analogues — not official benchmark scores)**:
+- Storage channel: 100% retrieval on every task; **zero forgetting** after learning a second task (backward transfer +0.0pp)
+- Structure causality: ablating learned structure costs **26.4 ± 1.2pp** on withheld multi-hop questions; clearing stored bytes costs 0 — answers ride on structure, not stored text
+- Whole-body save/restore reproduces answers exactly (F = C); self-adapting Fate equation verified live after repair (`0.9814x² − 2.0037x + 0.9984`)
+- Stated openly: reverse/sibling "silence" subsets score ~16–26%; incubation gain over untrained control not yet established (+8.8 ± 11.4pp)
 
 ---
 
@@ -141,6 +142,9 @@ Valhalla:    Deploy → Observe → Evolve → Better → Evolve → Better...
 - Both Rational (exact) and f64 (fast) versions
 - Integrated with S-wind for scientific discovery
 - Integrated with Val-OS for system-level AI
+- 2026-11: algebraized Fate equation layer — self-adapting quadratic acceptance criterion (normalized-gradient adapt, saturation defect found and fixed)
+- 2026-11: whole-body feeding enforced — every input passes the four-quad storage (163,840 stored fragments verified on a 160MB corpus run: 20,127 tiles / 20,239 cells)
+- Known scale wall, stated not hidden: the field step is O(n²); training beyond ~160MB awaits a blocked/streaming field implementation
 
 ---
 
