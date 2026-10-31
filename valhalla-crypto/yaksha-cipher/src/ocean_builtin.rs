@@ -56,7 +56,16 @@ pub fn ocean_stream_byte_2d(
     for _ in 0..mix_rounds {
         s = mix64(s);
     }
-    (s as u8) ^ ((s >> 8) as u8) ^ ((s >> 16) as u8) ^ ((s >> 24) as u8)
+    // Fold all 8 bytes of the 64-bit mixed state (previously the high
+    // 32 bits were silently discarded).
+    (s as u8)
+        ^ ((s >> 8) as u8)
+        ^ ((s >> 16) as u8)
+        ^ ((s >> 24) as u8)
+        ^ ((s >> 32) as u8)
+        ^ ((s >> 40) as u8)
+        ^ ((s >> 48) as u8)
+        ^ ((s >> 56) as u8)
 }
 
 #[inline]

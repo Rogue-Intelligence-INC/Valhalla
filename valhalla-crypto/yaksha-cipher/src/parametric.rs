@@ -299,10 +299,10 @@ pub fn encrypt_entropy(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
             let activated = if entropy > 127 {
                 // High entropy: odd multiplication (always invertible mod 256)
                 let pk_odd = pk | 1;
-                state.wrapping_mul(pk_odd).rotate_left(((dim as u32) % 4) + 1)
+                state.wrapping_mul(pk_odd).rotate_left(dim_rot_mul(dim))
             } else {
                 // Low entropy: addition
-                state.wrapping_add(pk).rotate_right(((dim as u32) % 3) + 1)
+                state.wrapping_add(pk).rotate_right(dim_rot_add(dim))
             };
             
             activated ^ pk ^ local_frac_influence
@@ -362,10 +362,10 @@ pub fn decrypt_entropy(ciphertext: &[u8], key: &[u8]) -> Vec<u8> {
                 // Inverse of odd multiplication
                 let pk_odd = pk | 1;
                 let pk_inv = mod_inverse(pk_odd);
-                activated.rotate_right(((dim as u32) % 4) + 1).wrapping_mul(pk_inv)
+                activated.rotate_right(dim_rot_mul(dim)).wrapping_mul(pk_inv)
             } else {
                 // Inverse of addition
-                activated.rotate_left(((dim as u32) % 3) + 1).wrapping_sub(pk)
+                activated.rotate_left(dim_rot_add(dim)).wrapping_sub(pk)
             };
             
             state.wrapping_sub(membrane).wrapping_sub(local_frac_influence)
@@ -393,6 +393,18 @@ fn derive_position_dim(key: &[u8], position: usize, base_dim: f64) -> f64 {
     // Small offset (-0.1 to +0.1)
     let offset = ((combined % 200) as f64 - 100.0) / 1000.0;
     offset * base_dim.fract().max(0.1)
+}
+
+/// Rotation amounts from the *scaled* dimension: the fractional part now
+/// participates instead of being discarded by an integer cast.
+#[inline]
+fn dim_rot_mul(dim: f64) -> u32 {
+    (((dim * 100.0) as u32) % 4) + 1
+}
+
+#[inline]
+fn dim_rot_add(dim: f64) -> u32 {
+    (((dim * 100.0) as u32) % 3) + 1
 }
 
 /// Modular multiplicative inverse for odd numbers mod 256
@@ -471,3 +483,4 @@ mod tests {
         assert_eq!(c1, c2, "Parametric encryption must be deterministic");
     }
 }
+

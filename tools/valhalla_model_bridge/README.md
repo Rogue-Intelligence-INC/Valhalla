@@ -5,6 +5,7 @@
 Valhalla 从 **Hub / Tile / StemCell / Triad** 孵化结构，**导出并烘焙成独立新模型**。
 原 HuggingFace 权重只读加载，**不在原模型上 patch**。
 
+> Transformer 在这里是被拆开的现成模型。用法见 [`docs/valhalla/TRANSFORMER_USE.md`](../../docs/valhalla/TRANSFORMER_USE.md)。  
 > **TF 前置 + 累积 patch 实验**见 [`../tier_a_tf_front/`](../tier_a_tf_front/README.md)
 
 ## 推荐流程（bake → HF → hybrid / fused）

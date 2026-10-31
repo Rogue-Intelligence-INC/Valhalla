@@ -107,9 +107,9 @@ fn parse_body(s: &str) -> BodyTarget {
 
 fn install_model_fate_rules(session: &mut TriadSession) {
     for rule in MODEL_FATE_RULES {
-        session.tile.triple_fate.store_string(rule);
-        session.stem.triple_fate.store_string(rule);
         session.hub.triple_fate.store_string(rule);
+        session.tile.follow_global_fate(&session.hub.triple_fate);
+        session.stem.follow_global_fate(&session.hub.triple_fate);
     }
 }
 
@@ -125,12 +125,8 @@ fn mark_epoch_if_hub(session: &mut TriadSession) {
 
 fn pulse_fate_feedback(session: &mut TriadSession, phase: &str, score: f64) {
     let intensity = score.clamp(0.05, 1.0);
-    let _ = session
-        .hub
-        .triple_fate
-        .store_string(&format!("model_{phase}_tick score={intensity:.4}"));
-    session.tile.triple_fate.receive_passive(intensity * 0.5);
-    session.stem.triple_fate.receive_passive(intensity * 0.5);
+    let _ = session.hub.triple_fate.store_string(&format!("model_{phase}_tick score={intensity:.4}"));
+    session.observe_fate(intensity);
 }
 
 struct FateTracker {

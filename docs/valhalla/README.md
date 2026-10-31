@@ -21,6 +21,8 @@ Canonical product documentation lives in the **[valhalla-unified-core](https://g
 | **Incubation capability** | [INCUBATION_CAPABILITY.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/INCUBATION_CAPABILITY.md) |
 | **Platform reference** | [VALHALLA_BASE_PLATFORM.md](https://github.com/Rogue-Intelligence-INC/valhalla-unified-core/blob/main/docs/VALHALLA_BASE_PLATFORM.md) |
 | **3-minute demo** | [DEMO_SCRIPT_3MIN_EN.md](./DEMO_SCRIPT_3MIN_EN.md) · [DEMO.md](./DEMO.md) |
+| **Transformer 用法** | [TRANSFORMER_USE.md](./TRANSFORMER_USE.md) — 拆开现成 LLM，用闭合分确认，不在其上做反向传播 |
+| **拆解重组后的能力测试** | [DECOMPOSE_RECOMPOSE_CAPABILITY.md](./DECOMPOSE_RECOMPOSE_CAPABILITY.md) — 已有测试的汇总，和训练分开 |
 | **Live web console** | [`scripts/demo_valhalla_chat.sh`](../../scripts/demo_valhalla_chat.sh) |
 
 ```bash

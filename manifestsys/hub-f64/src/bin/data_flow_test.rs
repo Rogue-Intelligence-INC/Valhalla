@@ -3,7 +3,6 @@
 //! 让各系统处理数据，观察 Fate 的动态行为
 //! 然后根据结果设计每个容器的存储格式
 
-use std::path::Path;
 use hub_f64::ValhallaHub;
 use stem_cell::StemCellComplete;
 use valhalla_tile_quattro::TileQuattroComplete;
@@ -14,9 +13,9 @@ fn main() {
     println!("║     🔬 数据流测试 - 观察 Fate 动态行为                          ║");
     println!("╚════════════════════════════════════════════════════════════════╝\n");
 
-    let base_path = Path::new("/tmp/valhalla_data_flow");
+    let base_path = std::env::temp_dir().join("valhalla_data_flow");
     if base_path.exists() {
-        std::fs::remove_dir_all(base_path).ok();
+        std::fs::remove_dir_all(&base_path).ok();
     }
 
     // 测试数据 - 各种类型
@@ -32,10 +31,10 @@ fn main() {
     // ========== 初始化系统 ==========
     println!("📦 初始化系统...\n");
     
-    let mut hub = ValhallaHub::with_storage(base_path).expect("Hub init failed");
-    let mut stemcell = StemCellComplete::with_storage(base_path).expect("StemCell init failed");
-    let mut tile = TileQuattroComplete::with_storage(base_path).expect("Tile init failed");
-    let mut chamber = ChamberComplete::with_storage(base_path).expect("Chamber init failed");
+    let mut hub = ValhallaHub::with_storage(&base_path).expect("Hub init failed");
+    let mut stemcell = StemCellComplete::with_storage(&base_path).expect("StemCell init failed");
+    let mut tile = TileQuattroComplete::with_storage(&base_path).expect("Tile init failed");
+    let mut chamber = ChamberComplete::with_storage(&base_path).expect("Chamber init failed");
 
     // ========== 跑数据 ==========
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");

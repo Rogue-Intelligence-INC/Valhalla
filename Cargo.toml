@@ -39,6 +39,7 @@ members = [
     "manifestsys/hub",                 # Hub Rational+f64 混合
     "manifestsys/chamber",
     "manifestsys/tile-quattro",
+    "manifestsys/stem-cell",
     "manifestsys/stem-cell-optimized",
     "manifestsys/stemhall-na",
 ]

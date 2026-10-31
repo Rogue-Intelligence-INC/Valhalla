@@ -444,24 +444,18 @@ impl SpaceGPU {
     /// 处理数据并扩展维度
     pub fn process_and_expand(&mut self, data: &[f64]) -> DimensionResult {
         self.global_tick += 1;
-        
-        // 计算维度
-        let result = self.calculator.calculate_single(data);
-        
-        // 自适应扩展
-        self.calculator.adaptive_expand(data);
-        
-        // 让 Fate 观察
+        let mut closed = false;
         for &val in data {
-            self.triple_fate.receive_passive(val);
+            if self.triple_fate.receive_passive(val) {
+                closed = true;
+            }
         }
-        
-        // 存储数据
-        let bytes: Vec<u8> = data.iter()
-            .flat_map(|&v| v.to_le_bytes())
-            .collect();
-        self.triple_fate.store_data(&bytes);
-        
+        let result = self.calculator.calculate_single(data);
+        if closed {
+            self.calculator.adaptive_expand(data);
+            let bytes: Vec<u8> = data.iter().flat_map(|&v| v.to_le_bytes()).collect();
+            self.triple_fate.store_data(&bytes);
+        }
         result
     }
     

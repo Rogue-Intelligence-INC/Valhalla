@@ -23,3 +23,7 @@ fate-f64 = { path = "../../systems/metasystems/fate-f64" }
 
 # Space GPU 高维计算
 valhalla-space-f64-gpu = { path = "../../utils/space-f64-gpu" }
+
+[features]
+default = []
+native_cuda = ["fate-f64/native_cuda"]

@@ -624,6 +624,22 @@ pub struct FateDataEntry {
     pub origin: String,
 }
 
+fn contains_bytes(haystack: &[u8], needle: &[u8]) -> bool {
+    if needle.is_empty() || needle.len() > haystack.len() {
+        return false;
+    }
+    haystack.windows(needle.len()).any(|window| window == needle)
+}
+
+fn raw_mark(raw: &[u8]) -> u64 {
+    let mut hash = 0xcbf29ce484222325u64;
+    for &byte in raw {
+        hash ^= byte as u64;
+        hash = hash.wrapping_mul(0x100000001b3);
+    }
+    hash
+}
+
 impl FateDataEntry {
     /// 创建新条目（外部导入）
     pub fn from_external(tick: u64, data: Vec<u8>, signature: f64, coefs: [f64; 3], converged: bool) -> Self {
@@ -843,7 +859,7 @@ impl ClusterEquation {
     pub fn evaluate(&self, x: f64) -> f64 {
         self.coef_a * x * x + self.coef_b * x + self.coef_c
     }
-    
+
     /// 代数方程 - 被动检查底层信号
     /// 使用动态方程判断是否收敛
     pub fn check(&mut self, signal_values: &[f64]) -> bool {
@@ -898,12 +914,16 @@ impl ClusterEquation {
             self.threshold = (self.threshold * 1.01).min(1.0);
         }
         
-        // 根据 x 调整系数（梯度下降思想）
+        // 根据 x 调整系数（归一化梯度下降）
         // 目标：让 x ≈ 1 时 result ≈ 0（稳定）
+        // 步长除以梯度模长平方 x⁴+x²+1：不归一化时 x 偏离 1 越远步子越大，
+        // 系数几步就被推到 ±10 钳位且同号，方程对一切输入同号、永远判假（饱和死亡）。
+        // 归一化后每步只把当前 x 处的方程值按 (1-lr) 收缩，系数追得住典型比率。
         let error = result;
-        self.coef_a -= lr * error * x * x;
-        self.coef_b -= lr * error * x;
-        self.coef_c -= lr * error;
+        let norm = x * x * x * x + x * x + 1.0;
+        self.coef_a -= lr * error * (x * x) / norm;
+        self.coef_b -= lr * error * x / norm;
+        self.coef_c -= lr * error / norm;
         
         // 限制系数范围
         self.coef_a = self.coef_a.clamp(-10.0, 10.0);
@@ -983,13 +1003,6 @@ impl TripleFateCombined {
         
         // 计算数据的 Fate 签名
         let signature = self.compute_signature(data);
-        
-        // 处理数据（让 Fate 观察）
-        for &byte in data {
-            self.receive_passive(byte as f64);
-        }
-        
-        // 检查是否收敛
         let converged = self.cluster_equation.triggered;
         let coefs = [
             self.cluster_equation.coef_a,
@@ -1070,6 +1083,47 @@ impl TripleFateCombined {
     pub fn stored_count(&self) -> usize {
         self.data_store.len()
     }
+
+    /// 身体自己送出。刺激不进入 receive_passive，不 tick，不改方程，不改存储。
+    /// 对上的是 data_store 里的原文：签名落在当前方程阈值内，或原文里含这段刺激。
+    /// 命中的原文按存入时的 tick 一次送出。没有命中就是空，不再另设沟通意愿。
+    pub fn react(&self, stimulus: &[u8]) -> Vec<u8> {
+        if stimulus.is_empty() || self.data_store.is_empty() {
+            return Vec::new();
+        }
+        let want = self.compute_signature(stimulus);
+        let threshold = self.cluster_equation.threshold;
+        let mut hits: Vec<&FateDataEntry> = self
+            .data_store
+            .values()
+            .filter(|entry| {
+                if entry.raw.is_empty() {
+                    return false;
+                }
+                let have = self.compute_signature(&entry.raw);
+                (have - want).abs() <= threshold || contains_bytes(&entry.raw, stimulus)
+            })
+            .collect();
+        hits.sort_by(|left, right| {
+            left.tick
+                .cmp(&right.tick)
+                .then(left.modified_tick.cmp(&right.modified_tick))
+        });
+        let mut out = Vec::new();
+        let mut seen: Vec<(usize, u64)> = Vec::new();
+        for entry in hits {
+            let mark = (entry.raw.len(), raw_mark(&entry.raw));
+            if seen.contains(&mark) {
+                continue;
+            }
+            seen.push(mark);
+            if !out.is_empty() {
+                out.push(b'\n');
+            }
+            out.extend_from_slice(&entry.raw);
+        }
+        out
+    }
     
     // ═══════════════════════════════════════════════════════════════════════════
     // 系统完全控制权 - 修改、创建、变换
@@ -1086,11 +1140,6 @@ impl TripleFateCombined {
             self.cluster_equation.coef_b,
             self.cluster_equation.coef_c,
         ];
-        
-        // 让 Fate 观察
-        for &byte in &data {
-            self.receive_passive(byte as f64);
-        }
         
         let entry = FateDataEntry::from_internal(self.global_tick, data, signature, coefs);
         self.data_store.insert(id.clone(), entry);
@@ -1112,11 +1161,6 @@ impl TripleFateCombined {
             self.cluster_equation.coef_c,
         ];
         let tick = self.global_tick;
-        
-        // 让 Fate 观察修改后的数据
-        for &byte in &new_data {
-            self.receive_passive(byte as f64);
-        }
         
         if let Some(entry) = self.data_store.get_mut(id) {
             entry.raw = new_data;
@@ -1416,6 +1460,16 @@ impl TripleFateCombined {
                 self.base.state.discovery_count += 1;
                 self.base.state.pattern_diversity += 1;
                 convergence_detected = true;  // 捕捉到收敛信号
+            }
+            // 上一层看底层状态，不另起一个方程。
+            let lifted = self.state_to_signal(&self.base.state);
+            let _ = self.meta.tick(Some(lifted));
+        }
+        if self.cross_feedback && self.global_tick % 1000 == 0 {
+            if let Some(rule) = self.meta.emergent_rules.last() {
+                if self.base.rules.len() < 100 {
+                    self.base.rules.push(rule.clone());
+                }
             }
         }
         

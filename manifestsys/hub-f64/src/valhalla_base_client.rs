@@ -515,6 +515,8 @@ impl ValhallaBaseClient {
                 fate_rollback_stack: Vec::new(),
                 question_history: Vec::new(),
                 fate_baseline_tick: sess.fate_baseline_tick,
+                address_book: sess.address_book.clone(),
+                corpus_modality_mask: sess.corpus_modality_mask.clone(),
             });
         } else {
             let mut slim = sess.clone();

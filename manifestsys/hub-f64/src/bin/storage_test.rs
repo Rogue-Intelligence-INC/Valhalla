@@ -13,11 +13,11 @@ fn main() {
     println!("║     🧪 Valhalla 存储系统验证                                    ║");
     println!("╚════════════════════════════════════════════════════════════════╝\n");
 
-    let base_path = Path::new("/tmp/valhalla_storage_test");
+    let base_path = std::env::temp_dir().join("valhalla_storage_test");
     
     // 清理旧测试数据
     if base_path.exists() {
-        std::fs::remove_dir_all(base_path).ok();
+        std::fs::remove_dir_all(&base_path).ok();
     }
 
     println!("📁 测试路径: {:?}\n", base_path);
@@ -26,7 +26,7 @@ fn main() {
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("🌌 测试 Hub 存储...");
     
-    match ValhallaHub::with_storage(base_path) {
+    match ValhallaHub::with_storage(&base_path) {
         Ok(hub) => {
             // 写入
             hub.store("test.txt", "Hello from Hub!").unwrap();
@@ -65,7 +65,7 @@ fn main() {
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("🧬 测试 StemCell 存储...");
     
-    match StemCellComplete::with_storage(base_path) {
+    match StemCellComplete::with_storage(&base_path) {
         Ok(mut stemcell) => {
             // 存储原始内容
             stemcell.store("cell_data.txt", "Cell原始数据").unwrap();
@@ -97,7 +97,7 @@ fn main() {
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("🧱 测试 Tile 存储...");
     
-    match TileQuattroComplete::with_storage(base_path) {
+    match TileQuattroComplete::with_storage(&base_path) {
         Ok(mut tile) => {
             tile.store("tile_data.json", r#"{"type": "tile", "value": 42}"#).unwrap();
             println!("   ✓ 写入 tile_data.json");
@@ -117,7 +117,7 @@ fn main() {
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("🏛️  测试 Chamber 存储...");
     
-    match ChamberComplete::with_storage(base_path) {
+    match ChamberComplete::with_storage(&base_path) {
         Ok(mut chamber) => {
             chamber.store("container_log.txt", "Container 日志").unwrap();
             println!("   ✓ 写入 container_log.txt");
@@ -136,7 +136,7 @@ fn main() {
     // ========== 检查最终目录结构 ==========
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("📂 最终目录结构:");
-    print_dir(base_path, 0);
+    print_dir(&base_path, 0);
 
     println!("\n╔════════════════════════════════════════════════════════════════╗");
     println!("║     ✅ 所有存储测试完成！                                       ║");

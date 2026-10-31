@@ -5,6 +5,18 @@ use crate::cascade;
 
 const DIMENSION: f64 = 2.20;
 
+/// Rotation amounts derived from the *scaled* dimension so the fractional
+/// part participates (a plain `as u32` cast discarded it entirely).
+#[inline]
+fn dim_rot_mul() -> u32 {
+    (((DIMENSION * 100.0) as u32) % 4) + 1
+}
+
+#[inline]
+fn dim_rot_add() -> u32 {
+    (((DIMENSION * 100.0) as u32) % 3) + 1
+}
+
 /// Phase-1 parallel transform only (no cascade).
 pub fn encrypt_phase1(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
     if plaintext.is_empty() || key.is_empty() {
@@ -24,7 +36,9 @@ pub fn encrypt_phase1(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
         .into_par_iter()
         .map(|i| {
             let byte = plaintext[i];
-            let frac_influence = ((i as f64 * frac_dim) as u8).wrapping_mul(19);
+            // Wrap modulo 256 instead of a saturating `as u8` cast, which
+            // froze this channel at 255 for all positions beyond ~1275.
+            let frac_influence = (((i as f64 * frac_dim) % 256.0) as u8).wrapping_mul(19);
             let pos_factor = ((i.wrapping_mul(17)) & 0xFF) as u8;
             let pk = key[i % key_len]
                 .wrapping_add(pos_factor)
@@ -36,9 +50,9 @@ pub fn encrypt_phase1(plaintext: &[u8], key: &[u8]) -> Vec<u8> {
 
             let activated = if entropy > 127 {
                 let pk_odd = pk | 1;
-                state.wrapping_mul(pk_odd).rotate_left(((DIMENSION as u32) % 4) + 1)
+                state.wrapping_mul(pk_odd).rotate_left(dim_rot_mul())
             } else {
-                state.wrapping_add(pk).rotate_right(((DIMENSION as u32) % 3) + 1)
+                state.wrapping_add(pk).rotate_right(dim_rot_add())
             };
 
             activated ^ pk ^ frac_influence
@@ -72,7 +86,7 @@ pub fn decrypt_phase1(phase1_output: &[u8], key: &[u8]) -> Vec<u8> {
         .into_par_iter()
         .map(|i| {
             let t = phase1_output[i];
-            let frac_influence = ((i as f64 * frac_dim) as u8).wrapping_mul(19);
+            let frac_influence = (((i as f64 * frac_dim) % 256.0) as u8).wrapping_mul(19);
             let pos_factor = ((i.wrapping_mul(17)) & 0xFF) as u8;
             let pk = key[i % key_len]
                 .wrapping_add(pos_factor)
@@ -86,11 +100,11 @@ pub fn decrypt_phase1(phase1_output: &[u8], key: &[u8]) -> Vec<u8> {
                 let pk_odd = pk | 1;
                 let pk_inv = mod_inverse(pk_odd);
                 activated
-                    .rotate_right(((DIMENSION as u32) % 4) + 1)
+                    .rotate_right(dim_rot_mul())
                     .wrapping_mul(pk_inv)
             } else {
                 activated
-                    .rotate_left(((DIMENSION as u32) % 3) + 1)
+                    .rotate_left(dim_rot_add())
                     .wrapping_sub(pk)
             };
 

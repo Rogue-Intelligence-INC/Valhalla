@@ -95,12 +95,15 @@ pub mod signal_ingress;
 pub mod fate_orchestrator;
 pub mod fate_parallel_longchain;
 #[cfg(feature = "patch-lm")]
+pub mod valhalla_address;
+#[cfg(feature = "patch-lm")]
 pub mod fate_pretrain_holdout;
 #[cfg(feature = "patch-lm")]
 pub mod fate_longchain_unified;
 #[cfg(feature = "patch-lm")]
 pub mod fate_unified_qa;
 pub mod smoke_report;
+pub mod monitor;
 pub mod triad_dashboard;
 pub mod triad_viz_types;
 pub mod triad_viz;

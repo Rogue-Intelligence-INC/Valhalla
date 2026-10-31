@@ -51,10 +51,16 @@ impl FracDimContainer {
         (self.frac as f32).to_bits()
     }
 
+    /// Fractional part as a fixed-point integer (scale 2^20) for exact
+    /// CPU/GPU-identical coupling arithmetic (no f32/f64 divergence).
+    #[inline]
+    pub fn frac_scaled(&self) -> u64 {
+        (self.frac * 1_048_576.0) as u64
+    }
+
     #[inline]
     pub fn frac_coupling(&self, x: u32, y: u32) -> u64 {
-        let xf = x as f64;
-        let yf = y as f64 * self.frac;
-        (xf + yf) as u64
+        // Integer-exact: x + floor(y * frac), identical on CPU and GPU.
+        x as u64 + ((y as u64 * self.frac_scaled()) >> 20)
     }
 }

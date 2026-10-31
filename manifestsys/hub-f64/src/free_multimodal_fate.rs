@@ -204,9 +204,9 @@ pub struct PersistentFusionOutcome {
 
 fn install_free_rules(session: &mut TriadSession) {
     for rule in FREE_FUSION_RULES {
-        session.tile.triple_fate.store_string(rule);
-        session.stem.triple_fate.store_string(rule);
         session.hub.triple_fate.store_string(rule);
+        session.tile.follow_global_fate(&session.hub.triple_fate);
+        session.stem.follow_global_fate(&session.hub.triple_fate);
     }
 }
 

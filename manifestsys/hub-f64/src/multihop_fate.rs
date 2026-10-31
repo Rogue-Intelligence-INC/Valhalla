@@ -235,20 +235,16 @@ fn hop_ports(hop: &str, front: &DlFrontConfig) -> BodyFrontPorts {
 
 fn install_rules(session: &mut TriadSession) {
     for rule in FATE_RULES {
-        session.tile.triple_fate.store_string(rule);
-        session.stem.triple_fate.store_string(rule);
-        session.hub.triple_fate.store_string(rule);
+    session.hub.triple_fate.store_string(rule);
+    session.tile.follow_global_fate(&session.hub.triple_fate);
+    session.stem.follow_global_fate(&session.hub.triple_fate);
     }
 }
 
 fn pulse(session: &mut TriadSession, phase: &str, score: f64) {
     let s = score.clamp(0.05, 1.0);
-    let _ = session
-        .hub
-        .triple_fate
-        .store_string(&format!("multihop_{phase} score={s:.4}"));
-    session.tile.triple_fate.receive_passive(s * 0.5);
-    session.stem.triple_fate.receive_passive(s * 0.5);
+    let _ = session.hub.triple_fate.store_string(&format!("multihop_{phase} score={s:.4}"));
+    session.observe_fate(s);
 }
 
 /// Hop-wise Fate adaptation: RelAddr land + embedding cosine → affinity by egress idx.

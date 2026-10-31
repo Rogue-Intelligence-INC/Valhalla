@@ -245,7 +245,7 @@ impl SystemStorage {
     pub fn file_count(&self) -> io::Result<usize> {
         Ok(self.list_all()?.len())
     }
-    
+
     // ========== 清理 ==========
     
     /// 清空整个存储

@@ -64,28 +64,24 @@ fn main() {
             // 关键：将原始数据存入 Fate（而不只是传递数值）
             // ═══════════════════════════════════════════════════════════════════
             
-            // 1. StemCell: 存储 + 信号
-            let _stem_id = stemcell.fate_store(bytes);
-            for &b in bytes.iter() {
-                stemcell.receive_data(b as f64);
-                stem_ops += 1;
-            }
-            
-            // 2. Tile: 存储 + 信号
-            let _tile_id = tile.fate_store(bytes);
-            for &b in bytes.iter() {
-                tile.receive_data(b as f64);
-                tile_ops += 1;
-            }
-            
-            // 3. Hub: 存储 + 信号
             let _hub_id = hub.fate_store(bytes);
             for &b in bytes.iter() {
-                hub.triple_fate.receive_passive(b as f64);
+                let value = b as f64;
+                let closed = hub.triple_fate.receive_passive(value);
+                stemcell.follow_global_fate(&hub.triple_fate);
+                tile.follow_global_fate(&hub.triple_fate);
+                stemcell.ingest(value);
+                tile.ingest(value);
+                if closed {
+                    stemcell.promote_from_fate();
+                    tile.promote_from_fate();
+                }
+                stem_ops += 1;
+                tile_ops += 1;
                 hub_ops += 1;
             }
             
-            stored_count += 3; // 每个文件存入3个系统
+            stored_count += 1;
             
             // 每 200 个文件输出进度
             if (idx + 1) % 200 == 0 || idx + 1 == corpus.len() {

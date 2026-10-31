@@ -341,6 +341,25 @@ pub fn fate_link_snapshot(
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct FateSplitOutcome {
+    pub splits_done: usize,
+    pub callback_steps: usize,
+    pub rolled_back: bool,
+}
+
+/// Split callback referenced by `valhalla_base`. This tree has the link path;
+/// the split body is not present, so the snapshot is returned unchanged.
+pub fn fate_split_snapshot(
+    snap: &TriadIncubationSnapshot,
+    _cfg: &FateOrchestratorConfig,
+    _body: BodyTarget,
+    _corpus: &[String],
+    _question: Option<&str>,
+) -> (TriadIncubationSnapshot, FateSplitOutcome) {
+    (snap.clone(), FateSplitOutcome::default())
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct FatePretrainPassOutcome {
     pub pass: usize,
     pub knowledge_lines: usize,

@@ -1356,6 +1356,20 @@ impl TriadSession {
         }
     }
 
+    /// 信号只进 Hub 上这一份叠层 Fate。Tile 和 Stem 跟上它，收口才长身体。
+    pub fn observe_fate(&mut self, value: f64) -> bool {
+        let closed = self.hub.triple_fate.receive_passive(value);
+        self.tile.follow_global_fate(&self.hub.triple_fate);
+        self.stem.follow_global_fate(&self.hub.triple_fate);
+        if closed {
+            self.tile.ingest(value);
+            self.stem.ingest(value);
+            self.tile.promote_from_fate();
+            self.stem.promote_from_fate();
+        }
+        closed
+    }
+
     /// Apply QA answer feedback into Fate + Tile/Stem passive loop.
     pub fn apply_qa_feedback(&mut self, question: &str, on_topic: bool) {
         let routed = self.hub_routed;
@@ -1369,8 +1383,7 @@ impl TriadSession {
         } else {
             state.qa_fail_intensity()
         };
-        self.tile.triple_fate.receive_passive(intensity * 0.5);
-        self.stem.triple_fate.receive_passive(intensity * 0.5);
+        self.observe_fate(intensity);
     }
 
     pub fn from_incubation_snapshot(
@@ -1413,8 +1426,7 @@ impl TriadSession {
         self.hub
             .feedback_corpus_line_structural(line_text, align, on_topic);
         let passive = delta.abs();
-        self.tile.triple_fate.receive_passive(passive * 0.5);
-        self.stem.triple_fate.receive_passive(passive * 0.5);
+        self.observe_fate(passive);
     }
 
     fn make_feed_report(&self, mode_label: &str, optimize_cycles: usize) -> TriadFeedReport {

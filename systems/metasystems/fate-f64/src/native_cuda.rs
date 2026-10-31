@@ -10,7 +10,7 @@ use std::ptr;
 #[allow(non_camel_case_types)]
 type cudaError_t = i32;
 
-#[link(name = "cudart")]
+#[link(name = "cudart", kind = "static")]
 extern "C" {
     fn cudaSetDevice(device: i32) -> cudaError_t;
     fn cudaGetDeviceCount(count: *mut i32) -> cudaError_t;
@@ -61,6 +61,7 @@ const CUBLAS_STATUS_SUCCESS: i32 = 0;
 const CUDA_MEMCPY_HOST_TO_DEVICE: i32 = 1;
 const CUDA_MEMCPY_DEVICE_TO_HOST: i32 = 2;
 const CUBLAS_OP_N: i32 = 0;
+const CUBLAS_OP_T: i32 = 1;
 
 /// Native CUDA Accelerator
 pub struct NativeCudaAccelerator {
@@ -202,6 +203,136 @@ impl NativeCudaAccelerator {
         
         Ok(c)
     }
+
+    /// 行主序 P 是 n×d。返回 P Pᵀ，n×n，对称。
+    pub fn row_gram(&self, row_major: &[f64], n: usize, d: usize) -> Result<Vec<f64>, String> {
+        if n == 0 || d == 0 {
+            return Ok(Vec::new());
+        }
+        if row_major.len() < n * d {
+            return Err("position buffer short".into());
+        }
+        let mut gram = vec![0.0f64; n * n];
+        unsafe {
+            let mut d_p: *mut c_void = ptr::null_mut();
+            let mut d_g: *mut c_void = ptr::null_mut();
+            if cudaMalloc(&mut d_p, n * d * 8) != CUDA_SUCCESS {
+                return Err("cudaMalloc positions".into());
+            }
+            if cudaMalloc(&mut d_g, n * n * 8) != CUDA_SUCCESS {
+                cudaFree(d_p);
+                return Err("cudaMalloc gram".into());
+            }
+            if cudaMemcpy(d_p, row_major.as_ptr() as *const c_void, n * d * 8, CUDA_MEMCPY_HOST_TO_DEVICE) != CUDA_SUCCESS {
+                cudaFree(d_p);
+                cudaFree(d_g);
+                return Err("copy positions".into());
+            }
+            let alpha = 1.0f64;
+            let beta = 0.0f64;
+            let status = cublasDgemm_v2(
+                self.cublas_handle,
+                CUBLAS_OP_T,
+                CUBLAS_OP_N,
+                n as i32,
+                n as i32,
+                d as i32,
+                &alpha,
+                d_p as *const f64,
+                d as i32,
+                d_p as *const f64,
+                d as i32,
+                &beta,
+                d_g as *mut f64,
+                n as i32,
+            );
+            if status != CUBLAS_STATUS_SUCCESS {
+                cudaFree(d_p);
+                cudaFree(d_g);
+                return Err(format!("cublas gram {status}"));
+            }
+            cudaDeviceSynchronize();
+            if cudaMemcpy(gram.as_mut_ptr() as *mut c_void, d_g, n * n * 8, CUDA_MEMCPY_DEVICE_TO_HOST) != CUDA_SUCCESS {
+                cudaFree(d_p);
+                cudaFree(d_g);
+                return Err("copy gram".into());
+            }
+            cudaFree(d_p);
+            cudaFree(d_g);
+        }
+        Ok(gram)
+    }
+
+    /// 行主序 F = W P。W 是 n×n，P 是 n×d，F 是 n×d。
+    pub fn row_mul(&self, weights: &[f64], positions: &[f64], n: usize, d: usize) -> Result<Vec<f64>, String> {
+        if n == 0 || d == 0 {
+            return Ok(Vec::new());
+        }
+        if weights.len() < n * n || positions.len() < n * d {
+            return Err("field buffer short".into());
+        }
+        let mut forced = vec![0.0f64; n * d];
+        unsafe {
+            let mut d_w: *mut c_void = ptr::null_mut();
+            let mut d_p: *mut c_void = ptr::null_mut();
+            let mut d_f: *mut c_void = ptr::null_mut();
+            if cudaMalloc(&mut d_w, n * n * 8) != CUDA_SUCCESS {
+                return Err("cudaMalloc weights".into());
+            }
+            if cudaMalloc(&mut d_p, n * d * 8) != CUDA_SUCCESS {
+                cudaFree(d_w);
+                return Err("cudaMalloc positions".into());
+            }
+            if cudaMalloc(&mut d_f, n * d * 8) != CUDA_SUCCESS {
+                cudaFree(d_w);
+                cudaFree(d_p);
+                return Err("cudaMalloc force".into());
+            }
+            let copy_w = cudaMemcpy(d_w, weights.as_ptr() as *const c_void, n * n * 8, CUDA_MEMCPY_HOST_TO_DEVICE);
+            let copy_p = cudaMemcpy(d_p, positions.as_ptr() as *const c_void, n * d * 8, CUDA_MEMCPY_HOST_TO_DEVICE);
+            if copy_w != CUDA_SUCCESS || copy_p != CUDA_SUCCESS {
+                cudaFree(d_w);
+                cudaFree(d_p);
+                cudaFree(d_f);
+                return Err("copy field".into());
+            }
+            let alpha = 1.0f64;
+            let beta = 0.0f64;
+            let status = cublasDgemm_v2(
+                self.cublas_handle,
+                CUBLAS_OP_N,
+                CUBLAS_OP_N,
+                d as i32,
+                n as i32,
+                n as i32,
+                &alpha,
+                d_p as *const f64,
+                d as i32,
+                d_w as *const f64,
+                n as i32,
+                &beta,
+                d_f as *mut f64,
+                d as i32,
+            );
+            if status != CUBLAS_STATUS_SUCCESS {
+                cudaFree(d_w);
+                cudaFree(d_p);
+                cudaFree(d_f);
+                return Err(format!("cublas force {status}"));
+            }
+            cudaDeviceSynchronize();
+            if cudaMemcpy(forced.as_mut_ptr() as *mut c_void, d_f, n * d * 8, CUDA_MEMCPY_DEVICE_TO_HOST) != CUDA_SUCCESS {
+                cudaFree(d_w);
+                cudaFree(d_p);
+                cudaFree(d_f);
+                return Err("copy force".into());
+            }
+            cudaFree(d_w);
+            cudaFree(d_p);
+            cudaFree(d_f);
+        }
+        Ok(forced)
+    }
     
     /// 批量信号处理
     pub fn batch_signal_weights(&self, intensities: &[f64], system_types: &[u8]) -> ([f64; 4], [u32; 4]) {
@@ -245,5 +376,42 @@ mod tests {
     #[test]
     fn test_cuda_available() {
         println!("CUDA available: {}", cuda_available());
+    }
+
+    #[test]
+    fn row_gram_matches_dots() {
+        let accel = NativeCudaAccelerator::new().expect("cuda");
+        let positions = [1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0];
+        let gram = accel.row_gram(&positions, 4, 2).expect("gram");
+        let mut expect = [0.0; 16];
+        for i in 0..4 {
+            for j in 0..4 {
+                let mut dot = 0.0;
+                for k in 0..2 {
+                    dot += positions[i * 2 + k] * positions[j * 2 + k];
+                }
+                expect[i * 4 + j] = dot;
+            }
+        }
+        for (got, want) in gram.iter().zip(expect.iter()) {
+            assert!((got - want).abs() < 1e-9, "{got} vs {want}");
+        }
+        let weights = [
+            0.0, 0.5, 0.0, 0.0,
+            0.0, 0.0, 0.25, 0.0,
+            0.0, 0.0, 0.0, 1.0,
+            0.5, 0.0, 0.0, 0.0,
+        ];
+        let forced = accel.row_mul(&weights, &positions, 4, 2).expect("mul");
+        for i in 0..4 {
+            for k in 0..2 {
+                let mut acc = 0.0;
+                for j in 0..4 {
+                    acc += weights[i * 4 + j] * positions[j * 2 + k];
+                }
+                let got = forced[i * 2 + k];
+                assert!((got - acc).abs() < 1e-9, "F[{i},{k}] {got} vs {acc}");
+            }
+        }
     }
 }

@@ -3,7 +3,6 @@
 //! 测试：Fate 边跑边存储，系统完全控制权（修改、新建），最终只冻结 Fate 切片
 
 use fate_f64::TripleFateCombined;
-use std::path::Path;
 
 fn main() {
     println!("╔════════════════════════════════════════════════════════════════╗");
@@ -174,9 +173,9 @@ fn main() {
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("❄️  冻结 Fate 切片\n");
 
-    let slice_path = Path::new("/tmp/fate_slice_full.json");
-    fate.save_slice(slice_path).expect("保存失败");
-    let file_size = std::fs::metadata(slice_path).map(|m| m.len()).unwrap_or(0);
+    let slice_path = std::env::temp_dir().join("fate_slice_full.json");
+    fate.save_slice(&slice_path).expect("保存失败");
+    let file_size = std::fs::metadata(&slice_path).map(|m| m.len()).unwrap_or(0);
     
     println!("   保存到: {:?}", slice_path);
     println!("   文件大小: {} bytes", file_size);
@@ -186,7 +185,7 @@ fn main() {
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("🔄 恢复验证\n");
 
-    let restored = TripleFateCombined::load_slice(slice_path).expect("加载失败");
+    let restored = TripleFateCombined::load_slice(&slice_path).expect("加载失败");
     
     println!("   恢复后存储数量: {}", restored.stored_count());
     println!("   恢复后外部数量: {}", restored.list_external().len());

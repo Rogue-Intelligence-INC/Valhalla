@@ -30,7 +30,7 @@ valhalla_metasystems_multinova = { path = "../../systems/metasystems/multinova" 
 valhalla_metasystems_baseforce = { path = "../../systems/metasystems/base-force" }
 
 # 其他系统
-stem-cell = { path = "../stem-cell" }
+stem-cell = { path = "../stem-cell", features = ["native_cuda"] }
 valhalla-tile-quattro = { path = "../tile-quattro" }
 chamber = { path = "../chamber" }
 
@@ -69,6 +69,10 @@ path = "src/bin/valhalla_model_export.rs"
 [[bin]]
 name = "valhalla_model_fate"
 path = "src/bin/valhalla_model_fate.rs"
+
+[[bin]]
+name = "对照拆解"
+path = "src/bin/对照拆解.rs"
 
 [[bin]]
 name = "valhalla_free_multimodal"
@@ -292,6 +296,38 @@ path = "src/bin/data_flow_test.rs"
 [[bin]]
 name = "valhalla_fate_storage"
 path = "src/bin/fate_storage_test.rs"
+
+[[bin]]
+name = "valhalla_monitor_check"
+path = "src/bin/valhalla_monitor_check.rs"
+
+[[bin]]
+name = "valhalla_light_train_check"
+path = "src/bin/valhalla_light_train_check.rs"
+
+[[bin]]
+name = "valhalla_relation_incubate"
+path = "src/bin/valhalla_relation_incubate.rs"
+
+[[bin]]
+name = "valhalla_relation_incubate2"
+path = "src/bin/valhalla_relation_incubate2.rs"
+
+[[bin]]
+name = "valhalla_full_corpus_train"
+path = "src/bin/valhalla_full_corpus_train.rs"
+
+[[bin]]
+name = "valhalla_fate_decision_check"
+path = "src/bin/valhalla_fate_decision_check.rs"
+
+[[bin]]
+name = "valhalla_incubation_proof"
+path = "src/bin/valhalla_incubation_proof.rs"
+
+[[bin]]
+name = "valhalla_industry_battery"
+path = "src/bin/valhalla_industry_battery.rs"
 
 [[bin]]
 name = "valhalla_fate_corpus"

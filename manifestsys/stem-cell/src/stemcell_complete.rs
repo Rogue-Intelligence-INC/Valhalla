@@ -21,6 +21,10 @@ use fate_f64::{
     TripleDiscovery, DiscoveryType, VoyagerSpaceF64, detect_pattern_f64,
     FateSlice,
 };
+use valhalla_metasystems_baseforce::BaseForceCoordinator;
+use valhalla_metasystems_blackhole::{GravityField, GravityFieldConfig};
+use valhalla_metasystems_meshbrain::{MeshBrainConfig, MeshBrainSystem};
+use valhalla_metasystems_multinova::{MultinovaConfig, MultinovaProcessor};
 
 // Space GPU 高维计算
 use valhalla_space_f64_gpu::{SpaceGPU, FractalDimensionCalculatorGPU, HyperVector};
@@ -191,6 +195,7 @@ impl MicroContainer {
             position: pos,
             field_strength: mean.abs() * 0.1,
             connections: Vec::new(),
+            content: Vec::new(),
         }
     }
 }
@@ -223,6 +228,22 @@ pub struct Cell {
     /// 完全由能量场自然演化，无预设模式
     #[serde(default)]
     pub connections: Vec<(String, f64)>,
+    /// 这个容器收口时组织起来的原文。骨架上的数不是原文。
+    #[serde(default)]
+    pub content: Vec<u8>,
+}
+
+fn keep_content(into: &mut Vec<u8>, extra: &[u8]) {
+    if extra.is_empty() {
+        return;
+    }
+    if into.len() >= extra.len() && into.windows(extra.len()).any(|window| window == extra) {
+        return;
+    }
+    if !into.is_empty() {
+        into.push(b'\n');
+    }
+    into.extend_from_slice(extra);
 }
 
 // ============================================================================
@@ -278,6 +299,15 @@ pub struct StemCellComplete {
     pub storage: Option<SystemStorage>,
     /// Space GPU 高维计算
     pub space_gpu: SpaceGPU,
+    /// 四元在细胞网络内部。只在 Fate 宣布收敛后走一次。
+    pub blackhole: GravityField,
+    pub meshbrain: MeshBrainSystem,
+    pub multinova: MultinovaProcessor,
+    pub baseforce: BaseForceCoordinator,
+    /// 最近一次四元：黑洞、MeshBrain、MultiNova、BaseForce。
+    pub last_channels: [f64; 4],
+    /// 上一拍物理场走的设备。gpu 与 cpu 用同一套力。
+    pub field_device: &'static str,
 }
 
 impl StemCellComplete {
@@ -308,6 +338,7 @@ impl StemCellComplete {
                 position: pos,
                 field_strength: 0.0,  // 初始无场强
                 connections: Vec::new(),  // 连接自然涌现
+                content: Vec::new(),
             });
         }
         
@@ -333,7 +364,108 @@ impl StemCellComplete {
             history_len: 0,
             storage: None,
             space_gpu: SpaceGPU::new(),
+            blackhole: GravityField::new(GravityFieldConfig::default()),
+            meshbrain: MeshBrainSystem::new(MeshBrainConfig::default()),
+            multinova: MultinovaProcessor::new(MultinovaConfig::default()),
+            baseforce: BaseForceCoordinator::new(),
+            last_channels: [0.0; 4],
+            field_device: "cpu",
         }
+    }
+
+    /// Fate 已经收下这个均值。四元只看这一次，不按字节累加。返回 BaseForce 合成的这一拍。
+    fn quad_on_fate_close(&mut self, mean: f64) -> f64 {
+        let distance = mean.abs().max(1e-6);
+        let gravity = self.blackhole.calculate_gravity(distance);
+        let mesh = self.meshbrain.generate_signal(mean, [0.0, 0.0, 0.0]);
+        let nova = self.multinova.process_evolution(mean.abs());
+        let mixed = self.baseforce.coordinate(gravity, mesh.intelligence_level, nova.radiation);
+        self.last_channels = [gravity, mesh.intelligence_level, nova.radiation, mixed.total_activity];
+        mixed.total_activity
+    }
+
+    pub fn quad_keep(&mut self, bytes: &[u8]) {
+        let gravity = self.blackhole.keep(bytes);
+        let mesh = self.meshbrain.keep(bytes);
+        let nova = self.multinova.keep(bytes);
+        let mixed = self.baseforce.keep(bytes, gravity, mesh, nova);
+        self.last_channels = [gravity, mesh, nova, mixed];
+    }
+
+    /// 四元看当前容器。容器先留着，数学和 Voyager 还没走。
+    pub fn quad_pulse(&mut self) -> Option<(f64, f64, f64)> {
+        if self.active_containers.is_empty() || self.active_containers[0].local_state.signal_count == 0 {
+            return None;
+        }
+        let mean = self.active_containers[0].local_state.mean();
+        let variance = self.active_containers[0].local_state.variance();
+        let activity = self.quad_on_fate_close(mean);
+        Some((mean, variance, activity))
+    }
+
+    /// Voyager 看过数学的响应之后，这一拍写成细胞。
+    pub fn commit_pulse(&mut self, mean: f64, variance: f64, activity: f64, math_degree: f64) -> bool {
+        if self.active_containers.is_empty() || self.active_containers[0].local_state.signal_count == 0 {
+            return false;
+        }
+        let signal_count = self.active_containers[0].local_state.signal_count;
+        self.space.adaptive_expand(&[mean, variance, activity, math_degree]);
+        let current_dim = self.space.current_dimension.ceil() as usize;
+        let current_dim = current_dim.max(2);
+        let mut new_pos = vec![0.0; current_dim];
+        new_pos[0] = mean * 0.1;
+        new_pos[1] = variance * 0.01;
+        for d in 2..current_dim {
+            new_pos[d] = ((mean + variance) * (d as f64)).sin() * 0.5;
+        }
+        self.cells.push(Cell {
+            cell_id: format!("cell_{}", self.total_containers_closed),
+            energy: mean.abs().min(1.0).max(0.1),
+            age: 0,
+            generation: 0,
+            data_signature: vec![mean, variance],
+            variance,
+            signal_count,
+            position: new_pos,
+            field_strength: mean.abs() * 0.1,
+            connections: Vec::new(),
+            content: Vec::new(),
+        });
+        self.active_containers[0] = MicroContainer::new(String::new(), 0, self.global_tick);
+        self.total_containers_closed += 1;
+        true
+    }
+
+    /// 容器只攒数。收口由外面那一个 Fate 决定。
+    pub fn ingest(&mut self, data: f64) {
+        self.global_tick += 1;
+        if self.active_containers.is_empty() {
+            self.active_containers.push(MicroContainer::new(String::new(), 0, self.global_tick));
+        }
+        self.active_containers[0].receive_data(data);
+    }
+
+    /// 全局 Fate 这一拍收口。四元看当前容器的均值。
+    pub fn promote_from_fate(&mut self) -> bool {
+        let Some((mean, variance, activity)) = self.quad_pulse() else {
+            return false;
+        };
+        self.commit_pulse(mean, variance, activity, 0.0)
+    }
+
+    /// 只动物理场和由此长出的连接。年龄在细胞周期里加。形变由调用方送回那一份全局 Fate。
+    pub fn settle_field(&mut self) {
+        self.update_physics_field();
+    }
+
+    /// 周期和落盘都跟这一份全局 Fate，不再各写各的方程。
+    pub fn follow_global_fate(&mut self, global: &TripleFateCombined) {
+        self.triple_fate.global_tick = global.global_tick;
+        self.triple_fate.cross_feedback = global.cross_feedback;
+        self.triple_fate.cluster_equation = global.cluster_equation.clone();
+        self.triple_fate.base.state = global.base.state.clone();
+        self.triple_fate.meta.state = global.meta.state.clone();
+        self.triple_fate.efficiency_history = global.efficiency_history.clone();
     }
     
     /// 带存储路径初始化
@@ -544,8 +676,7 @@ impl StemCellComplete {
             let variance = container.local_state.variance();
             let signal_count = container.local_state.signal_count;
             
-            // 被动 Fate 接收（忽略返回值）
-            let _ = self.triple_fate.receive_passive(mean);
+            self.quad_on_fate_close(mean);
             
             // 直接创建细胞
             // 新细胞位置 - 基于数据特征在高维空间中的位置
@@ -570,6 +701,7 @@ impl StemCellComplete {
                 position: new_pos,
                 field_strength: mean.abs() * 0.1,  // 场强由数据决定
                 connections: Vec::new(),  // 连接自然涌现
+                content: Vec::new(),
             };
             self.cells.push(new_cell);
             new_cells = 1;
@@ -635,10 +767,11 @@ impl StemCellComplete {
         for i in 2..diffs.len() {
             let d0 = diffs[i];
             let d1 = diffs[i - 1];
-            let d2 = diffs[i - 2];
-            
-            // 边际递减：d0 < d1 < d2 表示趋近收敛（相似）
-            if d0 < d1 && d1 < d2 && d0 > 0.0 {
+
+            // 纯代数判定：相邻差异的比率交给 Fate 的簇方程（check_diffs），
+            // 与 try_merge_into_similar 同一条方程路，
+            // 不再用写死的 d0<d1<d2 顺序不等式（那对随机间隙也有 1/6 命中）。
+            if d0 > 0.0 && self.triple_fate.cluster_equation.check_diffs(&[d0, d1]) {
                 if i + 1 < n {
                     to_merge.insert(i + 1);
                 }
@@ -656,13 +789,14 @@ impl StemCellComplete {
             .map(|&idx| {
                 let absorbed = &self.cells[idx];
                 (idx - 1, absorbed.energy, absorbed.signal_count, 
-                 absorbed.data_signature.clone(), absorbed.variance)
+                 absorbed.data_signature.clone(), absorbed.variance, absorbed.content.clone())
             })
             .collect();
         
         // 再执行合并
-        for (target_idx, energy, signals, sig, var) in merge_data {
+        for (target_idx, energy, signals, sig, var, content) in merge_data {
             let target = &mut self.cells[target_idx];
+            keep_content(&mut target.content, &content);
             
             // 能量合并
             target.energy += energy;
@@ -763,35 +897,39 @@ impl StemCellComplete {
         let avg_energy = if self.cells.is_empty() { 0.0 } else { total_energy / self.cells.len() as f64 };
         
         // 分裂数据：能量, 代数, 数据特征（继承父细胞身份）
-        let mut new_cells_data: Vec<(f64, u32, Vec<f64>)> = Vec::new();
+        let mut new_cells_data: Vec<(f64, u32, Vec<f64>, Vec<u8>)> = Vec::new();
         
+        // 死亡回到原方案：身体自己的能量线，回流之后判，不加代谢、
+        // 不加濒死缓冲、不搞抓取删除。死亡是物质变换的残差通道，
+        // 小规模下不出现是正常现象，不人为追求它发生；死亡数随
+        // 本周期状态信号进 Fate（下方 tick），Fate 只观察不执行。
         self.cells.retain_mut(|cell| {
             cell.age += 1;
-            
+
             // 能量根据与平均值的差异流动
             let energy_diff = avg_energy - cell.energy;
             cell.energy += energy_diff * 0.1; // 趋向平均
-            
+
             // 高能量细胞可能分裂
             if cell.energy > avg_energy * 1.5 && new_cells_data.len() < 10 {
                 cell.energy *= 0.5;
                 // 继承父细胞的数据特征（身份）
-                new_cells_data.push((cell.energy, cell.generation, cell.data_signature.clone()));
+                new_cells_data.push((cell.energy, cell.generation, cell.data_signature.clone(), cell.content.clone()));
             }
-            
+
             // 低能量细胞死亡
             if cell.energy < avg_energy * 0.1 || cell.energy < 0.01 {
                 deaths += 1;
                 return false;
             }
-            
+
             true
         });
         
         // 添加分裂产生的新细胞（继承父细胞的数据特征）
         divisions = new_cells_data.len();
         let gen = self.generation_count;
-        for (i, (energy, generation, parent_signature)) in new_cells_data.into_iter().enumerate() {
+        for (i, (energy, generation, parent_signature, parent_content)) in new_cells_data.into_iter().enumerate() {
             // 新细胞位置 = 父细胞位置 + 随机偏移 (在当前维度空间)
             let current_dim = self.space.current_dimension.ceil() as usize;
             let mut new_pos = vec![0.0; current_dim.max(1)];
@@ -812,16 +950,21 @@ impl StemCellComplete {
                 position: new_pos,
                 field_strength: energy * 0.5,  // 场强与能量相关
                 connections: Vec::new(),  // 连接自然涌现
+                content: parent_content,
             });
         }
         
         self.total_divisions += divisions as u64;
         self.total_deaths += deaths as u64;
         self.total_merges += merges as u64;
-        
+
         // 更新维度
         let signal = vec![self.cells.len() as f64, avg_energy, divisions as f64, deaths as f64];
         self.space.adaptive_expand(&signal);
+
+        // 本周期状态（含死亡数）进 Fate 的多层 tick 供 Meta 观察
+        // （与 evolve 的信号同构）——Fate 观察死亡，不执行死亡。
+        let _ = self.triple_fate.tick(Some(signal));
         
         CellCycleResult {
             generation: self.generation_count,
@@ -837,6 +980,28 @@ impl StemCellComplete {
     // 高维物理场演化 - 由 Fate 驱动，无预设模式
     // ═══════════════════════════════════════════════════════════════════════════
     
+    /// 场吸引的中性点：Fate 簇方程 ax²+bx+c 的小根（无实根时取顶点横坐标）。
+    /// 相似度在根之上吸引、之下排斥——中性点由方程给，不写死任何相似度数值。
+    fn equation_neutral(&self) -> f64 {
+        let eq = &self.triple_fate.cluster_equation;
+        let (a, b, c) = (eq.coef_a, eq.coef_b, eq.coef_c);
+        if a.abs() < 1e-12 {
+            if b.abs() < 1e-12 {
+                return 1.0;
+            }
+            return -c / b;
+        }
+        let disc = b * b - 4.0 * a * c;
+        if disc < 0.0 {
+            -b / (2.0 * a)
+        } else {
+            let sq = disc.sqrt();
+            let r1 = (-b - sq) / (2.0 * a);
+            let r2 = (-b + sq) / (2.0 * a);
+            r1.min(r2)
+        }
+    }
+
     /// 更新高维物理场 - 能量驱动的自由吸引/排斥
     /// 完全由数据特征和 Fate 状态决定，无硬编码规则
     fn update_physics_field(&mut self) {
@@ -876,6 +1041,13 @@ impl StemCellComplete {
             };
             cell.field_strength = cell.energy * complexity.sqrt();
         }
+
+        if self.gpu_field_step(current_dim) {
+            return;
+        }
+        self.field_device = "cpu";
+        // 场吸引的中性点：簇方程的小根（GPU 路在 gpu_field_step 里同样取根）
+        let neutral = self.equation_neutral();
         
         // 收集数据用于位置更新（避免借用冲突）
         let cell_data: Vec<(usize, Vec<f64>, Vec<f64>, f64)> = self.cells.iter()
@@ -902,11 +1074,11 @@ impl StemCellComplete {
                 
                 // 计算数据特征相似度 (Fate 判定)
                 let similarity = Self::compute_signature_similarity(sig_i, sig_j);
-                
+
                 // 力的方向：指向 j
-                // 力的大小：相似 → 吸引(正)，不相似 → 排斥(负)
-                // 公式：F = (similarity - 0.5) * field_i * field_j / dist^2
-                let attraction = (similarity - 0.3) * field_i * field_j / (dist_sq + 0.1);
+                // 吸引/排斥的中性点是簇方程的小根：相似度在根之上吸引、之下排斥，
+                // 不再写死 0.3。公式：F = (similarity - 根) * field_i * field_j / dist^2
+                let attraction = (similarity - neutral) * field_i * field_j / (dist_sq + 0.1);
                 
                 for d in 0..current_dim.min(pos_i.len()).min(pos_j.len()) {
                     let direction = (pos_j.get(d).unwrap_or(&0.0) - pos_i.get(d).unwrap_or(&0.0)) / dist;
@@ -952,59 +1124,133 @@ impl StemCellComplete {
         (dot / (norm_a.sqrt() * norm_b.sqrt()) + 1.0) / 2.0
     }
     
+    /// 同一套吸引公式。GPU 用 P Pᵀ 和 W P，算完再按新位置重连。
+    fn gpu_field_step(&mut self, current_dim: usize) -> bool {
+        #[cfg(feature = "native_cuda")]
+        {
+            let n = self.cells.len();
+            if n < 2 || current_dim == 0 {
+                return false;
+            }
+            let accel = match fate_f64::native_cuda::NativeCudaAccelerator::new() {
+                Ok(accel) => accel,
+                Err(_) => return false,
+            };
+            let mut packed = vec![0.0f64; n * current_dim];
+            for (i, cell) in self.cells.iter().enumerate() {
+                let len = current_dim.min(cell.position.len());
+                packed[i * current_dim..i * current_dim + len].copy_from_slice(&cell.position[..len]);
+            }
+            let gram = match accel.row_gram(&packed, n, current_dim) {
+                Ok(gram) => gram,
+                Err(_) => return false,
+            };
+            // 场吸引的中性点：簇方程的小根，与 CPU 路一致
+            let neutral = self.equation_neutral();
+            let mut weights = vec![0.0f64; n * n];
+            for i in 0..n {
+                let field_i = self.cells[i].field_strength;
+                for j in 0..n {
+                    if i == j {
+                        continue;
+                    }
+                    let dist_sq = (gram[i * n + i] + gram[j * n + j] - 2.0 * gram[i * n + j]).max(0.0);
+                    let dist = (dist_sq + 0.01).sqrt();
+                    let similarity = Self::compute_signature_similarity(
+                        &self.cells[i].data_signature,
+                        &self.cells[j].data_signature,
+                    );
+                    let attraction = (similarity - neutral) * field_i * self.cells[j].field_strength / (dist_sq + 0.1);
+                    weights[i * n + j] = attraction / dist * 0.01;
+                }
+            }
+            let forced = match accel.row_mul(&weights, &packed, n, current_dim) {
+                Ok(forced) => forced,
+                Err(_) => return false,
+            };
+            for i in 0..n {
+                let mut row_sum = 0.0;
+                for j in 0..n {
+                    row_sum += weights[i * n + j];
+                }
+                for d in 0..current_dim {
+                    let delta = forced[i * current_dim + d] - packed[i * current_dim + d] * row_sum;
+                    self.cells[i].position[d] = (packed[i * current_dim + d] + delta).clamp(-100.0, 100.0);
+                }
+            }
+            let mut repacked = vec![0.0f64; n * current_dim];
+            for (i, cell) in self.cells.iter().enumerate() {
+                let len = current_dim.min(cell.position.len());
+                repacked[i * current_dim..i * current_dim + len].copy_from_slice(&cell.position[..len]);
+            }
+            let linked = match accel.row_gram(&repacked, n, current_dim) {
+                Ok(gram) => gram,
+                Err(_) => {
+                    self.update_connections_by_distance();
+                    self.field_device = "gpu";
+                    return true;
+                }
+            };
+            self.rewrite_connections(|i, j| {
+                let dist_sq = (linked[i * n + i] + linked[j * n + j] - 2.0 * linked[i * n + j]).max(0.0);
+                dist_sq.sqrt()
+            });
+            self.field_device = "gpu";
+            return true;
+        }
+        #[cfg(not(feature = "native_cuda"))]
+        {
+            let _ = current_dim;
+            false
+        }
+    }
+
     /// 更新连接 - 基于高维距离自然涌现，无预设阈值
     fn update_connections_by_distance(&mut self) {
         let n = self.cells.len();
         if n < 2 {
             return;
         }
-        
-        // 收集位置数据
-        let positions: Vec<(String, Vec<f64>, f64)> = self.cells.iter()
-            .map(|c| (c.cell_id.clone(), c.position.clone(), c.field_strength))
-            .collect();
-        
-        // 计算所有距离并找到自然边界（使用 Fate 的边际效应）
+        let positions: Vec<Vec<f64>> = self.cells.iter().map(|cell| cell.position.clone()).collect();
+        self.rewrite_connections(|i, j| Self::hyperdim_distance(&positions[i], &positions[j]));
+    }
+
+    fn rewrite_connections(&mut self, dist_of: impl Fn(usize, usize) -> f64) {
+        let n = self.cells.len();
+        if n < 2 {
+            return;
+        }
         let mut all_distances: Vec<f64> = Vec::new();
         for i in 0..n {
-            for j in (i+1)..n {
-                let dist = Self::hyperdim_distance(&positions[i].1, &positions[j].1);
-                all_distances.push(dist);
+            for j in (i + 1)..n {
+                all_distances.push(dist_of(i, j));
             }
         }
-        
         if all_distances.is_empty() {
             return;
         }
-        
-        // 使用边际效应找到自然连接阈值（不预设）
         all_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-        
-        // 取距离分布的前 30% 作为"近邻" (由 Fate 的效率指标动态调整)
         let fate_efficiency = self.triple_fate.base.state.efficiency;
-        let neighbor_ratio = 0.1 + fate_efficiency * 0.3;  // 效率越高，连接越多
+        let neighbor_ratio = 0.1 + fate_efficiency * 0.3;
         let threshold_idx = ((all_distances.len() as f64 * neighbor_ratio) as usize).min(all_distances.len() - 1);
         let distance_threshold = all_distances[threshold_idx];
-        
-        // 更新每个细胞的连接
+        let ids: Vec<String> = self.cells.iter().map(|cell| cell.cell_id.clone()).collect();
+        let fields: Vec<f64> = self.cells.iter().map(|cell| cell.field_strength).collect();
         for i in 0..n {
             let mut new_connections: Vec<(String, f64)> = Vec::new();
-            
             for j in 0..n {
-                if i == j { continue; }
-                
-                let dist = Self::hyperdim_distance(&positions[i].1, &positions[j].1);
-                
+                if i == j {
+                    continue;
+                }
+                let dist = dist_of(i, j);
                 if dist <= distance_threshold {
                     // 连接强度 = 1 / 距离 * 场强乘积
-                    let strength = (1.0 / (dist + 0.1)) * (positions[i].2 * positions[j].2).sqrt();
-                    new_connections.push((positions[j].0.clone(), strength));
+                    let strength = (1.0 / (dist + 0.1)) * (fields[i] * fields[j]).sqrt();
+                    new_connections.push((ids[j].clone(), strength));
                 }
             }
-            
-            // 按强度排序，保留最强的连接
+            // 连接集合由距离分位阈值（Fate 效率驱动）决定，不再有写死的条数上限
             new_connections.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
-            new_connections.truncate(20);  // 最多保留 20 个连接
             
             self.cells[i].connections = new_connections;
         }

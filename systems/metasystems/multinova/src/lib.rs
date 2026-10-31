@@ -41,6 +41,7 @@ impl Default for MultinovaConfig {
 pub struct MultinovaProcessor {
     pub config: MultinovaConfig,
     pub total_events: u64,
+    pub stored: Vec<Vec<u8>>,
 }
 
 impl MultinovaProcessor {
@@ -48,7 +49,81 @@ impl MultinovaProcessor {
         Self {
             config,
             total_events: 0,
+            stored: Vec::new(),
         }
+    }
+
+    /// 原文交给新星自己保存。演化仍由新星自己的函数做。
+    pub fn keep(&mut self, bytes: &[u8]) -> f64 {
+        if bytes.is_empty() {
+            return 0.0;
+        }
+        self.stored.push(bytes.to_vec());
+        let mean = bytes.iter().map(|byte| *byte as f64).sum::<f64>() / bytes.len() as f64;
+        self.process_evolution(mean.abs()).radiation
+    }
+
+    pub fn stored_count(&self) -> usize {
+        self.stored.len()
+    }
+
+    pub fn stored_get(&self, index: usize) -> Option<&[u8]> {
+        self.stored.get(index).map(|item| item.as_slice())
+    }
+
+    /// 改新星自己存着的这一条。
+    pub fn stored_modify(&mut self, index: usize, new_bytes: &[u8]) -> bool {
+        let Some(item) = self.stored.get_mut(index) else {
+            return false;
+        };
+        *item = new_bytes.to_vec();
+        true
+    }
+
+    /// 删新星自己存着的这一条。
+    pub fn stored_remove(&mut self, index: usize) -> Option<Vec<u8>> {
+        if index >= self.stored.len() {
+            return None;
+        }
+        Some(self.stored.remove(index))
+    }
+
+    pub fn stored_clear(&mut self) {
+        self.stored.clear();
+    }
+
+    /// 新星自己的存档：魔数、条数、每条长度加原文。
+    pub fn save_store(&self, path: &Path) -> std::io::Result<()> {
+        let mut buf = Vec::new();
+        buf.extend_from_slice(b"MNSTORE1");
+        buf.extend_from_slice(&(self.stored.len() as u64).to_le_bytes());
+        for item in &self.stored {
+            buf.extend_from_slice(&(item.len() as u64).to_le_bytes());
+            buf.extend_from_slice(item);
+        }
+        std::fs::write(path, buf)
+    }
+
+    pub fn load_store(path: &Path) -> std::io::Result<Self> {
+        let bytes = std::fs::read(path)?;
+        let bad = || std::io::Error::new(std::io::ErrorKind::InvalidData, "新星存档格式不对");
+        if bytes.len() < 16 || &bytes[..8] != b"MNSTORE1" {
+            return Err(bad());
+        }
+        let mut at = 8usize;
+        let mut take = |at: &mut usize, n: usize| -> std::io::Result<&[u8]> {
+            let end = at.checked_add(n).ok_or_else(bad)?;
+            let slice = bytes.get(*at..end).ok_or_else(bad)?;
+            *at = end;
+            Ok(slice)
+        };
+        let count = u64::from_le_bytes(take(&mut at, 8)?.try_into().map_err(|_| bad())?);
+        let mut processor = Self::new(MultinovaConfig::default());
+        for _ in 0..count {
+            let len = u64::from_le_bytes(take(&mut at, 8)?.try_into().map_err(|_| bad())?) as usize;
+            processor.stored.push(take(&mut at, len)?.to_vec());
+        }
+        Ok(processor)
     }
 
     /// 处理星系演化
@@ -115,8 +190,11 @@ impl MultiNovaComplete {
     /// 处理数据并存储
     pub fn process_and_store(&mut self, energy: f64) -> String {
         self.global_tick += 1;
+        let closed = self.triple_fate.receive_passive(energy);
+        if !closed {
+            return String::new();
+        }
         let event = self.processor.process_evolution(energy);
-        self.triple_fate.receive_passive(event.radiation);
         self.triple_fate.store_data(&event.radiation.to_le_bytes())
     }
     
@@ -154,4 +232,38 @@ impl MultiNovaComplete {
 
 impl Default for MultiNovaComplete {
     fn default() -> Self { Self::new() }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn store_save_load_and_reprocess() {
+        let mut processor = MultinovaProcessor::new(MultinovaConfig::default());
+        processor.keep(b"Awake, Watson?");
+        processor.keep("錐刀既無棄".as_bytes());
+        assert_eq!(processor.stored_count(), 2);
+        let path = std::env::temp_dir().join(format!("mn_store_{}.bin", std::process::id()));
+        processor.save_store(&path).unwrap();
+        let mut loaded = MultinovaProcessor::load_store(&path).unwrap();
+        let _ = std::fs::remove_file(&path);
+        assert_eq!(loaded.stored_get(0), Some(b"Awake, Watson?".as_slice()));
+        assert_eq!(loaded.stored_get(1), Some("錐刀既無棄".as_bytes()));
+    }
+
+    #[test]
+    fn store_modify_remove_and_clear() {
+        let mut processor = MultinovaProcessor::new(MultinovaConfig::default());
+        processor.keep(b"first");
+        processor.keep(b"second");
+        assert!(processor.stored_modify(0, b"changed"));
+        assert_eq!(processor.stored_get(0), Some(b"changed".as_slice()));
+        assert!(!processor.stored_modify(99, b"nope"));
+        assert_eq!(processor.stored_remove(1), Some(b"second".to_vec()));
+        assert_eq!(processor.stored_count(), 1);
+        assert_eq!(processor.stored_remove(99), None);
+        processor.stored_clear();
+        assert_eq!(processor.stored_count(), 0);
+    }
 }

@@ -39,11 +39,86 @@ impl Default for GravityFieldConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GravityField {
     pub config: GravityFieldConfig,
+    #[serde(default)]
+    pub stored: Vec<Vec<u8>>,
 }
 
 impl GravityField {
     pub fn new(config: GravityFieldConfig) -> Self {
-        Self { config }
+        Self { config, stored: Vec::new() }
+    }
+
+    /// 原文交给黑洞自己保存。引力仍由黑洞自己的函数算。
+    pub fn keep(&mut self, bytes: &[u8]) -> f64 {
+        if bytes.is_empty() {
+            return 0.0;
+        }
+        self.stored.push(bytes.to_vec());
+        let mean = bytes.iter().map(|byte| *byte as f64).sum::<f64>() / bytes.len() as f64;
+        self.calculate_gravity(mean.abs().max(1e-6))
+    }
+
+    pub fn stored_count(&self) -> usize {
+        self.stored.len()
+    }
+
+    pub fn stored_get(&self, index: usize) -> Option<&[u8]> {
+        self.stored.get(index).map(|item| item.as_slice())
+    }
+
+    /// 改黑洞自己存着的这一条。
+    pub fn stored_modify(&mut self, index: usize, new_bytes: &[u8]) -> bool {
+        let Some(item) = self.stored.get_mut(index) else {
+            return false;
+        };
+        *item = new_bytes.to_vec();
+        true
+    }
+
+    /// 删黑洞自己存着的这一条。
+    pub fn stored_remove(&mut self, index: usize) -> Option<Vec<u8>> {
+        if index >= self.stored.len() {
+            return None;
+        }
+        Some(self.stored.remove(index))
+    }
+
+    pub fn stored_clear(&mut self) {
+        self.stored.clear();
+    }
+
+    /// 黑洞自己的存档：魔数、条数、每条长度加原文。
+    pub fn save_store(&self, path: &Path) -> std::io::Result<()> {
+        let mut buf = Vec::new();
+        buf.extend_from_slice(b"BHSTORE1");
+        buf.extend_from_slice(&(self.stored.len() as u64).to_le_bytes());
+        for item in &self.stored {
+            buf.extend_from_slice(&(item.len() as u64).to_le_bytes());
+            buf.extend_from_slice(item);
+        }
+        std::fs::write(path, buf)
+    }
+
+    pub fn load_store(path: &Path) -> std::io::Result<Self> {
+        let bytes = std::fs::read(path)?;
+        let bad = || std::io::Error::new(std::io::ErrorKind::InvalidData, "黑洞存档格式不对");
+        if bytes.len() < 16 || &bytes[..8] != b"BHSTORE1" {
+            return Err(bad());
+        }
+        let mut at = 8usize;
+        let mut take = |at: &mut usize, n: usize| -> std::io::Result<&[u8]> {
+            let end = at.checked_add(n).ok_or_else(bad)?;
+            let slice = bytes.get(*at..end).ok_or_else(bad)?;
+            *at = end;
+            Ok(slice)
+        };
+        let count = u64::from_le_bytes(take(&mut at, 8)?.try_into().map_err(|_| bad())?);
+        let mut field = Self::new(GravityFieldConfig::default());
+        for _ in 0..count {
+            let len = u64::from_le_bytes(take(&mut at, 8)?.try_into().map_err(|_| bad())?) as usize;
+            field.stored.push(take(&mut at, len)?.to_vec());
+        }
+        Ok(field)
     }
 
     /// 计算引力强度
@@ -159,8 +234,11 @@ impl BlackHoleComplete {
     /// 处理数据并存储
     pub fn process_and_store(&mut self, data: f64) -> String {
         self.global_tick += 1;
+        let closed = self.triple_fate.receive_passive(data);
+        if !closed {
+            return String::new();
+        }
         let gravity = self.gravity_field.calculate_gravity(data.abs().max(0.001));
-        self.triple_fate.receive_passive(gravity);
         self.triple_fate.store_data(&gravity.to_le_bytes())
     }
     
@@ -193,4 +271,38 @@ impl BlackHoleComplete {
 
 impl Default for BlackHoleComplete {
     fn default() -> Self { Self::new() }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn store_save_load_and_reprocess() {
+        let mut field = GravityField::new(GravityFieldConfig::default());
+        field.keep(b"Awake, Watson?");
+        field.keep("錐刀既無棄".as_bytes());
+        assert_eq!(field.stored_count(), 2);
+        let path = std::env::temp_dir().join(format!("bh_store_{}.bin", std::process::id()));
+        field.save_store(&path).unwrap();
+        let mut loaded = GravityField::load_store(&path).unwrap();
+        let _ = std::fs::remove_file(&path);
+        assert_eq!(loaded.stored_get(0), Some(b"Awake, Watson?".as_slice()));
+        assert_eq!(loaded.stored_get(1), Some("錐刀既無棄".as_bytes()));
+    }
+
+    #[test]
+    fn store_modify_remove_and_clear() {
+        let mut field = GravityField::new(GravityFieldConfig::default());
+        field.keep(b"first");
+        field.keep(b"second");
+        assert!(field.stored_modify(0, b"changed"));
+        assert_eq!(field.stored_get(0), Some(b"changed".as_slice()));
+        assert!(!field.stored_modify(99, b"nope"));
+        assert_eq!(field.stored_remove(1), Some(b"second".to_vec()));
+        assert_eq!(field.stored_count(), 1);
+        assert_eq!(field.stored_remove(99), None);
+        field.stored_clear();
+        assert_eq!(field.stored_count(), 0);
+    }
 }

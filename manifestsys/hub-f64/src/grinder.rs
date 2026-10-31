@@ -71,7 +71,7 @@ fn mix_vectors(a: &[f64], b: &[f64], dim: usize) -> Vec<f64> {
 fn grind_hash_quads(text: &str) -> (Vec<Vec<f64>>, &'static str) {
     let mut quads = Vec::with_capacity(NUM_QUADS);
     for i in 0..NUM_QUADS {
-        let seed = mask64(HASH_SEED_TEXT.wrapping_add(i as u64 * 0x9E37_79B9_7F4A_7C15));
+        let seed = mask64(HASH_SEED_TEXT.wrapping_add((i as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)));
         quads.push(hash_embed(text, DL_EMBED_DIM, seed));
     }
     (quads, "grinder/hash_quad")

@@ -117,6 +117,7 @@ pub struct BaseForceCoordinator {
     pub blackhole: BlackHoleSignalConnector,
     pub meshbrain: MeshBrainSignalConnector,
     pub multinova: MultiNovaSignalConnector,
+    pub stored: Vec<Vec<u8>>,
 }
 
 impl BaseForceCoordinator {
@@ -125,7 +126,80 @@ impl BaseForceCoordinator {
             blackhole: BlackHoleSignalConnector::new(),
             meshbrain: MeshBrainSignalConnector::new(),
             multinova: MultiNovaSignalConnector::new(),
+            stored: Vec::new(),
         }
+    }
+
+    /// 原文交给底力自己保存。协调仍由底力自己的函数做。
+    pub fn keep(&mut self, bytes: &[u8], gravity: f64, mesh: f64, nova: f64) -> f64 {
+        if bytes.is_empty() {
+            return 0.0;
+        }
+        self.stored.push(bytes.to_vec());
+        self.coordinate(gravity, mesh, nova).total_activity
+    }
+
+    pub fn stored_count(&self) -> usize {
+        self.stored.len()
+    }
+
+    pub fn stored_get(&self, index: usize) -> Option<&[u8]> {
+        self.stored.get(index).map(|item| item.as_slice())
+    }
+
+    /// 改底力自己存着的这一条。
+    pub fn stored_modify(&mut self, index: usize, new_bytes: &[u8]) -> bool {
+        let Some(item) = self.stored.get_mut(index) else {
+            return false;
+        };
+        *item = new_bytes.to_vec();
+        true
+    }
+
+    /// 删底力自己存着的这一条。
+    pub fn stored_remove(&mut self, index: usize) -> Option<Vec<u8>> {
+        if index >= self.stored.len() {
+            return None;
+        }
+        Some(self.stored.remove(index))
+    }
+
+    pub fn stored_clear(&mut self) {
+        self.stored.clear();
+    }
+
+    /// 底力自己的存档：魔数、条数、每条长度加原文。
+    pub fn save_store(&self, path: &Path) -> std::io::Result<()> {
+        let mut buf = Vec::new();
+        buf.extend_from_slice(b"BFSTORE1");
+        buf.extend_from_slice(&(self.stored.len() as u64).to_le_bytes());
+        for item in &self.stored {
+            buf.extend_from_slice(&(item.len() as u64).to_le_bytes());
+            buf.extend_from_slice(item);
+        }
+        std::fs::write(path, buf)
+    }
+
+    pub fn load_store(path: &Path) -> std::io::Result<Self> {
+        let bytes = std::fs::read(path)?;
+        let bad = || std::io::Error::new(std::io::ErrorKind::InvalidData, "底力存档格式不对");
+        if bytes.len() < 16 || &bytes[..8] != b"BFSTORE1" {
+            return Err(bad());
+        }
+        let mut at = 8usize;
+        let mut take = |at: &mut usize, n: usize| -> std::io::Result<&[u8]> {
+            let end = at.checked_add(n).ok_or_else(bad)?;
+            let slice = bytes.get(*at..end).ok_or_else(bad)?;
+            *at = end;
+            Ok(slice)
+        };
+        let count = u64::from_le_bytes(take(&mut at, 8)?.try_into().map_err(|_| bad())?);
+        let mut coordinator = Self::new();
+        for _ in 0..count {
+            let len = u64::from_le_bytes(take(&mut at, 8)?.try_into().map_err(|_| bad())?) as usize;
+            coordinator.stored.push(take(&mut at, len)?.to_vec());
+        }
+        Ok(coordinator)
     }
 
     /// 协调三系统
@@ -190,8 +264,11 @@ impl BaseForceComplete {
     /// 处理数据并存储
     pub fn process_and_store(&mut self, bh: f64, mb: f64, mn: f64) -> String {
         self.global_tick += 1;
+        let closed = self.triple_fate.receive_passive((bh + mb + mn) / 3.0);
+        if !closed {
+            return String::new();
+        }
         let result = self.coordinator.coordinate(bh, mb, mn);
-        self.triple_fate.receive_passive(result.total_activity);
         self.triple_fate.store_data(&result.total_activity.to_le_bytes())
     }
     
@@ -224,4 +301,38 @@ impl BaseForceComplete {
 
 impl Default for BaseForceComplete {
     fn default() -> Self { Self::new() }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn store_save_load_and_reprocess() {
+        let mut coordinator = BaseForceCoordinator::new();
+        coordinator.keep(b"Awake, Watson?", 1.0, 2.0, 3.0);
+        coordinator.keep("錐刀既無棄".as_bytes(), 1.0, 2.0, 3.0);
+        assert_eq!(coordinator.stored_count(), 2);
+        let path = std::env::temp_dir().join(format!("bf_store_{}.bin", std::process::id()));
+        coordinator.save_store(&path).unwrap();
+        let mut loaded = BaseForceCoordinator::load_store(&path).unwrap();
+        let _ = std::fs::remove_file(&path);
+        assert_eq!(loaded.stored_get(0), Some(b"Awake, Watson?".as_slice()));
+        assert_eq!(loaded.stored_get(1), Some("錐刀既無棄".as_bytes()));
+    }
+
+    #[test]
+    fn store_modify_remove_and_clear() {
+        let mut coordinator = BaseForceCoordinator::new();
+        coordinator.keep(b"first", 1.0, 2.0, 3.0);
+        coordinator.keep(b"second", 1.0, 2.0, 3.0);
+        assert!(coordinator.stored_modify(0, b"changed"));
+        assert_eq!(coordinator.stored_get(0), Some(b"changed".as_slice()));
+        assert!(!coordinator.stored_modify(99, b"nope"));
+        assert_eq!(coordinator.stored_remove(1), Some(b"second".to_vec()));
+        assert_eq!(coordinator.stored_count(), 1);
+        assert_eq!(coordinator.stored_remove(99), None);
+        coordinator.stored_clear();
+        assert_eq!(coordinator.stored_count(), 0);
+    }
 }

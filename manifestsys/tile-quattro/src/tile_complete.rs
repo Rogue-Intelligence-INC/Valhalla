@@ -19,6 +19,10 @@ pub use valhalla_storage::SystemStorage;
 use fate_f64::{
     TripleFateCombined, TripleDiscovery, VoyagerSpaceF64, FateSlice,
 };
+use valhalla_metasystems_baseforce::BaseForceCoordinator;
+use valhalla_metasystems_blackhole::{GravityField, GravityFieldConfig};
+use valhalla_metasystems_meshbrain::{MeshBrainConfig, MeshBrainSystem};
+use valhalla_metasystems_multinova::{MultinovaConfig, MultinovaProcessor};
 
 // Space GPU 高维计算
 use valhalla_space_f64_gpu::{SpaceGPU, FractalDimensionCalculatorGPU, HyperVector};
@@ -233,6 +237,13 @@ pub struct TileQuattroComplete {
     pub storage: Option<SystemStorage>,
     /// Space GPU 高维计算
     pub space_gpu: SpaceGPU,
+    /// 四元在瓦片内部。只在 Fate 宣布收敛后走一次。
+    pub blackhole: GravityField,
+    pub meshbrain: MeshBrainSystem,
+    pub multinova: MultinovaProcessor,
+    pub baseforce: BaseForceCoordinator,
+    /// 最近一次四元：黑洞、MeshBrain、MultiNova、BaseForce。
+    pub last_channels: [f64; 4],
 }
 
 /// 已完成的 Tile（神经元节点）
@@ -259,6 +270,22 @@ pub struct CompletedTile {
     pub bias: f64,
     /// 连接到其他 Tile 的 ID（自发形成的连接）
     pub connections: Vec<String>,
+    /// 这个容器收口时组织起来的原文。骨架上的数不是原文。
+    #[serde(default)]
+    pub content: Vec<u8>,
+}
+
+fn keep_content(into: &mut Vec<u8>, extra: &[u8]) {
+    if extra.is_empty() {
+        return;
+    }
+    if into.len() >= extra.len() && into.windows(extra.len()).any(|window| window == extra) {
+        return;
+    }
+    if !into.is_empty() {
+        into.push(b'\n');
+    }
+    into.extend_from_slice(extra);
 }
 
 /// Tile 周期处理结果
@@ -268,9 +295,11 @@ pub struct TileCycleResult {
     pub tile_count: usize,
     pub merges: usize,
     pub splits: usize,
+    pub deaths: usize,
     pub avg_activation: f64,
     pub total_connections: usize,
     pub new_connections: usize,
+    pub fate_links: usize,
 }
 
 /// 前向传播结果
@@ -303,7 +332,99 @@ impl TileQuattroComplete {
             global_tick: 0,
             storage: None,
             space_gpu: SpaceGPU::new(),
+            blackhole: GravityField::new(GravityFieldConfig::default()),
+            meshbrain: MeshBrainSystem::new(MeshBrainConfig::default()),
+            multinova: MultinovaProcessor::new(MultinovaConfig::default()),
+            baseforce: BaseForceCoordinator::new(),
+            last_channels: [0.0; 4],
         }
+    }
+
+    /// Fate 已经收下这个均值。四元只看这一次，不按字节累加。返回 BaseForce 合成的这一拍。
+    fn quad_on_fate_close(&mut self, mean: f64) -> f64 {
+        let distance = mean.abs().max(1e-6);
+        let gravity = self.blackhole.calculate_gravity(distance);
+        let mesh = self.meshbrain.generate_signal(mean, [0.0, 0.0, 0.0]);
+        let nova = self.multinova.process_evolution(mean.abs());
+        let mixed = self.baseforce.coordinate(gravity, mesh.intelligence_level, nova.radiation);
+        self.last_channels = [gravity, mesh.intelligence_level, nova.radiation, mixed.total_activity];
+        mixed.total_activity
+    }
+
+    pub fn quad_keep(&mut self, bytes: &[u8]) {
+        let gravity = self.blackhole.keep(bytes);
+        let mesh = self.meshbrain.keep(bytes);
+        let nova = self.multinova.keep(bytes);
+        let mixed = self.baseforce.keep(bytes, gravity, mesh, nova);
+        self.last_channels = [gravity, mesh, nova, mixed];
+    }
+
+    /// 四元看当前容器。容器先留着，数学和 Voyager 还没走。
+    pub fn quad_pulse(&mut self) -> Option<(f64, f64, f64)> {
+        let tile = self.active_tiles.iter().find(|tile| !tile.is_converged() && tile.local_state.signal_count > 0)?;
+        let mean = tile.local_state.mean();
+        let variance = tile.local_state.variance();
+        let activity = self.quad_on_fate_close(mean);
+        Some((mean, variance, activity))
+    }
+
+    /// Voyager 看过数学的响应之后，这一拍写成 Tile。
+    pub fn commit_pulse(&mut self, mean: f64, variance: f64, activity: f64, math_degree: f64) -> bool {
+        let Some(tile_idx) = self.active_tiles.iter().position(|tile| !tile.is_converged() && tile.local_state.signal_count > 0) else {
+            return false;
+        };
+        let tile = self.active_tiles.remove(tile_idx);
+        self.space.adaptive_expand(&[mean, variance, activity, math_degree]);
+        self.completed_tiles.push(CompletedTile {
+            id: tile.id.clone(),
+            mean,
+            variance,
+            signal_count: tile.local_state.signal_count,
+            created_tick: tile.created_tick,
+            completed_tick: self.global_tick,
+            data_signature: vec![mean, variance],
+            energy: mean.abs().min(1.0).max(0.1),
+            activation: 0.0,
+            weights: Vec::new(),
+            bias: mean * 0.01,
+            connections: Vec::new(),
+            content: Vec::new(),
+        });
+        self.total_operations += 1;
+        true
+    }
+
+    /// 容器只攒数。收口由外面那一个 Fate 决定。
+    pub fn ingest(&mut self, data: f64) {
+        self.global_tick += 1;
+        if self.active_tiles.iter().all(|tile| tile.is_converged()) {
+            self.active_tiles.push(MicroTile::new(
+                format!("tile_{}", self.global_tick),
+                self.config.container_capacity,
+                self.global_tick,
+            ));
+        }
+        if let Some(tile) = self.active_tiles.iter_mut().find(|tile| !tile.is_converged()) {
+            tile.receive_data(data);
+        }
+    }
+
+    /// 全局 Fate 这一拍收口。四元看当前容器的均值。
+    pub fn promote_from_fate(&mut self) -> bool {
+        let Some((mean, variance, activity)) = self.quad_pulse() else {
+            return false;
+        };
+        self.commit_pulse(mean, variance, activity, 0.0)
+    }
+
+    /// 周期和落盘都跟这一份全局 Fate，不再各写各的方程。
+    pub fn follow_global_fate(&mut self, global: &TripleFateCombined) {
+        self.triple_fate.global_tick = global.global_tick;
+        self.triple_fate.cross_feedback = global.cross_feedback;
+        self.triple_fate.cluster_equation = global.cluster_equation.clone();
+        self.triple_fate.base.state = global.base.state.clone();
+        self.triple_fate.meta.state = global.meta.state.clone();
+        self.triple_fate.efficiency_history = global.efficiency_history.clone();
     }
     
     /// 带存储路径初始化
@@ -502,11 +623,7 @@ impl TileQuattroComplete {
             let variance = tile.local_state.variance();
             let signal_count = tile.local_state.signal_count;
             
-            // 被动 Fate：自动接收数据（忽略返回值）
-            let _ = self.triple_fate.receive_passive(mean);
-            
-            // ═══ 纯被动：创建 Tile，不主动建立连接 ═══
-            // 连接由后续 process_tiles_cycle 中 Fate 被动决定
+            self.quad_on_fate_close(mean);
             let completed = CompletedTile {
                 id: tile.id.clone(),
                 mean,
@@ -521,6 +638,7 @@ impl TileQuattroComplete {
                 weights: Vec::new(),
                 bias: mean * 0.01,
                 connections: Vec::new(),  // 空连接，由 Fate 被动建立
+                content: Vec::new(),
             };
             
             self.completed_tiles.push(completed);
@@ -626,6 +744,7 @@ impl TileQuattroComplete {
         let initial_count = self.completed_tiles.len();
         let mut splits = 0usize;
         let mut merges = 0usize;
+        let mut deaths = 0usize;
         
         // 1. Fate 感知整体状态
         let total_energy: f64 = self.completed_tiles.iter().map(|t| t.energy).sum();
@@ -645,24 +764,27 @@ impl TileQuattroComplete {
                          else { total_energy / self.completed_tiles.len() as f64 };
         
         // 分裂数据：能量, 数据特征, 连接（继承父 Tile）
-        let mut new_tiles_data: Vec<(f64, Vec<f64>, Vec<String>)> = Vec::new();
+        let mut new_tiles_data: Vec<(f64, Vec<f64>, Vec<String>, Vec<u8>)> = Vec::new();
         
+        // 死亡回到原方案（同 Stem）：身体自己的能量线，回流之后判，
+        // 不加代谢/缓冲/抓取删除；小规模下不出现是正常现象。
         self.completed_tiles.retain_mut(|tile| {
             // 能量根据与平均值的差异流动
             let energy_diff = avg_energy - tile.energy;
             tile.energy += energy_diff * 0.1;
-            
+
             // 高能量 Tile 可能分裂
             if tile.energy > avg_energy * 1.5 && new_tiles_data.len() < 10 {
                 tile.energy *= 0.5;
-                new_tiles_data.push((tile.energy, tile.data_signature.clone(), tile.connections.clone()));
+                new_tiles_data.push((tile.energy, tile.data_signature.clone(), tile.connections.clone(), tile.content.clone()));
             }
-            
+
             // 低能量 Tile 死亡
             if tile.energy < avg_energy * 0.1 || tile.energy < 0.01 {
+                deaths += 1;
                 return false;
             }
-            
+
             true
         });
         
@@ -670,7 +792,7 @@ impl TileQuattroComplete {
         splits = new_tiles_data.len();
         let tick = self.global_tick;
         let op = self.total_operations;
-        for (i, (energy, parent_signature, parent_connections)) in new_tiles_data.into_iter().enumerate() {
+        for (i, (energy, parent_signature, parent_connections, parent_content)) in new_tiles_data.into_iter().enumerate() {
             let new_id = format!("split_{}_{}", op, i);
             self.completed_tiles.push(CompletedTile {
                 id: new_id.clone(),
@@ -686,26 +808,40 @@ impl TileQuattroComplete {
                 weights: vec![0.1; parent_connections.len().min(4)],
                 bias: 0.0,
                 connections: parent_connections.into_iter().take(4).collect(),
+                content: parent_content,
             });
         }
         
         // 连接在交互对话时才建立，训练时不建立
-        
+
         // 4. 前向传播 - 信号沿连接传递
         let prop_result = self.propagate(avg_energy);
-        
+
+        // 本周期状态（含死亡数）进 Fate 的多层 tick 供 Meta 观察
+        // （与 Stem 的 [cells, avg, divisions, deaths] 同构；
+        // Tile 侧为 [tiles, avg_energy, splits, deaths]）。
+        let state_signal = vec![
+            self.completed_tiles.len() as f64,
+            avg_energy,
+            splits as f64,
+            deaths as f64,
+        ];
+        let _ = self.triple_fate.tick(Some(state_signal));
+
         // 更新维度
         let signal = vec![self.completed_tiles.len() as f64, avg_energy, splits as f64, merges as f64];
         self.space.adaptive_expand(&signal);
-        
+
         TileCycleResult {
             generation: self.total_operations,
             tile_count: self.completed_tiles.len(),
             merges,
             splits,
+            deaths,
             avg_activation: prop_result.avg_activation,
             total_connections: prop_result.total_connections,
             new_connections: prop_result.new_connections,
+            fate_links: 0,
         }
     }
     
@@ -742,10 +878,11 @@ impl TileQuattroComplete {
         for i in 2..diffs.len() {
             let d0 = diffs[i];
             let d1 = diffs[i - 1];
-            let d2 = diffs[i - 2];
-            
-            // 边际递减：d0 < d1 < d2 表示趋近收敛（相似）
-            if d0 < d1 && d1 < d2 && d0 > 0.0 {
+
+            // 纯代数判定：相邻差异的比率交给 Fate 的簇方程（check_diffs），
+            // 与 Stem 的 try_merge_into_similar 同一条方程路，
+            // 不再用写死的 d0<d1<d2 顺序不等式（那对随机间隙也有 1/6 命中）。
+            if d0 > 0.0 && self.triple_fate.cluster_equation.check_diffs(&[d0, d1]) {
                 if i + 1 < n {
                     to_merge.insert(i + 1);
                 }
@@ -762,12 +899,13 @@ impl TileQuattroComplete {
             .map(|&idx| {
                 let absorbed = &self.completed_tiles[idx];
                 (idx - 1, absorbed.energy, absorbed.signal_count, 
-                 absorbed.data_signature.clone(), absorbed.variance)
+                 absorbed.data_signature.clone(), absorbed.variance, absorbed.content.clone())
             })
             .collect();
         
-        for (target_idx, energy, signals, sig, var) in merge_data {
+        for (target_idx, energy, signals, sig, var, content) in merge_data {
             let target = &mut self.completed_tiles[target_idx];
+            keep_content(&mut target.content, &content);
             
             // 能量合并
             target.energy += energy;
@@ -783,6 +921,81 @@ impl TileQuattroComplete {
             }
             
             target.variance = (target.variance + var) / 2.0;
+        }
+
+        let mut redirect: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+        for &idx in &to_merge {
+            if idx > 0 && idx < self.completed_tiles.len() {
+                redirect.insert(
+                    self.completed_tiles[idx].id.clone(),
+                    self.completed_tiles[idx - 1].id.clone(),
+                );
+            }
+        }
+        let resolve = |redirect: &std::collections::HashMap<String, String>, mut id: String| -> String {
+            for _ in 0..8 {
+                match redirect.get(&id) {
+                    Some(next) if next != &id => id = next.clone(),
+                    _ => break,
+                }
+            }
+            id
+        };
+        let absorbed_edges: Vec<(usize, Vec<(String, f64)>)> = to_merge.iter().filter_map(|&idx| {
+            if idx == 0 || idx >= self.completed_tiles.len() {
+                return None;
+            }
+            let tile = &self.completed_tiles[idx];
+            let edges = tile.connections.iter().enumerate().map(|(slot, peer)| {
+                let weight = tile.weights.get(slot).copied().unwrap_or(0.1);
+                (peer.clone(), weight)
+            }).collect();
+            Some((idx - 1, edges))
+        }).collect();
+        for (target_idx, edges) in absorbed_edges {
+            if target_idx >= self.completed_tiles.len() {
+                continue;
+            }
+            let survivor = resolve(&redirect, self.completed_tiles[target_idx].id.clone());
+            let Some(dest) = self.completed_tiles.iter().position(|tile| tile.id == survivor) else {
+                continue;
+            };
+            if to_merge.contains(&dest) {
+                continue;
+            }
+            for (peer, weight) in edges {
+                let peer = resolve(&redirect, peer);
+                if peer == survivor {
+                    continue;
+                }
+                let target = &mut self.completed_tiles[dest];
+                if let Some(slot) = target.connections.iter().position(|id| id == &peer) {
+                    if let Some(old) = target.weights.get_mut(slot) {
+                        *old = old.abs().max(weight.abs());
+                    }
+                } else {
+                    target.connections.push(peer);
+                    target.weights.push(weight);
+                }
+            }
+        }
+        for tile in &mut self.completed_tiles {
+            let self_id = resolve(&redirect, tile.id.clone());
+            let mut kept: Vec<(String, f64)> = Vec::new();
+            for (slot, peer) in tile.connections.iter().enumerate() {
+                let peer = resolve(&redirect, peer.clone());
+                if peer == self_id {
+                    continue;
+                }
+                let weight = tile.weights.get(slot).copied().unwrap_or(0.1);
+                if let Some((_, old)) = kept.iter_mut().find(|(id, _)| id == &peer) {
+                    *old = old.abs().max(weight.abs());
+                } else {
+                    kept.push((peer, weight));
+                }
+            }
+            tile.connections = kept.iter().map(|(id, _)| id.clone()).collect();
+            tile.weights = kept.iter().map(|(_, weight)| *weight).collect();
         }
         
         // 5. 一次性移除所有标记的 Tile
@@ -813,6 +1026,7 @@ impl TileQuattroComplete {
         diff
     }
     
+    /// ═══ Fate 被动建立连接 ═══
     /// ═══ Fate 被动建立连接 ═══
     /// 在演化周期（交互时）由 Fate 决定建立连接
     /// 高效实现：只处理连接少的 Tile，用相邻比较
@@ -848,13 +1062,11 @@ impl TileQuattroComplete {
                     &self.completed_tiles[j]
                 );
                 
-                // 用 Fate 方程判断是否连接
-                // x = diff / (上一个diff + 1)，避免除零
-                let x = diff_ij / (diff_ij + 1.0);
-                let result = self.triple_fate.cluster_equation.evaluate(x);
+                // 用 Fate 方程判断是否连接（check_convergence 只读判定）
+                // x = diff / (diff + 1)，避免除零；不再有阈值倍数这类写死放宽
+                let (accepted, _) = self.triple_fate.check_convergence(&[diff_ij, diff_ij + 1.0]);
                 
-                // 方程结果小于阈值时建立连接
-                if result.abs() < self.triple_fate.cluster_equation.threshold * 10.0 {
+                if accepted {
                     new_connections.push((i, j));
                 }
             }
@@ -915,11 +1127,11 @@ impl TileQuattroComplete {
                 
                 // 用动态方程判断相似性
                 // x = d1 / d2，如果 x ≈ 1（稳定），则相似
+                // 不再用写死的简化式 (x-1)²<0.25，直接过身体自己的簇方程
                 let x = if d2 > 1e-10 { d1 / d2 } else { 1.0 };
-                // 简化的方程评估：(x-1)² < 0.1
-                let result = (x - 1.0) * (x - 1.0);
+                let result = self.triple_fate.cluster_equation.evaluate(x);
                 
-                if result < 0.25 {  // 方程判定为相似
+                if result.abs() < self.triple_fate.cluster_equation.threshold {  // 方程判定为相似
                     similar.push(self.completed_tiles[candidates[i].0].id.clone());
                 }
             } else {
@@ -967,6 +1179,7 @@ impl TileQuattroComplete {
         let activations: std::collections::HashMap<String, f64> = self.completed_tiles.iter()
             .map(|t| (t.id.clone(), t.activation))
             .collect();
+
         
         for tile in &mut self.completed_tiles {
             // 计算输入：来自连接的加权和
@@ -996,6 +1209,10 @@ impl TileQuattroComplete {
             }
             
             // 自发形成新连接：高激活 Tile 尝试连接到其他高激活 Tile
+            // （身体自己的激活线，与分裂/死亡的能量线同类——结构变化归
+            // Tile/Stem 自身动力学。此前误把激活比率送进簇方程：tanh 饱和
+            // 后激活近乎全等，比率≈1 必然过方程，每个 Tile 都连向第一个
+            // 对端形成枢纽图，对外 BFS 因此毫无选择性。已按原版恢复。）
             if tile.activation.abs() > 0.5 && tile.connections.len() < 8 {
                 for other_id in &tile_ids {
                     if other_id != &tile.id && !tile.connections.contains(other_id) {
