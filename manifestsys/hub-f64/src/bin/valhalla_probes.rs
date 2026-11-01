@@ -463,6 +463,12 @@ fn main() {
                 stem.fate_store(f.as_bytes());
             }
             println!("存入后 fate_count {}", stem.fate_count());
+            println!(
+                "签名 法国的首都是巴黎 {:.2} | 法国首都 {:.2} | 日本的首都是 {:.2}（方程阈值 0.01）",
+                stem.triple_fate.compute_signature("法国的首都是巴黎".as_bytes()),
+                stem.triple_fate.compute_signature("法国首都".as_bytes()),
+                stem.triple_fate.compute_signature("日本的首都是".as_bytes())
+            );
             let ask = |q: &str, stem: &StemCellComplete| {
                 let out = stem.triple_fate.react(q.as_bytes());
                 println!("问「{q}」-> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
