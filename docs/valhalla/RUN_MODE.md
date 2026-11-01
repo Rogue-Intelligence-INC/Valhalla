@@ -1,6 +1,22 @@
 # Valhalla 运行模式（程式化总纲，2026-11-01 固化）
 
-一条命令：`.\tools\run_valhalla_suite.ps1`（仓库根目录）。
+**唯一程式入口（Rust）**：`valhalla.exe`（`manifestsys/hub-f64/src/bin/valhalla.rs`，
+构建：`cargo build --release -p hub-f64 --bin valhalla`，产物 `target/release/valhalla.exe`）。
+它自动定位仓库根、注入 CUDA 构建环境、逐件落日志（`logs/suite_<时间戳>/`）、按退出码汇总。
+
+```text
+valhalla                 默认全套 L0+L1+L2电池+L3（约 3 分钟）
+valhalla run [--rounds N] [--seed S] [--incubation] [--viz [--open]] [--skip-build]
+valhalla check           L0 库测 + L1 检查包
+valhalla battery         L2 行业电池
+valhalla incubation      L2 孵化证明（约 8 分钟）
+valhalla flow [--rounds N] [--seed S] [--cycles N]
+valhalla viz  [--rounds N] [--seed S] [--open]   Tile/Stem 可视化监控页
+valhalla build           只构建全套所需 bin
+```
+
+`tools/run_valhalla_suite.ps1` 保留为兼容包装（参数 `-IncludeIncubation/-Viz/-Rounds/-Seed`），
+新流程一律以 Rust 入口为准。
 本文件是运行模式的规范；`FULL_FLOW_RUNBOOK.md` 是 L3 的细则；
 证据口径见 `EVIDENCE_MAP_20261101.md`，逐跑记录见 `TEST_RUNS_20261101.md`。
 
@@ -45,12 +61,12 @@ $env:PATH="C:\Ai\cuda-libx64;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\
   体内（身体周期）、出口 A（留出料回应）、出口 B（harness 读
   身体状态的结构问答）、出口 C（对外 Fate `react` 问答接口，
   喂入双写 `data_store` 接线）。vent 式抓取出口未纳入（D11 未立）。
-- **展示**：`valhalla_viz`（与 L3 同课程同种子，读数与已审计跑
-  逐字一致）逐轮记录快照并导出单文件监控页 `viz_out/index.html`
-  （+ `valhalla_viz.json`）：种群/连接曲线、方程漂移、逐轮按料
-  出生、Stem 新生细胞场空间散点（出生位置为公式直写，图注已
-  声明非涌现）、第 10/末轮四通道问答。`VH_VIZ_DIR` 改导出目录；
-  展示前现跑一遍（20 轮 ~55 秒）即为最新数据。
+- **展示**：`valhalla viz [--open]`（内部即 `valhalla_viz`，与 L3 同
+  课程同种子，读数与已审计跑逐字一致）逐轮记录快照并导出单文件
+  监控页 `viz_out/index.html`（+ `valhalla_viz.json`）：种群/连接
+  曲线、方程漂移、逐轮按料出生、Stem 新生细胞场空间散点（出生
+  位置为公式直写，图注已声明非涌现）、第 10/末轮四通道问答。
+  `VH_VIZ_DIR` 改导出目录；展示前现跑一遍（20 轮 ~55 秒）即为最新数据。
 
 ## 什么时候跑哪层
 

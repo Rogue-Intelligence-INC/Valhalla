@@ -1,6 +1,8 @@
 ﻿<#
 .SYNOPSIS
-  Valhalla 全套运行器（运行模式程式化，2026-11-01 固化）。
+  Valhalla 全套运行器（兼容包装；主入口已整合为 Rust 程式
+  target/release/valhalla.exe，子命令 run/check/flow/viz，
+  规范见 docs/valhalla/RUN_MODE.md）。
 
 .DESCRIPTION
   一条命令跑完四层：

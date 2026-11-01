@@ -376,3 +376,7 @@ path = "src/bin/stemcell_physics_intel.rs"
 [[bin]]
 name = "valhalla_dashboard"
 path = "src/bin/valhalla_dashboard.rs"
+
+[[bin]]
+name = "valhalla"
+path = "src/bin/valhalla.rs"
