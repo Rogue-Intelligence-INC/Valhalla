@@ -22,6 +22,14 @@
 //! 不存在绕过存储的喂法：凡进 Valhalla 的数据都过四元存储。
 //! 规模由 VH_MAX_MB 控制（八份存储 + Fate 内部状态随喂入量增长，
 //! 这是整体喂法的真实代价，不再以关掉存储换速度）。
+//!
+//! 身体存档（仅训练器层面，库零改动）：
+//! - VH_SAVE_DIR：训练结束把终局身体冻结到该目录（切片+容器 JSON+四元
+//!   存储+全局 Fate，与孵化证明 save_full 同构）；同时也是检查点根目录。
+//! - VH_CHECKPOINT_MB="125,250,..."：喂入量跨过各点时在 VH_SAVE_DIR/mb{N}
+//!   各冻一份（纯快照，不额外跑周期、不扰动训练），供规模曲线离线检验。
+//! - VH_LOAD_DIR：从冻结身体解冻续训；若同时未设 VH_MAX_MB/VH_CHECKPOINT_MB，
+//!   则只解冻打印 LOAD 指纹退出（存档保真检验：与 SAVE 指纹逐字比对）。
 
 use std::fs::File;
 use std::io::Read;
@@ -29,7 +37,7 @@ use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 use hub_f64::monitor::BodyMonitor;
-use hub_f64::TripleFateCombined;
+use hub_f64::{BaseForceCoordinator, GravityField, MeshBrainSystem, MultinovaProcessor, TripleFateCombined};
 use stem_cell::stemcell_complete::CellCycleResult;
 use stem_cell::StemCellComplete;
 use valhalla_tile_quattro::tile_complete::TileCycleResult;
@@ -45,6 +53,23 @@ fn env_usize(key: &str, default: usize) -> usize {
         .and_then(|v| v.parse().ok())
         .filter(|&v| v > 0)
         .unwrap_or(default)
+}
+
+fn env_path(key: &str) -> Option<PathBuf> {
+    std::env::var(key).ok().filter(|v| !v.trim().is_empty()).map(PathBuf::from)
+}
+
+/// 检查点规模点（MB 逗号表，如 "125,250,500"）：喂入量跨过即存一份身体快照。
+fn checkpoint_mbs() -> Vec<u64> {
+    let mut v: Vec<u64> = std::env::var("VH_CHECKPOINT_MB")
+        .unwrap_or_default()
+        .split(',')
+        .filter_map(|s| s.trim().parse::<u64>().ok())
+        .filter(|&v| v > 0)
+        .collect();
+    v.sort_unstable();
+    v.dedup();
+    v
 }
 
 /// 一片 = 一次喂入的碎片：Stem 收口一个细胞，Tile 收口一个瓦片。
@@ -150,6 +175,69 @@ impl Body {
         format!("迭代量 存储 {stored} 条 stem连接 {n} 平均强度 {avg:.3} 最大 {max_s:.2}")
     }
 
+    // ---- 身体存档（与孵化证明 save_full/load_full 同构：身体切片 + 容器
+    // JSON + 四元存储 + 全局 Fate）。训练器此前训后身体随进程消亡，
+    // 接上之后身体可冻结、解冻续训、被探针离线检验。 ----
+    fn save_quads(&self, dir: &Path) -> std::io::Result<()> {
+        std::fs::create_dir_all(dir)?;
+        self.tile.blackhole.save_store(&dir.join("tile.blackhole.store"))?;
+        self.tile.meshbrain.save_store(&dir.join("tile.meshbrain.store"))?;
+        self.tile.multinova.save_store(&dir.join("tile.multinova.store"))?;
+        self.tile.baseforce.save_store(&dir.join("tile.baseforce.store"))?;
+        self.stem.blackhole.save_store(&dir.join("stem.blackhole.store"))?;
+        self.stem.meshbrain.save_store(&dir.join("stem.meshbrain.store"))?;
+        self.stem.multinova.save_store(&dir.join("stem.multinova.store"))?;
+        self.stem.baseforce.save_store(&dir.join("stem.baseforce.store"))?;
+        Ok(())
+    }
+
+    fn load_quads(&mut self, dir: &Path) -> std::io::Result<()> {
+        self.tile.blackhole = GravityField::load_store(&dir.join("tile.blackhole.store"))?;
+        self.tile.meshbrain = MeshBrainSystem::load_store(&dir.join("tile.meshbrain.store"))?;
+        self.tile.multinova = MultinovaProcessor::load_store(&dir.join("tile.multinova.store"))?;
+        self.tile.baseforce = BaseForceCoordinator::load_store(&dir.join("tile.baseforce.store"))?;
+        self.stem.blackhole = GravityField::load_store(&dir.join("stem.blackhole.store"))?;
+        self.stem.meshbrain = MeshBrainSystem::load_store(&dir.join("stem.meshbrain.store"))?;
+        self.stem.multinova = MultinovaProcessor::load_store(&dir.join("stem.multinova.store"))?;
+        self.stem.baseforce = BaseForceCoordinator::load_store(&dir.join("stem.baseforce.store"))?;
+        Ok(())
+    }
+
+    fn save_full(&self, dir: &Path) -> std::io::Result<()> {
+        std::fs::create_dir_all(dir)?;
+        self.tile.save_slice(&dir.join("tile.slice"))?;
+        self.stem.save_slice(&dir.join("stem.slice"))?;
+        std::fs::write(dir.join("tiles.json"), serde_json::to_string(&self.tile.completed_tiles).unwrap())?;
+        std::fs::write(dir.join("cells.json"), serde_json::to_string(&self.stem.cells).unwrap())?;
+        self.global.save_slice(&dir.join("global.fate"))?;
+        self.save_quads(dir)
+    }
+
+    fn load_full(dir: &Path) -> std::io::Result<Self> {
+        let mut body = Self {
+            tile: TileQuattroComplete::load_slice(&dir.join("tile.slice"))?,
+            stem: StemCellComplete::load_slice(&dir.join("stem.slice"))?,
+            monitor: BodyMonitor::new(),
+            global: TripleFateCombined::load_slice(&dir.join("global.fate"))?,
+        };
+        body.tile.completed_tiles =
+            serde_json::from_str(&std::fs::read_to_string(dir.join("tiles.json"))?).unwrap_or_default();
+        body.stem.cells =
+            serde_json::from_str(&std::fs::read_to_string(dir.join("cells.json"))?).unwrap_or_default();
+        body.load_quads(dir)?;
+        Ok(body)
+    }
+
+    /// 存档/恢复指纹：tiles/cells/存储/方程同一行，存前存后逐字比对即保真检验。
+    fn fingerprint(&self, tag: &str) {
+        println!(
+            "{tag} {} | {} | {}",
+            self.monitor.snapshot(&self.tile, &self.stem).line(),
+            self.iter_line(),
+            self.metric_line()
+        );
+    }
+
     fn metric_line(&self) -> String {
         let g = &self.global.base.state;
         let t = &self.tile.triple_fate.base.state;
@@ -244,7 +332,37 @@ fn main() {
     }
     println!("注: 每一片都经 tile/stem 的 quad_keep 进四元存储（八份），与电池同一条整体喂入口");
 
-    let mut body = Body::new();
+    let save_dir = env_path("VH_SAVE_DIR");
+    let ckpts = checkpoint_mbs();
+    if !ckpts.is_empty() && save_dir.is_none() {
+        println!("警告: 设了 VH_CHECKPOINT_MB 但没设 VH_SAVE_DIR，检查点不保存");
+    }
+    let mut body = match env_path("VH_LOAD_DIR") {
+        Some(dir) => match Body::load_full(&dir) {
+            Ok(b) => {
+                println!("== 已从 {} 解冻身体 ==", dir.display());
+                b.fingerprint("LOAD指纹");
+                b
+            }
+            Err(e) => {
+                println!("解冻失败 {e}，从空身体开始");
+                Body::new()
+            }
+        },
+        None => Body::new(),
+    };
+    // 只解冻不喂料：打印指纹（可再存一份）后退出，供存档保真检验。
+    if env_path("VH_LOAD_DIR").is_some() && std::env::var("VH_MAX_MB").is_err() && ckpts.is_empty() {
+        if let Some(d) = &save_dir {
+            match body.save_full(d) {
+                Ok(()) => println!("已另存到 {}", d.display()),
+                Err(e) => println!("另存失败 {e}"),
+            }
+        }
+        println!("只解冻模式结束");
+        return;
+    }
+    let mut ck_idx = 0usize;
     let mut buf = vec![0u8; slice];
     let all_start = Instant::now();
     let max_fed = max_fed_bytes();
@@ -289,6 +407,21 @@ fn main() {
                     body.feed(&buf);
                     filled = 0;
                     since_cycle += 1;
+                    // 检查点：喂入量跨过预定规模点就冻结一份身体（不额外跑周期，
+                    // 纯快照不扰动训练），曲线各点身体自此可离线检验。
+                    if ck_idx < ckpts.len() && fed_total >= ckpts[ck_idx] * 1024 * 1024 {
+                        if let Some(d0) = &save_dir {
+                            let d = d0.join(format!("mb{}", ckpts[ck_idx]));
+                            match body.save_full(&d) {
+                                Ok(()) => {
+                                    println!("== 检查点 {} MB 已冻结到 {} ==", ckpts[ck_idx], d.display());
+                                    body.fingerprint("SAVE指纹");
+                                }
+                                Err(e) => println!("检查点保存失败 {e}"),
+                            }
+                        }
+                        ck_idx += 1;
+                    }
                     if since_cycle >= cycle_every {
                         let (t, s) = body.cycle();
                         since_cycle = 0;
@@ -358,4 +491,13 @@ fn main() {
         }
     }
     println!("{rounds} 轮结束 | 总用时 {:.1}s", all_start.elapsed().as_secs_f64());
+    if let Some(d) = &save_dir {
+        match body.save_full(d) {
+            Ok(()) => {
+                println!("== 终局身体已冻结到 {} ==", d.display());
+                body.fingerprint("SAVE指纹");
+            }
+            Err(e) => println!("终局保存失败 {e}"),
+        }
+    }
 }
