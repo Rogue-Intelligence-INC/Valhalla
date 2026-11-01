@@ -19,6 +19,9 @@
 //!   vent6      : 统一尺度版——两层对齐慢层宏拍（Tile 每拍入场一次、
 //!                Stem 原生节律），扰动程度统一报"静默涨落单位"，
 //!                同规则抓取，与 vent5 比质量（噪声底/抓取恢复）
+//!   vent7      : 场天然入场——两层各走原生节律（逐片 ingest+收口，
+//!                场经 quad_pulse 给 activity 并决定出生），不外给
+//!                任何标量；Fate 同规则抓取，四臂比抓取分化
 //! Body/feed/cycle 与训练器逐行一致的整体喂法；喂法不存在绕过存储的路径。
 
 use std::collections::{HashMap, HashSet};
@@ -1323,6 +1326,189 @@ fn main() {
                 body.stored_total()
             );
         }
+        "vent7" => {
+            // 场天然入场：不外给任何标量。两层各走原生节律——逐片
+            // ingest + promote_from_fate（场经 quad_pulse 合成 activity
+            // 并决定出生），其余拍序同前。四臂（静默/M1/M2/M1乱序）
+            // 同规则抓取，比抓取集分化。
+            let dir = env_path("VH_LOAD_DIR").expect("vent7 需要 VH_LOAD_DIR");
+            let beats = env_usize("VH_VENT_BEATS", 6);
+            let kb = env_usize("VH_VENT_KB", 256);
+            let files = all_files();
+            let stream = read_stream(&files, 2 * kb * 1024);
+            let m1: Vec<u8> = stream.iter().take(kb * 1024).cloned().collect();
+            let m2: Vec<u8> = stream.iter().skip(kb * 1024).take(kb * 1024).cloned().collect();
+            let mut m3: Vec<u8> = Vec::with_capacity(m1.len());
+            {
+                let chunks: Vec<&[u8]> = m1.chunks(8 * 1024).collect();
+                let mut idx: Vec<usize> = (0..chunks.len()).collect();
+                let mut s: u64 = 0x9E3779B97F4A7C15;
+                for i in (1..idx.len()).rev() {
+                    s ^= s << 13;
+                    s ^= s >> 7;
+                    s ^= s << 17;
+                    idx.swap(i, (s % (i as u64 + 1)) as usize);
+                }
+                for i in idx {
+                    m3.extend_from_slice(chunks[i]);
+                }
+            }
+            let load = |dir: &Path| -> Body {
+                match Body::load_full(dir) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        println!("解冻失败 {e}");
+                        std::process::exit(1);
+                    }
+                }
+            };
+            struct Run7 {
+                cell_series: HashMap<String, Vec<f64>>,
+                tile_series: HashMap<String, Vec<f64>>,
+                stem_births: usize,
+                tile_births: Vec<(String, Vec<f64>)>,
+                act_seen: Vec<f64>,
+            }
+            let run7 = |b: &mut Body, stream: Option<&[u8]>| -> Run7 {
+                let slices: Vec<&[u8]> = stream.map(|s| s.chunks(8 * 1024).collect()).unwrap_or_default();
+                let per = (slices.len() + beats - 1) / beats.max(1);
+                let tile_ids0: HashSet<String> = b.tile.completed_tiles.iter().map(|t| t.id.clone()).collect();
+                let mut prev_pos: HashMap<String, Vec<f64>> = HashMap::new();
+                let mut prev_act: HashMap<String, f64> = HashMap::new();
+                for c in &b.stem.cells {
+                    prev_pos.entry(c.cell_id.clone()).or_insert_with(|| c.position.clone());
+                }
+                for t in &b.tile.completed_tiles {
+                    prev_act.entry(t.id.clone()).or_insert(t.activation);
+                }
+                let mut r = Run7 {
+                    cell_series: HashMap::new(),
+                    tile_series: HashMap::new(),
+                    stem_births: 0,
+                    tile_births: Vec::new(),
+                    act_seen: Vec::new(),
+                };
+                for beat in 0..beats {
+                    for sl in slices.iter().skip(beat * per).take(per) {
+                        // Tile 原生入场：均值入容器，场收口决定出生
+                        let mean = sl.iter().map(|x| *x as f64).sum::<f64>() / sl.len().max(1) as f64;
+                        b.tile.ingest(mean);
+                        if let Some((_, _, act)) = b.tile.quad_pulse() {
+                            r.act_seen.push(act);
+                        }
+                        let _ = b.tile.promote_from_fate();
+                        // Stem 原生入场
+                        for x in *sl {
+                            b.stem.ingest(*x as f64);
+                        }
+                        let _ = b.stem.promote_from_fate();
+                    }
+                    let _ = b.tile.process_tiles_cycle();
+                    let _ = b.stem.process_cells_cycle();
+                    b.stem.settle_field();
+                    let mut cur_pos: HashMap<String, Vec<f64>> = HashMap::new();
+                    for c in &b.stem.cells {
+                        cur_pos.entry(c.cell_id.clone()).or_insert_with(|| c.position.clone());
+                    }
+                    for (id, p) in &cur_pos {
+                        match prev_pos.get(id) {
+                            Some(q) => {
+                                let d = p.iter().zip(q.iter()).map(|(x, y)| (x - y) * (x - y)).sum::<f64>().sqrt();
+                                r.cell_series.entry(id.clone()).or_default().push(d);
+                            }
+                            None => r.stem_births += 1,
+                        }
+                    }
+                    for t in &b.tile.completed_tiles {
+                        let d = (t.activation - prev_act.get(&t.id).copied().unwrap_or(t.activation)).abs();
+                        r.tile_series.entry(t.id.clone()).or_default().push(d);
+                    }
+                    prev_pos = cur_pos;
+                    prev_act = b.tile.completed_tiles.iter().map(|t| (t.id.clone(), t.activation)).collect();
+                }
+                for t in &b.tile.completed_tiles {
+                    if !tile_ids0.contains(&t.id) {
+                        r.tile_births.push((t.id.clone(), t.data_signature.clone()));
+                    }
+                }
+                r
+            };
+            let judge = |fate: &mut TripleFateCombined, series: &[f64]| -> bool {
+                for k in 1..series.len() {
+                    if fate.check_convergence(&[series[k], series[k - 1]]).0 {
+                        return true;
+                    }
+                }
+                false
+            };
+            let mk_fate = |g: &TripleFateCombined| -> TripleFateCombined {
+                let mut f = TripleFateCombined::new();
+                f.cluster_equation.coef_a = g.cluster_equation.coef_a;
+                f.cluster_equation.coef_b = g.cluster_equation.coef_b;
+                f.cluster_equation.coef_c = g.cluster_equation.coef_c;
+                f.cluster_equation.threshold = g.cluster_equation.threshold;
+                f
+            };
+            let grasp_set = |run: &Run7, fate: &mut TripleFateCombined| -> (HashSet<String>, HashSet<String>) {
+                let cs: HashSet<String> = run
+                    .cell_series
+                    .iter()
+                    .filter(|(_, s)| judge(fate, s))
+                    .map(|(id, _)| id.clone())
+                    .collect();
+                let ts: HashSet<String> = run
+                    .tile_series
+                    .iter()
+                    .filter(|(_, s)| judge(fate, s))
+                    .map(|(id, _)| id.clone())
+                    .collect();
+                (cs, ts)
+            };
+            let mut sets: Vec<(HashSet<String>, HashSet<String>)> = Vec::new();
+            let arms: Vec<(&str, Option<&[u8]>)> = vec![
+                ("静默", None),
+                ("M1", Some(m1.as_slice())),
+                ("M2", Some(m2.as_slice())),
+                ("M3乱序", Some(m3.as_slice())),
+            ];
+            for (tag, s) in &arms {
+                let mut b = load(&dir);
+                let r = run7(&mut b, *s);
+                let mut f = mk_fate(&b.global);
+                let (cs, ts) = grasp_set(&r, &mut f);
+                let act_rng = if r.act_seen.is_empty() {
+                    "无".to_string()
+                } else {
+                    let mn = r.act_seen.iter().fold(f64::INFINITY, |a, &x| a.min(x));
+                    let mx = r.act_seen.iter().fold(f64::NEG_INFINITY, |a, &x| a.max(x));
+                    format!("{mn:.2}..{mx:.2}")
+                };
+                println!(
+                    "[{tag}] 抓取 stem {} tile {} | 出生 stem {} tile {} | 场给activity 范围 {act_rng}（{} 次收口）",
+                    cs.len(),
+                    ts.len(),
+                    r.stem_births,
+                    r.tile_births.len(),
+                    r.act_seen.len()
+                );
+                if tag == &"M1" {
+                    for (id, sig) in r.tile_births.iter().take(5) {
+                        println!("    M1新生tile {id} sig {sig:?}");
+                    }
+                }
+                sets.push((cs, ts));
+            }
+            if sets.len() == 4 {
+                let ov = |a: &HashSet<String>, b: &HashSet<String>| a.intersection(b).count();
+                println!(
+                    "抓取集重叠 stem M1∩M2 {} M1∩M3 {} | tile M1∩M2 {} M1∩M3 {}（分母见各臂抓取数）",
+                    ov(&sets[1].0, &sets[2].0),
+                    ov(&sets[1].0, &sets[3].0),
+                    ov(&sets[1].1, &sets[2].1),
+                    ov(&sets[1].1, &sets[3].1)
+                );
+            }
+        }
         "fateqa" => {
             // 对外 Fate 试问：store_data 入口与 react 出口的现状普查。
             // react(&self) 只读：刺激不入 receive_passive、不 tick、不改方程存储；
@@ -1363,6 +1549,6 @@ fn main() {
             let out = fed.triple_fate.react("法国的首都是".as_bytes());
             println!("对照问 -> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
         }
-        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|vent3|vent4|vent5|vent6|fateqa）"),
+        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|vent3|vent4|vent5|vent6|vent7|fateqa）"),
     }
 }
