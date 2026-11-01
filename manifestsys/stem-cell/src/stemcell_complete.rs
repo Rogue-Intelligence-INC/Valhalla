@@ -1249,9 +1249,16 @@ impl StemCellComplete {
                     new_connections.push((ids[j].clone(), strength));
                 }
             }
-            // 连接集合由距离分位阈值（Fate 效率驱动）决定，不再有写死的条数上限
+            // 连接集合由距离分位阈值（Fate 效率驱动）决定候选集，
+            // 再按强度保留每细胞最强的若干条（原版上限，bbea60a 曾
+            // 删除）。2026-11-01 晚修复：删除上限后均度 = 分位比 × n
+            // （0.1·n），第一轮场沉降即连成稠密核、图直径≈2，限步
+            // 可达对真假题同时饱和（假题正确率仅 2–26%）——过快
+            // 饱和的机制源头。恢复上限后均度回到常数量级，边数
+            // 随 n 线性而非平方增长；分位候选与强度取舍均未改。
             new_connections.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
-            
+            new_connections.truncate(20);
+
             self.cells[i].connections = new_connections;
         }
     }
