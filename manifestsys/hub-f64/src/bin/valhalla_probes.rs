@@ -16,6 +16,9 @@
 //!   vent5      : 全器官抓取——扰动运转中各模块给出响应流，全局 Fate 用
 //!                自身方程 check_convergence 逐条判，过判全拿不封顶，
 //!                写入 grasp JSON；筛选是下一阶段的事
+//!   vent6      : 统一尺度版——两层对齐慢层宏拍（Tile 每拍入场一次、
+//!                Stem 原生节律），扰动程度统一报"静默涨落单位"，
+//!                同规则抓取，与 vent5 比质量（噪声底/抓取恢复）
 //! Body/feed/cycle 与训练器逐行一致的整体喂法；喂法不存在绕过存储的路径。
 
 use std::collections::{HashMap, HashSet};
@@ -1160,6 +1163,166 @@ fn main() {
                 body.stored_total()
             );
         }
+        "vent6" => {
+            // 统一尺度：宏拍为共同钟。Tile 每拍只 propagate 一次（拍块均值，
+            // 对齐慢层节律，不再切片级连敲）；Stem 保持原生节律（逐片
+            // ingest+promote、每拍一周期一沉降）。抓取规则与 vent5 相同；
+            // 扰动程度统一以"静默涨落单位"（本臂逐拍幅度/静默同拍幅度）
+            // 报告，横跨两层同一把尺。质量对照 vent5：噪声底与抓取恢复。
+            let dir = env_path("VH_LOAD_DIR").expect("vent6 需要 VH_LOAD_DIR");
+            let beats = env_usize("VH_VENT_BEATS", 6);
+            let kb = env_usize("VH_VENT_KB", 256);
+            let out_path = env_path("VH_GRASP_OUT")
+                .unwrap_or_else(|| PathBuf::from(r"C:\Ai\valhalla-bodies\grasp_vent6.json"));
+            let files = all_files();
+            let stream = read_stream(&files, kb * 1024);
+            let load = |dir: &Path| -> Body {
+                match Body::load_full(dir) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        println!("解冻失败 {e}");
+                        std::process::exit(1);
+                    }
+                }
+            };
+            struct Run6 {
+                cell_series: HashMap<String, Vec<f64>>,
+                tile_series: HashMap<String, Vec<f64>>,
+                births: usize,
+                t_amp: Vec<f64>,
+                s_amp: Vec<f64>,
+            }
+            let run6 = |b: &mut Body, stream: Option<&[u8]>| -> Run6 {
+                let slices: Vec<&[u8]> = stream.map(|s| s.chunks(8 * 1024).collect()).unwrap_or_default();
+                let per = (slices.len() + beats - 1) / beats.max(1);
+                let mut prev_pos: HashMap<String, Vec<f64>> = HashMap::new();
+                let mut prev_act: HashMap<String, f64> = HashMap::new();
+                for c in &b.stem.cells {
+                    prev_pos.entry(c.cell_id.clone()).or_insert_with(|| c.position.clone());
+                }
+                for t in &b.tile.completed_tiles {
+                    prev_act.entry(t.id.clone()).or_insert(t.activation);
+                }
+                let mut r = Run6 {
+                    cell_series: HashMap::new(),
+                    tile_series: HashMap::new(),
+                    births: 0,
+                    t_amp: Vec::new(),
+                    s_amp: Vec::new(),
+                };
+                for beat in 0..beats {
+                    let chunk: Vec<u8> = slices
+                        .iter()
+                        .skip(beat * per)
+                        .take(per)
+                        .flat_map(|s| s.iter().cloned())
+                        .collect();
+                    if !chunk.is_empty() {
+                        // Tile 规则（统一尺度）：每宏拍入场一次
+                        let mean = chunk.iter().map(|x| *x as f64).sum::<f64>() / chunk.len() as f64;
+                        let _ = b.tile.propagate(mean);
+                        // Stem 规则（原生节律）：逐片 ingest+收口
+                        for sl in slices.iter().skip(beat * per).take(per) {
+                            for x in *sl {
+                                b.stem.ingest(*x as f64);
+                            }
+                            let _ = b.stem.promote_from_fate();
+                        }
+                    }
+                    let _ = b.tile.process_tiles_cycle();
+                    let _ = b.stem.process_cells_cycle();
+                    b.stem.settle_field();
+                    let mut sa = 0.0f64;
+                    let mut cur_pos: HashMap<String, Vec<f64>> = HashMap::new();
+                    for c in &b.stem.cells {
+                        cur_pos.entry(c.cell_id.clone()).or_insert_with(|| c.position.clone());
+                    }
+                    for (id, p) in &cur_pos {
+                        match prev_pos.get(id) {
+                            Some(q) => {
+                                let d = p.iter().zip(q.iter()).map(|(x, y)| (x - y) * (x - y)).sum::<f64>().sqrt();
+                                sa += d;
+                                r.cell_series.entry(id.clone()).or_default().push(d);
+                            }
+                            None => r.births += 1,
+                        }
+                    }
+                    let mut ta = 0.0f64;
+                    for t in &b.tile.completed_tiles {
+                        let d = (t.activation - prev_act.get(&t.id).copied().unwrap_or(t.activation)).abs();
+                        ta += d;
+                        r.tile_series.entry(t.id.clone()).or_default().push(d);
+                    }
+                    r.t_amp.push(ta);
+                    r.s_amp.push(sa);
+                    prev_pos = cur_pos;
+                    prev_act = b.tile.completed_tiles.iter().map(|t| (t.id.clone(), t.activation)).collect();
+                }
+                r
+            };
+            let judge = |fate: &mut TripleFateCombined, series: &[f64]| -> bool {
+                for k in 1..series.len() {
+                    if fate.check_convergence(&[series[k], series[k - 1]]).0 {
+                        return true;
+                    }
+                }
+                false
+            };
+            let mk_fate = |g: &TripleFateCombined| -> TripleFateCombined {
+                let mut f = TripleFateCombined::new();
+                f.cluster_equation.coef_a = g.cluster_equation.coef_a;
+                f.cluster_equation.coef_b = g.cluster_equation.coef_b;
+                f.cluster_equation.coef_c = g.cluster_equation.coef_c;
+                f.cluster_equation.threshold = g.cluster_equation.threshold;
+                f
+            };
+            let mut silent = load(&dir);
+            let srun = run6(&mut silent, None);
+            let mut body = load(&dir);
+            let brun = run6(&mut body, Some(&stream));
+            let count = |run: &Run6, fate: &mut TripleFateCombined| -> (usize, usize, usize, usize) {
+                let cs = run.cell_series.values().filter(|s| judge(fate, s)).count();
+                let ct = run.tile_series.values().filter(|s| judge(fate, s)).count();
+                (cs, run.cell_series.len(), ct, run.tile_series.len())
+            };
+            let mut sf = mk_fate(&silent.global);
+            let (scs, scn, sct, stn) = count(&srun, &mut sf);
+            let mut bf = mk_fate(&body.global);
+            let (bcs, bcn, bct, btn) = count(&brun, &mut bf);
+            println!("[静默] 抓取 stem {scs}/{scn} tile {sct}/{stn} 出生 {}", srun.births);
+            println!("[刺激] 抓取 stem {bcs}/{bcn} tile {bct}/{btn} 出生 {}", brun.births);
+            println!("统一尺度扰动（臂/静默同拍，>1=超涨落）:");
+            for k in 0..beats {
+                let tr = if srun.t_amp[k] > 1e-9 { brun.t_amp[k] / srun.t_amp[k] } else { f64::NAN };
+                let sr = if srun.s_amp[k] > 1e-9 { brun.s_amp[k] / srun.s_amp[k] } else { f64::NAN };
+                println!(
+                    "  拍 {} tile {:.1}/{:.1} = {:.2} | stem {:.1}/{:.1} = {:.2}",
+                    k + 1,
+                    brun.t_amp[k],
+                    srun.t_amp[k],
+                    tr,
+                    brun.s_amp[k],
+                    srun.s_amp[k],
+                    sr
+                );
+            }
+            let doc = serde_json::json!({
+                "equation": body.global.cluster_equation.equation_str(),
+                "scale": "macro-beat; tile 1 propagate/beat; stem native; amplitude in silent-fluctuation units",
+                "silent": {"stem_grasped": scs, "stem_total": scn, "tile_grasped": sct, "tile_total": stn, "births": srun.births},
+                "stimulus": {"stem_grasped": bcs, "stem_total": bcn, "tile_grasped": bct, "tile_total": btn, "births": brun.births},
+            });
+            if let Ok(txt) = serde_json::to_string(&doc) {
+                let _ = std::fs::write(&out_path, txt);
+                println!("写入 {}", out_path.display());
+            }
+            println!(
+                "纪律 全局tick {} 方程 {} 存储 {}",
+                body.global.global_tick,
+                body.global.cluster_equation.equation_str(),
+                body.stored_total()
+            );
+        }
         "fateqa" => {
             // 对外 Fate 试问：store_data 入口与 react 出口的现状普查。
             // react(&self) 只读：刺激不入 receive_passive、不 tick、不改方程存储；
@@ -1200,6 +1363,6 @@ fn main() {
             let out = fed.triple_fate.react("法国的首都是".as_bytes());
             println!("对照问 -> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
         }
-        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|vent3|vent4|fateqa）"),
+        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|vent3|vent4|vent5|vent6|fateqa）"),
     }
 }
