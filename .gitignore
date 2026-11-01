@@ -63,3 +63,6 @@ node_modules/
 # Large binary files
 *.node
 s-wind-sim/
+
+viz_out/
+logs/

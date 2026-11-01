@@ -45,6 +45,12 @@ $env:PATH="C:\Ai\cuda-libx64;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\
   体内（身体周期）、出口 A（留出料回应）、出口 B（harness 读
   身体状态的结构问答）、出口 C（对外 Fate `react` 问答接口，
   喂入双写 `data_store` 接线）。vent 式抓取出口未纳入（D11 未立）。
+- **展示**：`valhalla_viz`（与 L3 同课程同种子，读数与已审计跑
+  逐字一致）逐轮记录快照并导出单文件监控页 `viz_out/index.html`
+  （+ `valhalla_viz.json`）：种群/连接曲线、方程漂移、逐轮按料
+  出生、Stem 新生细胞场空间散点（出生位置为公式直写，图注已
+  声明非涌现）、第 10/末轮四通道问答。`VH_VIZ_DIR` 改导出目录；
+  展示前现跑一遍（20 轮 ~55 秒）即为最新数据。
 
 ## 什么时候跑哪层
 
