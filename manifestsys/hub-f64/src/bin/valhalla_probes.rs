@@ -22,6 +22,11 @@
 //!   vent7      : 场天然入场——两层各走原生节律（逐片 ingest+收口，
 //!                场经 quad_pulse 给 activity 并决定出生），不外给
 //!                任何标量；Fate 同规则抓取，四臂比抓取分化
+//!   mmtrain    : VH_LOAD_DIR 解冻旧身体，在其上续训新料型块（多语
+//!                文本/图片/声音字节，整体喂法不变），逐块记录出生
+//!                队列在 Stem 场空间的分布（同型内聚 vs 异型距离）、
+//!                旧结构存留与全量指纹；收尾空转数周期，回应形态
+//!                不设限、只记录（用户 2026-11-01 晚裁定的续训测试）
 //! Body/feed/cycle 与训练器逐行一致的整体喂法；喂法不存在绕过存储的路径。
 
 use std::collections::{HashMap, HashSet};
@@ -338,6 +343,22 @@ fn heldout_files(files: &[PathBuf]) -> Vec<PathBuf> {
 }
 
 fn main() {
+    // mmtrain 的场步在大身体（mb25 起步、续训继续长）上必经深递归/大帧，
+    // Windows 主线程默认 1MB 栈会溢出（STATUS_STACK_OVERFLOW 0xC00000FD）。
+    // 凡加载整具身体的模式一律放大线程再跑，身体一根汗毛不动。
+    let mode0 = std::env::var("VH_PROBE").unwrap_or_else(|_| "org".to_string());
+    if matches!(mode0.as_str(), "org" | "assimilate" | "vent" | "vent2" | "vent3" | "vent4" | "vent5" | "vent6" | "vent7" | "mmtrain") {
+        let h = std::thread::Builder::new()
+            .stack_size(512 * 1024 * 1024)
+            .spawn(main_inner)
+            .expect("spawn big-stack thread");
+        let _ = h.join();
+        return;
+    }
+    main_inner();
+}
+
+fn main_inner() {
     let mode = std::env::var("VH_PROBE").unwrap_or_else(|_| "org".to_string());
     match mode.as_str() {
         "org" => {
@@ -1509,6 +1530,99 @@ fn main() {
                 );
             }
         }
+        "mmtrain" => {
+            // 旧身体续训新料型：多语文本/图片/声音三块，整体喂法与
+            // 训练器逐行一致（feed_stream 8KB 切片+每 256 片一周期）。
+            // 回应形态不设限：只记录吸收、场空间分布、旧结构存留。
+            let dir = env_path("VH_LOAD_DIR").expect("mmtrain 需要 VH_LOAD_DIR");
+            let mut b = Body::load_full(&dir).expect("解冻失败");
+            b.fingerprint("续训前");
+            let old_cells: HashSet<String> = b.stem.cells.iter().map(|c| c.cell_id.clone()).collect();
+            let old_tiles: HashSet<String> = b.tile.completed_tiles.iter().map(|t| t.id.clone()).collect();
+            let stored0 = b.stored_total();
+            let read_cap = |p: &Path, cap: usize| -> Vec<u8> {
+                let mut v = std::fs::read(p).unwrap_or_default();
+                v.truncate(cap);
+                v
+            };
+            let cap = 768 * 1024;
+            let div = Path::new(r"C:\Ai\rogue-products\valhalla-self-incubate\corpus_diverse");
+            let mut text = Vec::new();
+            for f in ["zh_honglou_24264.txt", "fr_montecristo_17989.txt", "de_faust_2229.txt"] {
+                text.extend_from_slice(&read_cap(&div.join(f), cap));
+            }
+            let mut img = Vec::new();
+            if let Ok(rd) = std::fs::read_dir(r"C:\Windows\Web\Wallpaper\Windows") {
+                for e in rd.flatten() {
+                    let p = e.path();
+                    if p.extension().and_then(|x| x.to_str()) == Some("jpg") {
+                        img.extend_from_slice(&read_cap(&p, cap));
+                    }
+                }
+            }
+            let mut aud = Vec::new();
+            for f in ["Alarm01.wav", "Alarm02.wav", "Alarm03.wav"] {
+                aud.extend_from_slice(&read_cap(&Path::new(r"C:\Windows\Media").join(f), cap));
+            }
+            println!("新料: 多语文本 {}KB 图片 {}KB 声音 {}KB", text.len() / 1024, img.len() / 1024, aud.len() / 1024);
+            // 字节分块喂入（16 字节/片）：容器统计量随料型张开，
+            // 让身体自己的收口-出生机器工作；与 8KB 块喂的差别
+            // 入账说明（见 TEST_RUNS mmtrain 节）。
+            let feed_block = |b: &mut Body, bytes: &[u8], acc: &mut Cyc| {
+                let mut n = 0usize;
+                for chunk in bytes.chunks(16) {
+                    b.feed(chunk);
+                    n += 1;
+                    if n % 32768 == 0 { let (t, s) = b.cycle(); acc.add(&t, &s); }
+                }
+                let (t, s) = b.cycle(); acc.add(&t, &s);
+            };
+            let blocks: Vec<(&str, &Vec<u8>)> = vec![("多语文本", &text), ("图片", &img), ("声音", &aud)];
+            let mut acc = Cyc::default();
+            let mut cohorts: Vec<(&str, Vec<String>)> = Vec::new();
+            for (name, bytes) in &blocks {
+                let before: HashSet<String> = b.stem.cells.iter().map(|c| c.cell_id.clone()).collect();
+                let tbefore: HashSet<String> = b.tile.completed_tiles.iter().map(|t| t.id.clone()).collect();
+                feed_block(&mut b, bytes, &mut acc);
+                let born: Vec<String> = b.stem.cells.iter().map(|c| c.cell_id.clone()).filter(|id| !before.contains(id)).collect();
+                let tborn = b.tile.completed_tiles.iter().filter(|t| !tbefore.contains(&t.id)).count();
+                println!("[{name}] 喂入 {}KB -> 新生 stem {} tile {} | stem维度 {:.1} tile维度 {:.1} | 累计 {}", bytes.len() / 1024, born.len(), tborn, b.stem.space.current_dimension, b.tile.space.current_dimension, acc.line());
+                b.fingerprint(&format!("  {name}后"));
+                cohorts.push((*name, born));
+            }
+            // 场空间分布：各出生队列质心/内聚/间距（位置取前两维）
+            let pos_of: HashMap<&str, &Vec<f64>> = b.stem.cells.iter().map(|c| (c.cell_id.as_str(), &c.position)).collect();
+            let centroid = |ids: &Vec<String>| -> Option<Vec<f64>> {
+                let ps: Vec<&Vec<f64>> = ids.iter().filter_map(|i| pos_of.get(i.as_str()).copied()).filter(|p| p.len() >= 2).collect();
+                if ps.is_empty() { return None; }
+                let n = ps.len() as f64;
+                Some(vec![ps.iter().map(|p| p[0]).sum::<f64>() / n, ps.iter().map(|p| p[1]).sum::<f64>() / n])
+            };
+            let cents: Vec<Option<Vec<f64>>> = cohorts.iter().map(|(_, ids)| centroid(ids)).collect();
+            for (i, (name, ids)) in cohorts.iter().enumerate() {
+                let Some(c) = &cents[i] else { println!("[{name}] 场内无可定位新生细胞"); continue };
+                let within: Vec<f64> = ids.iter().filter_map(|id| pos_of.get(id.as_str()).copied()).filter(|p| p.len() >= 2)
+                    .map(|p| ((p[0] - c[0]).powi(2) + (p[1] - c[1]).powi(2)).sqrt()).collect();
+                let w = if within.is_empty() { 0.0 } else { within.iter().sum::<f64>() / within.len() as f64 };
+                print!("[{name}] 队列 {} 场质心 ({:.1},{:.1}) 内聚半径 {:.1}", ids.len(), c[0], c[1], w);
+                for (j, (n2, _)) in cohorts.iter().enumerate() {
+                    if let Some(c2) = &cents[j] {
+                        let d = ((c[0] - c2[0]).powi(2) + (c[1] - c2[1]).powi(2)).sqrt();
+                        print!(" | 距{n2}质心 {d:.1}");
+                    }
+                }
+                println!();
+            }
+            // 空转回应：不喂任何东西跑 6 周期，只记录它做什么
+            let mut acc2 = Cyc::default();
+            for _ in 0..6 { let (t, s) = b.cycle(); acc2.add(&t, &s); }
+            println!("空转 6 周期: {}", acc2.line());
+            let alive_c = b.stem.cells.iter().filter(|c| old_cells.contains(&c.cell_id)).count();
+            let alive_t = b.tile.completed_tiles.iter().filter(|t| old_tiles.contains(&t.id)).count();
+            println!("旧结构存留: stem {}/{} tile {}/{} | 存储 {} -> {} (Δ{:+})",
+                alive_c, old_cells.len(), alive_t, old_tiles.len(), stored0, b.stored_total(), b.stored_total() as i64 - stored0 as i64);
+            b.fingerprint("续训后");
+        }
         "fateqa" => {
             // 对外 Fate 试问：store_data 入口与 react 出口的现状普查。
             // react(&self) 只读：刺激不入 receive_passive、不 tick、不改方程存储；
@@ -1549,6 +1663,6 @@ fn main() {
             let out = fed.triple_fate.react("法国的首都是".as_bytes());
             println!("对照问 -> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
         }
-        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|vent3|vent4|vent5|vent6|vent7|fateqa）"),
+        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|vent3|vent4|vent5|vent6|vent7|mmtrain|fateqa）"),
     }
 }
