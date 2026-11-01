@@ -22,6 +22,9 @@
 //!   vent7      : 场天然入场——两层各走原生节律（逐片 ingest+收口，
 //!                场经 quad_pulse 给 activity 并决定出生），不外给
 //!                任何标量；Fate 同规则抓取，四臂比抓取分化
+//!   fateseg    : Fate 自动分割（原版 receive_data 路径）——逐字节
+//!                喂入，Fate 用自身簇方程判收敛切段、收口出生；
+//!                存储仍按块全量入四元，出生切分与存储粒度脱钩
 //!   mmtrain    : VH_LOAD_DIR 解冻旧身体，在其上续训新料型块（多语
 //!                文本/图片/声音字节，整体喂法不变），逐块记录出生
 //!                队列在 Stem 场空间的分布（同型内聚 vs 异型距离）、
@@ -347,7 +350,7 @@ fn main() {
     // Windows 主线程默认 1MB 栈会溢出（STATUS_STACK_OVERFLOW 0xC00000FD）。
     // 凡加载整具身体的模式一律放大线程再跑，身体一根汗毛不动。
     let mode0 = std::env::var("VH_PROBE").unwrap_or_else(|_| "org".to_string());
-    if matches!(mode0.as_str(), "org" | "assimilate" | "vent" | "vent2" | "vent3" | "vent4" | "vent5" | "vent6" | "vent7" | "mmtrain") {
+    if matches!(mode0.as_str(), "org" | "assimilate" | "vent" | "vent2" | "vent3" | "vent4" | "vent5" | "vent6" | "vent7" | "mmtrain" | "fateseg") {
         let h = std::thread::Builder::new()
             .stack_size(512 * 1024 * 1024)
             .spawn(main_inner)
@@ -1623,6 +1626,89 @@ fn main_inner() {
                 alive_c, old_cells.len(), alive_t, old_tiles.len(), stored0, b.stored_total(), b.stored_total() as i64 - stored0 as i64);
             b.fingerprint("续训后");
         }
+        "fateseg" => {
+            // Fate 自动分割（原版 receive_data）：逐字节喂入，容器只
+            // 收集，Fate 用自身簇方程判收敛、命中收口出生。存储纪律
+            // 不变：字节流仍按 8KB 块全量入双侧四元（记账），出生
+            // 切分与存储粒度脱钩。不跑周期/场沉降，先看切分本身。
+            let dir = env_path("VH_LOAD_DIR").expect("fateseg 需要 VH_LOAD_DIR");
+            let mut b = Body::load_full(&dir).expect("解冻失败");
+            b.fingerprint("Fate切分前");
+            let stored0 = b.stored_total();
+            let read_cap = |p: &Path, cap: usize| -> Vec<u8> {
+                let mut v = std::fs::read(p).unwrap_or_default();
+                v.truncate(cap);
+                v
+            };
+            let cap = env_usize("VH_SEG_KB", 256) * 1024;
+            let text = read_cap(Path::new(r"C:\Ai\rogue-products\valhalla-self-incubate\corpus_diverse\zh_honglou_24264.txt"), cap);
+            let img = read_cap(Path::new(r"C:\Windows\Web\Wallpaper\Windows\img0.jpg"), cap);
+            let aud = read_cap(Path::new(r"C:\Windows\Media\Alarm01.wav"), cap);
+            let old_cells: HashSet<String> = b.stem.cells.iter().map(|c| c.cell_id.clone()).collect();
+            let old_tiles: HashSet<String> = b.tile.completed_tiles.iter().map(|t| t.id.clone()).collect();
+            let blocks: Vec<(&str, &Vec<u8>)> = vec![("中文文本", &text), ("图片", &img), ("声音", &aud)];
+            let mut cohorts: Vec<(&str, usize, usize)> = Vec::new();
+            for (name, bytes) in &blocks {
+                for chunk in bytes.chunks(8 * 1024) {
+                    b.tile.quad_keep(chunk);
+                    b.stem.quad_keep(chunk);
+                }
+                let clen = b.stem.cells.len();
+                let tlen = b.tile.completed_tiles.len();
+                let start = std::time::Instant::now();
+                for &byte in bytes.iter() {
+                    let v = byte as f64;
+                    b.global.receive_passive(v);
+                    b.stem.receive_data(v);
+                    b.tile.receive_data(v);
+                }
+                let stat = |v: &[u64]| -> String {
+                    if v.is_empty() { return "无".to_string(); }
+                    let mean = v.iter().sum::<u64>() as f64 / v.len() as f64;
+                    format!("{} 段 段长均 {:.0}（{}..{}）", v.len(), mean, v.iter().min().unwrap(), v.iter().max().unwrap())
+                };
+                // 出生记账用向量尾段（id 解冻后相撞，不可信）
+                let sc: Vec<u64> = b.stem.cells[clen..].iter().map(|c| c.signal_count).collect();
+                let st: Vec<u64> = b.tile.completed_tiles[tlen..].iter().map(|t| t.signal_count).collect();
+                println!("[{name}] {}KB 用时 {:.1}s -> stem {} | tile {} | 维度 stem {:.0} tile {:.0}",
+                    bytes.len() / 1024, start.elapsed().as_secs_f64(), stat(&sc), stat(&st),
+                    b.stem.space.current_dimension, b.tile.space.current_dimension);
+                b.fingerprint(&format!("  {name}后"));
+                cohorts.push((*name, clen, b.stem.cells.len()));
+            }
+            // 出生队列在 Stem 场空间的分布（出生位置，前两维）
+            let centroid = |from: usize, to: usize| -> Option<(Vec<f64>, f64)> {
+                let ps: Vec<&Vec<f64>> = b.stem.cells[from..to].iter().map(|c| &c.position).filter(|p| p.len() >= 2).collect();
+                if ps.is_empty() { return None; }
+                let n = ps.len() as f64;
+                let c = vec![ps.iter().map(|p| p[0]).sum::<f64>() / n, ps.iter().map(|p| p[1]).sum::<f64>() / n];
+                let r = ps.iter().map(|p| ((p[0] - c[0]).powi(2) + (p[1] - c[1]).powi(2)).sqrt()).sum::<f64>() / n;
+                Some((c, r))
+            };
+            let cents: Vec<Option<(Vec<f64>, f64)>> = cohorts.iter().map(|&(_, f, t)| centroid(f, t)).collect();
+            for (i, (name, f, t)) in cohorts.iter().enumerate() {
+                let Some((c, r)) = &cents[i] else { println!("[{name}] 无可定位新生细胞"); continue };
+                print!("[{name}] 队列 {} 场质心 ({:.2},{:.2}) 内聚半径 {:.2}", t - f, c[0], c[1], r);
+                for (j, (n2, _, _)) in cohorts.iter().enumerate() {
+                    if let Some((c2, _)) = &cents[j] {
+                        print!(" | 距{n2}质心 {:.2}", ((c[0] - c2[0]).powi(2) + (c[1] - c2[1]).powi(2)).sqrt());
+                    }
+                }
+                println!();
+            }
+            // 收紧 + 空转回应：不喂任何东西，只记录它做什么
+            let mut acc = Cyc::default();
+            b.settle(&mut acc);
+            println!("收紧: {}", acc.line());
+            let mut acc2 = Cyc::default();
+            for _ in 0..6 { let (t, s) = b.cycle(); acc2.add(&t, &s); }
+            println!("空转 6 周期: {}", acc2.line());
+            let alive_c = b.stem.cells.iter().filter(|c| old_cells.contains(&c.cell_id)).count();
+            let alive_t = b.tile.completed_tiles.iter().filter(|t| old_tiles.contains(&t.id)).count();
+            println!("旧结构存留: stem {}/{} tile {}/{}", alive_c, old_cells.len(), alive_t, old_tiles.len());
+            println!("存储 {} -> {}（Δ{:+}，应 = 3 块字节数 ×8 取整）", stored0, b.stored_total(), b.stored_total() as i64 - stored0 as i64);
+            b.fingerprint("Fate切分续训后");
+        }
         "fateqa" => {
             // 对外 Fate 试问：store_data 入口与 react 出口的现状普查。
             // react(&self) 只读：刺激不入 receive_passive、不 tick、不改方程存储；
@@ -1663,6 +1749,6 @@ fn main_inner() {
             let out = fed.triple_fate.react("法国的首都是".as_bytes());
             println!("对照问 -> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
         }
-        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|vent3|vent4|vent5|vent6|vent7|mmtrain|fateqa）"),
+        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|vent3|vent4|vent5|vent6|vent7|mmtrain|fateseg|fateqa）"),
     }
 }
