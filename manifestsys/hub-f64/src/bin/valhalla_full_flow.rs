@@ -7,12 +7,19 @@
 //! （自然料按 8KB 流块、事实按条），出生切分与存储粒度脱钩。
 //! 体内：每轮 = 喂一批料 + 若干身体周期（tile/stem 周期、全局 Fate
 //! tick、场沉降、propagate），与训练器同节律。
-//! 出口（测试期，双通道分开记分，不混）：
+//! 出口（测试期，各通道分开记分，不混）：
 //!   A 原生回应：留出料逐字节入场，看 Fate 如何切分、 newborn 落在
 //!      场空间何处——回应形态不设限，只记录。
-//!   B 结构问答：训练期喂过的符号链，测试期问未喂过的传递问题；
-//!      存储通道=四元字节里抽边做限步可达，网络通道=Tile/Stem 自发
-//!      连接上做限步可达（符号→单位映射用喂事实时的出生尾段记账）。
+//!   B 结构问答（harness 读身体状态）：训练期喂过的符号链，测试期
+//!      问未喂过的传递问题；存储通道=四元字节里抽边做限步可达，
+//!      网络通道=Tile/Stem 自发连接上做限步可达（符号→单位映射
+//!      用喂事实时的段级出生记账）。
+//!   C 对外 Fate 问答（今晨 bbea60a 定稿的 react 接口才是问答
+//!      接口）：喂事实时同字节双写全球 Fate 的 data_store（主线
+//!      喂法此前只写四元、data_store 恒空，react 无话可送——缺的
+//!      是这步接线）。测试期每跳调用一次 react、解析它送出的原文
+//!      中的边；react 为 &self 只读：刺激不入内部 Fate、不 tick、
+//!      不改方程（纪律由签名保证，问题不入体）。
 //! 检查点：第 10 / 20 轮各测一次（同体继续训），读"多训十轮混料
 //! 对事实结构是保是洗"。未纳入：vent 式抓取出口（D11 未立）。
 //!
@@ -130,6 +137,20 @@ impl Body {
             self.global.cluster_equation.equation_str()
         );
     }
+}
+
+/// 对外 Fate 一跳：以符号为刺激调 react，解析它送出的原文中的边，
+/// 返回边两端符号。react 无命中即空——沉默如实呈现为无邻居。
+fn react_neighbors(global: &TripleFateCombined, sym: &str) -> Vec<String> {
+    let out = global.react(sym.as_bytes());
+    let mut ns = Vec::new();
+    for w in out.windows(7) {
+        if w[3] == b'>' && w[..3].iter().all(|c| c.is_ascii_uppercase()) && w[4..].iter().all(|c| c.is_ascii_uppercase()) {
+            ns.push(String::from_utf8_lossy(&w[..3]).into_owned());
+            ns.push(String::from_utf8_lossy(&w[4..]).into_owned());
+        }
+    }
+    ns
 }
 
 /// 限步可达（无向，预算=步数）
@@ -331,6 +352,60 @@ fn run() {
             s_true, s_false, t_true, t_false, c_true, c_false, questions.len(), sym_tiles.len(), sym_cells.len());
     };
 
+    // 出口 C：对外 Fate 问答。每跳一次 react（只读、确定；测试期
+    // 方程静止），同符号结果进程内缓存。首跳沉默（react 对链首
+    // 符号无任何送出）单列——那是接口无话，不是答错。
+    let react_at = |body: &Body, tag: &str| {
+        let mut cache: HashMap<String, Vec<String>> = HashMap::new();
+        let (mut tt, mut tn, mut ft, mut fn_) = (0usize, 0usize, 0usize, 0usize);
+        let mut first_silent = 0usize;
+        for (a, b, d, is_true) in &questions {
+            let mut seen: HashSet<String> = HashSet::new();
+            let mut frontier: Vec<String> = vec![a.clone()];
+            seen.insert(a.clone());
+            let mut hit = a == b;
+            for _hop in 0..*d {
+                if hit {
+                    break;
+                }
+                let mut next: Vec<String> = Vec::new();
+                for node in &frontier {
+                    let ns = cache.entry(node.clone()).or_insert_with(|| react_neighbors(&body.global, node));
+                    for n in ns {
+                        if n == b {
+                            hit = true;
+                        }
+                        if seen.insert(n.clone()) {
+                            next.push(n.clone());
+                        }
+                    }
+                }
+                frontier = next;
+                if frontier.is_empty() {
+                    break;
+                }
+            }
+            if *is_true {
+                tn += 1;
+                if hit {
+                    tt += 1;
+                }
+                let first = cache.entry(a.clone()).or_insert_with(|| react_neighbors(&body.global, a));
+                if first.is_empty() {
+                    first_silent += 1;
+                }
+            } else {
+                fn_ += 1;
+                if !hit {
+                    ft += 1;
+                }
+            }
+        }
+        let pct = |x: usize, n: usize| if n > 0 { x as f64 / n as f64 * 100.0 } else { 0.0 };
+        println!("[{tag}] 对外Fate问答(react) 真题/假题对: {:.1}/{:.1}（真题首跳沉默 {}，react 覆盖符号 {}，data_store {} 条）",
+            pct(tt, tn), pct(ft, fn_), first_silent, cache.len(), body.global.stored_count());
+    };
+
     let respond_at = |body: &mut Body, mats: &Vec<(&str, &Vec<u8>)>, holdout: usize, tag: &str| {
         for (name, bytes) in mats {
             if bytes.len() <= holdout {
@@ -364,6 +439,10 @@ fn run() {
                     let item = format!("{}>{}", w[0], w[1]).into_bytes();
                     body.tile.quad_keep(&item);
                     body.stem.quad_keep(&item);
+                    // 接线（bbea60a 的 react 接口此前缺这一步）：同
+                    // 字节双写全球 Fate 的 data_store，问答接口才
+                    // 有原文可送。四元记账与 Fate 存储各记一份。
+                    body.global.store_data(&item);
                 }
                 let line = format!("{}\n", ch.join(">"));
                 let clen = body.stem.cells.len();
@@ -416,6 +495,7 @@ fn run() {
         println!("    本轮新生段（stem/tile）: {}", seg_line.join(" · "));
         if r == 10 || r == rounds {
             test_at(&body, &sym_tiles, &sym_cells, &format!("第{r}轮"));
+            react_at(&body, &format!("第{r}轮"));
             if r == rounds {
                 respond_at(&mut body, &mats, holdout, "回应");
             }
