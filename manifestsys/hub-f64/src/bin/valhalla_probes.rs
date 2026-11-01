@@ -8,6 +8,11 @@
 //!                若干拍后把回应最强的单位送出（出口通道 v1，不查找不匹配）
 //!   vent2      : 双生对照（静默 vs 受刺激同拍相减），测刺激特异响应——
 //!                对外 Fate 将来抓取的对象；先验内部能否正确响应
+//!   vent3      : 两套规则版——Tile 走 propagate/激活织物、Stem 走
+//!                ingest+promote+settle_field/位置场，各层各尺；刺激取
+//!                语料原流不手选，扰动程度以实测响应（对静默涨落）报告
+//!   vent4      : 混沌对照——M1 / M1翻一字节 / M1乱序，逐拍追 Stem 场
+//!                位移分叉增长，判别"结构性听觉"与"蝴蝶效应"
 //! Body/feed/cycle 与训练器逐行一致的整体喂法；喂法不存在绕过存储的路径。
 
 use std::collections::{HashMap, HashSet};
@@ -660,6 +665,308 @@ fn main() {
             let ov = top_a.iter().filter(|x| top_b.contains(x)).count();
             println!("A/B tile 差分前12重叠 {ov}/12（低=分化，高=没分化）");
         }
+        "vent3" => {
+            // 出口 v3：两套规则。Tile 规则=propagate 激活织物（读 Δact/边）；
+            // Stem 规则=ingest+promote+settle_field 位置场（读 Δpos/场强）。
+            // 刺激取语料原流（不手选文本、不定标量），两层各以原生节律入场；
+            // 扰动程度以实测响应幅度（对静默双生涨落之差）报告。
+            // 不 quad_keep、不 global.tick，存储与全局方程不受扰。
+            let dir = env_path("VH_LOAD_DIR").expect("vent3 需要 VH_LOAD_DIR");
+            let beats = env_usize("VH_VENT_BEATS", 6);
+            let kb = env_usize("VH_VENT_KB", 256);
+            let files = all_files();
+            let stream = read_stream(&files, 2 * kb * 1024);
+            let m1: Vec<u8> = stream.iter().take(kb * 1024).cloned().collect();
+            let m2: Vec<u8> = stream.iter().skip(kb * 1024).take(kb * 1024).cloned().collect();
+            // 对照：M1 切片乱序（同批材料，破顺序）——确定性伪随机交织
+            let mut m3: Vec<u8> = Vec::with_capacity(m1.len());
+            {
+                let chunks: Vec<&[u8]> = m1.chunks(8 * 1024).collect();
+                let mut idx: Vec<usize> = (0..chunks.len()).collect();
+                let mut s: u64 = 0x9E3779B97F4A7C15;
+                for i in (1..idx.len()).rev() {
+                    s ^= s << 13;
+                    s ^= s >> 7;
+                    s ^= s << 17;
+                    idx.swap(i, (s % (i as u64 + 1)) as usize);
+                }
+                for i in idx {
+                    m3.extend_from_slice(chunks[i]);
+                }
+            }
+            println!("料 M1 {} KB / M2 {} KB / M3(M1乱序) {} KB", m1.len() / 1024, m2.len() / 1024, m3.len() / 1024);
+            #[derive(Clone)]
+            struct V3Snap {
+                t_act: HashMap<String, f64>,
+                t_edges: HashSet<(String, String)>,
+                s_pos: HashMap<String, Vec<f64>>,
+                s_field: HashMap<String, f64>,
+                s_links: usize,
+                tiles: usize,
+                cells: usize,
+            }
+            let snap3 = |b: &Body| -> V3Snap {
+                let mut t_act: HashMap<String, f64> = HashMap::new();
+                let mut t_edges: HashSet<(String, String)> = HashSet::new();
+                for t in &b.tile.completed_tiles {
+                    t_act.entry(t.id.clone()).or_insert(t.activation);
+                    for c in &t.connections {
+                        t_edges.insert((t.id.clone(), c.clone()));
+                    }
+                }
+                let mut s_pos: HashMap<String, Vec<f64>> = HashMap::new();
+                let mut s_field: HashMap<String, f64> = HashMap::new();
+                let mut s_links = 0usize;
+                for c in &b.stem.cells {
+                    s_pos.entry(c.cell_id.clone()).or_insert_with(|| c.position.clone());
+                    s_field.entry(c.cell_id.clone()).or_insert(c.field_strength);
+                    s_links += c.connections.len();
+                }
+                V3Snap {
+                    t_act,
+                    t_edges,
+                    s_pos,
+                    s_field,
+                    s_links,
+                    tiles: b.tile.completed_tiles.len(),
+                    cells: b.stem.cells.len(),
+                }
+            };
+            let load = |dir: &Path| -> Body {
+                match Body::load_full(dir) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        println!("解冻失败 {e}");
+                        std::process::exit(1);
+                    }
+                }
+            };
+            fn beat3(b: &mut Body, stream: Option<&[u8]>, beats: usize) {
+                let slices: Vec<&[u8]> = stream.map(|s| s.chunks(8 * 1024).collect()).unwrap_or_default();
+                let per = (slices.len() + beats - 1) / beats.max(1);
+                for beat in 0..beats {
+                    for sl in slices.iter().skip(beat * per).take(per) {
+                        // Tile 规则：切片均值入 propagate
+                        let mean = sl.iter().map(|x| *x as f64).sum::<f64>() / sl.len().max(1) as f64;
+                        let _ = b.tile.propagate(mean);
+                        // Stem 规则：逐值 ingest + 每片收口一次（喂入节律）
+                        for x in *sl {
+                            b.stem.ingest(*x as f64);
+                        }
+                        let _ = b.stem.promote_from_fate();
+                    }
+                    let _ = b.tile.process_tiles_cycle();
+                    let _ = b.stem.process_cells_cycle();
+                    b.stem.settle_field();
+                }
+            }
+            // 静默双生（基线 + 自检）
+            let mut r1 = load(&dir);
+            let mut r2 = load(&dir);
+            beat3(&mut r1, None, beats);
+            beat3(&mut r2, None, beats);
+            let rs = snap3(&r1);
+            let r2s = snap3(&r2);
+            let sanity_pos: f64 = rs
+                .s_pos
+                .iter()
+                .filter_map(|(id, p)| r2s.s_pos.get(id).map(|q| p.iter().zip(q.iter()).map(|(a, b)| (a - b) * (a - b)).sum::<f64>().sqrt()))
+                .sum();
+            println!("仪器自检 静默双生 Σ‖Δpos‖ {sanity_pos:.4}（应为 0）");
+            let report = |tag: &str, b: &Body, pre_tiles: usize, pre_cells: usize| -> (Vec<String>, Vec<String>) {
+                let a = snap3(b);
+                let mut td: Vec<(&String, f64)> = a
+                    .t_act
+                    .iter()
+                    .filter_map(|(id, v)| rs.t_act.get(id).map(|r| (id, *v - *r)))
+                    .collect();
+                td.sort_by(|x, y| y.1.abs().partial_cmp(&x.1.abs()).unwrap_or(std::cmp::Ordering::Equal));
+                let t_amp: f64 = td.iter().map(|x| x.1.abs()).sum();
+                let t_amp_silent: f64 = r2s
+                    .t_act
+                    .iter()
+                    .filter_map(|(id, v)| rs.t_act.get(id).map(|r| (*v - *r).abs()))
+                    .sum();
+                let mut pd: Vec<(&String, f64, f64)> = a
+                    .s_pos
+                    .iter()
+                    .filter_map(|(id, p)| {
+                        rs.s_pos.get(id).map(|q| {
+                            let d = p.iter().zip(q.iter()).map(|(x, y)| (x - y) * (x - y)).sum::<f64>().sqrt();
+                            (id, d, (a.s_field.get(id).copied().unwrap_or(0.0) - rs.s_field.get(id).copied().unwrap_or(0.0)).abs())
+                        })
+                    })
+                    .collect();
+                pd.sort_by(|x, y| y.1.partial_cmp(&x.1).unwrap_or(std::cmp::Ordering::Equal));
+                let s_amp: f64 = pd.iter().map(|x| x.1).sum();
+                let s_amp_silent: f64 = r2s
+                    .s_pos
+                    .iter()
+                    .filter_map(|(id, p)| rs.s_pos.get(id).map(|q| p.iter().zip(q.iter()).map(|(x, y)| (x - y) * (x - y)).sum::<f64>().sqrt()))
+                    .sum();
+                let only_arm = a.t_edges.difference(&rs.t_edges).count();
+                println!(
+                    "[{tag}] 扰动程度 tile Σ|Δact| {t_amp:.1}（静默涨落 {t_amp_silent:.1}）stem Σ‖Δpos‖ {s_amp:.2}（静默 {s_amp_silent:.2}）| 边仅本臂 {only_arm} stem连接 {}->{} | 单位 {}->{} / {}->{}",
+                    a.s_links, rs.s_links, pre_tiles, a.tiles, pre_cells, a.cells
+                );
+                println!("  Tile规则响应Top:");
+                for (id, d) in td.iter().take(6) {
+                    println!("    {id} Δact {d:+.3}");
+                }
+                println!("  Stem规则响应Top（位移/场）:");
+                for (id, d, f) in pd.iter().take(6) {
+                    println!("    {id} ‖Δpos‖ {d:.3} |Δ场| {f:.3}");
+                }
+                println!(
+                    "  纪律 全局tick {} 方程 {} 存储 {}",
+                    b.global.global_tick,
+                    b.global.cluster_equation.equation_str(),
+                    b.stored_total()
+                );
+                (
+                    td.iter().take(12).map(|x| x.0.clone()).collect(),
+                    pd.iter().take(12).map(|x| x.0.clone()).collect(),
+                )
+            };
+            let (pt, pc) = (rs.tiles, rs.cells);
+            let mut arm = |tag: &str, stream: &[u8]| -> (Vec<String>, Vec<String>) {
+                let mut b = load(&dir);
+                beat3(&mut b, Some(stream), beats);
+                report(tag, &b, pt, pc)
+            };
+            let (t1, s1) = arm("M1", &m1);
+            let (t2, s2) = arm("M2", &m2);
+            let (t3, s3) = arm("M3乱序", &m3);
+            let ov = |a: &[String], b: &[String]| a.iter().filter(|x| b.contains(x)).count();
+            println!(
+                "前12重叠 Tile M1∩M2 {} M1∩M3 {} | Stem M1∩M2 {} M1∩M3 {}（低=分化）",
+                ov(&t1, &t2),
+                ov(&t1, &t3),
+                ov(&s1, &s2),
+                ov(&s1, &s3)
+            );
+        }
+        "vent4" => {
+            // 混沌对照：Stem 规则逐拍追位移分叉。四具同盘身体锁步：静默、
+            // M1、M1 只翻一字节、M1 切片乱序。每拍后量各臂对静默的
+            // Σ‖Δpos‖。判别：翻一字节若与 M1 贴合而乱序分叉→结构性听觉；
+            // 翻一字节也指数分叉→蝴蝶效应，分化不可归功于内容。
+            let dir = env_path("VH_LOAD_DIR").expect("vent4 需要 VH_LOAD_DIR");
+            let beats = env_usize("VH_VENT_BEATS", 6);
+            let kb = env_usize("VH_VENT_KB", 256);
+            let files = all_files();
+            let stream = read_stream(&files, kb * 1024);
+            let m1: Vec<u8> = stream;
+            let mut flip = m1.clone();
+            if flip.len() > 1001 {
+                flip[1000] = flip[1000].wrapping_add(1);
+            }
+            let mut shuf: Vec<u8> = Vec::with_capacity(m1.len());
+            {
+                let chunks: Vec<&[u8]> = m1.chunks(8 * 1024).collect();
+                let mut idx: Vec<usize> = (0..chunks.len()).collect();
+                let mut s: u64 = 0x9E3779B97F4A7C15;
+                for i in (1..idx.len()).rev() {
+                    s ^= s << 13;
+                    s ^= s >> 7;
+                    s ^= s << 17;
+                    idx.swap(i, (s % (i as u64 + 1)) as usize);
+                }
+                for i in idx {
+                    shuf.extend_from_slice(chunks[i]);
+                }
+            }
+            let load = |dir: &Path| -> Body {
+                match Body::load_full(dir) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        println!("解冻失败 {e}");
+                        std::process::exit(1);
+                    }
+                }
+            };
+            let pos_map = |b: &Body| -> HashMap<String, Vec<f64>> {
+                let mut m: HashMap<String, Vec<f64>> = HashMap::new();
+                for c in &b.stem.cells {
+                    m.entry(c.cell_id.clone()).or_insert_with(|| c.position.clone());
+                }
+                m
+            };
+            let disp = |a: &HashMap<String, Vec<f64>>, r: &HashMap<String, Vec<f64>>| -> f64 {
+                a.iter()
+                    .filter_map(|(id, p)| r.get(id).map(|q| p.iter().zip(q.iter()).map(|(x, y)| (x - y) * (x - y)).sum::<f64>().sqrt()))
+                    .sum()
+            };
+            let top_ids = |a: &HashMap<String, Vec<f64>>, r: &HashMap<String, Vec<f64>>| -> Vec<String> {
+                let mut v: Vec<(&String, f64)> = a
+                    .iter()
+                    .filter_map(|(id, p)| r.get(id).map(|q| (id, p.iter().zip(q.iter()).map(|(x, y)| (x - y) * (x - y)).sum::<f64>().sqrt())))
+                    .collect();
+                v.sort_by(|x, y| y.1.partial_cmp(&x.1).unwrap_or(std::cmp::Ordering::Equal));
+                v.iter().take(12).map(|x| x.0.clone()).collect()
+            };
+            let beat_once = |b: &mut Body, stream: Option<&[u8]>, beat: usize, beats: usize| {
+                if let Some(s) = stream {
+                    let slices: Vec<&[u8]> = s.chunks(8 * 1024).collect();
+                    let per = (slices.len() + beats - 1) / beats.max(1);
+                    for sl in slices.iter().skip(beat * per).take(per) {
+                        for x in *sl {
+                            b.stem.ingest(*x as f64);
+                        }
+                        let _ = b.stem.promote_from_fate();
+                    }
+                }
+                let _ = b.stem.process_cells_cycle();
+                b.stem.settle_field();
+            };
+            let mut silent = load(&dir);
+            let mut b_m1 = load(&dir);
+            let mut b_flip = load(&dir);
+            let mut b_shuf = load(&dir);
+            let mut tops: Vec<Vec<String>> = Vec::new();
+            for beat in 0..beats {
+                beat_once(&mut silent, None, beat, beats);
+                beat_once(&mut b_m1, Some(&m1), beat, beats);
+                beat_once(&mut b_flip, Some(&flip), beat, beats);
+                beat_once(&mut b_shuf, Some(&shuf), beat, beats);
+                let rp = pos_map(&silent);
+                let d1 = disp(&pos_map(&b_m1), &rp);
+                let df = disp(&pos_map(&b_flip), &rp);
+                let ds = disp(&pos_map(&b_shuf), &rp);
+                // 臂间分叉（对 M1）：翻一字节/乱序各自离 M1 多远
+                let pm = pos_map(&b_m1);
+                let xf = disp(&pos_map(&b_flip), &pm);
+                let xs = disp(&pos_map(&b_shuf), &pm);
+                println!(
+                    "拍 {} 对静默 Σ‖Δpos‖ M1 {:.1} 翻字节 {:.1} 乱序 {:.1} | 对M1分叉 翻字节 {:.1} 乱序 {:.1}",
+                    beat + 1,
+                    d1,
+                    df,
+                    ds,
+                    xf,
+                    xs
+                );
+                if beat + 1 == beats {
+                    tops.push(top_ids(&pos_map(&b_m1), &rp));
+                    tops.push(top_ids(&pos_map(&b_flip), &rp));
+                    tops.push(top_ids(&pos_map(&b_shuf), &rp));
+                }
+            }
+            if tops.len() == 3 {
+                let ov = |a: &[String], b: &[String]| a.iter().filter(|x| b.contains(x)).count();
+                println!(
+                    "末拍前12重叠 M1∩翻字节 {} M1∩乱序 {}（翻字节贴合且乱序低=结构性听觉）",
+                    ov(&tops[0], &tops[1]),
+                    ov(&tops[0], &tops[2])
+                );
+            }
+            println!(
+                "纪律 全局tick {} 方程 {} 存储 {}",
+                b_m1.global.global_tick,
+                b_m1.global.cluster_equation.equation_str(),
+                b_m1.stored_total()
+            );
+        }
         "fateqa" => {
             // 对外 Fate 试问：store_data 入口与 react 出口的现状普查。
             // react(&self) 只读：刺激不入 receive_passive、不 tick、不改方程存储；
@@ -700,6 +1007,6 @@ fn main() {
             let out = fed.triple_fate.react("法国的首都是".as_bytes());
             println!("对照问 -> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
         }
-        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|fateqa）"),
+        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|vent3|vent4|fateqa）"),
     }
 }
