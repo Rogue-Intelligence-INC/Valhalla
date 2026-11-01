@@ -448,6 +448,40 @@ fn main() {
                 Err(e) => println!("解冻失败 {e}"),
             }
         }
-        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle）"),
+        "fateqa" => {
+            // 对外 Fate 试问：store_data 入口与 react 出口的现状普查。
+            // react(&self) 只读：刺激不入 receive_passive、不 tick、不改方程存储；
+            // 对"签名近等（阈值内）或原文包含刺激"的条目按 tick 一次送出。
+            let mut stem = StemCellComplete::new();
+            let facts = [
+                "法国的首都是巴黎",
+                "英国的首都是伦敦",
+                "德国的首都是柏林",
+                "巴黎是法国的首都，人口约一千万",
+            ];
+            for f in &facts {
+                stem.fate_store(f.as_bytes());
+            }
+            println!("存入后 fate_count {}", stem.fate_count());
+            let ask = |q: &str, stem: &StemCellComplete| {
+                let out = stem.triple_fate.react(q.as_bytes());
+                println!("问「{q}」-> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
+            };
+            ask("法国的首都是", &stem); // 包含命中预期
+            ask("法国首都", &stem); // 非子串：中间隔了「的」，只能靠签名
+            ask("日本的首都是", &stem); // 未存事实
+            // 对照：整体喂法喂过的容器（quad_keep+逐字节），react 是否有东西
+            let mut fed = StemCellComplete::new();
+            for f in &facts {
+                fed.quad_keep(f.as_bytes());
+                for b in f.as_bytes() {
+                    fed.ingest(*b as f64);
+                }
+            }
+            println!("整体喂法后 fate_count {}（对照）", fed.fate_count());
+            let out = fed.triple_fate.react("法国的首都是".as_bytes());
+            println!("对照问 -> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
+        }
+        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|fateqa）"),
     }
 }
