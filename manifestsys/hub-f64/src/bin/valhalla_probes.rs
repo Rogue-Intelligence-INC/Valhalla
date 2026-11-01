@@ -6,6 +6,8 @@
 //!                曲线训练从未见过），比同化期出生/合并/死亡/分裂
 //!   vent       : VH_LOAD_DIR 解冻身体，刺激只经 tile.propagate 扰动场，连跑
 //!                若干拍后把回应最强的单位送出（出口通道 v1，不查找不匹配）
+//!   vent2      : 双生对照（静默 vs 受刺激同拍相减），测刺激特异响应——
+//!                对外 Fate 将来抓取的对象；先验内部能否正确响应
 //! Body/feed/cycle 与训练器逐行一致的整体喂法；喂法不存在绕过存储的路径。
 
 use std::collections::{HashMap, HashSet};
@@ -555,6 +557,109 @@ fn main() {
                 );
             }
         }
+        "vent2" => {
+            // 出口 v2：双生对照。确定性已证（A10），同盘解冻的身体同拍运行，
+            // 静默具作反事实基线，相减扣掉周期固定节目，剩下刺激特异响应——
+            // 即对外 Fate 将来自然抓取的对象。本模式只量"内部能否正确响应"。
+            let dir = env_path("VH_LOAD_DIR").expect("vent2 需要 VH_LOAD_DIR");
+            let beats = env_usize("VH_VENT_BEATS", 6);
+            let stim_a = std::env::var("VH_STIMULUS").unwrap_or_else(|_| "法国的首都是巴黎".to_string());
+            type Snap = (HashMap<String, f64>, HashSet<(String, String)>, HashMap<String, f64>);
+            let snap = |b: &Body| -> Snap {
+                let mut act: HashMap<String, f64> = HashMap::new();
+                let mut edges: HashSet<(String, String)> = HashSet::new();
+                for t in &b.tile.completed_tiles {
+                    act.entry(t.id.clone()).or_insert(t.activation);
+                    for c in &t.connections {
+                        edges.insert((t.id.clone(), c.clone()));
+                    }
+                }
+                let mut eng: HashMap<String, f64> = HashMap::new();
+                for c in &b.stem.cells {
+                    eng.entry(c.cell_id.clone()).or_insert(c.energy);
+                }
+                (act, edges, eng)
+            };
+            fn twin_beat(b: &mut Body, sig: Option<f64>, beats: usize) -> usize {
+                let mut nc = 0usize;
+                for _ in 0..beats {
+                    if let Some(s) = sig {
+                        nc += b.tile.propagate(s).new_connections;
+                    }
+                    let _ = b.tile.process_tiles_cycle();
+                    let _ = b.stem.process_cells_cycle();
+                    b.stem.settle_field();
+                }
+                nc
+            }
+            let mean_sig = |s: &[u8]| s.iter().map(|b| *b as f64).sum::<f64>() / s.len().max(1) as f64;
+            let load = |dir: &Path| -> Body {
+                match Body::load_full(dir) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        println!("解冻失败 {e}");
+                        std::process::exit(1);
+                    }
+                }
+            };
+            // 静默双生：验仪器（同盘两具身体同拍，差应为零）
+            let mut s1 = load(&dir);
+            let mut s2 = load(&dir);
+            let _ = twin_beat(&mut s1, None, beats);
+            let _ = twin_beat(&mut s2, None, beats);
+            let (r_act, r_edges, r_eng) = snap(&s1);
+            let (_, s2_edges, _) = snap(&s2);
+            let sanity = {
+                let (_, a, _) = snap(&s2);
+                let _ = a;
+                s2_edges.symmetric_difference(&r_edges).count()
+            };
+            println!("仪器自检 静默双生边集差 {sanity}（应为 0）");
+            let diff_report = |tag: &str, b: &Body, nc: usize| -> Vec<String> {
+                let (act, edges, eng) = snap(b);
+                let mut td: Vec<(&String, f64, f64)> = act
+                    .iter()
+                    .filter_map(|(id, a)| r_act.get(id).map(|r| (id, *a - *r, *a)))
+                    .collect();
+                td.sort_by(|x, y| y.1.abs().partial_cmp(&x.1.abs()).unwrap_or(std::cmp::Ordering::Equal));
+                let mut sd: Vec<(&String, f64, f64)> = eng
+                    .iter()
+                    .filter_map(|(id, e)| r_eng.get(id).map(|r| (id, *e - *r, *e)))
+                    .collect();
+                sd.sort_by(|x, y| y.1.abs().partial_cmp(&x.1.abs()).unwrap_or(std::cmp::Ordering::Equal));
+                let only_arm = edges.difference(&r_edges).count();
+                let only_ref = r_edges.difference(&edges).count();
+                println!(
+                    "[{tag}] 新连接 {nc} | 边 仅刺激臂 {only_arm} 仅静默 {only_ref} | tile差分Top:"
+                );
+                let by_id: HashMap<&str, &valhalla_tile_quattro::tile_complete::CompletedTile> =
+                    b.tile.completed_tiles.iter().map(|t| (t.id.as_str(), t)).collect();
+                for (id, d, a) in td.iter().take(8) {
+                    let deg = by_id.get(id.as_str()).map(|t| t.connections.len()).unwrap_or(0);
+                    println!("    {id} Δact {d:+.3} act {a:.3} 度 {deg}");
+                }
+                println!("  stem差分Top:");
+                for (id, d, e) in sd.iter().take(5) {
+                    println!("    {id} ΔE {d:+.3} E {e:.3}");
+                }
+                println!(
+                    "  纪律 全局tick {} 方程 {} 存储 {}",
+                    b.global.global_tick,
+                    b.global.cluster_equation.equation_str(),
+                    b.stored_total()
+                );
+                td.iter().take(12).map(|x| x.0.clone()).collect()
+            };
+            let mut a_body = load(&dir);
+            let nc_a = twin_beat(&mut a_body, Some(mean_sig(stim_a.as_bytes())), beats);
+            let top_a = diff_report("刺激A", &a_body, nc_a);
+            let stim_b: &[u8] = b"fn main() { let x = 10 + 30; println!(\"{}\", x); }";
+            let mut b_body = load(&dir);
+            let nc_b = twin_beat(&mut b_body, Some(mean_sig(stim_b)), beats);
+            let top_b = diff_report("刺激B", &b_body, nc_b);
+            let ov = top_a.iter().filter(|x| top_b.contains(x)).count();
+            println!("A/B tile 差分前12重叠 {ov}/12（低=分化，高=没分化）");
+        }
         "fateqa" => {
             // 对外 Fate 试问：store_data 入口与 react 出口的现状普查。
             // react(&self) 只读：刺激不入 receive_passive、不 tick、不改方程存储；
@@ -595,6 +700,6 @@ fn main() {
             let out = fed.triple_fate.react("法国的首都是".as_bytes());
             println!("对照问 -> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
         }
-        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|fateqa）"),
+        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|vent2|fateqa）"),
     }
 }
