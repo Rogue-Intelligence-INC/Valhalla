@@ -351,8 +351,12 @@ struct Question {
 
 type SymNodes = std::collections::HashMap<String, Vec<String>>;
 
-/// 网络通道答题（限步）：真题步数预算 = 链上距离；假题预算 = 全链长-1。
+/// 网络通道答题（限步）：统一预算 = 全链长-1 = 5，真假题同尺。
+/// （2026-11-01 仪器修正：旧版真题预算取链上真实距离，等于把标签
+/// 泄漏进评测条件，绝对分数偏高；消融差 L 因同尺对照受污染较轻，
+/// 但绝对值自本版起以统一预算为准，旧绝对值销账。）
 /// Tile 或 Stem 任一限步可达即"答可达"（只走结构，不读存储）。
+const NET_BUDGET: usize = 5;
 fn score_net(body: &Body, qs: &[Question], sym_tiles: &SymNodes, sym_cells: &SymNodes) -> f64 {
     let adj_t = net_adj(body, false);
     let adj_s = net_adj(body, true);
@@ -363,7 +367,7 @@ fn score_net(body: &Body, qs: &[Question], sym_tiles: &SymNodes, sym_cells: &Sym
         let tt = sym_tiles.get(&q.to).unwrap_or(&empty);
         let fs = sym_cells.get(&q.from).unwrap_or(&empty);
         let ts = sym_cells.get(&q.to).unwrap_or(&empty);
-        let budget = if q.expect_reach { q.dist.max(1) } else { 5 };
+        let budget = NET_BUDGET;
         let got = net_reachable(&adj_t, ft, tt, budget) || net_reachable(&adj_s, fs, ts, budget);
         if got == q.expect_reach {
             ok += 1;
@@ -386,7 +390,7 @@ fn score_detail(body: &Body, qs: &[Question], sym_tiles: &SymNodes, sym_cells: &
         let tt = sym_tiles.get(&q.to).unwrap_or(&empty);
         let fs = sym_cells.get(&q.from).unwrap_or(&empty);
         let ts = sym_cells.get(&q.to).unwrap_or(&empty);
-        let budget = if q.expect_reach { q.dist.max(1) } else { 5 };
+        let budget = NET_BUDGET;
         let got = net_reachable(&adj_t, ft, tt, budget) || net_reachable(&adj_s, fs, ts, budget);
         if q.expect_reach {
             let b = if q.dist <= 1 { 0 } else if q.dist <= 3 { 1 } else { 2 };

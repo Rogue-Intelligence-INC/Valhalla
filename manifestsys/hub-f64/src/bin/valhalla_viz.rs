@@ -159,6 +159,26 @@ impl Body {
             self.global.cluster_equation.equation_str()
         );
     }
+    /// 完整身体存档（与 incubation_proof 的 save_full 同格式，外部
+    /// load_full 可直接恢复）：切片（Fate+计数）+ 瓦/细胞 JSON + 全局
+    /// Fate 切片 + 八份四元存储。设置 VH_SAVE_BODY=<目录> 时在终局调用。
+    fn save_body(&self, dir: &std::path::Path) -> std::io::Result<()> {
+        std::fs::create_dir_all(dir)?;
+        self.tile.save_slice(&dir.join("tile.slice"))?;
+        self.stem.save_slice(&dir.join("stem.slice"))?;
+        std::fs::write(dir.join("tiles.json"), serde_json::to_string(&self.tile.completed_tiles).unwrap())?;
+        std::fs::write(dir.join("cells.json"), serde_json::to_string(&self.stem.cells).unwrap())?;
+        self.global.save_slice(&dir.join("global.fate"))?;
+        self.tile.blackhole.save_store(&dir.join("tile.blackhole.store"))?;
+        self.tile.meshbrain.save_store(&dir.join("tile.meshbrain.store"))?;
+        self.tile.multinova.save_store(&dir.join("tile.multinova.store"))?;
+        self.tile.baseforce.save_store(&dir.join("tile.baseforce.store"))?;
+        self.stem.blackhole.save_store(&dir.join("stem.blackhole.store"))?;
+        self.stem.meshbrain.save_store(&dir.join("stem.meshbrain.store"))?;
+        self.stem.multinova.save_store(&dir.join("stem.multinova.store"))?;
+        self.stem.baseforce.save_store(&dir.join("stem.baseforce.store"))?;
+        Ok(())
+    }
 }
 
 /// 监控页模板（单文件、离线、零外部依赖）。`__DATA__` 替换为实测 JSON。
@@ -444,15 +464,17 @@ fn run() {
                 if fn_ > 0 { ft as f64 / fn_ as f64 * 100.0 } else { 0.0 },
             )
         };
-        let (s_true, s_false) = score(&|a, b, d| {
+        // 统一预算 5（全链长-1），真假题同尺——2026-11-01 仪器修正：
+        // 旧版以题目真实距离 d 为预算，属标签泄漏，旧绝对值销账。
+        let (s_true, s_false) = score(&|a, b, _d| {
             let to: HashSet<String> = [b.clone()].into_iter().collect();
-            reachable(&sadj, std::slice::from_ref(a), &to, d)
+            reachable(&sadj, std::slice::from_ref(a), &to, 5)
         });
         let net = |map: &HashMap<String, HashSet<String>>, adj: &HashMap<String, Vec<String>>| {
-            score(&|a, b, d| {
+            score(&|a, b, _d| {
                 let (Some(fa), Some(tb)) = (map.get(a), map.get(b)) else { return false };
                 let from: Vec<String> = fa.iter().cloned().collect();
-                reachable(adj, &from, tb, d)
+                reachable(adj, &from, tb, 5)
             })
         };
         let (t_true, t_false) = net(sym_tiles, &tadj);
@@ -632,6 +654,15 @@ fn run() {
         }
     }
     body.fingerprint("终局");
+    // ── 训练后身体存档（VH_SAVE_BODY 指定时）──
+    if let Ok(dir) = std::env::var("VH_SAVE_BODY") {
+        if !dir.is_empty() {
+            match body.save_body(std::path::Path::new(&dir)) {
+                Ok(()) => println!("训练后身体已存档: {dir}（tile.slice/stem.slice/global.fate + tiles/cells.json + 八份四元 .store）"),
+                Err(e) => println!("身体存档失败: {e}"),
+            }
+        }
+    }
     // ── 导出可视化（单文件 HTML + 原始 JSON）──
     let viz_dir = std::env::var("VH_VIZ_DIR").unwrap_or_else(|_| "viz_out".to_string());
     let scatter: Vec<serde_json::Value> = body.viz_scatter.iter()

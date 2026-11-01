@@ -335,15 +335,17 @@ fn run() {
                 if fn_ > 0 { ft as f64 / fn_ as f64 * 100.0 } else { 0.0 },
             )
         };
-        let (s_true, s_false) = score(&|a, b, d| {
+        // 统一预算 5（全链长-1），真假题同尺——2026-11-01 仪器修正：
+        // 旧版以题目真实距离 d 为预算，属标签泄漏，旧绝对值销账。
+        let (s_true, s_false) = score(&|a, b, _d| {
             let to: HashSet<String> = [b.clone()].into_iter().collect();
-            reachable(&sadj, std::slice::from_ref(a), &to, d)
+            reachable(&sadj, std::slice::from_ref(a), &to, 5)
         });
         let net = |map: &HashMap<String, HashSet<String>>, adj: &HashMap<String, Vec<String>>| {
-            score(&|a, b, d| {
+            score(&|a, b, _d| {
                 let (Some(fa), Some(tb)) = (map.get(a), map.get(b)) else { return false };
                 let from: Vec<String> = fa.iter().cloned().collect();
-                reachable(adj, &from, tb, d)
+                reachable(adj, &from, tb, 5)
             })
         };
         let (t_true, t_false) = net(sym_tiles, &tadj);
