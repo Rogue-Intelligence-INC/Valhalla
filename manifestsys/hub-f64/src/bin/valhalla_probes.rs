@@ -416,6 +416,38 @@ fn main() {
             }
             run(Body::new(), "空身体");
         }
-        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate）"),
+        "cycle" => {
+            // 死亡机制实测：解冻身体不喂料连跑 N 周期，看死亡到底发不发生，
+            // 并量"原始能量已低于死亡线、靠回流续命"的存量（尸体口径）。
+            let dir = env_path("VH_LOAD_DIR").expect("cycle 需要 VH_LOAD_DIR");
+            let rounds = env_usize("VH_PROBE_CYCLES", 20);
+            match Body::load_full(&dir) {
+                Ok(mut body) => {
+                    let es: Vec<f64> = body.stem.cells.iter().map(|c| c.energy).collect();
+                    let avg = if es.is_empty() { 0.0 } else { es.iter().sum::<f64>() / es.len() as f64 };
+                    let below = es.iter().filter(|&&e| e < avg * 0.1 || e < 0.01).count();
+                    let emin = es.iter().fold(f64::INFINITY, |a, &b| a.min(b));
+                    let tes: Vec<f64> = body.tile.completed_tiles.iter().map(|t| t.energy).collect();
+                    let tavg = if tes.is_empty() { 0.0 } else { tes.iter().sum::<f64>() / tes.len() as f64 };
+                    let tbelow = tes.iter().filter(|&&e| e < tavg * 0.1 || e < 0.01).count();
+                    println!(
+                        "能量存量 stem avg {avg:.4} min {emin:.4} 低于死亡线 {below}/{} ({:.2}%) | tile avg {tavg:.4} 低于线 {tbelow}/{}",
+                        es.len(),
+                        if es.is_empty() { 0.0 } else { below as f64 / es.len() as f64 * 100.0 },
+                        tes.len()
+                    );
+                    body.fingerprint("空转前");
+                    let mut acc = Cyc::default();
+                    for _ in 0..rounds {
+                        let (t, s) = body.cycle();
+                        acc.add(&t, &s);
+                    }
+                    println!("不喂料空转 {rounds} 周期 {}", acc.line());
+                    body.fingerprint("空转后");
+                }
+                Err(e) => println!("解冻失败 {e}"),
+            }
+        }
+        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle）"),
     }
 }
