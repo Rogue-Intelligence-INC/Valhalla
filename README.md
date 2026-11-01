@@ -14,12 +14,17 @@ Three findings define the present state of the programme (November 2026).
 Each is stated with the protocol that produced it.
 
 **1. Structure carries the answer.**
-On withheld multi-hop questions, trained bodies answer at 71–73% through
-structure formed by their own dynamics. Removing every connection — with
-stored bytes left intact — returns all 15 seeds to a single 45.5% floor:
-a causal effect of **+25.7 percentage points**, replicated at
-**+27.4 ± 0.9 pp** after a 6.7× scale-up (200 symbols). Because storage was
-untouched, the effect is attributable to the network, not to retrieval.
+On withheld multi-hop questions, trained bodies answer at **58.2 ± 4.8%**
+(200 symbols, 15 seeds) through structure formed by their own dynamics.
+Removing every connection — with stored bytes left intact — returns all
+15 seeds to a single 45.5% floor: a causal effect of **+12.7 ± 4.8 pp,
+positive in 15/15 seeds**. Selectivity is retained (76.1% of cross-chain
+questions correctly rejected; accuracy distance-graded at 100% / 40% /
+38%). Because storage was untouched, the effect is attributable to the
+network, not to retrieval. (An earlier figure of +27.4 pp was measured
+under a build whose Stem field had lost its per-cell connection cap and
+saturated within one round; that build's structural results were retired
+and re-measured on 1 November 2026 — see TEST_RUNS, saturation section.)
 
 **2. One body, from ingress to egress.**
 A single deterministic programme (20 rounds, ≈55 s) takes facts, text,
@@ -27,23 +32,28 @@ code, image and audio in through Fate segmentation and scores three egress
 channels separately, on the same body: stored-fact answers **100/100**
 through a read-only interface, storage accounted **to the byte (×8 copies,
 as designed)**, and full body state that freezes and thaws with identical
-scores (F = C). The population reaches 7,130 tiles / 7,360 cells; the
+scores (F = C). The population reaches 7,628 tiles / 7,876 cells with
+153,956 network links (mean degree ≈20, growing linearly); the
 global Fate equation remains observable throughout.
 
 **3. A null result, reported as a result.**
 Directed curricula were tested at two scales under criteria fixed in
-advance and were not found: **+0.2 ± 1.4 pp** against a volume-matched
+advance and were not found: **+0.1 ± 2.6 pp** against a volume-matched
 control, across three scoring instruments and 15 seeds. The curriculum
-claim has been withdrawn. What survives is narrower and stated as such:
-the body learns from contact volume, and direction operates one layer up,
-through material selection and the Fate equation.
+claim has been withdrawn. Under the corrected dynamics the exposure
+learning curve at the 200-symbol scale is also flat; a contact-volume
+effect is therefore no longer claimed at that scale. Direction is
+attributed, on current evidence, to material selection and the Fate
+layer only.
 
 ## Highlights
 
 - **Endogenous organisation.** No task graph is supplied. At four training
   sizes (25–150 MB), the two populations assemble opposed topologies on
   their own: a sparse, hub-free Tile fabric (one giant component) and a
-  dense Stem field whose unconnected fraction falls from 42% to 2%.
+  Stem field that integrates its isolates (unconnected fraction 42% → 2%
+  in the original census; that census was taken under the pre-correction
+  build noted above and is being re-taken).
 - **Persistence without retrieval.** Clearing stored bytes does not change
   answers; clearing connections does. The distinction is measured, not
   asserted.
@@ -83,10 +93,10 @@ multimodal ingress (text · image · audio · code, byte-wise)
 
 | Experiment | Question | Reported outcome |
 |---|---|---|
-| Causal battery (15 seeds, 2 scales) | Does self-formed structure causally support withheld answers? | +25.7 pp; +27.4 ± 0.9 pp at scale; ablation to a common floor |
+| Causal battery (15 seeds) | Does self-formed structure causally support withheld answers? | +12.7 ± 4.8 pp (15/15 seeds positive); ablation to a common 45.5% floor; false-question rejection 76.1% |
 | Persistence (F / I) | Is behaviour carried by structure or by stored bytes? | Freeze/thaw identical; byte-clearing inert; connection-clearing decisive |
 | Scale run (160 MB) | What changes with corpus volume? | 20,127 tiles / 20,239 cells; storage exact; dense O(n²) field step identified as the binding constraint (~20 GB peak) |
-| Directed cultivation (pre-specified; 15 seeds) | Does lesson order beat equal-volume exposure? | **Not detected**: +0.2 ± 1.4 pp (null) |
+| Directed cultivation (pre-specified; 15 seeds) | Does lesson order beat equal-volume exposure? | **Not detected**: +0.1 ± 2.6 pp (null) |
 | Organisation census (25–150 MB) | What topology forms without design? | Opposed two-layer topologies; strength dispersion rises with scale (CV 0.78 → 1.27) |
 | Industry battery (5 seeds) | Do fed relations enter the spontaneous network? | Storage 100%; network channel 54–76% by task family — self-generated analogues, not official datasets |
 | Unique-capability suite U1–U4 (Python, Tier A) | Non-isolated multimodal ingress; gated proactive/abstain behaviour; pollution rescue; backbone independence | 4/4 within their named protocols, incl. U3 recovery **+38.7 pp** and TPI **0.755**; small slices (holdout n = 3 in places) |
