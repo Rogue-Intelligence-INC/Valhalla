@@ -4,6 +4,8 @@
 //!   domain     : 纯文本 vs 纯代码各训 24MB，比方程（选料定向对照版）
 //!   assimilate : VH_LOAD_DIR 解冻身体 vs 空身体，同喂留出料（第 5 份分片，
 //!                曲线训练从未见过），比同化期出生/合并/死亡/分裂
+//!   vent       : VH_LOAD_DIR 解冻身体，刺激只经 tile.propagate 扰动场，连跑
+//!                若干拍后把回应最强的单位送出（出口通道 v1，不查找不匹配）
 //! Body/feed/cycle 与训练器逐行一致的整体喂法；喂法不存在绕过存储的路径。
 
 use std::collections::{HashMap, HashSet};
@@ -448,6 +450,111 @@ fn main() {
                 Err(e) => println!("解冻失败 {e}"),
             }
         }
+        "vent" => {
+            // 出口通道 v1：刺激只经 tile.propagate 扰动场（库里既有的交互入口），
+            // 身体自跑若干拍（不 global.tick、不 feed、不写存储），回应最强的
+            // 单位把自己的状态送出。不查找、不匹配、不设质量门；先让它乱送。
+            let dir = env_path("VH_LOAD_DIR").expect("vent 需要 VH_LOAD_DIR");
+            let beats = env_usize("VH_VENT_BEATS", 6);
+            let stim_a = std::env::var("VH_STIMULUS").unwrap_or_else(|_| "法国的首都是巴黎".to_string());
+            let arms: Vec<(&str, Option<Vec<u8>>)> = vec![
+                ("静默", None),
+                ("刺激A", Some(stim_a.into_bytes())),
+                ("刺激B", Some(b"fn main() { let x = 10 + 30; println!(\"{}\", x); }".to_vec())),
+            ];
+            let seal = |b: &Body| {
+                (
+                    b.global.global_tick,
+                    b.global.cluster_equation.equation_str(),
+                    b.stored_total(),
+                    b.tile.triple_fate.global_tick,
+                    b.stem.triple_fate.global_tick,
+                )
+            };
+            let mut tile_tops: Vec<Vec<usize>> = Vec::new();
+            for (tag, stim) in &arms {
+                let mut body = match Body::load_full(&dir) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        println!("解冻失败 {e}");
+                        return;
+                    }
+                };
+                let seal0 = seal(&body);
+                let (nt0, nc0) = (body.tile.completed_tiles.len(), body.stem.cells.len());
+                let cbytes: usize = body.tile.completed_tiles.iter().map(|t| t.content.len()).sum::<usize>()
+                    + body.stem.cells.iter().map(|c| c.content.len()).sum::<usize>();
+                let act0: Vec<f64> = body.tile.completed_tiles.iter().map(|t| t.activation).collect();
+                let eng0: Vec<f64> = body.stem.cells.iter().map(|c| c.energy).collect();
+                let sig = stim.as_ref().map(|s| s.iter().map(|b| *b as f64).sum::<f64>() / s.len().max(1) as f64);
+                let mut new_conns = 0usize;
+                for _ in 0..beats {
+                    if let Some(s) = sig {
+                        new_conns += body.tile.propagate(s).new_connections;
+                    }
+                    let _ = body.tile.process_tiles_cycle();
+                    let _ = body.stem.process_cells_cycle();
+                    body.stem.settle_field();
+                }
+                let seal1 = seal(&body);
+                let mut td: Vec<(usize, f64)> = body
+                    .tile
+                    .completed_tiles
+                    .iter()
+                    .enumerate()
+                    .map(|(i, t)| (i, (t.activation - act0.get(i).copied().unwrap_or(0.0)).abs()))
+                    .collect();
+                td.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                let mut sd: Vec<(usize, f64)> = body
+                    .stem
+                    .cells
+                    .iter()
+                    .enumerate()
+                    .map(|(i, c)| (i, (c.energy - eng0.get(i).copied().unwrap_or(0.0)).abs()))
+                    .collect();
+                sd.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                let tmoved = td.iter().filter(|x| x.1 > 0.01).count();
+                let smoved = sd.iter().filter(|x| x.1 > 0.01).count();
+                println!(
+                    "[{tag}] 信号 {:?} 拍 {beats} 新连接 {new_conns} | 单位 {}->{} / {}->{} | content总字节 {cbytes} | 动>0.01 tile {tmoved} stem {smoved}",
+                    sig.map(|s| format!("{s:.1}")),
+                    nt0,
+                    body.tile.completed_tiles.len(),
+                    nc0,
+                    body.stem.cells.len()
+                );
+                println!(
+                    "  纪律 全局tick {}->{} 方程 {} 存储 {}->{} 内层tick tile {}->{} stem {}->{}",
+                    seal0.0, seal1.0, seal0.1, seal0.2, seal1.2, seal0.3, seal1.3, seal0.4, seal1.4
+                );
+                println!("  出口 tile 回应最强:");
+                for (i, d) in td.iter().take(8) {
+                    let t = &body.tile.completed_tiles[*i];
+                    println!(
+                        "    {} Δact {:.3} act {:.3} 能量 {:.2} 度 {} sig {:?} content {} 字节",
+                        t.id, d, t.activation, t.energy, t.connections.len(), t.data_signature, t.content.len()
+                    );
+                }
+                println!("  出口 stem 回应最强:");
+                for (i, d) in sd.iter().take(8) {
+                    let c = &body.stem.cells[*i];
+                    println!(
+                        "    {} ΔE {:.3} E {:.3} 场 {:.3} 度 {} content {} 字节",
+                        c.cell_id, d, c.energy, c.field_strength, c.connections.len(), c.content.len()
+                    );
+                }
+                tile_tops.push(td.iter().take(12).map(|x| x.0).collect());
+            }
+            if tile_tops.len() == 3 {
+                let ov = |a: &[usize], b: &[usize]| a.iter().filter(|x| b.contains(x)).count();
+                println!(
+                    "tile 前12回应重叠 静默∩A {} 静默∩B {} A∩B {}（共12）",
+                    ov(&tile_tops[0], &tile_tops[1]),
+                    ov(&tile_tops[0], &tile_tops[2]),
+                    ov(&tile_tops[1], &tile_tops[2])
+                );
+            }
+        }
         "fateqa" => {
             // 对外 Fate 试问：store_data 入口与 react 出口的现状普查。
             // react(&self) 只读：刺激不入 receive_passive、不 tick、不改方程存储；
@@ -488,6 +595,6 @@ fn main() {
             let out = fed.triple_fate.react("法国的首都是".as_bytes());
             println!("对照问 -> {} 字节 {:?}", out.len(), String::from_utf8_lossy(&out));
         }
-        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|fateqa）"),
+        other => println!("未知 VH_PROBE={other}（org|order|domain|assimilate|cycle|vent|fateqa）"),
     }
 }
