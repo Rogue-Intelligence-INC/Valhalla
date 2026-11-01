@@ -16,9 +16,11 @@
   .\tools\run_valhalla_suite.ps1                # L0+L1+L2(电池)+L3，约 3 分钟
   .\tools\run_valhalla_suite.ps1 -IncludeIncubation
   .\tools\run_valhalla_suite.ps1 -Rounds 10 -Seed 42
+  .\tools\run_valhalla_suite.ps1 -Viz           # 展示模式：跑 valhalla_viz 并打开监控页
 #>
 param(
     [switch]$IncludeIncubation,
+    [switch]$Viz,
     [int]$Rounds = 20,
     [int]$Seed = 7
 )
@@ -47,7 +49,7 @@ function Run-Item([string]$Layer, [string]$Name, [scriptblock]$Cmd) {
 }
 
 Write-Host "== 构建 =="
-cargo build --release -p hub-f64 --bin valhalla_fate_storage --bin valhalla_storage_test --bin valhalla_data_flow --bin valhalla_monitor_check --bin valhalla_light_train_check --bin valhalla_fate_decision_check --bin valhalla_industry_battery --bin valhalla_incubation_proof --bin valhalla_full_flow 2>$null | Select-Object -Last 1
+cargo build --release -p hub-f64 --bin valhalla_fate_storage --bin valhalla_storage_test --bin valhalla_data_flow --bin valhalla_monitor_check --bin valhalla_light_train_check --bin valhalla_fate_decision_check --bin valhalla_industry_battery --bin valhalla_incubation_proof --bin valhalla_full_flow --bin valhalla_viz 2>$null | Select-Object -Last 1
 
 Write-Host "== L0 库测 =="
 Run-Item "L0" "lib_tests" { cargo test --release --lib -p fate-f64 -p stem-cell -p valhalla-tile-quattro }
@@ -69,6 +71,13 @@ Write-Host "== L3 全流程 =="
 $env:VH_ROUNDS = "$Rounds"
 $env:VH_SEED = "$Seed"
 Run-Item "L3" "valhalla_full_flow" { .\target\release\valhalla_full_flow.exe }
+
+if ($Viz) {
+    Write-Host "== 展示（valhalla_viz + 监控页） =="
+    Run-Item "VIZ" "valhalla_viz" { .\target\release\valhalla_viz.exe }
+    $page = Join-Path $repo "viz_out\index.html"
+    if (Test-Path $page) { Start-Process $page }
+}
 Remove-Item Env:VH_ROUNDS, Env:VH_SEED -ErrorAction SilentlyContinue
 
 Write-Host ""
