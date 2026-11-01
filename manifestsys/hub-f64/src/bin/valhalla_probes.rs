@@ -13,6 +13,9 @@
 //!                语料原流不手选，扰动程度以实测响应（对静默涨落）报告
 //!   vent4      : 混沌对照——M1 / M1翻一字节 / M1乱序，逐拍追 Stem 场
 //!                位移分叉增长，判别"结构性听觉"与"蝴蝶效应"
+//!   vent5      : 全器官抓取——扰动运转中各模块给出响应流，全局 Fate 用
+//!                自身方程 check_convergence 逐条判，过判全拿不封顶，
+//!                写入 grasp JSON；筛选是下一阶段的事
 //! Body/feed/cycle 与训练器逐行一致的整体喂法；喂法不存在绕过存储的路径。
 
 use std::collections::{HashMap, HashSet};
@@ -965,6 +968,196 @@ fn main() {
                 b_m1.global.global_tick,
                 b_m1.global.cluster_equation.equation_str(),
                 b_m1.stored_total()
+            );
+        }
+        "vent5" => {
+            // 全器官抓取：扰动运转中，各模块以原生观测量形成响应流；全局
+            // Fate 用自身簇方程 check_convergence（比率→方程→|值|<阈值，
+            // 不改系数）逐条判。过判全拿、不封顶、不排名；筛选下一阶段。
+            // 静默具同规则抓取，报噪声底。产物写入 grasp JSON。
+            let dir = env_path("VH_LOAD_DIR").expect("vent5 需要 VH_LOAD_DIR");
+            let beats = env_usize("VH_VENT_BEATS", 6);
+            let kb = env_usize("VH_VENT_KB", 256);
+            let out_path = env_path("VH_GRASP_OUT")
+                .unwrap_or_else(|| PathBuf::from(r"C:\Ai\valhalla-bodies\grasp_vent5.json"));
+            let files = all_files();
+            let stream = read_stream(&files, kb * 1024);
+            let load = |dir: &Path| -> Body {
+                match Body::load_full(dir) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        println!("解冻失败 {e}");
+                        std::process::exit(1);
+                    }
+                }
+            };
+            // 每具身体运转 beats 拍，逐步记录：stem 位移流、tile 激活流、
+            // stem 出生、四元通道（stem 侧 last_channels）、边集变化。
+            struct Run {
+                cell_series: HashMap<String, Vec<f64>>,
+                tile_series: HashMap<String, Vec<f64>>,
+                births: Vec<(usize, String)>,
+                stem_channels: Vec<[f64; 4]>,
+                tile_channels: Vec<[f64; 4]>,
+                new_edges: usize,
+                discoveries: (usize, usize),
+                eq_after: (String, String),
+            }
+            let run = |b: &mut Body, stream: Option<&[u8]>| -> Run {
+                let slices: Vec<&[u8]> = stream.map(|s| s.chunks(8 * 1024).collect()).unwrap_or_default();
+                let per = (slices.len() + beats - 1) / beats.max(1);
+                let mut prev_pos: HashMap<String, Vec<f64>> = HashMap::new();
+                let mut prev_act: HashMap<String, f64> = HashMap::new();
+                let mut prev_edges: HashSet<(String, String)> = HashSet::new();
+                for c in &b.stem.cells {
+                    prev_pos.entry(c.cell_id.clone()).or_insert_with(|| c.position.clone());
+                }
+                for t in &b.tile.completed_tiles {
+                    prev_act.entry(t.id.clone()).or_insert(t.activation);
+                    for cn in &t.connections {
+                        prev_edges.insert((t.id.clone(), cn.clone()));
+                    }
+                }
+                let mut r = Run {
+                    cell_series: HashMap::new(),
+                    tile_series: HashMap::new(),
+                    births: Vec::new(),
+                    stem_channels: Vec::new(),
+                    tile_channels: Vec::new(),
+                    new_edges: 0,
+                    discoveries: (0, 0),
+                    eq_after: (String::new(), String::new()),
+                };
+                for beat in 0..beats {
+                    for sl in slices.iter().skip(beat * per).take(per) {
+                        let mean = sl.iter().map(|x| *x as f64).sum::<f64>() / sl.len().max(1) as f64;
+                        let _ = b.tile.propagate(mean);
+                        for x in *sl {
+                            b.stem.ingest(*x as f64);
+                        }
+                        let _ = b.stem.promote_from_fate();
+                    }
+                    let _ = b.tile.process_tiles_cycle();
+                    let _ = b.stem.process_cells_cycle();
+                    b.stem.settle_field();
+                    // 本拍响应流
+                    let mut cur_pos: HashMap<String, Vec<f64>> = HashMap::new();
+                    for c in &b.stem.cells {
+                        cur_pos.entry(c.cell_id.clone()).or_insert_with(|| c.position.clone());
+                    }
+                    for (id, p) in &cur_pos {
+                        match prev_pos.get(id) {
+                            Some(q) => {
+                                let d = p.iter().zip(q.iter()).map(|(x, y)| (x - y) * (x - y)).sum::<f64>().sqrt();
+                                r.cell_series.entry(id.clone()).or_default().push(d);
+                            }
+                            None => r.births.push((beat + 1, id.clone())),
+                        }
+                    }
+                    let mut cur_edges: HashSet<(String, String)> = HashSet::new();
+                    for t in &b.tile.completed_tiles {
+                        let d = (t.activation - prev_act.get(&t.id).copied().unwrap_or(t.activation)).abs();
+                        r.tile_series.entry(t.id.clone()).or_default().push(d);
+                        for cn in &t.connections {
+                            cur_edges.insert((t.id.clone(), cn.clone()));
+                        }
+                    }
+                    r.new_edges += cur_edges.difference(&prev_edges).count();
+                    prev_pos = cur_pos;
+                    prev_act = b.tile.completed_tiles.iter().map(|t| (t.id.clone(), t.activation)).collect();
+                    prev_edges = cur_edges;
+                    r.stem_channels.push(b.stem.last_channels);
+                    r.tile_channels.push(b.tile.last_channels);
+                }
+                r.eq_after = (
+                    b.tile.triple_fate.cluster_equation.equation_str(),
+                    b.stem.triple_fate.cluster_equation.equation_str(),
+                );
+                r
+            };
+            // Fate 的规则判一条响应流：任一相邻差分对比过方程即抓
+            let judge = |fate: &mut TripleFateCombined, series: &[f64]| -> Option<(usize, f64)> {
+                for k in 1..series.len() {
+                    let (ok, val) = fate.check_convergence(&[series[k], series[k - 1]]);
+                    if ok {
+                        return Some((k, val));
+                    }
+                    let _ = val;
+                }
+                None
+            };
+            let mut grasp = |tag: &str, run: &Run, fate: &mut TripleFateCombined| -> serde_json::Value {
+                let mut items: Vec<serde_json::Value> = Vec::new();
+                let (mut cs, mut ct) = (0usize, 0usize);
+                for (id, s) in &run.cell_series {
+                    if let Some((beat, val)) = judge(fate, s) {
+                        cs += 1;
+                        items.push(serde_json::json!({
+                            "module": "stem_cell", "id": id, "beat": beat,
+                            "eq_val": (val * 1000.0).round() / 1000.0,
+                            "series": s.iter().map(|v| (v * 100.0).round() / 100.0).collect::<Vec<_>>(),
+                        }));
+                    }
+                }
+                for (id, s) in &run.tile_series {
+                    if let Some((beat, val)) = judge(fate, s) {
+                        ct += 1;
+                        items.push(serde_json::json!({
+                            "module": "tile", "id": id, "beat": beat,
+                            "eq_val": (val * 1000.0).round() / 1000.0,
+                            "series": s.iter().map(|v| (v * 10000.0).round() / 10000.0).collect::<Vec<_>>(),
+                        }));
+                    }
+                }
+                for (beat, id) in &run.births {
+                    items.push(serde_json::json!({"module": "stem_birth", "id": id, "beat": beat}));
+                }
+                println!(
+                    "[{tag}] Fate抓到 stem细胞 {cs}/{} tile {ct}/{} stem出生 {} 新边 {} | 内层方程 tile {} stem {}",
+                    run.cell_series.len(),
+                    run.tile_series.len(),
+                    run.births.len(),
+                    run.new_edges,
+                    run.eq_after.0,
+                    run.eq_after.1
+                );
+                println!(
+                    "  四元通道末拍 stem {:?} tile {:?}",
+                    run.stem_channels.last(),
+                    run.tile_channels.last()
+                );
+                serde_json::json!({"arm": tag, "items": items})
+            };
+            let mk_fate = |g: &TripleFateCombined| -> TripleFateCombined {
+                let mut f = TripleFateCombined::new();
+                f.cluster_equation.coef_a = g.cluster_equation.coef_a;
+                f.cluster_equation.coef_b = g.cluster_equation.coef_b;
+                f.cluster_equation.coef_c = g.cluster_equation.coef_c;
+                f.cluster_equation.threshold = g.cluster_equation.threshold;
+                f
+            };
+            let mut silent = load(&dir);
+            let srun = run(&mut silent, None);
+            let mut s_fate = mk_fate(&silent.global);
+            let g_silent = grasp("静默", &srun, &mut s_fate);
+            let mut body = load(&dir);
+            let brun = run(&mut body, Some(&stream));
+            let mut b_fate = mk_fate(&body.global);
+            let g_body = grasp("刺激", &brun, &mut b_fate);
+            let doc = serde_json::json!({
+                "equation": body.global.cluster_equation.equation_str(),
+                "rule": "check_convergence: x=d[k]/d[k-1], |evaluate(x)|<threshold",
+                "arms": [g_silent, g_body],
+            });
+            if let Ok(txt) = serde_json::to_string(&doc) {
+                let _ = std::fs::write(&out_path, txt);
+                println!("全部抓取已写入 {}", out_path.display());
+            }
+            println!(
+                "纪律 全局tick {} 方程 {} 存储 {}",
+                body.global.global_tick,
+                body.global.cluster_equation.equation_str(),
+                body.stored_total()
             );
         }
         "fateqa" => {
