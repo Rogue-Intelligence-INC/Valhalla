@@ -123,6 +123,8 @@
     <div class="org"><b>Rogue Intelligence</b> Inc. — Research</div>
     <nav class="mast-nav">
       <a href="#results"><span data-lang="en" class="on">Results</span><span data-lang="zh">结果</span></a>
+      <a href="#highlights"><span data-lang="en" class="on">Highlights</span><span data-lang="zh">亮点</span></a>
+      <a href="#projects"><span data-lang="en" class="on">Projects</span><span data-lang="zh">其他项目</span></a>
       <a href="#system"><span data-lang="en" class="on">System</span><span data-lang="zh">系统</span></a>
       <a href="#experiments"><span data-lang="en" class="on">Experiments</span><span data-lang="zh">实验</span></a>
       <a href="#evidence"><span data-lang="en" class="on">Evidence</span><span data-lang="zh">证据分级</span></a>
@@ -146,7 +148,7 @@
       <span data-lang="zh">一个已实现的 Rust 架构：由持久的、自组织的结构——而非检索到的上下文——承载系统所学。本页先呈现测量结果，其次系统本身，并全程标注局限。</span>
     </p>
     <p class="authors serif">Rogue Intelligence Inc.</p>
-    <p class="affil"><span data-lang="en" class="on">Independent research programme. All quantitative claims below are tied to a named protocol and an executable artefact; §4 classifies every result by how it can be checked, and §5 lists what has <em>not</em> been established.</span><span data-lang="zh">独立研究项目。下方每项定量结论都绑定命名协议与可执行工件；§4 按可检验方式为全部结果分级，§5 列明尚未成立的事项。</span></p>
+    <p class="affil"><span data-lang="en" class="on">Independent research programme. All quantitative claims below are tied to a named protocol and an executable artefact; §5 classifies every result by how it can be checked, and §6 lists what has <em>not</em> been established.</span><span data-lang="zh">独立研究项目。下方每项定量结论都绑定命名协议与可执行工件；§5 按可检验方式为全部结果分级，§6 列明尚未成立的事项。</span></p>
     <div class="statusline">
       <span class="tag"><span data-lang="en" class="on">Implemented system</span><span data-lang="zh">已实现系统</span></span>
       <span class="tag"><span data-lang="en" class="on">Controlled experiments</span><span data-lang="zh">受控实验</span></span>
@@ -178,7 +180,7 @@
     <p><span data-lang="en" class="on">Three findings define the present state of the programme. Each is stated together with the protocol that produced it; superseded figures from earlier code states are retired, not averaged in.</span><span data-lang="zh">三项发现定义了本项目当前状态。每项都连同生成它的协议一并陈述；早期代码状态的被替代数字已退役，不参与平均。</span></p>
 
     <table>
-      <caption><b>Table 1.</b> <span data-lang="en" class="on">Headline measurements on current code (baseline <span class="mono">e1ff0b3</span>). Class letters refer to the evidence classification in §4.</span><span data-lang="zh">现行代码（基线 e1ff0b3）的头版读数。等级字母见 §4 证据分级。</span></caption>
+      <caption><b>Table 1.</b> <span data-lang="en" class="on">Headline measurements on current code (baseline <span class="mono">e1ff0b3</span>). Class letters refer to the evidence classification in §5.</span><span data-lang="zh">现行代码（基线 e1ff0b3）的头版读数。等级字母见 §5 证据分级。</span></caption>
       <tr><th style="width:26%"><span data-lang="en" class="on">Result</span><span data-lang="zh">结果</span></th><th style="width:30%"><span data-lang="en" class="on">Measurement</span><span data-lang="zh">读数</span></th><th><span data-lang="en" class="on">Protocol</span><span data-lang="zh">协议</span></th><th class="n">Class</th></tr>
       <tr>
         <td><b><span data-lang="en" class="on">Structure carries the answer</span><span data-lang="zh">结构承载答案</span></b></td>
@@ -212,16 +214,41 @@
     </div>
   </section>
 
-  <!-- ══════════ 2 SYSTEM ══════════ -->
+
+  <!-- ══════════ 2 HIGHLIGHTS ══════════ -->
+  <section id="highlights">
+    <h2 class="serif"><span class="no">2</span><span data-lang="en" class="on">Highlights — rules first, then learning</span><span data-lang="zh">亮点——规则为先，其后学习</span></h2>
+    <p><span data-lang="en" class="on">Valhalla’s design order is the reverse of the usual one. Behaviour is first bounded by explicit, inspectable rules — an algebraic criterion, a fixed signal schema, exact storage accounting, pre-declared pass/fail criteria — and learning is what happens <em>inside</em> those rules. Nothing in the system improves by drifting past its own criteria: the criteria are the constitution, the dynamics are the citizen.</span><span data-lang="zh">Valhalla 的设计次序与通常相反。行为先由显式、可检视的规则划界——代数判据、固定信号格式、精确存储记账、预先声明的通过/不通过标准——学习是这些规则<i>之内</i>发生的事。系统不会靠漂移越过自身判据来“进步”：判据是宪法，动力学是公民。</span></p>
+    <div class="mech">
+      <div class="m"><h4><i>H1</i><span data-lang="en" class="on">Rules before learning</span><span data-lang="zh">规则为先</span></h4><p><span data-lang="en" class="on">A quadratic cluster equation (Fate) judges convergence, bundling and segmentation. It adapts only on material it has itself judged — judgement never edits the judge (§3, M4).</span><span data-lang="zh">二元一次簇方程（Fate）裁决收敛、集束与分割。它只在自己刚判定过的材料上自适应——判定永不修改法官（§3，M4）。</span></p></div>
+      <div class="m"><h4><i>H2</i><span data-lang="en" class="on">Structure before weights</span><span data-lang="zh">结构先于权重</span></h4><p><span data-lang="en" class="on">Experience is written into a persistent Tile/Stem structure; computation is routed through it. Ablating the structure — not the stored bytes — is what removes the capability (§4.1, arms G vs. I).</span><span data-lang="zh">经验写入持久的 Tile/Stem 结构，计算经由结构路由。消融结构——而非存储字节——才移除能力（§4.1，G 臂对 I 臂）。</span></p></div>
+      <div class="m"><h4><i>H3</i><span data-lang="en" class="on">Exact accounting</span><span data-lang="zh">精确记账</span></h4><p><span data-lang="en" class="on">Every fragment is stored eight times by design (four quad operators × Tile/Stem), auditable to the byte; whole bodies freeze, transport and thaw bit-exactly (F = C).</span><span data-lang="zh">每段材料按设计存八份（四元算子 × Tile/Stem），可逐字节审计；整个身体可冻结、运输、逐字解冻（F = C）。</span></p></div>
+      <div class="m"><h4><i>H4</i><span data-lang="en" class="on">Measurement discipline</span><span data-lang="zh">测量纪律</span></h4><p><span data-lang="en" class="on">Criteria are pre-registered before runs; zero results are published as “not detected” (§6) and priced at zero (§5). Broken instruments are written off, never quietly repaired mid-analysis.</span><span data-lang="zh">判据跑前预注册；零结果以“未检出”发表（§6）并按零计价（§5）。仪器坏了销账，绝不在分析中途悄悄修好。</span></p></div>
+    </div>
+
+    <h3><span data-lang="en" class="on">What is new (October–November 2026)</span><span data-lang="zh">新进展（2026 年 10–11 月）</span></h3>
+    <table>
+      <caption><b>Table 2.</b> <span data-lang="en" class="on">Recent additions, each landed with its measurement. Mechanism details in §3; run-by-run record in TEST_RUNS.</span><span data-lang="zh">近期新增，每项落盘时都带其测量。机制细节见 §3；逐跑记录见 TEST_RUNS。</span></caption>
+      <tr><th style="width:26%"><span data-lang="en" class="on">Addition</span><span data-lang="zh">新增</span></th><th><span data-lang="en" class="on">What it does</span><span data-lang="zh">做什么</span></th><th class="n"><span data-lang="en" class="on">Measured effect</span><span data-lang="zh">测量效应</span></th></tr>
+      <tr><td><b><span data-lang="en" class="on">Bundled nerves</span><span data-lang="zh">集束神经</span></b></td><td><span data-lang="en" class="on">Fate bundles parallel connection strands into single nerves under its convergence rule</span><span data-lang="zh">Fate 按收敛规则把平行连接束集束为单条神经</span></td><td class="n">19.86M → ≈49K links</td></tr>
+      <tr><td><b><span data-lang="en" class="on">Two-layer escape</span><span data-lang="zh">双层逃逸</span></b></td><td><span data-lang="en" class="on">The quad’s designed event-horizon escape law now runs autonomously; Fate adds long-range nerves to distant strong signals</span><span data-lang="zh">四元原设计视界逃逸法则自主运行；Fate 向远方强信号加长程神经</span></td><td class="n">BWT −27.3 → −0.7 pp</td></tr>
+      <tr><td><b><span data-lang="en" class="on">Quad self-maintenance</span><span data-lang="zh">四元自主维护</span></b></td><td><span data-lang="en" class="on">Each quad operator splits/joins/removes its own stored entries (horizon swallow, fluctuation split/merge, burst, dedup) without external commands</span><span data-lang="zh">每个四元算子自主分解/拼合/删除自身存储条目（视界吞没、涨落切分拼合、爆发、去重），无需外部命令</span></td><td class="n"><span data-lang="en" class="on">runs every cycle</span><span data-lang="zh">每周期运行</span></td></tr>
+      <tr><td><b><span data-lang="en" class="on">Eight-material full flow</span><span data-lang="zh">八料全流程</span></b></td><td><span data-lang="en" class="on">One body ingests facts, text, code, image, audio, MIDI, binary and scientific text through the same Fate entrance</span><span data-lang="zh">同一身体经同一 Fate 入口摄入事实、文本、代码、图像、声音、MIDI、二进制与科学文本</span></td><td class="n">50 rounds, all egress green</td></tr>
+      <tr><td><b><span data-lang="en" class="on">Live visual monitor</span><span data-lang="zh">实时可视化监控</span></b></td><td><span data-lang="mono">valhalla viz</span> <span data-lang="en" class="on">exports a per-round structural dashboard (populations, nerves, equation drift, per-material births)</span><span data-lang="zh">导出逐轮结构仪表盘（种群、神经、方程漂移、逐料出生）</span></td><td class="n"><span data-lang="en" class="on">read-only, external</span><span data-lang="zh">只读、外部观察</span></td></tr>
+      <tr><td><b><span data-lang="en" class="on">One-click reproduction</span><span data-lang="zh">一键复现</span></b></td><td><span data-lang="en" class="on">This page’s numbers regenerate from one command and self-verify (§7)</span><span data-lang="zh">本页数字由一条命令再生并自核对（§7）</span></td><td class="n">16/16 readings</td></tr>
+    </table>
+  </section>
+
+  <!-- ══════════ 3 SYSTEM ══════════ -->
   <section id="system">
-    <h2 class="serif"><span class="no">2</span><span data-lang="en" class="on">The system</span><span data-lang="zh">系统</span></h2>
+    <h2 class="serif"><span class="no">3</span><span data-lang="en" class="on">The system</span><span data-lang="zh">系统</span></h2>
     <p><span data-lang="en" class="on">Valhalla is one system with coupled responsibilities. Material enters byte-wise through Fate’s segmentation; every fragment is stored in all four quad operators (BlackHole, MeshBrain, MultiNova, BaseForce) — eight accounts per fragment, Tile-side and Stem-side — and the populations’ own dynamics (energy flow, split/merge, autonomous quad maintenance) decide what the structure becomes. Fate is the global measurement and scheduling layer: its quadratic cluster equation judges convergence, bundles parallel connection strands into single nerves, and opens long-range escape nerves toward distant strong signals. Fate does not veto body dynamics.</span><span data-lang="zh">Valhalla 是一个职责耦合的单一系统。材料逐字节经 Fate 分割入口进入；每段材料存入全部四个四元算子（BlackHole、MeshBrain、MultiNova、BaseForce）——每段八份账，Tile 侧与 Stem 侧各四——结构成为什么样，由种群自身动力学（能量流动、分裂/合并、四元自主维护）决定。Fate 是全局度量与调度层：其二元一次簇方程判断收敛、把平行连接束集束为单条神经、并向远方强信号开长程逃逸神经。Fate 不一票否决身体动力学。</span></p>
 
     <figure>
       <div class="arch">
         <div class="row one"><div class="cell"><b>INPUT</b><span><span data-lang="en" class="on">Facts · text · code · image · audio — byte-wise ingress, Fate segmentation</span><span data-lang="zh">事实 · 文本 · 代码 · 图像 · 声音——逐字节进入，Fate 分割</span></span></div></div>
         <div class="arrow">▼</div>
-        <div class="row one"><div class="cell red"><b>FATE</b><span><span data-lang="en" class="on">Global criterion: cluster equation a·x²+b·x+c (live example §2), bundling, escape nerves, segmentation windows</span><span data-lang="zh">全局判据：簇方程 a·x²+b·x+c（活例见 §2）、集束、逃逸神经、分割窗口</span></span></div></div>
+        <div class="row one"><div class="cell red"><b>FATE</b><span><span data-lang="en" class="on">Global criterion: cluster equation a·x²+b·x+c (live example §3), bundling, escape nerves, segmentation windows</span><span data-lang="zh">全局判据：簇方程 a·x²+b·x+c（活例见 §3）、集束、逃逸神经、分割窗口</span></span></div></div>
         <div class="arrow">▼</div>
         <div class="row">
           <div class="cell blue"><b>BlackHole</b><span><span data-lang="en" class="on">Dense storage; event-horizon escape law runs in autonomous maintenance</span><span data-lang="zh">稠密存储；视界逃逸法则在自主维护中运行</span></span></div>
@@ -249,14 +276,14 @@
     </div>
   </section>
 
-  <!-- ══════════ 3 EXPERIMENTS ══════════ -->
+  <!-- ══════════ 4 EXPERIMENTS ══════════ -->
   <section id="experiments">
-    <h2 class="serif"><span class="no">3</span><span data-lang="en" class="on">Experiments</span><span data-lang="zh">实验</span></h2>
+    <h2 class="serif"><span class="no">4</span><span data-lang="en" class="on">Experiments</span><span data-lang="zh">实验</span></h2>
 
-    <h3>3.1 <span data-lang="en" class="on">Incubation causal proof — does structure carry the answer?</span><span data-lang="zh">孵化因果证明——结构是否承载答案？</span></h3>
+    <h3>4.1 <span data-lang="en" class="on">Incubation causal proof — does structure carry the answer?</span><span data-lang="zh">孵化因果证明——结构是否承载答案？</span></h3>
     <p><span data-lang="en" class="on">Bodies are cultivated on chained symbolic facts, then interrogated on withheld multi-hop questions through six arms. Each ablation restarts from the same saved body, so arms differ in exactly one intervention. Fifteen seeds, no seed excluded.</span><span data-lang="zh">身体在链式符号事实上培养，随后以留出多跳题经六条臂拷问。每种消融从同一保存身体重启，各臂只差一个干预。15 种子，无种子剔除。</span></p>
     <table>
-      <caption><b>Table 2.</b> <span data-lang="en" class="on">Incubation arms and outcomes (15 seeds, %, current code).</span><span data-lang="zh">孵化各臂与结局（15 种子，%，现行代码）。</span></caption>
+      <caption><b>Table 3.</b> <span data-lang="en" class="on">Incubation arms and outcomes (15 seeds, %, current code).</span><span data-lang="zh">孵化各臂与结局（15 种子，%，现行代码）。</span></caption>
       <tr><th style="width:14%">Arm</th><th style="width:38%"><span data-lang="en" class="on">Intervention</span><span data-lang="zh">干预</span></th><th class="n"><span data-lang="en" class="on">Score</span><span data-lang="zh">分数</span></th><th><span data-lang="en" class="on">Reading</span><span data-lang="zh">判读</span></th></tr>
       <tr><td class="mono">C</td><td><span data-lang="en" class="on">Intact cultivated body</span><span data-lang="zh">完整培养体</span></td><td class="n">57.1 ± 13.3</td><td>—</td></tr>
       <tr><td class="mono">A</td><td><span data-lang="en" class="on">Volume-matched control, no chain structure</span><span data-lang="zh">等量对照，无链结构</span></td><td class="n">56.1 ± 8.5</td><td><span data-lang="en" class="on">C−A = +1.0 ± 10.1 → curriculum gain not detected</span><span data-lang="zh">C−A = +1.0 ± 10.1 → 课程增益未检出</span></td></tr>
@@ -275,10 +302,10 @@
     </div>
     <p class="small"><b>Figure 2.</b> <span data-lang="en" class="on">Distance-graded true-question accuracy, cultivated (C) vs. matched control (A). Cross-chain false questions are rejected at 77.8% (C) vs. 76.7% (A). Exposure learning curve across cultivation thirds: 58.8 → 62.4 → 57.1 (flat; no contact-volume effect claimed at this scale).</span><span data-lang="zh">距离分层真题正确率，培养体（C）对等量对照（A）。跨链假题拒绝率 C 77.8% 对 A 76.7%。培养三阶段接触量学习曲线：58.8 → 62.4 → 57.1（平；此规模下不声称接触量效应）。</span></p>
 
-    <h3>3.2 <span data-lang="en" class="on">Industry-style battery</span><span data-lang="zh">行业式电池</span></h3>
+    <h3>4.2 <span data-lang="en" class="on">Industry-style battery</span><span data-lang="zh">行业式电池</span></h3>
     <p><span data-lang="en" class="on">Self-generated task analogues in the style of SCAN / CLUTRR / CL-bench (not official dataset scores), 5 seeds. Storage channel is 100% throughout and is not the object of study; network channel shown.</span><span data-lang="zh">SCAN / CLUTRR / CL-bench 风格的自生成 analogue 任务（非官方数据集分数），5 种子。存储通道全程 100%，非研究对象；下示网络通道。</span></p>
     <table>
-      <caption><b>Table 3.</b> <span data-lang="en" class="on">Battery network-channel results (%, 5 seeds).</span><span data-lang="zh">电池网络通道结果（%，5 种子）。</span></caption>
+      <caption><b>Table 4.</b> <span data-lang="en" class="on">Battery network-channel results (%, 5 seeds).</span><span data-lang="zh">电池网络通道结果（%，5 种子）。</span></caption>
       <tr><th>Task</th><th><span data-lang="en" class="on">Measures</span><span data-lang="zh">测什么</span></th><th class="n"><span data-lang="en" class="on">Score</span><span data-lang="zh">分数</span></th></tr>
       <tr><td class="mono">T1</td><td><span data-lang="en" class="on">Fed relations entering self-formed topology</span><span data-lang="zh">喂入关系进入自发拓扑</span></td><td class="n">67.6 ± 0.8</td></tr>
       <tr><td class="mono">T2</td><td><span data-lang="en" class="on">Length generalisation, 4–5 hop (short / long training)</span><span data-lang="zh">长度泛化，4–5 跳（短训/长训）</span></td><td class="n">91.7 / 91.1</td></tr>
@@ -286,25 +313,25 @@
       <tr><td class="mono">T4</td><td><span data-lang="en" class="on">Continual learning, backward transfer</span><span data-lang="zh">持续学习，后向迁移</span></td><td class="n">−0.7 pp</td></tr>
     </table>
 
-    <h3>3.3 <span data-lang="en" class="on">Full-flow programme at 50 rounds</span><span data-lang="zh">50 轮全流程程式</span></h3>
+    <h3>4.3 <span data-lang="en" class="on">Full-flow programme at 50 rounds</span><span data-lang="zh">50 轮全流程程式</span></h3>
     <p><span data-lang="en" class="on">One body, one programme: eight material types (multilingual text, code, image, audio, MIDI, binary, poetry, scientific text) at 32 KB per round for 50 rounds, seed 7, ≈2.7 min on the reference machine. Final state <b>9,180 tiles / 9,281 cells / 123,261 nerves / 31,030 stored fragments</b>; population grows linearly (≈+180/round) without instability; the Fate equation drifts observably (0.867x² − 2.017x + 0.861 → 0.716x² − 1.891x + 0.670). Library tests 7/4/8/3 (fate/stem/tile/blackhole) and the six-package check suite pass.</span><span data-lang="zh">一体一程式：八种料（多语文本、代码、图像、声音、MIDI、二进制、诗歌、科学文本）每轮 32KB、50 轮、种子 7，参考机约 2.7 分钟。终局 <b>9,180 tiles / 9,281 cells / 123,261 神经 / 31,030 存储段</b>；种群线性增长（约 +180/轮）无失稳；Fate 方程可观测漂移（0.867x² − 2.017x + 0.861 → 0.716x² − 1.891x + 0.670）。库测 7/4/8/3（fate/stem/tile/blackhole）与六件检查包全过。</span></p>
   </section>
 
-  <!-- ══════════ 4 EVIDENCE ══════════ -->
+  <!-- ══════════ 5 EVIDENCE ══════════ -->
   <section id="evidence">
-    <h2 class="serif"><span class="no">4</span><span data-lang="en" class="on">Evidence classification</span><span data-lang="zh">证据分级</span></h2>
+    <h2 class="serif"><span class="no">5</span><span data-lang="en" class="on">Evidence classification</span><span data-lang="zh">证据分级</span></h2>
     <p><span data-lang="en" class="on">Every result in this document, priced by its evidence, following a complete re-run on current code (3 November 2026).</span><span data-lang="zh">本文件每项结果按其证据定价，依据现行代码的完整复跑（2026 年 11 月 3 日）。</span></p>
     <table>
       <tr><th style="width:12%">Class</th><th><span data-lang="en" class="on">Contents</span><span data-lang="zh">内容</span></th></tr>
       <tr><td class="cls clsA">A</td><td><span data-lang="en" class="on"><b>Reproduced under current code.</b> Structure causally carries withheld answers (+11.6 ± 8.5 pp, 13/15); bit-exact freeze/thaw (F = C); exact ×8 storage accounting; BWT −0.7 pp; 50-round end-to-end pipeline, deterministic across seeds.</span><span data-lang="zh"><b>现行代码下复现。</b>结构因果承载留出答案（+11.6 ± 8.5pp，13/15）；冻结/解冻逐字（F = C）；×8 存储精确记账；BWT −0.7pp；50 轮端到端管道，跨种子确定性。</span></td></tr>
       <tr><td class="cls clsB">B</td><td><span data-lang="en" class="on"><b>Reproduced, protocol-bounded.</b> Industry battery (self-generated analogues, not official datasets). Python Tier-A line — a separate product line — within named protocols on small slices (U1–U4; U3 +38.7 pp; TPI 0.755; holdout n=3). Organisation census: a network forms; optimality not shown.</span><span data-lang="zh"><b>已复现，协议有界。</b>行业电池（自生成 analogue，非官方数据集）。Python Tier A 线——独立产品线——在命名协议小切片内成立（U1–U4；U3 +38.7pp；TPI 0.755；holdout n=3）。组织普查：网络形成；最优性未证。</span></td></tr>
-      <tr><td class="cls clsC">C</td><td><span data-lang="en" class="on"><b>Not established.</b> Listed in §5. Class-C items appear in no quantitative claim on this page.</span><span data-lang="zh"><b>未成立。</b>列于 §5。本页任何定量声称不含 C 级项。</span></td></tr>
+      <tr><td class="cls clsC">C</td><td><span data-lang="en" class="on"><b>Not established.</b> Listed in §6. Class-C items appear in no quantitative claim on this page.</span><span data-lang="zh"><b>未成立。</b>列于 §6。本页任何定量声称不含 C 级项。</span></td></tr>
     </table>
   </section>
 
-  <!-- ══════════ 5 NEGATIVE ══════════ -->
+  <!-- ══════════ 6 NEGATIVE ══════════ -->
   <section id="negative">
-    <h2 class="serif"><span class="no">5</span><span data-lang="en" class="on">Negative results &amp; limitations</span><span data-lang="zh">阴性结果与局限</span></h2>
+    <h2 class="serif"><span class="no">6</span><span data-lang="en" class="on">Negative results &amp; limitations</span><span data-lang="zh">阴性结果与局限</span></h2>
     <div class="note">
       <b class="t"><span data-lang="en" class="on">Reported as results</span><span data-lang="zh">作为结果报告</span></b>
       <ol style="margin-bottom:0">
@@ -319,9 +346,9 @@
     </div>
   </section>
 
-  <!-- ══════════ 6 REPRODUCE ══════════ -->
+  <!-- ══════════ 7 REPRODUCE ══════════ -->
   <section id="reproduce">
-    <h2 class="serif"><span class="no">6</span><span data-lang="en" class="on">Reproducibility</span><span data-lang="zh">可复现性</span></h2>
+    <h2 class="serif"><span class="no">7</span><span data-lang="en" class="on">Reproducibility</span><span data-lang="zh">可复现性</span></h2>
     <p><span data-lang="en" class="on">Every number above is generated by the <b>one-click reproduction package</b> in this repository (<span class="mono">reproduce/</span>): one command builds the suite, runs library tests, the check packages, the battery, the 15-seed incubation proof and the 50-round full flow, then verifies the headline readings against <span class="mono">expected_results.txt</span>. Any step failing, or any reading mismatching, exits non-zero and names the item. Nothing is retried and no criterion is adjusted after the fact.</span><span data-lang="zh">上面每个数字都由本仓库的一键复现包（<span class="mono">reproduce/</span>）生成：一条命令构建全套、跑库测、检查包、电池、15 种子孵化证明与 50 轮全流程，并逐项核对 <span class="mono">expected_results.txt</span> 的头版读数。任何一步失败或读数不符，非零退出并指明项。不重试、不事后改判据。</span></p>
 
 <pre><code># Windows (validated platform), full suite, ~8-12 min including build
@@ -334,7 +361,7 @@ cd Valhalla
 bash reproduce/reproduce.sh</code></pre>
 
     <table>
-      <caption><b>Table 4.</b> <span data-lang="en" class="on">What the package runs, and the readings it verifies (baseline <span class="mono">e1ff0b3</span>).</span><span data-lang="zh">复现包跑什么、核对哪些读数（基线 e1ff0b3）。</span></caption>
+      <caption><b>Table 5.</b> <span data-lang="en" class="on">What the package runs, and the readings it verifies (baseline <span class="mono">e1ff0b3</span>).</span><span data-lang="zh">复现包跑什么、核对哪些读数（基线 e1ff0b3）。</span></caption>
       <tr><th style="width:18%">Step</th><th style="width:34%">Programme</th><th><span data-lang="en" class="on">Expected reading</span><span data-lang="zh">预期读数</span></th></tr>
       <tr><td class="mono">L0</td><td><span data-lang="en" class="on">Library tests (fate / stem / tile / blackhole)</span><span data-lang="zh">库测（fate / stem / tile / blackhole）</span></td><td class="n">7 / 4 / 8 / 3 pass</td></tr>
       <tr><td class="mono">L1</td><td><span data-lang="en" class="on">Check suite, six packages</span><span data-lang="zh">检查包，六件</span></td><td class="n">ALL PASS</td></tr>
@@ -345,10 +372,26 @@ bash reproduce/reproduce.sh</code></pre>
     <p class="small"><span data-lang="en" class="on">Prerequisites: Rust stable; NVIDIA CUDA toolchain (the f64 line builds with <span class="mono">native_cuda</span>). Deterministic on the reference machine (same seeds, same material, bit-exact body fingerprints). Full instructions, platform caveats and the “what these numbers do not prove” note: <a href="https://github.com/Rogue-Intelligence-INC/Valhalla/blob/main/reproduce/README.md">reproduce/README.md</a>. Run-by-run log: <a href="https://github.com/Rogue-Intelligence-INC/Valhalla/blob/main/docs/valhalla/TEST_RUNS_20261101.md">TEST_RUNS</a> · claim-by-claim map: <a href="https://github.com/Rogue-Intelligence-INC/Valhalla/blob/main/docs/valhalla/EVIDENCE_MAP_20261101.md">EVIDENCE_MAP</a> · session account: <a href="https://github.com/Rogue-Intelligence-INC/Valhalla/blob/main/docs/valhalla/WORK_SUMMARY_20261103.md">WORK_SUMMARY 2026-11-03</a>.</span><span data-lang="zh">前置：Rust stable；NVIDIA CUDA 工具链（f64 线以 native_cuda 构建）。参考机上确定性复现（同种子同料，身体指纹逐字）。完整说明、平台 caveat 与“这些数字不证明什么”：reproduce/README.md。逐跑记录：TEST_RUNS · 逐声称地图：EVIDENCE_MAP · 本轮账目：WORK_SUMMARY 2026-11-03（链接见英文段）。</span></p>
   </section>
 
-  <!-- ══════════ 7 POSITIONING / CITATION ══════════ -->
+  <!-- ══════════ 8 PROGRAMME / CITATION ══════════ -->
   <section id="cite">
-    <h2 class="serif"><span class="no">7</span><span data-lang="en" class="on">Positioning &amp; citation</span><span data-lang="zh">定位与引用</span></h2>
+    <h2 class="serif"><span class="no">8</span><span data-lang="en" class="on">Programme, positioning &amp; citation</span><span data-lang="zh">项目全景、定位与引用</span></h2>
     <p><span data-lang="en" class="on">Near-term, Valhalla is a persistent, auditable structural memory and adaptive agent-state substrate: state that can be frozen, transported, diffed and re-run bit-exactly. The longer-term research objective is native capability formation in the structure itself. The programme is funded against pre-registered technical milestones; each Class-B item above is a candidate either for promotion to Class A or for withdrawal.</span><span data-lang="zh">近期，Valhalla 是持久、可审计的结构记忆与自适应智能体状态基底：状态可冻结、运输、比对并逐字复跑。长期研究目标是结构本身的原生能力形成。本项目按预注册技术里程碑融资；上述每个 B 级项都是晋升 A 级或撤下的候选。</span></p>
+
+    <h3 id="projects"><span data-lang="en" class="on">The wider programme</span><span data-lang="zh">更广的项目全景</span></h3>
+    <p><span data-lang="en" class="on">Valhalla is the core of a small research programme. The other lines share its rules-first discipline but carry their own evidence — stated here at the strength it actually has, no stronger.</span><span data-lang="zh">Valhalla 是一个小型研究项目的核心。其他线共享其“规则为先”的纪律，但各有自己的证据——此处按其实际强度陈述，不夸大。</span></p>
+    <table>
+      <caption><b>Table 6.</b> <span data-lang="en" class="on">Programme lines and their honest status. Only the first row carries Class-A evidence; the rest are components, research lines, or separate repositories.</span><span data-lang="zh">各项目线及其诚实状态。只有第一行具 A 级证据；其余为组件、研究线或独立仓库。</span></caption>
+      <tr><th style="width:20%">Project</th><th><span data-lang="en" class="on">What it is</span><span data-lang="zh">是什么</span></th><th style="width:20%"><span data-lang="en" class="on">Status</span><span data-lang="zh">状态</span></th></tr>
+      <tr><td><b>Valhalla Core</b></td><td><span data-lang="en" class="on">Signal-governed structural intelligence (this page): Fate + quad storage + Tile/Stem populations, Rust f64/CUDA line</span><span data-lang="zh">信号治理的结构智能（本页）：Fate + 四元存储 + Tile/Stem 种群，Rust f64/CUDA 线</span></td><td><span data-lang="en" class="on">Implemented; Class A/B evidence (§5)</span><span data-lang="zh">已实现；A/B 级证据（§5）</span></td></tr>
+      <tr><td><b>S-wind</b></td><td><span data-lang="en" class="on">Autonomous pattern/formula discovery from numerical data with exact rational arithmetic</span><span data-lang="zh">以精确有理数运算从数值数据自主发现模式/公式</span></td><td><span data-lang="en" class="on">Separate product repository</span><span data-lang="zh">独立产品仓库</span></td></tr>
+      <tr><td><b>Yaksha Cipher</b></td><td><span data-lang="en" class="on">Parameterized symmetric encryption with a stateful AEAD protocol; CPU + GPU lines inside this workspace</span><span data-lang="zh">参数化对称加密与有状态 AEAD 协议；本工作区内 CPU + GPU 两线</span></td><td><span data-lang="en" class="on">Component, in-workspace</span><span data-lang="zh">组件，工作区内</span></td></tr>
+      <tr><td><b>Wave</b></td><td><span data-lang="en" class="on">Self-hosting programming-language research (compiler + runtime), v4 line archived in-repo</span><span data-lang="zh">自举编程语言研究（编译器 + 运行时），v4 线在仓内归档</span></td><td><span data-lang="en" class="on">Research line</span><span data-lang="zh">研究线</span></td></tr>
+      <tr><td><b>Val-OS</b></td><td><span data-lang="en" class="on">Operating-system research toward adaptive, self-organising system software (kernel/boot/desktop in-repo)</span><span data-lang="zh">面向自适应、自组织系统软件的操作系统研究（kernel/boot/desktop 在仓内）</span></td><td><span data-lang="en" class="on">Research line</span><span data-lang="zh">研究线</span></td></tr>
+      <tr><td><b><span data-lang="en" class="on">Compression line</span><span data-lang="zh">压缩线</span></b></td><td><span data-lang="en" class="on">Content-aware multi-system compression experiments, including high-entropy material</span><span data-lang="zh">内容感知的多系统压缩实验，含高熵材料</span></td><td><span data-lang="en" class="on">Experimental</span><span data-lang="zh">实验性</span></td></tr>
+      <tr><td><b><span data-lang="en" class="on">Python integration line</span><span data-lang="zh">Python 集成线</span></b></td><td><span data-lang="en" class="on">Installable client/integration layer over the core; its Tier-A protocol results (U1–U4, U3 +38.7 pp, TPI 0.755) are a separate product line’s, protocol-bounded (Class B)</span><span data-lang="zh">核心之上的可安装客户端/集成层；其 Tier A 协议结果（U1–U4、U3 +38.7pp、TPI 0.755）属独立产品线，协议有界（B 级）</span></td><td>Class B</td></tr>
+      <tr><td><b><span data-lang="en" class="on">Clients &amp; surfaces</span><span data-lang="zh">客户端与界面</span></b></td><td><span data-lang="en" class="on">Unified Rust runner (<span class="mono">valhalla</span>), Flutter chat app, structural dashboards — the same artefacts the experiments run on, not mock-ups</span><span data-lang="zh">统一 Rust 入口（valhalla）、Flutter 聊天应用、结构仪表盘——与实验所用同一批工件，非模型图</span></td><td><span data-lang="en" class="on">Implemented</span><span data-lang="zh">已实现</span></td></tr>
+      <tr><td><b><span data-lang="en" class="on">Papers programme</span><span data-lang="zh">论文线</span></b></td><td><span data-lang="en" class="on">Academic manuscripts maintained in-repo (algebraic determination of spacetime dimension; chemiosmotic origin-of-life framework) — manuscripts, not peer-reviewed results</span><span data-lang="zh">仓内维护的学术手稿（时空维度的代数决定；化学渗透起源框架）——是手稿，非同行评审结果</span></td><td><span data-lang="en" class="on">Manuscripts</span><span data-lang="zh">手稿</span></td></tr>
+    </table>
 <pre><code>@software{valhalla2026,
   title  = {Valhalla: Signal-Governed Structural Intelligence},
   author = {{Rogue Intelligence Inc.}},
