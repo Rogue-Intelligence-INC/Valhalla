@@ -4,20 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Valhalla — Signal-Governed Structural Intelligence | Rogue Intelligence Inc.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
 <meta name="description" content="Valhalla: an implemented Rust architecture in which a persistent, self-organising structure — not a retrieved context — carries what the system has learned. Measured results, evidence classification, negative results, and a one-click reproduction package.">
 <style>
   :root{
-    --ink:#171713; --paper:#fdfdf9; --mut:#5d5d54; --faint:#8a8a7f;
-    --rule:#d9d6cb; --accent:#7a1e2b; --accent2:#0f4c5c;
-    --code-bg:#f4f2ec; --box:#f8f7f2;
+    --ink:#111111; --paper:#ffffff; --mut:#333333; --faint:#767676;
+    --rule:#e2e2e2; --accent:#0066ff; --accent2:#0066ff;
+    --code-bg:#f5f5f5; --box:#fafafa;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{background:var(--paper);color:var(--ink);
-    font-family:"Segoe UI",-apple-system,"Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;
+    font-family:"Inter",-apple-system,"Segoe UI","Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;
     font-size:16px;line-height:1.65;}
-  .serif{font-family:Charter,"Bitstream Charter",Cambria,Georgia,"Times New Roman","Songti SC",serif}
-  .mono{font-family:"JetBrains Mono",Consolas,"Courier New",monospace}
+  .serif{font-family:"Source Serif 4",Cambria,Georgia,"Times New Roman","Songti SC",serif}
+  .mono{font-family:"IBM Plex Mono",Consolas,"Courier New",monospace}
   a{color:var(--accent2);text-decoration:none;border-bottom:1px dotted var(--accent2)}
   a:hover{color:var(--accent);border-bottom-color:var(--accent)}
 
@@ -69,7 +72,7 @@
   th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:7px 9px;text-align:left;font-weight:600;vertical-align:top}
   td{border-bottom:1px solid var(--rule);padding:7px 9px;vertical-align:top}
   tr:last-child td{border-bottom:2px solid var(--ink)}
-  td.n,th.n{text-align:right;font-family:Consolas,monospace;font-size:.86rem;white-space:nowrap}
+  td.n,th.n{text-align:right;font-family:"IBM Plex Mono",Consolas,monospace;font-size:.86rem;white-space:nowrap}
   .cls{font-weight:700;white-space:nowrap}
   .clsA{color:var(--accent2)} .clsB{color:#8a6d00} .clsC{color:var(--accent)}
 
@@ -92,7 +95,7 @@
   .track{background:var(--code-bg);height:14px;position:relative}
   .fill{height:100%;background:var(--accent2)}
   .fill.a{background:#b9b4a4}
-  .bar-val{font-family:Consolas,monospace;font-size:.82rem;text-align:right}
+  .bar-val{font-family:"IBM Plex Mono",Consolas,monospace;font-size:.82rem;text-align:right}
 
   .note{border-left:3px solid var(--accent);background:var(--box);padding:12px 16px;margin:16px 0;font-size:.93rem}
   .note.blue{border-left-color:var(--accent2)}
@@ -100,7 +103,7 @@
   .note.blue b.t{color:var(--accent2)}
 
   pre{background:var(--code-bg);border:1px solid var(--rule);padding:14px 16px;overflow-x:auto;font-size:.83rem;line-height:1.55;margin:12px 0}
-  code{font-family:Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 4px}
+  code{font-family:"IBM Plex Mono",Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 4px}
   pre code{background:none;padding:0}
 
   .mech{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
@@ -120,8 +123,10 @@
 
 <header class="masthead">
   <div class="masthead-in">
-    <div class="org"><b>Rogue Intelligence</b> Inc. — Research</div>
+    <div class="org"><b>Rogue Intelligence</b> &nbsp;·&nbsp; Research &amp; Computing</div>
     <nav class="mast-nav">
+      <a href="https://rogue-intelligence-inc.github.io/">Org Home</a>
+      <a href="#intro"><span data-lang="en" class="on">Introduction</span><span data-lang="zh">介绍</span></a>
       <a href="#results"><span data-lang="en" class="on">Results</span><span data-lang="zh">结果</span></a>
       <a href="#highlights"><span data-lang="en" class="on">Highlights</span><span data-lang="zh">亮点</span></a>
       <a href="#projects"><span data-lang="en" class="on">Projects</span><span data-lang="zh">其他项目</span></a>
@@ -171,8 +176,35 @@
     <div><dt><span data-lang="en" class="on">Code baseline</span><span data-lang="zh">代码基线</span></dt><dd class="mono">e1ff0b3 · 2026-11-03</dd></div>
     <div><dt><span data-lang="en" class="on">Repository</span><span data-lang="zh">仓库</span></dt><dd><a href="https://github.com/Rogue-Intelligence-INC/Valhalla">Rogue-Intelligence-INC/Valhalla</a></dd></div>
     <div><dt><span data-lang="en" class="on">Evidence archive</span><span data-lang="zh">证据存档</span></dt><dd><a href="https://github.com/Rogue-Intelligence-INC/valhalla-incubation-evidence">valhalla-incubation-evidence</a></dd></div>
-    <div><dt>Investor deck</dt><dd><a href="https://github.com/Rogue-Intelligence-INC/valhalla-incubation-evidence/blob/main/deck/Valhalla_Investor_Deck_EN_v1.5_20261103.pptx">v1.5 (2026-11-03)</a></dd></div>
+    <div><dt>Investor deck</dt><dd><a href="https://github.com/Rogue-Intelligence-INC/valhalla-incubation-evidence/blob/main/deck/Valhalla_Investor_Deck_EN_v1.6_20261103.pptx">v1.6 (2026-11-03)</a></dd></div>
   </dl>
+
+
+  <!-- ══════════ INTRODUCTION ══════════ -->
+  <section id="intro" style="padding-top:34px">
+    <h2 class="serif"><span data-lang="en" class="on">Introduction — what Valhalla is</span><span data-lang="zh">介绍——Valhalla 是什么</span></h2>
+    <p><span data-lang="en" class="on"><b>Valhalla’s goal is a rules-first, self-forming neural network</b>: a persistent body that grows its own Tile/Stem structure under explicit algebraic rules (the Fate criterion), stores every experience in four quad operators with exact accounting, and routes all later computation through the structure it formed. A language model may be attached later as a decoding head; it is not the object of study, and nothing in the measured core depends on one.</span><span data-lang="zh"><b>Valhalla 的目标是基于规则的自发生神经网络</b>：一个持久身体，在显式代数规则（Fate 判据）下自发生长 Tile/Stem 结构，把每份经验以精确记账存入四个四元算子，并让其后一切计算经由它所形成的结构路由。语言模型日后可作为解码头接入；它不是研究对象，测量核心的任何部分不依赖它。</span></p>
+    <p><span data-lang="en" class="on">It is built against three failure modes of the dominant stack — frozen weights plus a transient context window:</span><span data-lang="zh">它针对主导技术栈的三种失效模式而建——冻结权重加瞬态上下文窗口：</span></p>
+    <table>
+      <tr><th style="width:22%"><span data-lang="en" class="on">Problem</span><span data-lang="zh">问题</span></th><th style="width:38%"><span data-lang="en" class="on">In the current stack</span><span data-lang="zh">在现行栈中</span></th><th><span data-lang="en" class="on">In Valhalla — and its measured scope</span><span data-lang="zh">在 Valhalla 中——及其测量口径</span></th></tr>
+      <tr>
+        <td><b><span data-lang="en" class="on">Hallucination</span><span data-lang="zh">幻觉</span></b></td>
+        <td><span data-lang="en" class="on">Answers are free-generated; when the model does not know, it still answers.</span><span data-lang="zh">答案自由生成；模型不知道时照样作答。</span></td>
+        <td><span data-lang="en" class="on"><b>Engineered out of the measured channel:</b> the read-only egress returns stored originals verbatim — nothing is free-generated — and answers ride on ablatable structure (removing it removes the capability, §4.1). Scope: the measured symbolic egress, not open-domain generation.</span><span data-lang="zh"><b>在测量通道内从构造上消除：</b>只读出口逐字返回存储原文——无任何自由生成——且答案承载于可消融结构（移除结构即移除能力，§4.1）。口径：所测符号出口，非开放域生成。</span></td>
+      </tr>
+      <tr>
+        <td><b><span data-lang="en" class="on">Context fragility</span><span data-lang="zh">上下文脆弱</span></b></td>
+        <td><span data-lang="en" class="on">What the system “knows” lives in a finite, pollutable window; drift and pollution degrade answers.</span><span data-lang="zh">系统“所知”活在有限、可污染的窗口里；漂移与污染使答案劣化。</span></td>
+        <td><span data-lang="en" class="on"><b>Context is held as structure, not as a window:</b> experience persists in the body across sessions (freeze/thaw bit-exact). On the Python integration line, polluted-context recovery is measured at +38.7 pp (U3 protocol) and long-chain theme drift at 0% in the named configuration — Class B, protocol-bounded (§5).</span><span data-lang="zh"><b>上下文以结构而非窗口保存：</b>经验跨会话持久于身体（冻结/解冻逐字）。Python 集成线测得污染上下文恢复 +38.7pp（U3 协议）、命名配置下长链主题漂移 0%——B 级，协议有界（§5）。</span></td>
+      </tr>
+      <tr>
+        <td><b><span data-lang="en" class="on">Frozen after deployment</span><span data-lang="zh">部署后冻结</span></b></td>
+        <td><span data-lang="en" class="on">No learning without new data, a new training run, new infrastructure.</span><span data-lang="zh">没有新数据、新训练、新基础设施就无法学习。</span></td>
+        <td><span data-lang="en" class="on"><b>The body keeps forming:</b> split/merge, bundling and escape dynamics run every cycle on new material, with continual-learning forgetting measured at −0.7 pp (§4.2, T4).</span><span data-lang="zh"><b>身体持续成形：</b>分裂/合并、集束与逃逸动力学对新材料每周期运行，持续学习遗忘测得 −0.7pp（§4.2，T4）。</span></td>
+      </tr>
+    </table>
+    <p class="small"><span data-lang="en" class="on">Reading guide: §1 states the measured results, §2 the design highlights, §3 the system, §4 the experiments, §5–§6 what the evidence does and does not establish, §7 how to reproduce every number, §8 the wider programme.</span><span data-lang="zh">阅读指引：§1 测量结果，§2 设计亮点，§3 系统，§4 实验，§5–§6 证据成立与不成立的边界，§7 如何复现每个数字，§8 更广的项目全景。</span></p>
+  </section>
 
   <!-- ══════════ 1 RESULTS ══════════ -->
   <section id="results">
