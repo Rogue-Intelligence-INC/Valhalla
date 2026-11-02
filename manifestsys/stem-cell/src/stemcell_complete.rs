@@ -406,6 +406,31 @@ impl StemCellComplete {
         self.last_channels = [gravity, mesh, nova, mixed];
     }
 
+    /// 四元内部重构·分解（2026-11-02 用户定向新增）：把第 index
+    /// 条在 at 处切开，四份锁步执行——同一条目在四元里是四份
+    /// 同文，任一份长度不符即整体拒绝，记账不散。
+    pub fn quad_split_entry(&mut self, index: usize, at: usize) -> bool {
+        let l = [self.blackhole.stored_get(index).map(|s| s.len()),
+                 self.meshbrain.stored_get(index).map(|s| s.len()),
+                 self.multinova.stored_get(index).map(|s| s.len()),
+                 self.baseforce.stored_get(index).map(|s| s.len())];
+        if l.iter().any(|x| *x != l[0]) { return false; }
+        let a = self.blackhole.stored_split(index, at);
+        let b = self.meshbrain.stored_split(index, at);
+        let c = self.multinova.stored_split(index, at);
+        let d = self.baseforce.stored_split(index, at);
+        a && b && c && d
+    }
+
+    /// 四元内部重构·重组（同上，stored_join 的锁步版）。
+    pub fn quad_join_entry(&mut self, index: usize) -> bool {
+        let a = self.blackhole.stored_join(index);
+        let b = self.meshbrain.stored_join(index);
+        let c = self.multinova.stored_join(index);
+        let d = self.baseforce.stored_join(index);
+        a && b && c && d
+    }
+
     /// 四元看当前容器。容器先留着，数学和 Voyager 还没走。
     pub fn quad_pulse(&mut self) -> Option<(f64, f64, f64)> {
         if self.active_containers.is_empty() || self.active_containers[0].local_state.signal_count == 0 {

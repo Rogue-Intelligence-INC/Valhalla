@@ -87,6 +87,34 @@ impl GravityField {
         self.stored.clear();
     }
 
+    /// 四元内部分解（2026-11-02 用户定向新增，非原版）：把第
+    /// index 条在 at 处切成两条。字节守恒、顺序不变；切点由
+    /// 调用方按条目自身统计决定，本原语只执行切割。
+    pub fn stored_split(&mut self, index: usize, at: usize) -> bool {
+        let Some(e) = self.stored.get(index) else { return false };
+        if at == 0 || at >= e.len() { return false; }
+        let e = self.stored.remove(index);
+        let (a, b) = e.split_at(at);
+        self.stored.insert(index, b.to_vec());
+        self.stored.insert(index, a.to_vec());
+        true
+    }
+
+    /// 四元内部重组（同上）：把第 index 与 index+1 条拼回一条，
+    /// 字节守恒、顺序不变。是 stored_split 的逆操作。
+    pub fn stored_join(&mut self, index: usize) -> bool {
+        if index + 1 >= self.stored.len() { return false; }
+        let b = self.stored.remove(index + 1);
+        self.stored[index].extend_from_slice(&b);
+        true
+    }
+
+    /// 存储总字节（条目数随内部分解重组变化，总字节守恒；
+    /// 与 stored_count 的条目口径区分，记账迁移时以此为准）。
+    pub fn stored_bytes_total(&self) -> usize {
+        self.stored.iter().map(|e| e.len()).sum()
+    }
+
     /// 黑洞自己的存档：魔数、条数、每条长度加原文。
     pub fn save_store(&self, path: &Path) -> std::io::Result<()> {
         let mut buf = Vec::new();

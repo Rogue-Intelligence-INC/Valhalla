@@ -554,6 +554,121 @@ fn fusion_probe() {
         body.stored_total(), body.global.cluster_equation.equation_str());
 }
 
+/// 四元内部重构观察（VH_PROBE=quad，2026-11-02）：分解/重组
+/// 原语在四元存储内部（stored_split/stored_join，四份锁步），
+/// 本探针只做观察驱动——喂混合条目后，把 >128B 的条目按其
+/// 自身字节的最大均值移位点递归切开，再按逆序拼回，全程核
+/// 字节守恒与逐条复原。驱动是观察用的，不冒充身体自主行为；
+/// "何时自主分解"仍是未立的设计点，见记录。
+fn quad_probe() {
+    fn fnv(bytes: &[u8]) -> String {
+        let mut h: u64 = 0xcbf29ce484222325;
+        for b in bytes { h ^= *b as u64; h = h.wrapping_mul(0x100000001b3); }
+        format!("{h:016x}")
+    }
+    fn snap(stored: &Vec<Vec<u8>>) -> (usize, usize, String, [usize; 4]) {
+        let mut hist = [0usize; 4];
+        let mut all = Vec::new();
+        for e in stored {
+            match e.len() { 0..=16 => hist[0] += 1, 17..=128 => hist[1] += 1, 129..=1024 => hist[2] += 1, _ => hist[3] += 1 }
+            all.extend_from_slice(e);
+        }
+        (stored.len(), stored.iter().map(|e| e.len()).sum(), fnv(&all), hist)
+    }
+    fn max_shift_cut(bytes: &[u8]) -> Option<usize> {
+        if bytes.len() < 16 { return None; }
+        let total: f64 = bytes.iter().map(|b| *b as f64).sum();
+        let mut prefix = 0.0f64;
+        let (mut best, mut best_at) = (0.0f64, 0usize);
+        for k in 1..bytes.len() {
+            prefix += bytes[k - 1] as f64;
+            if k < 8 || bytes.len() - k < 8 { continue; }
+            let shift = (prefix / k as f64 - (total - prefix) / (bytes.len() - k) as f64).abs();
+            if shift > best { best = shift; best_at = k; }
+        }
+        if best_at > 0 { Some(best_at) } else { None }
+    }
+
+    let sym = |i: usize| -> String {
+        let a = (b'A' + (i / 26 / 26 % 26) as u8) as char;
+        let b = (b'A' + (i / 26 % 26) as u8) as char;
+        let c = (b'A' + (i % 26) as u8) as char;
+        format!("{a}{b}{c}")
+    };
+    let mut body = Body::new();
+    for i in 0..200 {
+        body.feed(format!("{}>{}", sym(i), sym(i + 1)).as_bytes());
+    }
+    let div = std::path::Path::new(r"C:\Ai\rogue-products\valhalla-self-incubate\corpus_diverse");
+    let text = std::fs::read(div.join("zh_honglou_24264.txt")).unwrap_or_default();
+    for k in 0..40 {
+        let s = k * 997 % text.len().saturating_sub(200).max(1);
+        body.feed(&text[s..(s + 120).min(text.len())]);
+    }
+    if let Ok(rdi) = std::fs::read_dir(r"C:\Windows\Web\Wallpaper\Windows") {
+        let mut ps: Vec<std::path::PathBuf> = rdi.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|x| x.to_str()) == Some("jpg")).collect();
+        ps.sort();
+        let img = ps.first().map(|p| std::fs::read(p).unwrap_or_default()).unwrap_or_default();
+        for k in 0..12 {
+            let s = k * 8192 % img.len().saturating_sub(8192).max(1);
+            body.feed(&img[s..(s + 8192).min(img.len())]);
+        }
+    }
+    body.cycle();
+    body.cycle();
+
+    for layer in 0..2 {
+        let name = if layer == 0 { "Tile" } else { "Stem" };
+        let orig: Vec<Vec<u8>> = if layer == 0 { body.tile.blackhole.stored.clone() } else { body.stem.blackhole.stored.clone() };
+        let (n0, b0, h0, hist0) = snap(&orig);
+        println!("[{name}] 分解前: 条目 {n0} 总字节 {b0} 拼接哈希 {h0} 长度档 [<16,17-128,129-1k,>1k] {hist0:?}（四份同文核对: {})",
+            if layer == 0 {
+                body.tile.blackhole.stored == body.tile.meshbrain.stored
+                    && body.tile.blackhole.stored == body.tile.multinova.stored
+                    && body.tile.blackhole.stored == body.tile.baseforce.stored
+            } else {
+                body.stem.blackhole.stored == body.stem.meshbrain.stored
+                    && body.stem.blackhole.stored == body.stem.multinova.stored
+                    && body.stem.blackhole.stored == body.stem.baseforce.stored
+            });
+        // 分解：>128B 条目按最大均值移位点切开（逆序施加，记录供逆序拼回）
+        let mut splits: Vec<usize> = Vec::new();
+        for _ in 0..60 {
+            let cur: Vec<Vec<u8>> = if layer == 0 { body.tile.blackhole.stored.clone() } else { body.stem.blackhole.stored.clone() };
+            let mut plan: Vec<(usize, usize)> = Vec::new();
+            for (i, e) in cur.iter().enumerate() {
+                if e.len() > 128 {
+                    if let Some(at) = max_shift_cut(e) { plan.push((i, at)); }
+                }
+            }
+            if plan.is_empty() { break; }
+            plan.sort_by(|a, b| b.0.cmp(&a.0));
+            for (i, at) in plan {
+                let ok = if layer == 0 { body.tile.quad_split_entry(i, at) } else { body.stem.quad_split_entry(i, at) };
+                if ok { splits.push(i); }
+            }
+        }
+        let after: Vec<Vec<u8>> = if layer == 0 { body.tile.blackhole.stored.clone() } else { body.stem.blackhole.stored.clone() };
+        let (n1, b1, h1, hist1) = snap(&after);
+        println!("[{name}] 分解后: 条目 {n1}（切 {} 刀） 总字节 {b1} 拼接哈希 {h1} 长度档 {hist1:?} | 字节守恒 {} 拼接不变 {}",
+            splits.len(), b1 == b0, h1 == h0);
+        // 重组：逆序 join 拼回
+        let mut join_fail = 0usize;
+        for &i in splits.iter().rev() {
+            let ok = if layer == 0 { body.tile.quad_join_entry(i) } else { body.stem.quad_join_entry(i) };
+            if !ok { join_fail += 1; }
+        }
+        let back: Vec<Vec<u8>> = if layer == 0 { body.tile.blackhole.stored.clone() } else { body.stem.blackhole.stored.clone() };
+        println!("[{name}] 重组后: 条目 {} 逐条与原存全等 {}（join 失败 {join_fail}）",
+            back.len(), back == orig);
+    }
+    println!("身体存储条目总数（stored_total，八份合计）: {}", body.stored_total());
+    body.feed(b"ZZZ>YYY");
+    body.cycle();
+    println!("重构后身体仍可喂入与周期：cells {} tiles {} 存储 {}", body.stem.cells.len(), body.tile.completed_tiles.len(), body.stored_total());
+}
+
 fn main() {
     // mmtrain 的场步在大身体（mb25 起步、续训继续长）上必经深递归/大帧，
     // Windows 主线程默认 1MB 栈会溢出（STATUS_STACK_OVERFLOW 0xC00000FD）。
@@ -701,6 +816,9 @@ fn main_inner() {
         }
         "fusion" => {
             fusion_probe();
+        }
+        "quad" => {
+            quad_probe();
         }
         "vent" => {
             // 出口通道 v1：刺激只经 tile.propagate 扰动场（库里既有的交互入口），
