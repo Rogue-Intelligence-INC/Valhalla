@@ -1355,6 +1355,20 @@ impl StemCellComplete {
             if let Some((_, best_j, best_f)) = bundle.take() {
                 new_connections.push((ids[best_j].clone(), best_f));
             }
+            // 高能逃逸（Fate 规则）：邻居集之外的远方强
+            // 信号开一条逃逸神经，权重记其场强。
+            {
+                let mut mask = vec![false; n];
+                mask[i] = true;
+                for &(j, _) in dists.iter().take(cut) {
+                    mask[j] = true;
+                }
+                if let Some(t) = self.triple_fate.escape_target(&fields, &mask) {
+                    if !new_connections.iter().any(|(id, _)| *id == ids[t]) {
+                        new_connections.push((ids[t].clone(), fields[t]));
+                    }
+                }
+            }
             new_connections.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
             self.cells[i].connections = new_connections;
         }
