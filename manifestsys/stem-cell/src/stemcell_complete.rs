@@ -437,11 +437,13 @@ impl StemCellComplete {
     /// 重复）。周期末调用；四份自此按各自规则演化，入账同文
     /// 不再保证周期后同文（见 QUAD_SELF_REORG_20261102 预
     /// 注册）。只动四元 stored 账本，Fate 不审批。
-    pub fn quad_reorganize(&mut self) {
-        self.blackhole.reorganize();
-        self.meshbrain.reorganize();
-        self.multinova.reorganize();
-        self.baseforce.reorganize();
+    pub fn quad_reorganize(&mut self) -> usize {
+        // 返回四元内部本趟消亡总数（黑洞吞没 + 底力去重等
+        // removed 之和），供 Fate 检测死亡信号。
+        self.blackhole.reorganize().removed
+            + self.meshbrain.reorganize().removed
+            + self.multinova.reorganize().removed
+            + self.baseforce.reorganize().removed
     }
 
     /// 四元看当前容器。容器先留着，数学和 Voyager 还没走。
@@ -948,11 +950,11 @@ impl StemCellComplete {
             let energy_diff = avg_energy - cell.energy;
             cell.energy += energy_diff / n_now;
         }
-        // 分裂由簇方程判典型性（方程系数出生定死、adapt
-        // 已删，只判不改）。死亡不在身体层裁决（用户
-        // 裁定）：死亡由四元内部 reorganize 与 Fate 内部
-        // 自理，本周期只报数（deaths 恒为身体层 0）。
-        let deaths = 0usize;
+        // 分裂由簇方程判典型性（adapt 绑 Fate，只在收料
+        // 路径上调整方程）。死亡判定为活力（见周期内）：
+        // 四元内部消亡发出死亡信号、经 Fate 检测，
+        // 无法更新且无法激活者死，记入 deaths。
+        let mut deaths = 0usize;
         let mut verdicts: Vec<bool> = Vec::with_capacity(self.cells.len());
         for cell in &self.cells {
             let typical = self.triple_fate.cluster_equation.check_diffs(&[cell.energy, avg_energy]);
@@ -998,22 +1000,32 @@ impl StemCellComplete {
             });
         }
         
+        // 四元内部先行维护：消亡数即死亡信号，经下方
+        // tick 送 Fate 检测（信号第 5 元）。
+        let quad_dying = self.quad_reorganize();
+
+        // 活力判死（用户裁定，替代原版低能量常数死亡）：
+        // 有四元消亡信号时才判；无法更新（出生后
+        // signal_count 仍为 0 且已历 ≥1 周期）且无法
+        // 激活（无任何连接）者死亡。
+        if quad_dying > 0 {
+            let before = self.cells.len();
+            self.cells.retain(|c| !(c.signal_count == 0 && c.age >= 1 && c.connections.is_empty()));
+            deaths = before - self.cells.len();
+        }
+
         self.total_divisions += divisions as u64;
         self.total_deaths += deaths as u64;
         self.total_merges += merges as u64;
 
         // 更新维度
-        let signal = vec![self.cells.len() as f64, avg_energy, divisions as f64, deaths as f64];
+        let signal = vec![self.cells.len() as f64, avg_energy, divisions as f64, deaths as f64, quad_dying as f64];
         self.space.adaptive_expand(&signal);
 
         // 本周期状态进 Fate 的多层 tick 供 Meta 观察
-        // （与 evolve 的信号同构）。死亡不在身体层执行：
-        // 四元内部 reorganize 与 Fate 内部自理。
+        // （与 evolve 的信号同构）；第 5 元为四元内部
+        // 消亡信号，Fate 在此检测。
         let _ = self.triple_fate.tick(Some(signal));
-        
-        // 四元按各自规则维护自家存储（用户定向新增，周期基础
-        // 动作；只动四元 stored 账本，不动细胞本体）。
-        self.quad_reorganize();
 
         CellCycleResult {
             generation: self.generation_count,

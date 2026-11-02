@@ -399,11 +399,12 @@ impl TileQuattroComplete {
     /// 重复）。周期末调用；四份自此按各自规则演化，入账同文
     /// 不再保证周期后同文（见 QUAD_SELF_REORG_20261102 预
     /// 注册）。只动四元 stored 账本，Fate 不审批。
-    pub fn quad_reorganize(&mut self) {
-        self.blackhole.reorganize();
-        self.meshbrain.reorganize();
-        self.multinova.reorganize();
-        self.baseforce.reorganize();
+    pub fn quad_reorganize(&mut self) -> usize {
+        // 返回四元内部本趟消亡总数，供 Fate 检测死亡信号。
+        self.blackhole.reorganize().removed
+            + self.meshbrain.reorganize().removed
+            + self.multinova.reorganize().removed
+            + self.baseforce.reorganize().removed
     }
 
     /// 四元看当前容器。容器先留着，数学和 Voyager 还没走。
@@ -801,9 +802,9 @@ impl TileQuattroComplete {
         let initial_count = self.completed_tiles.len();
         let mut splits = 0usize;
         let mut merges = 0usize;
-        // 死亡不在身体层裁决（用户裁定）：由四元内部与
-        // Fate 内部自理；本层 deaths 恒 0 只报数。
-        let deaths = 0usize;
+        // 死亡判定为活力（见周期内）：四元消亡信号经
+        // Fate 检测，无法更新且无法激活者死。
+        let mut deaths = 0usize;
         
         // 1. Fate 感知整体状态
         let total_energy: f64 = self.completed_tiles.iter().map(|t| t.energy).sum();
@@ -879,25 +880,37 @@ impl TileQuattroComplete {
         // 4. 前向传播 - 信号沿连接传递
         let prop_result = self.propagate(avg_energy);
 
+        // 四元内部先行维护：消亡数即死亡信号，经下方
+        // tick 送 Fate 检测（信号第 5 元）。
+        let quad_dying = self.quad_reorganize();
+
+        // 活力判死（用户裁定，与 Stem 同规）：有四元
+        // 消亡信号时才判；无法更新（出生后 signal_count
+        // 仍为 0 且非本拍新生）且无法激活（本轮传播
+        // 激活为 0）者死亡。
+        if quad_dying > 0 {
+            let before = self.completed_tiles.len();
+            let now = self.global_tick;
+            self.completed_tiles.retain(|t| !(t.signal_count == 0 && now > t.created_tick && t.activation == 0.0));
+            deaths = before - self.completed_tiles.len();
+        }
+
         // 本周期状态进 Fate 的多层 tick 供 Meta 观察
         // （与 Stem 的 [cells, avg, divisions, deaths] 同构；
         // Tile 侧为 [tiles, avg_energy, splits, deaths]；
-        // deaths 为身体层计数，恒 0，死亡由四元/Fate 内部行）。
+        // 第 5 元为四元内部消亡信号，Fate 在此检测）。
         let state_signal = vec![
             self.completed_tiles.len() as f64,
             avg_energy,
             splits as f64,
             deaths as f64,
+            quad_dying as f64,
         ];
         let _ = self.triple_fate.tick(Some(state_signal));
 
         // 更新维度
         let signal = vec![self.completed_tiles.len() as f64, avg_energy, splits as f64, merges as f64];
         self.space.adaptive_expand(&signal);
-
-        // 四元按各自规则维护自家存储（用户定向新增，周期基础
-        // 动作；只动四元 stored 账本，不动 Tile 本体）。
-        self.quad_reorganize();
 
         TileCycleResult {
             generation: self.total_operations,
