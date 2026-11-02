@@ -136,6 +136,26 @@ impl Body {
             }
         }
     }
+    /// Fate 分割入口（与 full_flow 同路）：存储记账（流块）+
+    /// 逐字节收口出生。返回本批新生（tile ids, cell ids）供归属
+    /// 标注；归属只作测量标注，不参与身体动力学。
+    fn feed_fateseg_tracked(&mut self, bytes: &[u8]) -> (Vec<String>, Vec<String>) {
+        for chunk in bytes.chunks(8 * 1024) {
+            self.tile.quad_keep(chunk);
+            self.stem.quad_keep(chunk);
+        }
+        let c0 = self.stem.cells.len();
+        let t0 = self.tile.completed_tiles.len();
+        for &byte in bytes {
+            let v = byte as f64;
+            self.global.receive_passive(v);
+            self.stem.receive_data(v);
+            self.tile.receive_data(v);
+        }
+        let cells: Vec<String> = self.stem.cells[c0..].iter().map(|c| c.cell_id.clone()).collect();
+        let tiles: Vec<String> = self.tile.completed_tiles[t0..].iter().map(|t| t.id.clone()).collect();
+        (tiles, cells)
+    }
     /// 收口：跑周期直到合并归零（上限 20），与训练器收紧同规。
     fn settle(&mut self, acc: &mut Cyc) {
         for _ in 0..20 {
@@ -345,12 +365,201 @@ fn heldout_files(files: &[PathBuf]) -> Vec<PathBuf> {
     shards[4].clone()
 }
 
+/// 融合探针（VH_PROBE=fusion）：六种料（多语文本/代码/图片/
+/// 声音/MIDI/二进制）细切轮转投喂（64KB/料/轮 × 10 轮，每料
+/// 喂后 1 周期），新生单位按出生时在喂的料标注；终局量两层
+/// 的模态融合：巨分量构成、跨模态边占比 vs 随机期望、每料
+/// 孤立率、跨/内模态平均最短路。归属只作测量标注（描述级，
+/// 不计任何判据）；分裂新生单位无出生料、单列未标注。
+fn fusion_probe() {
+    use std::collections::{HashMap, HashSet, VecDeque};
+    let rd = |p: &std::path::Path| std::fs::read(p).unwrap_or_default();
+    let div = std::path::Path::new(r"C:\Ai\rogue-products\valhalla-self-incubate\corpus_diverse");
+    let mut text = Vec::new();
+    for f in ["zh_honglou_24264.txt", "fr_montecristo_17989.txt", "de_faust_2229.txt", "es_quijote_2000.txt"] {
+        text.extend_from_slice(&rd(&div.join(f)));
+    }
+    let mut code = Vec::new();
+    for f in ["manifestsys/stem-cell/src/stemcell_complete.rs", "manifestsys/tile-quattro/src/tile_complete.rs"] {
+        code.extend_from_slice(&rd(&std::path::Path::new(r"C:\Ai\rogue-products\Valhalla").join(f)));
+    }
+    let mut img = Vec::new();
+    if let Ok(rdi) = std::fs::read_dir(r"C:\Windows\Web\Wallpaper\Windows") {
+        let mut ps: Vec<std::path::PathBuf> = rdi.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|x| x.to_str()) == Some("jpg")).collect();
+        ps.sort();
+        for p in ps { img.extend_from_slice(&rd(&p)); }
+    }
+    let mut aud = Vec::new();
+    for f in ["Alarm01.wav", "Alarm02.wav", "Alarm03.wav"] {
+        aud.extend_from_slice(&rd(&std::path::Path::new(r"C:\Windows\Media").join(f)));
+    }
+    let mut midi = Vec::new();
+    for f in ["flourish.mid", "onestop.mid", "town.mid"] {
+        midi.extend_from_slice(&rd(&std::path::Path::new(r"C:\Windows\Media").join(f)));
+    }
+    let mut bin = Vec::new();
+    bin.extend_from_slice(&rd(std::path::Path::new(r"C:\Windows\System32\notepad.exe")));
+    bin.extend_from_slice(&rd(std::path::Path::new(r"C:\Windows\System32\kernel32.dll")));
+    let names = ["多语文本", "代码", "图片", "声音", "MIDI", "二进制"];
+    let mats: Vec<&Vec<u8>> = vec![&text, &code, &img, &aud, &midi, &bin];
+    println!("融合探针料源: {}", mats.iter().zip(names.iter())
+        .map(|(b, n)| format!("{n} {}KB", b.len() / 1024)).collect::<Vec<_>>().join(" / "));
+
+    let mut body = Body::new();
+    let mut cell_mat: HashMap<String, usize> = HashMap::new();
+    let mut tile_mat: HashMap<String, usize> = HashMap::new();
+    let chunk = 64 * 1024usize;
+    for r in 0..10usize {
+        for (m, bytes) in mats.iter().enumerate() {
+            let usable = bytes.len().saturating_sub(32 * 1024);
+            if usable == 0 { continue; }
+            let start = (r * chunk) % usable;
+            let end = (start + chunk).min(usable);
+            let (tiles, cells) = body.feed_fateseg_tracked(&bytes[start..end]);
+            for id in tiles { tile_mat.entry(id).or_insert(m); }
+            for id in cells { cell_mat.entry(id).or_insert(m); }
+            body.cycle();
+        }
+    }
+    body.cycle();
+    body.cycle();
+
+    let report = |layer: &str,
+                  ids: &HashSet<String>,
+                  label: &HashMap<String, usize>,
+                  adj: &HashMap<String, Vec<String>>| {
+        let labeled: Vec<&String> = ids.iter().filter(|i| label.contains_key(*i)).collect();
+        let n_lab = labeled.len().max(1) as f64;
+        let mut counts = [0usize; 6];
+        for i in &labeled { counts[label[*i]] += 1; }
+        let shares: Vec<f64> = counts.iter().map(|c| *c as f64 / n_lab).collect();
+        // 无向分量
+        let mut comp: HashMap<&str, usize> = HashMap::new();
+        let mut sizes: Vec<usize> = Vec::new();
+        for id in ids {
+            if comp.contains_key(id.as_str()) { continue; }
+            let cid = sizes.len();
+            let mut q = VecDeque::from([id.as_str()]);
+            comp.insert(id.as_str(), cid);
+            let mut sz = 0usize;
+            while let Some(u) = q.pop_front() {
+                sz += 1;
+                if let Some(ns) = adj.get(u) {
+                    for w in ns {
+                        if ids.contains(w) && !comp.contains_key(w.as_str()) {
+                            comp.insert(w.as_str(), cid);
+                            q.push_back(w.as_str());
+                        }
+                    }
+                }
+            }
+            sizes.push(sz);
+        }
+        let giant = sizes.iter().enumerate().max_by_key(|(_, s)| *s).map(|(i, _)| i).unwrap_or(0);
+        let mut gcounts = [0usize; 6];
+        let mut gtot = 0usize;
+        let mut in_giant = [0usize; 6];
+        for i in &labeled {
+            if comp.get(i.as_str()) == Some(&giant) {
+                gcounts[label[*i]] += 1;
+                in_giant[label[*i]] += 1;
+                gtot += 1;
+            }
+        }
+        // 跨模态边占比（两端都有标注的无向边）
+        let (mut cross, mut tot_e) = (0usize, 0usize);
+        for (u, ns) in adj {
+            if let (Some(&mu), true) = (label.get(u), ids.contains(u)) {
+                for w in ns {
+                    if u.as_str() < w.as_str() {
+                        if let Some(&mw) = label.get(w) {
+                            tot_e += 1;
+                            if mu != mw { cross += 1; }
+                        }
+                    }
+                }
+            }
+        }
+        let chance_cross = 1.0 - shares.iter().map(|s| s * s).sum::<f64>();
+        let obs_cross = if tot_e > 0 { cross as f64 / tot_e as f64 } else { 0.0 };
+        // 平均最短路（无向 BFS 抽样：每料取 ≤12 个源）
+        let bfs = |src: &str| -> HashMap<String, usize> {
+            let mut dist = HashMap::from([(src.to_string(), 0usize)]);
+            let mut q = VecDeque::from([src.to_string()]);
+            while let Some(u) = q.pop_front() {
+                let d = dist[&u];
+                if let Some(ns) = adj.get(&u) {
+                    for w in ns {
+                        if ids.contains(w) && !dist.contains_key(w) {
+                            dist.insert(w.clone(), d + 1);
+                            q.push_back(w.clone());
+                        }
+                    }
+                }
+            }
+            dist
+        };
+        let (mut sw, mut nw, mut sc, mut nc) = (0.0f64, 0usize, 0.0f64, 0usize);
+        for m in 0..6 {
+            let srcs: Vec<&String> = labeled.iter().filter(|i| label[**i] == m).take(12).map(|s| *s).collect();
+            for s in srcs {
+                let dist = bfs(s);
+                for (id, d) in &dist {
+                    if let Some(&mm) = label.get(id) {
+                        if mm == m { if *d > 0 { sw += *d as f64; nw += 1; } }
+                        else { sc += *d as f64; nc += 1; }
+                    }
+                }
+            }
+        }
+        println!("[{layer}] 单位 {}（标注 {}，未标注 {}）最大分量 {}（占标注 {:.0}%）",
+            ids.len(), labeled.len(), ids.len() - labeled.len(),
+            sizes.iter().max().cloned().unwrap_or(0),
+            gtot as f64 / n_lab * 100.0);
+        println!("    出生构成 {} | 巨分量构成 {}",
+            counts.iter().zip(names.iter()).map(|(c, n)| format!("{n} {c}")).collect::<Vec<_>>().join(" "),
+            gcounts.iter().zip(names.iter()).map(|(c, n)| format!("{n} {c}")).collect::<Vec<_>>().join(" "));
+        println!("    跨模态边占比 {:.1}%（随机期望 {:.1}%，融合指数 {:.2}）| 每料在巨分量内: {}",
+            obs_cross * 100.0, chance_cross * 100.0,
+            if chance_cross > 0.0 { obs_cross / chance_cross } else { 0.0 },
+            (0..6).map(|m| format!("{} {:.0}%", names[m],
+                if counts[m] > 0 { in_giant[m] as f64 / counts[m] as f64 * 100.0 } else { 0.0 }))
+                .collect::<Vec<_>>().join(" "));
+        println!("    平均最短路 同模态 {:.2}（{} 对） 跨模态 {:.2}（{} 对）",
+            if nw > 0 { sw / nw as f64 } else { 0.0 }, nw,
+            if nc > 0 { sc / nc as f64 } else { 0.0 }, nc);
+    };
+
+    let cell_ids: HashSet<String> = body.stem.cells.iter().map(|c| c.cell_id.clone()).collect();
+    let mut adj_s: HashMap<String, Vec<String>> = HashMap::new();
+    for c in &body.stem.cells {
+        for (to, _) in &c.connections {
+            adj_s.entry(c.cell_id.clone()).or_default().push(to.clone());
+            adj_s.entry(to.clone()).or_default().push(c.cell_id.clone());
+        }
+    }
+    report("Stem", &cell_ids, &cell_mat, &adj_s);
+    let tile_ids: HashSet<String> = body.tile.completed_tiles.iter().map(|t| t.id.clone()).collect();
+    let mut adj_t: HashMap<String, Vec<String>> = HashMap::new();
+    for t in &body.tile.completed_tiles {
+        for to in &t.connections {
+            adj_t.entry(t.id.clone()).or_default().push(to.clone());
+            adj_t.entry(to.clone()).or_default().push(t.id.clone());
+        }
+    }
+    report("Tile", &tile_ids, &tile_mat, &adj_t);
+    println!("终局 tiles {} cells {} 存储 {} 方程 {}",
+        body.tile.completed_tiles.len(), body.stem.cells.len(),
+        body.stored_total(), body.global.cluster_equation.equation_str());
+}
+
 fn main() {
     // mmtrain 的场步在大身体（mb25 起步、续训继续长）上必经深递归/大帧，
     // Windows 主线程默认 1MB 栈会溢出（STATUS_STACK_OVERFLOW 0xC00000FD）。
     // 凡加载整具身体的模式一律放大线程再跑，身体一根汗毛不动。
     let mode0 = std::env::var("VH_PROBE").unwrap_or_else(|_| "org".to_string());
-    if matches!(mode0.as_str(), "org" | "assimilate" | "vent" | "vent2" | "vent3" | "vent4" | "vent5" | "vent6" | "vent7" | "mmtrain" | "fateseg") {
+    if matches!(mode0.as_str(), "org" | "assimilate" | "vent" | "vent2" | "vent3" | "vent4" | "vent5" | "vent6" | "vent7" | "mmtrain" | "fateseg" | "fusion") {
         let h = std::thread::Builder::new()
             .stack_size(512 * 1024 * 1024)
             .spawn(main_inner)
@@ -489,6 +698,9 @@ fn main_inner() {
                 }
                 Err(e) => println!("解冻失败 {e}"),
             }
+        }
+        "fusion" => {
+            fusion_probe();
         }
         "vent" => {
             // 出口通道 v1：刺激只经 tile.propagate 扰动场（库里既有的交互入口），
