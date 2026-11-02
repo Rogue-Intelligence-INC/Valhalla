@@ -1003,6 +1003,17 @@ impl ClusterEquation {
                 self.coef_a, self.coef_b, self.coef_c, self.threshold)
     }
     
+    /// 集束拟合判定（Fate 集束功能，用户定向）：用原二元
+    /// 一次方程的收敛规则——相邻距离比率 x 近 1（(x−1)²
+    /// 小于阈值）即拟合、同束。用原方程语义而非 adapt
+    /// 漂移后的根（漂移根在约 0.45/2.13 处，拿来切束等
+    /// 于不切）。阈值用方程自身的 threshold。
+    pub fn bundle_fits(&self, d0: f64, d1: f64) -> bool {
+        let x = if d1.abs() > 1e-10 { d0 / d1 } else { 1.0 };
+        let r = x - 1.0;
+        r * r < self.threshold
+    }
+
     pub fn reset_trigger(&mut self) {
         self.triggered = false;
     }

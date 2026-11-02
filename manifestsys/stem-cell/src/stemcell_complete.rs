@@ -1323,10 +1323,32 @@ impl StemCellComplete {
                 }
                 cut = best_k + 1;
             }
+            // 集束（Fate 功能，用户定向）：邻居按距离升序，
+            // 与束首距离拟合者（Fate 原二元一次方程收敛
+            // 规则，见 ClusterEquation::bundle_fits）同束，
+            // 每束只写一条神经——目标为束首成员，强度为
+            // 束内各股之和。指向同团的平行束不再逐股
+            // 存储、计数与遍历。
             let mut new_connections: Vec<(String, f64)> = Vec::new();
+            let mut bundle_head: Option<(String, f64, f64)> = None;
             for &(j, dist) in dists.iter().take(cut) {
                 let strength = (1.0 / (dist + 1e-9)) * (fields[i] * fields[j]).sqrt();
-                new_connections.push((ids[j].clone(), strength));
+                match &mut bundle_head {
+                    Some((_, head_dist, sum))
+                        if self.triple_fate.cluster_equation.bundle_fits(dist, *head_dist) =>
+                    {
+                        *sum += strength;
+                    }
+                    _ => {
+                        if let Some((id, _, sum)) = bundle_head.take() {
+                            new_connections.push((id, sum));
+                        }
+                        bundle_head = Some((ids[j].clone(), dist, strength));
+                    }
+                }
+            }
+            if let Some((id, _, sum)) = bundle_head.take() {
+                new_connections.push((id, sum));
             }
             new_connections.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
             self.cells[i].connections = new_connections;
