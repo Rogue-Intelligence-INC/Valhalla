@@ -723,12 +723,97 @@ fn quadlife_probe() {
     }
 }
 
+/// 内部形态对照（VH_PROBE=morph，2026-11-02 用户定向）：
+/// 同一批八类料、同一身体程式，只换切片与轮次——A 32KB×
+/// 30 轮 对 B 16KB×100 轮；整体监控每 10 轮在外部读一次，
+/// 终局并排比形态（单位/边/连通块/八份存储/方程）。两具身
+/// 体同跑同料，差异只归切片与轮次（含总喂入量差，照录）。
+fn morph_probe() {
+    use hub_f64::monitor::QUAD_NAMES;
+    let div = std::path::Path::new(r"C:\Ai\rogue-products\valhalla-self-incubate\corpus_diverse");
+    let repo = std::path::Path::new(r"C:\Ai\rogue-products\Valhalla");
+    let mut text = Vec::new();
+    for f in ["zh_honglou_24264.txt", "fr_montecristo_17989.txt", "de_faust_2229.txt"] {
+        text.extend_from_slice(&std::fs::read(div.join(f)).unwrap_or_default());
+    }
+    let mut code = Vec::new();
+    for f in ["manifestsys/hub-f64/src/bin/valhalla_probes.rs", "manifestsys/stem-cell/src/stemcell_complete.rs"] {
+        code.extend_from_slice(&std::fs::read(repo.join(f)).unwrap_or_default());
+    }
+    let mut img = Vec::new();
+    if let Ok(rd) = std::fs::read_dir(r"C:\Windows\Web\Wallpaper\Windows") {
+        let mut ps: Vec<std::path::PathBuf> = rd.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|x| x.to_str()) == Some("jpg")).collect();
+        ps.sort();
+        for p in ps { img.extend_from_slice(&std::fs::read(&p).unwrap_or_default()); }
+    }
+    let mut aud = Vec::new();
+    for f in ["Alarm01.wav", "Alarm02.wav", "Alarm03.wav"] {
+        aud.extend_from_slice(&std::fs::read(std::path::Path::new(r"C:\Windows\Media").join(f)).unwrap_or_default());
+    }
+    let mut midi = Vec::new();
+    for f in ["flourish.mid", "onestop.mid", "town.mid"] {
+        midi.extend_from_slice(&std::fs::read(std::path::Path::new(r"C:\Windows\Media").join(f)).unwrap_or_default());
+    }
+    let mut bin = Vec::new();
+    bin.extend_from_slice(&std::fs::read(r"C:\Windows\System32\notepad.exe").unwrap_or_default());
+    bin.extend_from_slice(&std::fs::read(r"C:\Windows\System32\kernel32.dll").unwrap_or_default());
+    let poetry = std::fs::read(div.join("poetry_leaves_1322.txt")).unwrap_or_default();
+    let science = std::fs::read(div.join("science_relativity_30155.txt")).unwrap_or_default();
+    let mats: Vec<(&str, Vec<u8>)> = vec![
+        ("多语文本", text), ("代码", code), ("图片", img), ("声音", aud),
+        ("MIDI", midi), ("二进制", bin), ("诗歌", poetry), ("科学", science),
+    ];
+    println!("料源: {}", mats.iter().map(|(n, b)| format!("{n} {}KB", b.len() / 1024)).collect::<Vec<_>>().join(" / "));
+
+    fn train_regime(chunk: usize, rounds: usize, mats: &[(&str, Vec<u8>)], tag: &str) -> Body {
+        let mut body = Body::new();
+        let holdout = 32 * 1024usize;
+        for r in 1..=rounds {
+            for (_, bytes) in mats {
+                let usable = bytes.len().saturating_sub(holdout);
+                if usable == 0 { continue; }
+                let start = (r - 1) * chunk % usable;
+                let end = (start + chunk).min(usable);
+                body.feed_fateseg_tracked(&bytes[start..end]);
+            }
+            body.cycle();
+            body.cycle();
+            if r % 10 == 0 || r == rounds {
+                let snap = body.monitor.watch_with_fate(&body.tile, &body.stem, &body.global);
+                println!("[{tag}] 第{r}轮 {}", snap.line());
+                println!("  {}", snap.quad_line());
+            }
+        }
+        body
+    }
+
+    let mut a = train_regime(32 * 1024, 30, &mats, "A 32KBx30");
+    let mut b = train_regime(16 * 1024, 100, &mats, "B 16KBx100");
+    let sa = a.monitor.watch_with_fate(&a.tile, &a.stem, &a.global);
+    let sb = b.monitor.watch_with_fate(&b.tile, &b.stem, &b.global);
+    println!("\n== 终局形态对照 ==");
+    println!("形态             A(32KBx30)      B(16KBx100)");
+    println!("tiles            {:>8}      {:>8}", sa.tiles, sb.tiles);
+    println!("cells            {:>8}      {:>8}", sa.cells, sb.cells);
+    println!("tile_edges       {:>8}      {:>8}", sa.tile_edges, sb.tile_edges);
+    println!("stem_links       {:>8}      {:>8}", sa.stem_links, sb.stem_links);
+    println!("最大块 tile/stem {}/{}      {}/{}", sa.largest_tile_block(), sa.largest_stem_block(), sb.largest_tile_block(), sb.largest_stem_block());
+    println!("存储 条目/字节    {}/{}      {}/{}", sa.stored_entries, sa.stored_bytes, sb.stored_entries, sb.stored_bytes);
+    println!("四元分化          {}      {}", sa.quad_diverged, sb.quad_diverged);
+    println!("方程 A: {}", sa.fate_equation);
+    println!("方程 B: {}", sb.fate_equation);
+    for i in 0..8 {
+        println!("{} 条目 A {} -> B {}（字节 {} -> {}）", QUAD_NAMES[i], sa.quad[i].entries, sb.quad[i].entries, sa.quad[i].bytes, sb.quad[i].bytes);
+    }
+}
+
 fn main() {
     // mmtrain 的场步在大身体（mb25 起步、续训继续长）上必经深递归/大帧，
     // Windows 主线程默认 1MB 栈会溢出（STATUS_STACK_OVERFLOW 0xC00000FD）。
     // 凡加载整具身体的模式一律放大线程再跑，身体一根汗毛不动。
     let mode0 = std::env::var("VH_PROBE").unwrap_or_else(|_| "org".to_string());
-    if matches!(mode0.as_str(), "org" | "assimilate" | "vent" | "vent2" | "vent3" | "vent4" | "vent5" | "vent6" | "vent7" | "mmtrain" | "fateseg" | "fusion") {
+    if matches!(mode0.as_str(), "org" | "assimilate" | "vent" | "vent2" | "vent3" | "vent4" | "vent5" | "vent6" | "vent7" | "mmtrain" | "fateseg" | "fusion" | "morph") {
         let h = std::thread::Builder::new()
             .stack_size(512 * 1024 * 1024)
             .spawn(main_inner)
@@ -876,6 +961,9 @@ fn main_inner() {
         }
         "quadlife" => {
             quadlife_probe();
+        }
+        "morph" => {
+            morph_probe();
         }
         "vent" => {
             // 出口通道 v1：刺激只经 tile.propagate 扰动场（库里既有的交互入口），
