@@ -436,10 +436,10 @@ impl TileQuattroComplete {
             // 均值，环内只有该值、本段材料为空——形态自由度在 Tile
             // 侧受喂入粒度所限，如实记账，不在此放大。
             data_signature: tile.local_state.last_values(),
-            energy: mean.abs().min(1.0).max(0.1),
+            energy: mean.abs(),
             activation: 0.0,
             weights: Vec::new(),
-            bias: mean * 0.01,
+            bias: mean,
             connections: Vec::new(),
             content: tile.local_state.segment.clone(),
         });
@@ -689,11 +689,11 @@ impl TileQuattroComplete {
                 // last_values()，content = 本段材料；不再用
                 // vec![mean, variance] + 空 content 的写死公式。
                 data_signature: tile.local_state.last_values(),
-                energy: mean.abs().min(1.0).max(0.1),
+                energy: mean.abs(),
                 // 神经网络属性（初始为空，由 Fate 被动填充）
                 activation: 0.0,
                 weights: Vec::new(),
-                bias: mean * 0.01,
+                bias: mean,
                 connections: Vec::new(),  // 空连接，由 Fate 被动建立
                 content: tile.local_state.segment.clone(),
             };
@@ -823,25 +823,31 @@ impl TileQuattroComplete {
         // 分裂数据：能量, 数据特征, 连接（继承父 Tile）
         let mut new_tiles_data: Vec<(f64, Vec<f64>, Vec<String>, Vec<u8>)> = Vec::new();
         
-        // 死亡回到原方案（同 Stem）：身体自己的能量线，回流之后判，
-        // 不加代谢/缓冲/抓取删除；小规模下不出现是正常现象。
-        self.completed_tiles.retain_mut(|tile| {
-            // 能量根据与平均值的差异流动
+        // 去硬编码（2026-11-02 预注册，与 Stem 同规）：能量流
+        // 率改 1/n；分裂/死亡删写死倍数与上限，改由簇方程判
+        // 能量比率是否典型。判定先于 retain 预算。
+        let n_now = self.completed_tiles.len().max(1) as f64;
+        for tile in &mut self.completed_tiles {
             let energy_diff = avg_energy - tile.energy;
-            tile.energy += energy_diff * 0.1;
-
-            // 高能量 Tile 可能分裂
-            if tile.energy > avg_energy * 1.5 && new_tiles_data.len() < 10 {
+            tile.energy += energy_diff / n_now;
+        }
+        let mut verdicts: Vec<(bool, bool)> = Vec::with_capacity(self.completed_tiles.len());
+        for tile in &self.completed_tiles {
+            let typical = self.triple_fate.cluster_equation.check_diffs(&[tile.energy, avg_energy]);
+            verdicts.push((tile.energy > avg_energy && !typical, tile.energy < avg_energy && !typical));
+        }
+        let mut vi = 0usize;
+        self.completed_tiles.retain_mut(|tile| {
+            let (split, die) = verdicts[vi];
+            vi += 1;
+            if split {
                 tile.energy *= 0.5;
                 new_tiles_data.push((tile.energy, tile.data_signature.clone(), tile.connections.clone(), tile.content.clone()));
             }
-
-            // 低能量 Tile 死亡
-            if tile.energy < avg_energy * 0.1 || tile.energy < 0.01 {
+            if die {
                 deaths += 1;
                 return false;
             }
-
             true
         });
         
@@ -1240,8 +1246,13 @@ impl TileQuattroComplete {
         let activations: std::collections::HashMap<String, f64> = self.completed_tiles.iter()
             .map(|t| (t.id.clone(), t.activation))
             .collect();
+        // 全体平均激活（去硬编码后的相对判定基准）
+        let mean_act = if activations.is_empty() {
+            0.0
+        } else {
+            activations.values().map(|v| v.abs()).sum::<f64>() / activations.len() as f64
+        };
 
-        
         for tile in &mut self.completed_tiles {
             // 计算输入：来自连接的加权和
             let mut connection_input = 0.0;
@@ -1274,11 +1285,13 @@ impl TileQuattroComplete {
             // Tile/Stem 自身动力学。此前误把激活比率送进簇方程：tanh 饱和
             // 后激活近乎全等，比率≈1 必然过方程，每个 Tile 都连向第一个
             // 对端形成枢纽图，对外 BFS 因此毫无选择性。已按原版恢复。）
-            if tile.activation.abs() > 0.5 && tile.connections.len() < 8 {
+            // 去硬编码（2026-11-02 预注册）：删写死激活线 0.5/0.3
+            // 与度数上限 8，改相对判定——激活高于全体平均即连。
+            if tile.activation.abs() > mean_act {
                 for other_id in &tile_ids {
                     if other_id != &tile.id && !tile.connections.contains(other_id) {
                         if let Some(&other_act) = activations.get(other_id) {
-                            if other_act.abs() > 0.3 {
+                            if other_act.abs() > mean_act {
                                 tile.connections.push(other_id.clone());
                                 tile.weights.push(0.1);
                                 new_connections += 1;

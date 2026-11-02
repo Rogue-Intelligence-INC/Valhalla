@@ -185,18 +185,18 @@ impl MicroContainer {
         let mean = self.local_state.mean();
         let variance = self.local_state.variance();
         
-        // 位置由数据特征决定
+        // 位置由数据特征决定（去硬编码：统计原值，不缩放）
         let dim = current_dim.max(2);
         let mut pos = vec![0.0; dim];
-        pos[0] = mean * 0.1;
-        pos[1] = variance * 0.01;
+        pos[0] = mean;
+        pos[1] = variance;
         for d in 2..dim {
-            pos[d] = ((mean + variance) * (d as f64)).sin() * 0.5;
+            pos[d] = ((mean + variance) * (d as f64)).sin();
         }
         
         Cell {
             cell_id,
-            energy: mean.abs().min(1.0),
+            energy: mean.abs(),
             age: 0,
             generation: 0,
             // 从小容器继承的数据特征 - 这就是细胞的"身份"
@@ -204,7 +204,7 @@ impl MicroContainer {
             variance,
             signal_count: self.local_state.signal_count,
             position: pos,
-            field_strength: mean.abs() * 0.1,
+            field_strength: mean.abs(),
             connections: Vec::new(),
             // 出生形态由 Fate 收口时刻决定（F2/F3）：签名是
             // local_state.last_values()（见上方 data_signature），
@@ -465,10 +465,10 @@ impl StemCellComplete {
         let current_dim = self.space.current_dimension.ceil() as usize;
         let current_dim = current_dim.max(2);
         let mut new_pos = vec![0.0; current_dim];
-        new_pos[0] = mean * 0.1;
-        new_pos[1] = variance * 0.01;
+        new_pos[0] = mean;
+        new_pos[1] = variance;
         for d in 2..current_dim {
-            new_pos[d] = ((mean + variance) * (d as f64)).sin() * 0.5;
+            new_pos[d] = ((mean + variance) * (d as f64)).sin();
         }
         // 出生形态与 receive_data 路一致（入口自由度修复 F2/F3 补齐）：
         // commit_pulse 是 Body 的 ingest+promote 实际出生路，此前漏改，
@@ -479,14 +479,14 @@ impl StemCellComplete {
         let birth_content = self.active_containers[0].local_state.segment.clone();
         self.cells.push(Cell {
             cell_id: format!("cell_{}", self.total_containers_closed),
-            energy: mean.abs().min(1.0).max(0.1),
+            energy: mean.abs(),
             age: 0,
             generation: 0,
             data_signature: birth_signature,
             variance,
             signal_count,
             position: new_pos,
-            field_strength: mean.abs() * 0.1,
+            field_strength: mean.abs(),
             connections: Vec::new(),
             content: birth_content,
         });
@@ -939,30 +939,36 @@ impl StemCellComplete {
         // 分裂数据：能量, 代数, 数据特征（继承父细胞身份）
         let mut new_cells_data: Vec<(f64, u32, Vec<f64>, Vec<u8>)> = Vec::new();
         
-        // 死亡回到原方案：身体自己的能量线，回流之后判，不加代谢、
-        // 不加濒死缓冲、不搞抓取删除。死亡是物质变换的残差通道，
-        // 小规模下不出现是正常现象，不人为追求它发生；死亡数随
-        // 本周期状态信号进 Fate（下方 tick），Fate 只观察不执行。
-        self.cells.retain_mut(|cell| {
+        // 去硬编码（2026-11-02 预注册）：能量流率改身体规模
+        // 归一 1/n；分裂/死亡删写死倍数（×1.5、×0.1、0.01）
+        // 与分裂条数上限，改由簇方程判能量比率是否典型——
+        // 高于均值且不典型者分裂，低于均值且不典型者死亡。
+        // 判定先于 retain 预算，避免借用冲突。死亡仍是残差
+        // 通道，小规模下不出现是正常现象，不人为追求。
+        let n_now = self.cells.len().max(1) as f64;
+        for cell in &mut self.cells {
             cell.age += 1;
-
-            // 能量根据与平均值的差异流动
             let energy_diff = avg_energy - cell.energy;
-            cell.energy += energy_diff * 0.1; // 趋向平均
-
-            // 高能量细胞可能分裂
-            if cell.energy > avg_energy * 1.5 && new_cells_data.len() < 10 {
+            cell.energy += energy_diff / n_now;
+        }
+        let mut verdicts: Vec<(bool, bool)> = Vec::with_capacity(self.cells.len());
+        for cell in &self.cells {
+            let typical = self.triple_fate.cluster_equation.check_diffs(&[cell.energy, avg_energy]);
+            verdicts.push((cell.energy > avg_energy && !typical, cell.energy < avg_energy && !typical));
+        }
+        let mut vi = 0usize;
+        self.cells.retain_mut(|cell| {
+            let (split, die) = verdicts[vi];
+            vi += 1;
+            if split {
                 cell.energy *= 0.5;
                 // 继承父细胞的数据特征（身份）
                 new_cells_data.push((cell.energy, cell.generation, cell.data_signature.clone(), cell.content.clone()));
             }
-
-            // 低能量细胞死亡
-            if cell.energy < avg_energy * 0.1 || cell.energy < 0.01 {
+            if die {
                 deaths += 1;
                 return false;
             }
-
             true
         });
         
@@ -1126,15 +1132,14 @@ impl StemCellComplete {
                 
                 for d in 0..current_dim.min(pos_i.len()).min(pos_j.len()) {
                     let direction = (pos_j.get(d).unwrap_or(&0.0) - pos_i.get(d).unwrap_or(&0.0)) / dist;
-                    force[d] += attraction * direction * 0.01;  // 小步长
+                    force[d] += attraction * direction; // 步长去写死（见下）
                 }
             }
             
-            // 更新位置
+            // 更新位置：位移取全场平均力（Σ力/(n−1)，身体规模
+            // 归一，去硬编码预注册），不再写死步长、不钳位置。
             for d in 0..current_dim.min(self.cells[i].position.len()) {
-                self.cells[i].position[d] += force[d];
-                // 限制位置范围
-                self.cells[i].position[d] = self.cells[i].position[d].clamp(-100.0, 100.0);
+                self.cells[i].position[d] += force[d] / (n - 1) as f64;
             }
         }
         
@@ -1205,7 +1210,7 @@ impl StemCellComplete {
                         &self.cells[j].data_signature,
                     );
                     let attraction = (similarity - neutral) * field_i * self.cells[j].field_strength / (dist_sq + 0.1);
-                    weights[i * n + j] = attraction / dist * 0.01;
+                    weights[i * n + j] = attraction / dist / (n as f64 - 1.0);
                 }
             }
             let forced = match accel.row_mul(&weights, &packed, n, current_dim) {
@@ -1219,7 +1224,7 @@ impl StemCellComplete {
                 }
                 for d in 0..current_dim {
                     let delta = forced[i * current_dim + d] - packed[i * current_dim + d] * row_sum;
-                    self.cells[i].position[d] = (packed[i * current_dim + d] + delta).clamp(-100.0, 100.0);
+                    self.cells[i].position[d] = packed[i * current_dim + d] + delta;
                 }
             }
             let mut repacked = vec![0.0f64; n * current_dim];
@@ -1264,45 +1269,44 @@ impl StemCellComplete {
         if n < 2 {
             return;
         }
-        let mut all_distances: Vec<f64> = Vec::new();
-        for i in 0..n {
-            for j in (i + 1)..n {
-                all_distances.push(dist_of(i, j));
-            }
-        }
-        if all_distances.is_empty() {
-            return;
-        }
-        all_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-        let fate_efficiency = self.triple_fate.base.state.efficiency;
-        let neighbor_ratio = 0.1 + fate_efficiency * 0.3;
-        let threshold_idx = ((all_distances.len() as f64 * neighbor_ratio) as usize).min(all_distances.len() - 1);
-        let distance_threshold = all_distances[threshold_idx];
+        // 去硬编码（2026-11-02 预注册）：删距离分位比
+        // （0.1 + 0.3·效率）与每细胞 20 条上限。每细胞按距离
+        // 升序，取相邻距离的最大相对间隙之前为邻居——相对
+        // 判定，无写死数；零距离比率记 1（同位者先成团）。
+        // 强度式保留，分母只留 ε 级数值防护。
         let ids: Vec<String> = self.cells.iter().map(|cell| cell.cell_id.clone()).collect();
         let fields: Vec<f64> = self.cells.iter().map(|cell| cell.field_strength).collect();
         for i in 0..n {
-            let mut new_connections: Vec<(String, f64)> = Vec::new();
-            for j in 0..n {
-                if i == j {
-                    continue;
+            let mut dists: Vec<(usize, f64)> = (0..n)
+                .filter(|&j| j != i)
+                .map(|j| (j, dist_of(i, j)))
+                .collect();
+            dists.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
+            let mut cut = dists.len();
+            if dists.len() > 2 {
+                let (mut best_ratio, mut best_k) = (1.0f64, dists.len() - 1);
+                for k in 0..dists.len() - 1 {
+                    let (d0, d1) = (dists[k].1, dists[k + 1].1);
+                    let ratio = if d0 > 1e-9 {
+                        d1 / d0
+                    } else if d1 > 1e-9 {
+                        f64::INFINITY
+                    } else {
+                        1.0
+                    };
+                    if ratio > best_ratio {
+                        best_ratio = ratio;
+                        best_k = k;
+                    }
                 }
-                let dist = dist_of(i, j);
-                if dist <= distance_threshold {
-                    // 连接强度 = 1 / 距离 * 场强乘积
-                    let strength = (1.0 / (dist + 0.1)) * (fields[i] * fields[j]).sqrt();
-                    new_connections.push((ids[j].clone(), strength));
-                }
+                cut = best_k + 1;
             }
-            // 连接集合由距离分位阈值（Fate 效率驱动）决定候选集，
-            // 再按强度保留每细胞最强的若干条（原版上限，bbea60a 曾
-            // 删除）。2026-11-01 晚修复：删除上限后均度 = 分位比 × n
-            // （0.1·n），第一轮场沉降即连成稠密核、图直径≈2，限步
-            // 可达对真假题同时饱和（假题正确率仅 2–26%）——过快
-            // 饱和的机制源头。恢复上限后均度回到常数量级，边数
-            // 随 n 线性而非平方增长；分位候选与强度取舍均未改。
+            let mut new_connections: Vec<(String, f64)> = Vec::new();
+            for &(j, dist) in dists.iter().take(cut) {
+                let strength = (1.0 / (dist + 1e-9)) * (fields[i] * fields[j]).sqrt();
+                new_connections.push((ids[j].clone(), strength));
+            }
             new_connections.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
-            new_connections.truncate(20);
-
             self.cells[i].connections = new_connections;
         }
     }
@@ -1391,7 +1395,7 @@ impl StemCellComplete {
         if self.triple_fate.cluster_equation.check_diffs(&diffs) && d1 > 0.0 {
             // 合并到最近的细胞
             let target_idx = candidates[0].0;
-            self.cells[target_idx].energy += mean.abs().min(1.0).max(0.1);
+            self.cells[target_idx].energy += mean.abs();
             self.cells[target_idx].signal_count += signal_count;
             // 更新数据特征为平均值
             if let Some(sig) = self.cells[target_idx].data_signature.first_mut() {
