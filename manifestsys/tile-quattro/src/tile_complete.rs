@@ -796,6 +796,28 @@ impl TileQuattroComplete {
     
     /// 纯 Tile 周期处理（第2周期+使用）
     /// 使用边际递减合并，与 StemCell 同样逻辑
+    /// 簇方程的小根（无实根时取顶点横坐标）：与 Stem 同式，
+    /// 死亡线与场中性点共用同一条代数界。
+    fn equation_neutral(&self) -> f64 {
+        let eq = &self.triple_fate.cluster_equation;
+        let (a, b, c) = (eq.coef_a, eq.coef_b, eq.coef_c);
+        if a.abs() < 1e-12 {
+            if b.abs() < 1e-12 {
+                return 1.0;
+            }
+            return -c / b;
+        }
+        let disc = b * b - 4.0 * a * c;
+        if disc < 0.0 {
+            -b / (2.0 * a)
+        } else {
+            let sq = disc.sqrt();
+            let r1 = (-b - sq) / (2.0 * a);
+            let r2 = (-b + sq) / (2.0 * a);
+            r1.min(r2)
+        }
+    }
+
     pub fn process_tiles_cycle(&mut self) -> TileCycleResult {
         self.total_operations += 1;
         let initial_count = self.completed_tiles.len();
@@ -824,17 +846,22 @@ impl TileQuattroComplete {
         let mut new_tiles_data: Vec<(f64, Vec<f64>, Vec<String>, Vec<u8>)> = Vec::new();
         
         // 去硬编码（2026-11-02 预注册，与 Stem 同规）：能量流
-        // 率改 1/n；分裂/死亡删写死倍数与上限，改由簇方程判
-        // 能量比率是否典型。判定先于 retain 预算。
+        // 率改 1/n；分裂删写死倍数与上限、改由簇方程判能量
+        // 比率是否典型，死亡改方程小根为界。判定先于
+        // retain 预算。
         let n_now = self.completed_tiles.len().max(1) as f64;
         for tile in &mut self.completed_tiles {
             let energy_diff = avg_energy - tile.energy;
             tile.energy += energy_diff / n_now;
         }
+        let death_root = self.equation_neutral();
         let mut verdicts: Vec<(bool, bool)> = Vec::with_capacity(self.completed_tiles.len());
         for tile in &self.completed_tiles {
             let typical = self.triple_fate.cluster_equation.check_diffs(&[tile.energy, avg_energy]);
-            verdicts.push((tile.energy > avg_energy && !typical, tile.energy < avg_energy && !typical));
+            verdicts.push((
+                tile.energy > avg_energy && !typical,
+                tile.energy < avg_energy && tile.energy < avg_energy * death_root,
+            ));
         }
         let mut vi = 0usize;
         self.completed_tiles.retain_mut(|tile| {

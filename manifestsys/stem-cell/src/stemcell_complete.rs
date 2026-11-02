@@ -941,20 +941,27 @@ impl StemCellComplete {
         
         // 去硬编码（2026-11-02 预注册）：能量流率改身体规模
         // 归一 1/n；分裂/死亡删写死倍数（×1.5、×0.1、0.01）
-        // 与分裂条数上限，改由簇方程判能量比率是否典型——
-        // 高于均值且不典型者分裂，低于均值且不典型者死亡。
+        // 与分裂条数上限——分裂改由簇方程判能量比率是否典
+        // 型，死亡改方程小根为界（见下）。
         // 判定先于 retain 预算，避免借用冲突。死亡仍是残差
         // 通道，小规模下不出现是正常现象，不人为追求。
+        // 死亡线（修死亡预注册）：不走 check_diffs 典型带
+        // （未适应期过窄致大批误杀），改簇方程小根为界，
+        // 与场中性点同一条代数；根在判定前冻结。
         let n_now = self.cells.len().max(1) as f64;
         for cell in &mut self.cells {
             cell.age += 1;
             let energy_diff = avg_energy - cell.energy;
             cell.energy += energy_diff / n_now;
         }
+        let death_root = self.equation_neutral();
         let mut verdicts: Vec<(bool, bool)> = Vec::with_capacity(self.cells.len());
         for cell in &self.cells {
             let typical = self.triple_fate.cluster_equation.check_diffs(&[cell.energy, avg_energy]);
-            verdicts.push((cell.energy > avg_energy && !typical, cell.energy < avg_energy && !typical));
+            verdicts.push((
+                cell.energy > avg_energy && !typical,
+                cell.energy < avg_energy && cell.energy < avg_energy * death_root,
+            ));
         }
         let mut vi = 0usize;
         self.cells.retain_mut(|cell| {
