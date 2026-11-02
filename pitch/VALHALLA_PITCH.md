@@ -6,7 +6,7 @@
 
 ## One-Liner
 
-**Valhalla is an AI architecture where systems improve themselves through self-observation—no retraining required.**
+**Valhalla is a white-box, rules-first, self-forming neural network: explicit algebraic rules govern a persistent structure that grows itself — so experience survives deployment, answers stay grounded in what was actually stored, and every rule and state can be inspected end-to-end. No hidden weights govern the measured core.**
 
 ---
 
@@ -68,6 +68,7 @@ Valhalla:    Deploy → Observe → Evolve → Better → Evolve → Better...
 | Metric | Traditional | Valhalla |
 |--------|-------------|----------|
 | Self-improvement | ❌ | ✅ Structural — merge/split dynamics measured across training cycles |
+| Inspectability | ❌ Opaque weights; behaviour not auditable end-to-end | ✅ **White-box** — written rules, readable state, the governing equation prints itself in every run log, per-store ledger hashes |
 | New capability creation | ❌ | ⚠️ "Level-Up" — hypothesized, under measurement, not yet demonstrated |
 | Requires retraining | ✅ | ❌ |
 | Adapts to new domains | Manual | Without weight updates (structure-level adaptation) |
