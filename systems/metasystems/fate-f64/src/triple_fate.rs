@@ -138,10 +138,52 @@ impl VoyagerSpaceF64 {
         self.containers.push(format!("container_{}_{}", pattern, self.discovery_count));
     }
 
+    /// Adaptive dimension expansion — Fate estimates the space's degrees
+    /// of freedom from the signal's dispersion (only increases).
+    ///
+    /// 2026-11-02 维度语义修复（E1W 实测定位）：旧版把 |values| 均值
+    /// 直接写成维度（complexity * 1.1）。调用方喂的是原始量级信号——
+    /// 周期信号首项就是细胞数（~10^3–10^4）、出生信号含字节方差
+    /// （~10^3）——维度被种群规模顶到数千（实测 stem 场维度 2680）。
+    /// 出生位置 pos[d]=sin((mean+var)·d)·0.5 在数千维下使"距离近"
+    /// 只剩"统计量几乎完全相同"，几何退化为查重图：宽度身体里测试
+    /// 细胞互边仅 4/1600、真题 5 步可达 0/160。维度是自由度计数，
+    /// 不是信号幅值；本仓另有两处同名机制都是从数据离散度估计并
+    /// 钳位（utils/space 的 FractionalDimensionCalculator 上限 11、
+    /// valhalla-space-f64-gpu 的 FractalDimensionCalculatorGPU 钳
+    /// [1,11]、同为 hausdorff/box/information 三估计加权）。fate-f64
+    /// 不能反向依赖 space（space 已依赖 fate 存储），故在此复刻同
+    /// 一估计式使三处语义一致，不新造公式。
     pub fn adaptive_expand(&mut self, values: &[f64]) -> f64 {
-        let complexity = values.iter().map(|v| v.abs()).sum::<f64>() / values.len().max(1) as f64;
-        if complexity > self.current_dimension {
-            self.current_dimension = complexity * 1.1;
+        if values.is_empty() {
+            return self.current_dimension;
+        }
+        let n = values.len() as f64;
+        let mean = values.iter().sum::<f64>() / n;
+        let variance = values.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / n;
+        // 以下三估计与加权逐式复刻 FractalDimensionCalculatorGPU::
+        // calculate_single（hausdorff / box / information，钳 [1,11]）。
+        let hausdorff = (1.0 + variance.sqrt().min(10.0)).clamp(1.0, 11.0);
+        let (mut lo, mut hi) = (f64::INFINITY, f64::NEG_INFINITY);
+        for v in values {
+            if *v < lo { lo = *v; }
+            if *v > hi { hi = *v; }
+        }
+        let range = hi - lo;
+        let box_dim = if values.len() < 2 || range < 1e-10 {
+            1.0
+        } else {
+            (1.0 + (n / (range + 1.0)) / 10.0).clamp(1.0, 11.0)
+        };
+        // 原式按输入顺序逐邻比较计 distinct（顺序敏感的熵代理，照抄）。
+        let mut distinct = 1usize;
+        for i in 1..values.len() {
+            if (values[i] - values[i - 1]).abs() > 1e-10 { distinct += 1; }
+        }
+        let info_dim = 1.0 + distinct as f64 / n;
+        let recommended = ((hausdorff + 2.0 * box_dim + info_dim) / 4.0).clamp(1.0, 11.0);
+        if recommended > self.current_dimension {
+            self.current_dimension = recommended;
         }
         self.current_dimension
     }
@@ -696,6 +738,10 @@ pub struct ClusterEquation {
     pub threshold: f64,
     /// 方程适应次数（越多越稳定）
     pub adaptation_count: u64,
+    /// 被动收敛的连续成立计数（入口自由度修复 F1 配套；F1 已
+    /// 回退、判定未用此字段，保留仅为记账，勿当机制）。
+    #[serde(default)]
+    pub passive_streak: u32,
 }
 
 /// Fate 切片 - 冻结时保存的状态
@@ -850,6 +896,7 @@ impl ClusterEquation {
             coef_c: 1.0,
             threshold: 0.01,  // 更严格：x 必须非常接近 1
             adaptation_count: 0,
+            passive_streak: 0,
         }
     }
     
@@ -1448,12 +1495,20 @@ impl TripleFateCombined {
             self.cluster_equation.ring_len += 1;
         }
         
-        // 每10个信号用动态方程检测
+        // 每10个信号用动态方程检测（原版节律）。入口自由度修复
+        // F1 曾尝试逐拍判定使段界脱离网格，2026-11-01 实测三式
+        // 皆败：单点差值比逐拍 → 段长 ~125B（种群爆炸、场 O(n²)
+        // 拖死）；连续 2 拍成立 → ~15KB（几乎不收口，事实映射
+        // 996/1200 且自然料零出生）；窗口均值比 → ~40B（均值把
+        // 比值拉向方程根 x=1，触发更频）。根源：此方程在逐拍
+        // 尺度上是细粒度判据，旧网格一直在替段长定标。计时
+        // 自由化须改用段级收敛信号（容器自身差值序列），另案
+        // 设计；本版保留网格，形态自由化走 F2/F3（签名/材料）。
         if self.global_tick % 10 == 0 && self.cluster_equation.ring_len >= 3 {
             let get = |off: usize| self.cluster_equation.ring[(idx + 10 - off) % 10];
             let d1 = (get(0) - get(1)).abs();
             let d2 = (get(1) - get(2)).abs();
-            
+
             // 用动态方程判断（二元一次方程）
             let diffs = [d1, d2];
             if self.cluster_equation.check_diffs(&diffs) {

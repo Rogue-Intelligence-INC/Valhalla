@@ -91,6 +91,10 @@ pub struct LocalTileState {
     pub ring_idx: usize,
     pub ring_len: usize,
     pub converged: bool,
+    /// 本段材料（入口自由度修复 F3，与 Stem 同构）：字节型整数
+    /// 逐字保留供出生单位 content；非字节型不记。
+    #[serde(default)]
+    pub segment: Vec<u8>,
 }
 
 impl LocalTileState {
@@ -103,6 +107,7 @@ impl LocalTileState {
             ring_idx: 0,
             ring_len: 0,
             converged: false,
+            segment: Vec::new(),
         }
     }
 
@@ -113,11 +118,15 @@ impl LocalTileState {
         self.signal_count += 1;
         self.sum += value;
         self.sum_sq += value * value;
-        
+
         // 环形写入（供 Fate 分析）
         self.ring[self.ring_idx] = value;
         self.ring_idx = (self.ring_idx + 1) % 10;
         if self.ring_len < 10 { self.ring_len += 1; }
+
+        if value == value.trunc() && (0.0..=255.0).contains(&value) {
+            self.segment.push(value as u8);
+        }
     }
     
     /// 获取最近的差异序列（供 Fate 分析）
@@ -382,13 +391,19 @@ impl TileQuattroComplete {
             signal_count: tile.local_state.signal_count,
             created_tick: tile.created_tick,
             completed_tick: self.global_tick,
-            data_signature: vec![mean, variance],
+            // 出生形态与 receive_data 路一致（入口自由度修复 F2/F3
+            // 补齐）：commit_pulse 是 Body 的 ingest+promote 实际出生
+            // 路，此前漏改。签名取容器环内 last_values()，content 取
+            // 本段材料；注意 Body 的 Tile 侧每条只 ingest 一个条目
+            // 均值，环内只有该值、本段材料为空——形态自由度在 Tile
+            // 侧受喂入粒度所限，如实记账，不在此放大。
+            data_signature: tile.local_state.last_values(),
             energy: mean.abs().min(1.0).max(0.1),
             activation: 0.0,
             weights: Vec::new(),
             bias: mean * 0.01,
             connections: Vec::new(),
-            content: Vec::new(),
+            content: tile.local_state.segment.clone(),
         });
         self.total_operations += 1;
         true
@@ -631,14 +646,18 @@ impl TileQuattroComplete {
                 signal_count,
                 created_tick: tile.created_tick,
                 completed_tick: self.global_tick,
-                data_signature: vec![mean, variance],
+                // 出生形态由 Fate 决定（入口自由度修复 F2/F3，
+                // 与 Stem 同构）：签名 = Fate 窗口收口时刻的
+                // last_values()，content = 本段材料；不再用
+                // vec![mean, variance] + 空 content 的写死公式。
+                data_signature: tile.local_state.last_values(),
                 energy: mean.abs().min(1.0).max(0.1),
                 // 神经网络属性（初始为空，由 Fate 被动填充）
                 activation: 0.0,
                 weights: Vec::new(),
                 bias: mean * 0.01,
                 connections: Vec::new(),  // 空连接，由 Fate 被动建立
-                content: Vec::new(),
+                content: tile.local_state.segment.clone(),
             };
             
             self.completed_tiles.push(completed);

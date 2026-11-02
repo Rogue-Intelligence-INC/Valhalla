@@ -71,6 +71,12 @@ pub struct LocalConvergenceState {
     pub ring_idx: usize,
     pub ring_len: usize,
     pub converged: bool,
+    /// 本段材料（入口自由度修复 F3）：喂入值是字节型整数时逐字
+    /// 保留，供出生单位的 content；非字节型信号不记、留空。
+    /// 旧版容器只留统计量，段材料在出生时被丢弃、单位 content
+    /// 恒空（D11 的入口根源）。
+    #[serde(default)]
+    pub segment: Vec<u8>,
 }
 
 impl LocalConvergenceState {
@@ -83,6 +89,7 @@ impl LocalConvergenceState {
             ring_idx: 0,
             ring_len: 0,
             converged: false,
+            segment: Vec::new(),
         }
     }
 
@@ -93,11 +100,15 @@ impl LocalConvergenceState {
         self.signal_count += 1;
         self.sum += value;
         self.sum_sq += value * value;
-        
+
         // 环形写入（供 Fate 分析）
         self.ring[self.ring_idx] = value;
         self.ring_idx = (self.ring_idx + 1) % 10;
         if self.ring_len < 10 { self.ring_len += 1; }
+
+        if value == value.trunc() && (0.0..=255.0).contains(&value) {
+            self.segment.push(value as u8);
+        }
     }
     
     /// 获取最近的差异序列（供 Fate 分析）
@@ -195,7 +206,10 @@ impl MicroContainer {
             position: pos,
             field_strength: mean.abs() * 0.1,
             connections: Vec::new(),
-            content: Vec::new(),
+            // 出生形态由 Fate 收口时刻决定（F2/F3）：签名是
+            // local_state.last_values()（见上方 data_signature），
+            // 材料是本段实际字节，不再恒空。
+            content: self.local_state.segment.clone(),
         }
     }
 }
@@ -418,18 +432,25 @@ impl StemCellComplete {
         for d in 2..current_dim {
             new_pos[d] = ((mean + variance) * (d as f64)).sin() * 0.5;
         }
+        // 出生形态与 receive_data 路一致（入口自由度修复 F2/F3 补齐）：
+        // commit_pulse 是 Body 的 ingest+promote 实际出生路，此前漏改，
+        // 仍走 vec![mean, variance] + 空 content 的写死公式。签名取
+        // 容器环内 last_values()（收口时刻 Fate 的近期历史），content
+        // 取本段材料；mean/variance 字段与位置公式保留（场与合并在用）。
+        let birth_signature = self.active_containers[0].local_state.last_values();
+        let birth_content = self.active_containers[0].local_state.segment.clone();
         self.cells.push(Cell {
             cell_id: format!("cell_{}", self.total_containers_closed),
             energy: mean.abs().min(1.0).max(0.1),
             age: 0,
             generation: 0,
-            data_signature: vec![mean, variance],
+            data_signature: birth_signature,
             variance,
             signal_count,
             position: new_pos,
             field_strength: mean.abs() * 0.1,
             connections: Vec::new(),
-            content: Vec::new(),
+            content: birth_content,
         });
         self.active_containers[0] = MicroContainer::new(String::new(), 0, self.global_tick);
         self.total_containers_closed += 1;
@@ -671,38 +692,19 @@ impl StemCellComplete {
         
         // 如果 Fate 捕捉到收敛信号
         if converged {
-            let container = &self.active_containers[0];
-            let mean = container.local_state.mean();
-            let variance = container.local_state.variance();
-            let signal_count = container.local_state.signal_count;
-            
+            let mean = self.active_containers[0].local_state.mean();
+
             self.quad_on_fate_close(mean);
-            
-            // 直接创建细胞
-            // 新细胞位置 - 基于数据特征在高维空间中的位置
+
+            // 出生形态由 Fate 决定（入口自由度修复 F2/F3）：走
+            // MicroContainer::to_cell 既有形态——签名 = Fate 窗口
+            // 在收口时刻的 last_values()、content = 本段材料；
+            // 不再用 vec![mean, variance] + 空 content 的写死公式。
             let current_dim = self.space.current_dimension.ceil() as usize;
-            let current_dim = current_dim.max(2);
-            let mut new_pos = vec![0.0; current_dim];
-            // 位置由 Fate 的数据特征决定
-            new_pos[0] = mean * 0.1;
-            new_pos[1] = variance * 0.01;
-            for d in 2..current_dim {
-                new_pos[d] = ((mean + variance) * (d as f64)).sin() * 0.5;
-            }
-            
-            let new_cell = Cell {
-                cell_id: format!("cell_{}", self.total_containers_closed),
-                energy: mean.abs().min(1.0).max(0.1),
-                age: 0,
-                generation: 0,
-                data_signature: vec![mean, variance],
-                variance,
-                signal_count,
-                position: new_pos,
-                field_strength: mean.abs() * 0.1,  // 场强由数据决定
-                connections: Vec::new(),  // 连接自然涌现
-                content: Vec::new(),
-            };
+            let new_cell = self.active_containers[0].to_cell(
+                format!("cell_{}", self.total_containers_closed),
+                current_dim,
+            );
             self.cells.push(new_cell);
             new_cells = 1;
             

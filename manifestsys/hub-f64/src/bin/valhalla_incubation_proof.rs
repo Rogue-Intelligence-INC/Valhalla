@@ -609,12 +609,370 @@ fn run_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f6
     (sc, sa, sf, sg, sh, si, sh_std, h_pct, curve, c_buckets, a_buckets, c_false, a_false, c_pt, a_pt, c_pf, a_pf, (c_tu + c_fu) as f64)
 }
 
+// ═══════════ E1W 宽度培养（VH_E1W=1 启用；判据预先声明） ═══════════
+// 假说（2026-11-01 记录 ENTRY_FREEDOM_AND_E1W）：身体组织结构时
+// 能看见的只有段字节统计；同质符号链不给链归属信号，拓扑特异性
+// 无从显形。给链分组依附不同统计上下文（宽度），拓扑若按域组织，
+// 则 C-宽应在同型跨链硬假题拒绝率与真题最短路上同时优于 C-同
+// （等量同宽消融）与 H（严格双边交换重连，保入+出度）。
+// 主判据不用限步可达总分（偏爱随机小世界图），用硬假题拒绝率 +
+// 真题平均最短路（不可达惩罚 12）；异型跨链易假题只报告不计判据。
+
+fn filler(ctx: usize, rng: &mut Rng, len: usize) -> Vec<u8> {
+    (0..len)
+        .map(|i| match ctx {
+            0 => b'a' + rng.below(8) as u8,
+            1 => b'0' + rng.below(10) as u8,
+            2 => 180 + rng.below(70) as u8,
+            _ => {
+                if (i + rng.below(2)) % 2 == 0 { 30 + rng.below(10) as u8 } else { 220 + rng.below(20) as u8 }
+            }
+        })
+        .collect()
+}
+
+/// 严格双边交换重连（补 E0b）：随机取两条边 (a→b),(c→d) 换成
+/// (a→d),(c→b)，拒绝自环与重边。每节点出度、入度均严格不变。
+fn shuffle_strict(body: &mut Body, rng: &mut Rng) {
+    use std::collections::HashSet;
+    // Tile 层
+    {
+        let ids: Vec<String> = body.tile.completed_tiles.iter().map(|t| t.id.clone()).collect();
+        let idx: std::collections::HashMap<&str, usize> =
+            ids.iter().enumerate().map(|(i, s)| (s.as_str(), i)).collect();
+        let mut edges: Vec<(usize, usize)> = Vec::new();
+        for (i, t) in body.tile.completed_tiles.iter().enumerate() {
+            for c in &t.connections {
+                if let Some(&j) = idx.get(c.as_str()) { edges.push((i, j)); }
+            }
+        }
+        let mut set: HashSet<(usize, usize)> = edges.iter().cloned().collect();
+        for _ in 0..edges.len() * 20 {
+            if edges.len() < 2 { break; }
+            let e1 = rng.below(edges.len());
+            let e2 = rng.below(edges.len());
+            if e1 == e2 { continue; }
+            let (a, b) = edges[e1];
+            let (c, d) = edges[e2];
+            if a == d || c == b || a == c { continue; }
+            if set.contains(&(a, d)) || set.contains(&(c, b)) { continue; }
+            set.remove(&(a, b)); set.remove(&(c, d));
+            set.insert((a, d)); set.insert((c, b));
+            edges[e1] = (a, d); edges[e2] = (c, b);
+        }
+        for t in body.tile.completed_tiles.iter_mut() {
+            let keep = t.connections.len();
+            t.connections.clear();
+            t.weights.resize(keep, 0.1);
+        }
+        for (a, d) in &edges {
+            body.tile.completed_tiles[*a].connections.push(ids[*d].clone());
+        }
+        for t in body.tile.completed_tiles.iter_mut() {
+            t.weights.resize(t.connections.len(), 0.1);
+        }
+    }
+    // Stem 层（强度随源槽保留）
+    {
+        let ids: Vec<String> = body.stem.cells.iter().map(|c| c.cell_id.clone()).collect();
+        let idx: std::collections::HashMap<&str, usize> =
+            ids.iter().enumerate().map(|(i, s)| (s.as_str(), i)).collect();
+        let mut edges: Vec<(usize, usize, f64)> = Vec::new();
+        for (i, c) in body.stem.cells.iter().enumerate() {
+            for (to, s) in &c.connections {
+                if let Some(&j) = idx.get(to.as_str()) { edges.push((i, j, *s)); }
+            }
+        }
+        let mut set: HashSet<(usize, usize)> = edges.iter().map(|e| (e.0, e.1)).collect();
+        for _ in 0..edges.len() * 20 {
+            if edges.len() < 2 { break; }
+            let e1 = rng.below(edges.len());
+            let e2 = rng.below(edges.len());
+            if e1 == e2 { continue; }
+            let (a, b, s1) = edges[e1];
+            let (c, d, s2) = edges[e2];
+            if a == d || c == b || a == c { continue; }
+            if set.contains(&(a, d)) || set.contains(&(c, b)) { continue; }
+            set.remove(&(a, b)); set.remove(&(c, d));
+            set.insert((a, d)); set.insert((c, b));
+            edges[e1] = (a, d, s1); edges[e2] = (c, b, s2);
+        }
+        for c in body.stem.cells.iter_mut() { c.connections.clear(); }
+        for (a, d, s) in &edges {
+            body.stem.cells[*a].connections.push((ids[*d].clone(), *s));
+        }
+    }
+}
+
+type WQ = (String, String, u8); // (from, to, 0=真题 1=同型假题 2=异型假题)
+
+fn score_width(body: &Body, qs: &[WQ], sym_tiles: &SymNodes, sym_cells: &SymNodes) -> (f64, f64, f64, f64) {
+    let adj_t = net_adj(body, false);
+    let adj_s = net_adj(body, true);
+    let empty: Vec<String> = Vec::new();
+    let (mut tt, mut tn, mut hf, mut hn, mut ef, mut en, mut path) = (0usize, 0usize, 0usize, 0usize, 0usize, 0usize, 0.0f64);
+    for (from, to, cat) in qs {
+        let ft = sym_tiles.get(from).unwrap_or(&empty);
+        let tt2 = sym_tiles.get(to).unwrap_or(&empty);
+        let fs = sym_cells.get(from).unwrap_or(&empty);
+        let ts = sym_cells.get(to).unwrap_or(&empty);
+        let got = net_reachable(&adj_t, ft, tt2, NET_BUDGET) || net_reachable(&adj_s, fs, ts, NET_BUDGET);
+        match cat {
+            0 => {
+                tn += 1;
+                if got { tt += 1; }
+                path += shortest_path(&adj_t, &adj_s, ft, tt2, fs, ts).map_or(12.0, |v| v as f64);
+            }
+            1 => { hn += 1; if !got { hf += 1; } }
+            _ => { en += 1; if !got { ef += 1; } }
+        }
+    }
+    (
+        if tn > 0 { tt as f64 / tn as f64 * 100.0 } else { 0.0 },
+        if hn > 0 { hf as f64 / hn as f64 * 100.0 } else { 0.0 },
+        if en > 0 { ef as f64 / en as f64 * 100.0 } else { 0.0 },
+        if tn > 0 { path / tn as f64 } else { 0.0 },
+    )
+}
+
+/// 诊断计数（只读，不参与判分）：种群/边数/映射节点存活率。
+/// E1W 首跑 C宽真题≈0 而硬假拒绝=100 是断网平凡解，必须先确认
+/// 映射符号的出生单位在 cycle 的合并/死亡后还剩多少、图是否连通。
+fn diag_qs(body: &Body, qs: &[WQ], sym_t: &SymNodes, sym_c: &SymNodes, label: &str) {
+    let adj_t = net_adj(body, false);
+    let adj_s = net_adj(body, true);
+    let empty: Vec<String> = Vec::new();
+    let mut dists: Vec<String> = Vec::new();
+    let mut n_true = 0usize;
+    let mut within5 = 0usize;
+    for (from, to, cat) in qs {
+        if *cat != 0 { continue; }
+        n_true += 1;
+        let d = shortest_path(&adj_t, &adj_s,
+            sym_t.get(from).unwrap_or(&empty), sym_t.get(to).unwrap_or(&empty),
+            sym_c.get(from).unwrap_or(&empty), sym_c.get(to).unwrap_or(&empty));
+        if let Some(v) = d { if v <= 5 { within5 += 1; } }
+        if dists.len() < 12 { dists.push(format!("{from}->{to}={}", d.map(|v| v as i64).unwrap_or(-1))); }
+    }
+    println!("    [diag {label}] 真题 {n_true} 对内 5 步可达 {within5}；样本最短路 {:?}", dists);
+    // 位置/维度实况：两具身体的场维度与测试细胞位置是否可比
+    {
+        let dim = body.stem.space.current_dimension;
+        let lens: std::collections::HashSet<usize> = body.stem.cells.iter().map(|c| c.position.len()).collect();
+        let mapped_ids: std::collections::HashSet<&str> = sym_c.values().flat_map(|v| v.iter().map(|s| s.as_str())).collect();
+        let mut sample: Vec<String> = Vec::new();
+        for c in &body.stem.cells {
+            if mapped_ids.contains(c.cell_id.as_str()) && sample.len() < 3 {
+                sample.push(format!("{} pos{:?} deg{}", c.cell_id,
+                    c.position.iter().take(4).map(|v| format!("{v:.2}")).collect::<Vec<_>>(), c.connections.len()));
+            }
+        }
+        // 测试细胞的连接目标里有多少是其他测试细胞
+        let test_targets = {
+            let mut tot = 0usize; let mut tst = 0usize;
+            for c in &body.stem.cells {
+                if mapped_ids.contains(c.cell_id.as_str()) {
+                    for (to, _) in &c.connections { tot += 1; if mapped_ids.contains(to.as_str()) { tst += 1; } }
+                }
+            }
+            (tst, tot)
+        };
+        println!("    [diag {label}/stem] 场维度 {dim:.1} 位置长度集 {:?} 测试细胞边指向测试细胞 {}/{} 样本 {:?}", lens, test_targets.0, test_targets.1, sample);
+    }
+    // 无向连通分量：测试映射细胞散在几个分量、最大分量多大
+    for (lname, adj, m) in [("tile", &adj_t, sym_t), ("stem", &adj_s, sym_c)] {
+        let mut und: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
+        for (u, ns) in adj.iter() {
+            for w in ns {
+                und.entry(u.clone()).or_default().push(w.clone());
+                und.entry(w.clone()).or_default().push(u.clone());
+            }
+        }
+        let mapped: std::collections::HashSet<String> = m.values().flat_map(|v| v.iter().cloned()).collect();
+        let mut comp_id: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+        let mut sizes: Vec<usize> = Vec::new();
+        for node in und.keys() {
+            if comp_id.contains_key(node) { continue; }
+            let cid = sizes.len();
+            let mut stack = vec![node.clone()];
+            comp_id.insert(node.clone(), cid);
+            let mut sz = 0usize;
+            while let Some(u) = stack.pop() {
+                sz += 1;
+                if let Some(ns) = und.get(&u) {
+                    for w in ns { if !comp_id.contains_key(w) { comp_id.insert(w.clone(), cid); stack.push(w.clone()); } }
+                }
+            }
+            sizes.push(sz);
+        }
+        sizes.sort_unstable_by(|a, b| b.cmp(a));
+        let mut mapped_per_comp: std::collections::HashMap<usize, usize> = std::collections::HashMap::new();
+        for id in &mapped { if let Some(&c) = comp_id.get(id) { *mapped_per_comp.entry(c).or_default() += 1; } }
+        let mut mpc: Vec<usize> = mapped_per_comp.values().cloned().collect();
+        mpc.sort_unstable_by(|a, b| b.cmp(a));
+        println!("    [diag {label}/{lname}] 分量 {} 个，最大 {:?}；映射细胞分布（前5分量）{:?}（映射共 {}）",
+            sizes.len(), &sizes[..sizes.len().min(5)], &mpc[..mpc.len().min(5)], mapped.len());
+    }
+}
+
+fn diag(body: &Body, sym_t: &SymNodes, sym_c: &SymNodes, label: &str) {
+    let et: usize = body.tile.completed_tiles.iter().map(|t| t.connections.len()).sum();
+    let es: usize = body.stem.cells.iter().map(|c| c.connections.len()).sum();
+    let alive = |ids: &std::collections::HashSet<&str>, m: &SymNodes| -> (usize, usize) {
+        let mut tot = 0usize;
+        let mut ok = 0usize;
+        for v in m.values() {
+            for id in v {
+                tot += 1;
+                if ids.contains(id.as_str()) { ok += 1; }
+            }
+        }
+        (ok, tot)
+    };
+    let tids: std::collections::HashSet<&str> = body.tile.completed_tiles.iter().map(|t| t.id.as_str()).collect();
+    let cids: std::collections::HashSet<&str> = body.stem.cells.iter().map(|c| c.cell_id.as_str()).collect();
+    let (at, tt2) = alive(&tids, sym_t);
+    let (ac, tc) = alive(&cids, sym_c);
+    println!("    [diag {label}] tiles {} (边 {}) cells {} (边 {}) | 映射存活 tile {at}/{tt2} cell {ac}/{tc}",
+        body.tile.completed_tiles.len(), et, body.stem.cells.len(), es);
+    // 映射细胞自身的度与无界可达（区分断网 vs 限步不够）
+    for (lname, adj, m) in [("tile", net_adj(body, false), sym_t), ("stem", net_adj(body, true), sym_c)] {
+        let mut ids_m: Vec<&str> = Vec::new();
+        for v in m.values() { for id in v { ids_m.push(id.as_str()); } }
+        let degs: Vec<usize> = ids_m.iter().map(|id| adj.get(*id).map(|v| v.len()).unwrap_or(0)).collect();
+        let avg_deg = if degs.is_empty() { 0.0 } else { degs.iter().sum::<usize>() as f64 / degs.len() as f64 };
+        let zero = degs.iter().filter(|&&d| d == 0).count();
+        // 无界 BFS：从全部映射节点出发能到的映射节点占比
+        let target: std::collections::HashSet<&str> = ids_m.iter().cloned().collect();
+        let mut seen: std::collections::HashSet<&str> = std::collections::HashSet::new();
+        let mut q: std::collections::VecDeque<&str> = std::collections::VecDeque::new();
+        for id in &ids_m { if seen.insert(id) { q.push_back(id); } }
+        while let Some(u) = q.pop_front() {
+            if let Some(ns) = adj.get(u) {
+                for w in ns { if seen.insert(w.as_str()) { q.push_back(w.as_str()); } }
+            }
+        }
+        let reached = target.iter().filter(|id| seen.contains(*id)).count();
+        println!("    [diag {label}/{lname}] 映射节点 {} 平均度 {:.1} 零度 {} 无界可达映射 {reached}/{}",
+            ids_m.len(), avg_deg, zero, target.len());
+    }
+}
+
+fn width_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64) {
+    println!("== E1W seed {seed} ==");
+    let train_pool: Vec<String> = (0..200).map(symbol).collect();
+    let test_base = 400 + (seed as usize) * 200;
+    let test_pool: Vec<String> = (test_base..test_base + 180).map(symbol).collect();
+
+    let mut rng_c = Rng(0x5EED_0000 + seed * 7919);
+    let train_shuffled = shuffled_pool(&mut rng_c, &train_pool, 192);
+    let train_chains: Vec<Vec<String>> = train_shuffled.chunks(6).map(|c| c.to_vec()).collect();
+    let test_shuffled = shuffled_pool(&mut rng_c, &test_pool, 96);
+    let test_chains: Vec<Vec<String>> = test_shuffled.chunks(6).map(|c| c.to_vec()).collect();
+
+    let cultivate_w = |body: &mut Body, width: bool, rng: &mut Rng| {
+        for _ in 0..25 {
+            for (ci, chain) in train_chains.iter().enumerate() {
+                let ctx = if width { ci % 4 } else { 0 };
+                for item in pairs_shuffled(chain, rng) {
+                    body.feed(&item);
+                    let f = filler(ctx, rng, 48);
+                    body.feed(&f);
+                }
+            }
+            body.cycle();
+        }
+    };
+    let test_feed = |body: &mut Body, width: bool, rng: &mut Rng| -> (SymNodes, SymNodes) {
+        let mut sym_tiles: SymNodes = SymNodes::new();
+        let mut sym_cells: SymNodes = SymNodes::new();
+        for (ci, chain) in test_chains.iter().enumerate() {
+            let ctx = if width { ci % 4 } else { 0 };
+            for item in pairs_shuffled(chain, rng) {
+                let (tiles, cells) = body.feed_tracked(&item);
+                let text = String::from_utf8_lossy(&item).into_owned();
+                for sym in text.split('>') {
+                    if sym.len() == 3 {
+                        sym_tiles.entry(sym.to_string()).or_default().extend(tiles.iter().cloned());
+                        sym_cells.entry(sym.to_string()).or_default().extend(cells.iter().cloned());
+                    }
+                }
+                let f = filler(ctx, rng, 48);
+                body.feed(&f);
+            }
+        }
+        body.cycle();
+        (sym_tiles, sym_cells)
+    };
+
+    // 题目：真题（链内 dist 2..5）+ 同型跨链硬假题 + 异型跨链易假题
+    let mut qs: Vec<WQ> = Vec::new();
+    for chain in &test_chains {
+        for i in 0..chain.len() {
+            for d in 2..chain.len() - i {
+                qs.push((chain[i].clone(), chain[i + d].clone(), 0));
+            }
+        }
+    }
+    let mut rng_q = Rng(0x9E57_0000 + seed * 31);
+    for (ci, chain) in test_chains.iter().enumerate() {
+        for _ in 0..4 {
+            let same: Vec<usize> = (0..test_chains.len()).filter(|&j| j != ci && (j % 4) == (ci % 4)).collect();
+            let oj = same[rng_q.below(same.len())];
+            qs.push((chain[0].clone(), test_chains[oj][3].clone(), 1));
+            let diff: Vec<usize> = (0..test_chains.len()).filter(|&j| (j % 4) != (ci % 4)).collect();
+            let dj = diff[rng_q.below(diff.len())];
+            qs.push((chain[0].clone(), test_chains[dj][3].clone(), 2));
+        }
+    }
+
+    let mut rng_w = Rng(0x5EED_0000 + seed * 7919);
+    let mut body_w = Body::new();
+    cultivate_w(&mut body_w, true, &mut rng_w);
+    let (wt, wc) = test_feed(&mut body_w, true, &mut rng_w);
+    diag(&body_w, &wt, &wc, "C宽");
+    diag_qs(&body_w, &qs, &wt, &wc, "C宽");
+    let (w_true, w_hard, w_easy, w_path) = score_width(&body_w, &qs, &wt, &wc);
+
+    let mut rng_h = Rng(0x5EED_0000 + seed * 7919);
+    let mut body_hom = Body::new();
+    cultivate_w(&mut body_hom, false, &mut rng_h);
+    let (ht, hc) = test_feed(&mut body_hom, false, &mut rng_h);
+    diag(&body_hom, &ht, &hc, "C同");
+    diag_qs(&body_hom, &qs, &ht, &hc, "C同");
+    let (h_true, h_hard, _he, h_path) = score_width(&body_hom, &qs, &ht, &hc);
+
+    // H：C-宽身体存档恢复后严格重连（同图、同映射，只换拓扑）
+    let dir = std::env::temp_dir().join(format!("valhalla_e1w_seed{seed}"));
+    body_w.save_full(&dir).expect("E1W 存档失败");
+    let mut body_x = Body::load_full(&dir).expect("E1W 恢复失败");
+    let mut rng_x = Rng(0x45EED + seed * 131);
+    shuffle_strict(&mut body_x, &mut rng_x);
+    let (x_true, x_hard, _xe, x_path) = score_width(&body_x, &qs, &wt, &wc);
+
+    println!("seed {seed}: C宽 真 {w_true:.1} 硬假 {w_hard:.1} 易假 {w_easy:.1} 均路 {w_path:.2} | C同 真 {h_true:.1} 硬假 {h_hard:.1} 均路 {h_path:.2} | H严 真 {x_true:.1} 硬假 {x_hard:.1} 均路 {x_path:.2}");
+    (w_true, w_hard, w_path, h_true, h_hard, h_path, x_true, x_hard)
+}
+
 fn main() {
     let seeds: Vec<u64> = std::env::var("VALHALLA_PROOF_SEEDS")
         .unwrap_or_else(|_| "1,2,3,4,5".to_string())
         .split(',')
         .filter_map(|s| s.trim().parse().ok())
         .collect();
+    if std::env::var("VH_E1W").is_ok() {
+        let mut wrows: Vec<(f64, f64, f64, f64, f64, f64, f64, f64)> = Vec::new();
+        for seed in &seeds {
+            wrows.push(width_seed(*seed));
+        }
+        let n = wrows.len() as f64;
+        let m = |f: &dyn Fn(&(f64, f64, f64, f64, f64, f64, f64, f64)) -> f64| wrows.iter().map(f).sum::<f64>() / n;
+        println!("\n== E1W 汇总（{} seeds） ==", wrows.len());
+        println!("C宽 真 {:.1} 硬假 {:.1} 均路 {:.2} | C同 真 {:.1} 硬假 {:.1} 均路 {:.2} | H严 真 {:.1} 硬假 {:.1}",
+            m(&|r| r.0), m(&|r| r.1), m(&|r| r.2), m(&|r| r.3), m(&|r| r.4), m(&|r| r.5), m(&|r| r.6), m(&|r| r.7));
+        println!("判读（预先声明）：C宽 硬假 > C同 且 C宽 硬假 > H严 且 C宽 均路 < H严 → 宽度使拓扑特异性成立；任一不成立按未检出记。");
+        return;
+    }
     type Row = (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f64; 3], [f64; 3], f64, f64, f64, f64, f64, f64, f64);
     let mut rows: Vec<Row> = Vec::new();
     for seed in &seeds {
