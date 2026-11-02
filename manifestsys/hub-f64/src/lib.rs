@@ -8,7 +8,7 @@
 //! - Quad systems processing
 //! - Batch operations for GPU acceleration
 //! - 70% resource utilization target
-//! - **系统存储**: 完整的文件操作权限
+//! - **System storage**: full file-operation permissions
 
 use serde::{Deserialize, Serialize};
 use log::info;
@@ -199,7 +199,7 @@ pub use valhalla_base_client::PRETRAIN_PIPE_MODE;
 #[cfg(feature = "patch-lm")]
 pub use valhalla_base_http::{infer_sync, serve as serve_valhalla_base_http};
 
-// 系统存储
+// System storage
 pub use valhalla_storage::{SystemStorage, AllStorages, init_all_storages};
 
 // Fate f64 (GPU-ready)
@@ -215,7 +215,7 @@ pub use valhalla_metasystems_meshbrain::{MeshBrainSystem, MeshBrainConfig};
 pub use valhalla_metasystems_multinova::{MultinovaProcessor, MultinovaConfig};
 pub use valhalla_metasystems_baseforce::{BaseForceCoordinator, CoordinationResult};
 
-// Space GPU 高维计算
+// Space GPU high-dimensional computation
 pub use valhalla_space_f64_gpu::{SpaceGPU, FractalDimensionCalculatorGPU, HyperVector, DimensionResult, SpaceStatus};
 
 /// Hub configuration (f64)
@@ -281,12 +281,12 @@ pub struct HubStatistics {
     pub total_processing_time_ms: f64,
 }
 
-/// Hub 系统切片
+/// Hub system slice
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HubSlice {
     pub hub_id: String,
     pub statistics: HubStatistics,
-    /// 内嵌的 Fate 切片
+    /// Embedded Fate slice
     pub fate_slice: FateSlice,
 }
 
@@ -324,7 +324,7 @@ pub struct ValhallaHub {
     // Fate System (f64)
     pub fate_system: FateSystem,
     
-    /// Triple-Fate 存储系统
+    /// Triple-Fate storage system
     pub triple_fate: TripleFateCombined,
     
     // Quad Systems (f64)
@@ -337,11 +337,11 @@ pub struct ValhallaHub {
     pub system_status: SystemStatus,
     pub statistics: HubStatistics,
     
-    /// 系统存储 - Hub 自身的存储
+    /// System storage - the Hub's own storage
     pub storage: Option<SystemStorage>,
-    /// 所有子系统的存储
+    /// Storage of all subsystems
     pub all_storages: Option<AllStorages>,
-    /// Space GPU 高维计算
+    /// Space GPU high-dimensional computation
     pub space_gpu: SpaceGPU,
     /// Fate weight assignment mode for ingress feedback.
     pub fate_weight_mode: FateWeightMode,
@@ -416,14 +416,14 @@ impl ValhallaHub {
         }
     }
     
-    /// 带存储路径初始化
+    /// Initialise with a storage path
     pub fn with_storage(base_path: &Path) -> std::io::Result<Self> {
         let mut instance = Self::new();
         instance.init_storage(base_path)?;
         Ok(instance)
     }
     
-    /// 初始化所有系统存储
+    /// Initialise all subsystem storage
     pub fn init_storage(&mut self, base_path: &Path) -> std::io::Result<()> {
         self.storage = Some(SystemStorage::new(base_path, "hub")?);
         self.all_storages = Some(init_all_storages(base_path)?);
@@ -431,12 +431,12 @@ impl ValhallaHub {
         Ok(())
     }
     
-    /// 获取 Hub 存储
+    /// Get Hub storage
     pub fn storage(&self) -> Option<&SystemStorage> {
         self.storage.as_ref()
     }
     
-    /// 获取指定系统的存储
+    /// Get the named subsystem's storage
     pub fn system_storage(&self, system: QuadSystemType) -> Option<&SystemStorage> {
         self.all_storages.as_ref().map(|s| match system {
             QuadSystemType::BlackHole => &s.blackhole,
@@ -446,45 +446,45 @@ impl ValhallaHub {
         })
     }
     
-    /// 获取 StemCell 存储
+    /// Get StemCell storage
     pub fn stemcell_storage(&self) -> Option<&SystemStorage> {
         self.all_storages.as_ref().map(|s| &s.stemcell)
     }
     
-    /// 获取 Tile 存储
+    /// Get Tile storage
     pub fn tile_storage(&self) -> Option<&SystemStorage> {
         self.all_storages.as_ref().map(|s| &s.tile)
     }
     
-    /// 获取 Chamber 存储
+    /// Get Chamber storage
     pub fn chamber_storage(&self) -> Option<&SystemStorage> {
         self.all_storages.as_ref().map(|s| &s.chamber)
     }
     
-    // ==================== 数据操作快捷方法 ====================
+    // ==================== Data-operation shortcuts ====================
     
-    /// 存储内容到 Hub
+    /// Store content into the Hub
     pub fn store(&self, name: &str, content: &str) -> std::io::Result<()> {
         self.storage.as_ref()
             .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "Storage not initialized"))?
             .write(name, content)
     }
     
-    /// 读取 Hub 内容
+    /// Read Hub content
     pub fn load(&self, name: &str) -> std::io::Result<String> {
         self.storage.as_ref()
             .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "Storage not initialized"))?
             .read(name)
     }
     
-    /// 删除 Hub 内容
+    /// Delete Hub content
     pub fn remove(&self, name: &str) -> std::io::Result<()> {
         self.storage.as_ref()
             .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "Storage not initialized"))?
             .delete(name)
     }
     
-    /// 列出 Hub 所有内容
+    /// List all Hub content
     pub fn list_stored(&self) -> std::io::Result<Vec<String>> {
         self.storage.as_ref()
             .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "Storage not initialized"))?
@@ -492,54 +492,54 @@ impl ValhallaHub {
     }
     
     // ═══════════════════════════════════════════════════════════════════════════
-    // Fate 存储层 - 委托给内部 triple_fate
+    // Fate storage layer - delegated to the internal triple_fate
     // ═══════════════════════════════════════════════════════════════════════════
     
-    /// 通过 Fate 存储数据
+    /// Store data through Fate
     pub fn fate_store(&mut self, data: &[u8]) -> String {
         self.triple_fate.store_data(data)
     }
     
-    /// 通过 Fate 存储字符串
+    /// Store a string through Fate
     pub fn fate_store_string(&mut self, content: &str) -> String {
         self.triple_fate.store_string(content)
     }
     
-    /// 系统自主创建数据
+    /// System autonomously created data
     pub fn fate_create(&mut self, data: Vec<u8>) -> String {
         self.triple_fate.create_data(data)
     }
     
-    /// 修改 Fate 存储的数据
+    /// Modify data stored by Fate
     pub fn fate_modify(&mut self, id: &str, new_data: Vec<u8>) -> bool {
         self.triple_fate.modify_data(id, new_data)
     }
     
-    /// 读取 Fate 存储的数据
+    /// Read data stored by Fate
     pub fn fate_load(&self, id: &str) -> Option<&FateDataEntry> {
         self.triple_fate.load_data(id)
     }
     
-    /// 删除 Fate 存储的数据
+    /// Delete data stored by Fate
     pub fn fate_remove(&mut self, id: &str) -> Option<FateDataEntry> {
         self.triple_fate.remove_data(id)
     }
     
-    /// 列出 Fate 存储的所有 ID
+    /// List all IDs stored by Fate
     pub fn fate_list(&self) -> Vec<&String> {
         self.triple_fate.list_stored()
     }
     
-    /// Fate 存储数量
+    /// Fate storage count
     pub fn fate_count(&self) -> usize {
         self.triple_fate.stored_count()
     }
     
     // ═══════════════════════════════════════════════════════════════════════════
-    // 系统切片 - 冻结/解冻 (bincode 二进制)
+    // System slice - freeze/thaw (bincode binary)
     // ═══════════════════════════════════════════════════════════════════════════
     
-    /// 保存系统切片 (.hub 二进制)
+    /// Save the system slice (.hub binary)
     pub fn save_slice(&self, path: &Path) -> std::io::Result<()> {
         let slice = HubSlice {
             hub_id: self.hub_id.clone(),
@@ -551,7 +551,7 @@ impl ValhallaHub {
         std::fs::write(path, bytes)
     }
     
-    /// 从切片恢复
+    /// Restore from a slice
     pub fn load_slice(path: &Path) -> std::io::Result<Self> {
         let bytes = std::fs::read(path)?;
         let slice: HubSlice = bincode::deserialize(&bytes)
@@ -565,30 +565,30 @@ impl ValhallaHub {
     }
     
     // ═══════════════════════════════════════════════════════════════════════════
-    // Space GPU 高维计算
+    // Space GPU high-dimensional computation
     // ═══════════════════════════════════════════════════════════════════════════
     
-    /// 计算维度 (GPU 加速)
+    /// Compute dimension (GPU accelerated)
     pub fn space_calculate_dimension(&mut self, data: &[f64]) -> DimensionResult {
         self.space_gpu.process_and_expand(data)
     }
     
-    /// 批量计算维度 (GPU 加速)
+    /// Batch-compute dimensions (GPU accelerated)
     pub fn space_calculate_batch(&mut self, data_batch: &[Vec<f64>]) -> Vec<DimensionResult> {
         self.space_gpu.process_batch(data_batch)
     }
     
-    /// 发现未知模式
+    /// Discover unknown patterns
     pub fn space_on_discovery(&mut self, data: &[f64], pattern: &str) -> String {
         self.space_gpu.on_discovery(data, pattern)
     }
     
-    /// 获取当前维度
+    /// Get the current dimension
     pub fn space_dimension(&self) -> f64 {
         self.space_gpu.get_dimension()
     }
     
-    /// 获取 Space 状态
+    /// Get Space state
     pub fn space_status(&self) -> SpaceStatus {
         self.space_gpu.get_status()
     }
@@ -895,20 +895,20 @@ impl ValhallaHub {
             let idx = (self.statistics.total_requests as usize) % 4;
             return Self::quad_from_index(idx);
         }
-        // 定期记录快照以支持收敛检测
+        // Periodically record snapshots to support convergence detection
         if self.statistics.total_requests % 1000 == 0 {
             self.fate_system.record_preference_snapshot();
         }
         
-        // 检查 Fate 收敛模式 - 如果还在探索中就轮询
+        // Check the Fate convergence mode - poll while still exploring
         let pattern = self.fate_system.detect_convergence_pattern();
         
-        // 只有当 Fate 检测到 "converging" 或 "fixed_point" 模式时，才使用偏好路由
-        // 否则继续轮询探索
+        // Use preference routing only when Fate detects a "converging" or "fixed_point" mode
+        // Otherwise keep polling and exploring
         let fate_ready = matches!(pattern, Some("converging") | Some("fixed_point"));
         
         if !fate_ready {
-            // Fate 尚未形成稳定偏好，轮询分配让所有系统获得信号
+            // Fate has not formed a stable preference; round-robin allocation lets every subsystem receive signal
             let idx = (self.statistics.total_requests as usize) % 4;
             return match idx {
                 0 => QuadSystemType::BlackHole,
@@ -918,7 +918,7 @@ impl ValhallaHub {
             };
         }
         
-        // Fate 已形成稳定偏好，由 Fate 决定路由
+        // Fate has formed a stable preference; Fate decides routing
         let prefs = self.fate_system.calculate_system_preferences();
         match prefs.preferred_system() {
             0 => QuadSystemType::BlackHole,
@@ -948,30 +948,30 @@ impl ValhallaHub {
         &self.fate_system
     }
     
-    /// 记录当前 Fate 偏好快照 (用于收敛检测)
+    /// Record the current Fate preference snapshot (for convergence detection)
     pub fn record_fate_snapshot(&mut self) {
         self.fate_system.record_preference_snapshot();
     }
     
-    /// 标记一个 epoch (周期) 完成
-    /// 只有调用此方法后，Fate 才能判断是否收敛
-    /// 这确保了：数据必须处理完毕才能触发收敛
+    /// Mark one epoch (cycle) complete
+    /// Only after this method is called can Fate judge convergence
+    /// This ensures data must be fully processed before convergence can trigger
     pub fn mark_epoch_complete(&mut self) {
         self.fate_system.mark_epoch_complete();
     }
     
-    /// 检查数据是否还在流入
+    /// Check whether data is still flowing in
     pub fn is_data_flowing(&self) -> bool {
         self.fate_system.is_data_flowing()
     }
     
-    /// Fate 自主判断是否收敛 (代数形式边际效应)
-    /// 前提：数据必须处理完毕 (调用过 mark_epoch_complete)
+    /// Fate autonomously judges convergence (algebraic marginal effect)
+    /// Precondition: data fully processed (mark_epoch_complete called)
     pub fn has_fate_converged(&self) -> bool {
         self.fate_system.has_converged()
     }
     
-    /// 获取 Fate 收敛模式
+    /// Get the Fate convergence mode
     pub fn get_fate_convergence_pattern(&self) -> Option<&'static str> {
         self.fate_system.detect_convergence_pattern()
     }

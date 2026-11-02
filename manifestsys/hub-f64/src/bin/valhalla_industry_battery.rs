@@ -1,10 +1,10 @@
-﻿//! 行业式测试电池（全部为自生成 analogue，不是官方数据集分数）：
-//! T1 规则归纳（facts withheld：测试期不喂事实，真值=训练边集传递闭包）
-//! T2 SCAN 式长度泛化（短链训练 vs 长链训练，测长链多跳）
-//! T3 CLUTRR 式家谱多跳（按跳数分层）
-//! T4 CL-bench 式持续学习（学完 pool2 后回测 pool1，测遗忘）
-//! 答题通道：存储图（只读四元字节的哑可达）与 Tile/Stem 自发网络，两条分开记分。
-//! MiniGrid Memory / Bongard-LOGO / ARC-AGI 需要动作或网格视觉通道，现有架构没有，不在此假跑。
+﻿//! Industry-style test battery (all self-generated analogues, not official dataset scores):
+//! T1 rule induction (facts withheld: no facts fed at test; truth = transitive closure of the training edge set)
+//! T2 SCAN-style length generalisation (short-chain vs long-chain training, tested on long-chain multi-hop)
+//! T3 CLUTRR-style family-tree multi-hop (stratified by hops)
+//! T4 CL-bench-style continual learning (after pool2, retest pool1 for forgetting)
+//! Answer channels: the storage graph (dumb reachability over read-only quad bytes) and the self-formed Tile/Stem networks, scored separately.
+//! MiniGrid Memory / Bongard-LOGO / ARC-AGI need action or grid-vision channels the current architecture lacks; not fake-run here.
 
 use hub_f64::monitor::BodyMonitor;
 use hub_f64::TripleFateCombined;
@@ -99,9 +99,9 @@ impl Body {
     fn cycle(&mut self) {
         let t = self.tile.process_tiles_cycle();
         let s = self.stem.process_cells_cycle();
-        // 老 Fate 搭法：每周期驱动一次多层 tick —— base 判模式、meta 观察、
-        // 涌现规则回推；死亡数随身体状态信号一起被全局 Fate 抓取。
-        // 此前这里只在 feed 里 receive_passive，这台机器从没转过。
+        // The old Fate arrangement: one multi-layer tick per cycle - base judges the mode, meta observes,
+        // emergent rules push back; death counts are captured by global Fate together with body-state signals.
+        // Previously this only receive_passive'd inside feed; the machine never actually turned.
         let state_signal = vec![
             t.tile_count as f64,
             s.cell_count as f64,
@@ -201,7 +201,7 @@ fn parse_relations(bytes: &[u8]) -> Vec<(String, String)> {
     edges
 }
 
-/// 符号图 BFS 距离（测试侧算真值用，不参与答题）
+/// Symbol-graph BFS distance (test-side truth computation; not used in answering)
 fn sym_dist(edges: &[(String, String)], from: &str, to: &str) -> Option<usize> {
     if from == to {
         return None;
@@ -232,7 +232,7 @@ struct Question {
     cat: &'static str,
 }
 
-/// 两条通道分别记分，返回 (存储%, 网络%)
+/// Channels scored separately; returns (storage %, network %)
 fn score_both(body: &Body, qs: &[Question], sym_t: &SymNodes, sym_s: &SymNodes) -> (f64, f64) {
     let edges = parse_relations(&body.stored_bytes());
     let adj_t = net_adj(body, false);
@@ -282,7 +282,7 @@ fn merge_sym(dst: &mut SymNodes, src: SymNodes) {
     }
 }
 
-/// 标准培养（三阶段，与因果证明同一课表），返回训练边集
+/// Standard cultivation (three stages, same curriculum as the causal proof); returns the training edge set
 fn cultivate_tracked(rng: &mut Rng, body: &mut Body, pool: &[String], sym_t: &mut SymNodes, sym_s: &mut SymNodes) -> Vec<(String, String)> {
     let mut edges: Vec<(String, String)> = Vec::new();
     let mut run = |body: &mut Body, items: &[Vec<u8>], sym_t: &mut SymNodes, sym_s: &mut SymNodes, edges: &mut Vec<(String, String)>| {
@@ -331,9 +331,9 @@ fn pct(rows: &[f64]) -> (f64, f64) {
     (m, s)
 }
 
-// ---------------- T1 规则归纳（facts withheld，不相交链族） ----------------
+// ---------------- T1 rule induction (facts withheld, disjoint chain families) ----------------
 fn t1_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64) {
-    // 12 条互不相交的 5 符号链：闭包只在链内，跨链/反向为真负例
+    // 12 disjoint 5-symbol chains: closure exists only in-chain; cross-chain/reverse are true negatives
     let mut rng = Rng(0x1111_0000 + seed * 7919);
     let mut chains: Vec<Vec<String>> = Vec::new();
     for k in 0..12 {
@@ -366,7 +366,7 @@ fn t1_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64) {
         body.cycle();
     }
 
-    // 候选题：链内有序对（闭包定标签）+ 跨链对（真负例），按配额抽
+    // Candidate questions: in-chain ordered pairs (closure-labelled) + cross-chain pairs (true negatives), drawn by quota
     let mut cands: Vec<Question> = Vec::new();
     for chain in &chains {
         for a in chain {
@@ -406,13 +406,13 @@ fn t1_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64) {
             qs.push(q);
         }
     }
-    println!("    T1 题量: d1 {} d2 {} d3 {} d4+ {} 沉默 {}", counts.get("t1_d1").unwrap_or(&0), counts.get("t1_d2").unwrap_or(&0), counts.get("t1_d3").unwrap_or(&0), counts.get("t1_d4p").unwrap_or(&0), counts.get("t1_sil").unwrap_or(&0));
+    println!("    T1 questions: d1 {} d2 {} d3 {} d4+ {} silent {}", counts.get("t1_d1").unwrap_or(&0), counts.get("t1_d2").unwrap_or(&0), counts.get("t1_d3").unwrap_or(&0), counts.get("t1_d4p").unwrap_or(&0), counts.get("t1_sil").unwrap_or(&0));
     let (cg, cn) = score_both(&body, &qs, &sym_t, &sym_s);
     let (_, cn2, _) = score_cat(&body, &qs, &sym_t, &sym_s, "t1_d2");
     let (_, cn3, _) = score_cat(&body, &qs, &sym_t, &sym_s, "t1_d3");
     let (_, cns, _) = score_cat(&body, &qs, &sym_t, &sym_s, "t1_sil");
 
-    // A：噪声身体，同样不喂测试事实（符号节点为空 → 网络全沉默）
+    // A: noise body, likewise no test facts fed (empty symbol nodes -> network fully silent)
     let mut body_a = Body::new();
     let noise = ["lorem", "ipsum", "dolor", "amet", "velit", "sed", "tempor", "magna"];
     for _ in 0..900 {
@@ -420,10 +420,10 @@ fn t1_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64) {
     }
     body_a.cycle();
     let (ag, an) = score_both(&body_a, &qs, &SymNodes::new(), &SymNodes::new());
-    println!("seed {seed} T1 规则归纳(withheld): C 存储 {cg:.1} 网络 {cn:.1}（2跳 {cn2:.1} 3跳 {cn3:.1} 沉默 {cns:.1}） | A 存储 {ag:.1} 网络 {an:.1}");
+    println!("seed {seed} T1 rule induction (withheld): C storage {cg:.1} network {cn:.1} (2-hop {cn2:.1} 3-hop {cn3:.1} silent {cns:.1}) | A storage {ag:.1} network {an:.1}");
     (cg, cn, cn2, cn3, cns, an)
 }
-// ---------------- T2 SCAN 式长度泛化 ----------------
+// ---------------- T2 SCAN-style length generalisation ----------------
 fn cultivate_len(rng: &mut Rng, body: &mut Body, pool: &[String], max_len: usize) {
     for stage in 0..3 {
         let mut items: Vec<Vec<u8>> = Vec::new();
@@ -450,7 +450,7 @@ fn t2_seed(seed: u64) -> (f64, f64, f64, f64) {
     let mut long = Body::new();
     cultivate_len(&mut rng, &mut long, &pool, 6);
 
-    // 测试：6 长链，事实按协议在测试期给出
+    // Test: 6 long chains; facts given at test time per protocol
     let mut rng_t = Rng(0x2223_0000 + seed * 104729);
     let mut qs: Vec<Question> = Vec::new();
     let mut facts: Vec<Vec<u8>> = Vec::new();
@@ -485,11 +485,11 @@ fn t2_seed(seed: u64) -> (f64, f64, f64, f64) {
     };
     let (sg, sn) = score_both(&short, &qs, &st, &ss);
     let (lg, ln) = score_both(&long, &qs, &lt, &ls);
-    println!("seed {seed} T2 长度泛化: 短训 存储 {sg:.1} 网络 {sn:.1}（4-5跳 {sn45:.1}） | 长训 存储 {lg:.1} 网络 {ln:.1}（4-5跳 {ln45:.1}）");
+    println!("seed {seed} T2 length generalisation: short-trained storage {sg:.1} network {sn:.1} (4-5 hop {sn45:.1}) | long-trained storage {lg:.1} network {ln:.1} (4-5 hop {ln45:.1})");
     (sn, ln, sn45, ln45)
 }
 
-// ---------------- T3 CLUTRR 式家谱多跳 ----------------
+// ---------------- T3 CLUTRR-style family-tree multi-hop ----------------
 fn t3_seed(seed: u64) -> (f64, f64, f64, f64, f64) {
     let pool: Vec<String> = (0..30).map(symbol).collect();
     let mut rng = Rng(0x3333_0000 + seed * 7919);
@@ -497,7 +497,7 @@ fn t3_seed(seed: u64) -> (f64, f64, f64, f64, f64) {
     let (mut _t, mut _s) = (SymNodes::new(), SymNodes::new());
     cultivate_tracked(&mut rng, &mut body, &pool, &mut _t, &mut _s);
 
-    // 家谱：每家 2 祖辈 -> 父母 -> 3 子女（边 = parent-of），符号独占
+    // Family tree: per family 2 grandparents -> parents -> 3 children (edge = parent-of); symbols exclusive
     let fam_base = 500;
     let mut rng_t = Rng(0x3334_0000 + seed * 104729);
     let mut qs: Vec<Question> = Vec::new();
@@ -531,11 +531,11 @@ fn t3_seed(seed: u64) -> (f64, f64, f64, f64, f64) {
     let (_, n2, _) = score_cat(&body, &qs, &st, &ss, "t3_d2");
     let (_, nrev, _) = score_cat(&body, &qs, &st, &ss, "t3_rev");
     let (_, nsib, _) = score_cat(&body, &qs, &st, &ss, "t3_sib");
-    println!("seed {seed} T3 家谱多跳: 存储 {g:.1} 网络 {n:.1}（2跳 {n2:.1} 反向沉默 {nrev:.1} 兄妹沉默 {nsib:.1}）");
+    println!("seed {seed} T3 family multi-hop: storage {g:.1} network {n:.1} (2-hop {n2:.1} reverse silence {nrev:.1} sibling silence {nsib:.1})");
     (g, n, n2, nrev, nsib)
 }
 
-// ---------------- T4 CL-bench 式持续学习 ----------------
+// ---------------- T4 CL-bench-style continual learning ----------------
 fn battery(rng: &mut Rng, test_pool: &[String], cursor: &mut usize) -> (Vec<Question>, Vec<Vec<u8>>) {
     let mut qs: Vec<Question> = Vec::new();
     let mut facts: Vec<Vec<u8>> = Vec::new();
@@ -573,7 +573,7 @@ fn t4_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64) {
     body.cycle();
     let (g_before, n_before) = score_both(&body, &q1, &sym_t, &sym_s);
 
-    // 第二阶段：学不相交的 pool2（同等规模）
+    // Stage two: learn the disjoint pool2 (same scale)
     let (mut t2m, mut s2m) = (SymNodes::new(), SymNodes::new());
     cultivate_tracked(&mut rng, &mut body, &pool2, &mut t2m, &mut s2m);
     merge_sym(&mut sym_t, t2m);
@@ -586,9 +586,9 @@ fn t4_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64) {
     body.cycle();
     let (g2, n2) = score_both(&body, &q2, &sym_t, &sym_s);
 
-    // 回测 battery1：不重喂事实（withheld），靠存储与已长结构
+    // Retest battery1: facts not re-fed (withheld); relies on storage and already-grown structure
     let (g_after, n_after) = score_both(&body, &q1, &sym_t, &sym_s);
-    println!("seed {seed} T4 持续学习: 任务1 学后 存储 {g_before:.1} 网络 {n_before:.1} → 学任务2后回测 存储 {g_after:.1} 网络 {n_after:.1} | 任务2 存储 {g2:.1} 网络 {n2:.1}");
+    println!("seed {seed} T4 continual learning: task1 after learning storage {g_before:.1} network {n_before:.1} -> retest after task2 storage {g_after:.1} network {n_after:.1} | task2 storage {g2:.1} network {n2:.1}");
     (g_before, n_before, g_after, n_after, g2, n2)
 }
 
@@ -598,7 +598,7 @@ fn main() {
         .split(',')
         .filter_map(|s| s.trim().parse().ok())
         .collect();
-    println!("行业式电池（自生成 analogue，非官方分数）；seeds = {seeds:?}");
+    println!("Industry-style battery (self-generated analogues, not official scores); seeds = {seeds:?}");
     let (mut t1, mut t2, mut t3, mut t4) = (Vec::new(), Vec::new(), Vec::new(), Vec::new());
     for seed in &seeds {
         println!("== seed {seed} ==");
@@ -616,37 +616,37 @@ fn main() {
         let (m, s) = pct(&col(rows, i));
         println!("  {name}: {m:.1} ± {s:.1}");
     };
-    println!("\n== 行业式电池汇总（{} seeds，%） ==", seeds.len());
-    println!("T1 规则归纳（测试期不喂事实）:");
-    show("C 存储通道", &t1v, 0);
-    show("C 网络通道", &t1v, 1);
-    show("C 网络 2跳", &t1v, 2);
-    show("C 网络 3跳", &t1v, 3);
-    show("C 网络 沉默", &t1v, 4);
-    show("A 网络通道", &t1v, 5);
-    println!("T2 SCAN 式长度泛化（测 6 长链）:");
-    show("短训(≤3) 网络", &t2v, 0);
-    show("长训(≤6) 网络", &t2v, 1);
-    show("短训 4-5跳", &t2v, 2);
-    show("长训 4-5跳", &t2v, 3);
-    println!("T3 CLUTRR 式家谱多跳:");
-    show("存储通道", &t3v, 0);
-    show("网络通道", &t3v, 1);
-    show("网络 2跳(祖辈)", &t3v, 2);
-    show("网络 反向沉默", &t3v, 3);
-    show("网络 兄妹沉默", &t3v, 4);
-    println!("T4 CL-bench 式持续学习:");
-    show("任务1 学后 存储", &t4v, 0);
-    show("任务1 学后 网络", &t4v, 1);
-    show("任务1 任务2后 存储", &t4v, 2);
-    show("任务1 任务2后 网络", &t4v, 3);
-    show("任务2 存储", &t4v, 4);
-    show("任务2 网络", &t4v, 5);
+    println!("\n== Industry battery summary ({} seeds, %) ==", seeds.len());
+    println!("T1 rule induction (no facts fed at test):");
+    show("C storage channel", &t1v, 0);
+    show("C network channel", &t1v, 1);
+    show("C network 2-hop", &t1v, 2);
+    show("C network 3-hop", &t1v, 3);
+    show("C network silence", &t1v, 4);
+    show("A network channel", &t1v, 5);
+    println!("T2 SCAN-style length generalisation (6 long chains tested):");
+    show("short-trained(<=3) network", &t2v, 0);
+    show("long-trained(<=6) network", &t2v, 1);
+    show("short-trained 4-5 hop", &t2v, 2);
+    show("long-trained 4-5 hop", &t2v, 3);
+    println!("T3 CLUTRR-style family-tree multi-hop:");
+    show("storage channel", &t3v, 0);
+    show("network channel", &t3v, 1);
+    show("network 2-hop (grandparents)", &t3v, 2);
+    show("network reverse silence", &t3v, 3);
+    show("network sibling silence", &t3v, 4);
+    println!("T4 CL-bench-style continual learning:");
+    show("task1 learned storage", &t4v, 0);
+    show("task1 learned network", &t4v, 1);
+    show("task1 after-task2 storage", &t4v, 2);
+    show("task1 after-task2 network", &t4v, 3);
+    show("task2 storage", &t4v, 4);
+    show("task2 network", &t4v, 5);
     let (gb, _) = pct(&col(&t4v, 0));
     let (ga, _) = pct(&col(&t4v, 2));
     let (nb, _) = pct(&col(&t4v, 1));
     let (na, _) = pct(&col(&t4v, 3));
-    println!("  后向迁移 BWT: 存储 {:+.1} pp，网络 {:+.1} pp（负=遗忘）", ga - gb, na - nb);
+    println!("  Backward transfer BWT: storage {:+.1} pp, network {:+.1} pp (negative = forgetting)", ga - gb, na - nb);
 }
 
 

@@ -1,36 +1,52 @@
-//! Valhalla 可视化监控（展示版，2026-11-01）：与 valhalla_full_flow
-//! 同课程同种子（读数应与已审计的 20 轮跑逐字一致），另行记录逐轮
-//! 快照与新生 Stem 细胞场位置，收尾导出单文件 HTML 监控页
-//! （viz_out/index.html + valhalla_viz.json，离线可开、适合投屏）。
-//! 图表口径：场散点是出生位置（公式直写输入统计量，直接映射非
-//! 涌现）；问答为第 10/末轮双检查点四通道。VH_VIZ_DIR 改导出目录。
+//! Valhalla visual monitor (display edition, 2026-11-01): same curriculum
+//! and seed as valhalla_full_flow (readings should match the audited
+//! 20-round run verbatim); additionally records per-round snapshots and
+//! newborn Stem-cell field positions, and exports a single-file HTML
+//! dashboard at the end (viz_out/index.html + valhalla_viz.json, opens
+//! offline, suitable for projection). Chart scope: the field scatter
+//! shows birth positions (formula-written input statistics, direct
+//! mapping, not emergence); QA is scored at the round-10/final
+//! checkpoints over four channels. VH_VIZ_DIR changes the export dir.
 //!
-//! 入口（Fate 自动分割，原版设计）：一切料（多语文本/代码/图片/声音
-//! 字节/符号事实）都逐字节走 Stem/Tile 的 receive_data——容器只收集，
-//! Fate 用自身簇方程判收敛、命中收口成段；段长由方程与料的统计形态
-//! 决定，喂方不预设粒度。存储纪律不变：原始字节全量入双侧四元记账
-//! （自然料按 8KB 流块、事实按条），出生切分与存储粒度脱钩。
-//! 体内：每轮 = 喂一批料 + 若干身体周期（tile/stem 周期、全局 Fate
-//! tick、场沉降、propagate），与训练器同节律。
-//! 出口（测试期，各通道分开记分，不混）：
-//!   A 原生回应：留出料逐字节入场，看 Fate 如何切分、 newborn 落在
-//!      场空间何处——回应形态不设限，只记录。
-//!   B 结构问答（harness 读身体状态）：训练期喂过的符号链，测试期
-//!      问未喂过的传递问题；存储通道=四元字节里抽边做限步可达，
-//!      网络通道=Tile/Stem 自发连接上做限步可达（符号→单位映射
-//!      用喂事实时的段级出生记账）。
-//!   C 对外 Fate 问答（今晨 bbea60a 定稿的 react 接口才是问答
-//!      接口）：喂事实时同字节双写全球 Fate 的 data_store（主线
-//!      喂法此前只写四元、data_store 恒空，react 无话可送——缺的
-//!      是这步接线）。测试期每跳调用一次 react、解析它送出的原文
-//!      中的边；react 为 &self 只读：刺激不入内部 Fate、不 tick、
-//!      不改方程（纪律由签名保证，问题不入体）。
-//! 检查点：第 10 / 20 轮各测一次（同体继续训），读"多训十轮混料
-//! 对事实结构是保是洗"。未纳入：vent 式抓取出口（D11 未立）。
+//! Ingress (Fate auto-segmentation, original design): all material
+//! (multilingual text / code / image / audio bytes / symbolic facts)
+//! enters byte-wise through Stem/Tile receive_data - containers only
+//! collect; Fate judges convergence with its own cluster equation and
+//! closes segments on a hit; segment length is decided by the equation
+//! and the material's statistics, the feeder presets no granularity.
+//! Storage discipline unchanged: raw bytes are fully accounted in the
+//! quad stores on both sides (natural material in 8KB stream blocks,
+//! facts per item); birth segmentation is decoupled from storage grain.
+//! Body: each round = one batch of material + several body cycles
+//! (tile/stem cycles, global Fate tick, field settling, propagate),
+//! on the trainer's rhythm.
+//! Egress (test phase; channels scored separately, never mixed):
+//!   A native response: held-out material enters byte-wise; record how
+//!      Fate segments it and where newborns land in field space - the
+//!      response form is unconstrained, only recorded.
+//!   B structural QA (harness reads body state): chains fed in training,
+//!      withheld transitive questions at test; storage channel = edges
+//!      drawn from quad bytes with bounded reachability, network channel
+//!      = bounded reachability over self-formed Tile/Stem connections
+//!      (symbol-to-unit mapping from segment-level birth accounting
+//!      while facts were fed).
+//!   C external Fate QA (the react interface fixed in bbea60a is the QA
+//!      interface): while feeding facts, the same bytes are double-written
+//!      to global Fate's data_store (the mainline feed previously wrote
+//!      only the quads, data_store stayed empty, react had nothing to
+//!      send - this wiring was the missing step). At test, call react
+//!      once per hop and parse the edges in the originals it sends;
+//!      react is &self read-only: the stimulus does not enter internal
+//!      Fate, does not tick, does not change the equation (the discipline
+//!      is guaranteed by the signature; questions do not enter the body).
+//! Checkpoints: measured at rounds 10 / 20 (same body keeps training),
+//! reading whether ten more rounds of mixed material preserve or wash
+//! the fact structure. Not included: vent-style extraction egress (D11
+//! not established).
 //!
-//! 环境变量：VH_ROUNDS（总轮数，默认 20）、VH_CHUNK_KB（每轮每料
-//! KB，默认 128）、VH_CYCLES（每轮周期数，默认 2）、VH_SEED。
-//! 运行方法见 docs/valhalla/FULL_FLOW_RUNBOOK.md。
+//! Env: VH_ROUNDS (total rounds, default 20), VH_CHUNK_KB (KB per material per round,
+//! default 128), VH_CYCLES (cycles per round, default 2), VH_SEED.
+//! See docs/valhalla/FULL_FLOW_RUNBOOK.md.
 
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::path::{Path, PathBuf};
@@ -61,7 +77,7 @@ struct Body {
     #[allow(dead_code)]
     monitor: BodyMonitor,
     global: TripleFateCombined,
-    /// 可视化采样：新生 Stem 细胞出生场位置（料型, x, y）
+    /// Viz sampling: newborn Stem-cell birth field positions (material, x, y)
     viz_scatter: Vec<(String, f64, f64)>,
 }
 
@@ -75,12 +91,12 @@ impl Body {
             viz_scatter: Vec::new(),
         }
     }
-    /// Fate 分割入口：存储记账（流块）+ 逐字节收口出生。
-    /// 返回（stem 新生段数，tile 新生段数）。
+    /// Fate segmentation ingress: storage accounting (stream blocks) + byte-wise closed births.
+    /// Returns (new stem segments, new tile segments).
     fn feed_fateseg(&mut self, bytes: &[u8]) -> (usize, usize) {
         self.feed_labeled(bytes, "")
     }
-    /// 带料型标注的喂入：新生细胞出生位置采样进散点（上限 6000 点）。
+    /// Material-labelled feeding: newborn-cell birth positions sampled into the scatter (cap 6000 points).
     fn feed_labeled(&mut self, bytes: &[u8], label: &str) -> (usize, usize) {
         for chunk in bytes.chunks(8 * 1024) {
             self.tile.quad_keep(chunk);
@@ -151,7 +167,7 @@ impl Body {
     fn fingerprint(&self, tag: &str) {
         let links: usize = self.stem.cells.iter().map(|c| c.connections.len()).sum();
         println!(
-            "{tag} tiles {} cells {} stem_links {} 存储 {} 方程 {}",
+            "{tag} tiles {} cells {} stem_links {} stored {} equation {}",
             self.tile.completed_tiles.len(),
             self.stem.cells.len(),
             links,
@@ -159,9 +175,10 @@ impl Body {
             self.global.cluster_equation.equation_str()
         );
     }
-    /// 完整身体存档（与 incubation_proof 的 save_full 同格式，外部
-    /// load_full 可直接恢复）：切片（Fate+计数）+ 瓦/细胞 JSON + 全局
-    /// Fate 切片 + 八份四元存储。设置 VH_SAVE_BODY=<目录> 时在终局调用。
+    /// Full body archive (same format as incubation_proof save_full;
+    /// external load_full restores directly): slices (Fate+counters) +
+    /// tile/cell JSON + global Fate slice + the eight quad stores.
+    /// Called at the end when VH_SAVE_BODY=<dir> is set.
     fn save_body(&self, dir: &std::path::Path) -> std::io::Result<()> {
         std::fs::create_dir_all(dir)?;
         self.tile.save_slice(&dir.join("tile.slice"))?;
@@ -181,7 +198,7 @@ impl Body {
     }
 }
 
-/// 监控页模板（单文件、离线、零外部依赖）。`__DATA__` 替换为实测 JSON。
+/// Dashboard template (single file, offline, zero external deps). `__DATA__` is replaced with measured JSON.
 const VIZ_HTML: &str = r##"<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <title>Valhalla — Body Monitor</title>
@@ -215,7 +232,7 @@ const VIZ_HTML: &str = r##"<!DOCTYPE html>
 </div>
 <script>
 const DATA = __DATA__;
-const MAT = {"多语文本":"#4cc9f0","代码":"#f72585","图片":"#ffd166","声音":"#06d6a0"};
+const MAT = {"multilingual text":"#4cc9f0","code":"#f72585","image":"#ffd166","audio":"#06d6a0"};
 const PAL = ["#4cc9f0","#f72585","#ffd166","#06d6a0","#b388ff"];
 function cv(id){const c=document.getElementById(id);const d=window.devicePixelRatio||1;const w=c.clientWidth,h=300;c.width=w*d;c.height=h*d;const x=c.getContext("2d");x.scale(d,d);return[x,w,h];}
 function axes(x,w,h,pad){x.strokeStyle="#22304d";x.beginPath();x.moveTo(pad,8);x.lineTo(pad,h-24);x.lineTo(w-8,h-24);x.stroke();}
@@ -265,8 +282,8 @@ document.getElementById("lEq").innerHTML=lines("cEq",[
  '<div class="stat"><b>'+DATA.total_rounds+'</b><span>rounds · seed '+DATA.seed+'</span></div>';})();
 </script></body></html>"##;
 
-/// 对外 Fate 一跳：以符号为刺激调 react，解析它送出的原文中的边，
-/// 返回边两端符号。react 无命中即空——沉默如实呈现为无邻居。
+/// One external Fate hop: call react with a symbol stimulus, parse the edges in the originals it sends,
+/// return the symbols at both ends. No react hit means empty - silence honestly shown as no neighbours.
 fn react_neighbors(global: &TripleFateCombined, sym: &str) -> Vec<String> {
     let out = global.react(sym.as_bytes());
     let mut ns = Vec::new();
@@ -279,7 +296,7 @@ fn react_neighbors(global: &TripleFateCombined, sym: &str) -> Vec<String> {
     ns
 }
 
-/// 限步可达（无向，预算=步数）
+/// Bounded reachability (undirected, budget = steps)
 fn reachable(adj: &HashMap<String, Vec<String>>, from: &[String], to: &HashSet<String>, budget: usize) -> bool {
     let mut seen: HashSet<String> = HashSet::new();
     let mut q: VecDeque<(String, usize)> = VecDeque::new();
@@ -321,7 +338,7 @@ fn read_file(p: &Path) -> Vec<u8> {
 }
 
 fn main() {
-    // 大身体周期含深递归/大帧，与 probes 同规：大栈线程跑主逻辑。
+    // Large body cycles involve deep recursion / big frames; run main logic on a big-stack thread, as in probes.
     let h = std::thread::Builder::new()
         .stack_size(512 * 1024 * 1024)
         .spawn(run)
@@ -336,7 +353,7 @@ fn run() {
     let seed: u64 = std::env::var("VH_SEED").ok().and_then(|v| v.parse().ok()).unwrap_or(7);
     let mut rng = Rng(seed ^ 0x5EED);
 
-    // ── 料源（自然料四类）──
+    // -- Material sources (four natural kinds) --
     let div = Path::new(r"C:\Ai\rogue-products\valhalla-self-incubate\corpus_diverse");
     let mut text = Vec::new();
     for f in ["zh_honglou_24264.txt", "fr_montecristo_17989.txt", "de_faust_2229.txt"] {
@@ -358,15 +375,17 @@ fn run() {
     for f in ["Alarm01.wav", "Alarm02.wav", "Alarm03.wav"] {
         aud.extend_from_slice(&read_file(&Path::new(r"C:\Windows\Media").join(f)));
     }
-    let mats: Vec<(&str, &Vec<u8>)> = vec![("多语文本", &text), ("代码", &code), ("图片", &img), ("声音", &aud)];
-    println!("料源: {}", mats.iter().map(|(n, b)| format!("{n} {}KB", b.len() / 1024)).collect::<Vec<_>>().join(" / "));
-    // 留出尾（回应测试专用，训练轮不碰）：每料最后 128KB
+    let mats: Vec<(&str, &Vec<u8>)> = vec![("multilingual text", &text), ("code", &code), ("image", &img), ("audio", &aud)];
+    println!("Materials: {}", mats.iter().map(|(n, b)| format!("{n} {}KB", b.len() / 1024)).collect::<Vec<_>>().join(" / "));
+    // Held-out tail (response test only, training rounds never touch it): last 128KB of each material
     let holdout = 128 * 1024usize;
 
-    // ── 符号事实：200 链 × 6 符号 ──
-    // 规模定标实测依据：事实流 1KB 时 Fate 零出生（自然段长数百至
-    // 数千字节）；事实总量须达段长量级以上才有单位可测。段跨链
-    // 产生的枢纽污染由假题对率负责暴露，不预先粉饰。
+    // -- Symbolic facts: 200 chains x 6 symbols --
+    // Scale calibration, measured: at 1KB of fact stream Fate births
+    // nothing (natural segments run hundreds to thousands of bytes);
+    // total facts must reach segment-length scale before units are
+    // measurable. Hub contamination from cross-chain segments is left
+    // for the false-pair rate to expose, not prettified in advance.
     let n_chains = 200usize;
     let chain_len = 6usize;
     let chains: Vec<Vec<String>> = (0..n_chains)
@@ -378,12 +397,12 @@ fn run() {
             fact_pairs.push((w[0].clone(), w[1].clone()));
         }
     }
-    // 打乱事实顺序（固定种子）
+    // Shuffle fact order (fixed seed)
     for i in (1..fact_pairs.len()).rev() {
         let j = rng.below(i + 1);
         fact_pairs.swap(i, j);
     }
-    // 测试题：传递（dist 2..5，未喂）+ 假题（跨链）
+    // Test questions: transitive (dist 2..5, withheld) + false (cross-chain)
     let mut questions: Vec<(String, String, usize, bool)> = Vec::new(); // (a, b, dist, is_true)
     for ch in &chains {
         for i in 0..chain_len {
@@ -405,10 +424,10 @@ fn run() {
     }
 
     let mut body = Body::new();
-    // 可视化记录：逐轮快照 + 检查点问答（导出在收尾）
+    // Viz recording: per-round snapshots + checkpoint QA (export at the end)
     let mut viz_rounds: Vec<serde_json::Value> = Vec::new();
     let mut viz_checks: Vec<serde_json::Value> = Vec::new();
-    // 符号→单位出生记账（喂事实期间的尾段）
+    // Symbol-to-unit birth accounting (tail segments while feeding facts)
     let mut sym_tiles: HashMap<String, HashSet<String>> = HashMap::new();
     let mut sym_cells: HashMap<String, HashSet<String>> = HashMap::new();
 
@@ -416,7 +435,7 @@ fn run() {
                    sym_tiles: &HashMap<String, HashSet<String>>,
                    sym_cells: &HashMap<String, HashSet<String>>,
                    tag: &str| {
-        // 存储通道：字节里抽 AAA>BBB 边
+        // Storage channel: draw AAA>BBB edges from the bytes
         let bytes = body.stored_bytes();
         let mut edges: HashSet<(String, String)> = HashSet::new();
         for w in bytes.windows(7) {
@@ -432,7 +451,7 @@ fn run() {
             sadj.entry(a.clone()).or_default().push(b.clone());
             sadj.entry(b.clone()).or_default().push(a.clone());
         }
-        // 网络通道：自发连接图
+        // Network channel: self-formed connection graph
         let mut tadj: HashMap<String, Vec<String>> = HashMap::new();
         for t in &body.tile.completed_tiles {
             for c in &t.connections {
@@ -464,8 +483,10 @@ fn run() {
                 if fn_ > 0 { ft as f64 / fn_ as f64 * 100.0 } else { 0.0 },
             )
         };
-        // 统一预算 5（全链长-1），真假题同尺——2026-11-01 仪器修正：
-        // 旧版以题目真实距离 d 为预算，属标签泄漏，旧绝对值销账。
+        // Unified budget 5 (full chain length - 1), same scale for true and
+        // false questions - 2026-11-01 instrument correction: the old
+        // version budgeted by true distance d, which leaked the label;
+        // old absolute values are written off.
         let (s_true, s_false) = score(&|a, b, _d| {
             let to: HashSet<String> = [b.clone()].into_iter().collect();
             reachable(&sadj, std::slice::from_ref(a), &to, 5)
@@ -479,14 +500,16 @@ fn run() {
         };
         let (t_true, t_false) = net(sym_tiles, &tadj);
         let (c_true, c_false) = net(sym_cells, &cadj);
-        println!("[{tag}] 结构问答 真题/假题对: 存储 {:.1}/{:.1} | Tile网络 {:.1}/{:.1} | Stem网络 {:.1}/{:.1}（题量 {}，符号映射 tile {} 符号 stem {} 符号）",
+        println!("[{tag}] Structural QA true/false pairs: storage {:.1}/{:.1} | Tile network {:.1}/{:.1} | Stem network {:.1}/{:.1} (questions {}, symbol map tile {} symbols stem {} symbols)",
             s_true, s_false, t_true, t_false, c_true, c_false, questions.len(), sym_tiles.len(), sym_cells.len());
         (s_true, s_false, t_true, t_false, c_true, c_false)
     };
 
-    // 出口 C：对外 Fate 问答。每跳一次 react（只读、确定；测试期
-    // 方程静止），同符号结果进程内缓存。首跳沉默（react 对链首
-    // 符号无任何送出）单列——那是接口无话，不是答错。
+    // Egress C: external Fate QA. One react per hop (read-only,
+    // deterministic; equation at rest during testing), same-symbol
+    // results cached in-process. First-hop silence (react sends
+    // nothing for chain-head symbols) is listed separately - that is
+    // the interface having nothing to say, not a wrong answer.
     let react_at = |body: &Body, tag: &str| {
         let mut cache: HashMap<String, Vec<String>> = HashMap::new();
         let (mut tt, mut tn, mut ft, mut fn_) = (0usize, 0usize, 0usize, 0usize);
@@ -534,7 +557,7 @@ fn run() {
             }
         }
         let pct = |x: usize, n: usize| if n > 0 { x as f64 / n as f64 * 100.0 } else { 0.0 };
-        println!("[{tag}] 对外Fate问答(react) 真题/假题对: {:.1}/{:.1}（真题首跳沉默 {}，react 覆盖符号 {}，data_store {} 条）",
+        println!("[{tag}] External Fate QA (react) true/false pairs: {:.1}/{:.1} (true first-hop silence {}, react-covered symbols {}, data_store {} entries)",
             pct(tt, tn), pct(ft, fn_), first_silent, cache.len(), body.global.stored_count());
         (pct(tt, tn), pct(ft, fn_))
     };
@@ -549,21 +572,21 @@ fn run() {
             let (sc, st) = body.feed_fateseg(tail);
             let segs: Vec<u64> = body.stem.cells[clen..].iter().map(|c| c.signal_count).collect();
             let mean = if segs.is_empty() { 0.0 } else { segs.iter().sum::<u64>() as f64 / segs.len() as f64 };
-            println!("[{tag}·{name}] 留出 128KB -> Fate 切 stem {} 段（均 {:.0}）tile {} 段", sc, mean, st);
+            println!("[{tag}·{name}] held-out 128KB -> Fate cut stem {} segments (mean {:.0}) tile {} segments", sc, mean, st);
             let _ = clen;
         }
     };
 
-    // ── 训练轮 ──
-    // 课程顺序：第 1 轮先行整批喂事实（容器新鲜，收口只由事实字节
-    // 统计驱动；实测在自然料之后喂时 Stem 两批零收口、测不到），
-    // 其后各轮纯自然料——第 10/20 轮问答读"事实结构被冲洗与否"。
+    // -- Training rounds --
+    // Curriculum order: round 1 feeds all facts first (containers fresh, closure driven only by fact-byte
+    // statistics; measured: feeding after natural material gives Stem zero closures in two batches, nothing measurable),
+    // later rounds are pure natural material - round-10/20 QA reads whether the fact structure is washed out.
     for r in 1..=rounds {
-        // 事实（仅第 1 轮，先于自然料整批喂完）：链连写成文本流逐
-        // 字节入场；存储仍按对记账（四元里留 AAA>BBB 条目供存储
-        // 通道抽边）。出生记账段级化：Fate 不在单个事实对内收口，
-        // 符号先入待出生队列，哪段收口出生就把队列中全部符号记到
-        // 新生单位名下（段内容即这些链）。
+        // Facts (round 1 only, fed whole before natural material): chains written as a text stream entering
+        // byte-wise; storage still accounts per pair (AAA>BBB entries kept in the quads for the storage
+        // channel to draw edges from). Birth accounting is segment-level: Fate does not close inside a single fact pair;
+        // symbols queue as unborn, and whichever segment closes at birth registers all queued symbols
+        // to the newborn unit (the segment content is exactly those chains).
         if r == 1 {
             let mut pend_cells: Vec<String> = Vec::new();
             let mut pend_tiles: Vec<String> = Vec::new();
@@ -572,9 +595,11 @@ fn run() {
                     let item = format!("{}>{}", w[0], w[1]).into_bytes();
                     body.tile.quad_keep(&item);
                     body.stem.quad_keep(&item);
-                    // 接线（bbea60a 的 react 接口此前缺这一步）：同
-                    // 字节双写全球 Fate 的 data_store，问答接口才
-                    // 有原文可送。四元记账与 Fate 存储各记一份。
+                    // Wiring (the step bbea60a's react interface was missing): the
+                    // same bytes are double-written to global Fate's
+                    // data_store so the QA interface has originals to
+                    // send. Quad accounting and Fate storage each keep
+                    // one copy.
                     body.global.store_data(&item);
                 }
                 let line = format!("{}\n", ch.join(">"));
@@ -607,7 +632,7 @@ fn run() {
                     pend_tiles.clear();
                 }
             }
-            println!("    事实流（第 1 轮先行整批）：符号映射 tile {} 符号 stem {} 符号（残留未收口 stem {} tile {}）",
+            println!("    Fact stream (round 1, fed whole first): symbol map tile {} symbols stem {} symbols (unclosed residue stem {} tile {})",
                 sym_tiles.len(), sym_cells.len(), pend_cells.len(), pend_tiles.len());
         }
         let mut seg_line = Vec::new();
@@ -626,8 +651,8 @@ fn run() {
         for _ in 0..cycles {
             body.cycle();
         }
-        body.fingerprint(&format!("第 {r} 轮"));
-        println!("    本轮新生段（stem/tile）: {}", seg_line.join(" · "));
+        body.fingerprint(&format!("round {r}"));
+        println!("    new segments this round (stem/tile): {}", seg_line.join(" · "));
         {
             let links: usize = body.stem.cells.iter().map(|c| c.connections.len()).sum();
             let eq = &body.global.cluster_equation;
@@ -642,28 +667,28 @@ fn run() {
             }));
         }
         if r == 10 || r == rounds {
-            let (s_t, s_f, t_t, t_f, c_t, c_f) = test_at(&body, &sym_tiles, &sym_cells, &format!("第{r}轮"));
-            let (r_t, r_f) = react_at(&body, &format!("第{r}轮"));
+            let (s_t, s_f, t_t, t_f, c_t, c_f) = test_at(&body, &sym_tiles, &sym_cells, &format!("round{r}"));
+            let (r_t, r_f) = react_at(&body, &format!("round{r}"));
             viz_checks.push(serde_json::json!({
                 "round": r,
                 "storage": [s_t, s_f], "tile": [t_t, t_f], "stem": [c_t, c_f], "react": [r_t, r_f],
             }));
             if r == rounds {
-                respond_at(&mut body, &mats, holdout, "回应");
+                respond_at(&mut body, &mats, holdout, "respond");
             }
         }
     }
-    body.fingerprint("终局");
-    // ── 训练后身体存档（VH_SAVE_BODY 指定时）──
+    body.fingerprint("final");
+    // -- Post-training body archive (when VH_SAVE_BODY is set) --
     if let Ok(dir) = std::env::var("VH_SAVE_BODY") {
         if !dir.is_empty() {
             match body.save_body(std::path::Path::new(&dir)) {
-                Ok(()) => println!("训练后身体已存档: {dir}（tile.slice/stem.slice/global.fate + tiles/cells.json + 八份四元 .store）"),
-                Err(e) => println!("身体存档失败: {e}"),
+                Ok(()) => println!("Post-training body archived: {dir} (tile.slice/stem.slice/global.fate + tiles/cells.json + eight quad .store files)"),
+                Err(e) => println!("Body archive failed: {e}"),
             }
         }
     }
-    // ── 导出可视化（单文件 HTML + 原始 JSON）──
+    // -- Export visualisation (single-file HTML + raw JSON) --
     let viz_dir = std::env::var("VH_VIZ_DIR").unwrap_or_else(|_| "viz_out".to_string());
     let scatter: Vec<serde_json::Value> = body.viz_scatter.iter()
         .map(|(m, x, y)| serde_json::json!({"m": m, "x": x, "y": y}))
@@ -677,7 +702,7 @@ fn run() {
     let _ = std::fs::write(format!("{viz_dir}/valhalla_viz.json"), &json_str);
     let html = VIZ_HTML.replace("__DATA__", &json_str);
     if std::fs::write(format!("{viz_dir}/index.html"), html).is_ok() {
-        println!("可视化已导出: {viz_dir}/index.html（数据 {viz_dir}/valhalla_viz.json，散点 {} 点，浏览器打开即可投屏）", body.viz_scatter.len());
+        println!("Visualisation exported: {viz_dir}/index.html (data {viz_dir}/valhalla_viz.json, scatter {} points, open in a browser to project)", body.viz_scatter.len());
     }
-    println!("全流程毕：{} 轮 ×（Fate 分割入口 + {} 周期），出口双通道已测。", rounds, cycles);
+    println!("Full flow done: {} rounds x (Fate segmentation ingress + {} cycles), both egress channels measured.", rounds, cycles);
 }

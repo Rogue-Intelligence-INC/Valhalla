@@ -1,15 +1,15 @@
-﻿//! 孵化因果证明 v3.1（多 seed，组合规模定向决胜）：
-//! 符号池 200、链长 6、培养量约 3600 条——随机配对在此规模覆盖崩溃，
-//! 定向（链式）培养若有特异贡献，只能在这里显形（v2 玩具规模下为 +0.0）。
-//! v3 首跑教训：无界可达判分在 200 符号下被随机覆盖饱和（真题恒 100、假题恒
-//! 错，C 与 A 被天花板焊死，读数作废）；v3.1 判分改限步可达（预算=链上距离，
-//! 假题预算 5），链式短路径与随机 blob 长路径才可分辨。身体与库零改动。
-//! C 培养 / A matched 对照（同符号表、同条数、同节律，唯一差别是培养料无链结构）/
-//! F 完整状态恢复 / G 结构消融 / H 拓扑重排零分布（同度重排 20 次取分布，看真实拓扑分位）/
-//! I 存储隔离。题目按链上距离分层（d1 / d2-3 / d4-5）：定向优势按假说应集中在远距离。
-//! 另测学习曲线：同 rng 初值截断重培养到各阶段，喂同一批测试事实答题。
-//! 答题只走 Tile/Stem 自发网络（不读存储字节、不拼链），这样结构消融才测得到东西。
-//! G = C − A（培养增益），L = C − G组（结构因果贡献）。不声称智能，只测因果。
+﻿//! Incubation causal proof v3.1 (multi-seed; directed cultivation decided at combinatorial scale):
+//! Symbol pool 200, chain length 6, ~3600 cultivation items - random pairing's coverage collapses at this scale;
+//! if directed (chained) cultivation has a specific contribution it can only show here (at v2 toy scale it was +0.0).
+//! v3 first-run lesson: unbounded-reachability scoring saturates under random coverage at 200 symbols (true questions pinned at 100, false
+//! always wrong, C and A welded to the ceiling, readings void); v3.1 scores with bounded reachability (budget = chain distance,
+//! false-question budget 5), so chained short paths and random-blob long paths become distinguishable. Body and library untouched.
+//! C cultivation / A matched control (same symbol table, same count, same rhythm; the only difference is chain-free cultivation material) /
+//! F full-state restore / G structure ablation / H topology-rewiring null distribution (degree-preserving rewiring x20, read the true topology's percentile) /
+//! I storage isolation. Questions stratified by chain distance (d1 / d2-3 / d4-5): the directed advantage should, by hypothesis, concentrate at long distance.
+//! Also measured: a learning curve - truncated re-cultivation from the same rng start to each stage, answering with the same batch of test facts.
+//! Answering uses only the self-formed Tile/Stem networks (no stored bytes read, no chain stitching), so structure ablation has something to measure.
+//! G = C - A (cultivation gain), L = C - G-arm (structural causal contribution). No intelligence claimed; causality only.
 
 use hub_f64::monitor::BodyMonitor;
 use hub_f64::{BaseForceCoordinator, GravityField, MeshBrainSystem, MultinovaProcessor, TripleFateCombined};
@@ -145,7 +145,7 @@ impl Body {
         self.stem.multinova.stored_clear();
         self.stem.baseforce.stored_clear();
     }
-    /// 完整状态：身体切片（Fate+计数）+ 容器本体 JSON + 四元存储 + 全局 Fate
+    /// Full state: body slice (Fate+counters) + container JSON + quad stores + global Fate
     fn save_full(&self, dir: &std::path::Path) -> std::io::Result<()> {
         std::fs::create_dir_all(dir)?;
         self.tile.save_slice(&dir.join("tile.slice"))?;
@@ -169,7 +169,7 @@ impl Body {
         body.load_quads(dir)?;
         Ok(body)
     }
-    /// G：拆掉全部结构连接，存储原样保留
+    /// G: remove all structural connections, storage kept as-is
     fn ablate_structure(&mut self) {
         for t in self.tile.completed_tiles.iter_mut() {
             t.connections.clear();
@@ -179,7 +179,7 @@ impl Body {
             c.connections.clear();
         }
     }
-    /// H：保持每个节点的连接数（与 Stem 强度）不变，只把目标随机重排
+    /// H: keep every node's connection count (and Stem strengths), randomly rewire targets only
     fn shuffle_structure(&mut self, rng: &mut Rng) {
         let tile_ids: Vec<String> = self.tile.completed_tiles.iter().map(|t| t.id.clone()).collect();
         for t in self.tile.completed_tiles.iter_mut() {
@@ -233,9 +233,9 @@ fn net_adj(body: &Body, stem: bool) -> Adj {
     adj
 }
 
-/// 限步可达（BFS 分层）：只数 ≤max_hops 条边的路径。
-/// v3 教训：无界可达在组合规模下被随机覆盖饱和（真题恒 100、假题恒错），
-/// 仪器对布线身份盲。限步后链式布线（短路径）与随机 blob（长路径）才分得开。
+/// Bounded reachability (layered BFS): count only paths of <= max_hops edges.
+/// v3 lesson: unbounded reachability saturates under random coverage at combinatorial scale (true pinned at 100, false always wrong);
+/// the instrument is blind to wiring identity. Bounded steps separate chained wiring (short paths) from random blobs (long paths).
 fn net_reachable(adj: &Adj, from: &[String], to: &[String], max_hops: usize) -> bool {
     if from.is_empty() || to.is_empty() {
         return false;
@@ -268,7 +268,7 @@ fn net_reachable(adj: &Adj, from: &[String], to: &[String], max_hops: usize) -> 
     false
 }
 
-/// 单图无上限最短路（BFS）；不可达返回 None。
+/// Single-graph unbounded shortest path (BFS); None if unreachable.
 fn bfs_dist(adj: &Adj, from: &[String], to: &[String]) -> Option<usize> {
     let targets: std::collections::HashSet<&String> = to.iter().collect();
     if from.is_empty() || to.is_empty() {
@@ -300,9 +300,9 @@ fn bfs_dist(adj: &Adj, from: &[String], to: &[String]) -> Option<usize> {
     None
 }
 
-/// Tile/Stem 两图分别算最短路取小者。v3.2 预先登记的最后一个仪器（路径特异）：
-/// 真题对平均最短路 C vs A，看链式培养是否让新事实被吸收得更"近"；
-/// 二元可达两档（无界/限步）已先后饱和，不再追加新仪器钓鱼。
+/// Shortest path computed on the Tile and Stem graphs separately, take the smaller. v3.2's last pre-registered instrument (path specificity):
+/// mean true-pair shortest path, C vs A - does chained cultivation let new facts be absorbed "nearer";
+/// both binary-reachability tiers (unbounded/bounded) have saturated in turn; no further instruments will be added fishing.
 fn shortest_path(adj_t: &Adj, adj_s: &Adj, ft: &[String], tt: &[String], fs: &[String], ts: &[String]) -> Option<usize> {
     match (bfs_dist(adj_t, ft, tt), bfs_dist(adj_s, fs, ts)) {
         (Some(a), Some(b)) => Some(a.min(b)),
@@ -310,7 +310,7 @@ fn shortest_path(adj_t: &Adj, adj_s: &Adj, ft: &[String], tt: &[String], fs: &[S
     }
 }
 
-/// (真题平均最短路, 假题平均最短路, 真题不可达数, 假题不可达数)；不可达记惩罚 12。
+/// (mean true shortest path, mean false shortest path, unreachable true count, unreachable false count); unreachable scores penalty 12.
 fn path_stats(body: &Body, qs: &[Question], sym_tiles: &SymNodes, sym_cells: &SymNodes) -> (f64, f64, usize, usize) {
     let adj_t = net_adj(body, false);
     let adj_s = net_adj(body, true);
@@ -345,17 +345,17 @@ struct Question {
     from: String,
     to: String,
     expect_reach: bool,
-    /// 链上真实距离（真题分层用；假题记 0）
+    /// True chain distance (stratifies true questions; false questions record 0)
     dist: usize,
 }
 
 type SymNodes = std::collections::HashMap<String, Vec<String>>;
 
-/// 网络通道答题（限步）：统一预算 = 全链长-1 = 5，真假题同尺。
-/// （2026-11-01 仪器修正：旧版真题预算取链上真实距离，等于把标签
-/// 泄漏进评测条件，绝对分数偏高；消融差 L 因同尺对照受污染较轻，
-/// 但绝对值自本版起以统一预算为准，旧绝对值销账。）
-/// Tile 或 Stem 任一限步可达即"答可达"（只走结构，不读存储）。
+/// Network-channel answering (bounded): unified budget = full chain length - 1 = 5, true and false on the same scale.
+/// (2026-11-01 instrument correction: the old version budgeted true questions by true chain distance, which leaked the label
+/// into the evaluation condition and inflated absolute scores; the ablation gap L is less contaminated (same-scale control),
+/// but from this version absolute values follow the unified budget; old absolute values are written off.)
+/// Reachable within budget on Tile or Stem counts as "answered reachable" (structure only, no stored bytes read).
 const NET_BUDGET: usize = 5;
 fn score_net(body: &Body, qs: &[Question], sym_tiles: &SymNodes, sym_cells: &SymNodes) -> f64 {
     let adj_t = net_adj(body, false);
@@ -376,8 +376,8 @@ fn score_net(body: &Body, qs: &[Question], sym_tiles: &SymNodes, sym_cells: &Sym
     ok as f64 / qs.len().max(1) as f64 * 100.0
 }
 
-/// 距离分层答题：真题按 dist 分 d1 / d2-3 / d4-5 三档，假题单列正确率。
-/// 定向培养的特异贡献按假说应集中在远距离档。
+/// Distance-stratified answering: true questions in d1 / d2-3 / d4-5 tiers; false-question accuracy listed separately.
+/// The directed-cultivation contribution should, by hypothesis, concentrate in the long-distance tier.
 fn score_detail(body: &Body, qs: &[Question], sym_tiles: &SymNodes, sym_cells: &SymNodes) -> ([f64; 3], f64) {
     let adj_t = net_adj(body, false);
     let adj_s = net_adj(body, true);
@@ -444,7 +444,7 @@ fn cultivate(rng: &mut Rng, train_pool: &[String], stop_after: usize, verbose: b
     body.cycle();
     stage_counts.push(n);
     if verbose {
-        println!("    阶段1 {}", body.monitor.snapshot(&body.tile, &body.stem).line());
+        println!("    stage1 {}", body.monitor.snapshot(&body.tile, &body.stem).line());
     }
     if stop_after == 1 {
         return (body, stage_counts);
@@ -460,7 +460,7 @@ fn cultivate(rng: &mut Rng, train_pool: &[String], stop_after: usize, verbose: b
     body.cycle();
     stage_counts.push(n);
     if verbose {
-        println!("    阶段2 {}", body.monitor.snapshot(&body.tile, &body.stem).line());
+        println!("    stage2 {}", body.monitor.snapshot(&body.tile, &body.stem).line());
     }
     if stop_after == 2 {
         return (body, stage_counts);
@@ -482,7 +482,7 @@ fn cultivate(rng: &mut Rng, train_pool: &[String], stop_after: usize, verbose: b
     body.cycle();
     stage_counts.push(n);
     if verbose {
-        println!("    阶段3 {}", body.monitor.snapshot(&body.tile, &body.stem).line());
+        println!("    stage3 {}", body.monitor.snapshot(&body.tile, &body.stem).line());
     }
     (body, stage_counts)
 }
@@ -497,8 +497,8 @@ fn run_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f6
     let dir = std::env::temp_dir().join(format!("valhalla_proof_seed{seed}"));
     let (mut body_c, stage_counts) = cultivate(&mut rng, &train_pool, 3, true);
 
-    // A matched 对照：同符号表、同条数、同节律（按阶段分批 + 周期），
-    // 唯一差别：培养料为随机配对，无链结构（传递性被打掉）。
+    // A matched control: same symbol table, same count, same rhythm (staged batches + cycles);
+    // the only difference: cultivation material is random pairing, no chain structure (transitivity removed).
     let mut body_a = Body::new();
     for &count in &stage_counts {
         for _ in 0..count {
@@ -512,7 +512,7 @@ fn run_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f6
         body_a.cycle();
     }
 
-    // 测试电池：每链独占符号，只给单环
+    // Test battery: each chain owns its symbols, one ring only
     let mut rng_t = Rng(0x7E57_0000 + seed * 104729);
     let mut questions: Vec<Question> = Vec::new();
     let mut fact_items: Vec<Vec<u8>> = Vec::new();
@@ -559,13 +559,13 @@ fn run_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f6
     let sa = score_net(&body_a, &questions, &a_sym_t, &a_sym_s);
     let (c_buckets, c_false) = score_detail(&body_c, &questions, &c_sym_t, &c_sym_s);
     let (a_buckets, a_false) = score_detail(&body_a, &questions, &a_sym_t, &a_sym_s);
-    // v3.2 路径特异：真/假题对平均最短路（不可达惩罚 12），C vs A 同批题目
+    // v3.2 path specificity: mean shortest path for true/false pairs (unreachable penalty 12), C vs A on the same questions
     let (c_pt, c_pf, c_tu, c_fu) = path_stats(&body_c, &questions, &c_sym_t, &c_sym_s);
     let (a_pt, a_pf, a_tu, a_fu) = path_stats(&body_a, &questions, &a_sym_t, &a_sym_s);
 
-    // 学习曲线：同一 rng 初值重培养到第 k 阶段（前缀与 C 逐字节一致），喂同一批测试事实答题。
-    // 不用阶段存档恢复：slice 只存 Fate+计数（tile/stem save_slice），恢复的身体长不出新结构，
-    // 实测恒卡在 45.5 地板，故改用截断重培养。
+    // Learning curve: re-cultivate from the same rng start to stage k (prefix byte-identical to C), answer with the same test facts.
+    // Not restored from stage archives: slices hold only Fate+counters (tile/stem save_slice) and a restored body grows no new structure;
+    // measured pinned at the 45.5 floor, so truncated re-cultivation is used instead.
     let mut curve = [0.0f64; 3];
     for (k, slot) in curve.iter_mut().enumerate() {
         let mut rng_k = Rng(0x5EED_0000 + seed * 7919);
@@ -575,19 +575,19 @@ fn run_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f6
         *slot = score_net(&probe, &questions, &ct, &cs);
     }
 
-    // F/G/H/I 都从同一份完整存档恢复，互不影响
-    body_c.save_full(&dir).expect("完整存档失败");
-    let mut body_f = Body::load_full(&dir).expect("完整恢复失败");
+    // F/G/H/I all restore from the same full archive, mutually independent
+    body_c.save_full(&dir).expect("full archive failed");
+    let mut body_f = Body::load_full(&dir).expect("full restore failed");
     let sf = score_net(&body_f, &questions, &c_sym_t, &c_sym_s);
 
-    let mut body_g = Body::load_full(&dir).expect("恢复失败");
+    let mut body_g = Body::load_full(&dir).expect("restore failed");
     body_g.ablate_structure();
     let sg = score_net(&body_g, &questions, &c_sym_t, &c_sym_s);
 
-    // H 零分布：同度重排 20 次取分布，看真实拓扑落在哪个分位
+    // H null distribution: degree-preserving rewiring x20; read which percentile the true topology lands in
     let mut h_scores: Vec<f64> = Vec::new();
     for k in 0..20u64 {
-        let mut body_h = Body::load_full(&dir).expect("恢复失败");
+        let mut body_h = Body::load_full(&dir).expect("restore failed");
         let mut rng_h = Rng(0x45EED + seed * 131 + k * 17);
         body_h.shuffle_structure(&mut rng_h);
         h_scores.push(score_net(&body_h, &questions, &c_sym_t, &c_sym_s));
@@ -598,25 +598,25 @@ fn run_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f6
     let ties = h_scores.iter().filter(|&&v| (v - sc).abs() < 1e-9).count() as f64;
     let h_pct = (below + 0.5 * ties) / h_scores.len() as f64;
 
-    let mut body_i = Body::load_full(&dir).expect("恢复失败");
+    let mut body_i = Body::load_full(&dir).expect("restore failed");
     body_i.clear_quads();
     let si = score_net(&body_i, &questions, &c_sym_t, &c_sym_s);
 
-    println!("seed {seed}: C {sc:.1} A(matched) {sa:.1} F {sf:.1} G(拆结构) {sg:.1} Hnull {sh:.1}±{sh_std:.1}(C分位 {:.0}%) I(清存储) {si:.1} | G增益 {:+.1} L {:+.1} | 学习曲线 {:.1}/{:.1}/{:.1} | 距离层 C {:.0}/{:.0}/{:.0} A {:.0}/{:.0}/{:.0} | 假题对 C {:.0} A {:.0}",
+    println!("seed {seed}: C {sc:.1} A(matched) {sa:.1} F {sf:.1} G(structure cleared) {sg:.1} Hnull {sh:.1}±{sh_std:.1}(C percentile {:.0}%) I(storage cleared) {si:.1} | gain G {:+.1} L {:+.1} | learning curve {:.1}/{:.1}/{:.1} | distance tiers C {:.0}/{:.0}/{:.0} A {:.0}/{:.0}/{:.0} | false pairs C {:.0} A {:.0}",
         h_pct * 100.0, sc - sa, sc - sg, curve[0], curve[1], curve[2],
         c_buckets[0], c_buckets[1], c_buckets[2], a_buckets[0], a_buckets[1], a_buckets[2], c_false, a_false);
-    println!("    路径: 真题均路 C {c_pt:.2} A {a_pt:.2} | 假题均路 C {c_pf:.2} A {a_pf:.2} | 不可达 C {}+{} A {}+{}", c_tu, c_fu, a_tu, a_fu);
+    println!("    paths: true mean path C {c_pt:.2} A {a_pt:.2} | false mean path C {c_pf:.2} A {a_pf:.2} | unreachable C {}+{} A {}+{}", c_tu, c_fu, a_tu, a_fu);
     (sc, sa, sf, sg, sh, si, sh_std, h_pct, curve, c_buckets, a_buckets, c_false, a_false, c_pt, a_pt, c_pf, a_pf, (c_tu + c_fu) as f64)
 }
 
-// ═══════════ E1W 宽度培养（VH_E1W=1 启用；判据预先声明） ═══════════
-// 假说（2026-11-01 记录 ENTRY_FREEDOM_AND_E1W）：身体组织结构时
-// 能看见的只有段字节统计；同质符号链不给链归属信号，拓扑特异性
-// 无从显形。给链分组依附不同统计上下文（宽度），拓扑若按域组织，
-// 则 C-宽应在同型跨链硬假题拒绝率与真题最短路上同时优于 C-同
-// （等量同宽消融）与 H（严格双边交换重连，保入+出度）。
-// 主判据不用限步可达总分（偏爱随机小世界图），用硬假题拒绝率 +
-// 真题平均最短路（不可达惩罚 12）；异型跨链易假题只报告不计判据。
+// =========== E1W width cultivation (VH_E1W=1; criteria pre-declared) ===========
+// Hypothesis (recorded 2026-11-01, ENTRY_FREEDOM_AND_E1W): when the body organises structure,
+// all it can see is segment byte statistics; homogeneous symbol chains give no chain-membership signal, so topological specificity
+// has no way to appear. Attach chain groups to different statistical contexts (width); if topology organises by domain,
+// then C-wide should beat C-homogeneous both on same-type cross-chain hard-false rejection and on true shortest paths,
+// (equal-amount same-width ablation) and H (strict two-sided swap rewiring, preserving in+out degree).
+// Primary criteria avoid the bounded-reachability total (it favours random small-world graphs); use hard-false rejection +
+// mean true shortest path (unreachable penalty 12); cross-type easy false questions are reported only, not scored.
 
 fn filler(ctx: usize, rng: &mut Rng, len: usize) -> Vec<u8> {
     (0..len)
@@ -631,11 +631,11 @@ fn filler(ctx: usize, rng: &mut Rng, len: usize) -> Vec<u8> {
         .collect()
 }
 
-/// 严格双边交换重连（补 E0b）：随机取两条边 (a→b),(c→d) 换成
-/// (a→d),(c→b)，拒绝自环与重边。每节点出度、入度均严格不变。
+/// Strict two-sided swap rewiring (complements E0b): pick two edges (a->b),(c->d) at random and swap to
+/// (a->d),(c->b), rejecting self-loops and duplicate edges. Every node's out- and in-degree strictly preserved.
 fn shuffle_strict(body: &mut Body, rng: &mut Rng) {
     use std::collections::HashSet;
-    // Tile 层
+    // Tile layer
     {
         let ids: Vec<String> = body.tile.completed_tiles.iter().map(|t| t.id.clone()).collect();
         let idx: std::collections::HashMap<&str, usize> =
@@ -672,7 +672,7 @@ fn shuffle_strict(body: &mut Body, rng: &mut Rng) {
             t.weights.resize(t.connections.len(), 0.1);
         }
     }
-    // Stem 层（强度随源槽保留）
+    // Stem layer (strengths kept with the source slot)
     {
         let ids: Vec<String> = body.stem.cells.iter().map(|c| c.cell_id.clone()).collect();
         let idx: std::collections::HashMap<&str, usize> =
@@ -704,7 +704,7 @@ fn shuffle_strict(body: &mut Body, rng: &mut Rng) {
     }
 }
 
-type WQ = (String, String, u8); // (from, to, 0=真题 1=同型假题 2=异型假题)
+type WQ = (String, String, u8); // (from, to, 0=true 1=same-type false 2=cross-type false)
 
 fn score_width(body: &Body, qs: &[WQ], sym_tiles: &SymNodes, sym_cells: &SymNodes) -> (f64, f64, f64, f64) {
     let adj_t = net_adj(body, false);
@@ -735,9 +735,9 @@ fn score_width(body: &Body, qs: &[WQ], sym_tiles: &SymNodes, sym_cells: &SymNode
     )
 }
 
-/// 诊断计数（只读，不参与判分）：种群/边数/映射节点存活率。
-/// E1W 首跑 C宽真题≈0 而硬假拒绝=100 是断网平凡解，必须先确认
-/// 映射符号的出生单位在 cycle 的合并/死亡后还剩多少、图是否连通。
+/// Diagnostic counts (read-only, not scored): populations / edge counts / mapped-node survival.
+/// E1W's first run (C-wide true ~0 with hard-false rejection = 100) is the disconnected-graph trivial solution; first confirm
+/// how many birth units of the mapped symbols survive cycle merges/deaths, and whether the graph is connected.
 fn diag_qs(body: &Body, qs: &[WQ], sym_t: &SymNodes, sym_c: &SymNodes, label: &str) {
     let adj_t = net_adj(body, false);
     let adj_s = net_adj(body, true);
@@ -754,8 +754,8 @@ fn diag_qs(body: &Body, qs: &[WQ], sym_t: &SymNodes, sym_c: &SymNodes, label: &s
         if let Some(v) = d { if v <= 5 { within5 += 1; } }
         if dists.len() < 12 { dists.push(format!("{from}->{to}={}", d.map(|v| v as i64).unwrap_or(-1))); }
     }
-    println!("    [diag {label}] 真题 {n_true} 对内 5 步可达 {within5}；样本最短路 {:?}", dists);
-    // 位置/维度实况：两具身体的场维度与测试细胞位置是否可比
+    println!("    [diag {label}] true {n_true} pairs reachable within 5 steps {within5}; sample shortest paths {:?}", dists);
+    // Position/dimension facts: whether the two bodies' field dimensions and test-cell positions are comparable
     {
         let dim = body.stem.space.current_dimension;
         let lens: std::collections::HashSet<usize> = body.stem.cells.iter().map(|c| c.position.len()).collect();
@@ -767,7 +767,7 @@ fn diag_qs(body: &Body, qs: &[WQ], sym_t: &SymNodes, sym_c: &SymNodes, label: &s
                     c.position.iter().take(4).map(|v| format!("{v:.2}")).collect::<Vec<_>>(), c.connections.len()));
             }
         }
-        // 测试细胞的连接目标里有多少是其他测试细胞
+        // How many of a test cell's connection targets are other test cells
         let test_targets = {
             let mut tot = 0usize; let mut tst = 0usize;
             for c in &body.stem.cells {
@@ -777,9 +777,9 @@ fn diag_qs(body: &Body, qs: &[WQ], sym_t: &SymNodes, sym_c: &SymNodes, label: &s
             }
             (tst, tot)
         };
-        println!("    [diag {label}/stem] 场维度 {dim:.1} 位置长度集 {:?} 测试细胞边指向测试细胞 {}/{} 样本 {:?}", lens, test_targets.0, test_targets.1, sample);
+        println!("    [diag {label}/stem] field dim {dim:.1} position-length set {:?} test-cell edges to test cells {}/{} sample {:?}", lens, test_targets.0, test_targets.1, sample);
     }
-    // 无向连通分量：测试映射细胞散在几个分量、最大分量多大
+    // Undirected components: how many components the mapped test cells scatter across, and the largest size
     for (lname, adj, m) in [("tile", &adj_t, sym_t), ("stem", &adj_s, sym_c)] {
         let mut und: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
         for (u, ns) in adj.iter() {
@@ -810,7 +810,7 @@ fn diag_qs(body: &Body, qs: &[WQ], sym_t: &SymNodes, sym_c: &SymNodes, label: &s
         for id in &mapped { if let Some(&c) = comp_id.get(id) { *mapped_per_comp.entry(c).or_default() += 1; } }
         let mut mpc: Vec<usize> = mapped_per_comp.values().cloned().collect();
         mpc.sort_unstable_by(|a, b| b.cmp(a));
-        println!("    [diag {label}/{lname}] 分量 {} 个，最大 {:?}；映射细胞分布（前5分量）{:?}（映射共 {}）",
+        println!("    [diag {label}/{lname}] {} components, largest {:?}; mapped-cell distribution (first 5 components) {:?} ({} mapped)",
             sizes.len(), &sizes[..sizes.len().min(5)], &mpc[..mpc.len().min(5)], mapped.len());
     }
 }
@@ -833,16 +833,16 @@ fn diag(body: &Body, sym_t: &SymNodes, sym_c: &SymNodes, label: &str) {
     let cids: std::collections::HashSet<&str> = body.stem.cells.iter().map(|c| c.cell_id.as_str()).collect();
     let (at, tt2) = alive(&tids, sym_t);
     let (ac, tc) = alive(&cids, sym_c);
-    println!("    [diag {label}] tiles {} (边 {}) cells {} (边 {}) | 映射存活 tile {at}/{tt2} cell {ac}/{tc}",
+    println!("    [diag {label}] tiles {} (edges {}) cells {} (edges {}) | mapped survival tile {at}/{tt2} cell {ac}/{tc}",
         body.tile.completed_tiles.len(), et, body.stem.cells.len(), es);
-    // 映射细胞自身的度与无界可达（区分断网 vs 限步不够）
+    // Mapped cells' own degree and unbounded reachability (distinguishes disconnection from insufficient step budget)
     for (lname, adj, m) in [("tile", net_adj(body, false), sym_t), ("stem", net_adj(body, true), sym_c)] {
         let mut ids_m: Vec<&str> = Vec::new();
         for v in m.values() { for id in v { ids_m.push(id.as_str()); } }
         let degs: Vec<usize> = ids_m.iter().map(|id| adj.get(*id).map(|v| v.len()).unwrap_or(0)).collect();
         let avg_deg = if degs.is_empty() { 0.0 } else { degs.iter().sum::<usize>() as f64 / degs.len() as f64 };
         let zero = degs.iter().filter(|&&d| d == 0).count();
-        // 无界 BFS：从全部映射节点出发能到的映射节点占比
+        // Unbounded BFS: share of mapped nodes reachable from all mapped nodes
         let target: std::collections::HashSet<&str> = ids_m.iter().cloned().collect();
         let mut seen: std::collections::HashSet<&str> = std::collections::HashSet::new();
         let mut q: std::collections::VecDeque<&str> = std::collections::VecDeque::new();
@@ -853,7 +853,7 @@ fn diag(body: &Body, sym_t: &SymNodes, sym_c: &SymNodes, label: &str) {
             }
         }
         let reached = target.iter().filter(|id| seen.contains(*id)).count();
-        println!("    [diag {label}/{lname}] 映射节点 {} 平均度 {:.1} 零度 {} 无界可达映射 {reached}/{}",
+        println!("    [diag {label}/{lname}] mapped nodes {} mean degree {:.1} zero-degree {} unbounded-reachable mapped {reached}/{}",
             ids_m.len(), avg_deg, zero, target.len());
     }
 }
@@ -905,7 +905,7 @@ fn width_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64) {
         (sym_tiles, sym_cells)
     };
 
-    // 题目：真题（链内 dist 2..5）+ 同型跨链硬假题 + 异型跨链易假题
+    // Questions: true (in-chain dist 2..5) + same-type cross-chain hard false + cross-type easy false
     let mut qs: Vec<WQ> = Vec::new();
     for chain in &test_chains {
         for i in 0..chain.len() {
@@ -930,39 +930,39 @@ fn width_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64) {
     let mut body_w = Body::new();
     cultivate_w(&mut body_w, true, &mut rng_w);
     let (wt, wc) = test_feed(&mut body_w, true, &mut rng_w);
-    diag(&body_w, &wt, &wc, "C宽");
-    diag_qs(&body_w, &qs, &wt, &wc, "C宽");
+    diag(&body_w, &wt, &wc, "C-wide");
+    diag_qs(&body_w, &qs, &wt, &wc, "C-wide");
     let (w_true, w_hard, w_easy, w_path) = score_width(&body_w, &qs, &wt, &wc);
 
     let mut rng_h = Rng(0x5EED_0000 + seed * 7919);
     let mut body_hom = Body::new();
     cultivate_w(&mut body_hom, false, &mut rng_h);
     let (ht, hc) = test_feed(&mut body_hom, false, &mut rng_h);
-    diag(&body_hom, &ht, &hc, "C同");
-    diag_qs(&body_hom, &qs, &ht, &hc, "C同");
+    diag(&body_hom, &ht, &hc, "C-hom");
+    diag_qs(&body_hom, &qs, &ht, &hc, "C-hom");
     let (h_true, h_hard, _he, h_path) = score_width(&body_hom, &qs, &ht, &hc);
 
-    // H：C-宽身体存档恢复后严格重连（同图、同映射，只换拓扑）
+    // H: C-wide body restored from archive then strictly rewired (same graph, same mapping, topology only)
     let dir = std::env::temp_dir().join(format!("valhalla_e1w_seed{seed}"));
-    body_w.save_full(&dir).expect("E1W 存档失败");
-    let mut body_x = Body::load_full(&dir).expect("E1W 恢复失败");
+    body_w.save_full(&dir).expect("E1W archive failed");
+    let mut body_x = Body::load_full(&dir).expect("E1W restore failed");
     let mut rng_x = Rng(0x45EED + seed * 131);
     shuffle_strict(&mut body_x, &mut rng_x);
     let (x_true, x_hard, _xe, x_path) = score_width(&body_x, &qs, &wt, &wc);
 
-    println!("seed {seed}: C宽 真 {w_true:.1} 硬假 {w_hard:.1} 易假 {w_easy:.1} 均路 {w_path:.2} | C同 真 {h_true:.1} 硬假 {h_hard:.1} 均路 {h_path:.2} | H严 真 {x_true:.1} 硬假 {x_hard:.1} 均路 {x_path:.2}");
+    println!("seed {seed}: C-wide true {w_true:.1} hard-false {w_hard:.1} easy-false {w_easy:.1} meanpath {w_path:.2} | C-hom true {h_true:.1} hard-false {h_hard:.1} meanpath {h_path:.2} | H-strict true {x_true:.1} hard-false {x_hard:.1} meanpath {x_path:.2}");
     (w_true, w_hard, w_path, h_true, h_hard, h_path, x_true, x_hard)
 }
 
-// ═══════════ E2 原生闭环自定位（VH_E2=1；判据见 E2_E1W2_PREREG_20261102，跑前已提交） ═══════════
-// 刺激只经身体自有入口（feed 的 ingest+promote 路）进入，身体
-// 自跑一周期；读既有 Stem 细胞的差分位移（刺激臂 − 静默臂，
-// 双臂从同一完整存档恢复、起点逐字相同）。符号→链映射只作
-// 计分标注（真值集），不参与产生响应——身体无响应即测不到，
-// 与图上 BFS 用映射构造答案路径根本不同。
+// =========== E2 native closed-loop self-localisation (VH_E2=1; criteria in E2_E1W2_PREREG_20261102, committed before the run) ===========
+// The stimulus enters only through the body's own ingress (feed's ingest+promote path); the body
+// runs one cycle itself; read the differential displacement of existing Stem cells (stimulus arm - silent arm,
+// both arms restored from the same full archive, byte-identical starts). The symbol-to-chain map serves only as
+// scoring annotation (the truth set) and plays no part in producing the response - no body response means nothing measurable,
+// fundamentally unlike constructing answer paths with the map via BFS on the graph.
 
 fn e2_arm(dir: &std::path::Path, stimulus: Option<&[u8]>) -> std::collections::HashMap<String, f64> {
-    let mut body = Body::load_full(dir).expect("E2 恢复失败");
+    let mut body = Body::load_full(dir).expect("E2 restore failed");
     let before: std::collections::HashMap<String, Vec<f64>> = body.stem.cells.iter()
         .map(|c| (c.cell_id.clone(), c.position.clone())).collect();
     if let Some(s) = stimulus { body.feed(s); }
@@ -978,8 +978,8 @@ fn e2_arm(dir: &std::path::Path, stimulus: Option<&[u8]>) -> std::collections::H
     disp
 }
 
-/// 富集度 E=(目标质量占比)/(目标细胞占比)，1=机会水平；
-/// 无差分响应（总和 0）记 E=1 并标 no_resp，不奖不罚。
+/// Enrichment E = (target mass share)/(target cell share); 1 = chance level;
+/// no differential response (sum 0) records E=1 flagged no_resp, neither rewarded nor penalised.
 fn e2_enrichment(stim: &std::collections::HashMap<String, f64>,
                  silent: &std::collections::HashMap<String, f64>,
                  target: &std::collections::HashSet<String>) -> (f64, bool) {
@@ -1003,7 +1003,7 @@ fn e2_seed(seed: u64) -> (f64, f64, f64, f64, usize) {
     let test_pool: Vec<String> = (test_base..test_base + 180).map(symbol).collect();
     let mut rng = Rng(0x5EED_0000 + seed * 7919);
     let (mut body, _sc) = cultivate(&mut rng, &train_pool, 3, true);
-    // 12 条完整测试链（与 run_seed 同构造）
+    // 12 full test chains (same construction as run_seed)
     let mut rng_t = Rng(0x7E57_0000 + seed * 104729);
     let mut cursor = 0usize;
     let mut chains: Vec<Vec<String>> = Vec::new();
@@ -1018,7 +1018,7 @@ fn e2_seed(seed: u64) -> (f64, f64, f64, f64, usize) {
     let (_sym_t, sym_s) = feed_facts_tracked(&mut body, &fact_items);
     body.cycle();
     let dir = std::env::temp_dir().join(format!("valhalla_e2_seed{seed}"));
-    body.save_full(&dir).expect("E2 存档失败");
+    body.save_full(&dir).expect("E2 archive failed");
     let targets: Vec<std::collections::HashSet<String>> = chains.iter().map(|chain| {
         let mut set = std::collections::HashSet::new();
         for s in chain {
@@ -1038,7 +1038,7 @@ fn e2_seed(seed: u64) -> (f64, f64, f64, f64, usize) {
                 if form == 1 { e1s.push(e); } else { e2s.push(e); }
             }
         }
-        // 跨链对照（只报告不计判据）：A 本链、B 邻链，真值集仍取本链
+        // Cross-chain control (reported only, not scored): A own chain, B neighbouring chain; truth set still the own chain
         if ci < 6 {
             let stim = format!("{}>{}", chain[0], chains[(ci + 1) % 12][3]);
             let ds = e2_arm(&dir, Some(stim.as_bytes()));
@@ -1051,14 +1051,14 @@ fn e2_seed(seed: u64) -> (f64, f64, f64, f64, usize) {
     let (m1, m2, mc) = (mean(&e1s), mean(&e2s), mean(&ectrls));
     let gt1 = e1s.iter().chain(e2s.iter()).filter(|&&e| e > 1.0).count();
     let nq = (e1s.len() + e2s.len()).max(1);
-    println!("seed {seed}: E2 F1均富集 {m1:.2} F2均富集 {m2:.2} | 跨链对照 {mc:.2} | 题级E>1 {gt1}/{nq} 无响应 {noresp}");
+    println!("seed {seed}: E2 F1 mean enrichment {m1:.2} F2 mean enrichment {m2:.2} | cross-chain control {mc:.2} | per-question E>1 {gt1}/{nq} no-response {noresp}");
     (m1, m2, mc, gt1 as f64 / nq as f64, noresp)
 }
 
-// ═══════════ XMOD 跨模态链回答（VH_XMOD=1；判据见 XMOD_PREREG_20261102，跑前已提交） ═══════════
-// 链节点是四模态真实字节片（文/码/图/声各 40B），相邻关系多
-// 为跨模态；看自形成结构能否承重多跳可达。三臂：C 链、
-// A 随机配对（同令牌同条数）、G=C 拆结构。计分映射只作标注。
+// =========== XMOD cross-modal chain answering (VH_XMOD=1; criteria in XMOD_PREREG_20261102, committed before the run) ===========
+// Chain nodes are real byte slices in four modalities (text/code/image/audio, 40B each); adjacency is mostly
+// cross-modal; test whether self-formed structure can bear multi-hop reachability. Three arms: C chains,
+// A random pairing (same tokens, same count), G = C with structure cleared. The scoring map is annotation only.
 
 fn xmod_corpora() -> [Vec<u8>; 4] {
     let rd = |p: &str| std::fs::read(p).unwrap_or_default();
@@ -1080,7 +1080,7 @@ fn xmod_corpora() -> [Vec<u8>; 4] {
 fn xmod_seed(seed: u64) -> (f64, f64, f64, f64) {
     let corpora = xmod_corpora();
     let mut rng = Rng(0xC40D_0000 + seed * 104729);
-    // 48 链 × 6 令牌；位置模态按 文→图→声→码 循环、相位随链移
+    // 48 chains x 6 tokens; position modality cycles text->image->audio->code, phase shifting per chain
     let mut chains: Vec<Vec<usize>> = Vec::new();
     let mut token_patch: Vec<Vec<u8>> = Vec::new();
     for c in 0..48usize {
@@ -1125,7 +1125,7 @@ fn xmod_seed(seed: u64) -> (f64, f64, f64, f64) {
         (body, mt, ms)
     };
     let (body_c, ct, cs) = build(&c_pairs, &mut rng, &token_patch);
-    // A：同令牌随机配对、同条数
+    // A: same tokens randomly paired, same count
     let ntok = token_patch.len();
     let mut a_pairs: Vec<(usize, usize)> = Vec::new();
     while a_pairs.len() < c_pairs.len() {
@@ -1134,12 +1134,12 @@ fn xmod_seed(seed: u64) -> (f64, f64, f64, f64) {
         if a != b { a_pairs.push((a, b)); }
     }
     let (body_a, at, as_) = build(&a_pairs, &mut rng, &token_patch);
-    // G：C 存档恢复后拆结构
+    // G: C restored from archive, structure cleared
     let dir = std::env::temp_dir().join(format!("valhalla_xmod_seed{seed}"));
-    body_c.save_full(&dir).expect("XMOD 存档失败");
-    let mut body_g = Body::load_full(&dir).expect("XMOD 恢复失败");
+    body_c.save_full(&dir).expect("XMOD archive failed");
+    let mut body_g = Body::load_full(&dir).expect("XMOD restore failed");
     body_g.ablate_structure();
-    // 题目：链内 dist 2..5 真题 + 跨链假题
+    // Questions: in-chain dist 2..5 true + cross-chain false
     let score = |body: &Body, mt: &SymNodes, ms: &SymNodes| -> (f64, f64) {
         let adj_t = net_adj(body, false);
         let adj_s = net_adj(body, true);
@@ -1170,13 +1170,13 @@ fn xmod_seed(seed: u64) -> (f64, f64, f64, f64) {
     let (c_true, c_fake) = score(&body_c, &ct, &cs);
     let (a_true, _af) = score(&body_a, &at, &as_);
     let (g_true, _gf) = score(&body_g, &ct, &cs);
-    println!("seed {seed}: XMOD C真 {c_true:.1} A真 {a_true:.1} G真 {g_true:.1} | C假误答 {c_fake:.1}");
+    println!("seed {seed}: XMOD C-true {c_true:.1} A-true {a_true:.1} G-true {g_true:.1} | C false-answered {c_fake:.1}");
     (c_true, a_true, g_true, c_fake)
 }
 
-// ═══════════ 官方基准多选投影（VH_BABI / VH_CLUTRR；预注册 OFFICIAL_BENCH_PREREG_20261102） ═══════════
-// 通道只出排序信号（身体图最短路），真值用官方标注；一切
-// 报告称"官方数据的多选投影"，不称官方分数。
+// =========== Official-benchmark multiple-choice projection (VH_BABI / VH_CLUTRR; pre-registered OFFICIAL_BENCH_PREREG_20261102) ===========
+// The channel emits only a ranking signal (body-graph shortest path); truth uses official labels; everything
+// is reported as "a multiple-choice projection of official data", never as an official score.
 
 fn fnv_hex(bytes: &[u8]) -> String {
     let mut h: u64 = 0xcbf29ce484222325;
@@ -1191,7 +1191,7 @@ fn words_of(text: &str) -> Vec<String> {
         .collect()
 }
 
-/// 故事逐句喂入（句为条目）+ 2 周期；词→出生单位映射只作标注。
+/// Story fed sentence by sentence (sentence = item) + 2 cycles; word-to-birth-unit map is annotation only.
 fn feed_story(body: &mut Body, sentences: &[String]) -> (SymNodes, SymNodes) {
     let mut mt: SymNodes = SymNodes::new();
     let mut ms: SymNodes = SymNodes::new();
@@ -1290,9 +1290,9 @@ fn babi_run() {
             if pick_g.as_deref() == Some(q.answer.as_str()) { g_ok += 1; }
         }
         let nf = n.max(1) as f64;
-        println!("[bAbI {tag}] n={n} 候选 {} chance {:.1}% | C {:.1}% G(重排) {:.1}% | 文件 fnv {}",
+        println!("[bAbI {tag}] n={n} candidates {} chance {:.1}% | C {:.1}% G(rewired) {:.1}% | file fnv {}",
             cands.len(), chance, c_ok as f64 / nf * 100.0, g_ok as f64 / nf * 100.0, fnv_hex(&raw));
-        println!("    判读（预先声明）：C > chance 且 C > G 才记该任务投影通过。");
+        println!("    Reading (pre-declared): only if C > chance and C > G does this task projection count as passed.");
     }
 }
 
@@ -1318,7 +1318,7 @@ fn clutrr_run() {
                 match shortest_path(&adj_t, &adj_s,
                     mt.get(&na).unwrap_or(&empty), mt.get(&nb).unwrap_or(&empty),
                     ms.get(&na).unwrap_or(&empty), ms.get(&nb).unwrap_or(&empty)) {
-                    // 不可达惩罚 12 与路径特异 v3.2 同规
+                    // Unreachable penalty 12, same rule as path-specificity v3.2
                     Some(d) => (d <= NET_BUDGET, (d as f64 - true_len).abs()),
                     None => (false, (12.0 - true_len).abs()),
                 }
@@ -1334,9 +1334,9 @@ fn clutrr_run() {
             g_err += ge;
         }
         let nf = n.max(1) as f64;
-        println!("[CLUTRR {tag}] n={n} | C reach@5 {:.1}% 路长误差 {:.2} | G reach@5 {:.1}% 路长误差 {:.2}",
+        println!("[CLUTRR {tag}] n={n} | C reach@5 {:.1}% path-length error {:.2} | G reach@5 {:.1}% path-length error {:.2}",
             c_reach as f64 / nf * 100.0, c_err / nf, g_reach as f64 / nf * 100.0, g_err / nf);
-        println!("    判读（预先声明）：C 路长误差 < G 且 C reach@5 > G 才记距离投影成立；关系标签分类未测。");
+        println!("    Reading (pre-declared): only if C path-length error < G and C reach@5 > G does the distance projection hold; relation-label classification not tested.");
     }
 }
 
@@ -1353,36 +1353,36 @@ fn main() {
         }
         let n = wrows.len() as f64;
         let m = |f: &dyn Fn(&(f64, f64, f64, f64, f64, f64, f64, f64)) -> f64| wrows.iter().map(f).sum::<f64>() / n;
-        println!("\n== E1W 汇总（{} seeds） ==", wrows.len());
-        println!("C宽 真 {:.1} 硬假 {:.1} 均路 {:.2} | C同 真 {:.1} 硬假 {:.1} 均路 {:.2} | H严 真 {:.1} 硬假 {:.1}",
+        println!("\n== E1W summary ({} seeds) ==", wrows.len());
+        println!("C-wide true {:.1} hard-false {:.1} meanpath {:.2} | C-hom true {:.1} hard-false {:.1} meanpath {:.2} | H-strict true {:.1} hard-false {:.1}",
             m(&|r| r.0), m(&|r| r.1), m(&|r| r.2), m(&|r| r.3), m(&|r| r.4), m(&|r| r.5), m(&|r| r.6), m(&|r| r.7));
-        println!("判读（预先声明）：C宽 硬假 > C同 且 C宽 硬假 > H严 且 C宽 均路 < H严 → 宽度使拓扑特异性成立；任一不成立按未检出记。");
+        println!("Reading (pre-declared): C-wide hard-false > C-hom and C-wide hard-false > H-strict and C-wide meanpath < H-strict -> width establishes topological specificity; any failure is recorded as not detected.");
         return;
     }
     if std::env::var("VH_E1W2").is_ok() {
-        // E1W2：新种子（16–30，与 E1W 不重叠）+ Δ 判别尺；判据见
-        // docs/valhalla/E2_E1W2_PREREG_20261102.md（跑前已提交）。
-        // Δ = 真题可达% − 硬假可达%（预算 5），硬假可达 = 100 − 拒绝。
-        let mut rows: Vec<(f64, f64, f64)> = Vec::new(); // (Δ宽, Δ同, ΔH严)
+        // E1W2: new seeds (16-30, disjoint from E1W) + the Delta discrimination scale; criteria in
+        // docs/valhalla/E2_E1W2_PREREG_20261102.md (committed before the run).
+        // Delta = true reachable% - hard-false reachable% (budget 5); hard-false reachable = 100 - rejection.
+        let mut rows: Vec<(f64, f64, f64)> = Vec::new(); // (Delta-wide, Delta-hom, Delta-Hstrict)
         for seed in &seeds {
             let r = width_seed(*seed);
             rows.push((r.0 + r.1 - 100.0, r.3 + r.4 - 100.0, r.6 + r.7 - 100.0));
             let l = rows.last().unwrap();
-            println!("seed {seed}: Δ宽 {:.1} Δ同 {:.1} ΔH严 {:.1}", l.0, l.1, l.2);
+            println!("seed {seed}: D-wide {:.1} D-hom {:.1} D-Hstrict {:.1}", l.0, l.1, l.2);
         }
         let n = rows.len() as f64;
         let win_a = rows.iter().filter(|r| r.0 > r.1).count();
         let win_b = rows.iter().filter(|r| r.0 > r.2).count();
         let mdiff = rows.iter().map(|r| r.0 - r.1).sum::<f64>() / n;
         let mm = |f: &dyn Fn(&(f64, f64, f64)) -> f64| rows.iter().map(f).sum::<f64>() / n;
-        println!("\n== E1W2 汇总（{} seeds，Δ=真可达−硬假可达 @预算5） ==", rows.len());
-        println!("Δ宽 {:.1} Δ同 {:.1} ΔH严 {:.1} | 配对 宽>同 {win_a}/{}（均差 {:+.1}） 宽>H严 {win_b}/{}",
+        println!("\n== E1W2 summary ({} seeds, D = true-reachable - hardfalse-reachable @budget5) ==", rows.len());
+        println!("D-wide {:.1} D-hom {:.1} D-Hstrict {:.1} | paired wide>hom {win_a}/{} (mean diff {:+.1}) wide>Hstrict {win_b}/{}",
             mm(&|r| r.0), mm(&|r| r.1), mm(&|r| r.2), rows.len(), mdiff, rows.len());
-        println!("判读（预先声明）：(a) 宽>同 ≥12/15 且均差 >0 与 (b) 宽>H严 ≥12/15 同过 → 宽度使拓扑判别成立；只过 (a) 记宽度效应存在但未胜零模型；(a) 不过记未检出。");
+        println!("Reading (pre-declared): (a) wide>hom >=12/15 with mean diff >0 and (b) wide>Hstrict >=12/15 both passing -> width establishes topological discrimination; only (a) passing records a width effect that did not beat the null model; (a) failing records not detected.");
         return;
     }
     if std::env::var("VH_E2").is_ok() {
-        // E2 原生闭环自定位；判据见预注册文档（跑前已提交）。
+        // E2 native closed-loop self-localisation; criteria in the pre-registration document (committed before the run).
         let mut rows: Vec<(f64, f64, f64, f64, usize)> = Vec::new();
         for seed in &seeds {
             rows.push(e2_seed(*seed));
@@ -1392,13 +1392,13 @@ fn main() {
         let g1 = rows.iter().map(|r| r.0).sum::<f64>() / n;
         let g2 = rows.iter().map(|r| r.1).sum::<f64>() / n;
         let gc = rows.iter().map(|r| r.2).sum::<f64>() / n;
-        println!("\n== E2 汇总（{} seeds） ==", rows.len());
-        println!("F1 总均值 {g1:.2} F2 总均值 {g2:.2} 跨链对照总均值 {gc:.2} | 两问法同过（均值>1）种子 {both}/{}", rows.len());
-        println!("判读（预先声明）：≥12/15 种子两问法均值同 >1 且两问法总均值都 ≥1.3 → E2 自定位成立；任一问法不过即该问法未检出，整体不过记 E2 未检出。");
+        println!("\n== E2 summary ({} seeds) ==", rows.len());
+        println!("F1 grand mean {g1:.2} F2 grand mean {g2:.2} cross-chain control grand mean {gc:.2} | seeds passing both phrasings (mean>1) {both}/{}", rows.len());
+        println!("Reading (pre-declared): >=12/15 seeds with both phrasing means >1 and both grand means >=1.3 -> E2 self-localisation holds; any phrasing failing records that phrasing not detected, and overall failure records E2 not detected.");
         return;
     }
     if std::env::var("VH_XMOD").is_ok() {
-        // XMOD 跨模态链回答；判据见 XMOD_PREREG_20261102（跑前已提交）。
+        // XMOD cross-modal chain answering; criteria in XMOD_PREREG_20261102 (committed before the run).
         let mut rows: Vec<(f64, f64, f64, f64)> = Vec::new();
         for seed in &seeds {
             rows.push(xmod_seed(*seed));
@@ -1406,9 +1406,9 @@ fn main() {
         let n = rows.len() as f64;
         let wins = rows.iter().filter(|r| r.0 > r.1 && r.0 > r.2).count();
         let mm = |f: &dyn Fn(&(f64, f64, f64, f64)) -> f64| rows.iter().map(f).sum::<f64>() / n;
-        println!("\n== XMOD 汇总（{} seeds，真题可达%） ==", rows.len());
-        println!("C {:.1} A {:.1} G {:.1} | C假误答 {:.1} | C>A 且 C>G 种子 {wins}/{}", mm(&|r| r.0), mm(&|r| r.1), mm(&|r| r.2), mm(&|r| r.3), rows.len());
-        println!("判读（预先声明）：≥12/15 种子 C 同时 >A 且 >G → 跨模态链结构承重成立；不过记未检出，注明倒在哪臂。");
+        println!("\n== XMOD summary ({} seeds, true reachable %) ==", rows.len());
+        println!("C {:.1} A {:.1} G {:.1} | C false-answered {:.1} | seeds with C>A and C>G {wins}/{}", mm(&|r| r.0), mm(&|r| r.1), mm(&|r| r.2), mm(&|r| r.3), rows.len());
+        println!("Reading (pre-declared): >=12/15 seeds with C simultaneously >A and >G -> cross-modal chain structure bears load; otherwise not detected, noting which arm it fell on.");
         return;
     }
     if std::env::var("VH_BABI").is_ok() {
@@ -1442,25 +1442,25 @@ fn main() {
     let gain_std = std(&|r| r.0 - r.1);
     let loss = mean(&|r| r.0 - r.3);
     let loss_std = std(&|r| r.0 - r.3);
-    println!("\n== 因果证明汇总（{} seeds，网络通道，%） ==", rows.len());
-    println!("C {mc:.1}±{:.1}  A(matched) {ma:.1}±{:.1}  F {mf:.1}±{:.1}  G拆结构 {mg:.1}±{:.1}  Hnull {mh:.1}±{:.1}（种子内重排 std 均值 {mh_std_in:.1}，C 分位均值 {:.0}%）  I清存储 {mi:.1}±{:.1}",
+    println!("\n== Causal proof summary ({} seeds, network channel, %) ==", rows.len());
+    println!("C {mc:.1}±{:.1}  A(matched) {ma:.1}±{:.1}  F {mf:.1}±{:.1}  G(structure cleared) {mg:.1}±{:.1}  Hnull {mh:.1}±{:.1} (mean within-seed rewiring std {mh_std_in:.1}, mean C percentile {:.0}%)  I(storage cleared) {mi:.1}±{:.1}",
         mpct * 100.0,
         std(&|r| r.0), std(&|r| r.1), std(&|r| r.2), std(&|r| r.3), std(&|r| r.4), std(&|r| r.5));
-    println!("培养增益 G = C−A = {gain:+.1} ± {gain_std:.1} pp（A 为 matched 对照：同料同量、无链结构）");
-    println!("结构因果 L = C−G = {loss:+.1} ± {loss_std:.1} pp");
-    println!("学习曲线（培养阶段1/2/3 截断重培养 + 同批测试事实）: {:.1}±{:.1} → {:.1}±{:.1} → {:.1}±{:.1}",
+    println!("Cultivation gain G = C-A = {gain:+.1} ± {gain_std:.1} pp (A is the matched control: same material, same amount, no chain structure)");
+    println!("Structural causality L = C-G = {loss:+.1} ± {loss_std:.1} pp");
+    println!("Learning curve (truncated re-cultivation to stages 1/2/3 + same test facts): {:.1}±{:.1} -> {:.1}±{:.1} -> {:.1}±{:.1}",
         mean(&|r| r.8[0]), std(&|r| r.8[0]),
         mean(&|r| r.8[1]), std(&|r| r.8[1]),
         mean(&|r| r.8[2]), std(&|r| r.8[2]));
-    println!("距离分层真题（d1 / d2-3 / d4-5）: C {:.1}/{:.1}/{:.1} | A(matched) {:.1}/{:.1}/{:.1}；假题正确率 C {:.1} | A {:.1}",
+    println!("Distance-stratified true questions (d1 / d2-3 / d4-5): C {:.1}/{:.1}/{:.1} | A(matched) {:.1}/{:.1}/{:.1}; false-question accuracy C {:.1} | A {:.1}",
         mean(&|r| r.9[0]), mean(&|r| r.9[1]), mean(&|r| r.9[2]),
         mean(&|r| r.10[0]), mean(&|r| r.10[1]), mean(&|r| r.10[2]),
         mean(&|r| r.11), mean(&|r| r.12));
     let dpath = mean(&|r| r.14 - r.13);
     let dpath_std = std(&|r| r.14 - r.13);
-    println!("路径特异 v3.2（均路，跳；不可达惩罚 12）：真题 C {:.2} A {:.2}（ΔA−C {:+.2}±{:.2}，正=C 更近）| 假题 C {:.2} A {:.2} | C 不可达题均 {:.1}",
+    println!("Path specificity v3.2 (mean path, hops; unreachable penalty 12): true C {:.2} A {:.2} (dA-C {:+.2}±{:.2}, positive = C nearer) | false C {:.2} A {:.2} | C unreachable per question {:.1}",
         mean(&|r| r.13), mean(&|r| r.14), dpath, dpath_std,
         mean(&|r| r.15), mean(&|r| r.16), mean(&|r| r.17));
-    println!("判读：F 应与 C 一致（完整状态可恢复）；G 掉分说明连接存在承重；Hnull 分位 >95% 才算拓扑特异性成立；I 不掉说明网络通道不靠存储字节；定向增益若集中在 d4-5 且假题正确率不掉，才算组合规模下成立。路径：Δ>0 且显著（|Δ|>>std）才算链式培养让新事实吸收更近。");
+    println!("Reading: F should match C (full state restorable); a G drop shows the connections bear load; Hnull percentile >95% is required for topological specificity; no I drop shows the network channel does not rely on stored bytes; the directed gain counts at combinatorial scale only if it concentrates in d4-5 without losing false-question accuracy. Paths: Delta>0 and significant (|Delta|>>std) is required for chained cultivation absorbing new facts nearer.");
 }
 

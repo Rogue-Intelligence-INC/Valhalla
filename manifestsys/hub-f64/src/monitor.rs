@@ -1,14 +1,16 @@
-//! 整体监控：坐在身体外部，只读观察 Tile/Stem 结构、四元
-//! 八份存储与全局 Fate。
+//! Whole-body monitor: sits outside the body, read-only observation
+//! of Tile/Stem structure, the eight quad stores, and global Fate.
 //!
-//! 只读身体当下的状态，不给块起名字，不看四路偏好，自己不
-//! 改身体、不参与任何判定（Fate 与监控都是观察层）。
-//! - 组合数来自周期结果（Tile 没有累计字段，由监控逐周期加上；Stem 另有 total_merges）
-//! - 自发边：由 propagate 自己报的新连接数逐次累计，监控不另设阈值猜
-//! - Stem 连接：场写出的连接原样计数（强度为场按密度/距离/场强选出的原值）
-//! - 连通块：无向图连通分量，只报大小，不命名
-//! - 四元：八份存储逐份读条目数/字节数/拼接指纹；四元的动静
-//!   由相邻两次快照的差分从外部看出（监控不读身体内部计数）
+//! Reads the body's current state only; names no blocks, reads no
+//! preferences, changes nothing in the body, takes part in no
+//! judgement (Fate and the monitor are both observation layers).
+//! - Merge counts come from cycle results (Tile has no cumulative field, the monitor adds per cycle; Stem keeps its own total_merges)
+//! - Spontaneous edges: new connections reported by propagate itself, accumulated; the monitor sets no threshold to guess
+//! - Stem links: connections as written by the field, counted as-is (strength is the field's own value by density/distance/field strength)
+//! - Connected blocks: undirected connected components, sizes only, unnamed
+//! - Quads: the eight stores read per store (entries/bytes/concatenated
+//!   fingerprint); quad movement is seen externally from the diff of
+//!   adjacent snapshots (the monitor reads no internal body counters)
 
 use std::collections::{HashMap, HashSet};
 
@@ -18,13 +20,13 @@ use stem_cell::StemCellComplete;
 use valhalla_tile_quattro::tile_complete::TileCycleResult;
 use valhalla_tile_quattro::TileQuattroComplete;
 
-/// 八份四元存储的固定顺序名（Tile 四元、Stem 四元）。
+/// Fixed-order names of the eight quad stores (Tile quads, Stem quads).
 pub const QUAD_NAMES: [&str; 8] = [
-    "Tile黑洞", "Tile膜脑", "Tile新星", "Tile底力",
-    "Stem黑洞", "Stem膜脑", "Stem新星", "Stem底力",
+    "TileBlackHole", "TileMeshBrain", "TileMultiNova", "TileBaseForce",
+    "StemBlackHole", "StemMeshBrain", "StemMultiNova", "StemBaseForce",
 ];
 
-/// 监控从外部看到的一份四元存储：条目数、总字节、拼接指纹。
+/// One quad store as seen externally by the monitor: entries, total bytes, concatenated fingerprint.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct QuadView {
     pub entries: usize,
@@ -45,40 +47,40 @@ fn quad_view(stored: &[Vec<u8>]) -> QuadView {
     QuadView { entries: stored.len(), bytes, hash }
 }
 
-/// 一次身体快照。训练中每个周期取一次。
+/// One body snapshot. Taken once per cycle during training.
 #[derive(Debug, Clone, Default)]
 pub struct BodySnapshot {
     pub tiles: usize,
     pub cells: usize,
-    /// 监控累计的 Tile 合并数
+    /// Tile merges accumulated by the monitor
     pub tile_merges: usize,
-    /// Stem 内部累计的合并数
+    /// Merges accumulated inside Stem
     pub stem_merges: u64,
-    /// Tile 无向边数
+    /// Tile undirected edge count
     pub tile_edges: usize,
-    /// propagate 累计报出的自发新连接数
+    /// Spontaneous new connections reported by propagate, accumulated
     pub tile_synapses_born: usize,
-    /// Stem 场写出的连接条数（原样强度）
+    /// Connection count written by the Stem field (strength as-is)
     pub stem_links: usize,
-    /// Tile 连通块大小，从大到小，只留 >= 2 的
+    /// Tile block sizes, descending, only >= 2 kept
     pub tile_blocks: Vec<usize>,
-    /// Stem 连通块大小，从大到小，只留 >= 2 的
+    /// Stem block sizes, descending, only >= 2 kept
     pub stem_blocks: Vec<usize>,
-    /// 八份四元存储的外部视图（顺序见 QUAD_NAMES）
+    /// External view of the eight quad stores (order: QUAD_NAMES)
     pub quad: [QuadView; 8],
-    /// 八份存储条目总数
+    /// Total entries across the eight stores
     pub stored_entries: usize,
-    /// 八份存储总字节
+    /// Total bytes across the eight stores
     pub stored_bytes: usize,
-    /// 同层四份是否已分化（四元按各自规则维护后为 true）
+    /// Whether the four same-layer stores have diverged (true once the quads maintain by their own rules)
     pub quad_diverged: bool,
-    /// 相对上一次 watch 的每份条目数变化（外部差分；首次为 0）
+    /// Per-store entry change since the previous watch (external diff; 0 on first)
     pub quad_delta: [i64; 8],
-    /// 全局 Fate tick（仅 watch_with_fate 填写）
+    /// Global Fate tick (filled only by watch_with_fate)
     pub fate_tick: u64,
-    /// 全局 Fate 存储条数（仅 watch_with_fate 填写）
+    /// Global Fate stored count (filled only by watch_with_fate)
     pub fate_stored: usize,
-    /// 全局 Fate 簇方程（仅 watch_with_fate 填写）
+    /// Global Fate cluster equation (filled only by watch_with_fate)
     pub fate_equation: String,
 }
 
@@ -91,10 +93,10 @@ impl BodySnapshot {
         self.stem_blocks.first().copied().unwrap_or(0)
     }
 
-    /// 训练日志用的单行形式
+    /// One-line form for training logs
     pub fn line(&self) -> String {
         format!(
-            "monitor tiles {} cells {} tile_merges {} stem_merges {} tile_edges {} synapses_born {} stem_links {} tile_block {} stem_block {} stored {}条/{}B quad_diverged {}",
+            "monitor tiles {} cells {} tile_merges {} stem_merges {} tile_edges {} synapses_born {} stem_links {} tile_block {} stem_block {} stored {}/{}B quad_diverged {}",
             self.tiles,
             self.cells,
             self.tile_merges,
@@ -110,30 +112,30 @@ impl BodySnapshot {
         )
     }
 
-    /// 四元八份的单行形式：每份 条目/字节/指纹 + 本次差分
+    /// One-line form of the eight quad stores: per store entries/bytes/fingerprint + this diff
     pub fn quad_line(&self) -> String {
         let mut out = String::from("quad");
         for (i, q) in self.quad.iter().enumerate() {
             out.push_str(&format!(
-                " {} {}条/{}B#{:08x}({:+})",
+                " {} {}/{}B#{:08x}({:+})",
                 QUAD_NAMES[i], q.entries, q.bytes, (q.hash & 0xffff_ffff) as u32, self.quad_delta[i]
             ));
         }
         out
     }
 
-    /// 全局 Fate 的单行形式（watch_with_fate 后才有内容）
+    /// One-line form of global Fate (has content only after watch_with_fate)
     pub fn fate_line(&self) -> String {
         format!("fate tick {} stored {} eq {}", self.fate_tick, self.fate_stored, self.fate_equation)
     }
 }
 
-/// 训练时挂在周期旁边的整体监控。坐在外部，自己不改身体。
+/// Whole-body monitor hung beside the cycles during training. Sits outside; never changes the body.
 #[derive(Debug, Default)]
 pub struct BodyMonitor {
     tile_merges: usize,
     synapses_born: usize,
-    /// 上一次 watch 时八份的条目数，供外部差分
+    /// Entry counts of the eight stores at the previous watch, for external diffing
     prev_quad_entries: Option<[usize; 8]>,
 }
 
@@ -142,18 +144,19 @@ impl BodyMonitor {
         Self::default()
     }
 
-    /// 每个周期调用一次，把这一周期的合并数记下来
+    /// Called once per cycle; records this cycle's merge count
     pub fn observe_cycle(&mut self, tile: &TileCycleResult, _stem: &CellCycleResult) {
         self.tile_merges += tile.merges;
     }
 
-    /// propagate 每报一次新连接就累计（监控不另设阈值猜哪条是新生的）
+    /// Accumulates each new connection propagate reports (the monitor sets no threshold to guess which are newborn)
     pub fn observe_propagate(&mut self, new_connections: usize) {
         self.synapses_born += new_connections;
     }
 
-    /// 整体观察一次：取快照并记下八份条目数，下次 watch 时
-    /// 差分即四元在外部留下的动静。监控只读，不进身体内部。
+    /// Observe the whole once: snapshot and record the eight stores'
+    /// entry counts; at the next watch, the diff is the quads'
+    /// externally visible movement. Read-only; never enters the body.
     pub fn watch(&mut self, tile: &TileQuattroComplete, stem: &StemCellComplete) -> BodySnapshot {
         let mut snap = self.snapshot(tile, stem);
         if let Some(prev) = self.prev_quad_entries {
@@ -165,7 +168,7 @@ impl BodyMonitor {
         snap
     }
 
-    /// 同 watch，并把全局 Fate 的 tick/存储/方程一并读进来
+    /// Like watch, and also reads in global Fate's tick/storage/equation
     pub fn watch_with_fate(
         &mut self,
         tile: &TileQuattroComplete,
@@ -189,7 +192,7 @@ impl BodyMonitor {
             ..Default::default()
         };
 
-        // Tile 边：connections 是对端 id。无向去重
+        // Tile edges: connections are peer ids. Undirected dedup
         let tile_index: HashMap<&str, usize> = tile
             .completed_tiles
             .iter()
@@ -216,7 +219,7 @@ impl BodyMonitor {
         snap.tile_edges = tile_pairs.len();
         snap.tile_blocks = component_sizes(&tile_adj);
 
-        // Stem 边：connections 是 (cell_id, strength)，场选出的原样计数，只略过零强度
+        // Stem edges: connections are (cell_id, strength), counted as the field chose them, skipping zero strength only
         let stem_index: HashMap<&str, usize> = stem
             .cells
             .iter()
@@ -240,7 +243,7 @@ impl BodyMonitor {
         }
         snap.stem_blocks = component_sizes(&stem_adj);
 
-        // 四元八份：逐份外部视图（监控只读 stored 本身）
+        // The eight quad stores: per-store external view (the monitor reads only `stored` itself)
         snap.quad = [
             quad_view(&tile.blackhole.stored),
             quad_view(&tile.meshbrain.stored),
@@ -264,7 +267,7 @@ impl BodyMonitor {
     }
 }
 
-/// 无向图连通分量大小，从大到小，只留 >= 2 的
+/// Undirected connected-component sizes, descending, only >= 2 kept
 fn component_sizes(adj: &[Vec<usize>]) -> Vec<usize> {
     let mut seen = vec![false; adj.len()];
     let mut sizes = Vec::new();
@@ -311,7 +314,7 @@ mod tests {
         tile.process_tiles_cycle();
         stem.process_cells_cycle();
         let second = monitor.watch(&tile, &stem);
-        // 周期一起，黑洞吞掉自家静默条：外部差分与分化同时可见
+        // With the cycles, the black hole swallows its own silent entries: external diff and divergence visible together
         assert!(second.quad_diverged);
         assert_eq!(second.quad_delta[0], -1);
         assert!(second.stored_entries < first.stored_entries);

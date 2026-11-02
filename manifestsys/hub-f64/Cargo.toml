@@ -71,8 +71,8 @@ name = "valhalla_model_fate"
 path = "src/bin/valhalla_model_fate.rs"
 
 [[bin]]
-name = "对照拆解"
-path = "src/bin/对照拆解.rs"
+name = "valhalla_decompose_recompose"
+path = "src/bin/valhalla_decompose_recompose.rs"
 
 [[bin]]
 name = "valhalla_free_multimodal"

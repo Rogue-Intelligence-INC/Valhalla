@@ -1,24 +1,24 @@
-//! 皮层 = 穷尽 + 排除（借鉴 s-wind 结构，不写物理）
+//! Cortex = exhaustion + exclusion (structure borrowed from s-wind; no physics written)
 //!
-//! **概念**：
-//! - **皮层 (Cortex)**：本模块实现的「穷尽探索 + 排除」循环，即思考层。输入来自脑体，输出为结构发现与排除集。
-//! - **脑体 (Body)**：Valhalla（Hub、StemCell、Tile、Chamber）—— 产生并消费数据，由皮层观察与约束。
+//! **Concepts**:
+//! - **Cortex**: the "exhaustive exploration + exclusion" loop implemented in this module, i.e. the thinking layer. Input comes from the body; output is structural discoveries and an exclusion set.
+//! - **Body**: Valhalla (Hub, StemCell, Tile, Chamber) - produces and consumes data, observed and constrained by the cortex.
 //!
-//! **流程（与 s-wind 对齐）**：
-//! 1. 从脑体取得 f64 信号
-//! 2. Space 变换：Difference、Ratio、CumulativeSum 等
-//! 3. 对变换后信号做简单结构识别（常数、线性、递推等）
-//! 4. 排除：误差大或不稳定的假设丢弃
-//! 5. 重复直至 closure（无新发现或达最大轮数）
+//! **Flow (aligned with s-wind)**:
+//! 1. Take f64 signals from the body
+//! 2. Space transforms: Difference, Ratio, CumulativeSum, etc.
+//! 3. Simple structure recognition on the transformed signal (constant, linear, recurrence, etc.)
+//! 4. Exclusion: discard hypotheses with large error or instability
+//! 5. Repeat until closure (no new discoveries or max rounds reached)
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 // ---------------------------------------------------------------------------
-// 脑体来源（Valhalla 各系统）
+// Body sources (the Valhalla subsystems)
 // ---------------------------------------------------------------------------
 
-/// 脑体单元类型：信号来自哪一个 Valhalla 系统
+/// Body-unit type: which Valhalla subsystem a signal comes from
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BodyKind {
     Hub,
@@ -38,7 +38,7 @@ impl BodyKind {
     }
 }
 
-/// 来自脑体的一路信号（供皮层消费）
+/// One signal channel from the body (for cortex consumption)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BodySignal {
     pub source: BodyKind,
@@ -47,27 +47,27 @@ pub struct BodySignal {
 }
 
 // ---------------------------------------------------------------------------
-// Space 变换（f64，与 s-wind TransformType 对应）
+// Space transforms (f64, corresponding to s-wind TransformType)
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TransformType {
-    /// Δ: 一阶差分
+    /// Delta: first difference
     Difference,
-    /// Δ²: 二阶差分
+    /// Delta^2: second difference
     SecondDifference,
-    /// 连续项比值
+    /// Ratio of consecutive terms
     Ratio,
-    /// 累加
+    /// Cumulative sum
     CumulativeSum,
-    /// 绝对值
+    /// Absolute value
     AbsoluteValue,
-    /// 滑动平均，窗口长度
+    /// Moving average, window length
     MovingAverage(usize),
 }
 
 impl TransformType {
-    /// 对 f64 序列做变换，返回新序列（可能变短）
+    /// Transform an f64 sequence, returning a new sequence (possibly shorter)
     pub fn apply(&self, signal: &[f64]) -> Vec<f64> {
         match self {
             TransformType::Difference => {
@@ -122,7 +122,7 @@ impl TransformType {
     }
 }
 
-/// 所有可枚举的变换（用于穷尽）
+/// All enumerable transforms (for exhaustion)
 pub fn all_transforms_for_exhaustion() -> Vec<TransformType> {
     vec![
         TransformType::Difference,
@@ -136,21 +136,21 @@ pub fn all_transforms_for_exhaustion() -> Vec<TransformType> {
 }
 
 // ---------------------------------------------------------------------------
-// 简单结构识别（用于建模 + 排除）
+// Simple structure recognition (for modelling + exclusion)
 // ---------------------------------------------------------------------------
 
-/// 识别出的简单结构类型（仅结构，无物理名）
+/// Recognised simple structure types (structure only, no physics names)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum StructureKind {
-    /// 近似常数
+    /// Approximately constant
     Constant(f64),
-    /// 近似线性 y ≈ a*x + b
+    /// Approximately linear y ~ a*x + b
     Linear { a: f64, b: f64 },
-    /// 未识别或排除
+    /// Unrecognised or excluded
     Unknown,
 }
 
-/// 对一段 f64 做简单结构识别；返回结构类型与均方误差（用于排除）
+/// Simple structure recognition on an f64 span; returns the structure type and mean squared error (for exclusion)
 pub fn fit_simple_structure(signal: &[f64]) -> (StructureKind, f64) {
     if signal.is_empty() {
         return (StructureKind::Unknown, f64::MAX);
@@ -192,10 +192,10 @@ fn linear_fit(x: &[f64], y: &[f64]) -> (f64, f64) {
 }
 
 // ---------------------------------------------------------------------------
-// 排除与 closure
+// Exclusion and closure
 // ---------------------------------------------------------------------------
 
-/// 单次探索结果：某变换 + 某结构，若误差过大则视为排除
+/// One exploration result: a transform + a structure; excessive error counts as excluded
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DiscoveryCandidate {
     pub transform: TransformType,
@@ -204,7 +204,7 @@ pub struct DiscoveryCandidate {
     pub excluded: bool,
 }
 
-/// 排除条件：误差大于阈值或结构为 Unknown 且误差大
+/// Exclusion condition: error above threshold, or Unknown structure with large error
 pub fn should_exclude(mse: f64, structure: &StructureKind, error_threshold: f64) -> bool {
     if mse > error_threshold {
         return true;
@@ -213,10 +213,10 @@ pub fn should_exclude(mse: f64, structure: &StructureKind, error_threshold: f64)
 }
 
 // ---------------------------------------------------------------------------
-// 皮层：穷尽 + 排除 引擎
+// Cortex: exhaustion + exclusion engine
 // ---------------------------------------------------------------------------
 
-/// 皮层状态：当前轮数、已发现结构、已排除集合
+/// Cortex state: current round, discovered structures, exclusion set
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CortexState {
     pub round: u32,
@@ -224,7 +224,7 @@ pub struct CortexState {
     pub excluded_count: usize,
 }
 
-/// 皮层配置（穷尽与排除参数）
+/// Cortex configuration (exhaustion and exclusion parameters)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CortexConfig {
     pub max_rounds: u32,
@@ -242,11 +242,11 @@ impl Default for CortexConfig {
     }
 }
 
-/// 皮层：对脑体信号做穷尽探索 + 排除，直至 closure
+/// Cortex: exhaustive exploration + exclusion over body signals, until closure
 pub struct Cortex {
     pub config: CortexConfig,
     pub state: CortexState,
-    /// 已出现过的 (transform, structure) 签名，用于判断是否 closure（无新发现）
+    /// Previously seen (transform, structure) signatures, used to judge closure (no new discoveries)
     seen_signatures: HashSet<String>,
 }
 
@@ -263,7 +263,7 @@ impl Cortex {
         }
     }
 
-    /// 对当前信号做一轮：枚举变换 → 拟合结构 → 排除
+    /// One round on the current signal: enumerate transforms -> fit structure -> exclude
     pub fn step(&mut self, signal: &[f64]) -> bool {
         if signal.len() < self.config.min_signal_len {
             return true;
@@ -296,7 +296,7 @@ impl Cortex {
         new_this_round == 0
     }
 
-    /// 穷尽循环：从脑体信号出发，反复变换→拟合→排除，直到 closure 或达到 max_rounds
+    /// Exhaustion loop: from body signals, repeat transform->fit->exclude until closure or max_rounds
     pub fn run_until_closure(&mut self, body_signal: &BodySignal) {
         let mut current: Vec<f64> = body_signal.sequence.clone();
         while self.state.round < self.config.max_rounds {
@@ -327,13 +327,13 @@ impl Cortex {
 }
 
 // ---------------------------------------------------------------------------
-// 兼容旧 API：CortexKind / CortexSummary 视为「脑体单元」标记
+// Legacy API compatibility: CortexKind / CortexSummary treated as "body unit" markers
 // ---------------------------------------------------------------------------
 
-/// 脑体单元类型（与 BodyKind 同义，用于对外命名「Valhalla 各系统」）
+/// Body-unit type (synonymous with BodyKind; the external naming for "the Valhalla subsystems")
 pub type CortexKind = BodyKind;
 
-/// 脑体单元在某一时刻的职责摘要（是否承担存储、是否受皮层控制）
+/// A body unit's duty summary at a moment (whether it carries storage, whether the cortex controls it)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CortexSummary {
     pub kind: BodyKind,

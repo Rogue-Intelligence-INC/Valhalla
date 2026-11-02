@@ -1,5 +1,5 @@
-//! 同一份材料两条路：拆开后组成一个新模型，或融进同一个模型。
-//! 看交回来的是不是身体自己的话。分数和块数增加不算反证。
+//! The same material, two paths: decomposed then composed into a new model, or fused into the same model.
+//! Watch whether what comes back is the body's own words. Higher scores or more blocks do not count as counter-evidence.
 
 use hub_f64::free_multimodal_fate::mix_ports_weighted;
 use hub_f64::grinder::grind_text_hash;
@@ -70,34 +70,34 @@ fn run_arm(name: &str, texts: &[(&str, &str)]) -> (usize, usize, f64, f64, Vec<f
 fn main() {
     let poem = "錐刀既無棄，轉化日已盈";
     let sum = "6 * 8 = <<6*8=48>>48 orange crayons";
-    let (new_tiles, new_cells, new_score, new_closure, new_patch, new_stop) = run_arm("新模型", &[("诗", poem)]);
+    let (new_tiles, new_cells, new_score, new_closure, new_patch, new_stop) = run_arm("new-model", &[("poem", poem)]);
     let (fuse_tiles, fuse_cells, fuse_score, fuse_closure, fuse_patch, fuse_stop) =
-        run_arm("融合模型", &[("诗", poem), ("算式", sum)]);
+        run_arm("fused-model", &[("poem", poem), ("formula", sum)]);
     let alike = cosine(&new_patch, &fuse_patch);
     println!(
         "{}",
         serde_json::json!({
-            "对照": "拆解后组新模型 vs 融进一个模型",
-            "材料": [poem, sum],
-            "新模型": {
-                "瓦片": new_tiles,
-                "干细胞": new_cells,
-                "拆解分": new_score,
-                "闭合分": new_closure,
-                "补丁维": new_patch.len(),
-                "停": new_stop,
+            "comparison": "decomposed into a new model vs fused into one model",
+            "materials": [poem, sum],
+            "new_model": {
+                "tiles": new_tiles,
+                "stem_cells": new_cells,
+                "decompose_score": new_score,
+                "closure_score": new_closure,
+                "patch_dim": new_patch.len(),
+                "stop": new_stop,
             },
-            "融合模型": {
-                "瓦片": fuse_tiles,
-                "干细胞": fuse_cells,
-                "拆解分": fuse_score,
-                "闭合分": fuse_closure,
-                "补丁维": fuse_patch.len(),
-                "停": fuse_stop,
+            "fused_model": {
+                "tiles": fuse_tiles,
+                "stem_cells": fuse_cells,
+                "decompose_score": fuse_score,
+                "closure_score": fuse_closure,
+                "patch_dim": fuse_patch.len(),
+                "stop": fuse_stop,
             },
-            "两路补丁余弦": alike,
-            "交回正文": false,
-            "反证培育": false,
+            "patch_cosine_two_paths": alike,
+            "body_returned": false,
+            "counter_evidence_cultivation": false,
         })
     );
 }

@@ -1,21 +1,23 @@
-//! Valhalla 统一程式入口（Rust，2026-11-01 整合）
+//! Valhalla unified programme entry (Rust, consolidated 2026-11-01)
 //!
-//! 取代 PowerShell 运行器成为唯一程式化入口：构建、库测、检查包、
-//! 证明包、全流程、可视化监控，全部由这一个二进制调度。
-//! 子程式仍是既有各 bin（库零改动）；本程式只做编排：
-//! 定位仓库根、注入 CUDA 构建环境、逐件落日志、按退出码报 PASS/FAIL。
+//! Replaces the PowerShell runner as the single programmatic entry:
+//! build, library tests, check packages, proof packages, full flow
+//! and the visual monitor are all dispatched by this one binary.
+//! Sub-programmes remain the existing bins (library untouched); this
+//! programme only orchestrates: locate the repo root, inject the CUDA
+//! build env, log each item, report PASS/FAIL by exit code.
 //!
-//! 用法：
-//!   valhalla                 默认全套（L0+L1+L2电池+L3，约 3 分钟）
+//! Usage:
+//!   valhalla                 default full suite (L0+L1+L2 battery+L3, ~3 min)
 //!   valhalla run [--rounds N] [--seed S] [--incubation] [--viz] [--skip-build]
-//!   valhalla check           L0 库测 + L1 检查包
-//!   valhalla battery         L2 行业电池
-//!   valhalla incubation      L2 孵化证明（15 seeds，约 8 分钟）
+//!   valhalla check           L0 library tests + L1 check packages
+//!   valhalla battery         L2 industry battery
+//!   valhalla incubation      L2 incubation proof (15 seeds, ~8 min)
 //!   valhalla flow [--rounds N] [--seed S] [--cycles N]
-//!   valhalla viz  [--rounds N] [--seed S] [--open]   生成并（可选）打开监控页
-//!   valhalla build           只构建全套所需 bin
+//!   valhalla viz  [--rounds N] [--seed S] [--open]   generate and (optionally) open the dashboard
+//!   valhalla build           build only the bins the suite needs
 //!
-//! 判读纪律见 docs/valhalla/RUN_MODE.md。
+//! Reading discipline: docs/valhalla/RUN_MODE.md.
 
 use std::env;
 use std::fs::{self, File};
@@ -66,22 +68,23 @@ fn parse_opts(args: &[String]) -> Result<Opts, String> {
     let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
-            "--rounds" => { i += 1; o.rounds = args.get(i).ok_or("--rounds 需要数值")?.parse().map_err(|_| "rounds 非整数")?; }
-            "--seed" => { i += 1; o.seed = args.get(i).ok_or("--seed 需要数值")?.parse().map_err(|_| "seed 非整数")?; }
-            "--cycles" => { i += 1; o.cycles = Some(args.get(i).ok_or("--cycles 需要数值")?.parse().map_err(|_| "cycles 非整数")?); }
+            "--rounds" => { i += 1; o.rounds = args.get(i).ok_or("--rounds needs a value")?.parse().map_err(|_| "rounds is not an integer")?; }
+            "--seed" => { i += 1; o.seed = args.get(i).ok_or("--seed needs a value")?.parse().map_err(|_| "seed is not an integer")?; }
+            "--cycles" => { i += 1; o.cycles = Some(args.get(i).ok_or("--cycles needs a value")?.parse().map_err(|_| "cycles is not an integer")?); }
             "--incubation" => o.incubation = true,
             "--viz" => o.viz = true,
             "--open" => o.open = true,
             "--skip-build" => o.skip_build = true,
-            other => return Err(format!("未知参数: {other}")),
+            other => return Err(format!("unknown argument: {other}")),
         }
         i += 1;
     }
     Ok(o)
 }
 
-/// 仓库根 = 同时有根 Cargo.toml 与 manifestsys/hub-f64 的目录。
-/// 从当前目录与可执行文件位置双向向上找（exe 在 target/release 下）。
+/// Repo root = a directory holding both the root Cargo.toml and
+/// manifestsys/hub-f64. Searched upward from cwd and from the exe
+/// location (the exe sits under target/release).
 fn repo_root() -> PathBuf {
     let mut starts: Vec<PathBuf> = Vec::new();
     if let Ok(cwd) = env::current_dir() { starts.push(cwd); }
@@ -95,11 +98,11 @@ fn repo_root() -> PathBuf {
             match dir.parent() { Some(p) => dir = p, None => break }
         }
     }
-    eprintln!("找不到 Valhalla 仓库根（需含 Cargo.toml 与 manifestsys/hub-f64）");
+    eprintln!("Cannot find the Valhalla repo root (needs Cargo.toml and manifestsys/hub-f64)");
     exit(2);
 }
 
-/// CUDA 构建环境：目录存在才注入（与 RUN_MODE.md 既定环境一致）。
+/// CUDA build env: injected only when the directories exist (matches RUN_MODE.md).
 fn apply_cuda_env(cmd: &mut Command) {
     let lib = Path::new(r"C:\Ai\cuda-libx64");
     if lib.is_dir() {
@@ -131,7 +134,7 @@ impl Runner {
         self.root.join("target").join("release").join(format!("{bin}.exe"))
     }
 
-    /// 跑一件：输出全量落日志，控制台只报一行 PASS/FAIL。
+    /// Run one item: full output to its log; the console reports one PASS/FAIL line.
     fn item(&mut self, layer: &str, name: &str, mut cmd: Command) -> bool {
         let log_path = self.log_dir.join(format!("{name}.log"));
         let t = Instant::now();
@@ -166,7 +169,7 @@ impl Runner {
     fn bin(&mut self, layer: &str, name: &str, envs: &[(&str, String)]) -> bool {
         let exe = self.exe(name);
         if !exe.is_file() {
-            println!("FAIL [{}] {}  (未构建: {})", layer, name, exe.display());
+            println!("FAIL [{}] {}  (not built: {})", layer, name, exe.display());
             self.results.push((layer.into(), name.into(), false, 0.0));
             return false;
         }
@@ -178,12 +181,12 @@ impl Runner {
     fn build(&mut self, bins: &[&str]) -> bool {
         let mut args: Vec<&str> = vec!["build", "--release", "-p", "hub-f64"];
         for b in bins { args.push("--bin"); args.push(b); }
-        println!("== 构建（{} 件） ==", bins.len());
+        println!("== Build ({} bins) ==", bins.len());
         self.cargo("BUILD", "build", &args)
     }
 
     fn summary(&self) -> bool {
-        println!("\n== 汇总（日志: {}）==", self.log_dir.display());
+        println!("\n== Summary (logs: {}) ==", self.log_dir.display());
         for (layer, name, ok, secs) in &self.results {
             println!("  {} [{}] {:32} {:.1}s", if *ok { "PASS" } else { "FAIL" }, layer, name, secs);
         }
@@ -199,12 +202,12 @@ fn flow_envs(o: &Opts) -> Vec<(&'static str, String)> {
 }
 
 fn layer_l0(r: &mut Runner) {
-    println!("== L0 库测 ==");
+    println!("== L0 library tests ==");
     r.cargo("L0", "lib_tests", &["test", "--release", "--lib", "-p", "fate-f64", "-p", "stem-cell", "-p", "valhalla-tile-quattro"]);
 }
 
 fn layer_l1(r: &mut Runner) {
-    println!("== L1 检查包 ==");
+    println!("== L1 check packages ==");
     for b in CHECK_BINS { r.bin("L1", b, &[]); }
 }
 
@@ -214,7 +217,7 @@ fn main() {
     let rest: &[String] = if argv.is_empty() { &[] } else { &argv[1..] };
     let opts = match parse_opts(rest) {
         Ok(o) => o,
-        Err(e) => { eprintln!("{e}\n用法见 valhalla --help（或任意未知子命令）"); exit(2); }
+        Err(e) => { eprintln!("{e}\nsee valhalla --help (or any unknown subcommand)"); exit(2); }
     };
     let root = repo_root();
     let mut r = Runner::new(root.clone());
@@ -242,17 +245,17 @@ fn main() {
         }
         "flow" => {
             if !opts.skip_build { r.build(&["valhalla_full_flow"]); }
-            println!("== L3 全流程（{} 轮，seed {}） ==", opts.rounds, opts.seed);
+            println!("== L3 full flow ({} rounds, seed {}) ==", opts.rounds, opts.seed);
             r.bin("L3", "valhalla_full_flow", &flow_envs(&opts));
             r.summary()
         }
         "viz" | "monitor" => {
             if !opts.skip_build { r.build(&["valhalla_viz"]); }
-            println!("== 展示（valhalla_viz，{} 轮，seed {}） ==", opts.rounds, opts.seed);
+            println!("== Display (valhalla_viz, {} rounds, seed {}) ==", opts.rounds, opts.seed);
             let passed = r.bin("VIZ", "valhalla_viz", &flow_envs(&opts));
             let page = root.join("viz_out").join("index.html");
             if passed && page.is_file() {
-                println!("监控页: {}", page.display());
+                println!("Dashboard: {}", page.display());
                 if opts.open {
                     #[cfg(windows)]
                     { let _ = Command::new("cmd").args(["/C", "start", "", &page.to_string_lossy()]).status(); }
@@ -264,21 +267,21 @@ fn main() {
             if !opts.skip_build { r.build(&SUITE_BINS); }
             layer_l0(&mut r);
             layer_l1(&mut r);
-            println!("== L2 证明包 ==");
+            println!("== L2 proof packages ==");
             r.bin("L2", "valhalla_industry_battery", &[]);
             if opts.incubation {
                 r.bin("L2", "valhalla_incubation_proof", &[]);
             } else {
-                println!("SKIP [L2] valhalla_incubation_proof（加 --incubation 才跑，约 8 分钟）");
+                println!("SKIP [L2] valhalla_incubation_proof (runs only with --incubation, ~8 min)");
             }
-            println!("== L3 全流程（{} 轮，seed {}） ==", opts.rounds, opts.seed);
+            println!("== L3 full flow ({} rounds, seed {}) ==", opts.rounds, opts.seed);
             r.bin("L3", "valhalla_full_flow", &flow_envs(&opts));
             if opts.viz {
-                println!("== 展示（valhalla_viz） ==");
+                println!("== Display (valhalla_viz) ==");
                 r.bin("VIZ", "valhalla_viz", &flow_envs(&opts));
                 let page = root.join("viz_out").join("index.html");
                 if page.is_file() {
-                    println!("监控页: {}", page.display());
+                    println!("Dashboard: {}", page.display());
                     if opts.open {
                         #[cfg(windows)]
                         { let _ = Command::new("cmd").args(["/C", "start", "", &page.to_string_lossy()]).status(); }
@@ -288,20 +291,20 @@ fn main() {
             r.summary()
         }
         "--help" | "-h" | "help" => {
-            println!("Valhalla 统一程式入口\n");
-            println!("  valhalla                 默认全套 L0+L1+L2电池+L3（约 3 分钟）");
+            println!("Valhalla unified programme entry\n");
+            println!("  valhalla                 default full suite L0+L1+L2 battery+L3 (~3 min)");
             println!("  valhalla run [--rounds N] [--seed S] [--incubation] [--viz [--open]] [--skip-build]");
-            println!("  valhalla check           L0 库测 + L1 检查包");
-            println!("  valhalla battery         L2 行业电池");
-            println!("  valhalla incubation      L2 孵化证明（约 8 分钟）");
+            println!("  valhalla check           L0 library tests + L1 check packages");
+            println!("  valhalla battery         L2 industry battery");
+            println!("  valhalla incubation      L2 incubation proof (~8 min)");
             println!("  valhalla flow [--rounds N] [--seed S] [--cycles N]");
-            println!("  valhalla viz  [--rounds N] [--seed S] [--open]   Tile/Stem 可视化监控页");
-            println!("  valhalla build           只构建全套所需 bin");
-            println!("\n判读纪律: docs/valhalla/RUN_MODE.md");
+            println!("  valhalla viz  [--rounds N] [--seed S] [--open]   Tile/Stem visual dashboard");
+            println!("  valhalla build           build only the bins the suite needs");
+            println!("\nReading discipline: docs/valhalla/RUN_MODE.md");
             true
         }
         other => {
-            eprintln!("未知子命令: {other}\n");
+            eprintln!("unknown subcommand: {other}\n");
             println!("  valhalla [run|check|battery|incubation|flow|viz|build] [--rounds N] [--seed S] [--incubation] [--viz] [--open] [--skip-build]");
             false
         }
