@@ -669,6 +669,60 @@ fn quad_probe() {
     println!("重构后身体仍可喂入与周期：cells {} tiles {} 存储 {}", body.stem.cells.len(), body.tile.completed_tiles.len(), body.stored_total());
 }
 
+/// 五轮训练观察（VH_PROBE=quadlife，2026-11-02 用户定向）：
+/// 每轮喂新料（事实/文本片/静默/重复片/亮块/异质块）+ 2 周
+/// 期，整体监控在外部逐轮读：四元能否拆解（新星/膜脑多生
+/// 条目）、吸收（拼合新料、字节长满条目不长）、缩小（黑洞
+/// 吞静默、底力去重）、活着（细胞/Tile/边持续）、创建新
+/// 的（未整条喂入过的片段与新出生）。监控只读，判读在人。
+fn quadlife_probe() {
+    use hub_f64::monitor::QUAD_NAMES;
+    let sym = |i: usize| -> String {
+        let a = (b'A' + (i / 26 / 26 % 26) as u8) as char;
+        let b = (b'A' + (i / 26 % 26) as u8) as char;
+        let c = (b'A' + (i % 26) as u8) as char;
+        format!("{a}{b}{c}")
+    };
+    let div = std::path::Path::new(r"C:\Ai\rogue-products\valhalla-self-incubate\corpus_diverse");
+    let text = std::fs::read(div.join("zh_honglou_24264.txt")).unwrap_or_default();
+    let silence = vec![0u8; 512];
+    let mut bright = vec![0xFFu8; 256];
+    bright.extend_from_slice(&[0xC8u8; 256]);
+    let mut hetero = vec![0x20u8; 256];
+    hetero.extend_from_slice(&[0x90u8; 256]);
+    let dup_slice: Vec<u8> = text[997..997 + 120].to_vec();
+
+    let mut body = Body::new();
+    let (mut fed_entries, mut fed_bytes) = (0usize, 0usize);
+    let mut feed = |body: &mut Body, item: &[u8], fed_e: &mut usize, fed_b: &mut usize| {
+        body.feed(item);
+        *fed_e += 1;
+        *fed_b += item.len();
+    };
+    for round in 1..=5usize {
+        for i in 0..30 {
+            let f = format!("{}>{}", sym(round * 1000 + i), sym(round * 1000 + i + 1));
+            feed(&mut body, f.as_bytes(), &mut fed_entries, &mut fed_bytes);
+        }
+        for k in 0..8 {
+            let s = (round * 8 + k) * 997 % text.len().saturating_sub(200).max(1);
+            feed(&mut body, &text[s..(s + 120).min(text.len())], &mut fed_entries, &mut fed_bytes);
+        }
+        for _ in 0..2 { feed(&mut body, &silence, &mut fed_entries, &mut fed_bytes); }
+        if round >= 2 { feed(&mut body, &dup_slice, &mut fed_entries, &mut fed_bytes); }
+        feed(&mut body, &bright, &mut fed_entries, &mut fed_bytes);
+        feed(&mut body, &hetero, &mut fed_entries, &mut fed_bytes);
+        body.cycle();
+        body.cycle();
+        let snap = body.monitor.watch_with_fate(&body.tile, &body.stem, &body.global);
+        println!("第{round}轮 累计喂入 {fed_entries} 条/{fed_bytes} B（每条入账八份）");
+        println!("  {}", snap.line());
+        println!("  {}", snap.quad_line());
+        println!("  {}", snap.fate_line());
+        let _ = QUAD_NAMES;
+    }
+}
+
 fn main() {
     // mmtrain 的场步在大身体（mb25 起步、续训继续长）上必经深递归/大帧，
     // Windows 主线程默认 1MB 栈会溢出（STATUS_STACK_OVERFLOW 0xC00000FD）。
@@ -819,6 +873,9 @@ fn main_inner() {
         }
         "quad" => {
             quad_probe();
+        }
+        "quadlife" => {
+            quadlife_probe();
         }
         "vent" => {
             // 出口通道 v1：刺激只经 tile.propagate 扰动场（库里既有的交互入口），
