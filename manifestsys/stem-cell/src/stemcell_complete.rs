@@ -947,29 +947,28 @@ impl StemCellComplete {
         // 分裂数据：能量, 代数, 数据特征（继承父细胞身份）
         let mut new_cells_data: Vec<(f64, u32, Vec<f64>, Vec<u8>)> = Vec::new();
         
-        // 去硬编码（2026-11-02 预注册）：能量流率改身体规模
-        // 归一 1/n；分裂删写死倍数（×1.5、×0.1、0.01）与
-        // 分裂条数上限，改由簇方程判能量比率是否典型。
-        // 判定先于 retain 预算，避免借用冲突。
-        let n_now = self.cells.len().max(1) as f64;
+        // 能量流与分裂恢复原版形态（bug 修复）：流率
+        // ×0.1 强回流；分裂须能量 > 1.5×平均且本周期
+        // 分裂数 < 10——去硬编码（fee6ffc）误把三者换
+        // 成方程判典型 + 1/n 流率，致高于平均者人人每
+        // 周期分裂、种群爆炸。原版下分裂须多轮积累才
+        // 够格，属稀有事件。判定先于 retain 预算。
         for cell in &mut self.cells {
             cell.age += 1;
             let energy_diff = avg_energy - cell.energy;
-            cell.energy += energy_diff / n_now;
+            cell.energy += energy_diff * 0.1;
         }
-        // 分裂由簇方程判典型性（adapt 绑 Fate，只在收料
-        // 路径上调整方程）。死亡判定为活力（见周期内）：
-        // 四元内部消亡发出死亡信号、经 Fate 检测，
-        // 无法更新且无法激活者死，记入 deaths。
+        // 死亡判定为活力（见周期内）：四元内部消亡发出
+        // 死亡信号、经 Fate 检测，无法更新且无法激活
+        // 者死，记入 deaths。
         let mut deaths = 0usize;
         let mut verdicts: Vec<bool> = Vec::with_capacity(self.cells.len());
         for cell in &self.cells {
-            let typical = self.triple_fate.cluster_equation.check_diffs(&[cell.energy, avg_energy]);
-            verdicts.push(cell.energy > avg_energy && !typical);
+            verdicts.push(cell.energy > avg_energy * 1.5);
         }
         let mut vi = 0usize;
         self.cells.retain_mut(|cell| {
-            let split = verdicts[vi];
+            let split = verdicts[vi] && new_cells_data.len() < 10;
             vi += 1;
             if split {
                 cell.energy *= 0.5;

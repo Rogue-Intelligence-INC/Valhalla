@@ -832,23 +832,20 @@ impl TileQuattroComplete {
         // 分裂数据：能量, 数据特征, 连接（继承父 Tile）
         let mut new_tiles_data: Vec<(f64, Vec<f64>, Vec<String>, Vec<u8>)> = Vec::new();
         
-        // 去硬编码（2026-11-02 预注册，与 Stem 同规）：能量流
-        // 率改 1/n；分裂删写死倍数与上限、改由簇方程判能量
-        // 比率是否典型（方程只判不改）。判定先于 retain
-        // 预算。死亡不在本层裁决（见上）。
-        let n_now = self.completed_tiles.len().max(1) as f64;
+        // 能量流与分裂恢复原版形态（bug 修复，与 Stem
+        // 同规）：流率 ×0.1 强回流；分裂须能量 > 1.5×
+        // 平均且本周期分裂数 < 10。判定先于 retain 预算。
         for tile in &mut self.completed_tiles {
             let energy_diff = avg_energy - tile.energy;
-            tile.energy += energy_diff / n_now;
+            tile.energy += energy_diff * 0.1;
         }
         let mut verdicts: Vec<bool> = Vec::with_capacity(self.completed_tiles.len());
         for tile in &self.completed_tiles {
-            let typical = self.triple_fate.cluster_equation.check_diffs(&[tile.energy, avg_energy]);
-            verdicts.push(tile.energy > avg_energy && !typical);
+            verdicts.push(tile.energy > avg_energy * 1.5);
         }
         let mut vi = 0usize;
         self.completed_tiles.retain_mut(|tile| {
-            let split = verdicts[vi];
+            let split = verdicts[vi] && new_tiles_data.len() < 10;
             vi += 1;
             if split {
                 tile.energy *= 0.5;
