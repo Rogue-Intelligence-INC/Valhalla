@@ -107,12 +107,17 @@ fn main() {
             tile2.ingest(v);
             tile2.promote_from_fate();
         }
+        let window = format!("round {round} monitor window: the quick brown fox jumps over the lazy dog");
+        tile2.quad_keep(window.as_bytes());
+        stem2.quad_keep(window.as_bytes());
         let tc = tile2.process_tiles_cycle();
         let sc = stem2.process_cells_cycle();
         stem2.settle_field();
         tile2.propagate(1.0);
         monitor.observe_cycle(&tc, &sc);
-        println!("round {round} {}", monitor.snapshot(&tile2, &stem2).line());
+        let snap = monitor.watch(&tile2, &stem2);
+        println!("round {round} {}", snap.line());
+        println!("  {}", snap.quad_line());
     }
 
     println!("\n核查完成：四元转换、BaseForce 协调、Stem/Tile 局部循环、全局跟随、监控读数都在运行。");
