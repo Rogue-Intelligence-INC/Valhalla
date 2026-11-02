@@ -954,6 +954,107 @@ fn width_seed(seed: u64) -> (f64, f64, f64, f64, f64, f64, f64, f64) {
     (w_true, w_hard, w_path, h_true, h_hard, h_path, x_true, x_hard)
 }
 
+// ═══════════ E2 原生闭环自定位（VH_E2=1；判据见 E2_E1W2_PREREG_20261102，跑前已提交） ═══════════
+// 刺激只经身体自有入口（feed 的 ingest+promote 路）进入，身体
+// 自跑一周期；读既有 Stem 细胞的差分位移（刺激臂 − 静默臂，
+// 双臂从同一完整存档恢复、起点逐字相同）。符号→链映射只作
+// 计分标注（真值集），不参与产生响应——身体无响应即测不到，
+// 与图上 BFS 用映射构造答案路径根本不同。
+
+fn e2_arm(dir: &std::path::Path, stimulus: Option<&[u8]>) -> std::collections::HashMap<String, f64> {
+    let mut body = Body::load_full(dir).expect("E2 恢复失败");
+    let before: std::collections::HashMap<String, Vec<f64>> = body.stem.cells.iter()
+        .map(|c| (c.cell_id.clone(), c.position.clone())).collect();
+    if let Some(s) = stimulus { body.feed(s); }
+    body.cycle();
+    let mut disp = std::collections::HashMap::new();
+    for c in &body.stem.cells {
+        if let Some(p0) = before.get(&c.cell_id) {
+            let d: f64 = c.position.iter().zip(p0.iter())
+                .map(|(a, b)| (a - b).powi(2)).sum::<f64>().sqrt();
+            disp.insert(c.cell_id.clone(), d);
+        }
+    }
+    disp
+}
+
+/// 富集度 E=(目标质量占比)/(目标细胞占比)，1=机会水平；
+/// 无差分响应（总和 0）记 E=1 并标 no_resp，不奖不罚。
+fn e2_enrichment(stim: &std::collections::HashMap<String, f64>,
+                 silent: &std::collections::HashMap<String, f64>,
+                 target: &std::collections::HashSet<String>) -> (f64, bool) {
+    let (mut total, mut tmass, mut n, mut nt) = (0.0f64, 0.0f64, 0usize, 0usize);
+    for (id, d) in stim {
+        if let Some(s0) = silent.get(id) {
+            let r = (d - s0).max(0.0);
+            total += r;
+            n += 1;
+            if target.contains(id) { tmass += r; nt += 1; }
+        }
+    }
+    if total <= 0.0 || n == 0 || nt == 0 { return (1.0, true); }
+    ((tmass / total) / (nt as f64 / n as f64), false)
+}
+
+fn e2_seed(seed: u64) -> (f64, f64, f64, f64, usize) {
+    println!("== E2 seed {seed} ==");
+    let train_pool: Vec<String> = (0..200).map(symbol).collect();
+    let test_base = 400 + (seed as usize) * 200;
+    let test_pool: Vec<String> = (test_base..test_base + 180).map(symbol).collect();
+    let mut rng = Rng(0x5EED_0000 + seed * 7919);
+    let (mut body, _sc) = cultivate(&mut rng, &train_pool, 3, true);
+    // 12 条完整测试链（与 run_seed 同构造）
+    let mut rng_t = Rng(0x7E57_0000 + seed * 104729);
+    let mut cursor = 0usize;
+    let mut chains: Vec<Vec<String>> = Vec::new();
+    let mut fact_items: Vec<Vec<u8>> = Vec::new();
+    for _ in 0..12 {
+        let mut chain: Vec<String> = test_pool[cursor..cursor + 6].to_vec();
+        cursor += 6;
+        for i in (1..chain.len()).rev() { let j = rng_t.below(i + 1); chain.swap(i, j); }
+        fact_items.extend(pairs_shuffled(&chain, &mut rng_t));
+        chains.push(chain);
+    }
+    let (_sym_t, sym_s) = feed_facts_tracked(&mut body, &fact_items);
+    body.cycle();
+    let dir = std::env::temp_dir().join(format!("valhalla_e2_seed{seed}"));
+    body.save_full(&dir).expect("E2 存档失败");
+    let targets: Vec<std::collections::HashSet<String>> = chains.iter().map(|chain| {
+        let mut set = std::collections::HashSet::new();
+        for s in chain {
+            if let Some(ids) = sym_s.get(s) { set.extend(ids.iter().cloned()); }
+        }
+        set
+    }).collect();
+    let (mut e1s, mut e2s, mut ectrls) = (Vec::new(), Vec::new(), Vec::new());
+    let mut noresp = 0usize;
+    for (ci, chain) in chains.iter().enumerate() {
+        for (a, b) in [(chain[0].as_str(), chain[3].as_str()), (chain[0].as_str(), chain[5].as_str())] {
+            for (form, stim) in [(1u8, format!("{a}>{b}")), (2u8, format!("{a} > {b}"))] {
+                let ds = e2_arm(&dir, Some(stim.as_bytes()));
+                let dz = e2_arm(&dir, None);
+                let (e, nr) = e2_enrichment(&ds, &dz, &targets[ci]);
+                if nr { noresp += 1; }
+                if form == 1 { e1s.push(e); } else { e2s.push(e); }
+            }
+        }
+        // 跨链对照（只报告不计判据）：A 本链、B 邻链，真值集仍取本链
+        if ci < 6 {
+            let stim = format!("{}>{}", chain[0], chains[(ci + 1) % 12][3]);
+            let ds = e2_arm(&dir, Some(stim.as_bytes()));
+            let dz = e2_arm(&dir, None);
+            let (e, _nr) = e2_enrichment(&ds, &dz, &targets[ci]);
+            ectrls.push(e);
+        }
+    }
+    let mean = |v: &Vec<f64>| if v.is_empty() { 0.0 } else { v.iter().sum::<f64>() / v.len() as f64 };
+    let (m1, m2, mc) = (mean(&e1s), mean(&e2s), mean(&ectrls));
+    let gt1 = e1s.iter().chain(e2s.iter()).filter(|&&e| e > 1.0).count();
+    let nq = (e1s.len() + e2s.len()).max(1);
+    println!("seed {seed}: E2 F1均富集 {m1:.2} F2均富集 {m2:.2} | 跨链对照 {mc:.2} | 题级E>1 {gt1}/{nq} 无响应 {noresp}");
+    (m1, m2, mc, gt1 as f64 / nq as f64, noresp)
+}
+
 fn main() {
     let seeds: Vec<u64> = std::env::var("VALHALLA_PROOF_SEEDS")
         .unwrap_or_else(|_| "1,2,3,4,5".to_string())
@@ -971,6 +1072,44 @@ fn main() {
         println!("C宽 真 {:.1} 硬假 {:.1} 均路 {:.2} | C同 真 {:.1} 硬假 {:.1} 均路 {:.2} | H严 真 {:.1} 硬假 {:.1}",
             m(&|r| r.0), m(&|r| r.1), m(&|r| r.2), m(&|r| r.3), m(&|r| r.4), m(&|r| r.5), m(&|r| r.6), m(&|r| r.7));
         println!("判读（预先声明）：C宽 硬假 > C同 且 C宽 硬假 > H严 且 C宽 均路 < H严 → 宽度使拓扑特异性成立；任一不成立按未检出记。");
+        return;
+    }
+    if std::env::var("VH_E1W2").is_ok() {
+        // E1W2：新种子（16–30，与 E1W 不重叠）+ Δ 判别尺；判据见
+        // docs/valhalla/E2_E1W2_PREREG_20261102.md（跑前已提交）。
+        // Δ = 真题可达% − 硬假可达%（预算 5），硬假可达 = 100 − 拒绝。
+        let mut rows: Vec<(f64, f64, f64)> = Vec::new(); // (Δ宽, Δ同, ΔH严)
+        for seed in &seeds {
+            let r = width_seed(*seed);
+            rows.push((r.0 + r.1 - 100.0, r.3 + r.4 - 100.0, r.6 + r.7 - 100.0));
+            let l = rows.last().unwrap();
+            println!("seed {seed}: Δ宽 {:.1} Δ同 {:.1} ΔH严 {:.1}", l.0, l.1, l.2);
+        }
+        let n = rows.len() as f64;
+        let win_a = rows.iter().filter(|r| r.0 > r.1).count();
+        let win_b = rows.iter().filter(|r| r.0 > r.2).count();
+        let mdiff = rows.iter().map(|r| r.0 - r.1).sum::<f64>() / n;
+        let mm = |f: &dyn Fn(&(f64, f64, f64)) -> f64| rows.iter().map(f).sum::<f64>() / n;
+        println!("\n== E1W2 汇总（{} seeds，Δ=真可达−硬假可达 @预算5） ==", rows.len());
+        println!("Δ宽 {:.1} Δ同 {:.1} ΔH严 {:.1} | 配对 宽>同 {win_a}/{}（均差 {:+.1}） 宽>H严 {win_b}/{}",
+            mm(&|r| r.0), mm(&|r| r.1), mm(&|r| r.2), rows.len(), mdiff, rows.len());
+        println!("判读（预先声明）：(a) 宽>同 ≥12/15 且均差 >0 与 (b) 宽>H严 ≥12/15 同过 → 宽度使拓扑判别成立；只过 (a) 记宽度效应存在但未胜零模型；(a) 不过记未检出。");
+        return;
+    }
+    if std::env::var("VH_E2").is_ok() {
+        // E2 原生闭环自定位；判据见预注册文档（跑前已提交）。
+        let mut rows: Vec<(f64, f64, f64, f64, usize)> = Vec::new();
+        for seed in &seeds {
+            rows.push(e2_seed(*seed));
+        }
+        let n = rows.len() as f64;
+        let both = rows.iter().filter(|r| r.0 > 1.0 && r.1 > 1.0).count();
+        let g1 = rows.iter().map(|r| r.0).sum::<f64>() / n;
+        let g2 = rows.iter().map(|r| r.1).sum::<f64>() / n;
+        let gc = rows.iter().map(|r| r.2).sum::<f64>() / n;
+        println!("\n== E2 汇总（{} seeds） ==", rows.len());
+        println!("F1 总均值 {g1:.2} F2 总均值 {g2:.2} 跨链对照总均值 {gc:.2} | 两问法同过（均值>1）种子 {both}/{}", rows.len());
+        println!("判读（预先声明）：≥12/15 种子两问法均值同 >1 且两问法总均值都 ≥1.3 → E2 自定位成立；任一问法不过即该问法未检出，整体不过记 E2 未检出。");
         return;
     }
     type Row = (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f64; 3], [f64; 3], f64, f64, f64, f64, f64, f64, f64);
