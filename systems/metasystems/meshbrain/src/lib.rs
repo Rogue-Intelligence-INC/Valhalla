@@ -55,6 +55,52 @@ pub struct MeshBrainDeformationSignal {
     pub intelligence_level: f64,
 }
 
+/// 四元自主维护报告（2026-11-02 用户定向新增）：一趟
+/// reorganize 里分解/重组/删除/修改的计数与字节账。删除
+/// 之外字节守恒，故 bytes_after = bytes_before − 被删字节。
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ReorgReport {
+    pub splits: usize,
+    pub joins: usize,
+    pub removed: usize,
+    pub modified: usize,
+    pub bytes_before: usize,
+    pub bytes_after: usize,
+}
+
+fn entry_mean(bytes: &[u8]) -> f64 {
+    if bytes.is_empty() {
+        return 0.0;
+    }
+    bytes.iter().map(|b| *b as f64).sum::<f64>() / bytes.len() as f64
+}
+
+/// 条目内部最大均值移位点（两侧各留 ≥8B），返回切点与
+/// 两半均值；条目内部统计与上一轮四元观察探针同口径。
+fn max_shift_split(bytes: &[u8]) -> Option<(usize, f64, f64)> {
+    if bytes.len() < 16 {
+        return None;
+    }
+    let total: f64 = bytes.iter().map(|b| *b as f64).sum();
+    let mut prefix = 0.0f64;
+    let (mut best, mut best_at) = (0.0f64, 0usize);
+    for k in 1..bytes.len() {
+        prefix += bytes[k - 1] as f64;
+        if k < 8 || bytes.len() - k < 8 {
+            continue;
+        }
+        let shift = (prefix / k as f64 - (total - prefix) / (bytes.len() - k) as f64).abs();
+        if shift > best {
+            best = shift;
+            best_at = k;
+        }
+    }
+    if best_at == 0 {
+        return None;
+    }
+    Some((best_at, entry_mean(&bytes[..best_at]), entry_mean(&bytes[best_at..])))
+}
+
 /// 膜脑系统
 #[derive(Debug, Clone)]
 pub struct MeshBrainSystem {
@@ -137,6 +183,68 @@ impl MeshBrainSystem {
     /// 与 stored_count 的条目口径区分，记账迁移时以此为准）。
     pub fn stored_bytes_total(&self) -> usize {
         self.stored.iter().map(|e| e.len()).sum()
+    }
+
+    /// 按膜脑自己的规则维护自家存储（2026-11-02 用户定向新增，
+    /// 非原版）：智能 s = 均值 × fluctuation_intensity（与
+    /// generate_signal 的 intelligence_level 同式；内部维护不
+    /// 进 signal_buffer，不冒充外部信号）。条目内两半的 s 相差
+    /// 超过涨落带（|s1−s2| > fluctuation × max）在最大均值移位
+    /// 点分解；相邻两条 s 落在同一涨落带内且合并后不超过一次
+    /// 喂入单位（8192B）则重组。判定只用膜脑自己的涨落常数。
+    pub fn reorganize(&mut self) -> ReorgReport {
+        let mut rep = ReorgReport {
+            bytes_before: self.stored_bytes_total(),
+            ..ReorgReport::default()
+        };
+        let band = self.config.fluctuation_intensity;
+        let intel = |m: f64| m * band;
+        enum Op {
+            Split(usize, usize),
+            Join(usize),
+        }
+        // 快照决策：左到右扫描，分解优先，重组跳过下一条。
+        let mut ops: Vec<Op> = Vec::new();
+        let mut i = 0usize;
+        while i < self.stored.len() {
+            let e = &self.stored[i];
+            let mut split_at = None;
+            if e.len() >= 32 {
+                if let Some((at, lm, rm)) = max_shift_split(e) {
+                    let (s1, s2) = (intel(lm), intel(rm));
+                    if (s1 - s2).abs() > band * s1.max(s2) {
+                        split_at = Some(at);
+                    }
+                }
+            }
+            if let Some(at) = split_at {
+                ops.push(Op::Split(i, at));
+            } else if i + 1 < self.stored.len() {
+                let (s1, s2) = (intel(entry_mean(e)), intel(entry_mean(&self.stored[i + 1])));
+                if (s1 - s2).abs() <= band * s1.max(s2) && e.len() + self.stored[i + 1].len() <= 8192 {
+                    ops.push(Op::Join(i));
+                    i += 1;
+                }
+            }
+            i += 1;
+        }
+        // 逆序施加，下标不串位。
+        for op in ops.iter().rev() {
+            match *op {
+                Op::Split(idx, at) => {
+                    if self.stored_split(idx, at) {
+                        rep.splits += 1;
+                    }
+                }
+                Op::Join(idx) => {
+                    if self.stored_join(idx) {
+                        rep.joins += 1;
+                    }
+                }
+            }
+        }
+        rep.bytes_after = self.stored_bytes_total();
+        rep
     }
 
     /// 膜脑自己的存档：魔数、条数、每条长度加原文。
@@ -305,5 +413,21 @@ mod tests {
         assert_eq!(system.stored_remove(99), None);
         system.stored_clear();
         assert_eq!(system.stored_count(), 0);
+    }
+
+    #[test]
+    fn reorganize_splits_heterogeneous_and_joins_similar() {
+        let mut system = MeshBrainSystem::new(MeshBrainConfig::default());
+        let mut hetero = vec![0x20u8; 128];
+        hetero.extend_from_slice(&[0x90u8; 128]); // 两半智能差超涨落带
+        system.keep(&hetero);
+        system.keep(&b"abcdefghij".repeat(5)); // 内部均匀、与下一条同带
+        system.keep(&b"abcdefghij".repeat(5));
+        let before = system.stored_bytes_total();
+        let rep = system.reorganize();
+        assert!(rep.splits >= 1, "异质条应被分解: {rep:?}");
+        assert!(rep.joins >= 1, "同带相邻条应被重组: {rep:?}");
+        assert_eq!(rep.bytes_after, before); // 膜脑不删，字节守恒
+        assert_eq!(rep.bytes_after, system.stored_bytes_total());
     }
 }

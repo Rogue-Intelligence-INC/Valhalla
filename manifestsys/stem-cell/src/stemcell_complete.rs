@@ -431,6 +431,19 @@ impl StemCellComplete {
         a && b && c && d
     }
 
+    /// 四元自主维护（2026-11-02 用户定向新增）：四元各用自己的
+    /// 规则整理自家那份存储（黑洞吞视界内条目并塌缩最强条、
+    /// 膜脑按涨落带分解/重组、新星爆发超阈条目、底力删逐字
+    /// 重复）。周期末调用；四份自此按各自规则演化，入账同文
+    /// 不再保证周期后同文（见 QUAD_SELF_REORG_20261102 预
+    /// 注册）。只动四元 stored 账本，Fate 不审批。
+    pub fn quad_reorganize(&mut self) {
+        self.blackhole.reorganize();
+        self.meshbrain.reorganize();
+        self.multinova.reorganize();
+        self.baseforce.reorganize();
+    }
+
     /// 四元看当前容器。容器先留着，数学和 Voyager 还没走。
     pub fn quad_pulse(&mut self) -> Option<(f64, f64, f64)> {
         if self.active_containers.is_empty() || self.active_containers[0].local_state.signal_count == 0 {
@@ -993,6 +1006,10 @@ impl StemCellComplete {
         // （与 evolve 的信号同构）——Fate 观察死亡，不执行死亡。
         let _ = self.triple_fate.tick(Some(signal));
         
+        // 四元按各自规则维护自家存储（用户定向新增，周期基础
+        // 动作；只动四元 stored 账本，不动细胞本体）。
+        self.quad_reorganize();
+
         CellCycleResult {
             generation: self.generation_count,
             cell_count: self.cells.len(),

@@ -111,6 +111,28 @@ impl Default for MultiNovaSignalConnector {
     }
 }
 
+/// 四元自主维护报告（2026-11-02 用户定向新增）：一趟
+/// reorganize 里分解/重组/删除/修改的计数与字节账。删除
+/// 之外字节守恒，故 bytes_after = bytes_before − 被删字节。
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ReorgReport {
+    pub splits: usize,
+    pub joins: usize,
+    pub removed: usize,
+    pub modified: usize,
+    pub bytes_before: usize,
+    pub bytes_after: usize,
+}
+
+fn fnv1a(bytes: &[u8]) -> u64 {
+    let mut h: u64 = 0xcbf29ce484222325;
+    for b in bytes {
+        h ^= *b as u64;
+        h = h.wrapping_mul(0x100000001b3);
+    }
+    h
+}
+
 /// BaseForce 协调器
 #[derive(Debug, Clone)]
 pub struct BaseForceCoordinator {
@@ -194,6 +216,36 @@ impl BaseForceCoordinator {
     /// 与 stored_count 的条目口径区分，记账迁移时以此为准）。
     pub fn stored_bytes_total(&self) -> usize {
         self.stored.iter().map(|e| e.len()).sum()
+    }
+
+    /// 按底力自己的规则维护自家存储（2026-11-02 用户定向新增，
+    /// 非原版）：底力的本职是协调——同一份材料在账上只协调
+    /// 一次。与前面任一条逐字相同的重复条目删除，只留第一份
+    /// （哈希定位、逐字核对后才删）。判定只用逐字同一性，不
+    /// 经 Fate 审批。
+    pub fn reorganize(&mut self) -> ReorgReport {
+        let mut rep = ReorgReport {
+            bytes_before: self.stored_bytes_total(),
+            ..ReorgReport::default()
+        };
+        let mut seen: std::collections::HashMap<(u64, usize), usize> =
+            std::collections::HashMap::new();
+        let mut dups: Vec<usize> = Vec::new();
+        for i in 0..self.stored.len() {
+            let key = (fnv1a(&self.stored[i]), self.stored[i].len());
+            match seen.get(&key) {
+                Some(&j) if self.stored[j] == self.stored[i] => dups.push(i),
+                _ => {
+                    seen.insert(key, i);
+                }
+            }
+        }
+        for &i in dups.iter().rev() {
+            self.stored.remove(i);
+            rep.removed += 1;
+        }
+        rep.bytes_after = self.stored_bytes_total();
+        rep
     }
 
     /// 底力自己的存档：魔数、条数、每条长度加原文。
@@ -362,5 +414,19 @@ mod tests {
         assert_eq!(coordinator.stored_remove(99), None);
         coordinator.stored_clear();
         assert_eq!(coordinator.stored_count(), 0);
+    }
+
+    #[test]
+    fn reorganize_removes_duplicates_keeps_first() {
+        let mut coordinator = BaseForceCoordinator::new();
+        coordinator.keep(b"same material", 0.0, 0.0, 0.0);
+        coordinator.keep(b"other material", 0.0, 0.0, 0.0);
+        coordinator.keep(b"same material", 0.0, 0.0, 0.0);
+        let before = coordinator.stored_bytes_total();
+        let rep = coordinator.reorganize();
+        assert_eq!(rep.removed, 1); // 重复只留第一份
+        assert_eq!(coordinator.stored_count(), 2);
+        assert_eq!(coordinator.stored_get(0), Some(b"same material".as_slice()));
+        assert_eq!(rep.bytes_after, before - 13);
     }
 }

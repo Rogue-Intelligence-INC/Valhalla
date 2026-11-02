@@ -36,6 +36,52 @@ impl Default for MultinovaConfig {
     }
 }
 
+/// 四元自主维护报告（2026-11-02 用户定向新增）：一趟
+/// reorganize 里分解/重组/删除/修改的计数与字节账。删除
+/// 之外字节守恒，故 bytes_after = bytes_before − 被删字节。
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ReorgReport {
+    pub splits: usize,
+    pub joins: usize,
+    pub removed: usize,
+    pub modified: usize,
+    pub bytes_before: usize,
+    pub bytes_after: usize,
+}
+
+fn entry_mean(bytes: &[u8]) -> f64 {
+    if bytes.is_empty() {
+        return 0.0;
+    }
+    bytes.iter().map(|b| *b as f64).sum::<f64>() / bytes.len() as f64
+}
+
+/// 条目内部最大均值移位点（两侧各留 ≥8B），返回切点与
+/// 两半均值；条目内部统计与上一轮四元观察探针同口径。
+fn max_shift_split(bytes: &[u8]) -> Option<(usize, f64, f64)> {
+    if bytes.len() < 16 {
+        return None;
+    }
+    let total: f64 = bytes.iter().map(|b| *b as f64).sum();
+    let mut prefix = 0.0f64;
+    let (mut best, mut best_at) = (0.0f64, 0usize);
+    for k in 1..bytes.len() {
+        prefix += bytes[k - 1] as f64;
+        if k < 8 || bytes.len() - k < 8 {
+            continue;
+        }
+        let shift = (prefix / k as f64 - (total - prefix) / (bytes.len() - k) as f64).abs();
+        if shift > best {
+            best = shift;
+            best_at = k;
+        }
+    }
+    if best_at == 0 {
+        return None;
+    }
+    Some((best_at, entry_mean(&bytes[..best_at]), entry_mean(&bytes[best_at..])))
+}
+
 /// MultiNova 处理器
 #[derive(Debug, Clone)]
 pub struct MultinovaProcessor {
@@ -118,6 +164,38 @@ impl MultinovaProcessor {
     /// 与 stored_count 的条目口径区分，记账迁移时以此为准）。
     pub fn stored_bytes_total(&self) -> usize {
         self.stored.iter().map(|e| e.len()).sum()
+    }
+
+    /// 按新星自己的规则维护自家存储（2026-11-02 用户定向新增，
+    /// 非原版）：条目字节均值按原生量程归一（x = mean/255）送
+    /// process_evolution；is_nova（x 超过自家 nova_threshold）
+    /// 的条目爆发——原地 stored_modify 为最大均值移位点的前半
+    /// 段、后半段插入其后（记 modified+split，字节守恒）；非
+    /// nova 条目不动。判定只用新星自己的演化函数与阈值。
+    pub fn reorganize(&mut self) -> ReorgReport {
+        let mut rep = ReorgReport {
+            bytes_before: self.stored_bytes_total(),
+            ..ReorgReport::default()
+        };
+        // 自后向前处理爆发，下标不串位。
+        let mut i = self.stored.len();
+        while i > 0 {
+            i -= 1;
+            let x = entry_mean(&self.stored[i]) / 255.0;
+            if self.process_evolution(x).is_nova {
+                if let Some((at, _, _)) = max_shift_split(&self.stored[i]) {
+                    let tail = self.stored[i][at..].to_vec();
+                    let head = self.stored[i][..at].to_vec();
+                    if self.stored_modify(i, &head) {
+                        self.stored.insert(i + 1, tail);
+                        rep.modified += 1;
+                        rep.splits += 1;
+                    }
+                }
+            }
+        }
+        rep.bytes_after = self.stored_bytes_total();
+        rep
     }
 
     /// 新星自己的存档：魔数、条数、每条长度加原文。
@@ -293,5 +371,24 @@ mod tests {
         assert_eq!(processor.stored_remove(99), None);
         processor.stored_clear();
         assert_eq!(processor.stored_count(), 0);
+    }
+
+    #[test]
+    fn reorganize_bursts_nova_and_keeps_quiet() {
+        let mut processor = MultinovaProcessor::new(MultinovaConfig::default());
+        let mut bright = vec![0xFFu8; 128];
+        bright.extend_from_slice(&[0xC8u8; 128]); // 均值 227/255 超 nova 阈值
+        processor.keep(&bright);
+        processor.keep(b"quiet dark text entry"); // 均值低，不爆发
+        let before = processor.stored_bytes_total();
+        let rep = processor.reorganize();
+        assert_eq!(rep.modified, 1);
+        assert_eq!(rep.splits, 1);
+        assert_eq!(processor.stored_count(), 3);
+        assert_eq!(rep.bytes_after, before); // 爆发只改分割，字节守恒
+        // 爆发出的两半拼回与原条逐字相同
+        let mut joined = processor.stored_get(0).unwrap().to_vec();
+        joined.extend_from_slice(processor.stored_get(1).unwrap());
+        assert_eq!(joined, bright);
     }
 }

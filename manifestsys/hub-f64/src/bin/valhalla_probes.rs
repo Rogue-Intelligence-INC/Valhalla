@@ -615,9 +615,9 @@ fn quad_probe() {
             body.feed(&img[s..(s + 8192).min(img.len())]);
         }
     }
-    body.cycle();
-    body.cycle();
-
+    // 锁步往返在入账后、任何周期之前做：周期一起，四元按各自
+    // 规则自主维护，四份同文不再成立，锁步原语的长度核对会
+    // 正当拒绝——那是自主维护的预期后果。
     for layer in 0..2 {
         let name = if layer == 0 { "Tile" } else { "Stem" };
         let orig: Vec<Vec<u8>> = if layer == 0 { body.tile.blackhole.stored.clone() } else { body.stem.blackhole.stored.clone() };

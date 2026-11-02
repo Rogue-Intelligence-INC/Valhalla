@@ -35,6 +35,26 @@ impl Default for GravityFieldConfig {
     }
 }
 
+/// 四元自主维护报告（2026-11-02 用户定向新增）：一趟
+/// reorganize 里分解/重组/删除/修改的计数与字节账。删除
+/// 之外字节守恒，故 bytes_after = bytes_before − 被删字节。
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ReorgReport {
+    pub splits: usize,
+    pub joins: usize,
+    pub removed: usize,
+    pub modified: usize,
+    pub bytes_before: usize,
+    pub bytes_after: usize,
+}
+
+fn entry_mean(bytes: &[u8]) -> f64 {
+    if bytes.is_empty() {
+        return 0.0;
+    }
+    bytes.iter().map(|b| *b as f64).sum::<f64>() / bytes.len() as f64
+}
+
 /// 引力场
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GravityField {
@@ -113,6 +133,45 @@ impl GravityField {
     /// 与 stored_count 的条目口径区分，记账迁移时以此为准）。
     pub fn stored_bytes_total(&self) -> usize {
         self.stored.iter().map(|e| e.len()).sum()
+    }
+
+    /// 按黑洞自己的规则维护自家存储（2026-11-02 用户定向新增，
+    /// 非原版）：距离 = 条目字节均值（与 keep 同尺）。落进事件
+    /// 视界（is_within_horizon）的条目被吞没删除；其余条目中
+    /// 引力最强（calculate_gravity 最大）的一条与相邻条塌缩
+    /// 合并，每趟至多一次。删除之外字节守恒，判定只用黑洞
+    /// 自己的函数与 critical_radius，不经 Fate 审批。
+    pub fn reorganize(&mut self) -> ReorgReport {
+        let mut rep = ReorgReport {
+            bytes_before: self.stored_bytes_total(),
+            ..ReorgReport::default()
+        };
+        // 视界吞没：自后向前删，下标不串位。
+        let mut i = self.stored.len();
+        while i > 0 {
+            i -= 1;
+            if self.is_within_horizon(entry_mean(&self.stored[i])) {
+                self.stored.remove(i);
+                rep.removed += 1;
+            }
+        }
+        // 引力塌缩：最强一条与相邻条合并（末位则并入前一条）。
+        if self.stored.len() >= 2 {
+            let (mut best, mut best_g) = (0usize, f64::NEG_INFINITY);
+            for (i, e) in self.stored.iter().enumerate() {
+                let g = self.calculate_gravity(entry_mean(e).abs().max(1e-6));
+                if g > best_g {
+                    best_g = g;
+                    best = i;
+                }
+            }
+            let at = if best + 1 < self.stored.len() { best } else { best - 1 };
+            if self.stored_join(at) {
+                rep.joins += 1;
+            }
+        }
+        rep.bytes_after = self.stored_bytes_total();
+        rep
     }
 
     /// 黑洞自己的存档：魔数、条数、每条长度加原文。
@@ -332,5 +391,20 @@ mod tests {
         assert_eq!(field.stored_remove(99), None);
         field.stored_clear();
         assert_eq!(field.stored_count(), 0);
+    }
+
+    #[test]
+    fn reorganize_swallows_horizon_and_collapses_strongest() {
+        let mut field = GravityField::new(GravityFieldConfig::default());
+        field.keep(&vec![0u8; 64]); // 均值 0，落在事件视界内
+        field.keep(b"plain text entry with some weight in it"); // 均值高、引力弱
+        field.keep(&[3u8; 40]); // 均值 3，删除后引力最强
+        let before = field.stored_bytes_total();
+        let rep = field.reorganize();
+        assert_eq!(rep.removed, 1); // 静默条被视界吞没
+        assert_eq!(rep.joins, 1); // 最强条与相邻条塌缩
+        assert_eq!(field.stored_count(), 1);
+        assert_eq!(rep.bytes_after, before - 64); // 只少被吞的字节
+        assert_eq!(rep.bytes_after, field.stored_bytes_total());
     }
 }
