@@ -50,7 +50,14 @@ claim has been withdrawn. A width variant (chains grown in distinct
 statistical contexts, criterion likewise pre-declared) also failed its
 joint criterion on 2 November 2026: hard-negative rejection rose
 (+23.8 pp, 14/15 seeds) but true-pair path length never beat a
-degree-preserving shuffle (0/15). Under the corrected dynamics the exposure
+degree-preserving shuffle (0/15). A second width test under a
+discrimination scale pre-declared for fresh seeds (16–30) came
+closer — +9.2 pp mean paired difference, 11/15 seeds — and still
+missed its pre-set 12/15 bar, so the claim remains not detected.
+A native closed-loop test (question stimulus through the body's
+own entry, localisation read from its own dynamics against a
+silent arm, two surface forms) likewise found no localisation
+above chance. Under the corrected dynamics the exposure
 learning curve at the 200-symbol scale is also flat; a contact-volume
 effect is therefore no longer claimed at that scale. Direction is
 attributed, on current evidence, to material selection and the Fate
