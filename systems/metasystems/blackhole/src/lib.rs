@@ -146,11 +146,15 @@ impl GravityField {
             bytes_before: self.stored_bytes_total(),
             ..ReorgReport::default()
         };
-        // 视界吞没：自后向前删，下标不串位。
+        // 视界吞没：自后向前删，下标不串位。但先过逃逸
+        // 检测（四元原版法则，自主运作）：条目能量（黑洞
+        // 对它算出的引力信号）大于逃逸速度者逃出视界，
+        // 不吞。
         let mut i = self.stored.len();
         while i > 0 {
             i -= 1;
-            if self.is_within_horizon(entry_mean(&self.stored[i])) {
+            let m = entry_mean(&self.stored[i]);
+            if self.is_within_horizon(m) && !self.detect_escape(self.calculate_gravity(m), m) {
                 self.stored.remove(i);
                 rep.removed += 1;
             }
@@ -220,6 +224,15 @@ impl GravityField {
     pub fn is_within_horizon(&self, distance: f64) -> bool {
         distance < self.config.critical_radius
     }
+
+    /// 逃逸检测（原版法则，EventHorizon::detect_escape_
+    /// signal 同式）：逃逸速度 = sqrt(2·引力(距离)·
+    /// 距离)，能量过之即逃逸。四元自主运作：reorganize
+    /// 吞视界内条目时先过此检测，逃得掉的不吞。
+    pub fn detect_escape(&self, energy: f64, distance: f64) -> bool {
+        let escape_velocity = (2.0 * self.calculate_gravity(distance) * distance).sqrt();
+        energy > escape_velocity
+    }
 }
 
 /// 事件视界配置
@@ -252,10 +265,9 @@ impl EventHorizon {
         Self { config, gravity_field }
     }
 
-    /// 检测逃逸信号
+    /// 检测逃逸信号（法则本体在 GravityField::detect_escape）
     pub fn detect_escape_signal(&self, energy: f64, distance: f64) -> bool {
-        let escape_velocity = (2.0 * self.gravity_field.calculate_gravity(distance) * distance).sqrt();
-        energy > escape_velocity
+        self.gravity_field.detect_escape(energy, distance)
     }
 }
 
