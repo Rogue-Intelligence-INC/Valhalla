@@ -25,6 +25,8 @@
 //!
 //! 环境变量：VH_ROUNDS（总轮数，默认 20）、VH_CHUNK_KB（每轮每料
 //! KB，默认 128）、VH_CYCLES（每轮周期数，默认 2）、VH_SEED。
+//! VH_MATS=ext 扩料型（+MIDI/二进制/诗歌/科学，默认关）；
+//! VH_HOLDOUT_KB 留出尾 KB（默认 128）。
 //! 运行方法见 docs/valhalla/FULL_FLOW_RUNBOOK.md。
 
 use std::collections::{HashMap, HashSet, VecDeque};
@@ -232,10 +234,32 @@ fn run() {
     for f in ["Alarm01.wav", "Alarm02.wav", "Alarm03.wav"] {
         aud.extend_from_slice(&read_file(&Path::new(r"C:\Windows\Media").join(f)));
     }
-    let mats: Vec<(&str, &Vec<u8>)> = vec![("多语文本", &text), ("代码", &code), ("图片", &img), ("声音", &aud)];
+    let mut mats: Vec<(&str, &Vec<u8>)> = vec![("多语文本", &text), ("代码", &code), ("图片", &img), ("声音", &aud)];
+    // 扩料型（VH_MATS=ext，默认关、默认程式不变）：再加四种统计
+    // 域差异大的料——MIDI 音乐、二进制程序、诗歌、科学文本，
+    // 展示 Fate 切分与出生按料分化。MIDI 总量小（86KB），轮转
+    // 喂入会多次复曝光，如实记账（小语料的真实行为）。
+    let mut midi = Vec::new();
+    let mut bin = Vec::new();
+    let mut poetry = Vec::new();
+    let mut science = Vec::new();
+    if std::env::var("VH_MATS").map(|v| v == "ext").unwrap_or(false) {
+        for f in ["flourish.mid", "onestop.mid", "town.mid"] {
+            midi.extend_from_slice(&read_file(&Path::new(r"C:\Windows\Media").join(f)));
+        }
+        bin.extend_from_slice(&read_file(Path::new(r"C:\Windows\System32\notepad.exe")));
+        bin.extend_from_slice(&read_file(Path::new(r"C:\Windows\System32\kernel32.dll")));
+        poetry.extend_from_slice(&read_file(&div.join("poetry_leaves_1322.txt")));
+        science.extend_from_slice(&read_file(&div.join("science_relativity_30155.txt")));
+        mats.push(("MIDI音乐", &midi));
+        mats.push(("二进制", &bin));
+        mats.push(("诗歌", &poetry));
+        mats.push(("科学", &science));
+    }
     println!("料源: {}", mats.iter().map(|(n, b)| format!("{n} {}KB", b.len() / 1024)).collect::<Vec<_>>().join(" / "));
     // 留出尾（回应测试专用，训练轮不碰）：每料最后 128KB
-    let holdout = 128 * 1024usize;
+    // （VH_HOLDOUT_KB 可调；扩料型小语料需调小才有可用段）
+    let holdout = env_usize("VH_HOLDOUT_KB", 128) * 1024;
 
     // ── 符号事实：200 链 × 6 符号 ──
     // 规模定标实测依据：事实流 1KB 时 Fate 零出生（自然段长数百至
@@ -418,7 +442,7 @@ fn run() {
             let (sc, st) = body.feed_fateseg(tail);
             let segs: Vec<u64> = body.stem.cells[clen..].iter().map(|c| c.signal_count).collect();
             let mean = if segs.is_empty() { 0.0 } else { segs.iter().sum::<u64>() as f64 / segs.len() as f64 };
-            println!("[{tag}·{name}] 留出 128KB -> Fate 切 stem {} 段（均 {:.0}）tile {} 段", sc, mean, st);
+            println!("[{tag}·{name}] 留出 {}KB -> Fate 切 stem {} 段（均 {:.0}）tile {} 段", holdout / 1024, sc, mean, st);
             let _ = clen;
         }
     };
