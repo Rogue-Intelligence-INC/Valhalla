@@ -1,0 +1,19 @@
+# Valhalla expected results - baseline commit e1ff0b3 (2026-11-03)
+# Format: scope-key | expected substring (searched in run logs).
+# Reference machine reproduces these exactly (same seeds, same material).
+lib-fate | 7 passed
+lib-stem | 4 passed
+lib-tile | 8 passed
+lib-blackhole | 3 passed
+check-suite | ALL PASS
+battery-T1-network | 67.6
+battery-T2-45hop-short | 91.7
+battery-T2-45hop-long | 91.1
+battery-T3-2hop | 87.0
+battery-BWT-network | -0.7 pp
+incubation-C | 57.1
+incubation-L | +11.6
+incubation-falseC | 77.8
+flow-tiles | 9180
+flow-cells | 9281
+flow-stored | 31030

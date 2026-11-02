@@ -1,660 +1,383 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valhalla | AI Research Platform</title>
-    <meta name="description" content="AI Incubator & Algorithm Research Platform. Autonomous discovery, adaptive systems, intelligent computing.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-code: #0d1117;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --text-dim: #64748b;
-            --border: #334155;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text);
-            line-height: 1.6;
-        }
-        
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-        
-        /* Nav */
-        nav {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-            z-index: 100; padding: 16px 24px;
-        }
-        nav .container {
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .nav-brand {
-            font-weight: 700; font-size: 1.25rem;
-            color: var(--text); text-decoration: none;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .nav-links { display: flex; gap: 24px; align-items: center; }
-        .nav-links a {
-            color: var(--text-muted); text-decoration: none;
-            font-size: 0.9rem; transition: color 0.2s;
-        }
-        .nav-links a:hover { color: var(--text); }
-        .lang-selector { display: flex; gap: 4px; }
-        .lang-btn {
-            padding: 6px 12px; border: none; background: transparent;
-            color: var(--text-muted); cursor: pointer; border-radius: 6px;
-            font-size: 0.8rem; transition: all 0.2s;
-        }
-        .lang-btn:hover { color: var(--text); background: var(--border); }
-        .lang-btn.active { background: var(--primary); color: white; }
-        
-        /* Hero */
-        .hero {
-            min-height: 100vh; display: flex; align-items: center;
-            padding: 120px 24px 80px; position: relative; overflow: hidden;
-        }
-        .hero::before {
-            content: ''; position: absolute; width: 800px; height: 800px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
-            top: -300px; right: -200px; pointer-events: none;
-        }
-        .hero::after {
-            content: ''; position: absolute; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
-            bottom: -200px; left: -100px; pointer-events: none;
-        }
-        .hero-content { position: relative; z-index: 1; max-width: 800px; }
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 16px; background: var(--primary)/10;
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 100px; font-size: 0.85rem; color: var(--primary);
-            margin-bottom: 24px;
-        }
-        .hero-badge::before {
-            content: ''; width: 8px; height: 8px;
-            background: var(--primary); border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        h1 {
-            font-size: clamp(3rem, 8vw, 5rem); font-weight: 700;
-            line-height: 1.1; margin-bottom: 16px;
-        }
-        .gradient-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .hero-subtitle {
-            font-size: 1.5rem; color: var(--text-muted); margin-bottom: 16px;
-        }
-        .hero-desc {
-            font-size: 1.1rem; color: var(--text-dim);
-            max-width: 600px; margin-bottom: 32px;
-        }
-        .btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 14px 28px; border-radius: 12px; font-weight: 600;
-            text-decoration: none; transition: all 0.2s; font-size: 0.95rem;
-        }
-        .btn-primary {
-            background: var(--primary); color: white;
-        }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        .btn-secondary {
-            background: var(--bg-card); color: var(--text);
-            border: 1px solid var(--border);
-        }
-        .btn-secondary:hover { background: var(--border); }
-        .hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
-        
-        /* Stats */
-        .stats {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 24px; margin-top: 60px; padding-top: 40px;
-            border-top: 1px solid var(--border);
-        }
-        .stat { text-align: center; }
-        .stat-value {
-            font-size: 1.75rem; font-weight: 700; color: var(--primary);
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
-        
-        /* Section */
-        section { padding: 100px 0; }
-        .section-header { text-align: center; margin-bottom: 60px; }
-        .section-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; }
-        .section-desc { color: var(--text-muted); max-width: 600px; margin: 0 auto; }
-        
-        /* Projects */
-        .projects-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 24px;
-        }
-        .project-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 28px; transition: all 0.3s;
-        }
-        .project-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-        .project-header {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
-        }
-        .project-icon { font-size: 32px; }
-        .project-title { font-size: 1.25rem; font-weight: 600; flex: 1; }
-        .project-status {
-            font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; font-weight: 500;
-        }
-        .status-active { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-        .status-research { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
-        .status-experimental { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
-        .project-desc {
-            color: var(--text-muted); font-size: 0.9rem;
-            margin-bottom: 20px; min-height: 60px;
-        }
-        .project-metrics { display: flex; gap: 12px; flex-wrap: wrap; }
-        .metric {
-            font-size: 0.75rem; padding: 6px 12px;
-            background: var(--bg-dark); border-radius: 8px; color: var(--text-dim);
-        }
-        .metric-value {
-            color: var(--secondary); font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        /* Architecture */
-        .arch-section { background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-card) 100%); }
-        .arch-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
-        }
-        @media (max-width: 900px) { .arch-grid { grid-template-columns: 1fr; } }
-        .arch-diagram {
-            background: var(--bg-code); border: 1px solid var(--border);
-            border-radius: 16px; padding: 24px; font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem; color: var(--text-muted); overflow-x: auto;
-        }
-        .arch-content h3 { font-size: 1.5rem; margin-bottom: 16px; }
-        .arch-content p { color: var(--text-muted); margin-bottom: 16px; }
-        .arch-list { list-style: none; }
-        .arch-list li {
-            padding: 12px 0; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; gap: 12px;
-        }
-        .arch-list li:last-child { border-bottom: none; }
-        .arch-icon { font-size: 1.25rem; }
-        
-        /* Footer */
-        footer {
-            padding: 60px 0; text-align: center;
-            background: var(--bg-card); border-top: 1px solid var(--border);
-        }
-        .footer-links {
-            display: flex; justify-content: center; gap: 32px;
-            margin-bottom: 24px; flex-wrap: wrap;
-        }
-        .footer-links a {
-            color: var(--text-muted); text-decoration: none;
-            transition: color 0.2s;
-        }
-        .footer-links a:hover { color: var(--primary); }
-        .copyright { color: var(--text-dim); font-size: 0.9rem; }
-        .copyright a { color: var(--primary); text-decoration: none; }
-        
-        /* Language */
-        [data-lang] { display: none; }
-        [data-lang].active { display: block; }
-        .hero [data-lang].active,
-        .stats [data-lang].active,
-        .project-desc[data-lang].active { display: block; }
-        span[data-lang].active { display: inline; }
-        
-        @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .nav-links { display: none; }
-            .projects-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valhalla — Signal-Governed Structural Intelligence | Rogue Intelligence Inc.</title>
+<meta name="description" content="Valhalla: an implemented Rust architecture in which a persistent, self-organising structure — not a retrieved context — carries what the system has learned. Measured results, evidence classification, negative results, and a one-click reproduction package.">
+<style>
+  :root{
+    --ink:#171713; --paper:#fdfdf9; --mut:#5d5d54; --faint:#8a8a7f;
+    --rule:#d9d6cb; --accent:#7a1e2b; --accent2:#0f4c5c;
+    --code-bg:#f4f2ec; --box:#f8f7f2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Segoe UI",-apple-system,"Helvetica Neue",Arial,"Microsoft YaHei",sans-serif;
+    font-size:16px;line-height:1.65;}
+  .serif{font-family:Charter,"Bitstream Charter",Cambria,Georgia,"Times New Roman","Songti SC",serif}
+  .mono{font-family:"JetBrains Mono",Consolas,"Courier New",monospace}
+  a{color:var(--accent2);text-decoration:none;border-bottom:1px dotted var(--accent2)}
+  a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* institutional masthead */
+  .masthead{border-bottom:3px double var(--ink);padding:14px 0 10px}
+  .masthead-in{max-width:920px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+  .org{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink)}
+  .org b{color:var(--accent)}
+  .mast-nav{font-size:.82rem;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .mast-nav a{border:none;color:var(--mut)} .mast-nav a:hover{color:var(--accent)}
+  .lang-btn{border:1px solid var(--rule);background:none;padding:2px 9px;font-size:.75rem;cursor:pointer;color:var(--mut)}
+  .lang-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  main{max-width:920px;margin:0 auto;padding:0 20px 70px}
+
+  /* title block, journal style */
+  .titleblock{padding:44px 0 8px;border-bottom:1px solid var(--rule)}
+  .kicker{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+  h1{font-size:clamp(1.9rem,4.6vw,3rem);line-height:1.15;font-weight:600;margin-bottom:10px}
+  .subtitle{font-size:1.12rem;color:var(--mut);line-height:1.55;max-width:760px}
+  .authors{margin-top:18px;font-size:.95rem}
+  .affil{font-size:.85rem;color:var(--mut)}
+  .statusline{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+  .tag{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--ink);padding:3px 9px}
+  .tag.red{border-color:var(--accent);color:var(--accent)}
+  .tag.grey{border-color:var(--faint);color:var(--mut)}
+
+  .abstract{background:var(--box);border:1px solid var(--rule);padding:20px 24px;margin:26px 0 6px}
+  .abstract h3{font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+  .abstract p{font-size:.97rem}
+  .keywords{font-size:.85rem;color:var(--mut);margin-top:10px}
+
+  dl.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;border:1px solid var(--rule);margin:22px 0}
+  dl.meta div{padding:10px 14px;border-right:1px solid var(--rule)}
+  dl.meta div:last-child{border-right:none}
+  dl.meta dt{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--faint)}
+  dl.meta dd{font-size:.92rem;margin-top:2px}
+
+  section{padding-top:42px}
+  h2{font-size:1.45rem;font-weight:600;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:16px}
+  h2 .no{color:var(--accent);margin-right:10px}
+  h3{font-size:1.08rem;font-weight:600;margin:22px 0 8px}
+  p{margin-bottom:12px}
+  .small{font-size:.87rem;color:var(--mut)}
+  ul,ol{margin:0 0 12px 22px} li{margin-bottom:5px}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0 20px;font-size:.9rem}
+  caption{text-align:left;font-size:.85rem;color:var(--mut);padding-bottom:6px}
+  th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:7px 9px;text-align:left;font-weight:600;vertical-align:top}
+  td{border-bottom:1px solid var(--rule);padding:7px 9px;vertical-align:top}
+  tr:last-child td{border-bottom:2px solid var(--ink)}
+  td.n,th.n{text-align:right;font-family:Consolas,monospace;font-size:.86rem;white-space:nowrap}
+  .cls{font-weight:700;white-space:nowrap}
+  .clsA{color:var(--accent2)} .clsB{color:#8a6d00} .clsC{color:var(--accent)}
+
+  figure{margin:20px 0;border:1px solid var(--rule);background:#fff;padding:18px}
+  figcaption{font-size:.85rem;color:var(--mut);margin-top:12px;border-top:1px solid var(--rule);padding-top:8px}
+  figcaption b{color:var(--ink)}
+  .arch{display:grid;grid-template-columns:1fr;gap:8px;font-size:.83rem}
+  .arch .row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .arch .row.two{grid-template-columns:1fr 1fr}
+  .arch .row.one{grid-template-columns:1fr}
+  .cell{border:1.5px solid var(--ink);padding:9px 10px;background:#fff}
+  .cell.red{border-color:var(--accent)} .cell.blue{border-color:var(--accent2)}
+  .cell b{display:block;font-size:.88rem}
+  .cell span{color:var(--mut);font-size:.78rem;line-height:1.4;display:block}
+  .arrow{text-align:center;color:var(--faint);font-size:.9rem;line-height:1}
+  @media(max-width:640px){.arch .row{grid-template-columns:1fr 1fr}}
+
+  .bars{margin:8px 0 4px}
+  .bar-row{display:grid;grid-template-columns:88px 1fr 64px;gap:10px;align-items:center;margin-bottom:6px;font-size:.85rem}
+  .track{background:var(--code-bg);height:14px;position:relative}
+  .fill{height:100%;background:var(--accent2)}
+  .fill.a{background:#b9b4a4}
+  .bar-val{font-family:Consolas,monospace;font-size:.82rem;text-align:right}
+
+  .note{border-left:3px solid var(--accent);background:var(--box);padding:12px 16px;margin:16px 0;font-size:.93rem}
+  .note.blue{border-left-color:var(--accent2)}
+  .note b.t{color:var(--accent);text-transform:uppercase;font-size:.72rem;letter-spacing:.15em;display:block;margin-bottom:4px}
+  .note.blue b.t{color:var(--accent2)}
+
+  pre{background:var(--code-bg);border:1px solid var(--rule);padding:14px 16px;overflow-x:auto;font-size:.83rem;line-height:1.55;margin:12px 0}
+  code{font-family:Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 4px}
+  pre code{background:none;padding:0}
+
+  .mech{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  @media(max-width:640px){.mech{grid-template-columns:1fr}}
+  .mech .m{border:1px solid var(--rule);padding:14px 16px;background:#fff}
+  .mech .m h4{font-size:.95rem;margin-bottom:5px}
+  .mech .m h4 i{font-style:normal;color:var(--accent);margin-right:6px}
+  .mech .m p{font-size:.88rem;color:#33332e;margin:0}
+
+  footer{border-top:3px double var(--ink);margin-top:60px;padding:22px 0 34px;font-size:.85rem;color:var(--mut)}
+  .foot-in{max-width:920px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  [data-lang]{display:none} [data-lang].on{display:revert}
+  span[data-lang].on{display:inline}
+</style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
-        <div class="container">
-            <a href="#" class="nav-brand">
-                <span>🏔️</span>
-                <span>Valhalla</span>
-            </a>
-            <div class="nav-links">
-                <a href="#projects">Projects</a>
-                <a href="#architecture">Architecture</a>
-                <a href="https://github.com/Rogue-Intelligence-INC/Valhalla" target="_blank">GitHub</a>
-                <div class="lang-selector">
-                    <button class="lang-btn active" onclick="setLang('en')">EN</button>
-                    <button class="lang-btn" onclick="setLang('zh')">中文</button>
-                    <button class="lang-btn" onclick="setLang('ja')">日本語</button>
-                </div>
-            </div>
-        </div>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <div class="org"><b>Rogue Intelligence</b> Inc. — Research</div>
+    <nav class="mast-nav">
+      <a href="#results"><span data-lang="en" class="on">Results</span><span data-lang="zh">结果</span></a>
+      <a href="#system"><span data-lang="en" class="on">System</span><span data-lang="zh">系统</span></a>
+      <a href="#experiments"><span data-lang="en" class="on">Experiments</span><span data-lang="zh">实验</span></a>
+      <a href="#evidence"><span data-lang="en" class="on">Evidence</span><span data-lang="zh">证据分级</span></a>
+      <a href="#negative"><span data-lang="en" class="on">Negative results</span><span data-lang="zh">阴性结果</span></a>
+      <a href="#reproduce"><span data-lang="en" class="on">Reproduce</span><span data-lang="zh">复现</span></a>
+      <span>
+        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button><button class="lang-btn" id="btn-zh" onclick="setLang('zh')">中文</button>
+      </span>
     </nav>
+  </div>
+</header>
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span data-lang="en" class="active">AI Research Platform</span>
-                    <span data-lang="zh">AI 研究平台</span>
-                    <span data-lang="ja">AI研究プラットフォーム</span>
-                </div>
-                
-                <h1><span class="gradient-text">Valhalla</span></h1>
-                
-                <p class="hero-subtitle">
-                    <span data-lang="en" class="active">AI Incubator & Algorithm Research</span>
-                    <span data-lang="zh">AI 孵化器与算法研究</span>
-                    <span data-lang="ja">AIインキュベーター＆アルゴリズム研究</span>
-                </p>
-                
-                <p class="hero-desc">
-                    <span data-lang="en" class="active">
-                        A unified research ecosystem spanning programming languages, operating systems, 
-                        cryptography, and compression. Adaptive intelligence from code to hardware.
-                    </span>
-                    <span data-lang="zh">
-                        统一的研究生态系统，涵盖编程语言、操作系统、密码学和压缩。
-                        从代码到硬件的自适应智能。
-                    </span>
-                    <span data-lang="ja">
-                        プログラミング言語、OS、暗号、圧縮を網羅する統合研究エコシステム。
-                        コードからハードウェアまでの適応型インテリジェンス。
-                    </span>
-                </p>
-                
-                <div class="hero-buttons">
-                    <a href="https://github.com/Rogue-Intelligence-INC/Valhalla" class="btn btn-primary" target="_blank">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        <span data-lang="en" class="active">View on GitHub</span>
-                        <span data-lang="zh">查看源码</span>
-                        <span data-lang="ja">GitHubで見る</span>
-                    </a>
-                    <a href="#projects" class="btn btn-secondary">
-                        <span data-lang="en" class="active">Explore Projects</span>
-                        <span data-lang="zh">探索项目</span>
-                        <span data-lang="ja">プロジェクトを探る</span>
-                    </a>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat">
-                        <div class="stat-value">6</div>
-                        <div class="stat-label">
-                            <span data-lang="en" class="active">Core Projects</span>
-                            <span data-lang="zh">核心项目</span>
-                            <span data-lang="ja">コアプロジェクト</span>
-                        </div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">19x</div>
-                        <div class="stat-label">
-                            <span data-lang="en" class="active">vs Python</span>
-                            <span data-lang="zh">比 Python</span>
-                            <span data-lang="ja">対Python</span>
-                        </div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">1.4 GB/s</div>
-                        <div class="stat-label">
-                            <span data-lang="en" class="active">Encryption</span>
-                            <span data-lang="zh">加密速度</span>
-                            <span data-lang="ja">暗号化速度</span>
-                        </div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">99.97%</div>
-                        <div class="stat-label">
-                            <span data-lang="en" class="active">Precision</span>
-                            <span data-lang="zh">精度</span>
-                            <span data-lang="ja">精度</span>
-                        </div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">2.1μs</div>
-                        <div class="stat-label">
-                            <span data-lang="en" class="active">Latency</span>
-                            <span data-lang="zh">延迟</span>
-                            <span data-lang="ja">レイテンシ</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<main>
+
+  <!-- ══════════ TITLE ══════════ -->
+  <div class="titleblock">
+    <div class="kicker"><span data-lang="en" class="on">Technical Report · Implemented System · November 2026</span><span data-lang="zh">技术报告 · 已实现系统 · 2026 年 11 月</span></div>
+    <h1 class="serif">Valhalla: Signal-Governed Structural Intelligence</h1>
+    <p class="subtitle">
+      <span data-lang="en" class="on">An implemented Rust architecture in which a persistent, self-organising structure — not a retrieved context — carries what the system has learned. This page presents the measured results first, the system second, and the limits throughout.</span>
+      <span data-lang="zh">一个已实现的 Rust 架构：由持久的、自组织的结构——而非检索到的上下文——承载系统所学。本页先呈现测量结果，其次系统本身，并全程标注局限。</span>
+    </p>
+    <p class="authors serif">Rogue Intelligence Inc.</p>
+    <p class="affil"><span data-lang="en" class="on">Independent research programme. All quantitative claims below are tied to a named protocol and an executable artefact; §4 classifies every result by how it can be checked, and §5 lists what has <em>not</em> been established.</span><span data-lang="zh">独立研究项目。下方每项定量结论都绑定命名协议与可执行工件；§4 按可检验方式为全部结果分级，§5 列明尚未成立的事项。</span></p>
+    <div class="statusline">
+      <span class="tag"><span data-lang="en" class="on">Implemented system</span><span data-lang="zh">已实现系统</span></span>
+      <span class="tag"><span data-lang="en" class="on">Controlled experiments</span><span data-lang="zh">受控实验</span></span>
+      <span class="tag red"><span data-lang="en" class="on">Negative results reported</span><span data-lang="zh">阴性结果照报</span></span>
+      <span class="tag grey"><span data-lang="en" class="on">One-click reproduction</span><span data-lang="zh">一键复现</span></span>
+    </div>
+  </div>
+
+  <div class="abstract">
+    <h3><span data-lang="en" class="on">Abstract</span><span data-lang="zh">摘要</span></h3>
+    <p>
+      <span data-lang="en" class="on">Deployed AI systems accumulate experience outside the computing substrate — in prompts, indices and rules — where it cannot change what is computed next. Valhalla tests the alternative: experience written into a persistent structure (Tile and Stem populations under a global algebraic criterion, Fate), with computation thereafter routed through that structure. Under a controlled ablation protocol (15 seeds), removing the learned connections returns withheld multi-hop answers to a fixed 45.5% floor, a structural causal effect of <b>+11.6 ± 8.5 pp</b> (positive in 13/15 seeds); clearing stored bytes changes nothing. Continual-learning forgetting on an industry-style battery is near-eliminated (backward transfer <b>−0.7 pp</b>), and a single deterministic programme runs 50 rounds from ingress to scored egress. Long-range (4–5 hop) composition, topology specificity, and directed-curriculum gains are <b>not</b> established and are reported as such.</span>
+      <span data-lang="zh">已部署的 AI 系统把经验积累在计算基底之外——提示词、索引与规则——无法改变下一步的计算。Valhalla 检验另一种可能：经验写入持久结构（全局代数判据 Fate 之下的 Tile 与 Stem 种群），其后的计算经由该结构路由。在受控消融协议下（15 种子），移除所学连接使留出多跳题回到固定下限 45.5%，结构因果效应 <b>+11.6 ± 8.5pp</b>（13/15 种子为正）；清空存储字节则毫无变化。行业式电池上持续学习的遗忘基本消除（后向迁移 <b>−0.7pp</b>），且单一确定性程式可从入口到评分出口完整运行 50 轮。长程（4–5 跳）组合、拓扑特异性与定向课程增益<b>未</b>成立，照实报告。</span>
+    </p>
+    <p class="keywords"><b>Keywords:</b> persistent structural learning · causal ablation · self-organising networks · continual learning · reproducibility</p>
+  </div>
+
+  <dl class="meta">
+    <div><dt><span data-lang="en" class="on">Implementation</span><span data-lang="zh">实现</span></dt><dd>Rust (f64 line, CUDA)</dd></div>
+    <div><dt><span data-lang="en" class="on">Code baseline</span><span data-lang="zh">代码基线</span></dt><dd class="mono">e1ff0b3 · 2026-11-03</dd></div>
+    <div><dt><span data-lang="en" class="on">Repository</span><span data-lang="zh">仓库</span></dt><dd><a href="https://github.com/Rogue-Intelligence-INC/Valhalla">Rogue-Intelligence-INC/Valhalla</a></dd></div>
+    <div><dt><span data-lang="en" class="on">Evidence archive</span><span data-lang="zh">证据存档</span></dt><dd><a href="https://github.com/Rogue-Intelligence-INC/valhalla-incubation-evidence">valhalla-incubation-evidence</a></dd></div>
+    <div><dt>Investor deck</dt><dd><a href="https://github.com/Rogue-Intelligence-INC/valhalla-incubation-evidence/blob/main/deck/Valhalla_Investor_Deck_EN_v1.5_20261103.pptx">v1.5 (2026-11-03)</a></dd></div>
+  </dl>
+
+  <!-- ══════════ 1 RESULTS ══════════ -->
+  <section id="results">
+    <h2 class="serif"><span class="no">1</span><span data-lang="en" class="on">Principal results</span><span data-lang="zh">主要结果</span></h2>
+    <p><span data-lang="en" class="on">Three findings define the present state of the programme. Each is stated together with the protocol that produced it; superseded figures from earlier code states are retired, not averaged in.</span><span data-lang="zh">三项发现定义了本项目当前状态。每项都连同生成它的协议一并陈述；早期代码状态的被替代数字已退役，不参与平均。</span></p>
+
+    <table>
+      <caption><b>Table 1.</b> <span data-lang="en" class="on">Headline measurements on current code (baseline <span class="mono">e1ff0b3</span>). Class letters refer to the evidence classification in §4.</span><span data-lang="zh">现行代码（基线 e1ff0b3）的头版读数。等级字母见 §4 证据分级。</span></caption>
+      <tr><th style="width:26%"><span data-lang="en" class="on">Result</span><span data-lang="zh">结果</span></th><th style="width:30%"><span data-lang="en" class="on">Measurement</span><span data-lang="zh">读数</span></th><th><span data-lang="en" class="on">Protocol</span><span data-lang="zh">协议</span></th><th class="n">Class</th></tr>
+      <tr>
+        <td><b><span data-lang="en" class="on">Structure carries the answer</span><span data-lang="zh">结构承载答案</span></b></td>
+        <td class="n">L = +11.6 ± 8.5 pp<br>13/15 <span data-lang="en" class="on">seeds positive</span><span data-lang="zh">种子为正</span></td>
+        <td><span data-lang="en" class="on">Incubation proof, 15 seeds: intact body (C 57.1%) vs. same body with all connections cleared, storage untouched (G 45.5%).</span><span data-lang="zh">孵化证明，15 种子：完整身体（C 57.1%）对同一身体清全部连接、存储不动（G 45.5%）。</span></td>
+        <td class="n cls clsA">A</td>
+      </tr>
+      <tr>
+        <td><b><span data-lang="en" class="on">Forgetting near-eliminated</span><span data-lang="zh">遗忘基本消除</span></b></td>
+        <td class="n">BWT = −0.7 pp</td>
+        <td><span data-lang="en" class="on">Industry-style battery T4, 5 seeds: task-1 network score re-measured after learning task 2.</span><span data-lang="zh">行业式电池 T4，5 种子：学完任务 2 后回测任务 1 网络分数。</span></td>
+        <td class="n cls clsA">A</td>
+      </tr>
+      <tr>
+        <td><b><span data-lang="en" class="on">One body, ingress to egress</span><span data-lang="zh">一体贯通，入口到出口</span></b></td>
+        <td class="n">9,180 tiles / 9,281 cells<br>123,261 nerves</td>
+        <td><span data-lang="en" class="on">Full-flow programme, 50 rounds × 32 KB of eight material types; three egress channels scored separately (storage 100/100, read-only answers 100/100).</span><span data-lang="zh">全流程程式，八种料 32KB × 50 轮；三出口分开评分（存储 100/100、只读答题 100/100）。</span></td>
+        <td class="n cls clsA">A</td>
+      </tr>
+      <tr>
+        <td><b><span data-lang="en" class="on">Long-range composition</span><span data-lang="zh">长程组合</span></b></td>
+        <td class="n">28.9% <span data-lang="en" class="on">at distance 4–5</span><span data-lang="zh">（距离 4–5）</span></td>
+        <td><span data-lang="en" class="on">Distance-graded accuracy in the same incubation protocol (100% / 39.7% / 28.9%). Reported as the current open deficit, not a result.</span><span data-lang="zh">同一孵化协议的距离分层正确率（100% / 39.7% / 28.9%）。作为当前公开欠账报告，非成果。</span></td>
+        <td class="n cls clsC">C</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      <b class="t"><span data-lang="en" class="on">Reporting standard</span><span data-lang="zh">报告标准</span></b>
+      <span data-lang="en" class="on">Criteria are fixed before runs; zero measurements are reported as “not detected”; broken instruments are written off, not repaired mid-analysis. A finding measured at zero is priced at zero on this page.</span><span data-lang="zh">判据在跑前声明；测为零写作“未检出”；仪器坏了销账，不在分析中途修理。在本页，测为零的发现按零计价。</span>
+    </div>
+  </section>
+
+  <!-- ══════════ 2 SYSTEM ══════════ -->
+  <section id="system">
+    <h2 class="serif"><span class="no">2</span><span data-lang="en" class="on">The system</span><span data-lang="zh">系统</span></h2>
+    <p><span data-lang="en" class="on">Valhalla is one system with coupled responsibilities. Material enters byte-wise through Fate’s segmentation; every fragment is stored in all four quad operators (BlackHole, MeshBrain, MultiNova, BaseForce) — eight accounts per fragment, Tile-side and Stem-side — and the populations’ own dynamics (energy flow, split/merge, autonomous quad maintenance) decide what the structure becomes. Fate is the global measurement and scheduling layer: its quadratic cluster equation judges convergence, bundles parallel connection strands into single nerves, and opens long-range escape nerves toward distant strong signals. Fate does not veto body dynamics.</span><span data-lang="zh">Valhalla 是一个职责耦合的单一系统。材料逐字节经 Fate 分割入口进入；每段材料存入全部四个四元算子（BlackHole、MeshBrain、MultiNova、BaseForce）——每段八份账，Tile 侧与 Stem 侧各四——结构成为什么样，由种群自身动力学（能量流动、分裂/合并、四元自主维护）决定。Fate 是全局度量与调度层：其二元一次簇方程判断收敛、把平行连接束集束为单条神经、并向远方强信号开长程逃逸神经。Fate 不一票否决身体动力学。</span></p>
+
+    <figure>
+      <div class="arch">
+        <div class="row one"><div class="cell"><b>INPUT</b><span><span data-lang="en" class="on">Facts · text · code · image · audio — byte-wise ingress, Fate segmentation</span><span data-lang="zh">事实 · 文本 · 代码 · 图像 · 声音——逐字节进入，Fate 分割</span></span></div></div>
+        <div class="arrow">▼</div>
+        <div class="row one"><div class="cell red"><b>FATE</b><span><span data-lang="en" class="on">Global criterion: cluster equation a·x²+b·x+c (live example §2), bundling, escape nerves, segmentation windows</span><span data-lang="zh">全局判据：簇方程 a·x²+b·x+c（活例见 §2）、集束、逃逸神经、分割窗口</span></span></div></div>
+        <div class="arrow">▼</div>
+        <div class="row">
+          <div class="cell blue"><b>BlackHole</b><span><span data-lang="en" class="on">Dense storage; event-horizon escape law runs in autonomous maintenance</span><span data-lang="zh">稠密存储；视界逃逸法则在自主维护中运行</span></span></div>
+          <div class="cell blue"><b>MeshBrain</b><span><span data-lang="en" class="on">Connection fabric accounting</span><span data-lang="zh">连接织构记账</span></span></div>
+          <div class="cell blue"><b>MultiNova</b><span><span data-lang="en" class="on">Burst / expansion accounting</span><span data-lang="zh">爆发/扩张记账</span></span></div>
+          <div class="cell blue"><b>BaseForce</b><span><span data-lang="en" class="on">Baseline force accounting, deduplication</span><span data-lang="zh">基线力记账、去重</span></span></div>
         </div>
-    </section>
-
-    <!-- Projects -->
-    <section id="projects">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <span data-lang="en" class="active">Projects</span>
-                    <span data-lang="zh">项目</span>
-                    <span data-lang="ja">プロジェクト</span>
-                </h2>
-                <p class="section-desc">
-                    <span data-lang="en" class="active">
-                        From autonomous mathematical discovery to intelligent operating systems
-                    </span>
-                    <span data-lang="zh">从自主数学发现到智能操作系统</span>
-                    <span data-lang="ja">自律的な数学的発見からインテリジェントOSまで</span>
-                </p>
-            </div>
-            
-            <div class="projects-grid">
-                <!-- S-wind -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <span class="project-icon">🔬</span>
-                        <span class="project-title">S-wind</span>
-                        <span class="project-status status-active">Active</span>
-                    </div>
-                    <p class="project-desc" data-lang="en" class="active">
-                        Autonomous pattern discovery from numerical data. Finds mathematical formulas 
-                        with exact rational arithmetic. Generates LaTeX derivations automatically.
-                    </p>
-                    <p class="project-desc" data-lang="zh">
-                        从数值数据自主发现模式。使用精确有理数运算找到数学公式。自动生成 LaTeX 推导。
-                    </p>
-                    <p class="project-desc" data-lang="ja">
-                        数値データからの自律的パターン発見。正確な有理数演算で数学公式を発見。LaTeX導出を自動生成。
-                    </p>
-                    <div class="project-metrics">
-                        <span class="metric"><span class="metric-value">10,000+</span> ops/sec</span>
-                        <span class="metric"><span class="metric-value">99.97%</span> precision</span>
-                        <span class="metric"><span class="metric-value">2.1μs</span> latency</span>
-                    </div>
-                </div>
-                
-                <!-- Wave -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <span class="project-icon">🌊</span>
-                        <span class="project-title">Wave</span>
-                        <span class="project-status status-active">Active</span>
-                    </div>
-                    <p class="project-desc" data-lang="en" class="active">
-                        Self-hosting programming language with runtime optimization. Compiles directly 
-                        to native machine code with zero external dependencies.
-                    </p>
-                    <p class="project-desc" data-lang="zh">
-                        自举编程语言，支持运行时优化。直接编译为本机代码，零外部依赖。
-                    </p>
-                    <p class="project-desc" data-lang="ja">
-                        ランタイム最適化を持つセルフホスティング言語。外部依存なしでネイティブコードに直接コンパイル。
-                    </p>
-                    <div class="project-metrics">
-                        <span class="metric"><span class="metric-value">19x</span> vs Python</span>
-                        <span class="metric"><span class="metric-value">&lt;3ms</span> compile</span>
-                        <span class="metric"><span class="metric-value">~35KB</span> compiler</span>
-                    </div>
-                </div>
-                
-                <!-- Val-OS -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <span class="project-icon">🖥️</span>
-                        <span class="project-title">Val-OS</span>
-                        <span class="project-status status-research">Research</span>
-                    </div>
-                    <p class="project-desc" data-lang="en" class="active">
-                        Self-learning operating system with adaptive resource management. 
-                        Hybrid CLI/GUI, intelligent file organization, zero hardcoded values.
-                    </p>
-                    <p class="project-desc" data-lang="zh">
-                        自学习操作系统，具有自适应资源管理。混合 CLI/GUI，智能文件组织，零硬编码。
-                    </p>
-                    <p class="project-desc" data-lang="ja">
-                        適応型リソース管理を持つ自己学習OS。ハイブリッドCLI/GUI、インテリジェントなファイル管理。
-                    </p>
-                    <div class="project-metrics">
-                        <span class="metric"><span class="metric-value">4-pool</span> memory</span>
-                        <span class="metric"><span class="metric-value">Hybrid</span> UI</span>
-                        <span class="metric"><span class="metric-value">AI</span> file manager</span>
-                    </div>
-                </div>
-                
-                <!-- Yaksha Cipher -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <span class="project-icon">🔐</span>
-                        <span class="project-title">Yaksha Cipher</span>
-                        <span class="project-status status-active">Active</span>
-                    </div>
-                    <p class="project-desc" data-lang="en" class="active">
-                        GPU-accelerated symmetric encryption with stateful AEAD protocol. 
-                        Near-optimal avalanche effect for strong bit diffusion.
-                    </p>
-                    <p class="project-desc" data-lang="zh">
-                        GPU 加速对称加密，支持有状态 AEAD 协议。接近理想的雪崩效应，强比特扩散。
-                    </p>
-                    <p class="project-desc" data-lang="ja">
-                        ステートフルAEADプロトコルを持つGPU加速対称暗号。ほぼ理想的なアバランシェ効果。
-                    </p>
-                    <div class="project-metrics">
-                        <span class="metric"><span class="metric-value">1.4 GB/s</span> GPU</span>
-                        <span class="metric"><span class="metric-value">~50%</span> avalanche</span>
-                        <span class="metric"><span class="metric-value">AEAD</span> protocol</span>
-                    </div>
-                </div>
-                
-                <!-- Compression -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <span class="project-icon">📦</span>
-                        <span class="project-title">Adaptive Compression</span>
-                        <span class="project-status status-experimental">Experimental</span>
-                    </div>
-                    <p class="project-desc" data-lang="en" class="active">
-                        Intelligent multi-system compression with content-aware routing. 
-                        Excels on high-entropy data where traditional algorithms fail.
-                    </p>
-                    <p class="project-desc" data-lang="zh">
-                        智能多系统压缩，内容感知路由。在传统算法失效的高熵数据上表现出色。
-                    </p>
-                    <p class="project-desc" data-lang="ja">
-                        コンテンツアウェアルーティングによるインテリジェントマルチシステム圧縮。高エントロピーデータに優れる。
-                    </p>
-                    <div class="project-metrics">
-                        <span class="metric"><span class="metric-value">0.4%</span> best ratio</span>
-                        <span class="metric"><span class="metric-value">4</span> systems</span>
-                        <span class="metric"><span class="metric-value">Auto</span> routing</span>
-                    </div>
-                </div>
-                
-                <!-- Valhalla Core -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <span class="project-icon">⚙️</span>
-                        <span class="project-title">Valhalla Core</span>
-                        <span class="project-status status-research">Foundation</span>
-                    </div>
-                    <p class="project-desc" data-lang="en" class="active">
-                        The unified architecture powering all projects. Adaptive resource allocation 
-                        and cross-domain optimization algorithms.
-                    </p>
-                    <p class="project-desc" data-lang="zh">
-                        支撑所有项目的统一架构。自适应资源分配和跨域优化算法。
-                    </p>
-                    <p class="project-desc" data-lang="ja">
-                        全プロジェクトを支える統一アーキテクチャ。適応型リソース配分とクロスドメイン最適化。
-                    </p>
-                    <div class="project-metrics">
-                        <span class="metric"><span class="metric-value">Unified</span> architecture</span>
-                        <span class="metric"><span class="metric-value">Adaptive</span> allocation</span>
-                        <span class="metric"><span class="metric-value">Cross</span> domain</span>
-                    </div>
-                </div>
-            </div>
+        <div class="arrow">▼</div>
+        <div class="row two">
+          <div class="cell"><b>TILE population</b><span><span data-lang="en" class="on">Structural units; energy-flow split/merge; each Tile carries its own quad store</span><span data-lang="zh">结构单元；能量流分裂/合并；每个 Tile 自带四元存储</span></span></div>
+          <div class="cell"><b>STEM population</b><span><span data-lang="en" class="on">Field-organised cells; connections rewritten under field + Fate bundling each cycle</span><span data-lang="zh">场组织细胞；每周期在场 + Fate 集束下重写连接</span></span></div>
         </div>
-    </section>
+        <div class="arrow">▼</div>
+        <div class="row one"><div class="cell"><b>EGRESS (scored separately, never averaged)</b><span><span data-lang="en" class="on">Storage retrieval · network multi-hop reachability · read-only Fate interface (stored originals, verbatim)</span><span data-lang="zh">存储检索 · 网络多跳可达 · 只读 Fate 接口（返回存储原文，逐字）</span></span></div></div>
+      </div>
+      <figcaption><b>Figure 1.</b> <span data-lang="en" class="on">System responsibilities. Arrows denote responsibility, not an always-active call graph. A signal is the tuple s<sub>t</sub> = (source, intensity, direction, quality, logical time); complexity resides in state, not in signal size.</span><span data-lang="zh">系统职责。箭头表示职责而非恒激活的调用图。信号为五元组 s_t =（来源，强度，方向，质量，逻辑时间）；复杂度在状态中，不在信号大小中。</span></figcaption>
+    </figure>
 
-    <!-- Architecture -->
-    <section id="architecture" class="arch-section">
-        <div class="container">
-            <div class="arch-grid">
-                <div class="arch-content">
-                    <h3>
-                        <span data-lang="en" class="active">Unified Architecture</span>
-                        <span data-lang="zh">统一架构</span>
-                        <span data-lang="ja">統一アーキテクチャ</span>
-                    </h3>
-                    <p>
-                        <span data-lang="en" class="active">
-                            All Valhalla projects share a common foundation: adaptive algorithms that 
-                            learn and optimize based on runtime behavior and workload characteristics.
-                        </span>
-                        <span data-lang="zh">
-                            所有 Valhalla 项目共享一个共同基础：根据运行时行为和工作负载特征
-                            学习和优化的自适应算法。
-                        </span>
-                        <span data-lang="ja">
-                            全Valhallaプロジェクトは共通基盤を共有：ランタイム動作とワークロード特性に
-                            基づいて学習・最適化する適応型アルゴリズム。
-                        </span>
-                    </p>
-                    <ul class="arch-list">
-                        <li>
-                            <span class="arch-icon">🎯</span>
-                            <span data-lang="en" class="active">Adaptive resource allocation based on workload analysis</span>
-                            <span data-lang="zh">基于工作负载分析的自适应资源分配</span>
-                            <span data-lang="ja">ワークロード分析に基づく適応型リソース配分</span>
-                        </li>
-                        <li>
-                            <span class="arch-icon">🔄</span>
-                            <span data-lang="en" class="active">Runtime optimization with automatic staticization</span>
-                            <span data-lang="zh">带自动静态化的运行时优化</span>
-                            <span data-lang="ja">自動静的化によるランタイム最適化</span>
-                        </li>
-                        <li>
-                            <span class="arch-icon">🧠</span>
-                            <span data-lang="en" class="active">Four-pool memory management for access pattern optimization</span>
-                            <span data-lang="zh">四池内存管理优化访问模式</span>
-                            <span data-lang="ja">アクセスパターン最適化のための4プールメモリ管理</span>
-                        </li>
-                        <li>
-                            <span class="arch-icon">⚡</span>
-                            <span data-lang="en" class="active">Zero hardcoded values — everything is runtime-determined</span>
-                            <span data-lang="zh">零硬编码 — 一切由运行时决定</span>
-                            <span data-lang="ja">ハードコード値ゼロ — 全てランタイム決定</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="arch-diagram">
-<pre>
-┌─────────────────────────────────────┐
-│         Valhalla Core               │
-├─────────────────────────────────────┤
-│                                     │
-│   ┌─────────┐     ┌─────────┐      │
-│   │ S-wind  │     │  Wave   │      │
-│   │ Pattern │     │ Compiler│      │
-│   │ Engine  │     │ Runtime │      │
-│   └────┬────┘     └────┬────┘      │
-│        │               │            │
-│        └───────┬───────┘            │
-│                │                    │
-│        ┌───────┴───────┐            │
-│        │  Adaptive     │            │
-│        │  Scheduler    │            │
-│        └───────┬───────┘            │
-│                │                    │
-│   ┌────────────┼────────────┐      │
-│   │            │            │      │
-│   ▼            ▼            ▼      │
-│ ┌─────┐    ┌─────┐    ┌─────┐     │
-│ │Pool0│    │Pool1│    │Pool2│     │
-│ │Dense│    │Index│    │Queue│     │
-│ └─────┘    └─────┘    └─────┘     │
-│                                     │
-│   ┌─────────┐     ┌─────────┐      │
-│   │ Yaksha  │     │ Val-OS  │      │
-│   │ Cipher  │     │ Kernel  │      │
-│   └─────────┘     └─────────┘      │
-│                                     │
-└─────────────────────────────────────┘
-</pre>
-                </div>
-            </div>
-        </div>
-    </section>
+    <h3><span data-lang="en" class="on">Mechanisms corrected into place (2026-11-02 – 03)</span><span data-lang="zh">近期归位的机制（2026-11-02 – 03）</span></h3>
+    <div class="mech">
+      <div class="m"><h4><i>M1</i><span data-lang="en" class="on">Split dynamics, restored</span><span data-lang="zh">分裂动力学，已恢复原版</span></h4><p><span data-lang="en" class="on">Splitting follows the original field rule — energy &gt; 1.5× population mean, at most 10 splits per cycle, energy flow rate ×0.1. A de-hardcoding change that widened this gate caused runaway growth; the defect was found by measurement and reverted to the designed rule.</span><span data-lang="zh">分裂遵循原版场规则——能量 &gt; 1.5× 种群平均、每周期至多 10 次、能量流率 ×0.1。一次去硬编码改动曾放宽此门导致失控增长；缺陷由测量定位并已回退至设计规则。</span></p></div>
+      <div class="m"><h4><i>M2</i><span data-lang="en" class="on">Fate bundling</span><span data-lang="zh">Fate 集束</span></h4><p><span data-lang="en" class="on">Neighbours whose distances fit under the cluster equation’s convergence rule are bundled into one nerve (target: strongest field signal in the bundle). Link count fell 19.86M strands → ≈49K nerves (−99.8%); 15-seed scoring went from &gt;1 h to ≈1 min.</span><span data-lang="zh">距离在簇方程收敛规则下拟合的邻居集束为一条神经（目标取束内场强最高者）。连接数从 1986 万股降至约 4.9 万条神经（−99.8%）；15 种子评分从逾 1 小时降至约 1 分钟。</span></p></div>
+      <div class="m"><h4><i>M3</i><span data-lang="en" class="on">Two-layer escape</span><span data-lang="zh">双层逃逸</span></h4><p><span data-lang="en" class="on">The quad’s designed escape law (energy &gt; √(2·g·d), BlackHole event horizon) — dead code since import — now runs inside autonomous quad maintenance. Independently, Fate opens one long-range nerve per cell toward a distant strong signal. The layers do not interfere: storage-layer exemptions vs. graph-layer connectivity.</span><span data-lang="zh">四元原设计逃逸法则（能量 &gt; √(2·g·d)，黑洞视界）——自导入即死代码——现已在四元自主维护中运行。独立地，Fate 为每个细胞向远方强信号开一条长程神经。两层互不干扰：存储层管豁免，图层管连通。</span></p></div>
+      <div class="m"><h4><i>M4</i><span data-lang="en" class="on">Equation adaptation, bound to Fate</span><span data-lang="zh">方程自适应，绑定 Fate</span></h4><p><span data-lang="en" class="on">The cluster equation adapts only on material Fate itself has just judged (inside passive reception); judgement itself never modifies the equation. Live end-state after 50 rounds: 0.7155x² − 1.8912x + 0.6700, threshold 0.0100.</span><span data-lang="zh">簇方程只在 Fate 刚判定过的材料上自适应（被动接收内）；判定本身永不修改方程。50 轮后的活终局：0.7155x² − 1.8912x + 0.6700，阈值 0.0100。</span></p></div>
+    </div>
+  </section>
 
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-links">
-                <a href="https://github.com/Rogue-Intelligence-INC/Valhalla" target="_blank">GitHub</a>
-                <a href="https://github.com/Rogue-Intelligence-INC" target="_blank">Organization</a>
-            </div>
-            <p class="copyright">
-                MIT License © 2026 <a href="https://github.com/Rogue-Intelligence-INC" target="_blank">Rogue Intelligence Inc.</a>
-            </p>
-        </div>
-    </footer>
+  <!-- ══════════ 3 EXPERIMENTS ══════════ -->
+  <section id="experiments">
+    <h2 class="serif"><span class="no">3</span><span data-lang="en" class="on">Experiments</span><span data-lang="zh">实验</span></h2>
 
-    <script>
-        function setLang(lang) {
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            document.querySelectorAll('[data-lang]').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll(`[data-lang="${lang}"]`).forEach(el => el.classList.add('active'));
-            localStorage.setItem('valhalla-lang', lang);
-        }
-        
-        // Load saved language
-        const saved = localStorage.getItem('valhalla-lang');
-        if (saved) {
-            document.querySelectorAll('[data-lang]').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll(`[data-lang="${saved}"]`).forEach(el => el.classList.add('active'));
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if ((btn.textContent === 'EN' && saved === 'en') ||
-                    (btn.textContent === '中文' && saved === 'zh') ||
-                    (btn.textContent === '日本語' && saved === 'ja')) {
-                    btn.classList.add('active');
-                }
-            });
-        }
-        
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-    </script>
+    <h3>3.1 <span data-lang="en" class="on">Incubation causal proof — does structure carry the answer?</span><span data-lang="zh">孵化因果证明——结构是否承载答案？</span></h3>
+    <p><span data-lang="en" class="on">Bodies are cultivated on chained symbolic facts, then interrogated on withheld multi-hop questions through six arms. Each ablation restarts from the same saved body, so arms differ in exactly one intervention. Fifteen seeds, no seed excluded.</span><span data-lang="zh">身体在链式符号事实上培养，随后以留出多跳题经六条臂拷问。每种消融从同一保存身体重启，各臂只差一个干预。15 种子，无种子剔除。</span></p>
+    <table>
+      <caption><b>Table 2.</b> <span data-lang="en" class="on">Incubation arms and outcomes (15 seeds, %, current code).</span><span data-lang="zh">孵化各臂与结局（15 种子，%，现行代码）。</span></caption>
+      <tr><th style="width:14%">Arm</th><th style="width:38%"><span data-lang="en" class="on">Intervention</span><span data-lang="zh">干预</span></th><th class="n"><span data-lang="en" class="on">Score</span><span data-lang="zh">分数</span></th><th><span data-lang="en" class="on">Reading</span><span data-lang="zh">判读</span></th></tr>
+      <tr><td class="mono">C</td><td><span data-lang="en" class="on">Intact cultivated body</span><span data-lang="zh">完整培养体</span></td><td class="n">57.1 ± 13.3</td><td>—</td></tr>
+      <tr><td class="mono">A</td><td><span data-lang="en" class="on">Volume-matched control, no chain structure</span><span data-lang="zh">等量对照，无链结构</span></td><td class="n">56.1 ± 8.5</td><td><span data-lang="en" class="on">C−A = +1.0 ± 10.1 → curriculum gain not detected</span><span data-lang="zh">C−A = +1.0 ± 10.1 → 课程增益未检出</span></td></tr>
+      <tr><td class="mono">F</td><td><span data-lang="en" class="on">Freeze → save → thaw</span><span data-lang="zh">冻结→保存→解冻</span></td><td class="n">57.1</td><td>F = C, <span data-lang="en" class="on">bit-exact state recovery</span><span data-lang="zh">状态逐字恢复</span></td></tr>
+      <tr><td class="mono">G</td><td><span data-lang="en" class="on">All connections cleared, storage untouched</span><span data-lang="zh">清全部连接，存储不动</span></td><td class="n">45.5 ± 8.5</td><td><b>L = C−G = +11.6 ± 8.5 pp</b></td></tr>
+      <tr><td class="mono">Hnull</td><td><span data-lang="en" class="on">Degree-preserving shuffle null</span><span data-lang="zh">保密度重排零假设</span></td><td class="n">66.1</td><td><span data-lang="en" class="on">C at 7th percentile → topology specificity not established</span><span data-lang="zh">C 位于第 7 分位 → 拓扑特异性未成立</span></td></tr>
+      <tr><td class="mono">I</td><td><span data-lang="en" class="on">Stored bytes cleared, connections kept</span><span data-lang="zh">清存储字节，保留连接</span></td><td class="n">57.1</td><td>I = C, <span data-lang="en" class="on">answers ride on structure, not retrieval</span><span data-lang="zh">答案在结构上，不靠检索</span></td></tr>
+    </table>
+
+    <p><span data-lang="en" class="on"><b>Distance grading.</b> Accuracy decays with chain distance; the 4–5 hop band is the current deficit (bundled nerves route through bundle representatives, lengthening effective paths).</span><span data-lang="zh"><b>距离分层。</b>正确率随链距离衰减；4–5 跳带是当前欠账（集束神经经束代表路由，有效路径变长）。</span></p>
+    <div class="bars">
+      <div class="bar-row"><span>d1 · C</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="bar-val">100.0</span></div>
+      <div class="bar-row"><span>d2–3 · C</span><div class="track"><div class="fill" style="width:39.7%"></div></div><span class="bar-val">39.7</span></div>
+      <div class="bar-row"><span>d4–5 · C</span><div class="track"><div class="fill" style="width:28.9%"></div></div><span class="bar-val">28.9</span></div>
+      <div class="bar-row"><span>d4–5 · A</span><div class="track"><div class="fill a" style="width:27.8%"></div></div><span class="bar-val">27.8</span></div>
+    </div>
+    <p class="small"><b>Figure 2.</b> <span data-lang="en" class="on">Distance-graded true-question accuracy, cultivated (C) vs. matched control (A). Cross-chain false questions are rejected at 77.8% (C) vs. 76.7% (A). Exposure learning curve across cultivation thirds: 58.8 → 62.4 → 57.1 (flat; no contact-volume effect claimed at this scale).</span><span data-lang="zh">距离分层真题正确率，培养体（C）对等量对照（A）。跨链假题拒绝率 C 77.8% 对 A 76.7%。培养三阶段接触量学习曲线：58.8 → 62.4 → 57.1（平；此规模下不声称接触量效应）。</span></p>
+
+    <h3>3.2 <span data-lang="en" class="on">Industry-style battery</span><span data-lang="zh">行业式电池</span></h3>
+    <p><span data-lang="en" class="on">Self-generated task analogues in the style of SCAN / CLUTRR / CL-bench (not official dataset scores), 5 seeds. Storage channel is 100% throughout and is not the object of study; network channel shown.</span><span data-lang="zh">SCAN / CLUTRR / CL-bench 风格的自生成 analogue 任务（非官方数据集分数），5 种子。存储通道全程 100%，非研究对象；下示网络通道。</span></p>
+    <table>
+      <caption><b>Table 3.</b> <span data-lang="en" class="on">Battery network-channel results (%, 5 seeds).</span><span data-lang="zh">电池网络通道结果（%，5 种子）。</span></caption>
+      <tr><th>Task</th><th><span data-lang="en" class="on">Measures</span><span data-lang="zh">测什么</span></th><th class="n"><span data-lang="en" class="on">Score</span><span data-lang="zh">分数</span></th></tr>
+      <tr><td class="mono">T1</td><td><span data-lang="en" class="on">Fed relations entering self-formed topology</span><span data-lang="zh">喂入关系进入自发拓扑</span></td><td class="n">67.6 ± 0.8</td></tr>
+      <tr><td class="mono">T2</td><td><span data-lang="en" class="on">Length generalisation, 4–5 hop (short / long training)</span><span data-lang="zh">长度泛化，4–5 跳（短训/长训）</span></td><td class="n">91.7 / 91.1</td></tr>
+      <tr><td class="mono">T3</td><td><span data-lang="en" class="on">Genealogy multi-hop, 2-hop (grandparent)</span><span data-lang="zh">家谱多跳，2 跳（祖辈）</span></td><td class="n">87.0 ± 4.0</td></tr>
+      <tr><td class="mono">T4</td><td><span data-lang="en" class="on">Continual learning, backward transfer</span><span data-lang="zh">持续学习，后向迁移</span></td><td class="n">−0.7 pp</td></tr>
+    </table>
+
+    <h3>3.3 <span data-lang="en" class="on">Full-flow programme at 50 rounds</span><span data-lang="zh">50 轮全流程程式</span></h3>
+    <p><span data-lang="en" class="on">One body, one programme: eight material types (multilingual text, code, image, audio, MIDI, binary, poetry, scientific text) at 32 KB per round for 50 rounds, seed 7, ≈2.7 min on the reference machine. Final state <b>9,180 tiles / 9,281 cells / 123,261 nerves / 31,030 stored fragments</b>; population grows linearly (≈+180/round) without instability; the Fate equation drifts observably (0.867x² − 2.017x + 0.861 → 0.716x² − 1.891x + 0.670). Library tests 7/4/8/3 (fate/stem/tile/blackhole) and the six-package check suite pass.</span><span data-lang="zh">一体一程式：八种料（多语文本、代码、图像、声音、MIDI、二进制、诗歌、科学文本）每轮 32KB、50 轮、种子 7，参考机约 2.7 分钟。终局 <b>9,180 tiles / 9,281 cells / 123,261 神经 / 31,030 存储段</b>；种群线性增长（约 +180/轮）无失稳；Fate 方程可观测漂移（0.867x² − 2.017x + 0.861 → 0.716x² − 1.891x + 0.670）。库测 7/4/8/3（fate/stem/tile/blackhole）与六件检查包全过。</span></p>
+  </section>
+
+  <!-- ══════════ 4 EVIDENCE ══════════ -->
+  <section id="evidence">
+    <h2 class="serif"><span class="no">4</span><span data-lang="en" class="on">Evidence classification</span><span data-lang="zh">证据分级</span></h2>
+    <p><span data-lang="en" class="on">Every result in this document, priced by its evidence, following a complete re-run on current code (3 November 2026).</span><span data-lang="zh">本文件每项结果按其证据定价，依据现行代码的完整复跑（2026 年 11 月 3 日）。</span></p>
+    <table>
+      <tr><th style="width:12%">Class</th><th><span data-lang="en" class="on">Contents</span><span data-lang="zh">内容</span></th></tr>
+      <tr><td class="cls clsA">A</td><td><span data-lang="en" class="on"><b>Reproduced under current code.</b> Structure causally carries withheld answers (+11.6 ± 8.5 pp, 13/15); bit-exact freeze/thaw (F = C); exact ×8 storage accounting; BWT −0.7 pp; 50-round end-to-end pipeline, deterministic across seeds.</span><span data-lang="zh"><b>现行代码下复现。</b>结构因果承载留出答案（+11.6 ± 8.5pp，13/15）；冻结/解冻逐字（F = C）；×8 存储精确记账；BWT −0.7pp；50 轮端到端管道，跨种子确定性。</span></td></tr>
+      <tr><td class="cls clsB">B</td><td><span data-lang="en" class="on"><b>Reproduced, protocol-bounded.</b> Industry battery (self-generated analogues, not official datasets). Python Tier-A line — a separate product line — within named protocols on small slices (U1–U4; U3 +38.7 pp; TPI 0.755; holdout n=3). Organisation census: a network forms; optimality not shown.</span><span data-lang="zh"><b>已复现，协议有界。</b>行业电池（自生成 analogue，非官方数据集）。Python Tier A 线——独立产品线——在命名协议小切片内成立（U1–U4；U3 +38.7pp；TPI 0.755；holdout n=3）。组织普查：网络形成；最优性未证。</span></td></tr>
+      <tr><td class="cls clsC">C</td><td><span data-lang="en" class="on"><b>Not established.</b> Listed in §5. Class-C items appear in no quantitative claim on this page.</span><span data-lang="zh"><b>未成立。</b>列于 §5。本页任何定量声称不含 C 级项。</span></td></tr>
+    </table>
+  </section>
+
+  <!-- ══════════ 5 NEGATIVE ══════════ -->
+  <section id="negative">
+    <h2 class="serif"><span class="no">5</span><span data-lang="en" class="on">Negative results &amp; limitations</span><span data-lang="zh">阴性结果与局限</span></h2>
+    <div class="note">
+      <b class="t"><span data-lang="en" class="on">Reported as results</span><span data-lang="zh">作为结果报告</span></b>
+      <ol style="margin-bottom:0">
+        <li><span data-lang="en" class="on"><b>No directed-curriculum gain</b> at two scales (C−A = +1.0 ± 10.1 pp, 15 seeds, three scoring instruments). Lesson order does not measurably matter; contact volume is what the body uses.</span><span data-lang="zh"><b>定向课程增益未检出</b>（两规模；C−A = +1.0 ± 10.1pp，15 种子，三种评分仪器）。课序无可测影响；身体用的是接触量。</span></li>
+        <li><span data-lang="en" class="on"><b>No topology specificity</b>: cultivated bodies sit at the 7th percentile of a degree-preserving shuffle null on path measures. The network forms; that it is <em>better than random at equal degree</em> is not shown.</span><span data-lang="zh"><b>拓扑特异性未成立</b>：路径度量上培养体位于保密度重排零假设的第 7 分位。网络形成；其在等度下<i>优于随机</i>未证。</span></li>
+        <li><span data-lang="en" class="on"><b>Long-range composition deficit</b>: 4–5 hop accuracy 28.9% under bundled nerves, below the earlier unbundled configuration. The recovery path (within-bundle linking) is undecided.</span><span data-lang="zh"><b>长程组合欠账</b>：集束神经下 4–5 跳 28.9%，低于早期未集束配置。恢复路径（束内连法）未裁定。</span></li>
+        <li><span data-lang="en" class="on"><b>No paraphrase-level answering</b>: the read-only interface returns stored originals verbatim; multi-hop chaining over them is performed by the caller.</span><span data-lang="zh"><b>无释义级答题</b>：只读接口逐字返回存储原文；其上的多跳串联由调用方完成。</span></li>
+        <li><span data-lang="en" class="on"><b>Entity-level death is not population control</b>: storage-level quad death runs autonomously; vitality-based entity death is wired but weakly binding against split-driven growth.</span><span data-lang="zh"><b>实体级死亡非种群控制</b>：存储层四元死亡自主运行；活力实体判死已接线，但对分裂驱动的增长约束力有限。</span></li>
+        <li><span data-lang="en" class="on"><b>Scale wall, stated</b>: the field step builds dense n×n matrices each cycle. Graph cost is solved (bundling); field computation awaits a blocked/streaming implementation.</span><span data-lang="zh"><b>规模墙，明示</b>：场步每周期构建稠密 n×n 矩阵。图成本已由集束解决；场计算待分块/流式实现。</span></li>
+        <li><span data-lang="en" class="on"><b>Scope</b>: the symbolic multi-hop task is not evidence of general intelligence. No official-benchmark superiority is claimed anywhere on this page.</span><span data-lang="zh"><b>范围</b>：符号多跳任务非通用智能证据。本页任何处不声称官方基准优越性。</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ══════════ 6 REPRODUCE ══════════ -->
+  <section id="reproduce">
+    <h2 class="serif"><span class="no">6</span><span data-lang="en" class="on">Reproducibility</span><span data-lang="zh">可复现性</span></h2>
+    <p><span data-lang="en" class="on">Every number above is generated by the <b>one-click reproduction package</b> in this repository (<span class="mono">reproduce/</span>): one command builds the suite, runs library tests, the check packages, the battery, the 15-seed incubation proof and the 50-round full flow, then verifies the headline readings against <span class="mono">expected_results.txt</span>. Any step failing, or any reading mismatching, exits non-zero and names the item. Nothing is retried and no criterion is adjusted after the fact.</span><span data-lang="zh">上面每个数字都由本仓库的一键复现包（<span class="mono">reproduce/</span>）生成：一条命令构建全套、跑库测、检查包、电池、15 种子孵化证明与 50 轮全流程，并逐项核对 <span class="mono">expected_results.txt</span> 的头版读数。任何一步失败或读数不符，非零退出并指明项。不重试、不事后改判据。</span></p>
+
+<pre><code># Windows (validated platform), full suite, ~8-12 min including build
+git clone https://github.com/Rogue-Intelligence-INC/Valhalla
+cd Valhalla
+.\reproduce\reproduce.ps1            # full
+.\reproduce\reproduce.ps1 -Quick     # smoke: lib tests + check + battery
+
+# Linux / macOS (best effort; CUDA build unvalidated off Windows)
+bash reproduce/reproduce.sh</code></pre>
+
+    <table>
+      <caption><b>Table 4.</b> <span data-lang="en" class="on">What the package runs, and the readings it verifies (baseline <span class="mono">e1ff0b3</span>).</span><span data-lang="zh">复现包跑什么、核对哪些读数（基线 e1ff0b3）。</span></caption>
+      <tr><th style="width:18%">Step</th><th style="width:34%">Programme</th><th><span data-lang="en" class="on">Expected reading</span><span data-lang="zh">预期读数</span></th></tr>
+      <tr><td class="mono">L0</td><td><span data-lang="en" class="on">Library tests (fate / stem / tile / blackhole)</span><span data-lang="zh">库测（fate / stem / tile / blackhole）</span></td><td class="n">7 / 4 / 8 / 3 pass</td></tr>
+      <tr><td class="mono">L1</td><td><span data-lang="en" class="on">Check suite, six packages</span><span data-lang="zh">检查包，六件</span></td><td class="n">ALL PASS</td></tr>
+      <tr><td class="mono">L2</td><td><span data-lang="en" class="on">Industry battery, seeds 1–5</span><span data-lang="zh">行业电池，种子 1–5</span></td><td class="n">67.6 · 91.7/91.1 · 87.0 · BWT −0.7pp</td></tr>
+      <tr><td class="mono">L2</td><td><span data-lang="en" class="on">Incubation proof, seeds 1–15</span><span data-lang="zh">孵化证明，种子 1–15</span></td><td class="n">C 57.1 · L +11.6 ± 8.5 · false 77.8</td></tr>
+      <tr><td class="mono">L3</td><td><span data-lang="en" class="on">Full flow, ext materials 32 KB × 50 rounds, seed 7</span><span data-lang="zh">全流程，ext 八料 32KB × 50 轮，种子 7</span></td><td class="n">9,180 / 9,281 / 31,030</td></tr>
+    </table>
+    <p class="small"><span data-lang="en" class="on">Prerequisites: Rust stable; NVIDIA CUDA toolchain (the f64 line builds with <span class="mono">native_cuda</span>). Deterministic on the reference machine (same seeds, same material, bit-exact body fingerprints). Full instructions, platform caveats and the “what these numbers do not prove” note: <a href="https://github.com/Rogue-Intelligence-INC/Valhalla/blob/main/reproduce/README.md">reproduce/README.md</a>. Run-by-run log: <a href="https://github.com/Rogue-Intelligence-INC/Valhalla/blob/main/docs/valhalla/TEST_RUNS_20261101.md">TEST_RUNS</a> · claim-by-claim map: <a href="https://github.com/Rogue-Intelligence-INC/Valhalla/blob/main/docs/valhalla/EVIDENCE_MAP_20261101.md">EVIDENCE_MAP</a> · session account: <a href="https://github.com/Rogue-Intelligence-INC/Valhalla/blob/main/docs/valhalla/WORK_SUMMARY_20261103.md">WORK_SUMMARY 2026-11-03</a>.</span><span data-lang="zh">前置：Rust stable；NVIDIA CUDA 工具链（f64 线以 native_cuda 构建）。参考机上确定性复现（同种子同料，身体指纹逐字）。完整说明、平台 caveat 与“这些数字不证明什么”：reproduce/README.md。逐跑记录：TEST_RUNS · 逐声称地图：EVIDENCE_MAP · 本轮账目：WORK_SUMMARY 2026-11-03（链接见英文段）。</span></p>
+  </section>
+
+  <!-- ══════════ 7 POSITIONING / CITATION ══════════ -->
+  <section id="cite">
+    <h2 class="serif"><span class="no">7</span><span data-lang="en" class="on">Positioning &amp; citation</span><span data-lang="zh">定位与引用</span></h2>
+    <p><span data-lang="en" class="on">Near-term, Valhalla is a persistent, auditable structural memory and adaptive agent-state substrate: state that can be frozen, transported, diffed and re-run bit-exactly. The longer-term research objective is native capability formation in the structure itself. The programme is funded against pre-registered technical milestones; each Class-B item above is a candidate either for promotion to Class A or for withdrawal.</span><span data-lang="zh">近期，Valhalla 是持久、可审计的结构记忆与自适应智能体状态基底：状态可冻结、运输、比对并逐字复跑。长期研究目标是结构本身的原生能力形成。本项目按预注册技术里程碑融资；上述每个 B 级项都是晋升 A 级或撤下的候选。</span></p>
+<pre><code>@software{valhalla2026,
+  title  = {Valhalla: Signal-Governed Structural Intelligence},
+  author = {{Rogue Intelligence Inc.}},
+  year   = {2026}, version = {e1ff0b3},
+  url    = {https://github.com/Rogue-Intelligence-INC/Valhalla}
+}</code></pre>
+  </section>
+
+  <footer>
+    <div class="foot-in" style="padding:0">
+      <span>© 2026 Rogue Intelligence Inc. · <span data-lang="en" class="on">Research page v2 — supersedes the October 2026 project-overview page; retired figures are not carried over.</span><span data-lang="zh">研究页 v2——取代 2026 年 10 月项目总览页；退役数字不带入。</span></span>
+      <span><a href="https://github.com/Rogue-Intelligence-INC/Valhalla">GitHub</a> · <a href="https://github.com/Rogue-Intelligence-INC/valhalla-incubation-evidence">Evidence</a> · <a href="#reproduce"><span data-lang="en" class="on">Reproduce</span><span data-lang="zh">复现</span></a></span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  function setLang(lang){
+    document.querySelectorAll('[data-lang]').forEach(el=>el.classList.toggle('on', el.dataset.lang===lang));
+    document.getElementById('btn-en').classList.toggle('active', lang==='en');
+    document.getElementById('btn-zh').classList.toggle('active', lang==='zh');
+    document.documentElement.lang = lang==='zh' ? 'zh-CN' : 'en';
+    try{ localStorage.setItem('valhalla-lang', lang); }catch(e){}
+  }
+  try{
+    const saved = localStorage.getItem('valhalla-lang');
+    if(saved==='zh') setLang('zh');
+  }catch(e){}
+</script>
 </body>
 </html>
