@@ -1297,7 +1297,7 @@ impl StemCellComplete {
         // 判定，无写死数；零距离比率记 1（同位者先成团）。
         // 强度式保留，分母只留 ε 级数值防护。
         let ids: Vec<String> = self.cells.iter().map(|cell| cell.cell_id.clone()).collect();
-        let fields: Vec<f64> = self.cells.iter().map(|cell| cell.field_strength).collect();
+        let energies: Vec<f64> = self.cells.iter().map(|cell| cell.energy).collect();
         for i in 0..n {
             let mut dists: Vec<(usize, f64)> = (0..n)
                 .filter(|&j| j != i)
@@ -1326,29 +1326,34 @@ impl StemCellComplete {
             // 集束（Fate 功能，用户定向）：邻居按距离升序，
             // 与束首距离拟合者（Fate 原二元一次方程收敛
             // 规则，见 ClusterEquation::bundle_fits）同束，
-            // 每束只写一条神经——目标为束首成员，强度为
-            // 束内各股之和。指向同团的平行束不再逐股
-            // 存储、计数与遍历。
+            // 每束只写一条神经。优先级不用束的股强度，
+            // 用所连区块的能量（用户裁定）：目标取束内
+            // 能量最高的成员，神经强度记整束能量之和。
+            // 指向同团的平行束不再逐股存储、计数与遍历。
             let mut new_connections: Vec<(String, f64)> = Vec::new();
-            let mut bundle_head: Option<(String, f64, f64)> = None;
+            // 束状态：(束首距离, 最高能量成员, 其能量, 整束能量和)
+            let mut bundle: Option<(f64, usize, f64, f64)> = None;
             for &(j, dist) in dists.iter().take(cut) {
-                let strength = (1.0 / (dist + 1e-9)) * (fields[i] * fields[j]).sqrt();
-                match &mut bundle_head {
-                    Some((_, head_dist, sum))
+                match &mut bundle {
+                    Some((head_dist, best_j, best_e, block_e))
                         if self.triple_fate.cluster_equation.bundle_fits(dist, *head_dist) =>
                     {
-                        *sum += strength;
+                        *block_e += energies[j];
+                        if energies[j] > *best_e {
+                            *best_e = energies[j];
+                            *best_j = j;
+                        }
                     }
                     _ => {
-                        if let Some((id, _, sum)) = bundle_head.take() {
-                            new_connections.push((id, sum));
+                        if let Some((_, best_j, _, block_e)) = bundle.take() {
+                            new_connections.push((ids[best_j].clone(), block_e));
                         }
-                        bundle_head = Some((ids[j].clone(), dist, strength));
+                        bundle = Some((dist, j, energies[j], energies[j]));
                     }
                 }
             }
-            if let Some((id, _, sum)) = bundle_head.take() {
-                new_connections.push((id, sum));
+            if let Some((_, best_j, _, block_e)) = bundle.take() {
+                new_connections.push((ids[best_j].clone(), block_e));
             }
             new_connections.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
             self.cells[i].connections = new_connections;
