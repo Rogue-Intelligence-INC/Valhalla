@@ -72,11 +72,11 @@ Valhalla:    Deploy → Observe → Evolve → Better → Evolve → Better...
 | Requires retraining | ✅ | ❌ |
 | Adapts to new domains | Manual | Without weight updates (structure-level adaptation) |
 
-**Measured Results (2026-11-01; 5-seed structural battery + causal ablation, self-generated analogues — not official benchmark scores)**:
-- Storage channel: 100% retrieval on every task; **zero forgetting** after learning a second task (backward transfer +0.0pp)
-- Structure causality: ablating learned structure costs **26.4 ± 1.2pp** on withheld multi-hop questions; clearing stored bytes costs 0 — answers ride on structure, not stored text
-- Whole-body save/restore reproduces answers exactly (F = C); self-adapting Fate equation verified live after repair (`0.9814x² − 2.0037x + 0.9984`)
-- Stated openly: reverse/sibling "silence" subsets score ~16–26%; incubation gain over untrained control not yet established (+8.8 ± 11.4pp)
+**Measured Results (2026-11-03; 15-seed incubation + 5-seed battery + 50-round pipeline, self-generated analogues — not official benchmark scores)**:
+- Structure causality: ablating learned connections costs **11.6 ± 8.5pp** on withheld multi-hop questions (13/15 seeds positive; intact score 57.1%); clearing stored bytes costs 0 — answers ride on structure, not stored text
+- Continual learning: backward transfer **−0.7pp** after learning a second task (forgetting near-eliminated); storage channel 100% retrieval
+- Scale: 50-round live programme to 9,180 tiles / 9,281 cells; Fate equation self-adapts only on judged material (live drift `0.7155x² − 1.8912x + 0.6700`); whole-body save/restore reproduces answers exactly (F = C)
+- Stated openly: long-range (4–5 hop) composition is the current deficit (28.9%); topology specificity not established; earlier hard-coded-era figures (C 72.2%, L +26.8pp) are retired, not current
 
 ---
 
@@ -142,9 +142,10 @@ Valhalla:    Deploy → Observe → Evolve → Better → Evolve → Better...
 - Both Rational (exact) and f64 (fast) versions
 - Integrated with S-wind for scientific discovery
 - Integrated with Val-OS for system-level AI
-- 2026-11: algebraized Fate equation layer — self-adapting quadratic acceptance criterion (normalized-gradient adapt, saturation defect found and fixed)
-- 2026-11: whole-body feeding enforced — every input passes the four-quad storage (163,840 stored fragments verified on a 160MB corpus run: 20,127 tiles / 20,239 cells)
-- Known scale wall, stated not hidden: the field step is O(n²); training beyond ~160MB awaits a blocked/streaming field implementation
+- 2026-11: algebraized Fate equation layer — self-adapting quadratic acceptance criterion, adapted only on material Fate itself has judged
+- 2026-11: whole-body feeding enforced — every input passes the four-quad storage; 50-round run to 9,180 tiles / 9,281 cells verified end-to-end (three egress channels scored separately, all green)
+- 2026-11: link cost solved by Fate bundling of parallel connection strands into single nerves (−99.8% links; 15-seed scoring from >1 h to ≈1 min)
+- Known scale wall, stated not hidden: the field step is O(n²); larger-scale training awaits a blocked/streaming field implementation
 
 ---
 
