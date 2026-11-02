@@ -1583,6 +1583,29 @@ impl TripleFateCombined {
     pub fn get_equation(&self) -> String {
         self.cluster_equation.equation_str()
     }
+
+    /// 高能逃逸·图层（Fate 功能）：场内相对距离远（不
+    /// 在邻居集内）且信号强（场强高于全场平均）的候选
+    /// 中，取场强最高者为逃逸神经目标。与四元黑洞的
+    /// 存储层逃逸（视界吞没豁免）分属两层、各行其是。
+    /// fields 为全体场强，excluded 为已在邻居集内
+    /// （含自身）的掩码。
+    pub fn escape_target(&self, fields: &[f64], excluded: &[bool]) -> Option<usize> {
+        if fields.is_empty() {
+            return None;
+        }
+        let mean = fields.iter().sum::<f64>() / fields.len() as f64;
+        let mut best: Option<usize> = None;
+        for (j, f) in fields.iter().enumerate() {
+            if excluded.get(j).copied().unwrap_or(false) || *f <= mean {
+                continue;
+            }
+            if best.map_or(true, |b| *f > fields[b]) {
+                best = Some(j);
+            }
+        }
+        best
+    }
     
     /// 检查是否收敛（被动模式）
     /// 纯代数判断：效率稳定（方差趋近于零）
