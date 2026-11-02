@@ -1055,6 +1055,125 @@ fn e2_seed(seed: u64) -> (f64, f64, f64, f64, usize) {
     (m1, m2, mc, gt1 as f64 / nq as f64, noresp)
 }
 
+// ═══════════ XMOD 跨模态链回答（VH_XMOD=1；判据见 XMOD_PREREG_20261102，跑前已提交） ═══════════
+// 链节点是四模态真实字节片（文/码/图/声各 40B），相邻关系多
+// 为跨模态；看自形成结构能否承重多跳可达。三臂：C 链、
+// A 随机配对（同令牌同条数）、G=C 拆结构。计分映射只作标注。
+
+fn xmod_corpora() -> [Vec<u8>; 4] {
+    let rd = |p: &str| std::fs::read(p).unwrap_or_default();
+    let mut img = Vec::new();
+    if let Ok(rdimg) = std::fs::read_dir(r"C:\Windows\Web\Wallpaper\Windows") {
+        let mut ps: Vec<std::path::PathBuf> = rdimg.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|x| x.to_str()) == Some("jpg")).collect();
+        ps.sort();
+        if let Some(p) = ps.first() { img = std::fs::read(p).unwrap_or_default(); }
+    }
+    [
+        rd(r"C:\Ai\rogue-products\valhalla-self-incubate\corpus_diverse\zh_honglou_24264.txt"),
+        rd(r"C:\Ai\rogue-products\Valhalla\manifestsys\stem-cell\src\stemcell_complete.rs"),
+        img,
+        rd(r"C:\Windows\Media\Alarm01.wav"),
+    ]
+}
+
+fn xmod_seed(seed: u64) -> (f64, f64, f64, f64) {
+    let corpora = xmod_corpora();
+    let mut rng = Rng(0xC40D_0000 + seed * 104729);
+    // 48 链 × 6 令牌；位置模态按 文→图→声→码 循环、相位随链移
+    let mut chains: Vec<Vec<usize>> = Vec::new();
+    let mut token_patch: Vec<Vec<u8>> = Vec::new();
+    for c in 0..48usize {
+        let mut chain = Vec::new();
+        for k in 0..6usize {
+            let m = (k + c) % 4;
+            let corp = &corpora[m];
+            let off = if corp.len() > 64 { rng.below(corp.len() - 64) } else { 0 };
+            let patch: Vec<u8> = corp.iter().skip(off).take(40).cloned().collect();
+            token_patch.push(patch);
+            chain.push(token_patch.len() - 1);
+        }
+        chains.push(chain);
+    }
+    let item_of = |a: usize, b: usize, token_patch: &Vec<Vec<u8>>| -> Vec<u8> {
+        let mut v = token_patch[a].clone();
+        v.push(b'>');
+        v.extend_from_slice(&token_patch[b]);
+        v
+    };
+    let c_pairs: Vec<(usize, usize)> = chains.iter()
+        .flat_map(|ch| ch.windows(2).map(|w| (w[0], w[1])).collect::<Vec<_>>()).collect();
+    let build = |pairs: &Vec<(usize, usize)>, rng: &mut Rng,
+                 token_patch: &Vec<Vec<u8>>| -> (Body, SymNodes, SymNodes) {
+        let mut body = Body::new();
+        let mut mt: SymNodes = SymNodes::new();
+        let mut ms: SymNodes = SymNodes::new();
+        for _ in 0..6 {
+            let mut order: Vec<usize> = (0..pairs.len()).collect();
+            for i in (1..order.len()).rev() { let j = rng.below(i + 1); order.swap(i, j); }
+            for &pi in &order {
+                let (a, b) = pairs[pi];
+                let (tiles, cells) = body.feed_tracked(&item_of(a, b, token_patch));
+                for t in [a, b] {
+                    mt.entry(format!("t{t}")).or_default().extend(tiles.iter().cloned());
+                    ms.entry(format!("t{t}")).or_default().extend(cells.iter().cloned());
+                }
+            }
+            body.cycle();
+            body.cycle();
+        }
+        (body, mt, ms)
+    };
+    let (body_c, ct, cs) = build(&c_pairs, &mut rng, &token_patch);
+    // A：同令牌随机配对、同条数
+    let ntok = token_patch.len();
+    let mut a_pairs: Vec<(usize, usize)> = Vec::new();
+    while a_pairs.len() < c_pairs.len() {
+        let a = rng.below(ntok);
+        let b = rng.below(ntok);
+        if a != b { a_pairs.push((a, b)); }
+    }
+    let (body_a, at, as_) = build(&a_pairs, &mut rng, &token_patch);
+    // G：C 存档恢复后拆结构
+    let dir = std::env::temp_dir().join(format!("valhalla_xmod_seed{seed}"));
+    body_c.save_full(&dir).expect("XMOD 存档失败");
+    let mut body_g = Body::load_full(&dir).expect("XMOD 恢复失败");
+    body_g.ablate_structure();
+    // 题目：链内 dist 2..5 真题 + 跨链假题
+    let score = |body: &Body, mt: &SymNodes, ms: &SymNodes| -> (f64, f64) {
+        let adj_t = net_adj(body, false);
+        let adj_s = net_adj(body, true);
+        let empty: Vec<String> = Vec::new();
+        let (mut tt, mut tn, mut fw, mut fn_) = (0usize, 0usize, 0usize, 0usize);
+        for ch in &chains {
+            for i in 0..6 {
+                for d in 2..(6 - i) {
+                    tn += 1;
+                    let (a, b) = (format!("t{}", ch[i]), format!("t{}", ch[i + d]));
+                    if net_reachable(&adj_t, mt.get(&a).unwrap_or(&empty), mt.get(&b).unwrap_or(&empty), NET_BUDGET)
+                        || net_reachable(&adj_s, ms.get(&a).unwrap_or(&empty), ms.get(&b).unwrap_or(&empty), NET_BUDGET) {
+                        tt += 1;
+                    }
+                }
+            }
+        }
+        for (ci, ch) in chains.iter().enumerate() {
+            fn_ += 1;
+            let (a, b) = (format!("t{}", ch[0]), format!("t{}", chains[(ci + 7) % 48][3]));
+            if net_reachable(&adj_t, mt.get(&a).unwrap_or(&empty), mt.get(&b).unwrap_or(&empty), NET_BUDGET)
+                || net_reachable(&adj_s, ms.get(&a).unwrap_or(&empty), ms.get(&b).unwrap_or(&empty), NET_BUDGET) {
+                fw += 1;
+            }
+        }
+        (tt as f64 / tn.max(1) as f64 * 100.0, fw as f64 / fn_.max(1) as f64 * 100.0)
+    };
+    let (c_true, c_fake) = score(&body_c, &ct, &cs);
+    let (a_true, _af) = score(&body_a, &at, &as_);
+    let (g_true, _gf) = score(&body_g, &ct, &cs);
+    println!("seed {seed}: XMOD C真 {c_true:.1} A真 {a_true:.1} G真 {g_true:.1} | C假误答 {c_fake:.1}");
+    (c_true, a_true, g_true, c_fake)
+}
+
 fn main() {
     let seeds: Vec<u64> = std::env::var("VALHALLA_PROOF_SEEDS")
         .unwrap_or_else(|_| "1,2,3,4,5".to_string())
@@ -1110,6 +1229,20 @@ fn main() {
         println!("\n== E2 汇总（{} seeds） ==", rows.len());
         println!("F1 总均值 {g1:.2} F2 总均值 {g2:.2} 跨链对照总均值 {gc:.2} | 两问法同过（均值>1）种子 {both}/{}", rows.len());
         println!("判读（预先声明）：≥12/15 种子两问法均值同 >1 且两问法总均值都 ≥1.3 → E2 自定位成立；任一问法不过即该问法未检出，整体不过记 E2 未检出。");
+        return;
+    }
+    if std::env::var("VH_XMOD").is_ok() {
+        // XMOD 跨模态链回答；判据见 XMOD_PREREG_20261102（跑前已提交）。
+        let mut rows: Vec<(f64, f64, f64, f64)> = Vec::new();
+        for seed in &seeds {
+            rows.push(xmod_seed(*seed));
+        }
+        let n = rows.len() as f64;
+        let wins = rows.iter().filter(|r| r.0 > r.1 && r.0 > r.2).count();
+        let mm = |f: &dyn Fn(&(f64, f64, f64, f64)) -> f64| rows.iter().map(f).sum::<f64>() / n;
+        println!("\n== XMOD 汇总（{} seeds，真题可达%） ==", rows.len());
+        println!("C {:.1} A {:.1} G {:.1} | C假误答 {:.1} | C>A 且 C>G 种子 {wins}/{}", mm(&|r| r.0), mm(&|r| r.1), mm(&|r| r.2), mm(&|r| r.3), rows.len());
+        println!("判读（预先声明）：≥12/15 种子 C 同时 >A 且 >G → 跨模态链结构承重成立；不过记未检出，注明倒在哪臂。");
         return;
     }
     type Row = (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f64; 3], [f64; 3], f64, f64, f64, f64, f64, f64, f64);
