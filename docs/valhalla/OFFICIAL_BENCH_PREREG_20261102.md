@@ -30,8 +30,11 @@ tasks_1-20_v1-2（ParlAI 官方分发包）、CLUTRR EMNLP 论文
 
 ## 二、CLUTRR（k=2 子集，距离投影）
 
-- 文件：`1.2_test.csv` 前 200 行（Python csv 预处理为
-  TSV：story 句列、query 两名、proof 链长；脚本留档）。
+- 文件：`1.2_test.csv`（Python csv 预处理为 TSV：story
+  句列、query 两名、proof 链长；脚本留档）。**跑前修正
+  （2026-11-02，见数据后、打分前）**：1.2 实测仅 38 行，
+  故改用 1.2 全量 38 行 + 1.3 全量 105 行（链长 2/3 两
+  档），协议与通过线不变；本修正先于运行记录在此。
 - 喂入与 bAbI 同（story 字段逐句）。读数：查询两名单位
   间最短路 vs proof 真链长：报 (i) 真对 reach@5 率；
   (ii) |身体路长 − 真链长| 均值；(iii) 同读数在 G 臂
