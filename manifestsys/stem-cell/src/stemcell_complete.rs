@@ -320,6 +320,10 @@ pub struct StemCellComplete {
     pub baseforce: BaseForceCoordinator,
     /// 最近一次四元：黑洞、MeshBrain、MultiNova、BaseForce。
     pub last_channels: [f64; 4],
+    /// 四元入账事件累计（quad_keep 调用数）与上周期读数：
+    /// 两读数之差即本周期新进，用于死循环（只减不新进）判定。
+    pub quad_keep_events: u64,
+    pub quad_keep_events_at_cycle: u64,
     /// 上一拍物理场走的设备。gpu 与 cpu 用同一套力。
     pub field_device: &'static str,
 }
@@ -383,6 +387,8 @@ impl StemCellComplete {
             multinova: MultinovaProcessor::new(MultinovaConfig::default()),
             baseforce: BaseForceCoordinator::new(),
             last_channels: [0.0; 4],
+            quad_keep_events: 0,
+            quad_keep_events_at_cycle: 0,
             field_device: "cpu",
         }
     }
@@ -399,6 +405,7 @@ impl StemCellComplete {
     }
 
     pub fn quad_keep(&mut self, bytes: &[u8]) {
+        self.quad_keep_events += 1;
         let gravity = self.blackhole.keep(bytes);
         let mesh = self.meshbrain.keep(bytes);
         let nova = self.multinova.keep(bytes);
@@ -1000,15 +1007,20 @@ impl StemCellComplete {
             });
         }
         
-        // 四元内部先行维护：消亡数即死亡信号，经下方
-        // tick 送 Fate 检测（信号第 5 元）。
+        // 四元内部先行维护：消亡数与本周期新进（quad_keep
+        // 事件增量）决定死循环信号——内部资料只减不新进
+        // 即去活力，经下方 tick 送 Fate 检测（信号第 5 元，
+        // 非死循环时为 0）。
         let quad_dying = self.quad_reorganize();
+        let new_intake = self.quad_keep_events - self.quad_keep_events_at_cycle;
+        self.quad_keep_events_at_cycle = self.quad_keep_events;
+        let dead_loop = quad_dying > 0 && new_intake == 0;
 
         // 活力判死（用户裁定，替代原版低能量常数死亡）：
-        // 有四元消亡信号时才判；无法更新（出生后
+        // 死循环信号成立时才判；无法更新（出生后
         // signal_count 仍为 0 且已历 ≥1 周期）且无法
         // 激活（无任何连接）者死亡。
-        if quad_dying > 0 {
+        if dead_loop {
             let before = self.cells.len();
             self.cells.retain(|c| !(c.signal_count == 0 && c.age >= 1 && c.connections.is_empty()));
             deaths = before - self.cells.len();
@@ -1019,7 +1031,7 @@ impl StemCellComplete {
         self.total_merges += merges as u64;
 
         // 更新维度
-        let signal = vec![self.cells.len() as f64, avg_energy, divisions as f64, deaths as f64, quad_dying as f64];
+        let signal = vec![self.cells.len() as f64, avg_energy, divisions as f64, deaths as f64, if dead_loop { quad_dying as f64 } else { 0.0 }];
         self.space.adaptive_expand(&signal);
 
         // 本周期状态进 Fate 的多层 tick 供 Meta 观察

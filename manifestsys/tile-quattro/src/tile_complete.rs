@@ -253,6 +253,9 @@ pub struct TileQuattroComplete {
     pub baseforce: BaseForceCoordinator,
     /// 最近一次四元：黑洞、MeshBrain、MultiNova、BaseForce。
     pub last_channels: [f64; 4],
+    /// 四元入账事件累计与上周期读数（死循环判定用，同 Stem）。
+    pub quad_keep_events: u64,
+    pub quad_keep_events_at_cycle: u64,
 }
 
 /// 已完成的 Tile（神经元节点）
@@ -346,6 +349,8 @@ impl TileQuattroComplete {
             multinova: MultinovaProcessor::new(MultinovaConfig::default()),
             baseforce: BaseForceCoordinator::new(),
             last_channels: [0.0; 4],
+            quad_keep_events: 0,
+            quad_keep_events_at_cycle: 0,
         }
     }
 
@@ -361,6 +366,7 @@ impl TileQuattroComplete {
     }
 
     pub fn quad_keep(&mut self, bytes: &[u8]) {
+        self.quad_keep_events += 1;
         let gravity = self.blackhole.keep(bytes);
         let mesh = self.meshbrain.keep(bytes);
         let nova = self.multinova.keep(bytes);
@@ -880,15 +886,20 @@ impl TileQuattroComplete {
         // 4. 前向传播 - 信号沿连接传递
         let prop_result = self.propagate(avg_energy);
 
-        // 四元内部先行维护：消亡数即死亡信号，经下方
-        // tick 送 Fate 检测（信号第 5 元）。
+        // 四元内部先行维护：消亡数与本周期新进决定死
+        // 循环信号——内部资料只减不新进即去活力，经
+        // 下方 tick 送 Fate 检测（信号第 5 元，非死
+        // 循环时为 0）。
         let quad_dying = self.quad_reorganize();
+        let new_intake = self.quad_keep_events - self.quad_keep_events_at_cycle;
+        self.quad_keep_events_at_cycle = self.quad_keep_events;
+        let dead_loop = quad_dying > 0 && new_intake == 0;
 
-        // 活力判死（用户裁定，与 Stem 同规）：有四元
-        // 消亡信号时才判；无法更新（出生后 signal_count
+        // 活力判死（用户裁定，与 Stem 同规）：死循环
+        // 信号成立时才判；无法更新（出生后 signal_count
         // 仍为 0 且非本拍新生）且无法激活（本轮传播
         // 激活为 0）者死亡。
-        if quad_dying > 0 {
+        if dead_loop {
             let before = self.completed_tiles.len();
             let now = self.global_tick;
             self.completed_tiles.retain(|t| !(t.signal_count == 0 && now > t.created_tick && t.activation == 0.0));
@@ -904,7 +915,7 @@ impl TileQuattroComplete {
             avg_energy,
             splits as f64,
             deaths as f64,
-            quad_dying as f64,
+            if dead_loop { quad_dying as f64 } else { 0.0 },
         ];
         let _ = self.triple_fate.tick(Some(state_signal));
 
