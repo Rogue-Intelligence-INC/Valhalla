@@ -1174,6 +1174,172 @@ fn xmod_seed(seed: u64) -> (f64, f64, f64, f64) {
     (c_true, a_true, g_true, c_fake)
 }
 
+// ═══════════ 官方基准多选投影（VH_BABI / VH_CLUTRR；预注册 OFFICIAL_BENCH_PREREG_20261102） ═══════════
+// 通道只出排序信号（身体图最短路），真值用官方标注；一切
+// 报告称"官方数据的多选投影"，不称官方分数。
+
+fn fnv_hex(bytes: &[u8]) -> String {
+    let mut h: u64 = 0xcbf29ce484222325;
+    for b in bytes { h ^= *b as u64; h = h.wrapping_mul(0x100000001b3); }
+    format!("{h:016x}")
+}
+
+fn words_of(text: &str) -> Vec<String> {
+    text.split_whitespace()
+        .map(|w| w.trim_matches(|c: char| ".,?!;:\"'()[]".contains(c)).to_string())
+        .filter(|w| !w.is_empty())
+        .collect()
+}
+
+/// 故事逐句喂入（句为条目）+ 2 周期；词→出生单位映射只作标注。
+fn feed_story(body: &mut Body, sentences: &[String]) -> (SymNodes, SymNodes) {
+    let mut mt: SymNodes = SymNodes::new();
+    let mut ms: SymNodes = SymNodes::new();
+    for s in sentences {
+        let (tiles, cells) = body.feed_tracked(s.as_bytes());
+        for w in words_of(s) {
+            mt.entry(w.clone()).or_default().extend(tiles.iter().cloned());
+            ms.entry(w).or_default().extend(cells.iter().cloned());
+        }
+    }
+    body.cycle();
+    body.cycle();
+    (mt, ms)
+}
+
+fn pick_by_path(body: &Body, mt: &SymNodes, ms: &SymNodes, entity: &str, cands: &[String]) -> Option<String> {
+    let adj_t = net_adj(body, false);
+    let adj_s = net_adj(body, true);
+    let empty: Vec<String> = Vec::new();
+    let ft = mt.get(entity).unwrap_or(&empty);
+    let fs = ms.get(entity).unwrap_or(&empty);
+    if ft.is_empty() && fs.is_empty() { return None; }
+    let mut best: Option<(usize, &String)> = None;
+    for c in cands {
+        let d = shortest_path(&adj_t, &adj_s,
+            ft, mt.get(c).unwrap_or(&empty),
+            fs, ms.get(c).unwrap_or(&empty)).unwrap_or(999);
+        if best.map(|(bd, _)| d < bd).unwrap_or(true) { best = Some((d, c)); }
+    }
+    best.map(|(_, c)| c.clone())
+}
+
+struct BabiQ { context: Vec<String>, question: String, answer: String }
+
+fn parse_babi(path: &str, limit: usize) -> Vec<BabiQ> {
+    let text = std::fs::read_to_string(path).unwrap_or_default();
+    let mut out: Vec<BabiQ> = Vec::new();
+    let mut ctx: Vec<String> = Vec::new();
+    for line in text.lines() {
+        let (id, rest) = match line.split_once(' ') {
+            Some((i, r)) => (i.parse::<usize>().unwrap_or(0), r),
+            None => continue,
+        };
+        if id == 1 { ctx.clear(); }
+        if let Some((q, a)) = rest.split_once('\t') {
+            let ans = a.split('\t').next().unwrap_or("").trim().to_string();
+            out.push(BabiQ { context: ctx.clone(), question: q.trim().to_string(), answer: ans });
+            if out.len() >= limit { break; }
+        } else {
+            ctx.push(rest.trim().to_string());
+        }
+    }
+    out
+}
+
+fn babi_answers(path: &str) -> Vec<String> {
+    let text = std::fs::read_to_string(path).unwrap_or_default();
+    let mut set: Vec<String> = Vec::new();
+    for line in text.lines() {
+        if let Some((_, rest)) = line.split_once(' ') {
+            if let Some((_, a)) = rest.split_once('\t') {
+                let ans = a.split('\t').next().unwrap_or("").trim().to_string();
+                if !ans.is_empty() && !set.contains(&ans) { set.push(ans); }
+            }
+        }
+    }
+    set.sort();
+    set
+}
+
+fn babi_run() {
+    let base = r"C:\Ai\official_bench\babi\tasks_1-20_v1-2\en";
+    let tasks = [
+        ("qa1", "qa1_single-supporting-fact"),
+        ("qa2", "qa2_two-supporting-facts"),
+        ("qa3", "qa3_three-supporting-facts"),
+    ];
+    for (tag, stem) in tasks {
+        let test_path = format!(r"{base}\{stem}_test.txt");
+        let train_path = format!(r"{base}\{stem}_train.txt");
+        let raw = std::fs::read(&test_path).unwrap_or_default();
+        let cands = babi_answers(&train_path);
+        let qs = parse_babi(&test_path, 200);
+        let chance = if cands.is_empty() { 0.0 } else { 100.0 / cands.len() as f64 };
+        let (mut c_ok, mut g_ok, mut n) = (0usize, 0usize, 0usize);
+        for (qi, q) in qs.iter().enumerate() {
+            let mut body = Body::new();
+            let (mt, ms) = feed_story(&mut body, &q.context);
+            let entity = words_of(&q.question).last().cloned().unwrap_or_default();
+            let pick_c = pick_by_path(&body, &mt, &ms, &entity, &cands);
+            let mut rng_g = Rng(0xBEE5 + qi as u64 * 17);
+            body.shuffle_structure(&mut rng_g);
+            let pick_g = pick_by_path(&body, &mt, &ms, &entity, &cands);
+            n += 1;
+            if pick_c.as_deref() == Some(q.answer.as_str()) { c_ok += 1; }
+            if pick_g.as_deref() == Some(q.answer.as_str()) { g_ok += 1; }
+        }
+        let nf = n.max(1) as f64;
+        println!("[bAbI {tag}] n={n} 候选 {} chance {:.1}% | C {:.1}% G(重排) {:.1}% | 文件 fnv {}",
+            cands.len(), chance, c_ok as f64 / nf * 100.0, g_ok as f64 / nf * 100.0, fnv_hex(&raw));
+        println!("    判读（预先声明）：C > chance 且 C > G 才记该任务投影通过。");
+    }
+}
+
+fn clutrr_run() {
+    for (tag, path) in [
+        ("k2", r"C:\Ai\official_bench\clutrr_k2.tsv"),
+        ("k3", r"C:\Ai\official_bench\clutrr_k3.tsv"),
+    ] {
+        let text = std::fs::read_to_string(path).unwrap_or_default();
+        let (mut n, mut c_reach, mut g_reach, mut c_err, mut g_err) = (0usize, 0usize, 0usize, 0.0f64, 0.0f64);
+        for line in text.lines() {
+            let f: Vec<&str> = line.split('\t').collect();
+            if f.len() < 4 { continue; }
+            let sents: Vec<String> = f[0].split(". ").map(|s| s.trim().to_string()).filter(|s| !s.is_empty()).collect();
+            let (na, nb) = (f[1].to_string(), f[2].to_string());
+            let true_len: f64 = f[3].parse().unwrap_or(0.0);
+            let mut body = Body::new();
+            let (mt, ms) = feed_story(&mut body, &sents);
+            let measure = |body: &Body| -> (bool, f64) {
+                let adj_t = net_adj(body, false);
+                let adj_s = net_adj(body, true);
+                let empty: Vec<String> = Vec::new();
+                match shortest_path(&adj_t, &adj_s,
+                    mt.get(&na).unwrap_or(&empty), mt.get(&nb).unwrap_or(&empty),
+                    ms.get(&na).unwrap_or(&empty), ms.get(&nb).unwrap_or(&empty)) {
+                    // 不可达惩罚 12 与路径特异 v3.2 同规
+                    Some(d) => (d <= NET_BUDGET, (d as f64 - true_len).abs()),
+                    None => (false, (12.0 - true_len).abs()),
+                }
+            };
+            let (cr, ce) = measure(&body);
+            let mut rng_g = Rng(0xC107 + n as u64 * 31);
+            body.shuffle_structure(&mut rng_g);
+            let (gr, ge) = measure(&body);
+            n += 1;
+            if cr { c_reach += 1; }
+            if gr { g_reach += 1; }
+            c_err += ce;
+            g_err += ge;
+        }
+        let nf = n.max(1) as f64;
+        println!("[CLUTRR {tag}] n={n} | C reach@5 {:.1}% 路长误差 {:.2} | G reach@5 {:.1}% 路长误差 {:.2}",
+            c_reach as f64 / nf * 100.0, c_err / nf, g_reach as f64 / nf * 100.0, g_err / nf);
+        println!("    判读（预先声明）：C 路长误差 < G 且 C reach@5 > G 才记距离投影成立；关系标签分类未测。");
+    }
+}
+
 fn main() {
     let seeds: Vec<u64> = std::env::var("VALHALLA_PROOF_SEEDS")
         .unwrap_or_else(|_| "1,2,3,4,5".to_string())
@@ -1243,6 +1409,14 @@ fn main() {
         println!("\n== XMOD 汇总（{} seeds，真题可达%） ==", rows.len());
         println!("C {:.1} A {:.1} G {:.1} | C假误答 {:.1} | C>A 且 C>G 种子 {wins}/{}", mm(&|r| r.0), mm(&|r| r.1), mm(&|r| r.2), mm(&|r| r.3), rows.len());
         println!("判读（预先声明）：≥12/15 种子 C 同时 >A 且 >G → 跨模态链结构承重成立；不过记未检出，注明倒在哪臂。");
+        return;
+    }
+    if std::env::var("VH_BABI").is_ok() {
+        babi_run();
+        return;
+    }
+    if std::env::var("VH_CLUTRR").is_ok() {
+        clutrr_run();
         return;
     }
     type Row = (f64, f64, f64, f64, f64, f64, f64, f64, [f64; 3], [f64; 3], [f64; 3], f64, f64, f64, f64, f64, f64, f64);
