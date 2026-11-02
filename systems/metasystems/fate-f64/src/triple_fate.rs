@@ -727,7 +727,7 @@ pub struct ClusterEquation {
     pub ring: [f64; 10],
     pub ring_len: usize,
     
-    // ═══ 动态代数方程系数（由 Fate 涌现）═══
+    // ═══ 代数方程系数（出生定死，只判不改）═══
     /// 二次项系数 a（初始为 1.0，表示边际效应）
     pub coef_a: f64,
     /// 一次项系数 b（初始为 -2.0，表示趋势）
@@ -736,8 +736,6 @@ pub struct ClusterEquation {
     pub coef_c: f64,
     /// 判定阈值（收敛时 result 应接近此值）
     pub threshold: f64,
-    /// 方程适应次数（越多越稳定）
-    pub adaptation_count: u64,
     /// 被动收敛的连续成立计数（入口自由度修复 F1 配套；F1 已
     /// 回退、判定未用此字段，保留仅为记账，勿当机制）。
     #[serde(default)]
@@ -895,7 +893,6 @@ impl ClusterEquation {
             coef_b: -2.0,
             coef_c: 1.0,
             threshold: 0.01,  // 更严格：x 必须非常接近 1
-            adaptation_count: 0,
             passive_streak: 0,
         }
     }
@@ -927,55 +924,14 @@ impl ClusterEquation {
             1.0
         };
         
-        // 用动态方程判断
+        // 用动态方程判断（只判不改：系数出生定死，
+        // adapt 已按用户裁定删除）
         let result = self.evaluate(x);
-        
-        // 自适应调整方程系数
-        self.adapt(x, result);
-        
+
         self.last_variance = variance;
         
         // 方程结果接近 threshold 时触发
         result.abs() < self.threshold
-    }
-    
-    /// 自适应调整方程系数
-    /// 基于历史数据优化方程
-    fn adapt(&mut self, x: f64, result: f64) {
-        self.adaptation_count += 1;
-        
-        // 每 100 次适应一次系数
-        if self.adaptation_count % 100 != 0 {
-            return;
-        }
-        
-        // 学习率随适应次数递减（边际递减）
-        let lr = 0.01 / (1.0 + self.adaptation_count as f64 * 0.0001);
-        
-        // 如果 result 太大，说明方程不够敏感，调整系数
-        if result.abs() > self.threshold * 10.0 {
-            // 增加敏感度：减小 threshold
-            self.threshold = (self.threshold * 0.99).max(0.01);
-        } else if result.abs() < self.threshold * 0.1 {
-            // 太敏感，增大 threshold
-            self.threshold = (self.threshold * 1.01).min(1.0);
-        }
-        
-        // 根据 x 调整系数（归一化梯度下降）
-        // 目标：让 x ≈ 1 时 result ≈ 0（稳定）
-        // 步长除以梯度模长平方 x⁴+x²+1：不归一化时 x 偏离 1 越远步子越大，
-        // 系数几步就被推到 ±10 钳位且同号，方程对一切输入同号、永远判假（饱和死亡）。
-        // 归一化后每步只把当前 x 处的方程值按 (1-lr) 收缩，系数追得住典型比率。
-        let error = result;
-        let norm = x * x * x * x + x * x + 1.0;
-        self.coef_a -= lr * error * (x * x) / norm;
-        self.coef_b -= lr * error * x / norm;
-        self.coef_c -= lr * error / norm;
-        
-        // 限制系数范围
-        self.coef_a = self.coef_a.clamp(-10.0, 10.0);
-        self.coef_b = self.coef_b.clamp(-10.0, 10.0);
-        self.coef_c = self.coef_c.clamp(-10.0, 10.0);
     }
     
     /// 检查差异序列是否符合方程（用于 Tile 收敛判断）
@@ -993,8 +949,7 @@ impl ClusterEquation {
         };
         
         let result = self.evaluate(x);
-        self.adapt(x, result);
-        
+
         result.abs() < self.threshold
     }
     

@@ -918,7 +918,6 @@ impl StemCellComplete {
         self.generation_count += 1;
         let initial_count = self.cells.len();
         let mut divisions = 0usize;
-        let mut deaths = 0usize;
         
         // 1. Fate 从"上帝视角"看所有细胞（不逐个 tick）
         //    只需要整体统计信息
@@ -940,41 +939,33 @@ impl StemCellComplete {
         let mut new_cells_data: Vec<(f64, u32, Vec<f64>, Vec<u8>)> = Vec::new();
         
         // 去硬编码（2026-11-02 预注册）：能量流率改身体规模
-        // 归一 1/n；分裂/死亡删写死倍数（×1.5、×0.1、0.01）
-        // 与分裂条数上限——分裂改由簇方程判能量比率是否典
-        // 型，死亡改方程小根为界（见下）。
-        // 判定先于 retain 预算，避免借用冲突。死亡仍是残差
-        // 通道，小规模下不出现是正常现象，不人为追求。
-        // 死亡线（修死亡预注册）：不走 check_diffs 典型带
-        // （未适应期过窄致大批误杀），改簇方程小根为界，
-        // 与场中性点同一条代数；根在判定前冻结。
+        // 归一 1/n；分裂删写死倍数（×1.5、×0.1、0.01）与
+        // 分裂条数上限，改由簇方程判能量比率是否典型。
+        // 判定先于 retain 预算，避免借用冲突。
         let n_now = self.cells.len().max(1) as f64;
         for cell in &mut self.cells {
             cell.age += 1;
             let energy_diff = avg_energy - cell.energy;
             cell.energy += energy_diff / n_now;
         }
-        let death_root = self.equation_neutral();
-        let mut verdicts: Vec<(bool, bool)> = Vec::with_capacity(self.cells.len());
+        // 分裂由簇方程判典型性（方程系数出生定死、adapt
+        // 已删，只判不改）。死亡不在身体层裁决（用户
+        // 裁定）：死亡由四元内部 reorganize 与 Fate 内部
+        // 自理，本周期只报数（deaths 恒为身体层 0）。
+        let deaths = 0usize;
+        let mut verdicts: Vec<bool> = Vec::with_capacity(self.cells.len());
         for cell in &self.cells {
             let typical = self.triple_fate.cluster_equation.check_diffs(&[cell.energy, avg_energy]);
-            verdicts.push((
-                cell.energy > avg_energy && !typical,
-                cell.energy < avg_energy && cell.energy < avg_energy * death_root,
-            ));
+            verdicts.push(cell.energy > avg_energy && !typical);
         }
         let mut vi = 0usize;
         self.cells.retain_mut(|cell| {
-            let (split, die) = verdicts[vi];
+            let split = verdicts[vi];
             vi += 1;
             if split {
                 cell.energy *= 0.5;
                 // 继承父细胞的数据特征（身份）
                 new_cells_data.push((cell.energy, cell.generation, cell.data_signature.clone(), cell.content.clone()));
-            }
-            if die {
-                deaths += 1;
-                return false;
             }
             true
         });
@@ -1015,8 +1006,9 @@ impl StemCellComplete {
         let signal = vec![self.cells.len() as f64, avg_energy, divisions as f64, deaths as f64];
         self.space.adaptive_expand(&signal);
 
-        // 本周期状态（含死亡数）进 Fate 的多层 tick 供 Meta 观察
-        // （与 evolve 的信号同构）——Fate 观察死亡，不执行死亡。
+        // 本周期状态进 Fate 的多层 tick 供 Meta 观察
+        // （与 evolve 的信号同构）。死亡不在身体层执行：
+        // 四元内部 reorganize 与 Fate 内部自理。
         let _ = self.triple_fate.tick(Some(signal));
         
         // 四元按各自规则维护自家存储（用户定向新增，周期基础

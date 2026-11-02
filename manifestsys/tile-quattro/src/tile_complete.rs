@@ -796,34 +796,14 @@ impl TileQuattroComplete {
     
     /// 纯 Tile 周期处理（第2周期+使用）
     /// 使用边际递减合并，与 StemCell 同样逻辑
-    /// 簇方程的小根（无实根时取顶点横坐标）：与 Stem 同式，
-    /// 死亡线与场中性点共用同一条代数界。
-    fn equation_neutral(&self) -> f64 {
-        let eq = &self.triple_fate.cluster_equation;
-        let (a, b, c) = (eq.coef_a, eq.coef_b, eq.coef_c);
-        if a.abs() < 1e-12 {
-            if b.abs() < 1e-12 {
-                return 1.0;
-            }
-            return -c / b;
-        }
-        let disc = b * b - 4.0 * a * c;
-        if disc < 0.0 {
-            -b / (2.0 * a)
-        } else {
-            let sq = disc.sqrt();
-            let r1 = (-b - sq) / (2.0 * a);
-            let r2 = (-b + sq) / (2.0 * a);
-            r1.min(r2)
-        }
-    }
-
     pub fn process_tiles_cycle(&mut self) -> TileCycleResult {
         self.total_operations += 1;
         let initial_count = self.completed_tiles.len();
         let mut splits = 0usize;
         let mut merges = 0usize;
-        let mut deaths = 0usize;
+        // 死亡不在身体层裁决（用户裁定）：由四元内部与
+        // Fate 内部自理；本层 deaths 恒 0 只报数。
+        let deaths = 0usize;
         
         // 1. Fate 感知整体状态
         let total_energy: f64 = self.completed_tiles.iter().map(|t| t.energy).sum();
@@ -847,33 +827,25 @@ impl TileQuattroComplete {
         
         // 去硬编码（2026-11-02 预注册，与 Stem 同规）：能量流
         // 率改 1/n；分裂删写死倍数与上限、改由簇方程判能量
-        // 比率是否典型，死亡改方程小根为界。判定先于
-        // retain 预算。
+        // 比率是否典型（方程只判不改）。判定先于 retain
+        // 预算。死亡不在本层裁决（见上）。
         let n_now = self.completed_tiles.len().max(1) as f64;
         for tile in &mut self.completed_tiles {
             let energy_diff = avg_energy - tile.energy;
             tile.energy += energy_diff / n_now;
         }
-        let death_root = self.equation_neutral();
-        let mut verdicts: Vec<(bool, bool)> = Vec::with_capacity(self.completed_tiles.len());
+        let mut verdicts: Vec<bool> = Vec::with_capacity(self.completed_tiles.len());
         for tile in &self.completed_tiles {
             let typical = self.triple_fate.cluster_equation.check_diffs(&[tile.energy, avg_energy]);
-            verdicts.push((
-                tile.energy > avg_energy && !typical,
-                tile.energy < avg_energy && tile.energy < avg_energy * death_root,
-            ));
+            verdicts.push(tile.energy > avg_energy && !typical);
         }
         let mut vi = 0usize;
         self.completed_tiles.retain_mut(|tile| {
-            let (split, die) = verdicts[vi];
+            let split = verdicts[vi];
             vi += 1;
             if split {
                 tile.energy *= 0.5;
                 new_tiles_data.push((tile.energy, tile.data_signature.clone(), tile.connections.clone(), tile.content.clone()));
-            }
-            if die {
-                deaths += 1;
-                return false;
             }
             true
         });
@@ -907,9 +879,10 @@ impl TileQuattroComplete {
         // 4. 前向传播 - 信号沿连接传递
         let prop_result = self.propagate(avg_energy);
 
-        // 本周期状态（含死亡数）进 Fate 的多层 tick 供 Meta 观察
+        // 本周期状态进 Fate 的多层 tick 供 Meta 观察
         // （与 Stem 的 [cells, avg, divisions, deaths] 同构；
-        // Tile 侧为 [tiles, avg_energy, splits, deaths]）。
+        // Tile 侧为 [tiles, avg_energy, splits, deaths]；
+        // deaths 为身体层计数，恒 0，死亡由四元/Fate 内部行）。
         let state_signal = vec![
             self.completed_tiles.len() as f64,
             avg_energy,
